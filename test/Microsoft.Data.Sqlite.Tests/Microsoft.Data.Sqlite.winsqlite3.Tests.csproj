@@ -4,6 +4,7 @@
     <TargetFrameworks>$(DefaultNetCoreTargetFramework);$(NetFrameworkCurrent)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);WINSQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="SQLitePCLRaw.core" />
     <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" />
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
   </ItemGroup>
 
 </Project>

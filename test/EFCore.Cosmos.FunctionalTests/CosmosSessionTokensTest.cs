@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.EntityFrameworkCore;
 
 // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/291 (Session tokens not properly tracked)
-[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
 public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixture) : IClassFixture<CosmosSessionTokensTest.CosmosFixture>
 {
     private const string DatabaseName = nameof(CosmosSessionTokensTest);
@@ -19,7 +19,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
     private static TestSessionTokenStorage _sessionTokenStorage = null!;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AppendSessionToken_uses_AppendDefaultContainerSessionToken()
     {
         using var context = await CreateContext();
@@ -28,7 +28,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Equal(arg, _sessionTokenStorage.AppendDefaultContainerSessionTokenCalls.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AppendSessionTokens_uses_AppendSessionTokens()
     {
         using var context = await CreateContext();
@@ -38,7 +38,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Equal(arg, _sessionTokenStorage.AppendSessionTokensCalls.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task UseSessionToken_uses_SetDefaultContainerSessionToken()
     {
         using var context = await CreateContext();
@@ -47,7 +47,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Equal(arg, _sessionTokenStorage.SetDefaultContainerSessionTokenCalls.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task UseSessionTokens_uses_SetSessionTokens()
     {
         using var context = await CreateContext();
@@ -57,7 +57,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Equal(arg, _sessionTokenStorage.SetSessionTokensCalls.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GetSessionTokens_uses_GetTrackedSessionTokens()
     {
         using var context = await CreateContext();
@@ -66,7 +66,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Equal(_sessionTokenStorage.SessionTokens, sessionTokens);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_uses_session_token()
     {
         using var context = await CreateContext();
@@ -85,7 +85,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task PagingQuery_uses_session_token()
     {
         using var context = await CreateContext();
@@ -104,7 +104,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Shaped_query_uses_session_token()
     {
         using var context = await CreateContext();
@@ -123,7 +123,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Read_item_uses_session_token()
     {
         using var context = await CreateContext();
@@ -142,7 +142,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_uses_TrackSessionToken()
     {
         using var context = await CreateContext();
@@ -161,7 +161,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEmpty(otherContainerCall.sessionToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task PagingQuery_uses_TrackSessionToken()
     {
         using var context = await CreateContext();
@@ -180,7 +180,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEmpty(otherContainerCall.sessionToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Read_item_uses_TrackSessionToken()
     {
         using var context = await CreateContext();
@@ -199,7 +199,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEmpty(otherContainerCall.sessionToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Read_item_enumerable_uses_TrackSessionToken()
     {
         using var context = await CreateContext();
@@ -218,7 +218,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEmpty(otherContainerCall.sessionToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_AutoTransactionBehavior_Never_uses_TrackSessionToken()
     {
         using var context = await CreateContext();
@@ -239,7 +239,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEmpty(otherContainerCall.sessionToken);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public virtual async Task Add_AutoTransactionBehavior_Always_uses_TrackSessionToken(bool defaultContainer)
@@ -272,7 +272,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEmpty(call.sessionToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Delete_never_uses_TrackSessionToken()
     {
         using var context = await CreateContext();
@@ -310,7 +310,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEqual(initialOtherContainerCall.sessionToken, otherContainerCall.sessionToken);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public virtual async Task Delete_always_uses_TrackSessionToken(bool defaultContainer)
@@ -362,7 +362,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEqual(initialCall.sessionToken, call.sessionToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_never_uses_TrackSessionToken()
     {
         using var context = await CreateContext();
@@ -401,7 +401,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEqual(initialOtherContainerCall.sessionToken, otherContainerCall.sessionToken);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public virtual async Task Update_always_uses_TrackSessionToken(bool defaultContainer)
@@ -452,7 +452,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.NotEqual(initialCall.sessionToken, call.sessionToken);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(AutoTransactionBehavior.WhenNeeded, true)]
     [InlineData(AutoTransactionBehavior.WhenNeeded, false)]
     [InlineData(AutoTransactionBehavior.Never, false)]
@@ -482,7 +482,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(AutoTransactionBehavior.WhenNeeded, true)]
     [InlineData(AutoTransactionBehavior.WhenNeeded, false)]
     [InlineData(AutoTransactionBehavior.Never, false)]
@@ -513,7 +513,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(AutoTransactionBehavior.WhenNeeded, true)]
     [InlineData(AutoTransactionBehavior.WhenNeeded, false)]
     [InlineData(AutoTransactionBehavior.Never, false)]
@@ -544,12 +544,12 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Different_contexts_do_not_share_DefaultContainer_name()
     {
         var services = new ServiceCollection();
 
-        var connectionString = TestEnvironment.ConnectionString;
+        var connectionString = CosmosTestEnvironment.ConnectionString;
         services.AddDbContext<TestContext>(cfg => cfg.UseCosmos(connectionString, "test", opts => opts.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)), ServiceLifetime.Transient);
         services.AddDbContext<Test2Context>(cfg => cfg.UseCosmos(connectionString, "test2", opts => opts.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)), ServiceLifetime.Transient);
 
@@ -601,7 +601,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/291 (Session tokens not properly tracked)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public class CosmosNonSharedSessionTokenTests(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     {
         protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -611,7 +611,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         protected override TestStore CreateTestStore() => CosmosTestStore.Create(NonSharedStoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task UseSessionTokens_uses_session_tokens()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -644,7 +644,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task ReadItem_does_not_exist_returns_null()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -655,7 +655,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Null(result);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task Read_item_session_not_found_throws_CosmosException()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -688,7 +688,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task New_context_does_not_use_same_SessionTokenStorage()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -702,7 +702,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.NotSame(((CosmosDatabaseWrapper)context.GetService<IDatabase>()).SessionTokenStorage, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task Pooled_context_uses_same_SessionTokenStorage()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -722,7 +722,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Null(newContext.Database.GetSessionToken());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task Pooled_context_clears_SessionTokenStorage()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>(addServices: services => services.Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>()));
@@ -742,7 +742,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.True(_sessionTokenStorage.ClearCalled);
         }
 
-        [ConditionalTheory]
+        [Theory]
         [InlineData(AutoTransactionBehavior.Never)]
         [InlineData(AutoTransactionBehavior.Always)]
         public virtual async Task Optimistic_concurrency_precondition_failure_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
@@ -788,7 +788,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Equal(removedSessionToken, afterRemoveExceptionSessionToken);
         }
 
-        [ConditionalTheory]
+        [Theory]
         [InlineData(AutoTransactionBehavior.Never)]
         [InlineData(AutoTransactionBehavior.Always)]
         public virtual async Task Add_conflict_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
@@ -811,7 +811,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Equal(createdSessionToken, afterExceptionSessionToken);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task Read_item_not_found_updates_session_token()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -852,7 +852,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task Remove_not_found_updates_session_token()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -878,7 +878,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task Replace_not_found_updates_session_token()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();

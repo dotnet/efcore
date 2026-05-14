@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task Save_two_entity_cycle_with_lazy_loading()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -59,7 +59,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 return Task.CompletedTask;
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_use_record_proxies_with_base_types_to_load_reference()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -86,7 +86,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 return Task.CompletedTask;
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_use_record_proxies_with_base_types_to_load_collection()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -113,7 +113,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 return Task.CompletedTask;
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Avoid_nulling_shared_FK_property_when_deleting()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -194,7 +194,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 return Task.CompletedTask;
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual Task Avoid_nulling_shared_FK_property_when_nulling_navigation(bool nullPrincipal)
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -281,7 +281,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 return Task.CompletedTask;
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task No_fixup_to_Deleted_entities()
     {
         using var context = CreateContext();
@@ -311,7 +311,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
         Assert.Contains(existing, queried);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sometimes_not_calling_DetectChanges_when_required_does_not_throw_for_null_ref()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -346,7 +346,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 return Task.CompletedTask;
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_required_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -360,7 +360,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             Assert.Equal(0, context.SaveChanges());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_optional_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -374,7 +374,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             Assert.Equal(0, context.SaveChanges());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_required_non_PK_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -388,7 +388,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             Assert.Equal(0, context.SaveChanges());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_required_AK_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -402,7 +402,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             Assert.Equal(0, context.SaveChanges());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_optional_AK_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -416,7 +416,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             Assert.Equal(0, context.SaveChanges());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_required_non_PK_AK_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -430,7 +430,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             Assert.Equal(0, context.SaveChanges());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_required_one_to_many_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -444,7 +444,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             Assert.Equal(0, context.SaveChanges());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_attach_full_required_composite_graph_of_duplicates()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {

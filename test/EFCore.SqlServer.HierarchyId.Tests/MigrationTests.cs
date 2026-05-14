@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
@@ -17,14 +17,14 @@ public class MigrationTests
 
     private delegate string SnapshotCodeGetter(string rootNamespace, string migrationId);
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_and_snapshot_generate_with_typed_array()
     {
         using var db = new TypedArraySeedContext();
         ValidateMigrationAndSnapshotCode(db, db.GetExpectedMigrationCode, db.GetExpectedSnapshotCode);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_and_snapshot_generate_with_anonymous_array()
     {
         using var db = new AnonymousArraySeedContext();

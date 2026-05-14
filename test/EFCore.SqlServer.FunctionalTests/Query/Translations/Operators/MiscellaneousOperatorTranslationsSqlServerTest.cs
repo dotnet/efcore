@@ -39,7 +39,7 @@ WHERE COALESCE([n].[String], N'Unknown') = N'Seattle'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

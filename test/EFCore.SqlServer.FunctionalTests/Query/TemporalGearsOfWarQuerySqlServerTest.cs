@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsTemporalTablesCascadeDeleteSupported))]
 public class TemporalGearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTestBase<TemporalGearsOfWarQuerySqlServerFixture>
 {
     public TemporalGearsOfWarQuerySqlServerTest(TemporalGearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -45,7 +45,7 @@ public class TemporalGearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTes
         return rewriter.Visit(serverQueryExpression);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -326,7 +326,7 @@ WHERE NOT EXISTS (
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Set_operation_on_temporal_same_ops(bool async)
     {
         using var ctx = CreateContext();
@@ -347,7 +347,7 @@ FROM [Gears] FOR SYSTEM_TIME AS OF '2015-01-01T00:00:00.0000000' AS [g0]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Set_operation_with_inheritance_on_temporal_same_ops(bool async)
     {
         using var ctx = CreateContext();
@@ -369,7 +369,7 @@ WHERE [g0].[Discriminator] = N'Officer'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Set_operation_on_temporal_different_dates(bool async)
     {
         using var ctx = CreateContext();
@@ -7342,7 +7342,7 @@ FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 """);
     }
 
-    [ConditionalTheory(Skip = "Issue #34001 SqlServer never returns null for bool?")]
+    [Theory(Skip = "Issue #34001 SqlServer never returns null for bool?")]
     public override async Task ToString_boolean_computed_nullable(bool async)
     {
         await base.ToString_boolean_computed_nullable(async);

@@ -14,11 +14,11 @@ public class PrecompiledQuerySqliteTest(
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Glob()
         => Test("""_ = context.Blogs.Where(b => EF.Functions.Glob(b.Name, "*foo*")).ToList();""");
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Regexp()
         => Test("""_ = context.Blogs.Where(b => Regex.IsMatch(b.Name, "^foo")).ToList();""");
 

@@ -73,7 +73,7 @@ WHERE (ARRAY_LENGTH(c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"]) =
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Select_Sum()
     {
         await base.Select_Sum();
@@ -90,7 +90,7 @@ WHERE ((
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

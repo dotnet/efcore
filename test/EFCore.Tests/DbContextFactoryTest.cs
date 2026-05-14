@@ -8,11 +8,11 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DbContextFactoryTest
 {
-    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
+    [Theory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Factory_creates_new_context_instance(ServiceLifetime lifetime)
         => ContextFactoryTest<WoolacombeContext>(lifetime);
 
-    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
+    [Theory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Factory_creates_new_context_instance_with_additional_parameterless_constructor(ServiceLifetime lifetime)
         => ContextFactoryTest<GruntaContext>(lifetime);
 
@@ -74,7 +74,7 @@ public class DbContextFactoryTest
         Assert.Throws<ObjectDisposedException>(() => context2.Model);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Registering_factory_also_registers_a_scoped_context(bool pooled)
     {
         using var serviceProvider = RegisterContextFactory<WoolacombeContext>(new ServiceCollection(), pooled).BuildServiceProvider();
@@ -92,7 +92,7 @@ public class DbContextFactoryTest
         Assert.Throws<ObjectDisposedException>(() => context1.Model); // Assert not singleton
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Implicitly_registered_context_gets_created_via_user_factory_type(bool pooled)
     {
         await using var serviceProvider = new ServiceCollection()
@@ -105,7 +105,7 @@ public class DbContextFactoryTest
         Assert.True(factory.WasCalled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Factory_can_use_pool()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -134,7 +134,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2b));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Factory_can_use_shared_pool()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -176,7 +176,7 @@ public class DbContextFactoryTest
         Assert.NotSame(context2b, context3b);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Implicitly_registered_context_gets_pooled()
     {
         var serviceProvider = RegisterContextFactory<WoolacombeContext>(new ServiceCollection(), pooled: true).BuildServiceProvider();
@@ -196,7 +196,7 @@ public class DbContextFactoryTest
         Assert.Same(context1, context2);
     }
 
-    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
+    [Theory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Factory_and_options_have_the_same_lifetime(ServiceLifetime lifetime)
     {
         var serviceCollection = new ServiceCollection()
@@ -208,7 +208,7 @@ public class DbContextFactoryTest
         Assert.Equal(lifetime, serviceCollection.Single(e => e.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_lifetime_is_singleton()
     {
         var serviceCollection = new ServiceCollection()
@@ -223,7 +223,7 @@ public class DbContextFactoryTest
             serviceCollection.Single(e => e.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Lifetime_is_singleton_when_pooling()
     {
         var serviceCollection = new ServiceCollection()
@@ -256,7 +256,7 @@ public class DbContextFactoryTest
 
     private class WoolacombeContext(DbContextOptions<WoolacombeContext> options) : DbContext(options);
 
-    [ConditionalFact]
+    [Fact]
     public void Factory_can_use_constructor_with_non_generic_builder()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -280,7 +280,7 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Factory_can_use_parameterless_constructor()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -298,7 +298,7 @@ public class DbContextFactoryTest
             => optionsBuilder.UseInMemoryDatabase(nameof(MortehoeContext));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Factory_can_use_DbContext_directly()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -310,7 +310,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(DbContext), GetStoreName(context));
     }
 
-    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
+    [Theory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Can_always_inject_singleton_and_transient_services(ServiceLifetime lifetime)
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -360,7 +360,7 @@ public class DbContextFactoryTest
         public TransientService TransientService { get; } = transientService;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_inject_singleton_transient_and_scoped_services_into_scoped_factory()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -434,7 +434,7 @@ public class DbContextFactoryTest
         public TransientService TransientService { get; } = transientService;
     }
 
-    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
+    [Theory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Can_resolve_from_the_service_provider_in_options_action(ServiceLifetime lifetime)
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -472,7 +472,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_resolve_from_the_service_provider_when_pooling()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -497,7 +497,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_dependencies_are_not_in_DI()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -515,7 +515,7 @@ public class DbContextFactoryTest
     private class WestwardHoContext(DbContextOptions options, Random random) : DbContext(options);
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Can_register_factories_for_multiple_contexts_even_with_non_generic_options()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -532,7 +532,7 @@ public class DbContextFactoryTest
 
     private class ClovellyContext(DbContextOptions options) : DbContext(options);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_register_factories_for_multiple_contexts()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -549,7 +549,7 @@ public class DbContextFactoryTest
 
     private class WidemouthBayContext(DbContextOptions<WidemouthBayContext> options) : DbContext(options);
 
-    [ConditionalFact]
+    [Fact]
     public void Application_can_register_explicit_factory_implementation()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -569,7 +569,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Application_can_register_factory_implementation_in_AddDbContextFactory()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -599,7 +599,7 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
          MemberType = typeof(DataGenerator))]
@@ -667,7 +667,7 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
          MemberType = typeof(DataGenerator))]
@@ -731,7 +731,7 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
          MemberType = typeof(DataGenerator))]
@@ -802,7 +802,7 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
          MemberType = typeof(DataGenerator))]

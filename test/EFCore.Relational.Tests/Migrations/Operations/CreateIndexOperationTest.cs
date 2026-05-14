@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 public class CreateIndexOperationTest
 {
-    [ConditionalFact]
+    [Fact]
     public void IsDescending_count_matches_column_count()
     {
         var operation = new CreateIndexOperation();
@@ -19,7 +19,7 @@ public class CreateIndexOperationTest
         Assert.Throws<ArgumentException>(() => operation.IsDescending = [true]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsDescending_accepts_empty_array()
     {
         var operation = new CreateIndexOperation();

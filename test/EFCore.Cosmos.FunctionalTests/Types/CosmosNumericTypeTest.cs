@@ -23,7 +23,7 @@ public class CosmosShortTypeTest(CosmosShortTypeTest.ShortTypeFixture fixture)
     : TypeTestBase<short, CosmosShortTypeTest.ShortTypeFixture>(fixture)
 {
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
 
@@ -39,7 +39,7 @@ public class CosmosShortTypeTest(CosmosShortTypeTest.ShortTypeFixture fixture)
 public class CosmosIntTypeTest(CosmosIntTypeTest.IntTypeFixture fixture) : TypeTestBase<int, CosmosIntTypeTest.IntTypeFixture>(fixture)
 {
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
 
@@ -56,7 +56,7 @@ public class CosmosLongTypeTest(CosmosLongTypeTest.LongTypeFixture fixture)
     : TypeTestBase<long, CosmosLongTypeTest.LongTypeFixture>(fixture)
 {
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
 
@@ -73,7 +73,7 @@ public class CosmosDecimalTypeTest(CosmosDecimalTypeTest.DecimalTypeFixture fixt
     : TypeTestBase<decimal, CosmosDecimalTypeTest.DecimalTypeFixture>(fixture)
 {
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
 
@@ -90,7 +90,7 @@ public class CosmosDoubleTypeTest(CosmosDoubleTypeTest.DoubleTypeFixture fixture
     : TypeTestBase<double, CosmosDoubleTypeTest.DoubleTypeFixture>(fixture)
 {
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
 
@@ -107,7 +107,7 @@ public class CosmosFloatTypeTest(CosmosFloatTypeTest.FloatTypeFixture fixture)
     : TypeTestBase<float, CosmosFloatTypeTest.FloatTypeFixture>(fixture)
 {
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
 

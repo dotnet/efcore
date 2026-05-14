@@ -22,7 +22,7 @@ public class NorthwindMiscellaneousQuerySqlServerTest : NorthwindMiscellaneousQu
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -2167,7 +2167,7 @@ INNER JOIN (
     {
         await base.Take_with_single(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -2199,7 +2199,7 @@ ORDER BY [c0].[CustomerID]
     {
         await base.Take_with_single_select_many(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -3668,7 +3668,7 @@ OFFSET @p1 ROWS FETCH NEXT @p2 ROWS ONLY
     {
         await base.OrderBy_skip_take_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -3706,7 +3706,7 @@ ORDER BY [c0].[ContactTitle], [c0].[ContactName]
     {
         await base.OrderBy_skip_take_take_take_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -5902,12 +5902,12 @@ ORDER BY [c].[CustomerID]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_Predicate_Cancellation()
         => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
             await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_compiler_concurrency()
     {
         const int threadCount = 50;
@@ -5940,7 +5940,7 @@ ORDER BY [c].[CustomerID]
         return Task.WhenAll(tasks);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Race_when_context_disposed_before_query_termination()
     {
         DbSet<Customer> task;
@@ -5953,7 +5953,7 @@ ORDER BY [c].[CustomerID]
         return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Concurrent_async_queries_are_serialized2()
     {
         using var context = CreateContext();
@@ -5967,7 +5967,7 @@ ORDER BY [c].[CustomerID]
                     .Where(od => od.OrderID > 0)).ToListAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Concurrent_async_queries_when_raw_query()
     {
         using var context = CreateContext();

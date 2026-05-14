@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
 public class JsonQueryJsonTypeSqlServerTest : JsonQueryRelationalTestBase<JsonQueryJsonTypeSqlServerFixture>
 {
     public JsonQueryJsonTypeSqlServerTest(JsonQueryJsonTypeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -803,7 +803,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_using_parameter(bool async)
     {
         await base.Json_collection_index_in_projection_using_parameter(async);
@@ -817,7 +817,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_using_column(bool async)
     {
         await base.Json_collection_index_in_projection_using_column(async);
@@ -887,7 +887,7 @@ ORDER BY [j].[Id]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_nested(bool async)
     {
         await base.Json_collection_index_in_projection_nested(async);
@@ -901,7 +901,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_nested_project_scalar(bool async)
     {
         await base.Json_collection_index_in_projection_nested_project_scalar(async);
@@ -915,7 +915,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_nested_project_reference(bool async)
     {
         await base.Json_collection_index_in_projection_nested_project_reference(async);
@@ -929,7 +929,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_nested_project_collection(bool async)
     {
         await base.Json_collection_index_in_projection_nested_project_collection(async);
@@ -944,7 +944,7 @@ ORDER BY [j].[Id]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_nested_project_collection_anonymous_projection(bool async)
     {
         await base.Json_collection_index_in_projection_nested_project_collection_anonymous_projection(async);
@@ -970,7 +970,7 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[0].Name' RETURNING nvarchar(max))
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_predicate_using_variable(bool async)
     {
         await base.Json_collection_index_in_predicate_using_variable(async);
@@ -985,7 +985,7 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[' + CAST(@prm AS nvarchar(max)) +
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_predicate_using_column(bool async)
     {
         await base.Json_collection_index_in_predicate_using_column(async);
@@ -998,7 +998,7 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[' + CAST([j].[Id] AS nvarchar(max
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_predicate_using_complex_expression1(bool async)
     {
         await base.Json_collection_index_in_predicate_using_complex_expression1(async);
@@ -1014,7 +1014,7 @@ END AS nvarchar(max)) + '].Name' RETURNING nvarchar(max)) = N'e1_c1'
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_predicate_using_complex_expression2(bool async)
     {
         await base.Json_collection_index_in_predicate_using_complex_expression2(async);
@@ -1041,7 +1041,7 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[1].Name' RETURNING nvarchar(max))
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
         await base.Json_collection_index_in_predicate_nested_mix(async);
@@ -1613,7 +1613,7 @@ WHERE N'e1_r1' IN (
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
     {
         await base.Json_collection_index_with_parameter_Select_ElementAt(async);
@@ -1631,7 +1631,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {
         await base.Json_collection_index_with_expression_Select_ElementAt(async);
@@ -1713,7 +1713,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
     {
         await base.Json_projection_deduplication_with_collection_indexer_in_target(async);
@@ -1727,7 +1727,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
         await base.Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(async);
@@ -1763,7 +1763,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
         await base.Json_collection_index_in_projection_using_parameter_when_owner_is_present(async);
@@ -1777,7 +1777,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
         await base.Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
@@ -1813,7 +1813,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
         await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(async);
@@ -1827,7 +1827,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
         await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
@@ -1841,7 +1841,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
     {
         await base.Json_collection_index_in_projection_when_owner_is_present_misc1(async);
@@ -1855,7 +1855,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_misc1(bool async)
     {
         await base.Json_collection_index_in_projection_when_owner_is_not_present_misc1(async);
@@ -1891,7 +1891,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_when_owner_is_present_multiple(bool async)
     {
         await base.Json_collection_index_in_projection_when_owner_is_present_multiple(async);
@@ -1905,7 +1905,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
     {
         await base.Json_collection_index_in_projection_when_owner_is_not_present_multiple(async);
@@ -3018,7 +3018,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task
         Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
@@ -3051,7 +3051,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task
         Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
             bool async)
@@ -3096,7 +3096,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task
         Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
             bool async)

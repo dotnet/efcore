@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task Basic_cosmos_model()
         => Test(
             modelBuilder =>

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class SqlServerMemoryOptimizedTablesConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Keys_and_indexes_are_nonclustered_for_memory_optimized_tables()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();

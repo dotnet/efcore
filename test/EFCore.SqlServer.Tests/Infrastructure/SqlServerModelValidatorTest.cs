@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
-    [ConditionalFact] // Issue #34324
+    [Fact] // Issue #34324
     public virtual void Throws_for_nested_primitive_collections()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -36,7 +36,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public string[][] SomeStrings { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_TPT_with_nested_owned_types()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -96,7 +96,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, keyProperty.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_identity_on_bad_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -111,7 +111,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_sequence_on_bad_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -126,7 +126,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_sequence_HiLo_on_bad_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -141,7 +141,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_duplicate_column_names_within_hierarchy_with_identity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -158,7 +158,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_identity_seed()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -178,7 +178,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_identity_increment()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -198,7 +198,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_identity_seed_and_increment_on_owner()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -209,7 +209,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_duplicate_column_names_with_HiLoSequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -228,7 +228,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_with_different_HiLoSequence_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -250,7 +250,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_name_with_different_HiLoSequence_schema()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -272,7 +272,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_duplicate_column_names_with_KeySequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -292,7 +292,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_with_different_KeySequence_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -316,7 +316,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_name_with_different_KeySequence_schema()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -340,7 +340,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -361,7 +361,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_sparseness()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -383,7 +383,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -399,7 +399,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal("FK_Animal_Person_Name1", fk2.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_compatible_duplicate_convention_indexes_for_foreign_keys()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -415,7 +415,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Dog)).GetDeclaredIndexes().Single().GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_differently_clustered()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -431,7 +431,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_different_fill_factor()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -447,7 +447,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_differently_online()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -463,7 +463,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_different_sort_in_tempdb()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -479,7 +479,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_different_data_compression()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -495,7 +495,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_different_include()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -512,7 +512,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_missing_include_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -522,7 +522,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.IncludePropertyNotFound("Tag", "{'Name'}", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_duplicate_include_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -532,7 +532,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type), "{'Name'}"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_indexed_include_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -542,7 +542,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name), "{'Name'}"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IncludeProperties_supports_dotted_paths_to_complex_type_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -562,7 +562,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(["Address.City"], index.GetIncludeProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IncludeProperties_lambda_supports_complex_property_chain()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -582,7 +582,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(["Address.City"], index.GetIncludeProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IncludeProperties_dotted_path_not_found_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -614,7 +614,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public required string Street { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_memory_optimized_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -630,7 +630,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_sql_output_clause_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -645,7 +645,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_shared_table_with_only_one_entity_trigger_definition()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -656,7 +656,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_non_clustered_shared_key()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -673,7 +673,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_decimal_keys()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -686,7 +686,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_default_decimal_mapping()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -697,7 +697,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_default_nullable_decimal_mapping()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -708,7 +708,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_warn_if_decimal_column_has_precision_and_scale()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -720,7 +720,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_warn_if_default_decimal_mapping_has_non_decimal_to_decimal_value_converter()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -733,7 +733,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Warn_if_default_decimal_mapping_has_decimal_to_decimal_value_converter()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -746,7 +746,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_byte_identity_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -758,7 +758,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Bite", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_nullable_byte_identity_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -770,7 +770,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Bite", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_multiple_identity_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -782,7 +782,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.MultipleIdentityColumns("'Dog.Tag', 'Dog.Type'", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_identity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -792,7 +792,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_identity_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -805,7 +805,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_SequenceHiLo_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -817,7 +817,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_KeySequence_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -829,7 +829,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalTheory, InlineData("DefaultValue", "DefaultValueSql"), InlineData("DefaultValue", "ComputedColumnSql"),
+    [Theory, InlineData("DefaultValue", "DefaultValueSql"), InlineData("DefaultValue", "ComputedColumnSql"),
      InlineData("DefaultValueSql", "ComputedColumnSql")]
     public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
     {
@@ -845,7 +845,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "DefaultValueSql"),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "DefaultValueSql"),
      InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "ComputedColumnSql"),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "DefaultValueSql"),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "ComputedColumnSql")]
@@ -866,7 +866,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_DefaultValue(
         SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy)
@@ -909,7 +909,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValue_with_explicit_constraint_name_throws_for_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -923,7 +923,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValueSql_with_explicit_constraint_name_throws_for_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -937,7 +937,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValue_with_empty_explicit_constraint_name_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -948,7 +948,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: ""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValueSql_with_empty_explicit_constraint_name_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -959,7 +959,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("Miauo", defaultConstraintName: ""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValue_with_implicit_constraint_name_throws_for_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -977,7 +977,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     #region Temporal tables
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_can_only_be_specified_on_root_entities()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -987,7 +987,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalOnlyOnRoot(nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_enitty_must_have_period_start()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -997,7 +997,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalMustDefinePeriodProperties(nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_enitty_must_have_period_end()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1007,7 +1007,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalMustDefinePeriodProperties(nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_enitty_without_expected_period_start_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1017,7 +1017,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalExpectedPeriodPropertyNotFound(nameof(Dog), "Start"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_period_property_mapped_to_CLR_property_is_allowed()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1026,7 +1026,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_period_property_must_be_non_nullable_datetime()
     {
         var modelBuilder1 = CreateConventionModelBuilder();
@@ -1046,7 +1046,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_period_property_must_be_mapped_to_datetime2()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1056,7 +1056,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeMappedToDatetime2(nameof(Dog), "Start", "datetime2"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_all_properties_mapped_to_period_column_must_have_value_generated_OnAddOrUpdate()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1068,7 +1068,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 nameof(Dog), "Start", nameof(ValueGenerated.OnAddOrUpdate)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_period_property_cant_have_default_value()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1078,7 +1078,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalPeriodPropertyCantHaveDefaultValue(nameof(Dog), "Start"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_doesnt_work_on_TPH()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1089,7 +1089,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalOnlySupportedForTPH(nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_doesnt_work_on_table_splitting_with_inconsistent_period_mappings()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1102,7 +1102,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 "start", "Splitting2", "PeriodStart", "Splitting2_PeriodStart", "PeriodStart"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_doesnt_work_on_table_splitting_when_some_types_are_temporal_and_some_are_not()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1113,7 +1113,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalAllEntitiesMappedToSameTableMustBeTemporal("Splitting1"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_table_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1131,7 +1131,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(2, entity.FindProperty("End").GetPrecision());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_table_with_owned_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1165,7 +1165,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     #region Vector
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_vector_property_without_dimensions()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1178,7 +1178,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_vector_property_inside_JSON_owned_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1198,7 +1198,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 #pragma warning restore EF8001 // Owned JSON entities are obsolete
 
-    [ConditionalFact]
+    [Fact]
     [Experimental("EF9105")]
     public virtual void Throws_for_vector_property_inside_JSON_complex_type()
     {
@@ -1220,7 +1220,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     [Experimental("EF9105")]
     public virtual void Throws_for_vector_index_on_multiple_properties()
     {
@@ -1241,7 +1241,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     [Experimental("EF9105")]
     public virtual void Throws_for_vector_index_on_non_vector_property()
     {
@@ -1291,7 +1291,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     #region Full-text search
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_multiple_full_text_indexes_on_same_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1309,7 +1309,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_full_text_index_missing_key_index()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1328,7 +1328,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_full_text_index_on_invalid_column_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1344,7 +1344,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_for_full_text_index_on_string_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1355,7 +1355,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_for_full_text_index_on_byte_array_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1366,7 +1366,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_for_full_text_index_on_mixed_string_and_binary_columns()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1377,7 +1377,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_full_text_index_with_mixed_valid_and_invalid_columns()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1460,7 +1460,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_hierarchyid_message_when_hierarchyid_property_is_not_mapped()
     {
         var modelBuilder = CreateConventionlessModelBuilder();

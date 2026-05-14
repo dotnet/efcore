@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -13,55 +13,55 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
+    [Theory(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_filter_projection_with_inline_enum_variable(bool async)
         => base.Can_filter_projection_with_inline_enum_variable(async);
 
-    [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
+    [Theory(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_filter_projection_with_captured_enum_variable(bool async)
         => base.Can_filter_projection_with_captured_enum_variable(async);
 
-    [ConditionalFact(Skip = "Issue #16920")]
+    [Fact(Skip = "Issue #16920")]
     public override Task Can_insert_and_read_back_with_string_key()
         => base.Can_insert_and_read_back_with_string_key();
 
-    [ConditionalFact(Skip = "Issue #17246 No Explicit Convert")]
+    [Fact(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_query_and_update_with_conversion_for_custom_type()
         => base.Can_query_and_update_with_conversion_for_custom_type();
 
-    [ConditionalFact(Skip = "Issue #16920")]
+    [Fact(Skip = "Issue #16920")]
     public override Task Can_query_and_update_with_nullable_converter_on_primary_key()
         => base.Can_query_and_update_with_nullable_converter_on_primary_key();
 
-    [ConditionalFact(Skip = "Issue #16920")]
+    [Fact(Skip = "Issue #16920")]
     public override Task Can_insert_and_read_back_with_binary_key()
         => base.Can_insert_and_read_back_with_binary_key();
 
-    [ConditionalFact(Skip = "Issue #16920")]
+    [Fact(Skip = "Issue #16920")]
     public override Task Can_insert_and_read_back_with_case_insensitive_string_key()
         => base.Can_insert_and_read_back_with_case_insensitive_string_key();
 
-    [ConditionalFact(Skip = "Issue #17246 No Explicit Convert")]
+    [Fact(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_insert_and_query_struct_to_string_converter_for_pk()
         => base.Can_insert_and_query_struct_to_string_converter_for_pk();
 
-    [ConditionalFact(Skip = "Issue #17670")]
+    [Fact(Skip = "Issue #17670")]
     public override Task Can_read_back_mapped_enum_from_collection_first_or_default()
         => base.Can_read_back_mapped_enum_from_collection_first_or_default();
 
-    [ConditionalFact(Skip = "Issue #17246")]
+    [Fact(Skip = "Issue #17246")]
     public override Task Can_read_back_bool_mapped_as_int_through_navigation()
         => base.Can_read_back_bool_mapped_as_int_through_navigation();
 
-    [ConditionalFact(Skip = "Issue #17246")]
+    [Fact(Skip = "Issue #17246")]
     public override Task Value_conversion_is_appropriately_used_for_join_condition()
         => base.Value_conversion_is_appropriately_used_for_join_condition();
 
-    [ConditionalFact(Skip = "Issue #17246")]
+    [Fact(Skip = "Issue #17246")]
     public override Task Value_conversion_is_appropriately_used_for_left_join_condition()
         => base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -74,7 +74,7 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         await base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -87,7 +87,7 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IsVisible"] = "Y")))
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
@@ -100,7 +100,7 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
@@ -113,7 +113,7 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
 """);
     }
 
-    [ConditionalFact(Skip = "Issue#27678")]
+    [Fact(Skip = "Issue#27678")]
     public override void Optional_owned_with_converter_reading_non_nullable_column()
         => base.Optional_owned_with_converter_reading_non_nullable_column();
 

@@ -7,7 +7,7 @@ public static class SqlServerDbContextOptionsBuilderExtensions
 {
     public static SqlServerDbContextOptionsBuilder ApplyConfiguration(this SqlServerDbContextOptionsBuilder optionsBuilder)
     {
-        var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
+        var maxBatch = SqlServerTestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
         if (maxBatch.HasValue)
         {
             optionsBuilder.MaxBatchSize(maxBatch.Value);
@@ -24,7 +24,7 @@ public static class SqlServerDbContextOptionsBuilderExtensions
 
     public static AzureSqlDbContextOptionsBuilder ApplyConfiguration(this AzureSqlDbContextOptionsBuilder optionsBuilder)
     {
-        var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
+        var maxBatch = SqlServerTestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
         if (maxBatch.HasValue)
         {
             optionsBuilder.MaxBatchSize(maxBatch.Value);
@@ -41,7 +41,7 @@ public static class SqlServerDbContextOptionsBuilderExtensions
 
     public static AzureSynapseDbContextOptionsBuilder ApplyConfiguration(this AzureSynapseDbContextOptionsBuilder optionsBuilder)
     {
-        var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
+        var maxBatch = SqlServerTestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
         if (maxBatch.HasValue)
         {
             optionsBuilder.MaxBatchSize(maxBatch.Value);
@@ -64,7 +64,7 @@ public static class SqlServerDbContextOptionsBuilderExtensions
     /// <param name="compatibilityLevel">The compatibility level to use.</param>
     /// <returns>The configured options builder.</returns>
     public static DbContextOptionsBuilder UseSqlServerCompatibilityLevel(this DbContextOptionsBuilder optionsBuilder, int compatibilityLevel)
-        => TestEnvironment.IsAzureSql
+        => SqlServerTestEnvironment.IsAzureSql
             ? optionsBuilder.UseAzureSql(b => b.UseCompatibilityLevel(compatibilityLevel))
             : optionsBuilder.UseSqlServer(b => b.UseCompatibilityLevel(compatibilityLevel));
 }

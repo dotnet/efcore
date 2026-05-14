@@ -829,7 +829,7 @@ WHERE LTRIM([b].[String]) = N'Boston  '
 
     public override async Task TrimStart_with_char_argument()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.TrimStart_with_char_argument();
 
@@ -848,7 +848,7 @@ WHERE LTRIM([b].[String], N'S') = N'eattle'
 
     public override async Task TrimStart_with_char_array_argument()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.TrimStart_with_char_array_argument();
 
@@ -883,7 +883,7 @@ WHERE RTRIM([b].[String]) = N'  Boston'
 
     public override async Task TrimEnd_with_char_argument()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.TrimEnd_with_char_argument();
 
@@ -902,7 +902,7 @@ WHERE RTRIM([b].[String], N'e') = N'Seattl'
 
     public override async Task TrimEnd_with_char_array_argument()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.TrimEnd_with_char_array_argument();
 
@@ -1415,7 +1415,7 @@ WHERE [b].[String] >= N'Seattle' AND [b].[String] < N'Toronto'
 
     #region Join
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
     public override async Task Join_over_non_nullable_column()
     {
         await base.Join_over_non_nullable_column();
@@ -1428,7 +1428,7 @@ GROUP BY [b].[Int]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
     public override async Task Join_over_nullable_column()
     {
         await base.Join_over_nullable_column();
@@ -1444,7 +1444,7 @@ GROUP BY [n0].[Key]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
     public override async Task Join_with_predicate()
     {
         await base.Join_with_predicate();
@@ -1459,7 +1459,7 @@ GROUP BY [b].[Int]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
     public override async Task Join_with_ordering()
     {
         await base.Join_with_ordering();
@@ -1472,7 +1472,7 @@ GROUP BY [b].[Int]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
     public override async Task Join_non_aggregate()
     {
         await base.Join_non_aggregate();
@@ -1503,7 +1503,7 @@ WHERE [b].[String] + N'Boston' = N'SeattleBoston'
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
     public override async Task Concat_aggregate()
     {
         await base.Concat_aggregate();
@@ -1720,7 +1720,7 @@ WHERE CAST([b].[Int] AS nvarchar(max)) LIKE N'%5%'
 
     #endregion Regex
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class KeyPropagatorTest
 {
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -35,7 +35,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -60,7 +60,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Non_identifying_foreign_key_value_is_not_generated_if_principal_key_not_set(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -82,7 +82,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task One_to_one_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -104,7 +104,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task One_to_one_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -128,7 +128,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Identifying_foreign_key_value_is_generated_if_principal_key_not_set(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -150,7 +150,7 @@ public class KeyPropagatorTest
         Assert.True(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Identifying_foreign_key_value_is_propagated_if_principal_key_is_generated(bool generateTemporary, bool async)
     {
         var principal = new Product();
@@ -177,7 +177,7 @@ public class KeyPropagatorTest
         Assert.Equal(principalEntry[principalProperty], dependentEntry[dependentProperty]);
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Composite_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -206,7 +206,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property1));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Composite_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);

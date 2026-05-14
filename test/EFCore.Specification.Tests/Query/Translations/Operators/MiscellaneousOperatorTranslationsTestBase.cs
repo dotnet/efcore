@@ -8,11 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 public abstract class MiscellaneousOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Conditional()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int == 8 ? b.String : "Foo") == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Coalesce()
         => await AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(b => (b.String ?? "Unknown") == "Seattle"));
 }

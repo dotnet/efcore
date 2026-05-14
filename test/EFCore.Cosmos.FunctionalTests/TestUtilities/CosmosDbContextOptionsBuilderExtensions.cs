@@ -14,7 +14,7 @@ public static class CosmosDbContextOptionsBuilderExtensions
     {
         if (_httpClientFactory == null)
         {
-            _handler = TestEnvironment.HttpMessageHandler
+            _handler = CosmosTestEnvironment.HttpMessageHandler
                 ?? new HttpClientHandler
                 {
                     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator

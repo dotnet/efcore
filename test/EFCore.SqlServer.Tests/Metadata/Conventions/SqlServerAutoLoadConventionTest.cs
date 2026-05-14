@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class SqlServerAutoLoadConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Vector_property_configured_as_not_auto_loaded_by_convention()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -26,7 +26,7 @@ public class SqlServerAutoLoadConventionTest
         Assert.False(entityType.FindProperty(nameof(EntityWithVector.Vector))!.IsAutoLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Vector_property_can_be_manually_configured_as_not_auto_loaded()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -45,7 +45,7 @@ public class SqlServerAutoLoadConventionTest
         Assert.False(finalModel.FindEntityType(typeof(EntityWithVector))!.FindProperty(nameof(EntityWithVector.Vector))!.IsAutoLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Explicit_auto_load_overrides_convention()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -64,7 +64,7 @@ public class SqlServerAutoLoadConventionTest
         Assert.True(finalModel.FindEntityType(typeof(EntityWithVector))!.FindProperty(nameof(EntityWithVector.Vector))!.IsAutoLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_vector_property_remains_auto_loaded()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();

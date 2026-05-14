@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class ModelValidatorTest : ModelValidatorTestBase
 {
-    [ConditionalFact] // Issue #33913
+    [Fact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type()
     {
         Detects_well_known_concrete_collections_mapped_as_entity_type<List<Customer>>();
@@ -41,7 +41,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         LoggerFactory.Clear();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_warning_when_non_collection_complex_property_has_collection_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -58,7 +58,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
-    [ConditionalFact] // Issue #33913
+    [Fact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -86,7 +86,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public required string Value { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_key_property_which_cannot_be_compared()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -107,7 +107,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public NotComparable Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_noncomparable_key_property_with_comparer()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -123,7 +123,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_noncomparable_key_property_with_provider_comparer()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -143,7 +143,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
     public class CustomValueComparer<T>() : ValueComparer<T>(false); // Doesn't implement IComparer
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_unique_index_property_which_cannot_be_compared()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -165,7 +165,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public NotComparable Index { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Ignores_normal_property_which_cannot_be_compared()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -188,7 +188,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
     protected struct NotComparable;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_custom_converter_for_collection_type_without_comparer()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -210,7 +210,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Ignores_custom_converter_for_collection_type_with_comparer()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -242,7 +242,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public string[] SomeStrings { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_mapping_concrete_sealed_type_that_does_not_implement_IList()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -262,7 +262,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public string SomeString { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_mapping_an_IReadOnlyCollection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -282,7 +282,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public IReadOnlyCollection<int> Tags { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_mapping_an_IReadOnlyList()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -302,7 +302,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public IReadOnlyList<char> Tags { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_for_non_generic_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -369,7 +369,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public MyCollection Tags { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Ignores_binary_keys_and_strings_without_custom_comparer()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -398,7 +398,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public string AString { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_filter_on_derived_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -413,7 +413,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_filter_on_owned_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -428,7 +428,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.BadFilterOwnedType(queryFilter, nameof(ReferencedEntity)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_shadow_key_created_explicitly()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -446,7 +446,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             LogLevel.Debug);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_shadow_primary_key_created_by_convention_in_dependent_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -464,7 +464,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 .GenerateMessage("A", "Key"), modelBuilder, LogLevel.Debug);
     }
 
-    [ConditionalFact] // Issue #33484
+    [Fact] // Issue #33484
     public virtual void Does_not_log_for_shadow_property_when_creating_indexer_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -479,7 +479,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 .GenerateMessage("Bag (Dictionary<string, object>)", "Foo"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Warns_on_uniquified_shadow_key_due_to_wrong_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -506,7 +506,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Warns_on_uniquified_shadow_key_due_to_unmapped_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -533,7 +533,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Warns_on_uniquified_shadow_key_due_to_use_in_another_relationship()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -566,7 +566,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Warns_on_double_uniquified_shadow_key_due_to_wrong_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -594,7 +594,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_shadow_key_referenced_by_foreign_key_by_convention()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -630,7 +630,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_a_null_primary_key()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -646,7 +646,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.EntityRequiresKey(nameof(A)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_key_property_with_value_generated_on_update()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -659,7 +659,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.MutableKeyProperty(nameof(A.Id)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_key_property_with_value_generated_on_add_or_update()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -673,7 +673,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.MutableKeyProperty(nameof(A.Id)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_identifying_relationship_cycle()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -686,7 +686,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.IdentifyingRelationshipCycle("A -> B -> C"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_relationship_cycle_for_property_configuration()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -704,7 +704,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Assert.Null(dId.GetProviderClrType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_multiple_relationship_cycles_for_property_configuration()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -724,7 +724,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Assert.Null(aId.GetProviderClrType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_converter_and_provider_type_with_relationship_cycle()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -749,7 +749,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_provider_types_with_relationship_cycle()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -774,7 +774,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_relationship_cycle_for_explicit_property_configuration()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -799,7 +799,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_multiple_relationship_paths()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -814,7 +814,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_redundant_foreign_key()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -826,7 +826,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_escapable_foreign_key_cycles()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -856,7 +856,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_escapable_foreign_key_cycles_not_starting_at_hub()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -887,7 +887,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_foreign_key_cycle_with_one_GenerateOnAdd()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -917,7 +917,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_double_reference_to_root_principal_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -947,7 +947,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_diamond_path_to_root_principal_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -982,7 +982,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_correct_inheritance()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -992,7 +992,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_skipped_base_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -1016,7 +1016,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(A), nameof(D)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_abstract_leaf_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -1035,7 +1035,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.AbstractLeafEntityType(entityAbstract.DisplayName()), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_generic_leaf_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -1053,7 +1053,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_valid_many_to_many_navigations()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1083,7 +1083,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_foreign_key_for_skip_navigations()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1107,7 +1107,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_inverse_skip_navigations()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1132,7 +1132,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_nonCollection_skip_navigations()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1152,7 +1152,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_value_type_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1170,7 +1170,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public List<StructTag> Foo { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_non_list_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1196,7 +1196,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public IReadOnlyCollection<JsonbField> Tags { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_shadow_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1211,7 +1211,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_shadow_properties_on_value_type_complex_types()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -1228,7 +1228,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_shadow_properties_on_complex_types()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -1245,7 +1245,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_discriminator_shadow_property_on_complex_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1267,7 +1267,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Assert.True(discriminatorProperty.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_discriminator_property_on_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1289,7 +1289,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_indexer_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1304,7 +1304,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_key_traversing_nullable_complex_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1326,7 +1326,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_index_traversing_nullable_complex_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1345,7 +1345,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_index_on_complex_collection_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1365,7 +1365,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_index_traversing_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1386,7 +1386,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_key_traversing_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1418,7 +1418,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public int Value { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_composite_index_with_scalar_and_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1440,7 +1440,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_index_on_complex_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1480,7 +1480,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public int InnerValue { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_valid_owned_entity_types()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -1503,7 +1503,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_entity_type_with_multiple_ownerships()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -1535,7 +1535,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_principal_owned_entity_type()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -1571,7 +1571,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_non_owner_navigation_to_owned_entity_type()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -1605,7 +1605,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_derived_owned_entity_type()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -1644,7 +1644,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.OwnedDerivedType(nameof(D)), builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_owned_entity_type_without_ownership()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -1660,7 +1660,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.OwnerlessOwnedType(nameof(A)), builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_ForeignKey_on_inherited_generated_key_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1677,7 +1677,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 nameof(Abstract)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_ForeignKey_on_inherited_generated_key_property_abstract_base()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1687,7 +1687,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_ForeignKey_on_inherited_generated_composite_key_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1700,7 +1700,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
+    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public virtual void Detects_non_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
@@ -1719,7 +1719,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+    [Theory, InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public virtual void Detects_changed_only_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
     {
@@ -1737,7 +1737,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
+    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public virtual void Detects_complex_collections_with_notifications(ChangeTrackingStrategy changeTrackingStrategy)
@@ -1763,7 +1763,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public List<FullNotificationEntity> Foo { get; set; }
     }
 
-    [ConditionalTheory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
+    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public virtual void Detects_complex_properties_with_notifications(ChangeTrackingStrategy changeTrackingStrategy)
@@ -1789,7 +1789,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public FullNotificationEntity Foo { get; set; }
     }
 
-    [ConditionalTheory, InlineData(ChangeTrackingStrategy.Snapshot), InlineData(ChangeTrackingStrategy.ChangedNotifications),
+    [Theory, InlineData(ChangeTrackingStrategy.Snapshot), InlineData(ChangeTrackingStrategy.ChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
      InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public virtual void Passes_for_fully_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
@@ -1806,7 +1806,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(ChangeTrackingStrategy.Snapshot), InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [Theory, InlineData(ChangeTrackingStrategy.Snapshot), InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     public virtual void Passes_for_changed_only_entities_with_snapshot_or_changed_only_tracking(
         ChangeTrackingStrategy changeTrackingStrategy)
     {
@@ -1822,7 +1822,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_non_notifying_entities_with_snapshot_tracking()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -1837,7 +1837,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_valid_seeds()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1849,7 +1849,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_ignored_invalid_seeded_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1879,7 +1879,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Assert.Equal(-2, data.Last().Values.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_derived_seeds()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1890,7 +1890,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 new D { Id = 2, P0 = 3 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_derived_seeds_for_owned_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1904,7 +1904,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 .OwnsOne(b => b.AnotherA)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_required_values_in_seeds()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1920,7 +1920,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_missing_required_store_generated_values_in_seeds()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1934,7 +1934,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_key_values_in_seeds()
     {
         var entity = new NonSignedIntegerKeyEntity();
@@ -1950,7 +1950,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_signed_integer_key_values_in_seeds()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1961,7 +1961,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual void Detects_duplicate_seeds(bool sensitiveDataLoggingEnabled)
     {
         var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
@@ -1978,7 +1978,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual void Detects_incompatible_values(bool sensitiveDataLoggingEnabled)
     {
         var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
@@ -1996,7 +1996,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual void Detects_reference_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
     {
         var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
@@ -2023,7 +2023,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual void Detects_reference_navigations_in_seeds2(bool sensitiveDataLoggingEnabled)
     {
         var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
@@ -2052,7 +2052,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
     {
         var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
@@ -2084,7 +2084,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual void Detects_complex_properties_in_seeds(bool sensitiveDataLoggingEnabled)
     {
         var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
@@ -2108,7 +2108,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_on_two_properties_sharing_a_field()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2120,7 +2120,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_on_property_using_a_field_mapped_as_another_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2133,7 +2133,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_discriminator_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -2149,7 +2149,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.NoDiscriminatorProperty(entityA.DisplayName()), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_discriminator_value()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -2170,7 +2170,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", nameof(A), "int"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_discriminator_value_on_base()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -2191,7 +2191,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.NoDiscriminatorValue(entityA.DisplayName()), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_discriminator_value_on_leaf()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -2212,7 +2212,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_non_hierarchy_discriminator_value()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2221,7 +2221,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.NoDiscriminatorValue(typeof(A).Name), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_non_string_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2233,7 +2233,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.NoDiscriminatorValue(typeof(C).Name), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_detect_missing_discriminator_values_when_using_default_discriminator_name_with_non_string_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2247,7 +2247,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_complex_type_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2257,7 +2257,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.NoDiscriminatorValue("B.A#A"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_complex_type_discriminator_value()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2269,7 +2269,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", "B.A#A", "int?"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2281,7 +2281,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.DuplicateDiscriminatorValue(typeof(C).Name, 1, typeof(A).Name), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_navigation_with_query_filter_on_one_side_issues_a_warning()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2295,7 +2295,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyWarning(message, modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Optional_navigation_with_query_filter_on_one_side_doesnt_issue_a_warning()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2308,7 +2308,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyLogDoesNotContain(message, modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_navigation_with_query_filter_on_both_sides_doesnt_issue_a_warning()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2322,7 +2322,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyLogDoesNotContain(message, modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_navigation_on_derived_type_with_query_filter_on_both_sides_doesnt_issue_a_warning()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2336,7 +2336,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyLogDoesNotContain(message, modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_navigation_targeting_derived_type_with_no_query_filter_issues_a_warning()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2349,7 +2349,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyWarning(message, modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_navigation_on_owned_type_with_query_filter_on_owner_doesnt_issue_a_warning()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2366,7 +2366,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyLogDoesNotContain(message, modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Shared_type_inheritance_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2376,7 +2376,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.SharedTypeDerivedType("Shared2 (C)"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Seeding_keyless_entity_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2421,7 +2421,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public uint Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2441,7 +2441,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_alternate_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2462,7 +2462,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_foreign_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2489,7 +2489,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_concurrency_token_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2509,7 +2509,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_discriminator_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2530,7 +2530,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Allows_non_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2548,7 +2548,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_constructor_bound_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2568,7 +2568,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_derived_constructor_bound_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();

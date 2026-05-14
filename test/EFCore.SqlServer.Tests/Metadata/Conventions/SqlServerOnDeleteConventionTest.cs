@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class SqlServerOnDeleteConventionTest
 {
-    [ConditionalFact] // Issue #32732
+    [Fact] // Issue #32732
     public void Convention_does_not_assume_skip_navigations_have_non_null_FK()
     {
         using var context = new SkippyDbContext();

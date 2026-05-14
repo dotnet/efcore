@@ -9,30 +9,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
 public class MigrationsAssemblyTest
 {
-    [ConditionalFact]
+    [Fact]
     public void FindMigrationId_returns_first_candidate_when_id()
         => Assert.Equal(
             "20150302103100_Flutter",
             CreateMigrationsAssembly().FindMigrationId("20150302103100_FLUTTER"));
 
-    [ConditionalFact]
+    [Fact]
     public void FindMigrationId_returns_first_candidate_when_name()
         => Assert.Equal(
             "20150302103100_Flutter",
             CreateMigrationsAssembly().FindMigrationId("FLUTTER"));
 
-    [ConditionalFact]
+    [Fact]
     public void FindMigrationId_returns_null_when_no_match()
         => Assert.Null(CreateMigrationsAssembly().FindMigrationId("Spike"));
 
-    [ConditionalFact]
+    [Fact]
     public void GetMigrationId_throws_when_no_match()
         => Assert.Equal(
             RelationalStrings.MigrationNotFound("Spike"),
             Assert.Throws<InvalidOperationException>(() => CreateMigrationsAssembly().GetMigrationId("Spike"))
                 .Message);
 
-    [ConditionalFact]
+    [Fact]
     public void Migrations_ignores_the_unattributed()
     {
         var logger = new TestLogger<DbLoggerCategory.Migrations, TestRelationalLoggingDefinitions> { EnabledFor = LogLevel.Warning };
@@ -85,7 +85,7 @@ public class MigrationsAssemblyTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migrations_handles_inherited_DbContextAttribute()
     {
         var assembly = CreateInheritedMigrationsAssembly();
@@ -97,7 +97,7 @@ public class MigrationsAssemblyTest
         Assert.Contains(result, t => t.Key == "20150302103200_InheritedMigration");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migrations_finds_attribute_on_base_class_only()
     {
         var assembly = CreateMigrationsAssemblyWithAttributeOnBaseOnly();

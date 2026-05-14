@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Xunit.Sdk;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.CosmosFixture fixture) : ComplexTypesTrackingTestBase<CosmosComplexTypesTrackingTest.CosmosFixture>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_reorder_complex_collection_elements()
     {
         await using var context = CreateContext();
@@ -26,7 +26,7 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         Assert.Equivalent(last, dbPub.Activities.Last());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_change_complex_collection_element()
     {
         await using var context = CreateContext();
@@ -42,7 +42,7 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         Assert.Equivalent("Changed123", dbPub.Activities[0].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_change_complex_collection_element_complex_collection()
     {
         await using var context = CreateContext();
@@ -58,7 +58,7 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         Assert.Equal("NewTeam", dbPub.Activities[0].Teams.Last().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_complex_collection_element()
     {
         await using var context = CreateContext();

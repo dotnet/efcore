@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore.Tools;
 
 public sealed class ProjectTest(ITestOutputHelper output)
@@ -70,8 +68,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
         Assert.Null(RootCommand.ResolveOption(primary, alias, configValue: null));
     }
 
-    [ConditionalFact]
-    [SkipOnCiCondition]
+    [Fact, SkipOnCI("Test does not run on CI")]
     public void Csproj_metadata_can_be_extracted()
     {
         var capturedOutput = WithCapturedOutput(() =>
@@ -115,8 +112,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
         Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
     }
 
-    [ConditionalFact]
-    [SkipOnCiCondition]
+    [Fact, SkipOnCI("Test does not run on CI")]
     public void File_based_app_can_be_built()
     {
         var capturedOutput = WithCapturedOutput(() =>

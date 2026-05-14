@@ -5,6 +5,7 @@
     <TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('Windows'))">$(DefaultNetCoreTargetFramework)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);SQLITE3MC</DefineConstants>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == '$(NetFrameworkCurrent)' ">
@@ -16,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
   </ItemGroup>
 
 </Project>

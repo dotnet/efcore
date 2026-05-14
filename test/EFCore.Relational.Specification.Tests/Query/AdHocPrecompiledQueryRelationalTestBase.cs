@@ -14,7 +14,7 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         : base(fixture)
         => TestOutputHelper = testOutputHelper;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Index_no_evaluatability()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext>();
@@ -31,7 +31,7 @@ var blogs = context.JsonEntities.Where(b => b.IntList[b.Id] == 2).ToList();
             options);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Index_with_captured_variable()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext>();
@@ -49,7 +49,7 @@ var blogs = context.JsonEntities.Where(b => b.IntList[id] == 2).ToList();
             options);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task JsonScalar()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext>();
@@ -88,7 +88,7 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
         public string StringProperty { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Materialize_non_public()
     {
         var contextFactory = await InitializeNonSharedTest<NonPublicContext>();
@@ -192,7 +192,7 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
 #pragma warning restore CS0649
 #pragma warning restore CS0169
 
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task JsonScalar()
 //         => Test(
 //             // TODO: Remove Select() to Id after JSON is supported in materialization
@@ -223,7 +223,7 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
 // }
 // """);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_property_requiring_converter_with_closure_is_not_supported()
     {
         var contextFactory = await InitializeNonSharedTest<PrecompiledContext34760>();
@@ -242,7 +242,7 @@ var publishDates = await context.Books.Select(x => x.PublishDate).ToListAsync();
                     errors.Single().Exception.Message));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_expression_requiring_converter_without_closure_works()
     {
         var contextFactory = await InitializeNonSharedTest<PrecompiledContext34760>();
@@ -257,7 +257,7 @@ var audiobookDates = await context.Books.Select(x => x.AudiobookDate).ToListAsyn
             options);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_entity_with_property_requiring_converter_with_closure_works()
     {
         var contextFactory = await InitializeNonSharedTest<PrecompiledContext34760>();

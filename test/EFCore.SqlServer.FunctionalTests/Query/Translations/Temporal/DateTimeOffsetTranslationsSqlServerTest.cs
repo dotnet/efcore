@@ -207,7 +207,7 @@ WHERE CONVERT(datetime2, [b].[DateTimeOffset] AT TIME ZONE 'UTC') = '1998-05-04T
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public override async Task LocalDateTime()
     {
         await base.LocalDateTime();
@@ -325,7 +325,7 @@ WHERE DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [b].[DateTimeOff
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Offset_TotalMinutes()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Offset.TotalMinutes == 90));
@@ -362,7 +362,7 @@ WHERE SWITCHOFFSET([b].[DateTimeOffset], '+02:00') = '1998-05-04T17:30:10.000000
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToOffset_parameter()
     {
         var offset = new TimeSpan(2, 0, 0);
@@ -402,7 +402,7 @@ WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], '+
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ctor_DateTime_TimeSpan_parameter()
     {
         var offset = new TimeSpan(2, 0, 0);
@@ -422,7 +422,7 @@ WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], @o
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
     {
         await AssertQuery(
@@ -436,7 +436,7 @@ WHERE SYSDATETIMEOFFSET() > '2025-01-01T00:00:00.0000000+00:00'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task UtcNow_has_proper_type_mapping_for_constant_comparison()
     {
         await AssertQuery(
@@ -450,7 +450,7 @@ WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) > '2025-01-01T00:00:00.0000000+00
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_day()
     {
         await AssertQueryScalar(
@@ -464,7 +464,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_hour()
     {
         await AssertQueryScalar(
@@ -480,7 +480,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

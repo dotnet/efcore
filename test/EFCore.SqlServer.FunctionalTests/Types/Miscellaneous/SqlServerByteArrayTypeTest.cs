@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 
 public class SqlServerByteArrayTypeTest(SqlServerByteArrayTypeTest.ByteArrayTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -170,8 +168,8 @@ FROM [JsonTypeEntity] AS [j]
     }
 
     // TODO: Currently failing on Helix only, see #36746
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    [SkipOnHelixCondition]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -206,10 +204,10 @@ FROM [JsonTypeEntity] AS [j]
         public override Func<byte[], byte[], bool> Comparer { get; } = (a, b) => a.SequenceEqual(b);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
+            => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

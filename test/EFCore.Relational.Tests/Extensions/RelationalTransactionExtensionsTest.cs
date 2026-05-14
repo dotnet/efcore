@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class RelationalTransactionExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GetDbTransaction_returns_the_DbTransaction()
     {
         var dbConnection = new FakeDbConnection(ConnectionString);
@@ -37,7 +37,7 @@ public class RelationalTransactionExtensionsTest
         Assert.Equal(dbTransaction, transaction.GetDbTransaction());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetDbTransaction_throws_on_non_relational_provider()
     {
         var transaction = new NonRelationalTransaction();

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
@@ -129,7 +129,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region 34293
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_entity_with_optional_json_entity_owned_by_required_json()
     {
         var contextFactory = await InitializeNonSharedTest<Context34293>(
@@ -142,7 +142,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         Assert.Equal(3, entityProjection.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_required_json_entity()
     {
         var contextFactory = await InitializeNonSharedTest<Context34293>(
@@ -168,7 +168,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badBranchProjectionMessage);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_optional_json_entity_owned_by_required_json_entity()
     {
         var contextFactory = await InitializeNonSharedTest<Context34293>(
@@ -564,7 +564,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region Entity splitting
 
-    [ConditionalFact] // #36145
+    [Fact] // #36145
     public virtual async Task Entity_splitting_with_owned_json()
     {
         var contextFactory = await InitializeNonSharedTest<ContextEntitySplitting>(
@@ -622,7 +622,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region HasJsonPropertyName
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task HasJsonPropertyName()
     {
         var contextFactory = await InitializeNonSharedTest<Context37009>(
@@ -695,7 +695,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region Value converter equality null scalar
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Value_converter_equality_null_scalar()
     {
         var contextFactory = await InitializeNonSharedTest<Context37983>(

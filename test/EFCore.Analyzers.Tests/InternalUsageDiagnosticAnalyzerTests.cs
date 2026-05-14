@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.CodeAnalysis;
@@ -9,7 +9,7 @@ using VerifyCS = CSharpAnalyzerVerifier<InternalUsageDiagnosticAnalyzer>;
 
 public class InternalUsageDiagnosticAnalyzerTests
 {
-    [ConditionalFact]
+    [Fact]
     public Task Invocation_on_type_in_internal_namespace()
         => VerifySingleInternalUsageAsync(
             """
@@ -25,7 +25,7 @@ class C
 }
 """, "Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions");
 
-    [ConditionalFact]
+    [Fact]
     public Task Instantiation_on_type_in_internal_namespace()
         => VerifySingleInternalUsageAsync(
             """
@@ -38,7 +38,7 @@ class C
 }
 """, "Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions");
 
-    [ConditionalFact]
+    [Fact]
     public async Task Base_type()
     {
         var source = """
@@ -62,7 +62,7 @@ class MyClass : {|#0:Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationa
                 .WithArguments("Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Implemented_interface()
         => VerifySingleInternalUsageAsync(
             """
@@ -77,7 +77,7 @@ class {|#0:MyClass|} : IDbSetSource
 }
 """, "Microsoft.EntityFrameworkCore.Internal.IDbSetSource");
 
-    [ConditionalFact]
+    [Fact]
     public Task Access_property_with_internal_attribute()
         => VerifySingleInternalUsageAsync(
             """
@@ -90,7 +90,7 @@ class C
 }
 """, "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices");
 
-    [ConditionalFact]
+    [Fact]
     public Task Instantiation_with_ctor_with_internal_attribute()
         => VerifySingleInternalUsageAsync(
             """
@@ -103,7 +103,7 @@ class C
 }
 """, "Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies");
 
-    [ConditionalFact]
+    [Fact]
     public Task Local_variable_declaration()
         => VerifySingleInternalUsageAsync(
             """
@@ -116,7 +116,7 @@ class C
 }
 """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
-    [ConditionalFact]
+    [Fact]
     public Task Generic_type_parameter_in_method_call()
         => VerifySingleInternalUsageAsync(
             """
@@ -131,7 +131,7 @@ class C
 }
 """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
-    [ConditionalFact]
+    [Fact]
     public Task Typeof()
         => VerifySingleInternalUsageAsync(
             """
@@ -144,7 +144,7 @@ class C
 }
 """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
-    [ConditionalFact]
+    [Fact]
     public Task Field_declaration()
         => VerifySingleInternalUsageAsync(
             """
@@ -154,7 +154,7 @@ class MyClass
 }
 """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
-    [ConditionalFact]
+    [Fact]
     public Task Property_declaration()
         => VerifySingleInternalUsageAsync(
             """
@@ -164,7 +164,7 @@ class MyClass
 }
 """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
-    [ConditionalFact]
+    [Fact]
     public Task Method_declaration_return_type()
         => VerifySingleInternalUsageAsync(
             """
@@ -174,7 +174,7 @@ class MyClass
 }
 """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
-    [ConditionalFact]
+    [Fact]
     public Task Method_declaration_parameter()
         => VerifySingleInternalUsageAsync(
             """
@@ -184,7 +184,7 @@ class MyClass
 }
 """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
-    [ConditionalFact]
+    [Fact]
     public Task No_warning_on_non_internal()
         => VerifyCS.VerifyAnalyzerAsync(
             """
@@ -198,7 +198,7 @@ class C
 }
 """);
 
-    [ConditionalFact]
+    [Fact]
     public Task No_warning_in_same_assembly()
         => VerifyCS.VerifyAnalyzerAsync(
             """
