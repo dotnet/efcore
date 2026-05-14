@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -19,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class RelationalQueryCompilationContext : QueryCompilationContext
 {
     private readonly ExpressionPrinter _expressionPrinter = new();
+    private readonly ITypeMappingSource _typeMappingSource;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalQueryCompilationContext" /> class.
@@ -52,6 +54,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         RelationalDependencies = relationalDependencies;
         QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior;
         SqlAliasManager = relationalDependencies.SqlAliasManagerFactory.Create();
+        _typeMappingSource = dependencies.Context.GetService<ITypeMappingSource>();
     }
 
     /// <summary>
@@ -81,6 +84,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
 
         if (postprocessedQuery is ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery)
         {
+            ValidateShaper(shapedQuery.ShaperExpression);
+
             var inner = RelationalDependencies.RelationalMaterializerFactory
                 .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
 
@@ -106,6 +111,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         {
             case ShapedQueryExpression { ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault } shapedQuery:
             {
+                ValidateShaper(shapedQuery.ShaperExpression);
+
                 var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
                     .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
@@ -126,6 +133,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
             // CreateSingleValueQueryExecutor<IEnumerable>. Return the enumerable directly.
             case ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery:
             {
+                ValidateShaper(shapedQuery.ShaperExpression);
+
                 var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
                     .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
@@ -167,6 +176,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         {
             case ShapedQueryExpression { ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault } shapedQuery:
             {
+                ValidateShaper(shapedQuery.ShaperExpression);
+
                 var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
                     .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
@@ -213,5 +224,115 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(queryAndEventData.Query);
         var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
         return Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
+    }
+
+    private void ValidateShaper(Expression shaperExpression)
+        => new ShaperValidator(_typeMappingSource).Validate(shaperExpression, QueryTrackingBehavior);
+
+    /// <summary>
+    ///     Validates universal shaper invariants before building a non-generated materializer.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Client projections must not capture arbitrary object constants in cached query delegates. Constants
+    ///         which can be mapped by the provider, such as scalar values, are allowed. Other constants may keep
+    ///         application objects alive through the compiled query cache. For example, <c>Select(c => InstanceMethod(c))</c>
+    ///         captures <c>this</c> as the method instance, <c>Select(c => StaticMethod(this, c))</c> captures <c>this</c>
+    ///         as a method argument, and <c>Select(c => new { A = this })</c> captures <c>this</c> directly in the
+    ///         projection tree.
+    ///     </para>
+    ///     <para>
+    ///         Tracking projections must also contain the owners of any projected owned entities, since owned entities
+    ///         cannot be tracked without their owner.
+    ///     </para>
+    /// </remarks>
+    private sealed class ShaperValidator(ITypeMappingSource typeMappingSource) : ExpressionVisitor
+    {
+        private readonly HashSet<IEntityType> _visitedEntityTypes = [];
+
+        private bool _validatingTrackAll;
+
+        public void Validate(Expression shaperExpression, QueryTrackingBehavior queryTrackingBehavior)
+        {
+            _validatingTrackAll = queryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            _visitedEntityTypes.Clear();
+
+            Visit(shaperExpression);
+
+            if (_validatingTrackAll)
+            {
+                foreach (var entityType in _visitedEntityTypes)
+                {
+                    if (entityType.FindOwnership() is { } ownership
+                        && !ContainsOwner(ownership.PrincipalEntityType))
+                    {
+                        throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
+                    }
+                }
+            }
+        }
+
+        private bool ValidConstant(ConstantExpression constantExpression)
+            => constantExpression.Value is null or Array { Length: 0 }
+                || typeMappingSource.FindMapping(constantExpression.Type) != null;
+
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+            => !ValidConstant(constantExpression)
+                ? throw new InvalidOperationException(
+                    CoreStrings.ClientProjectionCapturingConstantInTree(constantExpression.Type.DisplayName()))
+                : constantExpression;
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (RemoveConvert(methodCallExpression.Object) is ConstantExpression constantInstance
+                && !ValidConstant(constantInstance))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
+                        constantInstance.Type.DisplayName(),
+                        methodCallExpression.Method.Name));
+            }
+
+            foreach (var argument in methodCallExpression.Arguments)
+            {
+                if (RemoveConvert(argument) is ConstantExpression constantArgument
+                    && !ValidConstant(constantArgument))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
+                            constantArgument.Type.DisplayName(),
+                            methodCallExpression.Method.Name));
+                }
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (_validatingTrackAll
+                && extensionExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType })
+            {
+                _visitedEntityTypes.Add(entityType);
+            }
+
+            return extensionExpression is StructuralTypeShaperExpression or ProjectionBindingExpression
+                ? extensionExpression
+                : base.VisitExtension(extensionExpression);
+        }
+
+        private bool ContainsOwner(IEntityType? owner)
+            => owner is not null
+                && (_visitedEntityTypes.Any(owner.IsAssignableFrom) || ContainsOwner(owner.BaseType));
+
+        private static Expression? RemoveConvert(Expression? expression)
+        {
+            while (expression is { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked })
+            {
+                expression = RemoveConvert(((UnaryExpression)expression).Operand);
+            }
+
+            return expression;
+        }
     }
 }
