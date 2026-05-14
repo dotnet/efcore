@@ -9,7 +9,7 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Index_no_evaluatability()
     {
         await base.Index_no_evaluatability();
@@ -22,7 +22,7 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Index_with_captured_variable()
     {
         await base.Index_with_captured_variable();
@@ -101,7 +101,7 @@ FROM [Books] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

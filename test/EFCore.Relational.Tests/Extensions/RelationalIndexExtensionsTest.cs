@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class RelationalIndexExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void IndexAttribute_database_name_can_be_overriden_using_fluent_api()
     {
         var modelBuilder = CreateConventionModelBuilder();

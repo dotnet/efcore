@@ -64,11 +64,9 @@
     <PackageReference Include="NetTopologySuite" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" />
     <!-- xunit.v3 packages: this is a shipped library (IsTestProject=false) so Arcade does not
-         auto-inject the v3 packages, and xunit.v3.core itself requires OutputType=Exe. Reference
-         xunit.v3.extensibility.core (the library-targeted package) plus xunit.v3.assert. -->
+         auto-inject the v3 packages. -->
     <PackageReference Include="xunit.v3.extensibility.core" VersionOverride="$(XUnitV3Version)" />
     <PackageReference Include="xunit.v3.assert" VersionOverride="$(XUnitV3Version)" />
-    <!-- ConditionalFact/ConditionalTheory + SkipOn* attributes used by the test suite. -->
     <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>

@@ -42,7 +42,7 @@ WHERE (c["DateTimeOffset"] != GetCurrentDateTime())
         AssertSql();
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Year()
     {
         await base.Year();
@@ -55,7 +55,7 @@ WHERE (DateTimePart("yyyy", c["DateTimeOffset"]) = 1998)
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Month()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
@@ -77,7 +77,7 @@ WHERE (DateTimePart("mm", c["DateTimeOffset"]) = 5)
         AssertSql();
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Day()
     {
         await base.Day();
@@ -90,7 +90,7 @@ WHERE (DateTimePart("dd", c["DateTimeOffset"]) = 4)
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Hour()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
@@ -104,7 +104,7 @@ WHERE (DateTimePart("hh", c["DateTimeOffset"]) = 15)
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Minute()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
@@ -118,7 +118,7 @@ WHERE (DateTimePart("mi", c["DateTimeOffset"]) = 30)
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Second()
     {
         await base.Second();
@@ -131,7 +131,7 @@ WHERE (DateTimePart("ss", c["DateTimeOffset"]) = 10)
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Millisecond()
     {
         await base.Millisecond();
@@ -144,7 +144,7 @@ WHERE (DateTimePart("ms", c["DateTimeOffset"]) = 123)
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsEmulator))]
     public override async Task Microsecond()
     {
         await base.Microsecond();
@@ -316,7 +316,7 @@ WHERE (c["DateTimeOffset"] = "1902-01-02T10:00:00.1234567+01:30")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

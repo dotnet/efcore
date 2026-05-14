@@ -18,11 +18,11 @@ public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelat
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_skip_without_orderby(bool async)
     {
         await AssertQuery(
@@ -51,7 +51,7 @@ WHERE [l].[Id] < 3
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
@@ -1322,7 +1322,7 @@ INNER JOIN (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multiple_complex_includes_from_sql()
     {
         using var context = CreateContext();
@@ -3104,7 +3104,7 @@ ORDER BY [i].[Id], [i1].[Id], [i2].[Id]
     {
         await base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """

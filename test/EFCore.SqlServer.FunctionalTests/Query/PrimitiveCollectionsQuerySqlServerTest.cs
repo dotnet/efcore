@@ -241,7 +241,7 @@ WHERE [p].[Id] NOT IN (2, 999)
     {
         await base.Inline_collection_Min_with_two_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -267,7 +267,7 @@ WHERE (
     {
         await base.Inline_collection_List_Min_with_two_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -293,7 +293,7 @@ WHERE (
     {
         await base.Inline_collection_Max_with_two_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -319,7 +319,7 @@ WHERE (
     {
         await base.Inline_collection_List_Max_with_two_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -345,7 +345,7 @@ WHERE (
     {
         await base.Inline_collection_Min_with_three_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -375,7 +375,7 @@ WHERE (
     {
         await base.Inline_collection_List_Min_with_three_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -405,7 +405,7 @@ WHERE (
     {
         await base.Inline_collection_Max_with_three_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -435,7 +435,7 @@ WHERE (
     {
         await base.Inline_collection_List_Max_with_three_values();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -465,7 +465,7 @@ WHERE (
     {
         await base.Inline_collection_of_nullable_value_type_Min();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -495,7 +495,7 @@ WHERE (
     {
         await base.Inline_collection_of_nullable_value_type_Max();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -525,7 +525,7 @@ WHERE (
     {
         await base.Inline_collection_of_nullable_value_type_with_null_Min();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -551,7 +551,7 @@ WHERE (
     {
         await base.Inline_collection_of_nullable_value_type_with_null_Max();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -608,7 +608,7 @@ WHERE (
     {
         await base.Inline_collection_Contains_with_EF_Parameter();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -642,7 +642,7 @@ WHERE [p].[Id] IN (
     {
         await base.Inline_collection_Contains_with_IEnumerable_EF_Parameter();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -676,7 +676,7 @@ WHERE [p].[NullableString] IN (
     {
         await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -957,7 +957,7 @@ WHERE [p].[NullableInt] IS NOT NULL AND [p].[NullableInt] <> @nullableInts1
     {
         await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1322,7 +1322,7 @@ WHERE (
 
             case ParameterTranslationMode.Parameter:
             {
-                if (TestEnvironment.IsJsonTypeSupported)
+                if (SqlServerTestEnvironment.IsJsonTypeSupported)
                 {
                     AssertSql(
                         """
@@ -1394,7 +1394,7 @@ WHERE [t].[Id] IN (2, 999)
 
             case ParameterTranslationMode.Parameter:
             {
-                if (TestEnvironment.IsJsonTypeSupported)
+                if (SqlServerTestEnvironment.IsJsonTypeSupported)
                 {
                     AssertSql(
                         """
@@ -1476,7 +1476,7 @@ WHERE [t].[Id] IN (2, 999)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode);
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1510,7 +1510,7 @@ WHERE (
     {
         await base.Parameter_collection_Contains_with_default_mode_EF_Parameter(mode);
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1629,7 +1629,7 @@ WHERE EXISTS (
 
             case ParameterTranslationMode.Parameter:
             {
-                if (TestEnvironment.IsJsonTypeSupported)
+                if (SqlServerTestEnvironment.IsJsonTypeSupported)
                 {
                     AssertSql(
                         """
@@ -1739,7 +1739,7 @@ WHERE [p].[Int] NOT IN (10, 999)
     {
         await base.Column_collection_of_ints_Contains();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1766,7 +1766,7 @@ WHERE 10 IN (
     {
         await base.Column_collection_of_nullable_ints_Contains();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1808,7 +1808,7 @@ WHERE EXISTS (
     {
         await base.Column_collection_of_strings_Contains();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1862,7 +1862,7 @@ WHERE EXISTS (
     {
         await base.Column_collection_of_bools_Contains();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1885,7 +1885,7 @@ WHERE CAST(1 AS bit) IN (
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Json_representation_of_bool_array()
     {
         await using var context = CreateContext();
@@ -1914,7 +1914,7 @@ WHERE [t].[Ints] = @ints
     {
         await base.Column_collection_inside_json_owned_entity();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -1972,7 +1972,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task Multidimensional_array_is_not_supported()
         => base.Multidimensional_array_is_not_supported();
 
@@ -2074,7 +2074,7 @@ WHERE (
     {
         await base.Column_collection_index_int();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2098,7 +2098,7 @@ WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
     {
         await base.Column_collection_index_string();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2122,7 +2122,7 @@ WHERE JSON_VALUE([p].[Strings], '$[1]') = N'10'
     {
         await base.Column_collection_index_datetime();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2146,7 +2146,7 @@ WHERE CAST(JSON_VALUE([p].[DateTimes], '$[1]') AS datetime2) = '2020-01-10T12:30
     {
         await base.Column_collection_index_beyond_end();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2171,7 +2171,7 @@ WHERE CAST(JSON_VALUE([p].[Ints], '$[999]') AS int) = 10
         // TODO: This test is incorrect, see #33784
         await base.Nullable_reference_column_collection_index_equals_nullable_column();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2195,7 +2195,7 @@ WHERE JSON_VALUE([p].[NullableStrings], '$[2]') = [p].[NullableString] OR (JSON_
     {
         await base.Non_nullable_reference_column_collection_index_equals_nullable_column();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2239,7 +2239,7 @@ WHERE (
     {
         await base.Inline_collection_index_Column_with_EF_Constant();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2291,12 +2291,12 @@ WHERE (
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Parameter_collection_index_Column_equal_Column()
     {
         await base.Parameter_collection_index_Column_equal_Column();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2320,12 +2320,12 @@ WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS i
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Parameter_collection_index_Column_equal_constant()
     {
         await base.Parameter_collection_index_Column_equal_constant();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2353,7 +2353,7 @@ WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS i
     {
         await base.Column_collection_ElementAt();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2732,12 +2732,12 @@ WHERE (
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
     public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
     {
         await base.Parameter_collection_with_type_inference_for_JsonScalarExpression();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2854,7 +2854,7 @@ WHERE (
     {
         await base.Column_collection_equality_parameter_collection();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -2889,7 +2889,7 @@ WHERE [p].[Ints] = @ints
     {
         await base.Column_collection_equality_inline_collection();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -3275,7 +3275,7 @@ ORDER BY [p].[Id], CAST([i].[key] AS int), [i].[key], CAST([i0].[value] AS int) 
     {
         await base.Project_primitive_collections_element();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -3559,7 +3559,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact] // #37605
+    [Fact] // #37605
     public virtual async Task Parameter_collection_with_null_value_Contains_null_2201_values()
     {
         using var context = Fixture.CreateContext();
@@ -3572,7 +3572,7 @@ WHERE (
         // No SQL assertion as the SQL is huge
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_string()
     {
         await TestOrderedArray("a", "b");
@@ -3593,7 +3593,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_int()
     {
         await TestOrderedArray(1, 2);
@@ -3614,7 +3614,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_long()
     {
         await TestOrderedArray(1L, 2L);
@@ -3635,7 +3635,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_short()
     {
         await TestOrderedArray((short)1, (short)2);
@@ -3657,11 +3657,11 @@ WHERE (
     }
 
     // On relational databases, byte[] gets mapped to a special binary data type, which isn't queryable as a regular primitive collection.
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_byte()
         => await AssertTranslationFailed(() => TestOrderedArray((byte)1, (byte)2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_double()
     {
         await TestOrderedArray(1d, 2d);
@@ -3682,7 +3682,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_float()
     {
         await TestOrderedArray(1f, 2f);
@@ -3703,7 +3703,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_decimal()
     {
         await TestOrderedArray(1m, 2m);
@@ -3724,7 +3724,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_DateTime()
     {
         await TestOrderedArray(new DateTime(2023, 1, 1, 12, 30, 0), new DateTime(2023, 1, 2, 12, 30, 0));
@@ -3745,7 +3745,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_DateOnly()
     {
         await TestOrderedArray(new DateOnly(2023, 1, 1), new DateOnly(2023, 1, 2));
@@ -3766,7 +3766,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_TimeOnly()
     {
         await TestOrderedArray(new TimeOnly(12, 30, 0), new TimeOnly(12, 30, 1));
@@ -3787,7 +3787,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_DateTimeOffset()
     {
         await TestOrderedArray(
@@ -3810,7 +3810,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_bool()
     {
         await TestOrderedArray(true, false);
@@ -3831,7 +3831,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_guid()
     {
         await TestOrderedArray(
@@ -3854,7 +3854,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_byte_array()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => TestOrderedArray([1, 2], new byte[] { 3, 4 }));
@@ -3862,7 +3862,7 @@ WHERE (
         Assert.Equal(SqlServerStrings.QueryingOrderedBinaryJsonCollectionsNotSupported, exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_array_of_enum()
     {
         await TestOrderedArray(OrderedTestEnum.Label1, OrderedTestEnum.Label2);
@@ -3947,7 +3947,7 @@ WHERE (
     private static readonly MethodInfo SkipMethod
         = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.Skip) && m.GetParameters().Length == 2);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Same_parameter_with_different_type_mappings()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -3980,7 +3980,7 @@ WHERE [t].[DateTime] IN (@dateTimes1, @dateTimes2) AND [t].[DateTime2] IN (@date
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Same_collection_with_default_type_mapping_and_uninferrable_context()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -4009,7 +4009,7 @@ WHERE EXISTS (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Same_collection_with_non_default_type_mapping_and_uninferrable_context()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -4025,7 +4025,7 @@ WHERE EXISTS (
         Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Same_collection_with_conflicting_type_mappings_not_supported()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -4046,7 +4046,7 @@ WHERE EXISTS (
         Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Infer_inline_collection_type_mapping()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -4070,7 +4070,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordered_collection_with_split_query()
     {
         var contextFactory = await InitializeNonSharedTest<Context32976>(
@@ -4106,7 +4106,7 @@ WHERE (
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_int_2071_values()
     {
         var ints = Enumerable.Repeat(10, 2071).ToArray();
@@ -4116,7 +4116,7 @@ WHERE (
         Assert.Contains("@ints2071)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(2098)]
     [InlineData(2099)]
     [InlineData(2100)]
@@ -4128,7 +4128,7 @@ WHERE (
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(2098)]
     [InlineData(2099)]
     [InlineData(2100)]
@@ -4149,7 +4149,7 @@ WHERE (
         return optionsBuilder;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -4168,7 +4168,7 @@ WHERE (
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
+            => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

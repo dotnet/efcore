@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertyGetterFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Property_is_returned_if_it_implements_IClrPropertyGetter()
     {
         var property = new FakeProperty();
@@ -143,7 +143,7 @@ public class ClrPropertyGetterFactoryTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -157,13 +157,13 @@ public class ClrPropertyGetterFactoryTest
                 new Customer { Id = 7 }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_property_info()
         => Assert.Equal(
             7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_struct_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -177,14 +177,14 @@ public class ClrPropertyGetterFactoryTest
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_struct_property_info()
         => Assert.Equal(
             new Fuel(1.0),
             ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_index_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -203,7 +203,7 @@ public class ClrPropertyGetterFactoryTest
                 .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_complex_property()
     {
         var modelBuilder = CreateModelBuilder();

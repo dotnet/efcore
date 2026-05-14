@@ -44,8 +44,8 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
         return null;
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
-    public virtual async Task<string> Intercept_query_to_get_statistics(bool async, bool inject) // Issue #23535
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Intercept_query_to_get_statistics(bool async, bool inject) // Issue #23535
     {
         var (context, interceptor) = await CreateContextAsync<StatisticsCommandInterceptor>(inject);
         using (context)
@@ -94,8 +94,6 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
                 }
             }
         }
-
-        return interceptor.CommandText;
     }
 
     protected class StatisticsCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)

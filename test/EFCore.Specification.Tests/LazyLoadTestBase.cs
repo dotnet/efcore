@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class LoadTestBase<TFixture>
 {
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -80,7 +80,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -186,7 +186,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -292,7 +292,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -383,7 +383,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -467,7 +467,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -533,7 +533,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -605,7 +605,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -678,7 +678,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -751,7 +751,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -823,7 +823,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -896,7 +896,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -969,7 +969,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
@@ -1076,7 +1076,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
@@ -1162,7 +1162,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -1244,7 +1244,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -1326,7 +1326,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
@@ -1437,7 +1437,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1491,7 +1491,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1545,7 +1545,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1625,7 +1625,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1705,7 +1705,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1767,7 +1767,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1813,7 +1813,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1860,7 +1860,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1913,7 +1913,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -1997,7 +1997,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2081,7 +2081,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2143,7 +2143,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2208,7 +2208,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2274,7 +2274,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2327,7 +2327,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2407,7 +2407,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2487,7 +2487,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2549,7 +2549,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2595,7 +2595,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -2642,7 +2642,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -2724,7 +2724,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -2830,7 +2830,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -2936,7 +2936,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3027,7 +3027,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3099,7 +3099,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3172,7 +3172,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3248,7 +3248,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3320,7 +3320,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3393,7 +3393,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3466,7 +3466,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
@@ -3573,7 +3573,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3655,7 +3655,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
@@ -3737,7 +3737,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
@@ -3848,7 +3848,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
      InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
@@ -3926,7 +3926,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -3981,7 +3981,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4060,7 +4060,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4139,7 +4139,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4203,7 +4203,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4247,7 +4247,7 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4292,7 +4292,7 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4334,7 +4334,7 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4378,7 +4378,7 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4423,7 +4423,7 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4468,7 +4468,7 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
@@ -4557,7 +4557,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4621,7 +4621,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4683,7 +4683,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
@@ -4763,7 +4763,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
      InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
@@ -4831,7 +4831,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4893,7 +4893,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -4979,7 +4979,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5065,7 +5065,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5136,7 +5136,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5188,7 +5188,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5241,7 +5241,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5297,7 +5297,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5349,7 +5349,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5402,7 +5402,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5455,7 +5455,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
@@ -5553,7 +5553,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5615,7 +5615,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5677,7 +5677,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
@@ -5757,7 +5757,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
      InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
@@ -5827,7 +5827,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5889,7 +5889,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -5975,7 +5975,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6061,7 +6061,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6132,7 +6132,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6184,7 +6184,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6237,7 +6237,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6293,7 +6293,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6345,7 +6345,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6398,7 +6398,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6451,7 +6451,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
@@ -6527,7 +6527,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6589,7 +6589,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
@@ -6651,7 +6651,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
@@ -6731,7 +6731,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
      InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
      InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
@@ -6809,7 +6809,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_uses_field_access_when_abstract_base_class_navigation()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);

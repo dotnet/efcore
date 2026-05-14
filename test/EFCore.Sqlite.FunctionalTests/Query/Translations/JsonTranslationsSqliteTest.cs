@@ -12,7 +12,7 @@ public class JsonTranslationsSqliteTest : JsonTranslationsRelationalTestBase<Jso
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task JsonPathExists_on_scalar_string_column()
     {
         await base.JsonPathExists_on_scalar_string_column();
@@ -25,7 +25,7 @@ WHERE json_type("j"."JsonString", '$.OptionalInt') IS NOT NULL
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task JsonPathExists_on_complex_property()
     {
         await base.JsonPathExists_on_complex_property();
@@ -38,7 +38,7 @@ WHERE json_type("j"."JsonComplexType", '$.OptionalInt') IS NOT NULL
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task JsonPathExists_on_owned_entity()
     {
         await base.JsonPathExists_on_owned_entity();
@@ -60,7 +60,7 @@ WHERE json_type("j"."JsonOwnedType", '$.OptionalInt') IS NOT NULL
             => $"json_remove({column}, '$.{property}')";
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

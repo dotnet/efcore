@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using JetBrains.Annotations;
@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class ExpressionEqualityComparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Member_init_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -39,7 +39,7 @@ public class ExpressionEqualityComparerTest
         Assert.True(expressionComparer.Equals(e1, e1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -56,7 +56,7 @@ public class ExpressionEqualityComparerTest
         Assert.True(expressionComparer.Equals(e1, e1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -91,7 +91,7 @@ public class ExpressionEqualityComparerTest
         Assert.True(expressionComparer.Equals(e2, e3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Array_constant_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -107,7 +107,7 @@ public class ExpressionEqualityComparerTest
         Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));
     }
 
-    [ConditionalFact] // #30697
+    [Fact] // #30697
     public void Lambda_parameters_names_are_taken_into_account()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;

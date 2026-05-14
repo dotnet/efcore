@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.RegularExpressions;
@@ -21,7 +21,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
     private static readonly string _toTable = _nl + @"entityTypeBuilder.ToTable(""WithAnnotations"")";
     private static readonly string _toNullTable = _nl + @"entityTypeBuilder.ToTable((string)null)";
 
-    [ConditionalFact]
+    [Fact]
     public void Test_new_annotations_handled_for_entity_types()
     {
         // Only add the annotation here if it will never be present on IEntityType
@@ -186,7 +186,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
             (g, m, b) => g.TestGenerateEntityTypeAnnotations("entityTypeBuilder", (IEntityType)m, b));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Test_new_annotations_handled_for_properties()
     {
         // Only add the annotation here if it will never be present on IProperty
@@ -466,7 +466,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
 
     private class Derived : WithAnnotations;
 
-    [ConditionalFact]
+    [Fact]
     public void Snapshot_with_enum_discriminator_uses_converted_values()
     {
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
@@ -546,7 +546,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
         Assert.Equal(expected + _nl + ".HasMaxLength(1000)", sb.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migrations_compile()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -740,7 +740,7 @@ partial class MyMigration
 
     public class MyContext;
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_insert_data()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -761,7 +761,7 @@ partial class MyMigration
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_update_data_Values()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -784,7 +784,7 @@ partial class MyMigration
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_update_data_KeyValues()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -807,7 +807,7 @@ partial class MyMigration
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_delete_data()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -828,7 +828,7 @@ partial class MyMigration
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multidimensional_array_warning_is_suppressed_for_multidimensional_seed_data()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -849,7 +849,7 @@ partial class MyMigration
         Assert.Contains("#pragma warning disable CA1814", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multidimensional_array_warning_is_not_suppressed_for_unidimensional_seed_data()
     {
         var generator = CreateMigrationsCodeGenerator();

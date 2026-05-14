@@ -12,7 +12,7 @@ public abstract class ComplianceTestBase
     protected abstract Assembly TargetAssembly { get; }
     protected virtual ICollection<Type> IgnoredTestBases { get; } = new List<Type>();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_test_bases_must_be_implemented()
     {
         var concreteTests = TargetAssembly.GetTypes().Where(c => c.BaseType != typeof(object)

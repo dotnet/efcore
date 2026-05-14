@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class DesignTimeServicesTests
 {
-    [ConditionalFact]
+    [Fact]
     public void ConfigureDesignTimeServices_works()
     {
         var serviceCollection = new ServiceCollection();

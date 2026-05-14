@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -13,7 +13,7 @@ public class ReadItemPartitionKeyQueryNoDiscriminatorInIdTest
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -95,7 +95,7 @@ WHERE c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntit
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key()
     {
         await base.Predicate_with_partial_values_in_hierarchical_partition_key();
@@ -123,7 +123,7 @@ WHERE (c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPart
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
     {
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key();
@@ -216,7 +216,7 @@ WHERE c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartition
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
     {
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key();
@@ -503,7 +503,7 @@ WHERE (c["$type"] = "DerivedSinglePartitionKeyEntity")
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key_leaf()
     {
         await base.Predicate_with_partial_values_in_hierarchical_partition_key_leaf();
@@ -518,7 +518,7 @@ WHERE (c["$type"] = "DerivedHierarchicalPartitionKeyEntity")
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key_leaf()
     {
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key_leaf();
@@ -611,7 +611,7 @@ WHERE (c["$type"] = "DerivedOnlySinglePartitionKeyEntity")
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key_leaf()
     {
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key_leaf();

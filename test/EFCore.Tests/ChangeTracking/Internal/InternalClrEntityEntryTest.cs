@@ -22,55 +22,55 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
     InternalClrEntityEntryTest.KClrContext,
     InternalClrEntityEntryTest.KClrSnapContext>
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
         => AllOriginalValuesTest(new FullNotificationEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_original_values_can_be_accessed_for_entity_that_does_full_change_tracking()
         => OriginalValuesTest(new FullNotificationEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_original_values_can_be_accessed_for_entity_that_does_changed_only_notification()
         => OriginalValuesTest(new ChangedOnlyEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_full_change_tracking()
         => GenericOriginalValuesTest(new FullNotificationEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_changed_only_notification()
         => GenericOriginalValuesTest(new ChangedOnlyEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Null_original_values_are_handled_for_entity_that_does_full_change_tracking()
         => NullOriginalValuesTest(new FullNotificationEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Null_original_values_are_handled_for_entity_that_does_changed_only_notification()
         => NullOriginalValuesTest(new ChangedOnlyEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Null_original_values_are_handled_generically_for_entity_that_does_full_change_tracking()
         => GenericNullOriginalValuesTest(new FullNotificationEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Null_original_values_are_handled_generically_for_entity_that_does_changed_only_notification()
         => GenericNullOriginalValuesTest(new ChangedOnlyEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_property_using_state_entry_always_marks_as_modified_full_notifications()
         => SetPropertyInternalEntityEntryTest(new FullNotificationEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_property_using_state_entry_always_marks_as_modified_changed_notifications()
         => SetPropertyInternalEntityEntryTest(new ChangedOnlyEntity());
 
-    [ConditionalFact]
+    [Fact]
     public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifications()
         => AllOriginalValuesTest(new ChangedOnlyEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Temporary_values_are_not_reset_when_entity_is_detached()
     {
         using var context = new KClrContext();
@@ -96,7 +96,7 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         Assert.Equal(-1, entry[keyProperty]);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Detached), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Detached), InlineData(EntityState.Modified),
      InlineData(EntityState.Added), InlineData(EntityState.Deleted)]
     public void AcceptChanges_handles_different_entity_states_for_owned_types(EntityState entityState)
     {
@@ -139,7 +139,7 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_an_explicit_value_on_the_entity_does_not_mark_property_as_temporary()
     {
         using var context = new KClrContext();
@@ -169,17 +169,17 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         Assert.True(entry.HasExplicitValue(nameProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_CLR_property_with_snapshot_change_tracking_requires_DetectChanges()
         => SetPropertyClrTest(
             new SomeEntity { Id = 1, Name = "Kool" }, needsDetectChanges: true);
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_CLR_property_with_changed_only_notifications_does_not_require_DetectChanges()
         => SetPropertyClrTest(
             new ChangedOnlyEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
         => SetPropertyClrTest(
             new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);

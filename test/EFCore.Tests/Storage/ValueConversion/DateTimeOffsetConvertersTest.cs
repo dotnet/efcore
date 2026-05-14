@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class DateTimeOffsetConvertersTest
 {
     private static readonly DateTimeOffsetToStringConverter _dateTimeOffsetToString = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTimeOffset_to_string()
     {
         var converter = _dateTimeOffsetToString.ConvertToProviderExpression.Compile();
@@ -21,7 +21,7 @@ public class DateTimeOffsetConvertersTest
             converter(new DateTimeOffset()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateTimeOffset()
     {
         var converter = _dateTimeOffsetToString.ConvertFromProviderExpression.Compile();
@@ -38,7 +38,7 @@ public class DateTimeOffsetConvertersTest
         Assert.Throws<FormatException>(() => converter("Not a DateTimeOffset"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTimeOffset_to_string_object()
     {
         var converter = _dateTimeOffsetToString.ConvertToProvider;
@@ -54,7 +54,7 @@ public class DateTimeOffsetConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateTimeOffset_object()
     {
         var converter = _dateTimeOffsetToString.ConvertFromProvider;
@@ -73,7 +73,7 @@ public class DateTimeOffsetConvertersTest
 
     private static readonly DateTimeOffsetToBytesConverter _dateTimeOffsetToBytes = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTimeOffset_to_bytes()
     {
         var converter = _dateTimeOffsetToBytes.ConvertToProviderExpression.Compile();
@@ -87,7 +87,7 @@ public class DateTimeOffsetConvertersTest
             converter(new DateTimeOffset()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_DateTimeOffset()
     {
         var converter = _dateTimeOffsetToBytes.ConvertFromProviderExpression.Compile();
@@ -105,7 +105,7 @@ public class DateTimeOffsetConvertersTest
         Assert.Throws<IndexOutOfRangeException>(() => converter([1, 2]));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTimeOffset_to_bytes_object()
     {
         var converter = _dateTimeOffsetToBytes.ConvertToProvider;
@@ -121,7 +121,7 @@ public class DateTimeOffsetConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_DateTimeOffset_object()
     {
         var converter = _dateTimeOffsetToBytes.ConvertFromProvider;
@@ -141,7 +141,7 @@ public class DateTimeOffsetConvertersTest
 
     private static readonly DateTimeOffsetToBinaryConverter _dateTimeOffsetToBinary = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTimeOffset_to_binary()
     {
         var converter = _dateTimeOffsetToBinary.ConvertToProviderExpression.Compile();
@@ -161,7 +161,7 @@ public class DateTimeOffsetConvertersTest
         Assert.Equal(0, converter(new DateTimeOffset()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_binary_to_DateTimeOffset()
     {
         var converter = _dateTimeOffsetToBinary.ConvertFromProviderExpression.Compile();
@@ -181,7 +181,7 @@ public class DateTimeOffsetConvertersTest
         Assert.Equal(new DateTimeOffset(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTimeOffset_to_binary_object()
     {
         var converter = _dateTimeOffsetToBinary.ConvertToProvider;
@@ -202,7 +202,7 @@ public class DateTimeOffsetConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_binary_to_DateTimeOffset_object()
     {
         var converter = _dateTimeOffsetToBinary.ConvertFromProvider;

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class DateOnlyConvertersTest
 {
     private static readonly DateOnlyToStringConverter DateOnlyToString = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateOnly_to_string()
     {
         var converter = DateOnlyToString.ConvertToProviderExpression.Compile();
@@ -16,7 +16,7 @@ public class DateOnlyConvertersTest
         Assert.Equal("0001-01-01", converter(new DateOnly()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateOnly()
     {
         var converter = DateOnlyToString.ConvertFromProviderExpression.Compile();
@@ -28,7 +28,7 @@ public class DateOnlyConvertersTest
         Assert.Throws<FormatException>(() => converter("Not a DateOnly"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateOnly_to_string_object()
     {
         var converter = DateOnlyToString.ConvertToProvider;
@@ -38,7 +38,7 @@ public class DateOnlyConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateOnly_object()
     {
         var converter = DateOnlyToString.ConvertFromProvider;

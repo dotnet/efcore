@@ -3,8 +3,6 @@
 
 using NetTopologySuite.Geometries;
 
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore.Types.Geography;
 
 public class SqlServerGeographyPolygonTypeTest(SqlServerGeographyPolygonTypeTest.PolygonTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -170,8 +168,8 @@ FROM [JsonTypeEntity] AS [j]
     }
 
     // TODO: Currently failing on Helix only, see #36746
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    [SkipOnHelixCondition]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -223,7 +221,7 @@ FROM [JsonTypeEntity] AS [j]
         { SRID = 4326 };
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

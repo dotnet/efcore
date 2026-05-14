@@ -795,7 +795,7 @@ WHERE tanh("b"."Double") > 0.0
 
     #endregion Trigonometry
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

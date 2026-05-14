@@ -7,7 +7,7 @@ public class GuidToStringConverterTest
 {
     private static readonly GuidToStringConverter _guidToString = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_GUIDs_to_String()
     {
         var converter = _guidToString.ConvertToProviderExpression.Compile();
@@ -21,7 +21,7 @@ public class GuidToStringConverterTest
             converter(Guid.Empty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_String_to_GUIDs()
     {
         var converter = _guidToString.ConvertFromProviderExpression.Compile();
@@ -38,7 +38,7 @@ public class GuidToStringConverterTest
         Assert.Throws<ArgumentNullException>(() => converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_GUIDs_to_String_object()
     {
         var converter = _guidToString.ConvertToProvider;
@@ -54,7 +54,7 @@ public class GuidToStringConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_String_to_GUIDs_object()
     {
         var converter = _guidToString.ConvertFromProvider;

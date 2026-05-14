@@ -22,7 +22,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact(Skip = "Issue #17670")]
+    [Fact(Skip = "Issue #17670")]
     public virtual async Task Can_update_dependents()
     {
         var options = await Fixture.CreateOptions();
@@ -50,7 +50,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_update_owner_with_dependents()
     {
         var options = await Fixture.CreateOptions();
@@ -70,7 +70,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_attach_owner_with_dependents()
     {
         var options = await Fixture.CreateOptions();
@@ -99,7 +99,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -375,7 +375,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Old_still_works()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -439,7 +439,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
     public record struct CosmosPage<T>(List<T> Results, string ContinuationToken);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Properties_on_owned_types_can_be_client_generated()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -463,7 +463,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_non_int_keys_for_embedded_entities()
     {
         var options = await Fixture.CreateOptions(
@@ -507,7 +507,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_modify_nested_embedded_types()
     {
         var options = await Fixture.CreateOptions();
@@ -537,7 +537,7 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_just_embedded_reference()
     {
         var options = await Fixture.CreateOptions();
@@ -549,7 +549,7 @@ OFFSET 0 LIMIT 1
         Assert.Null(firstOperator.Vehicle);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_just_embedded_collection()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -577,7 +577,7 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inserting_dependent_without_principal_throws()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -596,7 +596,7 @@ OFFSET 0 LIMIT 1
             (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_change_nested_instance_non_derived()
     {
         var options = await Fixture.CreateOptions();
@@ -621,7 +621,7 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_change_principal_instance_non_derived()
     {
         var options = await Fixture.CreateOptions();
@@ -652,7 +652,7 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_non_persisted_properties_owned()
     {
         var options = await Fixture.CreateOptions(
@@ -696,9 +696,9 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task Can_use_non_persisted_properties_complex()
     {
         var options = await Fixture.CreateOptions(
@@ -808,10 +808,10 @@ OFFSET 0 LIMIT 2
                 : options;
         }
 
-        public Task InitializeAsync()
-            => Task.CompletedTask;
+        public ValueTask InitializeAsync()
+            => ValueTask.CompletedTask;
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
             => await TestStore.DisposeAsync();
     }
 

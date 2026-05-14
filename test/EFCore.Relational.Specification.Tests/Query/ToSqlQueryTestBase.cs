@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -8,7 +8,7 @@ public abstract class ToSqlQueryTestBase(NonSharedFixture fixture) : NonSharedMo
     protected override string NonSharedStoreName
         => "ToSqlQueryTests";
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     // Issue #27629
     public virtual async Task Entity_type_with_navigation_mapped_to_SqlQuery(bool async)
     {

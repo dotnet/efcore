@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ForeignKeyIndexConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Does_not_override_foreign_key_index_uniqueness_when_referenced_key_changes()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

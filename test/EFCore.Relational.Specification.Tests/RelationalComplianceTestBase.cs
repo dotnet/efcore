@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ public abstract class RelationalComplianceTestBase : ComplianceTestBase
         => base.GetBaseTestClasses().Concat(
             typeof(RelationalComplianceTestBase).Assembly.ExportedTypes.Where(t => t.Name.Contains("TestBase")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_query_test_fixtures_must_implement_ITestSqlLoggerFactory()
     {
         var queryFixturesWithoutTestSqlLogger = TargetAssembly

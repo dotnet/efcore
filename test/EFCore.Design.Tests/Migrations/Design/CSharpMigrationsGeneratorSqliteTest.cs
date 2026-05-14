@@ -42,7 +42,7 @@ partial class Snapshot : ModelSnapshot
 
 """;
 
-    [ConditionalFact]
+    [Fact]
     public void Autoincrement_annotation_is_replaced_by_extension_method_call_in_snapshot()
     {
         Test(
@@ -75,7 +75,7 @@ partial class Snapshot : ModelSnapshot
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Autoincrement_works_with_value_converter_to_int()
     {
         Test(
@@ -108,7 +108,7 @@ partial class Snapshot : ModelSnapshot
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_annotation_generated_for_non_autoincrement_property()
     {
         Test(

@@ -26,7 +26,7 @@ WHERE (ARRAY_LENGTH(c["AssociateCollection"]) = 2)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Where_first_inline_not_null()
     {
         await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection.FirstOrDefault() != null));
@@ -40,7 +40,7 @@ WHERE ((c["AssociateCollection"][0] ?? null) != null)
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Where()
     {
         await base.Where();
@@ -157,14 +157,14 @@ WHERE (c["RequiredAssociate"]["NestedCollection"][0]["Int"] = 8)
 
     #region GroupBy
 
-    [ConditionalFact]
+    [Fact]
     public override Task GroupBy()
         => AssertTranslationFailed(base.GroupBy);
 
     #endregion GroupBy
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {
         await base.Select_within_Select_within_Select_with_aggregates();
@@ -180,7 +180,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

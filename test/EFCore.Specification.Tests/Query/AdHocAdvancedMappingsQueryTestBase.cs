@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
@@ -17,7 +17,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 9582
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Setting_IsUnicode_generates_unicode_literal_in_SQL()
     {
         var contextFactory = await InitializeNonSharedTest<Context9582>();
@@ -56,7 +56,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 11835
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_correlated_collection_along_with_non_mapped_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context11835>(seed: c => c.SeedAsync());
@@ -125,7 +125,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 15684
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projection_failing_with_EnumToStringConverter()
     {
         var contextFactory = await InitializeNonSharedTest<Context15684>(seed: c => c.SeedAsync());
@@ -209,7 +209,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 17276
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Expression_tree_constructed_via_interface_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context17276>();
@@ -305,7 +305,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 17794
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Double_convert_interface_created_expression_tree()
     {
         var contextFactory = await InitializeNonSharedTest<Context17794>(seed: c => c.SeedAsync());
@@ -376,7 +376,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 18087
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Casts_are_removed_from_expression_tree_when_redundant()
     {
         var contextFactory = await InitializeNonSharedTest<Context18087>(seed: c => c.SeedAsync());
@@ -452,7 +452,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 18346
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_hierarchy_with_non_nullable_property_on_derived()
     {
         var contextFactory = await InitializeNonSharedTest<Context18346>(seed: c => c.SeedAsync());
@@ -506,7 +506,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 26742
 
-    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
      InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
     public virtual async Task Query_generates_correct_datetime2_parameter_definition(int? fractionalSeconds, string postfix)
@@ -525,7 +525,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         _ = context.Entities.Where(x => x.DateTime == parameter).Select(e => e.DateTime).FirstOrDefault();
     }
 
-    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
      InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
     public virtual async Task Query_generates_correct_datetimeoffset_parameter_definition(int? fractionalSeconds, string postfix)
@@ -544,7 +544,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         _ = context.Entities.Where(x => x.DateTimeOffset == parameter).Select(e => e.DateTimeOffset).FirstOrDefault();
     }
 
-    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
      InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
     public virtual async Task Query_generates_correct_timespan_parameter_definition(int? fractionalSeconds, string postfix)
@@ -581,7 +581,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 28196
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(async, null);
 
@@ -673,7 +673,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 34760
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_property_with_converter_with_closure(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
@@ -685,7 +685,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         Assert.Equal(2, result.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_expression_with_converter_with_closure(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
@@ -699,7 +699,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         Assert.Equal(2, result.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_property_with_converter_without_closure(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());

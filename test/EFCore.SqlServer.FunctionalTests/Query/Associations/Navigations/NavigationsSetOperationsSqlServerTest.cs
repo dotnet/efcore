@@ -155,7 +155,7 @@ ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n8].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

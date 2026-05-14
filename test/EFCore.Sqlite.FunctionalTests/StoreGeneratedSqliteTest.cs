@@ -12,7 +12,7 @@ public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSql
         // Computed columns not supported
         => Task.CompletedTask;
 
-    [ConditionalFact]
+    [Fact]
     public Task Identity_key_works_when_not_aliasing_rowid()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class MetadataBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_write_model_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -27,7 +27,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", model["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -46,7 +46,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension_and_use_with_generic_builder()
     {
         var builder = CreateModelBuilder();
@@ -65,7 +65,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_generic_entity_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -84,7 +84,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_key_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -104,7 +104,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", key["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_property_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -124,7 +124,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", property["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_index_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -144,7 +144,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", index["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_many_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -165,7 +165,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_many_to_one_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -186,7 +186,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_one_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -208,7 +208,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_model_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -225,7 +225,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", model["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -244,7 +244,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension_and_use_with_generic_builder_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -263,7 +263,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_generic_entity_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -282,7 +282,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_key_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -302,7 +302,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", key["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_property_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -322,7 +322,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", property["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_index_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -342,7 +342,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", index["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_many_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -363,7 +363,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_many_to_one_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -384,7 +384,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_one_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();

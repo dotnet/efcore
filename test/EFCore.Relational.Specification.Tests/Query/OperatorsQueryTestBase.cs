@@ -26,7 +26,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         return ctx.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Bitwise_and_on_expression_with_like_and_null_check_being_compared_to_false()
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -65,7 +65,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_predicate_with_bitwise_and_modulo_and_negation()
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -111,7 +111,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_predicate_with_bitwise_and_arithmetic_operations()
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -150,7 +150,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Or_on_two_nested_binaries_and_another_simple_comparison()
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -199,7 +199,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projection_with_not_and_negation_on_integer()
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -224,7 +224,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_column(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -245,7 +245,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Double_negate_on_column()
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -266,7 +266,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_binary_expression(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -290,7 +290,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_like_expression(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -312,7 +312,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
     }
 
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Concat_and_json_scalar(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(

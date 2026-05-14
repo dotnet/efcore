@@ -21,11 +21,11 @@ public class NorthwindSelectQueryCosmosTest : NorthwindSelectQueryTestBase<North
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projection_with_Value_Property(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1693,7 +1693,7 @@ ORDER BY c["OrderID"]
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Reverse_after_orderby_thenby(bool async)
     {
         // Always throws for sync.
@@ -1781,7 +1781,7 @@ ORDER BY c["EmployeeID"]
 """);
             });
 
-    [ConditionalTheory(Skip = "Always does sync evaluation.")]
+    [Theory(Skip = "Always does sync evaluation.")]
     public override async Task VisitLambda_should_not_be_visited_trivially(bool async)
     {
         // Always throws for sync.
@@ -2070,15 +2070,15 @@ WHERE STARTSWITH(c["id"], "F")
 """);
             });
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+    [Theory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result(bool async)
         => base.List_from_result_of_single_result(async);
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+    [Theory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result_2(bool async)
         => base.List_from_result_of_single_result_2(async);
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+    [Theory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result_3(bool async)
         => base.List_from_result_of_single_result_3(async);
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -95,7 +95,7 @@ WHERE (c["ShippingAddressRenamed"] = c["BillingAddressRenamed"])
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -110,7 +110,7 @@ WHERE (c["ShippingAddressRenamed"] = {"AddressLine1Renamed":"804 S. Lakeshore Ro
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -272,7 +272,7 @@ WHERE (c["ShippingAddressRenamed"] = c["BillingAddressRenamed"])
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Struct_complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -287,7 +287,7 @@ WHERE (c["ShippingAddressRenamed"] = {"AddressLine1Renamed":"804 S. Lakeshore Ro
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Struct_complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -378,7 +378,7 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
 
     #region GroupBy
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task GroupBy_over_property_in_nested_complex_type(bool async)
     {
         await base.GroupBy_over_property_in_nested_complex_type(async);
@@ -389,7 +389,7 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
 """);
     }
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task GroupBy_over_complex_type(bool async)
     {
         await base.GroupBy_over_complex_type(async);
@@ -400,7 +400,7 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
 """);
     }
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task GroupBy_over_nested_complex_type(bool async)
     {
         await base.GroupBy_over_nested_complex_type(async);
@@ -411,7 +411,7 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
 """);
     }
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task Entity_with_complex_type_with_group_by_and_first(bool async)
     {
         await base.Entity_with_complex_type_with_group_by_and_first(async);
@@ -433,7 +433,7 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
     public override Task Project_entity_with_complex_type_pushdown_and_then_left_join(bool async)
         => AssertTranslationFailedWithDetails(() => base.Project_entity_with_complex_type_pushdown_and_then_left_join(async), CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

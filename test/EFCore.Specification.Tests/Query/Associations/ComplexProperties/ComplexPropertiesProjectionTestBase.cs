@@ -9,7 +9,7 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
 {
     #region Value types
 
-    [ConditionalTheory]
+    [Theory]
     [MemberData(nameof(TrackingData))]
     public virtual Task Select_root_with_value_types(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
@@ -17,7 +17,7 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
             queryTrackingBehavior: queryTrackingBehavior);
 
 
-    [ConditionalTheory]
+    [Theory]
     [MemberData(nameof(TrackingData))]
     public virtual Task Select_non_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
@@ -26,7 +26,7 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
             queryTrackingBehavior: queryTrackingBehavior);
 
 
-    [ConditionalTheory]
+    [Theory]
     [MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
@@ -34,7 +34,7 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
             assertOrder: true,
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
+    [Theory]
     [MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type_with_Value(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(

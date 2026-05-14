@@ -8,19 +8,19 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsAzureSql)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
 public class SqlAzureFundamentalsTest(SqlAzureFixture fixture) : IClassFixture<SqlAzureFixture>
 {
     public SqlAzureFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void CanExecuteQuery()
     {
         using var context = CreateContext();
         Assert.NotEqual(0, context.Addresses.Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CanAdd()
     {
         using var context = CreateContext();
@@ -42,7 +42,7 @@ public class SqlAzureFundamentalsTest(SqlAzureFixture fixture) : IClassFixture<S
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CanUpdate()
     {
         using var context = CreateContext();
@@ -62,7 +62,7 @@ public class SqlAzureFundamentalsTest(SqlAzureFixture fixture) : IClassFixture<S
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IncludeQuery()
     {
         using var context = CreateContext();

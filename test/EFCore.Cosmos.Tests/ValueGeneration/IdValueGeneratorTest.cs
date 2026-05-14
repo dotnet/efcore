@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration;
 
 public class IdValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Generated_ids_do_not_clash()
     {
         var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
@@ -44,7 +44,7 @@ public class IdValueGeneratorTest
                 [model.FindEntityType(typeof(TEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Illegal_id_characters_are_not_escaped_by_default()
     {
         var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
@@ -62,7 +62,7 @@ public class IdValueGeneratorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ids_with_former_escape_sequences_do_not_collide()
     {
         var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();

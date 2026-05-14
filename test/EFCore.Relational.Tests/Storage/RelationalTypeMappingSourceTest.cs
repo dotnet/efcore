@@ -7,15 +7,15 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Does_simple_mapping_from_CLR_type()
         => Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int)).StoreType);
 
-    [ConditionalFact]
+    [Fact]
     public void Does_simple_mapping_from_nullable_CLR_type()
         => Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int?)).StoreType);
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_string_with_no_MaxLength()
     {
         var mapping = GetTypeMapping(typeof(string));
@@ -23,7 +23,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal("just_string(max)", mapping.StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_string_with_MaxLength()
     {
         var mapping = GetTypeMapping(typeof(string), maxLength: 666);
@@ -32,7 +32,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal(666, mapping.Size);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_string_with_MaxLength_greater_than_unbounded_max()
     {
         var mapping = GetTypeMapping(typeof(string), maxLength: 2020);
@@ -41,7 +41,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal(2020, mapping.Size);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_btye_array_with_no_MaxLength()
     {
         var mapping = GetTypeMapping(typeof(byte[]));
@@ -49,7 +49,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal("just_binary(max)", mapping.StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_btye_array_with_MaxLength()
     {
         var mapping = GetTypeMapping(typeof(byte[]), maxLength: 777);
@@ -58,7 +58,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal(777, mapping.Size);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_btye_array_greater_than_unbounded_max()
     {
         var mapping = GetTypeMapping(typeof(byte[]), maxLength: 2020);
@@ -66,15 +66,15 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal("just_binary(2020)", mapping.StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_simple_mapping_from_name()
         => Assert.Equal("int", GetTypeMapping(typeof(int), storeTypeName: "int").StoreType);
 
-    [ConditionalFact]
+    [Fact]
     public void Does_default_mapping_for_unrecognized_store_type()
         => Assert.Equal("int", GetTypeMapping(typeof(int), storeTypeName: "int").StoreType);
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_named_string_with_no_MaxLength()
     {
         var mapping = GetTypeMapping(typeof(string), storeTypeName: "some_string(max)");
@@ -82,7 +82,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal("some_string(max)", mapping.StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_named_string_with_MaxLength()
     {
         var mapping = GetTypeMapping(typeof(string), storeTypeName: "some_string(666)");
@@ -91,7 +91,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal(666, mapping.Size);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_named_binary_with_no_MaxLength()
     {
         var mapping = GetTypeMapping(typeof(byte[]), storeTypeName: "some_binary(max)");
@@ -99,7 +99,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.Equal("some_binary(max)", mapping.StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_with_store_type_is_picked_up_by_FK()
     {
         var model = CreateModel();
@@ -114,7 +114,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_default_type_mapping_from_decimal()
     {
         var model = CreateModel();
@@ -125,7 +125,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_decimal_with_precision_only()
     {
         var model = CreateModel();
@@ -136,7 +136,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("PrecisionOnly")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_decimal_with_precision_and_scale()
     {
         var model = CreateModel();
@@ -147,7 +147,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("PrecisionAndScale")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_string_with_configuration()
     {
         var mapping = GetTypeMapping(
@@ -168,7 +168,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.True(mapping.IsFixedLength);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_string_type_with_configuration()
     {
         var mapping = GetTypeMapping(
@@ -184,7 +184,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.False(mapping.IsUnicode);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_decimal_with_configuration()
     {
         var mapping = GetTypeMapping(
@@ -205,7 +205,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.False(mapping.IsFixedLength);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_type_mapping_from_decimal_type_with_configuration()
     {
         var mapping = GetTypeMapping(
@@ -222,7 +222,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
         Assert.False(mapping.IsFixedLength);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StoreTypeNameBase_is_trimmed()
     {
         var mapping = GetTypeMapping(
@@ -248,7 +248,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
     public RelationalTypeMapping GetMapping(IProperty property)
         => CreateRelationalTypeMappingSource(CreateModel()).FindMapping(property);
 
-    [ConditionalFact]
+    [Fact]
     public void String_key_with_max_fixed_length_is_picked_up_by_FK()
     {
         var model = CreateModel();
@@ -263,7 +263,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binary_key_with_max_fixed_length_is_picked_up_by_FK()
     {
         var model = CreateModel();
@@ -278,7 +278,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void String_key_with_unicode_is_picked_up_by_FK()
     {
         var model = CreateModel();
@@ -293,7 +293,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_store_type_is_preferred_if_specified()
     {
         var model = CreateModel();
@@ -308,7 +308,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void String_FK_max_length_is_preferred_if_specified()
     {
         var model = CreateModel();
@@ -323,7 +323,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binary_FK_max_length_is_preferred_if_specified()
     {
         var model = CreateModel();
@@ -338,7 +338,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void String_FK_unicode_is_preferred_if_specified()
     {
         var model = CreateModel();

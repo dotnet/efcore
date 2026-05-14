@@ -148,7 +148,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

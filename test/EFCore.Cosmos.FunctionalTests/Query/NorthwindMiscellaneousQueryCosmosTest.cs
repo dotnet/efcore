@@ -24,11 +24,11 @@ public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQuery
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Simple_IQueryable(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1469,7 +1469,7 @@ ORDER BY c["id"]
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task OrderBy_shadow(bool async)
     {
         // Always throws for sync.
@@ -1487,7 +1487,7 @@ ORDER BY c["Title"], c["EmployeeID"]
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task OrderBy_multiple(bool async)
     {
         // Always throws for sync.
@@ -1556,7 +1556,7 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Always does sync evaluation.")]
+    [Theory(Skip = "Always does sync evaluation.")]
     public override Task Where_subquery_expression(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1576,7 +1576,7 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    [ConditionalTheory(Skip = "Always does sync evaluation.")]
+    [Theory(Skip = "Always does sync evaluation.")]
     public override async Task Where_subquery_expression_same_parametername(bool async)
     {
         // Always throws
@@ -2316,7 +2316,7 @@ WHERE (((c["$type"] = "Order") AND (c["OrderDate"] != null)) AND (DateTimePart("
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task OrderBy_skip_take(bool async)
     {
         // Always throws for sync.
@@ -3213,7 +3213,7 @@ WHERE (c["City"] != null)
             });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Entity_equality_orderby_descending_composite_key(bool async)
     {
         // Always throws for sync.
@@ -3300,7 +3300,7 @@ ORDER BY c["id"]
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task OrderByDescending_ThenBy(bool async)
     {
         // Always throws for sync.
@@ -3319,7 +3319,7 @@ ORDER BY c["id"] DESC, c["Country"]
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task OrderByDescending_ThenByDescending(bool async)
     {
         // Always throws for sync.
@@ -3346,7 +3346,7 @@ ORDER BY c["id"] DESC, c["Country"] DESC
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task OrderBy_ThenBy(bool async)
     {
         // Always throws for sync.
@@ -3365,7 +3365,7 @@ ORDER BY c["id"], c["Country"]
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task OrderBy_ThenBy_predicate(bool async)
     {
         // Always throws for sync.
@@ -4858,9 +4858,9 @@ WHERE ((c["$type"] = "Order") AND (((DateTimePart("ns", c["OrderDate"]) % 1000) 
 
     #region ToPageAsync
 
-    [ConditionalFact]
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/285 (MaxItemCount not respected)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task ToPageAsync()
     {
         await using var context = CreateContext();
@@ -4915,9 +4915,9 @@ ORDER BY c["id"]
 """);
     }
 
-    [ConditionalFact]
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/285 (MaxItemCount not respected)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task ToPageAsync_with_scalar()
     {
         await using var context = CreateContext();
@@ -4975,7 +4975,7 @@ ORDER BY c["id"]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToPageAsync_with_exact_maxItemCount()
     {
         await using var context = CreateContext();
@@ -5002,7 +5002,7 @@ ORDER BY c["id"]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToPageAsync_does_not_use_ReadItem()
     {
         await using var context = CreateContext();
@@ -5021,7 +5021,7 @@ WHERE (c["id"] = "ALFKI")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToPageAsync_in_subquery_throws()
         => await AssertTranslationFailedWithDetails(
             () => AssertQuery(
@@ -5086,7 +5086,7 @@ WHERE (c["id"] = "ALFKI")
         AssertSql();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Concat_on_entity_queries_throws(bool async)
     {
         await AssertTranslationFailedWithDetails(

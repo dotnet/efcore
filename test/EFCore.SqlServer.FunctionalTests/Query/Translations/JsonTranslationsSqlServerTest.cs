@@ -14,7 +14,7 @@ public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public override async Task JsonPathExists_on_scalar_string_column()
     {
         await base.JsonPathExists_on_scalar_string_column();
@@ -27,7 +27,7 @@ WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public override async Task JsonPathExists_on_complex_property()
     {
         await base.JsonPathExists_on_complex_property();
@@ -40,7 +40,7 @@ WHERE JSON_PATH_EXISTS([j].[JsonComplexType], N'$.OptionalInt') = 1
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public override async Task JsonPathExists_on_owned_entity()
     {
         await base.JsonPathExists_on_owned_entity();
@@ -54,7 +54,7 @@ WHERE JSON_PATH_EXISTS([j].[JsonOwnedType], N'$.OptionalInt') = 1
     }
 
 #pragma warning disable EF9106 // JsonContains is experimental
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public async Task JsonContains_on_scalar_string_column()
     {
         await AssertQuery(
@@ -73,7 +73,7 @@ WHERE JSON_CONTAINS([j].[JsonString], 8, N'$.OptionalInt') = 1
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public async Task JsonContains_on_complex_property()
     {
         await AssertQuery(
@@ -90,7 +90,7 @@ WHERE JSON_CONTAINS([j].[JsonComplexType], 8, N'$.OptionalInt') = 1
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public async Task JsonContains_on_owned_entity()
     {
         await AssertQuery(
@@ -118,7 +118,7 @@ WHERE JSON_CONTAINS([j].[JsonOwnedType], 8, N'$.OptionalInt') = 1
         {
             var options = base.AddOptions(builder);
 
-            return TestEnvironment.SqlServerMajorVersion < 17
+            return SqlServerTestEnvironment.SqlServerMajorVersion < 17
                 ? options
                 : options.UseSqlServerCompatibilityLevel(170);
         }
@@ -127,7 +127,7 @@ WHERE JSON_CONTAINS([j].[JsonOwnedType], 8, N'$.OptionalInt') = 1
         {
             base.OnModelCreating(modelBuilder, context);
 
-            if (TestEnvironment.IsJsonTypeSupported)
+            if (SqlServerTestEnvironment.IsJsonTypeSupported)
             {
                 modelBuilder.Entity<JsonTranslationsEntity>().Property(e => e.JsonString).HasColumnType("json");
             }
@@ -137,7 +137,7 @@ WHERE JSON_CONTAINS([j].[JsonOwnedType], 8, N'$.OptionalInt') = 1
             => $"JSON_MODIFY({column}, '$.{property}', NULL)";
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

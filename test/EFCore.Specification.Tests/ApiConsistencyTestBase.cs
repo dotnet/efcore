@@ -32,7 +32,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
     protected virtual TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Exceptions_are_valid()
     {
         Assert.DoesNotContain(null, Fixture.AsyncMethodExceptions);
@@ -48,7 +48,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Fluent_api_methods_should_not_return_void()
     {
         var voidMethods
@@ -64,7 +64,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Missing fluent returns --\r\n" + string.Join(Environment.NewLine, voidMethods));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Generic_fluent_api_methods_should_return_generic_types()
     {
         var nonGenericMethods = new List<(Type Type, MethodInfo Method)>();
@@ -208,7 +208,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return parameterType;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Builders_have_matching_methods()
     {
         foreach (var tuple in Fixture.MirrorTypes)
@@ -260,7 +260,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Metadata_types_have_expected_structure()
     {
         var errors = Fixture.MetadataTypes.Select(ValidateMetadata)
@@ -369,7 +369,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Mutable_metadata_types_have_matching_methods()
     {
         var errors =
@@ -431,7 +431,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_metadata_types_have_matching_methods()
     {
         var errors =
@@ -512,7 +512,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_metadata_types_have_expected_methods()
     {
         var errors =
@@ -561,7 +561,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_builder_types_have_expected_methods()
     {
         var errors =
@@ -666,7 +666,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_builder_methods_have_matching_returns()
     {
         var errors =
@@ -817,7 +817,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 => $"{m.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}{FormatGenericArguments(m.Method)}({Format(m.Method.GetParameters())})"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Runtime_metadata_types_have_matching_methods()
     {
         var errors =
@@ -887,7 +887,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Readonly_metadata_methods_have_expected_name()
     {
         var errors =
@@ -918,7 +918,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Mutable_metadata_methods_have_expected_shape()
     {
         var errors =
@@ -971,7 +971,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_metadata_methods_have_expected_shape()
     {
         var errors =
@@ -1035,7 +1035,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Service_implementations_should_use_dependencies_parameter_object()
     {
         var serviceCollection = new ServiceCollection();
@@ -1079,7 +1079,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             ?? descriptor.ImplementationInstance?.GetType()
             ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Private_classes_should_be_sealed()
     {
         var nonSealedPrivates
@@ -1096,7 +1096,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Private class is not sealed --\r\n" + string.Join(Environment.NewLine, nonSealedPrivates));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Public_inheritable_apis_should_be_virtual()
     {
         var nonVirtualMethods
@@ -1122,7 +1122,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
     {
         var asyncMethods
@@ -1172,7 +1172,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Public_api_bool_parameters_should_not_be_prefixed()
     {
         var prefixes = new[] { "is", "can", "has" };

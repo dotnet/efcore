@@ -213,7 +213,7 @@ public static class TestEnvironment
                 return false;
             }
 
-            var supported = GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized));
+            var supported = GetFlag(nameof(SqlServerConditions.SupportsMemoryOptimized));
             if (supported.HasValue)
             {
                 _supportsMemoryOptimizedTables = supported.Value;

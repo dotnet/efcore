@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class AnnotatableTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_annotation()
     {
         var annotatable = new Annotatable();
@@ -31,7 +31,7 @@ public class AnnotatableTest
         Assert.Null(annotatable.FindAnnotation("Foo"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Added_annotation_type_is_consistent()
     {
         var annotatable = new Annotatable();
@@ -47,7 +47,7 @@ public class AnnotatableTest
         Assert.Equal(typeof(ConventionAnnotation), conventionAnnotatable.FindAnnotation("Foo").GetType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_annotation_throws()
     {
         var annotatable = new Annotatable();
@@ -59,7 +59,7 @@ public class AnnotatableTest
             Assert.Throws<InvalidOperationException>(() => annotatable.AddAnnotation("Foo", "Bar")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_model_annotations()
     {
         IMutableAnnotatable annotatable = new Annotatable();
@@ -86,7 +86,7 @@ public class AnnotatableTest
             Assert.Throws<InvalidOperationException>(() => annotatable.GetAnnotation("Foo")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Annotations_are_ordered_by_name()
     {
         var annotatable = new Annotatable();
@@ -97,7 +97,7 @@ public class AnnotatableTest
         Assert.True(new[] { annotation2, annotation1 }.SequenceEqual(annotatable.GetAnnotations()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_runtime_annotation()
     {
         var annotatable = new Model().FinalizeModel();
@@ -125,7 +125,7 @@ public class AnnotatableTest
         Assert.Null(annotatable.FindRuntimeAnnotation("Foo"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_runtime_annotation_throws()
     {
         var annotatable = new Model().FinalizeModel();

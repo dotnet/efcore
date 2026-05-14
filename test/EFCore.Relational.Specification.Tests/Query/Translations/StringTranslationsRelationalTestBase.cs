@@ -47,25 +47,25 @@ public abstract class StringTranslationsRelationalTestBase<TFixture>(TFixture fi
 
     #region Like
 
-    [ConditionalFact] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
+    [Fact] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
     public virtual Task Where_Like_and_comparison()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(c => EF.Functions.Like(c.String, "S%") && c.Int == 8),
             ss => ss.Set<BasicTypesEntity>().Where(c => c.String.StartsWith("S") && c.Int == 8));
 
-    [ConditionalFact] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
+    [Fact] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
     public virtual Task Where_Like_or_comparison()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(c => EF.Functions.Like(c.String, "S%") || c.Int == int.MaxValue),
             ss => ss.Set<BasicTypesEntity>().Where(c => c.String.StartsWith("S") || c.Id == int.MaxValue));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Like_with_non_string_column_using_ToString()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(o => EF.Functions.Like(o.Int.ToString(), "%5%")),
             ss => ss.Set<BasicTypesEntity>().Where(o => o.Int.ToString().Contains("5")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Like_with_non_string_column_using_double_cast()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(o => EF.Functions.Like((string)(object)o.Int, "%5%")),
@@ -75,7 +75,7 @@ public abstract class StringTranslationsRelationalTestBase<TFixture>(TFixture fi
 
     #region IndexOf
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_with_non_string_column_using_double_cast()
     {
         var pattern = "5";
@@ -88,7 +88,7 @@ public abstract class StringTranslationsRelationalTestBase<TFixture>(TFixture fi
 
     #region Replace
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_with_non_string_column_using_double_cast()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(b => ((string)(object)b.Int).Replace("8", "3") == "3"),
