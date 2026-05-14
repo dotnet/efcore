@@ -22,5 +22,9 @@
     <PackageVersion Include="SQLitePCLRaw.provider.sqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.provider.winsqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="Testcontainers.CosmosDb" Version="4.11.0" />
+    <!-- xUnit v3 packages whose versions are not implicitly defined by the Arcade SDK XUnitV3 targets. -->
+    <PackageVersion Include="Microsoft.DotNet.XUnitV3Extensions" Version="$(MicrosoftDotNetXUnitV3ExtensionsVersion)" />
+    <PackageVersion Include="xunit.v3.assert.aot" Version="$(XUnitV3Version)" />
+    <PackageVersion Include="xunit.v3.runner.inproc.console" Version="$(XUnitV3Version)" />
   </ItemGroup>
 </Project>
