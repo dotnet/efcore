@@ -54,15 +54,6 @@ public partial class RelationalMaterializerFactory(
     {
         var (select, shaper) = ((SelectExpression)shapedQueryExpression.QueryExpression, shapedQueryExpression.ShaperExpression);
 
-        // For NoTrackingWithIdentityResolution, validate that JSON entity projections are in a safe
-        // order. This mirrors the generated shaper's JsonCorrectOrderOfEntitiesForChangeTrackerValidator.
-        // TODO: Probably move this out to ShaperValidator as a relational-specific check? Or it might make sense as a universal one.
-        if (queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
-        {
-            new RelationalShapedQueryCompilingExpressionVisitor.ShaperProcessingExpressionVisitor
-                .JsonCorrectOrderOfEntitiesForChangeTrackerValidator(select).Validate(shaper);
-        }
-
         return StripIgnorableConvert(shaper) switch
         {
             RelationalGroupByResultExpression groupByResultExpression
