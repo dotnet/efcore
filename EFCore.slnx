@@ -83,6 +83,8 @@
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.sqlite3mc.Tests.csproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.Tests.csproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.winsqlite3.Tests.csproj" />
+    <Project Path="test/Microsoft.Data.Sqlite.Upgrade.Seed.Tests/Microsoft.Data.Sqlite.Upgrade.Seed.Tests.csproj" />
+    <Project Path="test/Microsoft.Data.Sqlite.Upgrade.Read.sqlite3mc.Tests/Microsoft.Data.Sqlite.Upgrade.Read.sqlite3mc.Tests.csproj" />
     <Project Path="test/EFCore.NativeAotTests/EFCore.NativeAotTests.csproj">
       <Build Project="false" />
     </Project>
