@@ -73,6 +73,11 @@ public class MigrationsOperations
         string? @namespace,
         bool dryRun)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
         var services = PrepareForMigration(name, context);
 
@@ -147,6 +152,11 @@ public class MigrationsOperations
         string? connectionString,
         bool noConnect)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
 
         if (connectionString != null)
@@ -197,6 +207,11 @@ public class MigrationsOperations
         MigrationsSqlGenerationOptions options,
         string? contextType)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
@@ -278,6 +293,11 @@ public class MigrationsOperations
         bool dryRun,
         string? connectionString)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
 
         if (connectionString != null)
