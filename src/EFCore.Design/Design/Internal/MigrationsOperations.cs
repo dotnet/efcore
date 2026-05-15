@@ -232,7 +232,6 @@ public class MigrationsOperations
     string? connectionString,
     string? contextType)
     {
-        // Fix wildcard * issue #38254
         if (contextType == "*")
         {
             var contexts = _contextOperations.CreateAllContexts();
