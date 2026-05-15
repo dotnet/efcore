@@ -228,9 +228,9 @@ public class MigrationsOperations
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void UpdateDatabase(
-    string? targetMigration,
-    string? connectionString,
-    string? contextType)
+        string? targetMigration,
+        string? connectionString,
+        string? contextType)
     {
         if (contextType == "*")
         {
