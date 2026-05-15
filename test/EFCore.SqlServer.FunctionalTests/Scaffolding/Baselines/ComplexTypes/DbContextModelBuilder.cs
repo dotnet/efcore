@@ -79,7 +79,7 @@ public partial class DbContextModel
         microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase);
         var idColumnBase = new ColumnBase<ColumnMappingBase>("Id", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Id", idColumnBase);
-        var manyOwned_DetailsColumnBase = new ColumnBase<ColumnMappingBase>("ManyOwned_Details", "varchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
+        var manyOwned_DetailsColumnBase = new ColumnBase<ColumnMappingBase>("ManyOwned_Details", "varchar(900)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
         {
             IsNullable = true
         };
@@ -561,7 +561,7 @@ public partial class DbContextModel
         };
         principalBaseTable.Columns.Add("Deets", deetsColumn);
         deetsColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(deetsColumn);
-        var dependentColumn = new JsonColumn("Dependent", "nvarchar(450)", principalBaseTable)
+        var dependentColumn = new JsonColumn("Dependent", "json", principalBaseTable)
         {
             IsNullable = true
         };
@@ -585,7 +585,7 @@ public partial class DbContextModel
         var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
         principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
         flagsEnum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum2Column);
-        var manyOwnedColumn = new JsonColumn("ManyOwned", "nvarchar(max)", principalBaseTable)
+        var manyOwnedColumn = new JsonColumn("ManyOwned", "json", principalBaseTable)
         {
             IsNullable = true
         };
@@ -1899,6 +1899,15 @@ public partial class DbContextModel
         iX_PrincipalDerived_Dependent.MappedIndexes.Add(iX_PrincipalDerived_DependentIx);
         RelationalModel.GetOrCreateTableIndexes(iX_PrincipalDerived_DependentIx).Add(iX_PrincipalDerived_Dependent);
         principalBaseTable.Indexes.Add("IX_PrincipalDerived_Dependent", iX_PrincipalDerived_Dependent);
+        var iX_PrincipalDerived_ManyOwned_Indexer = new TableIndex(
+        "IX_PrincipalDerived_ManyOwned_Indexer", principalBaseTable, new[] { manyOwnedColumn }, false);
+        iX_PrincipalDerived_ManyOwned_Indexer.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<JsonTypePlaceholder>(iX_PrincipalDerived_ManyOwned_Indexer));
+        var iX_PrincipalDerived_ManyOwned_IndexerIx = RelationalModel.GetIndex(this,
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>",
+            "IX_PrincipalDerived_ManyOwned_Indexer");
+        iX_PrincipalDerived_ManyOwned_Indexer.MappedIndexes.Add(iX_PrincipalDerived_ManyOwned_IndexerIx);
+        RelationalModel.GetOrCreateTableIndexes(iX_PrincipalDerived_ManyOwned_IndexerIx).Add(iX_PrincipalDerived_ManyOwned_Indexer);
+        principalBaseTable.Indexes.Add("IX_PrincipalDerived_ManyOwned_Indexer", iX_PrincipalDerived_ManyOwned_Indexer);
 
         var sqlQueryMappings0 = new List<SqlQueryMapping>();
         principalDerived.SetRuntimeAnnotation("Relational:SqlQueryMappings", sqlQueryMappings0);

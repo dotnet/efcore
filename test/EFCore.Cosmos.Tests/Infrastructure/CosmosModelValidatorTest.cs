@@ -565,6 +565,39 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
+    public virtual void Passes_on_vector_index_on_complex_type_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithVectorInComplexType>(b =>
+        {
+            b.ComplexProperty(e => e.Details, cb =>
+            {
+                cb.Property(d => d.Embedding);
+            });
+            b.HasIndex("Details.Embedding").IsVectorIndex(VectorIndexType.Flat);
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(EntityWithVectorInComplexType))!;
+        var complexType = entityType.FindComplexProperty(nameof(EntityWithVectorInComplexType.Details))!.ComplexType;
+        var embeddingProperty = complexType.FindProperty(nameof(EmbeddingDetails.Embedding))!;
+        embeddingProperty.SetVectorDistanceFunction(DistanceFunction.Cosine);
+        embeddingProperty.SetVectorDimensions(128);
+
+        Validate(modelBuilder);
+    }
+
+    private class EntityWithVectorInComplexType
+    {
+        public string Id { get; set; }
+        public EmbeddingDetails Details { get; set; }
+    }
+
+    private class EmbeddingDetails
+    {
+        public ReadOnlyMemory<float> Embedding { get; set; }
+    }
+
+    [Fact]
     public virtual void Detects_trigger_on_derived_type()
     {
         var modelBuilder = CreateConventionModelBuilder();

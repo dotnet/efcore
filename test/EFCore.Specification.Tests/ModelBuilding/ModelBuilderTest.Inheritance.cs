@@ -159,8 +159,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.SingleOrDefault()?.Properties.OfType<IReadOnlyProperty>().ToList() ?? [],
-                pickle.GetIndexes().SingleOrDefault()?.Properties.OfType<IReadOnlyProperty>().ToList() ?? []);
+                initialIndexes.SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? [],
+                pickle.GetIndexes().SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? []);
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 pickle.GetForeignKeys().Single().Properties);
@@ -191,8 +191,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.SingleOrDefault()?.Properties.OfType<IReadOnlyProperty>().ToList() ?? [],
-                ingredient.GetIndexes().SingleOrDefault()?.Properties.OfType<IReadOnlyProperty>().ToList() ?? []);
+                initialIndexes.SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? [],
+                ingredient.GetIndexes().SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? []);
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 ingredient.GetForeignKeys().Single().Properties);

@@ -1887,6 +1887,260 @@ public abstract partial class ModelBuilderTest
             Assert.False(secondIndexBuilder.Metadata.IsUnique);
         }
 
+        // Common setup for the complex-index tests below. Configures ComplexProperties with Customer (single
+        // complex) and Customers (complex collection) and ignores everything else so conventions stay quiet.
+        private static TestModelBuilder ConfigureComplexIndexEntity(
+            TestModelBuilder modelBuilder,
+            Action<TestEntityTypeBuilder<ComplexProperties>> configure)
+            => modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.Ignore(e => e.Quarks);
+                    b.ComplexProperty(e => e.Customer!, cb =>
+                    {
+                        cb.Ignore(c => c.Details);
+                        cb.Ignore(c => c.Orders);
+                    });
+                    b.ComplexCollection(e => e.Customers, cb =>
+                    {
+                        cb.Ignore(c => c.Details);
+                        cb.Ignore(c => c.Orders);
+                    });
+                    configure(b);
+                });
+
+        [Fact]
+        public virtual void HasIndex_through_complex_property_resolves_leaf_with_no_collection_indices()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customer!.Name));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            var leaf = index.Properties.Single();
+            Assert.Equal(nameof(Customer.Name), leaf.Name);
+            Assert.Equal(typeof(Customer), leaf.DeclaringType.ClrType);
+            Assert.Null(index.CollectionIndices);
+        }
+
+        [Fact]
+        public virtual void HasIndex_over_complex_collection_records_null_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers.Select(c => c.Name)));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            var leaf = index.Properties.Single();
+            Assert.Equal(nameof(Customer.Name), leaf.Name);
+            Assert.Equal(typeof(Customer), leaf.DeclaringType.ClrType);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            var entry = Assert.Single(collectionIndices);
+            Assert.NotNull(entry);
+            Assert.Equal(new int?[] { null }, entry);
+        }
+
+        [Fact]
+        public virtual void HasIndex_with_constant_indexer_records_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers[0].Name));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Name), index.Properties.Single().Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(new int?[] { 0 }, Assert.Single(collectionIndices));
+        }
+
+        [Fact]
+        public virtual void HasIndex_with_multiple_leaves_mixing_complex_and_collection_paths()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder,
+                b => b.HasIndex(e => new { e.Customer!.Name, Titles = e.Customers.Select(c => c.Title) }));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+
+            Assert.Equal(2, index.Properties.Count);
+            Assert.Equal(nameof(Customer.Name), index.Properties[0].Name);
+            Assert.Equal(nameof(Customer.Title), index.Properties[1].Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(2, collectionIndices.Count);
+            Assert.Null(collectionIndices[0]);
+            Assert.Equal(new int?[] { null }, collectionIndices[1]);
+        }
+
+        [Fact]
+        public virtual void HasIndex_with_different_collection_indices_creates_distinct_indexes()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers[0].Name);
+                    b.HasIndex(e => e.Customers.Select(c => c.Name));
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var indexes = entityType.GetIndexes().ToList();
+            Assert.Equal(2, indexes.Count);
+
+            Assert.Single(
+                indexes, i => i.CollectionIndices is { Count: 1 } ci
+                    && ci[0] is { } entry
+                    && entry.SequenceEqual(new int?[] { 0 }));
+            Assert.Single(
+                indexes, i => i.CollectionIndices is { Count: 1 } ci
+                    && ci[0] is { } entry
+                    && entry.SequenceEqual(new int?[] { null }));
+        }
+
+        [Fact]
+        public virtual void ForeignKeyIndexConvention_does_not_treat_JSON_path_indexes_as_redundant_coverage()
+        {
+            // A regular index on a scalar shouldn't be considered as covering a JSON-path index over a complex
+            // collection leaf, and vice versa. Both should survive.
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers.Select(c => c.Name));
+                    b.HasIndex(e => e.Id);
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var indexes = entityType.GetIndexes().ToList();
+
+            Assert.Equal(2, indexes.Count);
+            Assert.Single(indexes, i => i.CollectionIndices is not null);
+            Assert.Single(indexes, i => i.CollectionIndices is null);
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_dotted_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customer!.Name));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Name), index.Properties.Single().Name);
+            Assert.Null(index.CollectionIndices);
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_empty_bracket_yields_null_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers.Select(c => c.Title)));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Title), index.Properties.Single().Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(new int?[] { null }, Assert.Single(collectionIndices));
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_numeric_bracket_yields_byte_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers[3].Title));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Title), index.Properties.Single().Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(new int?[] { 3 }, Assert.Single(collectionIndices));
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_with_name_uses_named_overload()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers[0].Name, "IX_FirstCustomerName"));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal("IX_FirstCustomerName", index.Name);
+            Assert.Equal(nameof(Customer.Name), index.Properties.Single().Name);
+            Assert.Equal(new int?[] { 0 }, Assert.Single(index.CollectionIndices!));
+        }
+
+        [Fact]
+        public virtual void HasIndex_named_with_conflicting_collection_indices_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var caught = Assert.Throws<InvalidOperationException>(
+                () => ConfigureComplexIndexEntity(
+                    modelBuilder, b =>
+                    {
+                        b.HasIndex(e => e.Customers[0].Name, "MyIdx");
+                        b.HasIndex(e => e.Customers.Select(c => c.Name), "MyIdx");
+                    }));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            Assert.Equal(
+                CoreStrings.ConflictingNamedIndex(
+                    "MyIdx",
+                    entityType.DisplayName(),
+                    entityType.FindIndex("MyIdx")!.Properties.Format()),
+                caught.Message);
+        }
+
+        [Fact]
+        public virtual void HasIndex_unnamed_plain_and_json_path_on_same_property_coexist()
+        {
+            // Same leaf Property (Customers.Name), but distinct CollectionIndices identities — both should
+            // survive without triggering DuplicateIndex.
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers.Select(c => c.Name));
+                    b.HasIndex(e => e.Customers[0].Name);
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var indexes = entityType.GetIndexes().ToList();
+            Assert.Equal(2, indexes.Count);
+            Assert.Single(indexes, i => i.CollectionIndices![0]!.SequenceEqual(new int?[] { null }));
+            Assert.Single(indexes, i => i.CollectionIndices![0]!.SequenceEqual(new int?[] { 0 }));
+        }
+
+        [Fact]
+        public virtual void HasIndex_idempotent_for_same_json_path_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers[0].Name);
+                    b.HasIndex(e => e.Customers[0].Name);
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            Assert.Single(entityType.GetIndexes());
+        }
+
         [Fact]
         public virtual void Can_set_primary_key_by_convention_for_user_specified_shadow_property()
         {

@@ -59,8 +59,11 @@
     <Project Path="test/EFCore.AspNet.InMemory.FunctionalTests/EFCore.AspNet.InMemory.FunctionalTests.csproj" />
     <Project Path="test/EFCore.AspNet.Specification.Tests/EFCore.AspNet.Specification.Tests.csproj" />
     <Project Path="test/EFCore.AspNet.Sqlite.FunctionalTests/EFCore.AspNet.Sqlite.FunctionalTests.csproj" />
+    <Project Path="test/EFCore.AspNet.SqlServer.FunctionalTests/EFCore.AspNet.SqlServer.FunctionalTests.csproj" />
     <Project Path="test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj" />
     <Project Path="test/EFCore.Cosmos.Tests/EFCore.Cosmos.Tests.csproj" />
+    <Project Path="test/EFCore.CrossStore.FunctionalTests/EFCore.CrossStore.FunctionalTests.csproj" />
+    <Project Path="test/EFCore.Design.Tests/EFCore.Design.Tests.csproj" />
     <Project Path="test/EFCore.FSharp.FunctionalTests/EFCore.FSharp.FunctionalTests.fsproj" />
     <Project Path="test/EFCore.InMemory.FunctionalTests/EFCore.InMemory.FunctionalTests.csproj" />
     <Project Path="test/EFCore.InMemory.Tests/EFCore.InMemory.Tests.csproj" />
@@ -70,6 +73,10 @@
     <Project Path="test/EFCore.Specification.Tests/EFCore.Specification.Tests.csproj" />
     <Project Path="test/EFCore.Sqlite.FunctionalTests/EFCore.Sqlite.FunctionalTests.csproj" />
     <Project Path="test/EFCore.Sqlite.Tests/EFCore.Sqlite.Tests.csproj" />
+    <Project Path="test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj" />
+    <Project Path="test/EFCore.SqlServer.HierarchyId.Tests/EFCore.SqlServer.HierarchyId.Tests.csproj" />
+    <Project Path="test/EFCore.SqlServer.Tests/EFCore.SqlServer.Tests.csproj" />
+    <Project Path="test/EFCore.OData.FunctionalTests/EFCore.OData.FunctionalTests.csproj" />
     <Project Path="test/EFCore.Tests/EFCore.Tests.csproj" />
     <Project Path="test/EFCore.VisualBasic.FunctionalTests/EFCore.VisualBasic.FunctionalTests.vbproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.sqlite3.Tests.csproj" />

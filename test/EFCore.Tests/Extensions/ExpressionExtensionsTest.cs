@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.ModelBuilding;
 
 // ReSharper disable InconsistentNaming
@@ -208,5 +209,133 @@ public class ExpressionExtensionsTest
         Assert.Contains(
             CoreStrings.InvalidMembersExpression(expression),
             Assert.Throws<ArgumentException>(() => expression.GetMemberAccessList()).Message);
+    }
+
+    private sealed class ComplexBlog
+    {
+        public string Title { get; set; }
+        public List<ComplexPost> Posts { get; set; } = [];
+        public ComplexPost[] PostArray { get; set; } = [];
+    }
+
+    private sealed class ComplexPost
+    {
+        public string Title { get; set; }
+        public List<ComplexComment> Comments { get; set; } = [];
+    }
+
+    private sealed class ComplexComment
+    {
+        public string Text { get; set; }
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_handles_simple_member()
+    {
+        Expression<Func<ComplexBlog, object>> expression = b => b.Title;
+
+        var (members, isCollection, collectionIndices) = expression.MatchComplexMemberAccessList(nameof(expression));
+
+        var leaf = Assert.Single(members);
+        Assert.Equal(["Title"], leaf.Select(m => m.Name));
+        Assert.Null(isCollection);
+        Assert.Null(collectionIndices);
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_handles_select_over_complex_collection()
+    {
+        Expression<Func<ComplexBlog, object>> expression = b => b.Posts.Select(p => p.Title);
+
+        var (members, isCollection, collectionIndices) = expression.MatchComplexMemberAccessList(nameof(expression));
+
+        var leaf = Assert.Single(members);
+        Assert.Equal(["Posts", "Title"], leaf.Select(m => m.Name));
+        Assert.NotNull(isCollection);
+        Assert.Equal([true, false], Assert.Single(isCollection));
+        Assert.NotNull(collectionIndices);
+        Assert.Equal([null], Assert.Single(collectionIndices));
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_handles_nested_select()
+    {
+        Expression<Func<ComplexBlog, object>> expression =
+            b => b.Posts.Select(p => p.Comments.Select(c => c.Text));
+
+        var (members, isCollection, collectionIndices) = expression.MatchComplexMemberAccessList(nameof(expression));
+
+        var leaf = Assert.Single(members);
+        Assert.Equal(["Posts", "Comments", "Text"], leaf.Select(m => m.Name));
+        Assert.NotNull(isCollection);
+        Assert.Equal(new[] { true, true, false }, Assert.Single(isCollection));
+        Assert.NotNull(collectionIndices);
+        Assert.Equal(new int?[] { null, null }, Assert.Single(collectionIndices));
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_handles_list_indexer()
+    {
+        Expression<Func<ComplexBlog, object>> expression = b => b.Posts[0].Title;
+
+        var (members, isCollection, collectionIndices) = expression.MatchComplexMemberAccessList(nameof(expression));
+
+        var leaf = Assert.Single(members);
+        Assert.Equal(["Posts", "Title"], leaf.Select(m => m.Name));
+        Assert.NotNull(isCollection);
+        Assert.Equal([true, false], Assert.Single(isCollection));
+        Assert.NotNull(collectionIndices);
+        Assert.Equal(new int?[] { 0 }, Assert.Single(collectionIndices));
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_handles_array_indexer()
+    {
+        Expression<Func<ComplexBlog, object>> expression = b => b.PostArray[2].Title;
+
+        var (members, isCollection, collectionIndices) = expression.MatchComplexMemberAccessList(nameof(expression));
+
+        var leaf = Assert.Single(members);
+        Assert.Equal(["PostArray", "Title"], leaf.Select(m => m.Name));
+        Assert.NotNull(isCollection);
+        Assert.Equal([true, false], Assert.Single(isCollection));
+        Assert.NotNull(collectionIndices);
+        Assert.Equal(new int?[] { 2 }, Assert.Single(collectionIndices));
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_handles_anonymous_with_mixed_leaves()
+    {
+        Expression<Func<ComplexBlog, object>> expression =
+            b => new { b.Title, Names = b.Posts.Select(p => p.Title) };
+
+        var (members, isCollection, collectionIndices) = expression.MatchComplexMemberAccessList(nameof(expression));
+
+        Assert.Equal(2, members.Count);
+        Assert.Equal(["Title"], members[0].Select(m => m.Name));
+        Assert.Equal(["Posts", "Title"], members[1].Select(m => m.Name));
+        Assert.NotNull(isCollection);
+        Assert.Equal([false], isCollection[0]);
+        Assert.Equal([true, false], isCollection[1]);
+        Assert.NotNull(collectionIndices);
+        Assert.Null(collectionIndices[0]);
+        Assert.Equal([null], collectionIndices[1]);
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_throws_for_non_constant_indexer()
+    {
+        var idx = 1;
+        Expression<Func<ComplexBlog, object>> expression = b => b.Posts[idx].Title;
+
+        Assert.Throws<ArgumentException>(() => expression.MatchComplexMemberAccessList(nameof(expression)));
+    }
+
+    [Fact]
+    public void MatchComplexMemberAccessList_throws_for_unrelated_call()
+    {
+        Expression<Func<ComplexBlog, object>> expression = b => b.Posts.First().Title;
+
+        Assert.Throws<ArgumentException>(() => expression.MatchComplexMemberAccessList(nameof(expression)));
     }
 }

@@ -35,13 +35,18 @@ public partial class PrincipalDerivedEntityType
             discriminatorValue: "PrincipalDerived<DependentBase<byte?>>",
             propertyCount: 0,
             complexPropertyCount: 2,
-            namedIndexCount: 1);
+            namedIndexCount: 2);
 
         DependentComplexProperty.Create(runtimeEntityType);
         ManyOwnedComplexProperty.Create(runtimeEntityType);
         var iX_PrincipalDerived_Dependent = runtimeEntityType.AddIndex(
             new[] { runtimeEntityType.FindComplexProperty("Dependent") },
             name: "IX_PrincipalDerived_Dependent");
+
+        var iX_PrincipalDerived_ManyOwned_Indexer = runtimeEntityType.AddIndex(
+            new[] { runtimeEntityType.FindComplexProperty("ManyOwned").ComplexType.FindProperty("Details") },
+            name: "IX_PrincipalDerived_ManyOwned_Indexer",
+            collectionIndices: [[0]]);
 
         return runtimeEntityType;
     }
@@ -148,7 +153,7 @@ public partial class PrincipalDerivedEntityType
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             complexType.AddAnnotation("Relational:ContainerColumnName", "Dependent");
-            complexType.AddAnnotation("Relational:ContainerColumnType", "nvarchar(450)");
+            complexType.AddAnnotation("Relational:ContainerColumnType", "json");
             complexType.AddAnnotation("Relational:FunctionName", null);
             complexType.AddAnnotation("Relational:Schema", null);
             complexType.AddAnnotation("Relational:SqlQuery", "select * from PrincipalBase");
@@ -277,8 +282,8 @@ public partial class PrincipalDerivedEntityType
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "varchar(max)"),
-                storeTypePostfix: StoreTypePostfix.None);
+                    storeTypeName: "varchar(900)",
+                    size: 900));
             details.AddAnnotation("foo", "bar");
             details.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -1150,6 +1155,7 @@ public partial class PrincipalDerivedEntityType
             PrincipalComplexProperty.Create(complexType);
             complexType.AddAnnotation("go", "brr");
             complexType.AddAnnotation("Relational:ContainerColumnName", "ManyOwned");
+            complexType.AddAnnotation("Relational:ContainerColumnType", "json");
             complexType.AddAnnotation("Relational:FunctionName", null);
             complexType.AddAnnotation("Relational:Schema", null);
             complexType.AddAnnotation("Relational:SqlQuery", "select * from PrincipalBase");

@@ -952,6 +952,7 @@ public class ModelAsserter
                 if (designTime)
                 {
                     Assert.Equal(expected.IsDescending, actual.IsDescending);
+                    AssertCollectionIndicesEqual(expected.CollectionIndices, actual.CollectionIndices);
                 }
             },
             () => Assert.Equal(expected.IsUnique, actual.IsUnique),
@@ -966,6 +967,32 @@ public class ModelAsserter
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
 
         return true;
+    }
+
+    private static void AssertCollectionIndicesEqual(
+        IReadOnlyList<IReadOnlyList<int?>?>? expected,
+        IReadOnlyList<IReadOnlyList<int?>?>? actual)
+    {
+        if (expected is null)
+        {
+            Assert.Null(actual);
+            return;
+        }
+
+        Assert.NotNull(actual);
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            if (expected[i] is null)
+            {
+                Assert.Null(actual[i]);
+            }
+            else
+            {
+                Assert.NotNull(actual[i]);
+                Assert.Equal(expected[i], actual[i]);
+            }
+        }
     }
 
     public virtual IReadOnlyModel Clone(IReadOnlyModel model)
@@ -1096,8 +1123,8 @@ public class ModelAsserter
         {
             var targetProperties = index.Properties.Select(p => targetEntityType.FindProperty(p.Name)!).ToList();
             var clonedIndex = index.Name == null
-                ? targetEntityType.AddIndex(targetProperties)
-                : targetEntityType.AddIndex(targetProperties, index.Name);
+                ? targetEntityType.AddIndex(targetProperties, index.CollectionIndices)
+                : targetEntityType.AddIndex(targetProperties, index.CollectionIndices, index.Name);
             Copy(index, clonedIndex);
         }
 

@@ -151,6 +151,24 @@ public static class RelationalIndexExtensions
             switch (property)
             {
                 case IReadOnlyProperty scalar:
+                    if (scalar.DeclaringType is IReadOnlyComplexType complexType && complexType.IsMappedToJson())
+                    {
+                        // Index over a scalar inside a JSON-mapped complex type: maps to the JSON container column.
+                        var jsonContainerName = complexType.GetContainerColumnName();
+                        if (string.IsNullOrEmpty(jsonContainerName))
+                        {
+                            return null;
+                        }
+
+                        // Multiple index properties may map to the same JSON container column; deduplicate.
+                        if (!names.Contains(jsonContainerName))
+                        {
+                            names.Add(jsonContainerName);
+                        }
+
+                        break;
+                    }
+
                     var columnName = storeObject is { } so ? scalar.GetColumnName(so) : scalar.GetColumnName();
                     if (columnName == null)
                     {
@@ -160,14 +178,18 @@ public static class RelationalIndexExtensions
                     names.Add(columnName);
                     break;
 
-                case IReadOnlyComplexProperty { IsCollection: false } complexProperty:
-                    var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
+                case IReadOnlyComplexProperty { ComplexType: var ct } when ct.IsMappedToJson():
+                    var containerColumnName = ct.GetContainerColumnName();
                     if (string.IsNullOrEmpty(containerColumnName))
                     {
                         return null;
                     }
 
-                    names.Add(containerColumnName);
+                    if (!names.Contains(containerColumnName))
+                    {
+                        names.Add(containerColumnName);
+                    }
+
                     break;
 
                 default:

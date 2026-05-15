@@ -3714,12 +3714,79 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Same(complexProperty, Assert.Single(index.Properties));
 
+            var table = orderType.GetTableMappings().Single().Table;
+            var jsonColumn = table.FindColumn(complexProperty)!;
+            var tableIndexes = (SortedSet<TableIndex>)index
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var tableIndex = Assert.Single(tableIndexes);
+            Assert.Same(index, tableIndex.MappedIndexes.Single());
+            var jsonIndex = Assert.IsType<RelationalJsonIndex>(tableIndex[RelationalAnnotationNames.JsonIndex]);
+            var element = Assert.Single(jsonIndex.Elements);
+            Assert.Same(jsonColumn, element.ContainingColumn);
+            Assert.Null(element.PropertyName);
+            Assert.Empty(element.Path);
+            Assert.Null(jsonIndex.CollectionIndices);
+
             // Simulates the lookup performed by compiled-model code generation, which uses property paths.
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var resolved = Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalModel.GetIndex(
                 model.Model, orderType.Name, [nameof(Order.ComplexProperty)]);
 #pragma warning restore EF1001 // Internal EF Core API usage.
             Assert.Same(index, resolved);
+        }
+
+        [Fact]
+        public void Json_index_paths_traverse_nested_complex_properties()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<EntityWithNestedComplexProperty>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson();
+                        cb.ComplexProperty(c => c.Nested, nb =>
+                        {
+                            nb.HasJsonPropertyName("nested_json");
+                            nb.Property(n => n.Number).HasJsonPropertyName("number_json");
+                        });
+                    });
+                b.HasIndex("ComplexProperty.Nested.Number");
+                b.HasIndex("ComplexProperty.Nested");
+            });
+
+            var model = Finalize(modelBuilder);
+            var entityType = model.Model.FindEntityType(typeof(EntityWithNestedComplexProperty))!;
+            var table = entityType.GetTableMappings().Single().Table;
+            var complexProperty = entityType.FindComplexProperty(nameof(EntityWithNestedComplexProperty.ComplexProperty))!;
+            var jsonColumn = table.FindColumn(complexProperty)!;
+
+            var scalarIndex = entityType.GetIndexes().Single(i => i.Properties is [IProperty]);
+            var scalarTableIndexes = (SortedSet<TableIndex>)scalarIndex
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var scalarTableIndex = Assert.Single(scalarTableIndexes);
+            var scalarJsonIndex = Assert.IsType<RelationalJsonIndex>(scalarTableIndex[RelationalAnnotationNames.JsonIndex]);
+            var scalarElement = Assert.Single(scalarJsonIndex.Elements);
+            Assert.Same(jsonColumn, scalarElement.ContainingColumn);
+            Assert.Equal("number_json", scalarElement.PropertyName);
+            Assert.Equal(
+                ["nested_json", "number_json"],
+                scalarElement.Path.Select(s => s.PropertyName));
+            Assert.All(scalarElement.Path, s => Assert.False(s.IsArray));
+            Assert.Null(scalarJsonIndex.CollectionIndices);
+
+            var nestedComplexIndex = entityType.GetIndexes().Single(i => i.Properties is [IComplexProperty]);
+            var nestedTableIndexes = (SortedSet<TableIndex>)nestedComplexIndex
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var nestedTableIndex = Assert.Single(nestedTableIndexes);
+            var nestedJsonIndex = Assert.IsType<RelationalJsonIndex>(nestedTableIndex[RelationalAnnotationNames.JsonIndex]);
+            var nestedElement = Assert.Single(nestedJsonIndex.Elements);
+            Assert.Same(jsonColumn, nestedElement.ContainingColumn);
+            Assert.Equal("nested_json", nestedElement.PropertyName);
+            Assert.Equal(
+                ["nested_json"],
+                nestedElement.Path.Select(s => s.PropertyName));
+            Assert.Null(nestedJsonIndex.CollectionIndices);
         }
 
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)

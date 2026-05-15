@@ -672,37 +672,345 @@ public abstract class InternalTypeBaseBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<PropertyBase>? GetOrCreatePropertyBases(
-        IReadOnlyList<IReadOnlyList<MemberInfo>>? memberChains,
+    /// <remarks>
+    ///     Resolves one <see cref="PropertyBase" /> per chain, walking intermediate complex properties
+    ///     (creating them when missing) and resolving the leaf as either an existing complex property or
+    ///     a get-or-created scalar property.
+    ///     <paramref name="isCollection" /> describes, for each chain, whether each member of the chain
+    ///     (including the leaf) is reached as a collection; it is <see langword="null" />
+    ///     when no chain traverses a complex collection.
+    /// </remarks>
+    public virtual IReadOnlyList<PropertyBase>? GetOrCreateProperties(
+        IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains,
+        IReadOnlyList<IReadOnlyList<bool>>? isCollection,
         ConfigurationSource? configurationSource)
     {
-        if (memberChains == null)
+        var properties = new List<PropertyBase>(memberChains.Count);
+        for (var memberIndex = 0; memberIndex < memberChains.Count; memberIndex++)
         {
-            return null;
-        }
-
-        var list = new List<PropertyBase>(memberChains.Count);
-        foreach (var memberChain in memberChains)
-        {
-            var (ownerBuilder, finalMember) = ResolveComplexChain(memberChain);
-            var existing = ownerBuilder.Metadata.FindMembersInHierarchy(finalMember.GetSimpleMemberName())
-                .FirstOrDefault();
-            if (existing is ComplexProperty complexProperty)
-            {
-                list.Add(complexProperty);
-                continue;
-            }
-
-            var propertyBuilder = ownerBuilder.Property(finalMember, configurationSource);
-            if (propertyBuilder == null)
+            var chain = memberChains[memberIndex];
+            if (chain.Count == 0)
             {
                 return null;
             }
 
-            list.Add(propertyBuilder.Metadata);
+            var chainIsCollection = isCollection?[memberIndex];
+            Check.DebugAssert(
+                chainIsCollection is null || chainIsCollection.Count == chain.Count,
+                $"isCollection length {chainIsCollection?.Count} doesn't match chain length {chain.Count}.");
+
+            var currentBuilder = this;
+            for (var i = 0; i < chain.Count - 1; i++)
+            {
+                var complexBuilder = currentBuilder.ComplexProperty(
+                    chain[i].ResolveMemberForType(currentBuilder.Metadata.ClrType), complexTypeName: null,
+                    collection: chainIsCollection?[i] ?? false, configurationSource);
+                if (complexBuilder is null)
+                {
+                    return null;
+                }
+
+                currentBuilder = complexBuilder.Metadata.ComplexType.Builder;
+            }
+
+            var leafMember = chain[^1].ResolveMemberForType(currentBuilder.Metadata.ClrType);
+            var existing = currentBuilder.Metadata.FindMember(leafMember.GetSimpleMemberName());
+            if (existing is ComplexProperty complexProperty)
+            {
+                properties.Add(complexProperty);
+                continue;
+            }
+
+            var propertyBuilder = currentBuilder.Property(leafMember, configurationSource);
+            if (propertyBuilder is null)
+            {
+                return null;
+            }
+
+            properties.Add(propertyBuilder.Metadata);
         }
 
-        return list;
+        return properties;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Resolves one <see cref="PropertyBase" /> per name chain. Behaves like the
+    ///     <see cref="MemberInfo" />-based overload but resolves intermediate members by name.
+    /// </remarks>
+    public virtual IReadOnlyList<PropertyBase>? GetOrCreateProperties(
+        IReadOnlyList<IReadOnlyList<string>> propertyPaths,
+        IReadOnlyList<IReadOnlyList<bool>>? isCollection,
+        ConfigurationSource? configurationSource)
+    {
+        var properties = new List<PropertyBase>(propertyPaths.Count);
+        for (var leafIndex = 0; leafIndex < propertyPaths.Count; leafIndex++)
+        {
+            var names = propertyPaths[leafIndex];
+            if (names.Count == 0)
+            {
+                return null;
+            }
+
+            var chainIsCollection = isCollection?[leafIndex];
+            Check.DebugAssert(
+                chainIsCollection is null || chainIsCollection.Count == names.Count,
+                $"isCollection length {chainIsCollection?.Count} doesn't match chain length {names.Count}.");
+
+            var currentBuilder = this;
+            for (var i = 0; i < names.Count - 1; i++)
+            {
+                // Use FindMember (this type + base types) rather than FindMembersInHierarchy: a property
+                // declared on a derived type isn't reachable from `this` and can't be used in an index/key
+                // defined on `this`. Falls back to reflection on the CLR type when there is no model member
+                // yet (e.g. shared-type / shadow entities), then materializes the complex property.
+                var existingMember = currentBuilder.Metadata.FindMember(names[i]);
+                if (existingMember is ComplexProperty existingComplex)
+                {
+                    currentBuilder = existingComplex.ComplexType.Builder;
+                    continue;
+                }
+
+                var memberInfo = currentBuilder.Metadata.ClrType.GetMembersInHierarchy(names[i]).FirstOrDefault();
+                if (memberInfo is null)
+                {
+                    return null;
+                }
+
+                var complexBuilder = currentBuilder.ComplexProperty(
+                    propertyType: null, names[i], memberInfo, complexTypeName: null,
+                    complexType: null, collection: chainIsCollection?[i] ?? false, configurationSource);
+                if (complexBuilder is null)
+                {
+                    return null;
+                }
+
+                currentBuilder = complexBuilder.Metadata.ComplexType.Builder;
+            }
+
+            var leafName = names[^1];
+            var existing = currentBuilder.Metadata.FindMember(leafName);
+            if (existing is ComplexProperty leafComplex)
+            {
+                properties.Add(leafComplex);
+                continue;
+            }
+
+            var leafProperty = currentBuilder.Property(leafName, configurationSource);
+            if (leafProperty is null)
+            {
+                return null;
+            }
+
+            properties.Add(leafProperty.Metadata);
+        }
+
+        return properties;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Parses a dotted property path that may include complex-collection indexer tokens, e.g.
+    ///         <c>"Posts[].Title"</c> / <c>"Posts[*].Title"</c> (all elements) or <c>"Posts[0].Title"</c>
+    ///         (fixed element); a leaf may also carry a bracket (e.g. <c>"Posts[]"</c>) to indicate the leaf
+    ///         itself is a complex collection.
+    ///     </para>
+    ///     <para>
+    ///         <c>MemberNames</c> contains one entry per dotted segment. <c>IsCollection</c> runs parallel to
+    ///         <c>MemberNames</c> (length equal to <c>MemberNames.Count</c>): <see langword="true" /> at a
+    ///         given position means the corresponding member was reached as a complex-collection traversal
+    ///         (i.e. carried a bracket token). <c>CollectionIndices</c> has one entry per bracket token in
+    ///         the path — ordered to match the <see langword="true" /> entries in <c>IsCollection</c>;
+    ///         <see langword="null" /> means "all elements" (<c>[]</c> or <c>[*]</c>) and a non-
+    ///         <see langword="null" /> <see cref="int" /> means the fixed element index. The top-level
+    ///         <c>CollectionIndices</c> is itself <see langword="null" /> when no segment uses a bracket.
+    ///     </para>
+    ///     <para>
+    ///         Returns <see langword="null" /> when the path is empty, whitespace, or otherwise malformed.
+    ///     </para>
+    /// </remarks>
+    public static (IReadOnlyList<string> MemberNames,
+        IReadOnlyList<bool> IsCollection,
+        IReadOnlyList<int?>? CollectionIndices)?
+        MatchComplexPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return null;
+        }
+
+        var names = new List<string>();
+        var collectionFlags = new List<bool>();
+        var indices = new List<int?>();
+        var hasBrackets = false;
+
+        foreach (var rawSegment in path.Split('.'))
+        {
+            var segment = rawSegment.Trim();
+            var bracketStart = segment.IndexOf('[');
+            if (bracketStart < 0)
+            {
+                if (segment.Length == 0)
+                {
+                    return null;
+                }
+
+                names.Add(segment);
+                collectionFlags.Add(false);
+                continue;
+            }
+
+            if (!segment.EndsWith(']') || bracketStart == 0)
+            {
+                return null;
+            }
+
+            var memberName = segment.Substring(0, bracketStart).Trim();
+            if (memberName.Length == 0)
+            {
+                return null;
+            }
+
+            // Only a single trailing `[...]` is supported per dotted segment: nested forms such as
+            // `Name[0][1]` fall through to the int.TryParse below (on "0][1") and are rejected there.
+            var inner = segment.Substring(bracketStart + 1, segment.Length - bracketStart - 2).Trim();
+            int? index;
+            if (inner.Length == 0 || inner == "*")
+            {
+                index = null;
+            }
+            else if (int.TryParse(inner, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b) && b >= 0)
+            {
+                index = b;
+            }
+            else
+            {
+                return null;
+            }
+
+            names.Add(memberName);
+            collectionFlags.Add(true);
+            indices.Add(index);
+            hasBrackets = true;
+        }
+
+        return (names, collectionFlags, hasBrackets ? indices : null);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Parses each string path via <see cref="MatchComplexPath" /> and aggregates the per-chain results.
+    ///     Returns <see langword="null" /> if any path is malformed. Each per-chain entry follows the shape
+    ///     described on <see cref="MatchComplexPath" />. The top-level <c>IsCollection</c> is
+    ///     <see langword="null" /> only when every parsed chain is a single non-collection member; the
+    ///     top-level <c>CollectionIndices</c> is <see langword="null" /> when no path uses a bracket token.
+    /// </remarks>
+    public static (IReadOnlyList<IReadOnlyList<string>> Names,
+        IReadOnlyList<IReadOnlyList<bool>>? IsCollection,
+        IReadOnlyList<IReadOnlyList<int?>?>? CollectionIndices)?
+        MatchComplexPathList(IReadOnlyList<string> propertyNames)
+    {
+        var names = new List<IReadOnlyList<string>>(propertyNames.Count);
+        var isCollection = new List<IReadOnlyList<bool>>(propertyNames.Count);
+        var indices = new List<IReadOnlyList<int?>?>(propertyNames.Count);
+        var anyIndices = false;
+        var anyComplexChain = false;
+
+        foreach (var path in propertyNames)
+        {
+            var parsed = MatchComplexPath(path);
+            if (parsed is null)
+            {
+                return null;
+            }
+
+            var (chainNames, chainIsCollection, chainIndices) = parsed.Value;
+            names.Add(chainNames);
+            isCollection.Add(chainIsCollection);
+            indices.Add(chainIndices);
+            if (ContainsMultipleOrTrue(chainIsCollection))
+            {
+                anyComplexChain = true;
+            }
+
+            if (chainIndices is not null)
+            {
+                anyIndices = true;
+            }
+        }
+
+        return (names, anyComplexChain ? isCollection : null, anyIndices ? indices : null);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Returns whether the given per-member <c>IsCollection</c> flags describe a chain with complex-property
+    ///     structure — i.e. more than one member, or a single member that is itself a complex collection.
+    ///     Single non-collection members are entity-level scalar leaves whose flag list can be omitted.
+    /// </remarks>
+    public static bool ContainsMultipleOrTrue(IReadOnlyList<bool> flags)
+    {
+        if (flags.Count > 1)
+        {
+            return true;
+        }
+
+        for (var i = 0; i < flags.Count; i++)
+        {
+            if (flags[i])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Counts the complex-collection segments on the path from the entity root down to (and including)
+    ///     <paramref name="property" /> — i.e. the number of indexer slots a fully-qualified path would have.
+    /// </remarks>
+    public static int CountComplexCollectionsInPath(IReadOnlyPropertyBase property)
+    {
+        var count = property is IReadOnlyComplexProperty { IsCollection: true } ? 1 : 0;
+        for (var declaringType = property.DeclaringType;
+             declaringType is IReadOnlyComplexType complexType;
+             declaringType = complexType.ComplexProperty.DeclaringType)
+        {
+            if (complexType.ComplexProperty.IsCollection)
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     /// <summary>

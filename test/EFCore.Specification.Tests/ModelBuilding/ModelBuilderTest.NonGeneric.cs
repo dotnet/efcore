@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -258,15 +259,30 @@ public abstract partial class ModelBuilderTest
             => Wrap(EntityTypeBuilder.Ignore(propertyName));
 
         public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
-            => new NonGenericTestIndexBuilder<TEntity>(
-                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray()));
+        {
+            var (members, isCollection, collectionIndices) = indexExpression.MatchComplexMemberAccessList(nameof(indexExpression));
+            var builder = ((EntityType)EntityTypeBuilder.Metadata).Builder;
+            var properties = builder.GetOrCreateProperties(members, isCollection, ConfigurationSource.Explicit)!;
+            return new NonGenericTestIndexBuilder<TEntity>(
+                new IndexBuilder(
+                    builder.HasIndex(properties, collectionIndices, name: null, ConfigurationSource.Explicit)!.Metadata));
+        }
 
         public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression, string name)
-            => new NonGenericTestIndexBuilder<TEntity>(
-                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray(), name));
+        {
+            var (members, isCollection, collectionIndices) = indexExpression.MatchComplexMemberAccessList(nameof(indexExpression));
+            var builder = ((EntityType)EntityTypeBuilder.Metadata).Builder;
+            var properties = builder.GetOrCreateProperties(members, isCollection, ConfigurationSource.Explicit)!;
+            return new NonGenericTestIndexBuilder<TEntity>(
+                new IndexBuilder(
+                    builder.HasIndex(properties, collectionIndices, name, ConfigurationSource.Explicit)!.Metadata));
+        }
 
         public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
             => new NonGenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));
+
+        public override TestIndexBuilder<TEntity> HasIndex(string[] propertyNames, string name)
+            => new NonGenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames, name));
 
         public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
             => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(

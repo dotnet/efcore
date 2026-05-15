@@ -85,15 +85,34 @@ public class InternalIndexBuilder : AnnotatableBuilder<Index, InternalModelBuild
     /// </summary>
     public virtual InternalIndexBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
     {
-        var properties = entityTypeBuilder.GetActualProperties(Metadata.Properties, null);
-        if (properties == null)
+        var configurationSource = Metadata.GetConfigurationSource();
+        InternalIndexBuilder? newIndexBuilder;
+
+        // If the index targets complex / chained properties or carries collection indices, we can't
+        // simply re-resolve PropertyBase instances at the entity-type level — the leaves may live
+        // inside complex types that were themselves rebuilt during detach. Reconstruct the segment
+        // lists plus per-leaf collection indices from the original Index and go through the
+        // HasIndex overload that resolves the chain against the current model.
+        if (RequiresComplexReattach(Metadata, out var namesPerLeaf, out var isCollection, out var collectionIndices))
         {
-            return null;
+            var properties = entityTypeBuilder.GetOrCreateProperties(namesPerLeaf, isCollection, configurationSource);
+            newIndexBuilder = properties is null
+                ? null
+                : entityTypeBuilder.HasIndex(properties, collectionIndices, Metadata.Name, configurationSource);
+        }
+        else
+        {
+            var properties = entityTypeBuilder.GetActualProperties(Metadata.Properties, null);
+            if (properties == null)
+            {
+                return null;
+            }
+
+            newIndexBuilder = Metadata.Name == null
+                ? entityTypeBuilder.HasIndex(properties, configurationSource)
+                : entityTypeBuilder.HasIndex(properties, Metadata.Name, configurationSource);
         }
 
-        var newIndexBuilder = Metadata.Name == null
-            ? entityTypeBuilder.HasIndex(properties, Metadata.GetConfigurationSource())
-            : entityTypeBuilder.HasIndex(properties, Metadata.Name, Metadata.GetConfigurationSource());
         newIndexBuilder?.MergeAnnotationsFrom(Metadata);
 
         var isUniqueConfigurationSource = Metadata.GetIsUniqueConfigurationSource();
@@ -103,6 +122,77 @@ public class InternalIndexBuilder : AnnotatableBuilder<Index, InternalModelBuild
         }
 
         return newIndexBuilder;
+    }
+
+    private static bool RequiresComplexReattach(
+        Index index,
+        out IReadOnlyList<IReadOnlyList<string>> namesPerLeaf,
+        out IReadOnlyList<IReadOnlyList<bool>>? isCollection,
+        out IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
+    {
+        var indexCollectionIndices = index.CollectionIndices;
+        var properties = index.Properties;
+        var propertyCount = properties.Count;
+
+        var anyComplexChain = false;
+        for (var i = 0; i < propertyCount; i++)
+        {
+            if (properties[i].DeclaringType is ComplexType)
+            {
+                anyComplexChain = true;
+                break;
+            }
+        }
+
+        if (!anyComplexChain && indexCollectionIndices is null)
+        {
+            namesPerLeaf = [];
+            isCollection = null;
+            collectionIndices = null;
+            return false;
+        }
+
+        var chains = new IReadOnlyList<string>[propertyCount];
+        var allFlags = new IReadOnlyList<bool>[propertyCount];
+
+        for (var i = 0; i < propertyCount; i++)
+        {
+            var property = properties[i];
+
+            // Measure the chain depth first so we can size arrays exactly and fill in reverse order,
+            // avoiding the cost of List<>.Reverse() and List<> capacity doubling.
+            var depth = 0;
+            var declaringType = property.DeclaringType;
+            while (declaringType is ComplexType walking)
+            {
+                depth++;
+                declaringType = walking.ComplexProperty.DeclaringType;
+            }
+
+            var chainNames = new string[depth + 1];
+            var chainFlags = new bool[depth + 1];
+            chainNames[depth] = property.Name;
+            // The leaf entry of chainFlags stays false: the indexed leaf is the property itself,
+            // not a collection-traversal step on the way to it.
+            declaringType = property.DeclaringType;
+            for (var pos = depth - 1; pos >= 0; pos--)
+            {
+                var complexType = (ComplexType)declaringType!;
+                chainNames[pos] = complexType.ComplexProperty.Name;
+                chainFlags[pos] = complexType.ComplexProperty.IsCollection;
+                declaringType = complexType.ComplexProperty.DeclaringType;
+            }
+
+            chains[i] = chainNames;
+            allFlags[i] = chainFlags;
+        }
+
+        namesPerLeaf = chains;
+        // We're already on the slow path (anyComplexChain is true), so always emit the flag list so the
+        // consumer can reconstruct each chain with the correct collection / non-collection structure.
+        isCollection = allFlags;
+        collectionIndices = indexCollectionIndices;
+        return true;
     }
 
     /// <summary>

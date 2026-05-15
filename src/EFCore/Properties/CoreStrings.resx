@@ -435,6 +435,9 @@
   <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
     <value>There are multiple [ForeignKey] attributes which are pointing to same set of properties '{propertyList}' on entity type '{entityType}' and targeting the principal entity type '{principalEntityType}'.</value>
   </data>
+  <data name="ConflictingNamedIndex" xml:space="preserve">
+    <value>The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.</value>
+  </data>
   <data name="ConflictingKeylessAndPrimaryKeyAttributes" xml:space="preserve">
     <value>The entity type '{entity}' has both [Keyless] and [PrimaryKey] attributes; one must be removed.</value>
   </data>
@@ -769,14 +772,14 @@
   <data name="IndexOnComplexProperty" xml:space="preserve">
     <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because it is defined on the complex property '{property}'. Indexes are not supported on complex properties.</value>
   </data>
-  <data name="IndexValueFactoryWithComplexProperty" xml:space="preserve">
-    <value>A value factory cannot be created for the index {indexProperties} on the entity type '{entityType}' because it contains the complex property '{property}'. Index value factories are not supported for indexes that contain complex properties.</value>
-  </data>
   <data name="IndexPropertiesWrongEntity" xml:space="preserve">
     <value>The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.</value>
   </data>
   <data name="IndexPropertyMustBePropertyOrComplexProperty" xml:space="preserve">
     <value>The index property '{property}' on the entity type '{entityType}' cannot be configured because it is not a scalar property or a complex property. Only scalar properties and complex properties can be referenced by an index.</value>
+  </data>
+  <data name="IndexValueFactoryWithComplexProperty" xml:space="preserve">
+    <value>A value factory cannot be created for the index {indexProperties} on the entity type '{entityType}' because it contains the complex property '{property}'. Index value factories are not supported for indexes that contain complex properties.</value>
   </data>
   <data name="IndexWrongType" xml:space="preserve">
     <value>The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
@@ -789,6 +792,9 @@
   </data>
   <data name="InvalidAlternateKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because alternate key property '{keyProperty}' is null. If the alternate key is not used in a relationship, then consider using a unique index instead. Unique indexes may contain nulls, while alternate keys may not.</value>
+  </data>
+  <data name="InvalidCollectionIndicesEntryLength" xml:space="preserve">
+    <value>The collection-indices entry for property '{property}' on index {indexProperties} has {actualCount} element(s), but the property path traverses {expectedCount} complex collection(s).</value>
   </data>
   <data name="InvalidComplexType" xml:space="preserve">
     <value>The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type.</value>
@@ -808,9 +814,6 @@
   <data name="InvalidIncludeExpression" xml:space="preserve">
     <value>The expression '{expression}' is invalid inside an 'Include' operation, since it does not represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, use casting ('t =&gt; ((Derived)t).MyProperty') or the 'as' operator ('t =&gt; (t as Derived).MyProperty'). Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see https://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
-  <data name="InvalidStructuredJsonPathIndexCount" xml:space="preserve">
-    <value>The number of indices provided ({indicesCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).</value>
-  </data>
   <data name="InvalidKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because its primary key property '{keyProperty}' is null.</value>
   </data>
@@ -825,6 +828,9 @@
   </data>
   <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
     <value>The [InverseProperty] attribute on property '{1_entityType}.{0_property}' is not valid. The property '{referencedProperty}' is not a valid navigation on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation.</value>
+  </data>
+  <data name="InvalidNumberOfIndexCollectionIndices" xml:space="preserve">
+    <value>Invalid number of index collection-indices entries provided for {indexProperties}: {numValues} entries were provided, but the index has {numProperties} properties.</value>
   </data>
   <data name="InvalidNumberOfIndexSortOrderValues" xml:space="preserve">
     <value>Invalid number of index sort order values provided for {indexProperties}: {numValues} values were provided, but the index has {numProperties} properties.</value>
@@ -855,6 +861,9 @@
   </data>
   <data name="InvalidSetTypeOwned" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'. See https://aka.ms/efcore-docs-owned for more information.</value>
+  </data>
+  <data name="InvalidStructuredJsonPathIndexCount" xml:space="preserve">
+    <value>The number of indices provided ({indicesCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).</value>
   </data>
   <data name="InvalidSwitch" xml:space="preserve">
     <value>Invalid {name}: {value}</value>
@@ -969,10 +978,6 @@
     <value>A compiled model was found but it was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model with the correct provider.</value>
     <comment>Warning CoreEventId.CompiledModelProviderMismatchWarning string string</comment>
   </data>
-  <data name="LogEnsureCreatedWithTrackedEntities" xml:space="preserve">
-    <value>'EnsureCreated' was called on a context that is already tracking added, modified, or deleted entities. These tracked changes would be lost if a retry occurs due to a transient failure. Call 'EnsureCreated' before making changes to the context, or disable this warning by using 'ConfigureWarnings(w =&gt; w.Ignore(CoreEventId.EnsureCreatedWithTrackedEntitiesWarning))'.</value>
-    <comment>Warning CoreEventId.EnsureCreatedWithTrackedEntitiesWarning</comment>
-  </data>
   <data name="LogComplexElementPropertyChangeDetected" xml:space="preserve">
     <value>The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
     <comment>Debug CoreEventId.ComplexElementPropertyChangeDetected string string</comment>
@@ -1020,6 +1025,10 @@
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
+  </data>
+  <data name="LogEnsureCreatedWithTrackedEntities" xml:space="preserve">
+    <value>'EnsureCreated' was called on a context that is already tracking added, modified, or deleted entities. These tracked changes would be lost if a retry occurs due to a transient failure. Call 'EnsureCreated' before making changes to the context, or disable this warning by using 'ConfigureWarnings(w =&gt; w.Ignore(CoreEventId.EnsureCreatedWithTrackedEntitiesWarning))'.</value>
+    <comment>Warning CoreEventId.EnsureCreatedWithTrackedEntitiesWarning</comment>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
     <value>An exception occurred while iterating over the results of a query for context type '{contextType}'.{newline}{error}</value>

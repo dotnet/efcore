@@ -338,6 +338,20 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         Assert.Equal([alternateIndex], principalBaseId.GetContainingIndexes());
     }
 
+    // ConditionalFact does not work on overridden test methods (xunit discovers the override via
+    // the base method's [Fact] and the conditional attribute is ignored). Use [Fact] + a runtime
+    // skip so the condition is honored when the override actually runs.
+    [Fact]
+    public override Task ComplexTypes()
+    {
+        if (!SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            throw Xunit.Sdk.SkipException.ForSkip("Requires IsJsonTypeSupported");
+        }
+
+        return base.ComplexTypes();
+    }
+
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         base.BuildComplexTypesModel(modelBuilder);
@@ -357,7 +371,8 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
 
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
         {
-            eb.ComplexProperty(p => p.Dependent, cb => cb.HasColumnType("nvarchar(450)"));
+            eb.ComplexProperty(p => p.Dependent, cb => cb.HasColumnType("json"));
+            eb.ComplexCollection<IList<OwnedType>, OwnedType>("ManyOwned", cb => cb.HasColumnType("json"));
         });
     }
 

@@ -1781,7 +1781,39 @@ public class RelationalModel : Annotatable, IRelationalModel
         var columns = new List<Column>(index.Properties.Count);
         foreach (var propertyBase in index.Properties)
         {
-            if (!TryAppendIndexColumns(table, propertyBase, columns))
+            // For an index over a property inside a JSON-mapped complex type (scalar leaf, non-collection
+            // complex property, or collection complex property), the index covers the JSON container column.
+            // The JSON paths are exposed separately via the RelationalJsonIndex annotation.
+            var containerName = propertyBase switch
+            {
+                IProperty { DeclaringType: IComplexType complexType } when complexType.IsMappedToJson()
+                    => complexType.GetContainerColumnName(),
+                IComplexProperty { ComplexType: var complexType } when complexType.IsMappedToJson()
+                    => complexType.GetContainerColumnName(),
+                _ => null
+            };
+
+            if (containerName is not null)
+            {
+                if (string.IsNullOrEmpty(containerName)
+                    || table.FindColumn(containerName) is not Column container)
+                {
+                    return null;
+                }
+
+                // Multiple index properties may map to the same JSON container column; deduplicate
+                // while preserving the order of first occurrence.
+                if (!columns.Contains(container))
+                {
+                    columns.Add(container);
+                }
+            }
+            else if (propertyBase is IProperty property
+                     && FindColumn(table, property) is Column column)
+            {
+                columns.Add(column);
+            }
+            else
             {
                 return null;
             }
@@ -1790,37 +1822,6 @@ public class RelationalModel : Annotatable, IRelationalModel
         return columns;
     }
 
-    private static bool TryAppendIndexColumns(Table table, IPropertyBase propertyBase, List<Column> columns)
-    {
-        switch (propertyBase)
-        {
-            case IProperty property:
-                Check.DebugAssert(property.DeclaringType is not IComplexType complexType || !complexType.IsMappedToJson(),
-                    "Properties mapped to JSON should not be indexed directly; the index should be on the JSON container column instead.");
-
-                if (FindColumn(table, property) is not Column column)
-                {
-                    return false;
-                }
-
-                columns.Add(column);
-                return true;
-
-            case IComplexProperty { IsCollection: false } complexProperty:
-                var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
-                if (string.IsNullOrEmpty(containerColumnName)
-                    || table.FindColumn(containerColumnName) is not Column jsonColumn)
-                {
-                    return false;
-                }
-
-                columns.Add(jsonColumn);
-                return true;
-
-            default:
-                return false;
-        }
-    }
     private static void PopulateTableConfiguration(Table table, bool designTime)
     {
         var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);

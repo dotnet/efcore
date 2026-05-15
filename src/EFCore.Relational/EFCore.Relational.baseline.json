@@ -9986,6 +9986,14 @@
           "Value": "Relational:JsonElementMappings"
         },
         {
+          "Member": "const string JsonIndex",
+          "Value": "Relational:JsonIndex"
+        },
+        {
+          "Member": "const string JsonIndexPaths",
+          "Value": "Relational:JsonIndexPaths"
+        },
+        {
           "Member": "const string JsonPropertyName",
           "Value": "Relational:JsonPropertyName"
         },
@@ -10135,6 +10143,9 @@
           "Member": "RelationalAnnotationProvider(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotationProviderDependencies dependencies);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement FindJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase property, Microsoft.EntityFrameworkCore.Metadata.ITable table);"
+        },
+        {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> For(Microsoft.EntityFrameworkCore.Metadata.IRelationalModel model, bool designTime);"
         },
         {
@@ -10190,6 +10201,12 @@
         },
         {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> For(Microsoft.EntityFrameworkCore.Metadata.ITrigger trigger, bool designTime);"
+        },
+        {
+          "Member": "virtual bool IsJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex? TryBuildJsonIndex(Microsoft.EntityFrameworkCore.Metadata.ITableIndex index);"
         }
       ],
       "Properties": [
@@ -13129,6 +13146,31 @@
       ]
     },
     {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex : System.IEquatable<Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex>",
+      "Methods": [
+        {
+          "Member": "RelationalJsonIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> elements, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex? other);"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? CollectionIndices { get; }"
+        },
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> Elements { get; }"
+        }
+      ]
+    },
+    {
       "Type": "static class Microsoft.EntityFrameworkCore.RelationalKeyBuilderExtensions",
       "Methods": [
         {
@@ -14116,6 +14158,9 @@
         },
         {
           "Member": "override void ValidateIndexOnComplexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> complexProperties, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "override void ValidateIndexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase property, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateIndexPropertyMapping(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -16560,6 +16605,15 @@
         },
         {
           "Member": "static string JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(object? property1, object? property2, object? type, object? jsonPropertyName);"
+        },
+        {
+          "Member": "static string JsonPathIndexElementsCollectionIndicesMismatch(object? elementCount, object? collectionIndicesCount);"
+        },
+        {
+          "Member": "static string JsonPathIndexPropertiesInDifferentJsonColumns(object? indexProperties, object? entityType, object? firstColumn, object? secondColumn);"
+        },
+        {
+          "Member": "static string JsonPathIndexPropertyMissingJsonColumn(object? indexProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(object? entityTypeName, object? asNoTrackingWithIdentityResolution);"
@@ -19904,10 +19958,13 @@
       "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath",
       "Methods": [
         {
-          "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, int[] indices);"
+          "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, System.Collections.Generic.IReadOnlyList<int?>? indices);"
         },
         {
-          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder);"
+          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder, bool useAsteriskForNullIndex = true);"
+        },
+        {
+          "Member": "virtual string ToString(bool useAsteriskForNullIndex = true);"
         },
         {
           "Member": "override string ToString();"
@@ -19915,7 +19972,7 @@
       ],
       "Properties": [
         {
-          "Member": "virtual int[] Indices { get; }"
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<int?>? Indices { get; }"
         },
         {
           "Member": "virtual bool IsRoot { get; }"

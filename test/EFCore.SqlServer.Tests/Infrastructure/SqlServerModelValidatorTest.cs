@@ -1287,6 +1287,48 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public string NonVectorProperty { get; set; }
     }
 
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Passes_for_vector_index_on_complex_type_property_not_mapped_to_json()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorInsideJsonEntity>(b =>
+        {
+            b.ComplexProperty(
+                v => v.VectorContainer,
+                n => n.Property(v => v.Vector).HasMaxLength(3));
+            b.HasVectorIndex("VectorContainer.Vector").HasMetric("cosine");
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_complex_type_property_mapped_to_json()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorInsideJsonEntity>(b =>
+        {
+            b.ComplexProperty(
+                v => v.VectorContainer,
+                n =>
+                {
+                    n.ToJson();
+                    n.Property(v => v.Vector).HasMaxLength(3);
+                });
+            b.HasVectorIndex("VectorContainer.Vector").HasMetric("cosine");
+        });
+
+        VerifyError(
+            SqlServerStrings.VectorPropertiesNotSupportedInJson(
+                "VectorInsideJsonEntity.VectorContainer#VectorContainer",
+                nameof(VectorContainer.Vector)),
+            modelBuilder);
+    }
+
     #endregion Vector
 
     #region Full-text search

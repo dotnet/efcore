@@ -324,7 +324,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var strategy = db.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
         {
-            using var transaction = db.Database.BeginTransactionAsync();
+            await using var transaction = await db.Database.BeginTransactionAsync();
             var migrator = db.GetService<IMigrator>();
             await migrator.MigrateAsync("Migration1");
             await migrator.MigrateAsync("Migration2");

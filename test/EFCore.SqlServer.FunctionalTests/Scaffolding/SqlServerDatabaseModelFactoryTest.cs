@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
@@ -2637,6 +2638,181 @@ CREATE TABLE JsonColumns (
                     });
             },
             "DROP TABLE JsonColumns;");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_JSON_index_paths()
+        => Test(
+            @"
+CREATE TABLE JsonIndexTable (
+    Id int PRIMARY KEY,
+    Data json NULL
+);
+CREATE JSON INDEX IX_JsonIndexTable_Data ON JsonIndexTable(Data) FOR (N'$.Title', N'$.Posts.Rating');",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single();
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_JsonIndexTable_Data", index.Name);
+                Assert.Same(table.Columns.Single(c => c.Name == "Data"), Assert.Single(index.Columns));
+
+                var jsonInfo = Assert.IsType<ValueTuple<string, string[]>>(index[RelationalAnnotationNames.JsonIndexPaths]);
+                Assert.Equal("Data", jsonInfo.Item1);
+                Assert.Equal(["$.Posts.Rating", "$.Title"], jsonInfo.Item2);
+            },
+            "DROP TABLE JsonIndexTable;");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_JSON_index_with_single_path()
+        => Test(
+            @"
+CREATE TABLE JsonSinglePathTable (
+    Id int PRIMARY KEY,
+    Doc json NULL
+);
+CREATE JSON INDEX IX_JsonSinglePathTable_Doc ON JsonSinglePathTable(Doc) FOR (N'$.Name');",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single();
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_JsonSinglePathTable_Doc", index.Name);
+                Assert.Same(table.Columns.Single(c => c.Name == "Doc"), Assert.Single(index.Columns));
+
+                var jsonInfo = Assert.IsType<ValueTuple<string, string[]>>(index[RelationalAnnotationNames.JsonIndexPaths]);
+                Assert.Equal("Doc", jsonInfo.Item1);
+                Assert.Equal(["$.Name"], jsonInfo.Item2);
+            },
+            "DROP TABLE JsonSinglePathTable;");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_JSON_index_with_indexer_path()
+        => Test(
+            @"
+CREATE TABLE JsonIndexerPathTable (
+    Id int PRIMARY KEY,
+    Items json NULL
+);
+CREATE JSON INDEX IX_JsonIndexerPathTable_Items ON JsonIndexerPathTable(Items) FOR (N'$.Items[0].Value');",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single();
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_JsonIndexerPathTable_Items", index.Name);
+
+                var jsonInfo = Assert.IsType<ValueTuple<string, string[]>>(index[RelationalAnnotationNames.JsonIndexPaths]);
+                Assert.Equal("Items", jsonInfo.Item1);
+                Assert.Equal(["$.Items[0].Value"], jsonInfo.Item2);
+            },
+            "DROP TABLE JsonIndexerPathTable;");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_JSON_index_alongside_regular_index_on_same_table()
+        => Test(
+            @"
+CREATE TABLE JsonMixedIndexTable (
+    Id int PRIMARY KEY,
+    Name nvarchar(100) NOT NULL,
+    Data json NULL
+);
+CREATE INDEX IX_JsonMixedIndexTable_Name ON JsonMixedIndexTable(Name);
+CREATE JSON INDEX IX_JsonMixedIndexTable_Data ON JsonMixedIndexTable(Data) FOR (N'$.City');",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single();
+                Assert.Equal(2, table.Indexes.Count);
+
+                var regular = Assert.Single(table.Indexes, i => i.Name == "IX_JsonMixedIndexTable_Name");
+                Assert.Same(table.Columns.Single(c => c.Name == "Name"), Assert.Single(regular.Columns));
+                Assert.Null(regular[RelationalAnnotationNames.JsonIndexPaths]);
+
+                var json = Assert.Single(table.Indexes, i => i.Name == "IX_JsonMixedIndexTable_Data");
+                Assert.Same(table.Columns.Single(c => c.Name == "Data"), Assert.Single(json.Columns));
+                var jsonInfo = Assert.IsType<ValueTuple<string, string[]>>(json[RelationalAnnotationNames.JsonIndexPaths]);
+                Assert.Equal("Data", jsonInfo.Item1);
+                Assert.Equal(["$.City"], jsonInfo.Item2);
+            },
+            "DROP TABLE JsonMixedIndexTable;");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_no_JSON_index_annotation_when_no_json_index_exists()
+        => Test(
+            @"
+CREATE TABLE JsonNoIndexTable (
+    Id int PRIMARY KEY,
+    Data json NULL,
+    Name nvarchar(100)
+);
+CREATE INDEX IX_JsonNoIndexTable_Name ON JsonNoIndexTable(Name);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single();
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_JsonNoIndexTable_Name", index.Name);
+                Assert.Null(index[RelationalAnnotationNames.JsonIndexPaths]);
+            },
+            "DROP TABLE JsonNoIndexTable;");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_unique_JSON_index()
+        // SQL Server doesn't support UNIQUE on JSON indexes; the batch is rejected at parse time.
+        => Assert.Throws<SqlException>(
+            () => Test(
+                @"
+CREATE TABLE JsonUniqueIndexTable (
+    Id int PRIMARY KEY,
+    Data json NULL
+);
+CREATE UNIQUE JSON INDEX IX_JsonUniqueIndexTable_Data ON JsonUniqueIndexTable(Data) FOR (N'$.Name');",
+                [],
+                [],
+                (dbModel, scaffoldingFactory) => { },
+                "DROP TABLE JsonUniqueIndexTable;"));
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_JSON_index_with_fillfactor()
+        => Test(
+            @"
+CREATE TABLE JsonFillFactorTable (
+    Id int PRIMARY KEY,
+    Data json NULL
+);
+CREATE JSON INDEX IX_JsonFillFactorTable_Data ON JsonFillFactorTable(Data) FOR (N'$.Name') WITH (FILLFACTOR = 80);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single();
+                var index = Assert.Single(table.Indexes);
+                Assert.False(index.IsUnique);
+                Assert.Equal(80, index[SqlServerAnnotationNames.FillFactor]);
+            },
+            "DROP TABLE JsonFillFactorTable;");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public void Scaffolds_JSON_index_with_filter()
+        // SQL Server doesn't support a WHERE filter on JSON indexes; the batch is rejected at parse time.
+        => Assert.Throws<SqlException>(
+            () => Test(
+                @"
+CREATE TABLE JsonFilteredIndexTable (
+    Id int PRIMARY KEY,
+    Discriminator int NOT NULL,
+    Data json NULL
+);
+CREATE JSON INDEX IX_JsonFilteredIndexTable_Data ON JsonFilteredIndexTable(Data) FOR (N'$.Name') WHERE [Discriminator] = 1;",
+                [],
+                [],
+                (dbModel, scaffoldingFactory) => { },
+                "DROP TABLE JsonFilteredIndexTable;"));
 
     [Fact]
     public void Specific_max_length_are_add_to_store_type()

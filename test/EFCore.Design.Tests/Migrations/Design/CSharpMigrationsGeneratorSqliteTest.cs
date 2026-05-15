@@ -56,11 +56,11 @@ partial class Snapshot : ModelSnapshot
             AddBoilerPlate("""
                     modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
                         {
-                            b.Property<int>("Id")
+                            var id = b.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("INTEGER");
 
-                            SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
+                            SqlitePropertyBuilderExtensions.UseAutoincrement(id);
 
                             b.HasKey("Id");
 
@@ -89,11 +89,11 @@ partial class Snapshot : ModelSnapshot
             AddBoilerPlate("""
                     modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithConverterPk", b =>
                         {
-                            b.Property<int>("Id")
+                            var id = b.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("INTEGER");
 
-                            SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
+                            SqlitePropertyBuilderExtensions.UseAutoincrement(id);
 
                             b.HasKey("Id");
 

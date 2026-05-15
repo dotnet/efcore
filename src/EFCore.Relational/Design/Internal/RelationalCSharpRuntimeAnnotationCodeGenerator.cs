@@ -1288,7 +1288,11 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     /// <param name="index">The unique constraint to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     public virtual void Generate(ITableIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => GenerateSimpleAnnotations(parameters);
+    {
+        var annotations = parameters.Annotations;
+        annotations.Remove(RelationalAnnotationNames.JsonIndex);
+        GenerateSimpleAnnotations(parameters);
+    }
 
     private void Create(
         IForeignKeyConstraint foreignKey,
@@ -2448,6 +2452,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         if (parameters.IsRuntime)
         {
             parameters.Annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
+        }
+        else
+        {
+            parameters.Annotations.Remove(RelationalAnnotationNames.JsonIndex);
         }
 
         base.Generate(index, parameters);
