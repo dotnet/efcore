@@ -228,9 +228,9 @@ public class MigrationsOperations
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void UpdateDatabase(
-        string? targetMigration,
-        string? connectionString,
-        string? contextType)
+    string? targetMigration,
+    string? connectionString,
+    string? contextType)
     {
         // Fix wildcard * issue #38254
         if (contextType == "*")
@@ -246,16 +246,7 @@ public class MigrationsOperations
             {
                 using (item)
                 {
-                    if (connectionString is not null)
-                    {
-                        item.Database.SetConnectionString(connectionString);
-                    }
-
-                    var services = _servicesBuilder.Build(item);
-                    EnsureServices(services);
-
-                    var migrator = services.GetRequiredService<IMigrator>();
-                    migrator.Migrate(targetMigration);
+                    MigrateContext(item, targetMigration, connectionString);
                 }
             }
 
@@ -265,19 +256,24 @@ public class MigrationsOperations
 
         using (var context = _contextOperations.CreateContext(contextType))
         {
-            if (connectionString is not null)
-            {
-                context.Database.SetConnectionString(connectionString);
-            }
-
-            var services = _servicesBuilder.Build(context);
-            EnsureServices(services);
-
-            var migrator = services.GetRequiredService<IMigrator>();
-            migrator.Migrate(targetMigration);
+            MigrateContext(context, targetMigration, connectionString);
         }
 
         _reporter.WriteInformation(DesignStrings.Done);
+    }
+
+    private void MigrateContext(DbContext context, string? targetMigration, string? connectionString)
+    {
+        if (connectionString is not null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
+        var services = _servicesBuilder.Build(context);
+        EnsureServices(services);
+
+        var migrator = services.GetRequiredService<IMigrator>();
+        migrator.Migrate(targetMigration);
     }
 
     /// <summary>
