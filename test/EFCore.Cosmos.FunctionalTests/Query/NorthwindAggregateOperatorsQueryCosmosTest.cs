@@ -2622,11 +2622,12 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
             });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
-    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Where_subquery_where_any(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_any(a);
 
                 AssertSql(
@@ -2694,11 +2695,12 @@ WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
             });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
-    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override Task Where_subquery_where_all(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_all(a);
 
                 AssertSql(

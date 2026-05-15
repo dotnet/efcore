@@ -11,9 +11,10 @@ public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocCo
         => CosmosTestStoreFactory.Instance;
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Complex_type_equals_parameter_with_nested_types_with_property_of_same_name();
 
         AssertSql(

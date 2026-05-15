@@ -16,7 +16,9 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 {
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task Can_add_update_delete_end_to_end(bool transactionalBatch)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(

@@ -5,12 +5,13 @@ using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Testcontainers.CosmosDb;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 #nullable disable
 
-public static class TestEnvironment
+public static class CosmosTestEnvironment
 {
     private static readonly string _emulatorAuthToken =
         "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
@@ -165,4 +166,37 @@ public static class TestEnvironment
 
     public static bool IsLinuxEmulator => IsEmulator
         && EmulatorType.Equals("linux", StringComparison.OrdinalIgnoreCase);
+
+    public static bool IsAvailable => CosmosTestStore.IsConnectionAvailableAsync().AsTask().GetAwaiter().GetResult();
+
+    // ---- Conditional* helpers consumed by [ConditionalFact(typeof(TestEnvironment), nameof(...))] ----
+
+    public static bool DoesNotUseTokenCredential => !UseTokenCredential;
+    public static bool IsNotEmulator => !IsEmulator;
+    public static bool IsNotLinuxEmulator => !IsLinuxEmulator;
+
+    /// <summary>
+    ///     Throws <see cref="SkipException" /> when running on the Linux Cosmos emulator.
+    ///     Use inside override methods whose base already carries [Fact] / [Theory]
+    ///     so that a second [ConditionalFact] is not needed (xUnit v3 forbids it).
+    /// </summary>
+    public static void SkipOnLinuxEmulator(string reason = "Not supported on the Linux Cosmos emulator")
+    {
+        if (IsLinuxEmulator)
+        {
+            throw SkipException.ForSkip(reason);
+        }
+    }
+
+    /// <summary>
+    ///     Throws <see cref="SkipException" /> when NOT running on the emulator.
+    ///     Use inside override methods whose base already carries [Fact] / [Theory].
+    /// </summary>
+    public static void SkipIfNotEmulator(string reason = "Only supported on the Cosmos emulator")
+    {
+        if (!IsEmulator)
+        {
+            throw SkipException.ForSkip(reason);
+        }
+    }
 }
