@@ -1,12 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.InteropServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public static class TestEnvironment
+public static class SqlServerTestEnvironment
 {
     public static IConfiguration Config { get; } = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
@@ -30,17 +31,17 @@ public static class TestEnvironment
 
     private static bool? _fullTextInstalled;
 
-    private static bool? _supportsHiddenColumns;
+    private static bool? _IsHiddenColumnsSupported;
 
-    private static bool? _supportsSqlClr;
+    private static bool? _IsSqlClrSupported;
 
     private static bool? _supportsOnlineIndexing;
 
-    private static bool? _supportsMemoryOptimizedTables;
+    private static bool? _IsMemoryOptimizedTablesSupportedTables;
 
-    private static bool? _supportsTemporalTablesCascadeDelete;
+    private static bool? _IsTemporalTablesCascadeDeleteSupported;
 
-    private static bool? _supportsUtf8;
+    private static bool? _IsUtf8Supported;
 
     private static bool? _supportsJsonPathExpressions;
 
@@ -48,11 +49,11 @@ public static class TestEnvironment
 
     private static bool? _isVectorTypeSupported;
 
-    private static bool? _supportsFunctions2017;
+    private static bool? _IsFunctions2017Supported;
 
-    private static bool? _supportsFunctions2019;
+    private static bool? _IsFunctions2019Supported;
 
-    private static bool? _supportsFunctions2022;
+    private static bool? _IsFunctions2022Supported;
 
     private static byte? _productMajorVersion;
 
@@ -88,6 +89,9 @@ public static class TestEnvironment
     }
 
     public static bool IsLocalDb { get; } = _dataSource.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);
+
+    public static bool SqlServerAvailable { get; } = IsConfigured
+        && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !IsLocalDb);
 
     public static bool IsFullTextSearchSupported
     {
@@ -132,21 +136,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsHiddenColumns.HasValue)
+            if (_IsHiddenColumnsSupported.HasValue)
             {
-                return _supportsHiddenColumns.Value;
+                return _IsHiddenColumnsSupported.Value;
             }
 
             try
             {
-                _supportsHiddenColumns = ((GetProductMajorVersion() >= 13 && GetEngineEdition() != 6) || IsAzureSql) && GetCompatibilityLevel() >= 130;
+                _IsHiddenColumnsSupported = ((GetProductMajorVersion() >= 13 && GetEngineEdition() != 6) || IsAzureSql) && GetCompatibilityLevel() >= 130;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsHiddenColumns = false;
+                _IsHiddenColumnsSupported = false;
             }
 
-            return _supportsHiddenColumns.Value;
+            return _IsHiddenColumnsSupported.Value;
         }
     }
 
@@ -159,21 +163,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsSqlClr.HasValue)
+            if (_IsSqlClrSupported.HasValue)
             {
-                return _supportsSqlClr.Value;
+                return _IsSqlClrSupported.Value;
             }
 
             try
             {
-                _supportsSqlClr = GetEngineEdition() != 9;
+                _IsSqlClrSupported = GetEngineEdition() != 9;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsSqlClr = false;
+                _IsSqlClrSupported = false;
             }
 
-            return _supportsSqlClr.Value;
+            return _IsSqlClrSupported.Value;
         }
     }
 
@@ -213,15 +217,15 @@ public static class TestEnvironment
                 return false;
             }
 
-            var supported = GetFlag(nameof(SqlServerConditions.SupportsMemoryOptimized));
+            var supported = GetFlag(nameof(IsMemoryOptimizedTablesSupported));
             if (supported.HasValue)
             {
-                _supportsMemoryOptimizedTables = supported.Value;
+                _IsMemoryOptimizedTablesSupportedTables = supported.Value;
             }
 
-            if (_supportsMemoryOptimizedTables.HasValue)
+            if (_IsMemoryOptimizedTablesSupportedTables.HasValue)
             {
-                return _supportsMemoryOptimizedTables.Value;
+                return _IsMemoryOptimizedTablesSupportedTables.Value;
             }
 
             try
@@ -232,14 +236,14 @@ public static class TestEnvironment
                 using var command = new SqlCommand(
                     "SELECT SERVERPROPERTY('IsXTPSupported');", sqlConnection);
                 var result = command.ExecuteScalar();
-                _supportsMemoryOptimizedTables = (result != null ? Convert.ToInt32(result) : 0) == 1 && !IsLocalDb;
+                _IsMemoryOptimizedTablesSupportedTables = (result != null ? Convert.ToInt32(result) : 0) == 1 && !IsLocalDb;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsMemoryOptimizedTables = false;
+                _IsMemoryOptimizedTablesSupportedTables = false;
             }
 
-            return _supportsMemoryOptimizedTables.Value;
+            return _IsMemoryOptimizedTablesSupportedTables.Value;
         }
     }
 
@@ -252,21 +256,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsTemporalTablesCascadeDelete.HasValue)
+            if (_IsTemporalTablesCascadeDeleteSupported.HasValue)
             {
-                return _supportsTemporalTablesCascadeDelete.Value;
+                return _IsTemporalTablesCascadeDeleteSupported.Value;
             }
 
             try
             {
-                _supportsTemporalTablesCascadeDelete = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
+                _IsTemporalTablesCascadeDeleteSupported = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsTemporalTablesCascadeDelete = false;
+                _IsTemporalTablesCascadeDeleteSupported = false;
             }
 
-            return _supportsTemporalTablesCascadeDelete.Value;
+            return _IsTemporalTablesCascadeDeleteSupported.Value;
         }
     }
 
@@ -279,21 +283,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsUtf8.HasValue)
+            if (_IsUtf8Supported.HasValue)
             {
-                return _supportsUtf8.Value;
+                return _IsUtf8Supported.Value;
             }
 
             try
             {
-                _supportsUtf8 = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
+                _IsUtf8Supported = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsUtf8 = false;
+                _IsUtf8Supported = false;
             }
 
-            return _supportsUtf8.Value;
+            return _IsUtf8Supported.Value;
         }
     }
 
@@ -333,21 +337,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsFunctions2017.HasValue)
+            if (_IsFunctions2017Supported.HasValue)
             {
-                return _supportsFunctions2017.Value;
+                return _IsFunctions2017Supported.Value;
             }
 
             try
             {
-                _supportsFunctions2017 = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
+                _IsFunctions2017Supported = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsFunctions2017 = false;
+                _IsFunctions2017Supported = false;
             }
 
-            return _supportsFunctions2017.Value;
+            return _IsFunctions2017Supported.Value;
         }
     }
 
@@ -360,21 +364,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsFunctions2019.HasValue)
+            if (_IsFunctions2019Supported.HasValue)
             {
-                return _supportsFunctions2019.Value;
+                return _IsFunctions2019Supported.Value;
             }
 
             try
             {
-                _supportsFunctions2019 = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
+                _IsFunctions2019Supported = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsFunctions2019 = false;
+                _IsFunctions2019Supported = false;
             }
 
-            return _supportsFunctions2019.Value;
+            return _IsFunctions2019Supported.Value;
         }
     }
 
@@ -387,21 +391,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsFunctions2022.HasValue)
+            if (_IsFunctions2022Supported.HasValue)
             {
-                return _supportsFunctions2022.Value;
+                return _IsFunctions2022Supported.Value;
             }
 
             try
             {
-                _supportsFunctions2022 = (GetProductMajorVersion() >= 16 || IsAzureSql) && GetCompatibilityLevel() >= 160;
+                _IsFunctions2022Supported = (GetProductMajorVersion() >= 16 || IsAzureSql) && GetCompatibilityLevel() >= 160;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsFunctions2022 = false;
+                _IsFunctions2022Supported = false;
             }
 
-            return _supportsFunctions2022.Value;
+            return _IsFunctions2022Supported.Value;
         }
     }
 
@@ -462,6 +466,18 @@ public static class TestEnvironment
 
     public static byte SqlServerMajorVersion
         => GetProductMajorVersion();
+
+    public static bool IsNotAzureSql => !IsAzureSql;
+
+    public static bool SupportsAttach
+    {
+        get
+        {
+            var defaultConnection = new SqlConnectionStringBuilder(DefaultConnection);
+            return defaultConnection.DataSource.Contains("(localdb)", StringComparison.OrdinalIgnoreCase)
+                || defaultConnection.UserInstance;
+        }
+    }
 
     public static DbContextOptionsBuilder SetCompatibilityLevelFromEnvironment(DbContextOptionsBuilder builder)
         => builder.UseSqlServerCompatibilityLevel(SqlServerMajorVersion * 10);
