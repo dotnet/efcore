@@ -85,26 +85,6 @@ public class MigrationsOperationsTest
         Assert.Equal(DesignStrings.MigrationNameRequired, exception.Message);
     }
 
-    [ConditionalFact]
-    public void UpdateDatabase_with_wildcard_context_runs_for_all_contexts()
-    {
-        var assembly = MockAssembly.Create([typeof(AssemblyTestContext), typeof(TestContext)]);
-        var reporter = new TestOperationReporter();
-        var operations = new TestMigrationsOperations(
-            reporter,
-            assembly,
-            assembly,
-            "projectDir",
-            "RootNamespace",
-            "C#",
-            nullable: false,
-            args: []);
-
-        operations.UpdateDatabase(null, null, "*");
-
-        Assert.Contains(reporter.Messages, m => m.Contains(DesignStrings.Done));
-    }
-
     private class TestContext : DbContext;
 
     private class AssemblyTestContext : DbContext

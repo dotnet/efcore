@@ -227,22 +227,22 @@ public class MigrationsOperations
                 throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
             }
 
-                foreach (var item in contexts)
+            foreach (var item in contexts)
+            {
+                using (item)
                 {
-                    using (item)
+                    if (connectionString is not null)
                     {
-                        if (connectionString is not null)
-                        {
-                            item.Database.SetConnectionString(connectionString);
-                        }
-
-                        var services = _servicesBuilder.Build(item);
-                        EnsureServices(services);
-
-                        var migrator = services.GetRequiredService<IMigrator>();
-                        migrator.Migrate(targetMigration);
+                        item.Database.SetConnectionString(connectionString);
                     }
+
+                    var services = _servicesBuilder.Build(item);
+                    EnsureServices(services);
+
+                    var migrator = services.GetRequiredService<IMigrator>();
+                    migrator.Migrate(targetMigration);
                 }
+            }
 
             _reporter.WriteInformation(DesignStrings.Done);
             return;
