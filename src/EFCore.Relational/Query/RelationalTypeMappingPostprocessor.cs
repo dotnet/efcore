@@ -151,23 +151,15 @@ public class RelationalTypeMappingPostprocessor(
                     {
                         var value = rowValue.Values[j];
 
-                        if (value.TypeMapping is null)
+                        if (value.TypeMapping is null
+                            // Fall back to the default type mapping for the CLR type when no type mapping was inferred
+                            // from usage context (e.g. SelectMany where the value column isn't referenced).
+                            && (inferredTypeMappings[j]
+                                ?? RelationalDependencies.TypeMappingSource.FindMapping(
+                                    value.Type, QueryCompilationContext.Model))
+                            is { } resolvedTypeMapping)
                         {
-                            if (inferredTypeMappings[j] is { } inferredTypeMapping)
-                            {
-                                value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
-                            }
-                            else
-                            {
-                                // No type mapping was inferred from usage context (e.g. SelectMany where the value column isn't
-                                // referenced). Fall back to the default type mapping for the CLR type.
-                                var defaultTypeMapping = RelationalDependencies.TypeMappingSource.FindMapping(
-                                    value.Type, QueryCompilationContext.Model);
-                                if (defaultTypeMapping is not null)
-                                {
-                                    value = _sqlExpressionFactory.ApplyTypeMapping(value, defaultTypeMapping);
-                                }
-                            }
+                            value = _sqlExpressionFactory.ApplyTypeMapping(value, resolvedTypeMapping);
                         }
 
                         // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred
