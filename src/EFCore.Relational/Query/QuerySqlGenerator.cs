@@ -654,7 +654,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         if (sqlConstantExpression.TypeMapping is null)
         {
             throw new UnreachableException(
-                $"SqlConstantExpression with value '{sqlConstantExpression.Value}' has no type mapping. "
+                "SqlConstantExpression has no type mapping. "
                 + "Please file a bug report at https://github.com/dotnet/efcore.");
         }
 
