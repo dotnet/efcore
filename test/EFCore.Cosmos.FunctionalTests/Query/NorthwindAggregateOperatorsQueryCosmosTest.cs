@@ -2267,27 +2267,22 @@ WHERE NOT(false)
 """);
             });
 
-    public override async Task Contains_top_level(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Contains_top_level(async));
+    public override Task Contains_top_level(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_top_level(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
+                AssertSql(
+                    """
 @p='ALFKI'
 
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE (c["id"] = @p))
+SELECT VALUE true
+FROM root c
+WHERE (c["id"] = @p)
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Contains_with_local_tuple_array_closure(bool async)
     {
@@ -2519,28 +2514,22 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
-    public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception =
-                await Assert.ThrowsAsync<CosmosException>(() => base.Contains_over_entityType_with_null_should_rewrite_to_false(async));
+    public override Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_over_entityType_with_null_should_rewrite_to_false(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
+                AssertSql(
+                    """
 @entity_equality_p_OrderID=null
 
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @entity_equality_p_OrderID)))
+SELECT VALUE true
+FROM root c
+WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @entity_equality_p_OrderID))
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Contains_over_entityType_with_null_in_projection(bool async)
     {
