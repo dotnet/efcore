@@ -2053,6 +2053,12 @@ WHERE (
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Column_collection_SelectMany())).Message);
 
+    public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Inline_collection_SelectMany_with_unreferenced_collection_value())).Message);
+
     public override async Task Column_collection_SelectMany_with_filter()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

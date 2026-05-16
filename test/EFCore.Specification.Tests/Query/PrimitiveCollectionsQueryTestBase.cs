@@ -270,6 +270,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         Assert.Equal(2, result.Id);
     }
 
+    [ConditionalFact] // #38285
+    public virtual Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().SelectMany(e => new[] { "a", "b" }.Select(k => e)));
+
     [ConditionalFact]
     public virtual Task Parameter_collection_Count()
     {
