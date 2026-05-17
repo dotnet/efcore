@@ -7921,7 +7921,7 @@
           "Member": "int LastCommittedCommandIndex { get; set; }"
         },
         {
-          "Member": "bool SeedingAttempted { get; set; }"
+          "Member": "bool SeedingCompleted { get; set; }"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? Transaction { get; set; }"

@@ -258,15 +258,13 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         }
 
         return Dependencies.ExecutionStrategy.Execute(
-            (Creator: this, Created: operationsPerformed, Retrying: new StrongBox<bool>(false)),
+            (Creator: this, Created: operationsPerformed, Seeded: new StrongBox<bool>(false)),
             static (context, state) =>
             {
-                if (state.Retrying.Value)
+                if (state.Seeded.Value)
                 {
-                    context.ChangeTracker.Clear();
+                    return state.Created;
                 }
-
-                state.Retrying.Value = true;
 
                 var coreOptionsExtension =
                     state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
@@ -282,6 +280,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
                 {
                     throw new InvalidOperationException(CoreStrings.MissingSeeder);
                 }
+
+                state.Seeded.Value = true;
 
                 return state.Created;
             }, verifySucceeded: null);
@@ -324,15 +324,13 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         }
 
         return await Dependencies.ExecutionStrategy.ExecuteAsync(
-            (Creator: this, Created: operationsPerformed, Retrying: new StrongBox<bool>(false)),
+            (Creator: this, Created: operationsPerformed, Seeded: new StrongBox<bool>(false)),
             static async (context, state, ct) =>
             {
-                if (state.Retrying.Value)
+                if (state.Seeded.Value)
                 {
-                    context.ChangeTracker.Clear();
+                    return state.Created;
                 }
-
-                state.Retrying.Value = true;
 
                 var coreOptionsExtension =
                     state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
@@ -349,6 +347,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
                 {
                     throw new InvalidOperationException(CoreStrings.MissingSeeder);
                 }
+
+                state.Seeded.Value = true;
 
                 return state.Created;
             }, verifySucceeded: null, cancellationToken).ConfigureAwait(false);

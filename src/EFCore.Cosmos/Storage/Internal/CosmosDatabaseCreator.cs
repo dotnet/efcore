@@ -66,19 +66,12 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
         var created = new StrongBox<bool>(false);
         var dataInserted = new StrongBox<bool>(false);
-        var retrying = new StrongBox<bool>(false);
+        var seeded = new StrongBox<bool>(false);
         return _executionStrategy.ExecuteAsync(
-            (Creator: this, Created: created, DataInserted: dataInserted, Retrying: retrying),
+            (Creator: this, Created: created, DataInserted: dataInserted, Seeded: seeded),
             static async (_, state, ct) =>
             {
                 var creator = state.Creator;
-
-                if (state.Retrying.Value)
-                {
-                    creator._currentContext.Context.ChangeTracker.Clear();
-                }
-
-                state.Retrying.Value = true;
 
                 if (!state.DataInserted.Value)
                 {
@@ -101,8 +94,12 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                     }
                 }
 
-                await creator.SeedDataAsync(state.Created.Value, cancellationToken: ct)
-                    .ConfigureAwait(false);
+                if (!state.Seeded.Value)
+                {
+                    await creator.SeedDataAsync(state.Created.Value, cancellationToken: ct)
+                        .ConfigureAwait(false);
+                    state.Seeded.Value = true;
+                }
 
                 return state.Created.Value;
             }, verifySucceeded: null, cancellationToken);
