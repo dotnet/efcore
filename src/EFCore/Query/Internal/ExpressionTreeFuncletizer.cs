@@ -2057,7 +2057,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case UnaryExpression unary when PreserveConvertNode(unary):
                 // Parameters made evaluatable for an Enumerable.Select lambda are only evaluatable inside that lambda, and attempting to
                 // evaluate them as roots produces an unbound parameter.
-                case ParameterExpression when state.NotEvaluatableAsRootHandler is not null:
+                case ParameterExpression:
                     result = state.NotEvaluatableAsRootHandler!();
                     return true;
 
