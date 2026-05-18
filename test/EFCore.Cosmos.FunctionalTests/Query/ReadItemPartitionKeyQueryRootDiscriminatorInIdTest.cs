@@ -1,5 +1,7 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -348,6 +350,25 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
     public override async Task ReadItem_with_WithPartitionKey()
     {
         await base.ReadItem_with_WithPartitionKey();
+
+        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
+    }
+
+    public override async Task ReadItem_with_WithPartitionKey_and_conflicting_partition_key_predicate_throws()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1")
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2")));
+
+        Assert.Equal(CosmosStrings.WithPartitionKeyConflictingPartitionKeyPredicate, exception.Message);
+
+        AssertSql();
+    }
+
+    public override async Task ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw()
+    {
+        await base.ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw();
 
         AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -439,6 +439,40 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34"))
+""");
+    }
+
+    public override async Task ReadItem_with_WithPartitionKey_and_conflicting_partition_key_predicate_throws()
+    {
+        // Not ReadItem when the discriminator is stored in the JSON id: the conflicting partition key predicate remains in SQL
+        // and the query returns no results (see #38238; validation only applies to the ReadItem optimization path).
+        await AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1")
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2"),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1")
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2"),
+            assertEmpty: true);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = "PK2")))
+""");
+    }
+
+    public override async Task ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw()
+    {
+        await base.ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw();
+
+        AssertSql(
+            """
+@partitionKey='PK1'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @partitionKey)))
 """);
     }
 

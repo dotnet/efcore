@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -423,5 +423,8 @@
   </data>
   <data name="WithPartitionKeyNotConstantOrParameter" xml:space="preserve">
     <value>'WithPartitionKey' only accepts simple constant or parameter arguments. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+  </data>
+  <data name="WithPartitionKeyConflictingPartitionKeyPredicate" xml:space="preserve">
+    <value>The partition key value specified via 'WithPartitionKey' conflicts with a partition key predicate in the query. Remove the predicate or ensure both specify the same value.</value>
   </data>
 </root>
