@@ -1293,14 +1293,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // larger lambda fragment, and never as an evaluatable root - see TryHandleNonEvaluatableAsRoot below.
         if (_evaluatableParameters.Contains(parameterExpression))
         {
-            var parameterExpression2 = parameterExpression;
+            var capturedParameterExpression = parameterExpression;
             _state = State.CreateEvaluatable(
                 typeof(ParameterExpression),
                 containsCapturedVariable: false,
                 notEvaluatableAsRootHandler: () =>
                 {
                     _state = State.NoEvaluatability;
-                    return parameterExpression2;
+                    return capturedParameterExpression;
                 });
         }
         else
