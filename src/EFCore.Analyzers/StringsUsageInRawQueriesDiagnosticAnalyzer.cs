@@ -186,8 +186,64 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
             } concatenation when AnalyzeConcatenation(concatenation)
                 => StringConcatenationDescriptor,
 
+            // ...an explicit call to string.Format(...) or string.Concat(...)
+            IInvocationOperation argInvocation
+                => AnalyzeStringMethodInvocation(argInvocation),
+
             _ => null,
         };
+
+    private static DiagnosticDescriptor? AnalyzeStringMethodInvocation(IInvocationOperation invocation)
+    {
+        if (invocation.TargetMethod.ContainingType.SpecialType != SpecialType.System_String
+            || invocation.TargetMethod.Name is not (nameof(string.Format) or nameof(string.Concat)))
+        {
+            return null;
+        }
+
+        return HasNonConstantArgument(invocation) ? StringConcatenationDescriptor : null;
+    }
+
+    private static bool HasNonConstantArgument(IInvocationOperation invocation)
+    {
+        foreach (var argument in invocation.Arguments)
+        {
+            var value = Unwrap(argument.Value);
+
+            // Implicit params arrays — inspect each element rather than the array itself.
+            if (argument.ArgumentKind == ArgumentKind.ParamArray
+                && value is IArrayCreationOperation { Initializer.ElementValues: var elements })
+            {
+                foreach (var element in elements)
+                {
+                    if (!Unwrap(element).ConstantValue.HasValue)
+                    {
+                        return true;
+                    }
+                }
+
+                continue;
+            }
+
+            if (!value.ConstantValue.HasValue)
+            {
+                return true;
+            }
+        }
+
+        return false;
+
+        // Strip implicit conversions (e.g. boxing to object) so we see the original constant.
+        static IOperation Unwrap(IOperation operation)
+        {
+            while (operation is IConversionOperation { IsImplicit: true } conversion)
+            {
+                operation = conversion.Operand;
+            }
+
+            return operation;
+        }
+    }
 
     private static bool AnalyzeInterpolatedString(IInterpolatedStringOperation interpolatedString)
     {
