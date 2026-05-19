@@ -1950,6 +1950,41 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Where(bool async) // #31209
+    => AssertQuery(
+        async,
+        ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+            .Select(a => a.First())
+            .Where(x => x.EmployeeID == 6u));
+
+    [ConditionalTheory(Skip = "Issue#31209"), MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Where_Select(bool async) // #31209
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(x => x.OrderID)
+                .Select(x => x.First())
+                .Where(x => x.OrderID > 10)
+                .Select(r => r.EmployeeID));
+
+    [ConditionalTheory(Skip = "Issue#31209"), MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Select(bool async) // #31209
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(x => x.OrderID)
+                .Select(x => x.First())
+                .Select(r => r.EmployeeID));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Order(bool async) // #31209
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(a => a.First())
+                .OrderBy(x => x.EmployeeID)
+                .ThenBy(x => x.OrderID),
+            assertOrder: true);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_join_with_group_result(bool async)
         => AssertQuery(
             async,
