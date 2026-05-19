@@ -5,6 +5,7 @@
 
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json.Linq;
@@ -183,7 +184,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         responseMessage.EnsureSuccessStatusCode();
 
-                        var data = ((MemoryStream)responseMessage.Content).GetBuffer().AsMemory().Slice(0, (int)responseMessage.Content.Length);
+                        var data = CosmosResponseStreamHelper.ExtractContentAsMemory(responseMessage.Content);
 
                         var documentsReader = new Utf8JsonReader(data.Span);
                         documentsReader.Read();

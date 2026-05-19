@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -750,7 +751,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
 
-        return ((MemoryStream)response.Content).GetBuffer().AsMemory().Slice(0, (int)response.Content.Length);
+        return CosmosResponseStreamHelper.ExtractContentAsMemory(response.Content);
     }
 
     private static async Task<ResponseMessage> CreateSingleItemQueryAsync(
@@ -892,9 +893,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                 responseMessage.EnsureSuccessStatusCode();
 
-                // Throw if this isn't a memory stream anymore
-                _current = ((MemoryStream)responseMessage.Content).GetBuffer()
-                    .AsMemory().Slice(0, (int)responseMessage.Content.Length);
+                _current = CosmosResponseStreamHelper.ExtractContentAsMemory(responseMessage.Content);
 
                 return true;
             }
