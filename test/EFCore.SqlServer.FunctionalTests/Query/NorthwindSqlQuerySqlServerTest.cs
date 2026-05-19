@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
-
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -70,6 +70,26 @@ SELECT "ProductID" FROM "Products" WHERE "ProductID" = @p0
 """);
     }
 
+    [ConditionalFact]
+    public virtual void Projection_binding_clean_up_non_nullable_value_type()
+    {
+        using var context = Fixture.CreateContext();
+        
+        var query = context.Set<Customer>()
+            .Select(c => c.CustomerID) 
+            .ToQueryString();
+        var result = context.Set<Customer>().Select(c => c.CustomerID).ToList();
+        Assert.NotEmpty(result);
+    }
+
+    [ConditionalFact]
+    public virtual void Projection_binding_stays_nullable_for_nullable_types()
+    {
+        using var context = Fixture.CreateContext();
+        var result = context.Set<Employee>().Select(e => e.ReportsTo).ToList();
+        
+        Assert.Contains(null, result); 
+    }
     protected override DbParameter CreateDbParameter(string name, object value)
         => new SqlParameter { ParameterName = name, Value = value };
 
