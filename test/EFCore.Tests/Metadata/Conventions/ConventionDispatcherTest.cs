@@ -2974,7 +2974,7 @@ public class ConventionDispatcherTest
 
             if (_terminate)
             {
-                indexBuilder.Metadata.DeclaringEntityType.RemoveIndex(indexBuilder.Metadata.Properties);
+                indexBuilder.Metadata.DeclaringEntityType.RemoveIndex(indexBuilder.Metadata.Properties.OfType<IConventionProperty>().ToList());
                 context.StopProcessing();
             }
         }

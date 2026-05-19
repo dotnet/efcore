@@ -82,7 +82,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual KeyBuilder HasKey(Expression<Func<TEntity, object?>> keyExpression)
         => new KeyBuilder<TEntity>(
             Builder.PrimaryKey(
-                Check.NotNull(keyExpression).GetMemberAccessList(),
+                Check.NotNull(keyExpression).GetMemberAccessChainList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -114,7 +114,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual KeyBuilder<TEntity> HasAlternateKey(Expression<Func<TEntity, object?>> keyExpression)
         => new(
             Builder.HasKey(
-                Check.NotNull(keyExpression).GetMemberAccessList(),
+                Check.NotNull(keyExpression).GetMemberAccessChainList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -873,7 +873,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual IndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
         => new(
             Builder.HasIndex(
-                Check.NotNull(indexExpression).GetMemberAccessList(),
+                Check.NotNull(indexExpression).GetMemberAccessChainList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -898,7 +898,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         string name)
         => new(
             Builder.HasIndex(
-                Check.NotNull(indexExpression).GetMemberAccessList(),
+                Check.NotNull(indexExpression).GetMemberAccessChainList(),
                 name,
                 ConfigurationSource.Explicit)!.Metadata);
 

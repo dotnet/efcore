@@ -1570,8 +1570,8 @@ public partial class EntityTypeTest
         Assert.Same(index1, entityType.GetIndexes().First());
         Assert.Same(index2, entityType.GetIndexes().Last());
 
-        Assert.Same(index1, entityType.RemoveIndex(index1.Properties));
-        Assert.Null(entityType.RemoveIndex(index1.Properties));
+        Assert.Same(index1, entityType.RemoveIndex(index1.Properties.OfType<IMutableProperty>().ToList()));
+        Assert.Null(entityType.RemoveIndex(index1.Properties.OfType<IMutableProperty>().ToList()));
 
         Assert.Single(entityType.GetIndexes());
         Assert.Same(index2, entityType.GetIndexes().Single());

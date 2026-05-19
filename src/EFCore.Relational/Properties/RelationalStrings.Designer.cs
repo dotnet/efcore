@@ -1046,6 +1046,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 value, valueType, property, propertyType, entityType);
 
         /// <summary>
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot defined on the complex property '{property}' as it's not mapped to mulptiple columns. Reference each property of the complex type individually.
+        /// </summary>
+        public static string IndexOnNonJsonComplexProperty(object? indexProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("IndexOnNonJsonComplexProperty", nameof(indexProperties), nameof(entityType), nameof(property)),
+                indexProperties, entityType, property);
+
+        /// <summary>
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot be configured because some of its properties are contained within a complex property mapped to a JSON column while others are not. All properties of an index must either all be mapped to JSON or all be mapped to regular columns.
+        /// </summary>
+        public static string IndexPropertiesMixedJsonAndNonJsonMapping(object? indexProperties, object? entityType)
+            => string.Format(
+                GetString("IndexPropertiesMixedJsonAndNonJsonMapping", nameof(indexProperties), nameof(entityType)),
+                indexProperties, entityType);
+
+        /// <summary>
         ///     The data insertion operation on '{table}' is not associated with a model. Either add a model to the migration, or specify the column types in all data operations.
         /// </summary>
         public static string InsertDataOperationNoModel(object? table)
@@ -1394,6 +1410,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("KeylessMappingStrategy", nameof(mappingStrategy), nameof(entityType)),
                 mappingStrategy, entityType);
+
+        /// <summary>
+        ///     The key {keyProperties} on the entity type '{entityType}' cannot be configured because the property '{property}' is contained in a complex type mapped to a JSON column. Keys cannot reference properties that are stored inside a JSON document.
+        /// </summary>
+        public static string KeyPropertyInJsonComplexType(object? keyProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("KeyPropertyInJsonComplexType", nameof(keyProperties), nameof(entityType), nameof(property)),
+                keyProperties, entityType, property);
 
         /// <summary>
         ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.
@@ -2272,6 +2296,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnhandledExpressionInVisitor", nameof(expression), nameof(expressionType), nameof(visitor)),
                 expression, expressionType, visitor);
+
+        /// <summary>
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot be configured as unique because it contains the complex property '{property}'. Unique indexes are not supported on complex properties.
+        /// </summary>
+        public static string UniqueIndexOnComplexProperty(object? indexProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("UniqueIndexOnComplexProperty", nameof(indexProperties), nameof(entityType), nameof(property)),
+                indexProperties, entityType, property);
 
         /// <summary>
         ///     The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
@@ -3839,31 +3871,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.
-        /// </summary>
-        public static EventDefinition<string, string> LogOldMigrationVersion(IDiagnosticsLogger logger)
-        {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOldMigrationVersion;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOldMigrationVersion,
-                    logger,
-                    static logger => new EventDefinition<string, string>(
-                        logger.Options,
-                        RelationalEventId.OldMigrationVersionWarning,
-                        LogLevel.Warning,
-                        "RelationalEventId.OldMigrationVersionWarning",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            RelationalEventId.OldMigrationVersionWarning,
-                            _resourceManager.GetString("LogOldMigrationVersion")!)));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
         ///     The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.
         /// </summary>
         public static EventDefinition<string> LogNonDeterministicModel(IDiagnosticsLogger logger)
@@ -3908,6 +3915,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.NonTransactionalMigrationOperationWarning,
                             _resourceManager.GetString("LogNonTransactionalMigrationOperationWarning")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.
+        /// </summary>
+        public static EventDefinition<string, string> LogOldMigrationVersion(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOldMigrationVersion;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOldMigrationVersion,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.OldMigrationVersionWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.OldMigrationVersionWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.OldMigrationVersionWarning,
+                            _resourceManager.GetString("LogOldMigrationVersion")!)));
             }
 
             return (EventDefinition<string, string>)definition;

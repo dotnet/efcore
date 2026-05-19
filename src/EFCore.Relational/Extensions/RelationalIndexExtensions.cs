@@ -63,11 +63,17 @@ public static class RelationalIndexExtensions
             return null;
         }
 
+        var columnNames = index.GetColumnNames();
+        if (columnNames == null)
+        {
+            return null;
+        }
+
         var baseName = new StringBuilder()
             .Append("IX_")
             .Append(tableName)
             .Append('_')
-            .AppendJoin(index.Properties.Select(p => p.GetColumnName()), "_")
+            .AppendJoin(columnNames, "_")
             .ToString();
 
         return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
@@ -86,7 +92,7 @@ public static class RelationalIndexExtensions
             return null;
         }
 
-        var columnNames = index.Properties.GetColumnNames(storeObject);
+        var columnNames = index.GetColumnNames(storeObject);
         if (columnNames == null)
         {
             return null;
@@ -103,7 +109,7 @@ public static class RelationalIndexExtensions
                          .FindRowInternalForeignKeys(storeObject)
                          .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
             {
-                var otherColumnNames = otherIndex.Properties.GetColumnNames(storeObject);
+                var otherColumnNames = otherIndex.GetColumnNames(storeObject);
                 if ((otherColumnNames != null)
                     && otherColumnNames.SequenceEqual(columnNames))
                 {

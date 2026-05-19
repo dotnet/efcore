@@ -763,8 +763,20 @@
   <data name="IncorrectNumberOfArguments" xml:space="preserve">
     <value>'{method}' was invoked with {argumentCount} arguments, but has {parameterCount} parameters.</value>
   </data>
+  <data name="IndexOnComplexCollection" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because it traverses the complex collection '{property}'. Indexes cannot reference properties whose path goes through a complex collection.</value>
+  </data>
+  <data name="IndexOnComplexProperty" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because it is defined on the complex property '{property}'. Indexes are not supported on complex properties.</value>
+  </data>
+  <data name="IndexValueFactoryWithComplexProperty" xml:space="preserve">
+    <value>A value factory cannot be created for the index {indexProperties} on the entity type '{entityType}' because it contains the complex property '{property}'. Index value factories are not supported for indexes that contain complex properties.</value>
+  </data>
   <data name="IndexPropertiesWrongEntity" xml:space="preserve">
     <value>The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.</value>
+  </data>
+  <data name="IndexPropertyMustBePropertyOrComplexProperty" xml:space="preserve">
+    <value>The index property '{property}' on the entity type '{entityType}' cannot be configured because it is not a scalar property or a complex property. Only scalar properties and complex properties can be referenced by an index.</value>
   </data>
   <data name="IndexWrongType" xml:space="preserve">
     <value>The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
@@ -888,6 +900,12 @@
   </data>
   <data name="KeylessTypeWithKey" xml:space="preserve">
     <value>The key {keyProperties} cannot be added to keyless type '{entityType}'.</value>
+  </data>
+  <data name="KeyOnComplexCollection" xml:space="preserve">
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be configured because it traverses the complex collection '{property}'. Keys cannot reference properties whose path goes through a complex collection.</value>
+  </data>
+  <data name="KeyOnNullableComplexProperty" xml:space="preserve">
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be configured because the complex property '{property}' it traverses is configured as optional. Mark the complex property as required in order to use one of its properties as part of a key.</value>
   </data>
   <data name="KeyPropertiesWrongEntity" xml:space="preserve">
     <value>The specified key properties {keyProperties} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
