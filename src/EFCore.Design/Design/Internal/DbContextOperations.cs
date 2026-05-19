@@ -102,6 +102,11 @@ public class DbContextOperations
     /// </summary>
     public virtual void DropDatabase(string? contextType, string? connectionString)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = CreateContext(contextType);
 
         if (connectionString != null)
@@ -425,6 +430,11 @@ public class DbContextOperations
     /// </summary>
     public virtual ContextInfo GetContextInfo(string? contextType, string? connectionString = null)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = CreateContext(contextType);
         
         if (connectionString != null)

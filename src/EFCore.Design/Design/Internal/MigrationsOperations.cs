@@ -73,6 +73,11 @@ public class MigrationsOperations
         string? @namespace,
         bool dryRun)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
         var services = PrepareForMigration(name, context);
 
@@ -147,6 +152,11 @@ public class MigrationsOperations
         string? connectionString,
         bool noConnect)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
 
         if (connectionString != null)
@@ -197,6 +207,11 @@ public class MigrationsOperations
         MigrationsSqlGenerationOptions options,
         string? contextType)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
@@ -217,21 +232,47 @@ public class MigrationsOperations
         string? connectionString,
         string? contextType)
     {
-        using (var context = _contextOperations.CreateContext(contextType))
+        if (contextType == "*")
         {
-            if (connectionString != null)
+            var contexts = _contextOperations.CreateAllContexts();
+
+            if (!contexts.Any())
             {
-                context.Database.SetConnectionString(connectionString);
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
             }
 
-            var services = _servicesBuilder.Build(context);
-            EnsureServices(services);
+            foreach (var item in contexts)
+            {
+                using (item)
+                {
+                    MigrateContext(item, targetMigration, connectionString);
+                }
+            }
 
-            var migrator = services.GetRequiredService<IMigrator>();
-            migrator.Migrate(targetMigration);
+            _reporter.WriteInformation(DesignStrings.Done);
+            return;
+        }
+
+        using (var context = _contextOperations.CreateContext(contextType))
+        {
+            MigrateContext(context, targetMigration, connectionString);
         }
 
         _reporter.WriteInformation(DesignStrings.Done);
+    }
+
+    private void MigrateContext(DbContext context, string? targetMigration, string? connectionString)
+    {
+        if (connectionString is not null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
+        var services = _servicesBuilder.Build(context);
+        EnsureServices(services);
+
+        var migrator = services.GetRequiredService<IMigrator>();
+        migrator.Migrate(targetMigration);
     }
 
     /// <summary>
@@ -247,6 +288,11 @@ public class MigrationsOperations
         bool dryRun,
         string? connectionString)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
 
         if (connectionString != null)

@@ -964,6 +964,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 toolsVersion, runtimeVersion);
 
         /// <summary>
+        ///     The wildcard '*' can only be used with commands that run for all contexts found. Specify a context name for this command.
+        /// </summary>
+        public static string WildcardNotSupported
+            => GetString("WildcardNotSupported");
+
+        /// <summary>
         ///     Writing migration to '{file}'.
         /// </summary>
         public static string WritingMigration(object? file)

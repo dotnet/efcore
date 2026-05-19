@@ -725,6 +725,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("WritingFile", nameof(file)),
                 file);
 
+        /// <summary>
+        ///     The wildcard '*' is not supported for this command.
+        /// </summary>
+        public static string WildcardNotSupported
+            => GetString("WildcardNotSupported");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;
