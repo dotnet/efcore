@@ -1,0 +1,175 @@
+name: Auto-approve codeflow PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  auto-approve-codeflow:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.user.login == 'dotnet-maestro[bot]'
+      && github.actor == 'dotnet-maestro[bot]'
+    steps:
+      - name: Validate and auto-approve codeflow PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PYTHON'
+          import os, re, subprocess, sys
+
+          pr_number = os.environ["PR_NUMBER"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+
+          def gh(*args: str) -> str:
+              result = subprocess.run(
+                  ["gh", *args, "--repo", repo],
+                  capture_output=True, text=True, check=True)
+              return result.stdout
+
+          # ---- regex building blocks ----------------------------------------
+          VERSION    = r'[0-9]+\.[0-9]+[A-Za-z0-9.\-+]*'
+          SHA        = r'[0-9a-fA-F]{7,40}'
+          BARID      = r'[0-9]+'
+          DOTNET_URL = r'https://github\.com/dotnet/[A-Za-z0-9._-]+'
+          FEED_URL   = (r'https://pkgs\.dev\.azure\.com/dnceng/public/_packaging/'
+                        r'[A-Za-z0-9._-]+/nuget/v3/index\.json')
+
+          # Reject diff operations that should never appear in a version bump
+          REJECT_DIFF_META = re.compile(
+              r'^(rename (from|to) |copy (from|to) |new file mode |'
+              r'deleted file mode |old mode |new mode |'
+              r'GIT binary patch|similarity index |dissimilarity index )')
+
+          VERSION_RE = re.compile(rf'({VERSION})')
+
+          # ---- version comparison -------------------------------------------
+          def parse_version(v: str) -> tuple:
+              base_str, _, pre_str = v.partition('-')
+              base = tuple(int(x) for x in base_str.split('.'))
+              if not pre_str:
+                  return (base, (1,))  # release sorts above pre-release
+              pre: list = []
+              for seg in pre_str.split('.'):
+                  pre.append((0, int(seg)) if seg.isdigit() else (1, seg))
+              return (base, (0, tuple(pre)))
+
+          # ---- validate the diff --------------------------------------------
+          print(f"Validating codeflow PR #{pr_number}...")
+
+          diff_text = gh("pr", "diff", pr_number)
+          current_file: str | None = None
+          files_seen: set[str] = set()
+          errors: list[str] = []
+          removed_versions: dict[tuple[str, str], str] = {}
+          added_versions: dict[tuple[str, str], str] = {}
+
+          for raw_line in diff_text.splitlines():
+              if raw_line.startswith("diff --git"):
+                  parts = raw_line.split(" b/")
+                  current_file = parts[-1] if len(parts) >= 2 else None
+                  if current_file:
+                      match current_file:
+                          case ("eng/Version.Details.xml"
+                              | "eng/Version.Details.props"
+                              | "eng/Versions.props"
+                              | "global.json"
+                              | "NuGet.config"):
+                              files_seen.add(current_file)
+                          case _:
+                              errors.append(f"Unexpected file: {current_file}")
+                              current_file = None
+                  continue
+
+              if REJECT_DIFF_META.match(raw_line):
+                  errors.append(f"Unexpected diff operation: {raw_line.strip()}")
+                  continue
+
+              if raw_line.startswith(("---", "+++", "@@", "\\ No newline")):
+                  continue
+
+              if not raw_line.startswith(("+", "-")):
+                  continue
+
+              sign = raw_line[0]
+              content = raw_line[1:]
+              if not content.strip():
+                  continue
+
+              if current_file is None:
+                  continue
+
+              valid = False
+              ver_key: str | None = None
+
+              match current_file:
+                  case "eng/Version.Details.xml":
+                      if re.match(rf'^\s*<Source\s+Uri="{DOTNET_URL}"\s+Mapping="[^"]+"\s+Sha="{SHA}"\s+BarId="{BARID}"\s*/>\s*$', content):
+                          valid = True
+                      elif re.match(rf'^\s*<Sha>{SHA}</Sha>\s*$', content):
+                          valid = True
+                      elif m := re.match(rf'^\s*<Dependency\s+Name="([^"]+)"\s+Version="{VERSION}">\s*$', content):
+                          valid, ver_key = True, m.group(1)
+                      elif re.match(rf'^\s*<Uri>{DOTNET_URL}</Uri>\s*$', content):
+                          valid = True
+                  case "eng/Version.Details.props" | "eng/Versions.props":
+                      if m := re.match(rf'^\s*<([A-Za-z][A-Za-z0-9]*)>{VERSION}</[A-Za-z][A-Za-z0-9]*>\s*$', content):
+                          valid, ver_key = True, m.group(1)
+                      elif re.match(r'^\s*<!--.*-->\s*$', content):
+                          valid = True
+                  case "global.json":
+                      if m := re.match(rf'^\s*"([^"]+)"\s*:\s*"{VERSION}"\s*,?\s*$', content):
+                          valid, ver_key = True, m.group(1)
+                  case "NuGet.config":
+                      if re.match(rf'^\s*<add\s+key="darc-[^"]+"\s+value="{FEED_URL}"\s*/>\s*$', content):
+                          valid = True
+
+              if not valid:
+                  errors.append(f"Unexpected change in {current_file}: {content.strip()}")
+              else:
+                  if ver_key:
+                      ver_match = VERSION_RE.search(content)
+                      if ver_match:
+                          pair = (current_file, ver_key)
+                          if sign == '-':
+                              removed_versions.setdefault(pair, ver_match.group(1))
+                          else:
+                              added_versions.setdefault(pair, ver_match.group(1))
+
+          if not files_seen:
+              errors.append("No files found in the diff")
+
+          for key in removed_versions:
+              if key in added_versions:
+                  old_v, new_v = removed_versions[key], added_versions[key]
+                  try:
+                      old_parsed = parse_version(old_v)
+                      new_parsed = parse_version(new_v)
+                  except (ValueError, TypeError):
+                      errors.append(
+                          f"Unparseable version in {key[0]}: "
+                          f"{key[1]} {old_v} / {new_v}")
+                      continue
+                  if new_parsed < old_parsed:
+                      errors.append(
+                          f"Version downgrade in {key[0]}: "
+                          f"{key[1]} {old_v} -> {new_v}")
+
+          if errors:
+              for e in errors:
+                  print(f"::notice::{e}")
+              print("::notice::Skipping auto-approve – PR contains unexpected changes")
+              sys.exit(0)
+
+          print("✔ All changes are expected dependency-update patterns")
+
+          # ---- approve the PR ------------------------------------------------
+          gh("pr", "review", pr_number, "--approve",
+             "--body", "Auto-approved: codeflow dependency update PR with only version/SHA bumps in expected files.")
+          print(f"✔ PR #{pr_number} approved")
+          PYTHON
