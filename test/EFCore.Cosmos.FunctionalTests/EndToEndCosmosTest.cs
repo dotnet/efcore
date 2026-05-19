@@ -640,6 +640,16 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             c =>
             {
                 c.Collection.Clear();
+                c.Collection["2"] = [null];
+            },
+            new SortedDictionary<string, long?[]> { { "2", [null] } });
+
+        await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+            transactionalBatch,
+            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
+            c =>
+            {
+                c.Collection.Clear();
                 c.Collection["2"] = null;
             },
             new SortedDictionary<string, long?[]> { { "2", null } });
