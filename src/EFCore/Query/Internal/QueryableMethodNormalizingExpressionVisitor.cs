@@ -178,6 +178,13 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }
 
+        if (method.Name == nameof(List<>.Exists)
+            && method.DeclaringType is { IsGenericType: true } existsDeclaringType
+            && existsDeclaringType.GetGenericTypeDefinition() == typeof(List<>))
+        {
+            visitedExpression = TryConvertListExistsToQueryableAny(methodCallExpression);
+        }
+
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
             && method.Name is nameof(EntityFrameworkQueryableExtensions.Include)
                 or nameof(EntityFrameworkQueryableExtensions.ThenInclude)
@@ -504,6 +511,35 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
+    }
+
+    private Expression TryConvertListExistsToQueryableAny(MethodCallExpression methodCallExpression)
+    {
+        if (methodCallExpression.Object is MemberInitExpression or NewExpression)
+        {
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        // List<T>.Exists takes a Predicate<T>; rewrite the lambda to Func<T, bool> so it matches
+        // Queryable.Any's Expression<Func<T, bool>> parameter.
+        if (methodCallExpression.Arguments[0] is not LambdaExpression predicateLambda)
+        {
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
+        var rewrittenPredicate = Expression.Lambda(
+            typeof(Func<,>).MakeGenericType(sourceType, typeof(bool)),
+            predicateLambda.Body,
+            predicateLambda.Parameters);
+
+        return VisitMethodCall(
+            Expression.Call(
+                QueryableMethods.AnyWithPredicate.MakeGenericMethod(sourceType),
+                Expression.Call(
+                    QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
+                    methodCallExpression.Object!),
+                Expression.Quote(rewrittenPredicate)));
     }
 
     private Expression TryConvertCollectionContainsToQueryableContains(MethodCallExpression methodCallExpression)
