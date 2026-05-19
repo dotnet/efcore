@@ -814,7 +814,7 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
     public virtual void Can_query_using_DateDiffMicrosecond_using_TimeSpan()
     {
         using var context = CreateContext();
-        var timeSpan = new TimeSpan(2, 1, 0);
+        var timeSpan = new TimeSpan(11, 15, 13);
 
         var results
             = context.Set<MappedNullableDataTypes>()
@@ -825,7 +825,7 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@timeSpan='02:01:00' (Nullable = true)
+@timeSpan='11:15:13' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
@@ -837,7 +837,7 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
     public virtual void Can_query_using_DateDiffNanosecond_using_TimeSpan()
     {
         using var context = CreateContext();
-        var timeSpan = new TimeSpan(2, 1, 0);
+        var timeSpan = new TimeSpan(11, 15, 13);
 
         var results
             = context.Set<MappedNullableDataTypes>()
@@ -848,7 +848,7 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@timeSpan='02:01:00' (Nullable = true)
+@timeSpan='11:15:13' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]

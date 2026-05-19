@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
@@ -207,9 +208,17 @@ WHERE CONVERT(datetime2, [b].[DateTimeOffset] AT TIME ZONE 'UTC') = '1998-05-04T
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
-    public override async Task LocalDateTime()
+        public override async Task LocalDateTime()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
+
+        }
+
         await base.LocalDateTime();
 
         AssertSql(

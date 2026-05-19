@@ -131,7 +131,26 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
         => Assert.Throws<InvalidOperationException>(() => base.Infer_type_mapping_from_in_subquery_to_item());
 
     public override Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Can_query_custom_type_not_mapped_by_default_equality(a));
+        => CosmosTestHelpers.Instance.NoSyncTest(async, RunCustomTypeNotMappedByDefaultEqualityAsync);
+
+    // The base test seeds a SimpleCounter and only cleans up after a successful query. When the
+    // sync variant runs, .Single() throws SyncNotSupported before cleanup, leaving the seeded
+    // entity behind and causing the next iteration to fail with a 409 conflict. Delete any
+    // leftover rows before seeding to keep the test independent of execution order.
+    private async Task RunCustomTypeNotMappedByDefaultEqualityAsync(bool async)
+    {
+        await using (var context = CreateContext())
+        {
+            var existing = await context.Set<SimpleCounter>().ToListAsync();
+            if (existing.Count > 0)
+            {
+                context.RemoveRange(existing);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        await base.Can_query_custom_type_not_mapped_by_default_equality(async);
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

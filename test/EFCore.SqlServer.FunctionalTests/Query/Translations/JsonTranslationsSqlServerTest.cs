@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json.Nodes;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
@@ -14,9 +15,17 @@ public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
-    public override async Task JsonPathExists_on_scalar_string_column()
+        public override async Task JsonPathExists_on_scalar_string_column()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
+
+        }
+
         await base.JsonPathExists_on_scalar_string_column();
 
         AssertSql(
@@ -27,9 +36,17 @@ WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
-    public override async Task JsonPathExists_on_complex_property()
+        public override async Task JsonPathExists_on_complex_property()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
+
+        }
+
         await base.JsonPathExists_on_complex_property();
 
         AssertSql(
@@ -40,9 +57,17 @@ WHERE JSON_PATH_EXISTS([j].[JsonComplexType], N'$.OptionalInt') = 1
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
-    public override async Task JsonPathExists_on_owned_entity()
+        public override async Task JsonPathExists_on_owned_entity()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
+
+        }
+
         await base.JsonPathExists_on_owned_entity();
 
         AssertSql(

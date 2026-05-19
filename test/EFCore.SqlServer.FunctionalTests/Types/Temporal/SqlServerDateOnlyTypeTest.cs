@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 
 public class SqlServerDateOnlyTypeTest(SqlServerDateOnlyTypeTest.DateTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -190,10 +192,14 @@ FROM [JsonTypeEntity] AS [j]
     }
 
     // TODO: Currently failing on Helix only, see #36746
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
+        }
+
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
         if (Fixture.UsingJsonType)

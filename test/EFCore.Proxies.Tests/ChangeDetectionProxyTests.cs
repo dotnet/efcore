@@ -320,6 +320,7 @@ public class ChangeDetectionProxyTests
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
+                .EnableServiceProviderCaching(false)
                 .UseChangeTrackingProxies()
                 .UseInMemoryDatabase(GetType().ShortDisplayName());
 
