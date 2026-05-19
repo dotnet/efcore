@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -1288,6 +1289,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
                         var jsonPropertyName = property.GetJsonPropertyName();
+                        if (jsonPropertyName == string.Empty) // non persisted property
+                        {
+                            continue;
+                        }
                         testExpressions.Add(
                             Call(
                                 Field(
@@ -1566,7 +1571,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 private readonly List<MethodCallExpression> _valueBufferTryReadValueMethods = [];
 
                 public ValueBufferTryReadValueMethodsFinder(ITypeBase structuralType)
-                    => _properties = structuralType.GetProperties().Where(x => x.GetJsonPropertyName() != "").ToList(); // Only difference with relational?
+                    => _properties = structuralType.GetProperties().ToList();
 
                 public List<MethodCallExpression> FindValueBufferTryReadValueMethods(Expression expression)
                 {
@@ -1605,6 +1610,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     if (node.Right is MethodCallExpression methodCallExpression
                         && IsPropertyAssignment(methodCallExpression, out var property, out var parameter))
                     {
+                        if (parameter == null)
+                        {
+                            return Empty();
+                        }
+
                         if (property!.IsPrimitiveCollection
                             && !property.ClrType.IsArray)
                         {
@@ -1612,7 +1622,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             var genericMethod = StructuralTypeMaterializerSource.PopulateListMethod.MakeGenericMethod(
                                 property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
 #pragma warning restore EF1001 // Internal EF Core API usage.
-                            var currentVariable = Variable(parameter!.Type);
+                            var currentVariable = Variable(parameter.Type);
                             var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
                                 ? (Expression)currentVariable
                                 : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
@@ -1646,22 +1656,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
                     => IsPropertyAssignment(methodCallExpression, out _, out var parameter)
-                        ? parameter!
+                        ? parameter ?? Default(methodCallExpression.Type)
                         : base.VisitMethodCall(methodCallExpression);
-
+                
                 private bool IsPropertyAssignment(
                     MethodCallExpression methodCallExpression,
-                    out IProperty? property,
+                    [NotNullWhen(true)] out IProperty? property,
                     out Expression? parameter)
                 {
                     if (methodCallExpression.Method.IsGenericMethod
                         && methodCallExpression.Method.GetGenericMethodDefinition()
                         == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                        && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty prop
-                        && propertyAssignmentMap.TryGetValue(prop, out var param))
+                        && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty prop)
                     {
                         property = prop;
-                        parameter = param;
+                        parameter = propertyAssignmentMap.TryGetValue(prop, out var param) ? param : null;
                         return true;
                     }
 
