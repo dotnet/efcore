@@ -801,43 +801,34 @@ OFFSET 0 LIMIT @p
         AssertSql();
     }
 
-    public override async Task Any_simple(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_simple(async));
+    public override Task Any_simple(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Any_simple(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c)
+                AssertSql(
+                    """
+SELECT VALUE true
+FROM root c
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
-    public override async Task Any_predicate(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_predicate(async));
+    public override Task Any_predicate(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Any_predicate(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-            AssertSql(
-                """
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE STARTSWITH(c["ContactName"], "A"))
+                AssertSql(
+                    """
+SELECT VALUE true
+FROM root c
+WHERE STARTSWITH(c["ContactName"], "A")
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Any_nested_negated(bool async)
     {
@@ -1295,26 +1286,10 @@ SELECT VALUE EXISTS (
 
     public override async Task Skip_Take_Any(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Skip_Take_Any(async));
+        // TODO: Subquery pushdown, #33968
+        await AssertTranslationFailed(() => base.Skip_Take_Any(async));
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-@p='5'
-@p1='10'
-
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    ORDER BY c["ContactName"]
-    OFFSET @p LIMIT @p1)
-""");
-        }
+        AssertSql();
     }
 
     public override async Task Skip_Take_All(bool async)
@@ -1506,24 +1481,19 @@ ORDER BY c["Country"], c["City"]
         }
     }
 
-    public override async Task OrderBy_ThenBy_Any(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ThenBy_Any(async));
+    public override Task OrderBy_ThenBy_Any(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.OrderBy_ThenBy_Any(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c)
+                AssertSql(
+                    """
+SELECT VALUE true
+FROM root c
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task OrderBy_correlated_subquery1(bool async)
     {
