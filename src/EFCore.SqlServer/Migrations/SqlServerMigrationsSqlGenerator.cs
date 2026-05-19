@@ -2207,20 +2207,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder
             .Append("DECLARE ")
             .Append(variable)
-            .AppendLine(" nvarchar(max);")
+            .AppendLine(" sysname;")
             .Append("SELECT ")
             .Append(variable)
-            .AppendLine(" = QUOTENAME([d].[name])")
-            .AppendLine("FROM [sys].[default_constraints] [d]")
-            .AppendLine(
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]")
-            .Append("WHERE ([d].[parent_object_id] = OBJECT_ID(")
+            .AppendLine(" = QUOTENAME(OBJECT_NAME([c].[default_object_id]))")
+            .AppendLine("FROM [sys].[columns] [c]")
+            .Append("WHERE [c].[object_id] = OBJECT_ID(")
             .Append(
                 stringTypeMapping.GenerateSqlLiteral(
                     Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema)))
             .Append(") AND [c].[name] = ")
             .Append(stringTypeMapping.GenerateSqlLiteral(columnName))
-            .AppendLine(");")
+            .AppendLine(";")
             .Append("IF ")
             .Append(variable)
             .Append(" IS NOT NULL EXEC(")
