@@ -444,6 +444,45 @@ WHERE ((c["Float"] > 0.0) AND (SQRT(c["Float"]) > 0.0))
 SELECT VALUE c
 FROM root c
 WHERE (SIGN(c["Double"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Double"])
+FROM root c
+""");
+    }
+
+    public override async Task Sign_decimal()
+    {
+        await base.Sign_decimal();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (SIGN(c["Decimal"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Decimal"])
+FROM root c
+""");
+    }
+
+    public override async Task Sign_int()
+    {
+        await base.Sign_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (SIGN(c["Int"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Int"])
+FROM root c
 """);
     }
 
@@ -456,6 +495,11 @@ WHERE (SIGN(c["Double"]) > 0)
 SELECT VALUE c
 FROM root c
 WHERE (SIGN(c["Float"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Float"])
+FROM root c
 """);
     }
 

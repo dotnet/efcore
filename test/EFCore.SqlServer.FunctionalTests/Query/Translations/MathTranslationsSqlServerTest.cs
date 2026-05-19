@@ -461,7 +461,46 @@ WHERE [b].[Float] > CAST(0 AS real) AND SQRT([b].[Float]) > CAST(0 AS real)
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE SIGN([b].[Double]) > 0
+WHERE CAST(SIGN([b].[Double]) AS int) > 0
+""",
+            //
+            """
+SELECT CAST(SIGN([b].[Double]) AS int)
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task Sign_decimal()
+    {
+        await base.Sign_decimal();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(SIGN([b].[Decimal]) AS int) > 0
+""",
+            //
+            """
+SELECT CAST(SIGN([b].[Decimal]) AS int)
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task Sign_int()
+    {
+        await base.Sign_int();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE SIGN([b].[Int]) > 0
+""",
+            //
+            """
+SELECT SIGN([b].[Int])
+FROM [BasicTypesEntities] AS [b]
 """);
     }
 
@@ -473,7 +512,12 @@ WHERE SIGN([b].[Double]) > 0
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE SIGN([b].[Float]) > 0
+WHERE CAST(SIGN([b].[Float]) AS int) > 0
+""",
+            //
+            """
+SELECT CAST(SIGN([b].[Float]) AS int)
+FROM [BasicTypesEntities] AS [b]
 """);
     }
 
