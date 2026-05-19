@@ -568,7 +568,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleStringKey.Id), "$type", nameof(SingleStringKey.Name), nameof(SingleStringKey.P1),
-                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
+                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3)
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 
@@ -595,7 +595,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), "$type", nameof(SingleStringKey.Name),
-                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
+                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3)
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 
@@ -627,7 +627,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), nameof(SingleStringKey.P2), nameof(SingleStringKey.P3),
-                    "$type", nameof(SingleStringKey.Name), "__jObject"
+                    "$type", nameof(SingleStringKey.Name)
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 
@@ -663,7 +663,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleGuidKey.Id), "$type", nameof(SingleGuidKey.Name), nameof(SingleGuidKey.P1),
-                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
+                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3)
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 
@@ -690,7 +690,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), "$type", nameof(SingleGuidKey.Name),
-                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
+                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3)
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 
@@ -722,7 +722,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3),
-                    "$type", nameof(SingleGuidKey.Name), "__jObject"
+                    "$type", nameof(SingleGuidKey.Name)
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 
@@ -1110,7 +1110,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 fk => Assert.Equal("Foo", fk["Right"]),
                 fk => Assert.Equal("Bar", fk["Left"]));
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
-            Assert.Equal(6, joinType.GetProperties().Count());
+            Assert.Equal(5, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
@@ -1207,7 +1207,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.NotNull(joinType);
             Assert.Equal(2, joinType.GetForeignKeys().Count());
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
-            Assert.Equal(6, joinType.GetProperties().Count());
+            Assert.Equal(5, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
@@ -1257,7 +1257,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             Assert.Equal(2, joinType.GetForeignKeys().Count());
             Assert.Equal(5, joinType.FindPrimaryKey()!.Properties.Count);
-            Assert.Equal(8, joinType.GetProperties().Count());
+            Assert.Equal(7, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
         }
 
@@ -1299,7 +1299,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.NotNull(joinType);
             Assert.Equal(2, joinType.GetForeignKeys().Count());
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
-            Assert.Equal(6, joinType.GetProperties().Count());
+            Assert.Equal(5, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["Partition2Id"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("Partition2Id", joinType.FindPrimaryKey()!.Properties.Last().Name);
