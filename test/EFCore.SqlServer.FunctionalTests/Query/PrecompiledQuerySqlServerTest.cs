@@ -2186,7 +2186,7 @@ FROM [Blogs] AS [b]
             // TODO: Figure out if there's a nice way to continue using the retrying strategy
             var sqlServerOptionsBuilder = new SqlServerDbContextOptionsBuilder(builder);
             sqlServerOptionsBuilder.ExecutionStrategy(d => new NonRetryingExecutionStrategy(d));
-            return builder;
+            return builder.EnableDetailedErrors();
         }
 
         public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers
