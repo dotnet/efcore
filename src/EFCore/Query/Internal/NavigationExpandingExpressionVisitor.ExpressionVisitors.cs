@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -596,6 +597,30 @@ public partial class NavigationExpandingExpressionVisitor
                 {
                     return memberExpression;
                 }
+
+                // Handle member access on NavigationTreeExpression with NewExpression
+                // When accessing a specific member (like x.Job.Id), only expand that member
+                // instead of reconstructing the entire anonymous type
+                if (memberExpression.Expression is NavigationTreeExpression navigationTreeExpression
+                    && navigationTreeExpression.Value is NewExpression newExpression
+                    && newExpression.Members != null)
+                {
+                    // Find which argument corresponds to the accessed member
+                    for (var i = 0; i < newExpression.Members.Count; i++)
+                    {
+                        if (newExpression.Members[i] == memberExpression.Member)
+                        {
+                            var argument = newExpression.Arguments[i];
+                            
+                            // Visit just this specific argument
+                            var visitedArgument = Visit(argument);
+                            
+                            // Return a member access on the navigation tree expression
+                            // This ensures we don't reconstruct the entire anonymous type
+                            return visitedArgument;
+                        }
+                    }
+                }
             }
 
             return base.VisitMember(memberExpression);
@@ -1048,6 +1073,315 @@ public partial class NavigationExpandingExpressionVisitor
                 default:
                     return base.Visit(expression);
             }
+        }
+    }
+
+    /// <summary>
+    ///     Prunes NavigationTreeExpression members when only specific members are accessed.
+    ///     Handles patterns like ((NavigationTreeExpression).Member1).Member2 where only
+    ///     Member2 should be kept from the nested navigation tree.
+    /// </summary>
+    private sealed class NavigationTreeMemberPruningVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (node.Expression is NavigationTreeExpression navTree
+                && navTree.Value is NewExpression newExpr
+                && newExpr.Members != null)
+            {
+                var memberIndex = FindMemberIndex(newExpr, node.Member.Name);
+                if (memberIndex >= 0)
+                {
+                    var memberValue = Visit(newExpr.Arguments[memberIndex]);
+
+                    if (memberValue is NavigationTreeExpression)
+                    {
+                        return memberValue;
+                    }
+
+                    return new NavigationTreeExpression(memberValue);
+                }
+            }
+
+            return base.VisitMember(node);
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            if (node.Members != null)
+            {
+                var newArguments = new Expression[node.Arguments.Count];
+                for (var i = 0; i < node.Arguments.Count; i++)
+                {
+                    newArguments[i] = Visit(node.Arguments[i]);
+                }
+
+                return node.Update(newArguments);
+            }
+
+            return base.VisitNew(node);
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is NavigationTreeExpression navTree && navTree.Value is NewExpression newExpr && newExpr.Members != null)
+            {
+                var visitedValue = Visit(navTree.Value);
+                if (visitedValue != navTree.Value)
+                {
+                    return new NavigationTreeExpression(visitedValue);
+                }
+            }
+
+            return base.VisitExtension(node);
+        }
+
+        private static int FindMemberIndex(NewExpression newExpression, string memberName)
+        {
+            if (newExpression.Members != null)
+            {
+                for (var i = 0; i < newExpression.Members.Count; i++)
+                {
+                    if (newExpression.Members[i].Name == memberName)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+    }
+
+    /// <summary>
+    ///     Collects which members are accessed from a parameter in an expression tree.
+    ///     Used to determine which properties to keep when pruning navigation expansions.
+    /// </summary>
+    private sealed class MemberAccessCollector : ExpressionVisitor
+    {
+        private ParameterExpression? _parameter;
+        private readonly HashSet<string[]> _accessedPaths = [];
+        private readonly Stack<string> _currentPath = [];
+
+        public HashSet<string[]> Collect(Expression expression, ParameterExpression parameter)
+        {
+            _parameter = parameter;
+            Visit(expression);
+            return _accessedPaths;
+        }
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            if (IsAccessingParameter(memberExpression, out var path))
+            {
+                _accessedPaths.Add(path);
+            }
+
+            return base.VisitMember(memberExpression);
+        }
+
+        private bool IsAccessingParameter(MemberExpression memberExpression, [NotNullWhen(true)] out string[]? path)
+        {
+            path = null;
+            var members = new Stack<string>();
+            var current = (Expression?)memberExpression;
+
+            while (current is MemberExpression member)
+            {
+                members.Push(member.Member.Name);
+                current = member.Expression;
+            }
+
+            if (current == _parameter && members.Count > 0)
+            {
+                path = [.. members];
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    ///     Replaces parameter with pending selector while pruning unused navigation members.
+    ///     Only keeps the members that are actually accessed in the selector body.
+    /// </summary>
+    private sealed class MemberPruningReplacer(
+        ParameterExpression parameter,
+        Expression pendingSelector,
+        HashSet<string[]> accessedMembers) : ExpressionVisitor
+    {
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            if (node == parameter)
+            {
+                return pendingSelector;
+            }
+
+            return base.VisitParameter(node);
+        }
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            if (IsAccessingParameter(memberExpression, out var path))
+            {
+                return PruneAndReplace(memberExpression, path);
+            }
+
+            return base.VisitMember(memberExpression);
+        }
+
+        private Expression PruneAndReplace(MemberExpression original, string[] fullPath)
+        {
+            var replacement = pendingSelector;
+
+            for (var i = 0; i < fullPath.Length; i++)
+            {
+                replacement = AccessMember(replacement, fullPath[i], fullPath[..(i + 1)]);
+            }
+
+            return replacement;
+        }
+
+        private Expression AccessMember(Expression expression, string memberName, string[] pathToMember)
+        {
+            if (expression is NavigationTreeExpression navTree && navTree.Value is NewExpression newExpr && newExpr.Members != null)
+            {
+                var memberIndex = FindMemberIndex(newExpr, memberName);
+                if (memberIndex >= 0)
+                {
+                    var memberValue = newExpr.Arguments[memberIndex];
+
+                    if (memberValue is NavigationTreeExpression innerNavTree
+                        && innerNavTree.Value is NewExpression innerNewExpr
+                        && innerNewExpr.Members != null)
+                    {
+                        var prunedValue = PruneNavigationTree(innerNewExpr, pathToMember);
+                        return new NavigationTreeExpression(prunedValue);
+                    }
+
+                    return memberValue;
+                }
+            }
+
+            if (expression is NewExpression newExpression && newExpression.Members != null)
+            {
+                var memberIndex = FindMemberIndex(newExpression, memberName);
+                if (memberIndex >= 0)
+                {
+                    var memberValue = newExpression.Arguments[memberIndex];
+
+                    if (memberValue is NavigationTreeExpression navTree2
+                        && navTree2.Value is NewExpression innerNewExpr2
+                        && innerNewExpr2.Members != null)
+                    {
+                        var prunedValue = PruneNavigationTree(innerNewExpr2, pathToMember);
+                        return new NavigationTreeExpression(prunedValue);
+                    }
+
+                    return memberValue;
+                }
+            }
+
+            var member = expression.Type.GetMember(memberName).FirstOrDefault();
+            return member != null ? Expression.MakeMemberAccess(expression, member) : expression;
+        }
+
+        private NewExpression PruneNavigationTree(NewExpression newExpr, string[] basePath)
+        {
+            var keptIndices = new HashSet<int>();
+
+            for (var i = 0; i < newExpr.Members!.Count; i++)
+            {
+                var memberName = newExpr.Members[i].Name;
+                var testPath = new string[basePath.Length + 1];
+                Array.Copy(basePath, testPath, basePath.Length);
+                testPath[basePath.Length] = memberName;
+
+                if (IsPathOrPrefixAccessed(testPath))
+                {
+                    keptIndices.Add(i);
+                }
+            }
+
+            if (keptIndices.Count == newExpr.Members.Count || keptIndices.Count == 0)
+            {
+                return newExpr;
+            }
+
+            var arguments = new List<Expression>();
+            var members = new List<MemberInfo>();
+
+            foreach (var index in keptIndices.OrderBy(x => x))
+            {
+                arguments.Add(newExpr.Arguments[index]);
+                members.Add(newExpr.Members[index]);
+            }
+
+            return Expression.New(newExpr.Constructor!, arguments, members);
+        }
+
+        private bool IsPathOrPrefixAccessed(string[] path)
+        {
+            foreach (var accessedPath in accessedMembers)
+            {
+                if (accessedPath.Length >= path.Length)
+                {
+                    var match = true;
+                    for (var i = 0; i < path.Length; i++)
+                    {
+                        if (accessedPath[i] != path[i])
+                        {
+                            match = false;
+                            break;
+                        }
+                    }
+
+                    if (match)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsAccessingParameter(MemberExpression memberExpression, [NotNullWhen(true)] out string[]? path)
+        {
+            path = null;
+            var members = new Stack<string>();
+            var current = (Expression?)memberExpression;
+
+            while (current is MemberExpression member)
+            {
+                members.Push(member.Member.Name);
+                current = member.Expression;
+            }
+
+            if (current == parameter && members.Count > 0)
+            {
+                path = [.. members];
+                return true;
+            }
+
+            return false;
+        }
+
+        private static int FindMemberIndex(NewExpression newExpression, string memberName)
+        {
+            if (newExpression.Members != null)
+            {
+                for (var i = 0; i < newExpression.Members.Count; i++)
+                {
+                    if (newExpression.Members[i].Name == memberName)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
         }
     }
 
