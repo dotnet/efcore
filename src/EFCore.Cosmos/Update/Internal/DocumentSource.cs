@@ -213,7 +213,8 @@ public class DocumentSource
         {
             var entry = structuralType is IComplexType complexType
                 ? (IInternalEntry)parentEntry.GetComplexCollectionEntry(complexType.ComplexProperty, i)
-                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(collectionElement, (IEntityType)structuralType) ?? throw new UnreachableException();
+                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(collectionElement, (IEntityType)structuralType)
+                    ?? throw new UnreachableException("Collection element not tracked.");
 
             WriteJsonObject(
                 writer,
