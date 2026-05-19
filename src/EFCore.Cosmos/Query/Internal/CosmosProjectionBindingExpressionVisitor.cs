@@ -589,7 +589,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         return updatedMethodCallExpression;
     }
 
-    private class ProjectionBindigQueryProjectionApplyingExpressionVisitor : ExpressionVisitor
+    private sealed class ProjectionBindigQueryProjectionApplyingExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression node)
         {
