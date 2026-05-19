@@ -1970,7 +1970,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private void FindProperties(
         string entityTypeVariable,
-        IEnumerable<IProperty> properties,
+        IEnumerable<IPropertyBase> properties,
         IndentedStringBuilder mainBuilder,
         bool nullable,
         IDictionary<object, string>? scopeVariables = null)
@@ -1993,11 +1993,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             {
                 mainBuilder.Append(propertyVariable);
             }
-            else
+            else if (property.DeclaringType is IEntityType)
             {
                 mainBuilder
                     .Append(entityTypeVariable)
-                    .Append(".FindProperty(")
+                    .Append(property is IComplexProperty ? ".FindComplexProperty(" : ".FindProperty(")
                     .Append(_code.Literal(property.Name))
                     .Append(')');
 
@@ -2005,6 +2005,70 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 {
                     mainBuilder
                         .Append('!');
+                }
+            }
+            else
+            {
+                // Property is declared on a complex type. Walk the chain from the entity type down to the
+                // complex type, then look up the leaf property/complex property. At each level, check
+                // whether the complex property/type already has a variable in scope and start from there.
+                var chain = new List<string>();
+                var typeBase = (IReadOnlyTypeBase)property.DeclaringType;
+                string? startVariable = null;
+                var startVariableIsComplexProperty = false;
+                while (typeBase is IReadOnlyComplexType complexType)
+                {
+                    if (scopeVariables != null
+                        && scopeVariables.TryGetValue(complexType, out startVariable))
+                    {
+                        break;
+                    }
+
+                    if (scopeVariables != null
+                        && scopeVariables.TryGetValue(complexType.ComplexProperty, out startVariable))
+                    {
+                        startVariableIsComplexProperty = true;
+                        break;
+                    }
+
+                    chain.Insert(0, complexType.ComplexProperty.Name);
+                    typeBase = complexType.ComplexProperty.DeclaringType;
+                }
+
+                mainBuilder.Append(startVariable ?? entityTypeVariable);
+                if (startVariableIsComplexProperty)
+                {
+                    if (nullable)
+                    {
+                        mainBuilder.Append('!');
+                    }
+
+                    mainBuilder.Append(".ComplexType");
+                }
+
+                foreach (var complexPropertyName in chain)
+                {
+                    mainBuilder
+                        .Append(".FindComplexProperty(")
+                        .Append(_code.Literal(complexPropertyName))
+                        .Append(')');
+
+                    if (nullable)
+                    {
+                        mainBuilder.Append('!');
+                    }
+
+                    mainBuilder.Append(".ComplexType");
+                }
+
+                mainBuilder
+                    .Append(property is IComplexProperty ? ".FindComplexProperty(" : ".FindProperty(")
+                    .Append(_code.Literal(property.Name))
+                    .Append(')');
+
+                if (nullable)
+                {
+                    mainBuilder.Append('!');
                 }
             }
         }

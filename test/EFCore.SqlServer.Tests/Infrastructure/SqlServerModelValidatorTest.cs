@@ -543,6 +543,78 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public void IncludeProperties_supports_dotted_paths_to_complex_type_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(e => e.Address, cb =>
+            {
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Address.City");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplex))!.GetIndexes().Single();
+        Assert.Equal(["Address.City"], index.GetIncludeProperties());
+    }
+
+    [ConditionalFact]
+    public void IncludeProperties_lambda_supports_complex_property_chain()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(e => e.Address, cb =>
+            {
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties(e => e.Address.City);
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplex))!.GetIndexes().Single();
+        Assert.Equal(["Address.City"], index.GetIncludeProperties());
+    }
+
+    [ConditionalFact]
+    public void IncludeProperties_dotted_path_not_found_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(e => e.Address, cb =>
+            {
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Address.NotAProperty");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyNotFound("Address.NotAProperty", "{'Id'}", nameof(EntityWithIncludedComplex)),
+            modelBuilder);
+    }
+
+    protected class EntityWithIncludedComplex
+    {
+        public int Id { get; set; }
+        public required EntityWithIncludedComplexAddress Address { get; set; }
+    }
+
+    protected class EntityWithIncludedComplexAddress
+    {
+        public required string City { get; set; }
+        public required string Street { get; set; }
+    }
+
+    [ConditionalFact]
     public virtual void Detects_incompatible_memory_optimized_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();

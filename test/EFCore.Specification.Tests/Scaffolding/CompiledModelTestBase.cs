@@ -1223,6 +1223,11 @@ namespace TestNamespace
                             cb.Ignore(e => e.Deriveds);
                         });
                 });
+
+            if (SupportsIndexes)
+            {
+                eb.HasIndex(e => new { e.Id, e.Owned.Number }, "IX_PrincipalBase_Id_Owned_Number");
+            }
         });
 
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
@@ -1249,7 +1254,12 @@ namespace TestNamespace
                             cb.Ignore(e => e.Deriveds);
                         });
                 });
-            eb.Ignore(p => p.Dependent);
+            eb.ComplexProperty(
+                p => p.Dependent, cb =>
+                {
+                    cb.Property<byte?>("Id");
+                    cb.Ignore(d => d.Principal);
+                });
             eb.Ignore(p => p.Principals);
         });
     }
@@ -1310,6 +1320,15 @@ namespace TestNamespace
 
         Assert.Equal(ExpectedComplexTypeProperties, nestedComplexType.GetProperties().Count());
 
+        if (SupportsIndexes)
+        {
+            var index = principalBase.GetIndexes().Single(i => i.Name == "IX_PrincipalBase_Id_Owned_Number");
+            Assert.Equal("IX_PrincipalBase_Id_Owned_Number", index.Name);
+            Assert.Equal(2, index.Properties.Count);
+            Assert.Same(principalBase.FindProperty(nameof(PrincipalBase.Id)), index.Properties[0]);
+            Assert.Same(complexType.FindProperty(nameof(OwnedType.Number)), index.Properties[1]);
+        }
+
         var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>));
         if (principalDerived == null)
         {
@@ -1318,7 +1337,7 @@ namespace TestNamespace
 
         Assert.Equal(principalBase, principalDerived.BaseType);
 
-        var complexCollection = principalDerived.GetDeclaredComplexProperties().Single();
+        var complexCollection = principalDerived.GetDeclaredComplexProperties().Single(p => p.IsCollection);
         Assert.Equal(
             ["goo"],
             complexCollection.GetAnnotations().Select(a => a.Name));
@@ -1367,6 +1386,20 @@ namespace TestNamespace
 
         Assert.Equal(ExpectedComplexTypeProperties, collectionNestedComplexType.GetProperties().Count());
 
+        var dependentComplexProperty = principalDerived.FindComplexProperty(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.False(dependentComplexProperty.IsCollection);
+        Assert.True(dependentComplexProperty.IsNullable);
+        Assert.Equal(typeof(DependentBase<byte?>), dependentComplexProperty.ClrType);
+        Assert.Same(principalDerived, dependentComplexProperty.DeclaringType);
+
+        var dependentComplexType = dependentComplexProperty.ComplexType;
+        Assert.Equal(typeof(DependentBase<byte?>), dependentComplexType.ClrType);
+        Assert.True(dependentComplexType.HasSharedClrType);
+        Assert.IsType<ConstructorBinding>(dependentComplexType.ConstructorBinding);
+        var dependentIdProperty = dependentComplexType.FindProperty("Id")!;
+        Assert.Equal(typeof(byte?), dependentIdProperty.ClrType);
+        Assert.Empty(dependentComplexType.GetComplexProperties());
+
         Assert.Equal(
             [principalBase, principalDerived],
             model.GetEntityTypes());
@@ -1376,6 +1409,9 @@ namespace TestNamespace
         => 14;
 
     protected virtual bool SupportsNonAutoLoadedProperties
+        => true;
+
+    protected virtual bool SupportsIndexes
         => true;
 
     public class CustomValueComparer<T>() : ValueComparer<T>(false);

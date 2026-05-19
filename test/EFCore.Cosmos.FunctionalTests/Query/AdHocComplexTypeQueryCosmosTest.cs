@@ -221,6 +221,36 @@ OFFSET 0 LIMIT 2
        => base.AddNonSharedOptions(builder)
                .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
+    public override async Task Can_query_by_complex_type_property_with_index()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_query_by_complex_type_property_with_index)).Message);
+
+    public override async Task Can_update_entity_with_index_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_update_entity_with_index_on_complex_type_property)).Message);
+
+    public override async Task Can_delete_entity_with_index_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_delete_entity_with_index_on_complex_type_property)).Message);
+
+    public override async Task Can_query_by_alternate_key_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_query_by_alternate_key_on_complex_type_property)).Message);
+
+    public override async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_save_batch_swapping_alternate_key_values_on_complex_type_property)).Message);
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

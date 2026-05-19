@@ -524,6 +524,8 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         {
             eb.ComplexCollection<IList<OwnedType>, OwnedType>(
                 "ManyOwned", "OwnedCollection", eb => eb.ToJson());
+            eb.ComplexProperty(p => p.Dependent, cb => cb.ToJson());
+            eb.HasIndex(e => e.Dependent, "IX_PrincipalDerived_Dependent");
         });
     }
 
@@ -664,6 +666,23 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 }
             }
         }
+
+        var dependentComplexProperty = principalDerived.FindComplexProperty(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.False(dependentComplexProperty.IsCollection);
+        Assert.True(dependentComplexProperty.ComplexType.IsMappedToJson());
+        Assert.Equal(
+            nameof(PrincipalDerived<DependentBase<byte?>>.Dependent),
+            dependentComplexProperty.ComplexType.GetContainerColumnName());
+
+        var dependentIndex = principalDerived.GetIndexes().Single(i => i.Name == "IX_PrincipalDerived_Dependent");
+        Assert.Single(dependentIndex.Properties);
+        Assert.Same(dependentComplexProperty, dependentIndex.Properties[0]);
+
+        var principalBaseTable2 = principalBase.GetTableMappings().Single().Table;
+        var dependentJsonColumn = principalBaseTable2.FindColumn(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.NotNull(dependentJsonColumn);
+        var dependentTableIndex = principalBaseTable2.Indexes.Single(i => i.Name == "IX_PrincipalDerived_Dependent");
+        Assert.Same(dependentJsonColumn, dependentTableIndex.Columns.Single());
     }
 
     [ConditionalFact]

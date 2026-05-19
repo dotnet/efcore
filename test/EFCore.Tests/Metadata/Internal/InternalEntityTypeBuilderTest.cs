@@ -769,7 +769,7 @@ public class InternalEntityTypeBuilderTest
 
         var indexBuilder = entityBuilder.HasIndex([Order.IdProperty.Name], ConfigurationSource.Convention);
         Assert.Same(indexBuilder.Metadata.Properties.Single(), entityBuilder.Metadata.FindProperty(Order.IdProperty.Name));
-        Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex(indexBuilder.Metadata.Properties.Single()));
+        Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex((IReadOnlyProperty)indexBuilder.Metadata.Properties.Single()));
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
     }
 
@@ -802,7 +802,7 @@ public class InternalEntityTypeBuilderTest
 
         var indexBuilder = entityBuilder.HasIndex([Order.IdProperty.Name], ConfigurationSource.Convention);
         Assert.Same(indexBuilder.Metadata.Properties.Single(), entityBuilder.Metadata.FindProperty(Order.IdProperty.Name));
-        Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex(indexBuilder.Metadata.Properties.Single()));
+        Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex((IReadOnlyProperty)indexBuilder.Metadata.Properties.Single()));
         Assert.True(indexBuilder.Metadata.IsUnique);
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
     }
@@ -1561,6 +1561,44 @@ public class InternalEntityTypeBuilderTest
                 configurationSource: ConfigurationSource.Convention));
 
         Assert.Equal([propertyBuilder.Metadata], entityBuilder.GetActualProperties([propertyBuilder.Metadata], null));
+    }
+
+    [ConditionalFact]
+    public void GetActualProperties_resolves_complex_property_no_longer_in_model()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var entityBuilder = modelBuilder.Entity(typeof(EntityWithComplexProperty), ConfigurationSource.Explicit);
+
+        var originalComplexBuilder = entityBuilder.ComplexProperty(
+            EntityWithComplexProperty.DetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Explicit);
+        Assert.NotNull(originalComplexBuilder);
+        var stale = originalComplexBuilder.Metadata;
+
+        Assert.NotNull(entityBuilder.HasNoComplexProperty(stale, ConfigurationSource.Explicit));
+        Assert.False(stale.IsInModel);
+
+        var newComplexBuilder = entityBuilder.ComplexProperty(
+            EntityWithComplexProperty.DetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Explicit);
+        Assert.NotNull(newComplexBuilder);
+        Assert.NotSame(stale, newComplexBuilder.Metadata);
+
+        var resolved = entityBuilder.GetActualProperties([stale], null);
+        Assert.NotNull(resolved);
+        Assert.Same(newComplexBuilder.Metadata, resolved[0]);
+    }
+
+    private class EntityWithComplexProperty
+    {
+        public static readonly PropertyInfo DetailsProperty =
+            typeof(EntityWithComplexProperty).GetProperty(nameof(Details));
+
+        public int Id { get; set; }
+        public ComplexDetails Details { get; set; }
+    }
+
+    private class ComplexDetails
+    {
+        public string Name { get; set; }
     }
 
     [ConditionalFact]

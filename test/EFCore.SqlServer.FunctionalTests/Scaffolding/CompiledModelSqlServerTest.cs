@@ -354,6 +354,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                         .UseCollation("Latin1_General_CI_AI");
                 });
         });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.ComplexProperty(p => p.Dependent, cb => cb.HasColumnType("nvarchar(450)"));
+        });
     }
 
     protected override void AssertComplexTypes(IModel model)

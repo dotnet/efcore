@@ -63,6 +63,17 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalKeyBuilder? PrimaryKey(
+        IReadOnlyList<IReadOnlyList<MemberInfo>>? memberChains,
+        ConfigurationSource configurationSource)
+        => PrimaryKey(GetOrCreateProperties(memberChains, configurationSource), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalKeyBuilder? PrimaryKey(
         IReadOnlyList<Property>? properties,
         ConfigurationSource configurationSource)
     {
@@ -228,6 +239,15 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual InternalKeyBuilder? HasKey(IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
         => HasKeyInternal(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalKeyBuilder? HasKey(IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains, ConfigurationSource configurationSource)
+        => HasKeyInternal(GetOrCreateProperties(memberChains, configurationSource), configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1621,9 +1641,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         var shouldBeDetached = false;
                         foreach (var property in index.Properties)
                         {
-                            if (removedInheritedProperties.Contains(property))
+                            if (property is Property primitive
+                                && removedInheritedProperties.Contains(primitive))
                             {
-                                removedInheritedPropertiesToDuplicate.Add(property);
+                                removedInheritedPropertiesToDuplicate.Add(primitive);
                                 shouldBeDetached = true;
                             }
                         }
@@ -2082,7 +2103,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalIndexBuilder? HasIndex(IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
+        => HasIndex(ToPropertyBaseList(GetOrCreateProperties(propertyNames, configurationSource)), configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2094,7 +2115,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<string> propertyNames,
         string name,
         ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), name, configurationSource);
+        => HasIndex(ToPropertyBaseList(GetOrCreateProperties(propertyNames, configurationSource)), name, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2105,7 +2126,18 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     public virtual InternalIndexBuilder? HasIndex(
         IReadOnlyList<MemberInfo> clrMembers,
         ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
+        => HasIndex(ToPropertyBaseList(GetOrCreateProperties(clrMembers, configurationSource)), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains,
+        ConfigurationSource configurationSource)
+        => HasIndex(GetOrCreatePropertyBases(memberChains, configurationSource), configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2117,7 +2149,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<MemberInfo> clrMembers,
         string name,
         ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), name, configurationSource);
+        => HasIndex(ToPropertyBaseList(GetOrCreateProperties(clrMembers, configurationSource)), name, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2126,7 +2158,19 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalIndexBuilder? HasIndex(
-        IReadOnlyList<Property>? properties,
+        IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains,
+        string name,
+        ConfigurationSource configurationSource)
+        => HasIndex(GetOrCreatePropertyBases(memberChains, configurationSource), name, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<PropertyBase>? properties,
         ConfigurationSource configurationSource)
     {
         if (properties == null)
@@ -2165,7 +2209,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalIndexBuilder? HasIndex(
-        IReadOnlyList<Property>? properties,
+        IReadOnlyList<PropertyBase>? properties,
         string name,
         ConfigurationSource configurationSource)
     {
@@ -2212,7 +2256,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
     private InternalIndexBuilder? HasIndex(
         Index? index,
-        IReadOnlyList<Property> properties,
+        IReadOnlyList<PropertyBase> properties,
         string? name,
         ConfigurationSource configurationSource)
     {
@@ -2229,6 +2273,32 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
         return index?.Builder;
     }
+
+    private static IReadOnlyList<PropertyBase>? ToPropertyBaseList(IReadOnlyList<Property>? properties)
+        => properties == null ? null : (IReadOnlyList<PropertyBase>)properties.Cast<PropertyBase>().ToList();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<Property>? properties,
+        ConfigurationSource configurationSource)
+        => HasIndex(ToPropertyBaseList(properties), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<Property>? properties,
+        string name,
+        ConfigurationSource configurationSource)
+        => HasIndex(ToPropertyBaseList(properties), name, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2276,7 +2346,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             : Metadata.RemoveIndex(index.Name);
         Check.DebugAssert(removedIndex == index, "removedIndex != index");
 
-        RemoveUnusedImplicitProperties(index.Properties);
+        RemoveUnusedImplicitProperties(index.Properties.OfType<IConventionProperty>().ToList());
 
         return this;
     }

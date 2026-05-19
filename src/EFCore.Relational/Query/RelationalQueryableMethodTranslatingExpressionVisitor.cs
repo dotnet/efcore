@@ -2506,7 +2506,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // Check if the inner key properties are covered by a unique index (e.g. unique FK in a 1:1 relationship).
         foreach (var index in entityType.GetIndexes())
         {
-            if (index.IsUnique && index.Properties.SequenceEqual(keyProperties))
+            if (index.IsUnique
+                && index.Properties.Count == keyProperties.Count
+                && index.Properties.OfType<IProperty>().SequenceEqual(keyProperties))
             {
                 return true;
             }

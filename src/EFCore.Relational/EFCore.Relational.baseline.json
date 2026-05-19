@@ -10674,6 +10674,9 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetJsonPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionComplexProperty complexProperty);"
         },
         {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier> GetMappedStoreObjects(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyComplexProperty property, Microsoft.EntityFrameworkCore.Metadata.StoreObjectType storeObjectType);"
+        },
+        {
           "Member": "static void SetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableComplexProperty complexProperty, string? name);"
         },
         {
@@ -14112,7 +14115,7 @@
           "Member": "override void ValidateIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
-          "Member": "virtual void ValidateIndexMappedToTable(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+          "Member": "override void ValidateIndexOnComplexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> complexProperties, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateIndexPropertyMapping(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -16460,6 +16463,12 @@
           "Member": "static string IncorrectDefaultValueType(object? value, object? valueType, object? property, object? propertyType, object? entityType);"
         },
         {
+          "Member": "static string IndexOnNonJsonComplexProperty(object? indexProperties, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string IndexPropertiesMixedJsonAndNonJsonMapping(object? indexProperties, object? entityType);"
+        },
+        {
           "Member": "static string InsertDataOperationNoModel(object? table);"
         },
         {
@@ -16569,6 +16578,9 @@
         },
         {
           "Member": "static string KeylessMappingStrategy(object? mappingStrategy, object? entityType);"
+        },
+        {
+          "Member": "static string KeyPropertyInJsonComplexType(object? keyProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string LastUsedWithoutOrderBy(object? method);"
@@ -16842,6 +16854,9 @@
         },
         {
           "Member": "static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor);"
+        },
+        {
+          "Member": "static string UniqueIndexOnComplexProperty(object? indexProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string UnknownOperation(object? sqlGeneratorType, object? operationType);"

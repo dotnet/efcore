@@ -9,21 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-// Sealed for perf
-public sealed class PropertyListComparer : IComparer<IReadOnlyList<IReadOnlyPropertyBase>>,
-    IEqualityComparer<IReadOnlyList<IReadOnlyPropertyBase>>
+/// <remarks>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </remarks>
+public sealed class ComplexPropertyNameComparer(IReadOnlyTypeBase typeBase) : IComparer<string>, IEqualityComparer<string>
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly PropertyListComparer Instance = new();
-
-    private PropertyListComparer()
-    {
-    }
+    private readonly IReadOnlyTypeBase _typeBase = typeBase;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,69 +25,65 @@ public sealed class PropertyListComparer : IComparer<IReadOnlyList<IReadOnlyProp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public int Compare(IReadOnlyList<IReadOnlyPropertyBase>? x, IReadOnlyList<IReadOnlyPropertyBase>? y)
+    public int Compare(string? x, string? y)
     {
-        if (ReferenceEquals(x, y))
+        if (StringComparer.Ordinal.Equals(x, y))
         {
             return 0;
         }
 
-        if (x is null)
+        var primaryKeyProperties = _typeBase.ContainingEntityType?.FindPrimaryKey()?.Properties;
+        if (primaryKeyProperties is { Count: > 0 })
         {
-            return -1;
-        }
+            var xContainsKey = x != null && ContainsKeyProperty(x, primaryKeyProperties);
+            var yContainsKey = y != null && ContainsKeyProperty(y, primaryKeyProperties);
 
-        if (y is null)
-        {
-            return 1;
-        }
-
-        var result = x.Count - y.Count;
-        if (result != 0)
-        {
-            return result;
-        }
-
-        var index = 0;
-        while ((result == 0)
-               && (index < x.Count))
-        {
-            result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
-            if (result == 0)
+            if (xContainsKey != yContainsKey)
             {
-                result = StringComparer.Ordinal.Compare(x[index].DeclaringType.Name, y[index].DeclaringType.Name);
+                return xContainsKey ? -1 : 1;
             }
-
-            index++;
         }
 
-        return result;
+        return StringComparer.Ordinal.Compare(x, y);
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public bool Equals(IReadOnlyList<IReadOnlyPropertyBase>? x, IReadOnlyList<IReadOnlyPropertyBase>? y)
-        => Compare(x, y) == 0;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public int GetHashCode(IReadOnlyList<IReadOnlyPropertyBase> obj)
+    private bool ContainsKeyProperty(
+        string complexPropertyName,
+        IReadOnlyList<IReadOnlyProperty> primaryKeyProperties)
     {
-        var hash = new HashCode();
-        for (var i = 0; i < obj.Count; i++)
+        for (var i = 0; i < primaryKeyProperties.Count; i++)
         {
-            hash.Add(obj[i].Name);
-            hash.Add(obj[i].DeclaringType.Name);
+            var keyProperty = primaryKeyProperties[i];
+            for (var current = keyProperty.DeclaringType as IReadOnlyComplexType;
+                 current != null;
+                 current = current.ComplexProperty.DeclaringType as IReadOnlyComplexType)
+            {
+                if (current.ComplexProperty.DeclaringType == _typeBase
+                    && current.ComplexProperty.Name == complexPropertyName)
+                {
+                    return true;
+                }
+            }
         }
 
-        return hash.ToHashCode();
+        return false;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool Equals(string? x, string? y)
+        => StringComparer.Ordinal.Equals(x, y);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public int GetHashCode(string obj)
+        => StringComparer.Ordinal.GetHashCode(obj);
 }

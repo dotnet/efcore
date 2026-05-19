@@ -523,7 +523,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </remarks>
     /// <param name="properties">The properties to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    IReadOnlyIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties);
+    IReadOnlyIndex? FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties);
 
     /// <summary>
     ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
@@ -540,7 +540,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </remarks>
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    IReadOnlyIndex? FindIndex(IReadOnlyProperty property)
+    IReadOnlyIndex? FindIndex(IReadOnlyPropertyBase property)
         => FindIndex([property]);
 
     /// <summary>

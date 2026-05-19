@@ -2287,6 +2287,205 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Can_define_alternate_key_on_complex_property_via_lambda()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.HasAlternateKey(e => e.Quarks.Up);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var quarksType = entityType.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.Quarks))
+                .ComplexType;
+            var upProperty = quarksType.FindProperty(nameof(Quarks.Up))!;
+
+            var alternateKey = entityType.GetKeys().Single(k => !k.IsPrimaryKey());
+            Assert.Same(upProperty, alternateKey.Properties.Single());
+            Assert.Same(entityType, alternateKey.DeclaringEntityType);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_define_alternate_key_on_complex_property_via_string_dotted_path()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.HasAlternateKey("Quarks.Up");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var quarksType = entityType.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.Quarks))
+                .ComplexType;
+            var upProperty = quarksType.FindProperty(nameof(Quarks.Up))!;
+
+            var alternateKey = entityType.GetKeys().Single(k => !k.IsPrimaryKey());
+            Assert.Same(upProperty, alternateKey.Properties.Single());
+            Assert.Same(entityType, alternateKey.DeclaringEntityType);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_define_index_on_complex_property_via_lambda()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.HasIndex(e => e.Quarks.Up).IsUnique();
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var quarksType = entityType.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.Quarks))
+                .ComplexType;
+            var upProperty = quarksType.FindProperty(nameof(Quarks.Up))!;
+
+            var index = entityType.GetIndexes().Single();
+            Assert.Same(upProperty, index.Properties.Single());
+            Assert.True(index.IsUnique);
+            Assert.Same(entityType, index.DeclaringEntityType);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_define_composite_index_mixing_entity_and_complex_property_via_lambda()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.HasIndex(e => new { e.Id, e.Quarks.Up });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var idProperty = entityType.FindProperty(nameof(ComplexPropertiesBase.Id))!;
+            var quarksType = entityType.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.Quarks))
+                .ComplexType;
+            var upProperty = quarksType.FindProperty(nameof(Quarks.Up))!;
+
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(2, index.Properties.Count);
+            Assert.Same(idProperty, index.Properties[0]);
+            Assert.Same(upProperty, index.Properties[1]);
+            Assert.Same(entityType, index.DeclaringEntityType);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_define_index_on_complex_property_via_string_dotted_path()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.HasIndex("Quarks.Up");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var quarksType = entityType.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.Quarks))
+                .ComplexType;
+            var upProperty = quarksType.FindProperty(nameof(Quarks.Up))!;
+
+            var index = entityType.GetIndexes().Single();
+            Assert.Same(upProperty, index.Properties.Single());
+            Assert.Same(entityType, index.DeclaringEntityType);
+        }
+
+        [ConditionalFact]
+        public virtual void Key_on_complex_property_marks_chain_as_required()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.HasAlternateKey(e => e.Quarks.Up);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var quarksProperty = entityType.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.Quarks));
+
+            Assert.False(quarksProperty.IsNullable);
+        }
+
+        [ConditionalFact]
+        public virtual void Index_on_complex_property_marks_chain_as_required()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.HasIndex(e => e.Quarks.Up);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var quarksProperty = entityType.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.Quarks));
+
+            Assert.False(quarksProperty.IsNullable);
+        }
+
+        [ConditionalFact]
         public virtual void Chained_property_lambda_configures_nested_complex_property()
         {
             var modelBuilder = CreateModelBuilder();

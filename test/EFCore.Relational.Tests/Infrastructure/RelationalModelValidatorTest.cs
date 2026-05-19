@@ -126,6 +126,258 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             modelBuilder);
     }
 
+    public override void Detects_index_on_complex_collection_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Items).ToJson();
+        });
+
+        var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(EntityWithComplexCollection))!;
+        var collectionProperty = entityType.FindComplexProperty(nameof(EntityWithComplexCollection.Items))!;
+        entityType.AddIndex([collectionProperty], ConfigurationSource.Explicit);
+
+        VerifyError(
+            CoreStrings.IndexOnComplexCollection(
+                "{'Items'}", nameof(EntityWithComplexCollection), nameof(EntityWithComplexCollection.Items)),
+            modelBuilder);
+    }
+
+    public override void Detects_index_traversing_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Items).ToJson();
+        });
+
+        var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(EntityWithComplexCollection))!;
+        var collectionProperty = entityType.FindComplexProperty(nameof(EntityWithComplexCollection.Items))!;
+        var leaf = collectionProperty.ComplexType.FindProperty(nameof(ComplexCollectionItem.Value))!;
+        entityType.AddIndex([leaf], ConfigurationSource.Explicit);
+
+        VerifyError(
+            CoreStrings.IndexOnComplexCollection(
+                "{'Value'}", nameof(EntityWithComplexCollection), nameof(EntityWithComplexCollection.Items)),
+            modelBuilder);
+    }
+
+    public override void Detects_key_traversing_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Items).ToJson();
+        });
+
+        var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(EntityWithComplexCollection))!;
+        var collectionProperty = entityType.FindComplexProperty(nameof(EntityWithComplexCollection.Items))!;
+        var leaf = collectionProperty.ComplexType.FindProperty(nameof(ComplexCollectionItem.Value))!;
+        entityType.AddKey([leaf], ConfigurationSource.Explicit);
+
+        VerifyError(
+            CoreStrings.KeyOnComplexCollection(
+                "{'Value'}", nameof(EntityWithComplexCollection), nameof(EntityWithComplexCollection.Items)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_index_mixing_json_and_non_json_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity).ToJson();
+            b.HasIndex(e => new { e.Name, e.ReferencedEntity.SampleEntityId });
+        });
+
+        VerifyError(
+            RelationalStrings.IndexPropertiesMixedJsonAndNonJsonMapping(
+                "{'Name', 'SampleEntityId'}", nameof(SampleEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Passes_on_index_mixing_json_complex_property_and_scalar()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity).ToJson();
+            b.HasIndex(e => new { e.Name, e.ReferencedEntity });
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Index_entirely_within_json_complex_property_is_allowed()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity).ToJson();
+            b.HasIndex(e => new { e.ReferencedEntity.Id, e.ReferencedEntity.SampleEntityId });
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Passes_on_index_on_complex_property_mapped_to_json()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Name);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity).ToJson();
+            b.HasIndex(e => e.ReferencedEntity);
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(SampleEntity))!.GetIndexes().Single();
+    }
+
+    [ConditionalFact]
+    public virtual void GetNullableValueFactory_throws_for_index_containing_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Name);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity).ToJson();
+            b.HasIndex(e => e.ReferencedEntity);
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(SampleEntity))!.GetIndexes().Single();
+
+        Assert.Equal(
+            CoreStrings.IndexValueFactoryWithComplexProperty(
+                "{'ReferencedEntity'}",
+                nameof(SampleEntity),
+                nameof(SampleEntity.ReferencedEntity)),
+            Assert.Throws<InvalidOperationException>(
+                () => index.GetNullableValueFactory<IReadOnlyList<object>>()).Message);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_unique_index_on_complex_property_mapped_to_json()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Name);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity).ToJson();
+            b.HasIndex(e => e.ReferencedEntity).IsUnique();
+        });
+
+        VerifyError(
+            RelationalStrings.UniqueIndexOnComplexProperty(
+                "{'ReferencedEntity'}",
+                nameof(SampleEntity),
+                nameof(SampleEntity.ReferencedEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_alternate_key_on_property_in_json_mapped_complex_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Name);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity).ToJson();
+            b.HasAlternateKey(e => e.ReferencedEntity.SampleEntityId);
+        });
+
+        VerifyError(
+            RelationalStrings.KeyPropertyInJsonComplexType(
+                "{'SampleEntityId'}",
+                nameof(SampleEntity),
+                nameof(ReferencedEntity.SampleEntityId)),
+            modelBuilder);
+    }
+
+    public override void Detects_composite_index_with_scalar_and_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity);
+        });
+
+        var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(SampleEntity))!;
+        var nameProperty = (Metadata.Internal.Property)entityType.FindProperty(nameof(SampleEntity.Name))!;
+        var complexProperty = entityType.FindComplexProperty(nameof(SampleEntity.ReferencedEntity))!;
+        entityType.AddIndex([nameProperty, complexProperty], ConfigurationSource.Explicit);
+
+        VerifyError(
+            RelationalStrings.IndexOnNonJsonComplexProperty(
+                "{'Name', 'ReferencedEntity'}",
+                nameof(SampleEntity),
+                nameof(SampleEntity.ReferencedEntity)),
+            modelBuilder);
+    }
+
+    public override void Detects_index_on_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<SampleEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Ignore(e => e.OtherSamples);
+            b.Ignore(e => e.AnotherReferencedEntity);
+            b.Ignore(e => e.Name);
+            b.Ignore(e => e.Number);
+            b.ComplexProperty(e => e.ReferencedEntity);
+            b.HasIndex(e => e.ReferencedEntity);
+        });
+
+        VerifyError(
+            RelationalStrings.IndexOnNonJsonComplexProperty(
+                "{'ReferencedEntity'}",
+                nameof(SampleEntity),
+                nameof(SampleEntity.ReferencedEntity)),
+            modelBuilder);
+    }
+
     [ConditionalFact]
     public virtual void Ignores_bool_with_default_value_false()
     {

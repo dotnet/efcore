@@ -28,7 +28,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
         = new(StringComparer.Ordinal);
 
-    private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, Index> _unnamedIndexes
+    private readonly SortedDictionary<IReadOnlyList<IReadOnlyPropertyBase>, Index> _unnamedIndexes
         = new(PropertyListComparer.Instance);
 
     private readonly SortedDictionary<string, Index> _namedIndexes
@@ -480,6 +480,18 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         => (EntityType)((IReadOnlyTypeBase)this).GetRootType();
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override EntityType ContainingEntityType
+    {
+        [DebuggerStepThrough]
+        get => this;
+    }
+
+    /// <summary>
     ///     Runs the conventions when an annotation was set or removed.
     /// </summary>
     /// <param name="name">The key of the set annotation.</param>
@@ -599,34 +611,30 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         if (oldPrimaryKey != null)
         {
+            DetachKeyProperties(oldPrimaryKey.Properties);
+
             foreach (var property in oldPrimaryKey.Properties)
             {
-                Properties.Remove(property.Name);
                 property.PrimaryKey = null;
             }
 
             _primaryKey = null;
 
-            foreach (var property in oldPrimaryKey.Properties)
-            {
-                Properties.Add(property.Name, property);
-            }
+            ReattachKeyPropertiesInOrder(oldPrimaryKey.Properties);
         }
 
         if (properties?.Count > 0 && newKey != null)
         {
+            DetachKeyProperties(newKey.Properties);
+
             foreach (var property in newKey.Properties)
             {
-                Properties.Remove(property.Name);
                 property.PrimaryKey = newKey;
             }
 
             _primaryKey = newKey;
 
-            foreach (var property in newKey.Properties)
-            {
-                Properties.Add(property.Name, property);
-            }
+            ReattachKeyPropertiesInOrder(newKey.Properties);
 
             UpdatePrimaryKeyConfigurationSource(configurationSource);
         }
@@ -636,6 +644,55 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         }
 
         return (Key?)Model.ConventionDispatcher.OnPrimaryKeyChanged(Builder, newKey, oldPrimaryKey);
+    }
+
+    private void DetachKeyProperties(IReadOnlyList<Property> properties)
+    {
+        foreach (var property in properties)
+        {
+            property.DeclaringType.Properties.Remove(property.Name);
+        }
+
+        var visitedComplexProps = new HashSet<ComplexProperty>();
+        foreach (var property in properties)
+        {
+            for (var current = property.DeclaringType as ComplexType;
+                 current != null;
+                 current = current.ComplexProperty.DeclaringType as ComplexType)
+            {
+                if (!visitedComplexProps.Add(current.ComplexProperty))
+                {
+                    break;
+                }
+
+                current.ComplexProperty.DeclaringType.ComplexProperties.Remove(current.ComplexProperty.Name);
+            }
+        }
+    }
+
+    private void ReattachKeyPropertiesInOrder(IReadOnlyList<Property> properties)
+    {
+        foreach (var property in properties)
+        {
+            property.DeclaringType.Properties.Add(property.Name, property);
+        }
+
+        var visitedComplexProps = new HashSet<ComplexProperty>();
+        foreach (var property in properties)
+        {
+            for (var current = property.DeclaringType as ComplexType;
+                 current != null;
+                 current = current.ComplexProperty.DeclaringType as ComplexType)
+            {
+                if (!visitedComplexProps.Add(current.ComplexProperty))
+                {
+                    break;
+                }
+
+                current.ComplexProperty.DeclaringType.ComplexProperties.Add(
+                    current.ComplexProperty.Name, current.ComplexProperty);
+            }
+        }
     }
 
     /// <summary>
@@ -741,7 +798,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                 }
             }
 
-            if (FindProperty(property.Name) != property
+            if ((property.DeclaringType is EntityType
+                    ? FindProperty(property.Name) != property
+                    : property.DeclaringType.ContainingEntityType != this)
                 || !property.IsInModel)
             {
                 throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(properties.Format(), DisplayName()));
@@ -1914,7 +1973,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Index? AddIndex(
-        IReadOnlyList<Property> properties,
+        IReadOnlyList<PropertyBase> properties,
         ConfigurationSource configurationSource)
     {
         Check.NotEmpty(properties);
@@ -1943,7 +2002,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Index? AddIndex(
-        IReadOnlyList<Property> properties,
+        IReadOnlyList<PropertyBase> properties,
         string name,
         ConfigurationSource configurationSource)
     {
@@ -1971,7 +2030,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         return (Index?)Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
     }
 
-    private static void UpdatePropertyIndexes(IReadOnlyList<Property> properties, Index index)
+    private static void UpdatePropertyIndexes(IReadOnlyList<PropertyBase> properties, Index index)
     {
         foreach (var property in properties)
         {
@@ -2001,7 +2060,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Index? FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    public virtual Index? FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
     {
         Check.HasNoNulls(properties);
         Check.NotEmpty(properties);
@@ -2050,7 +2109,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Index? FindDeclaredIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    public virtual Index? FindDeclaredIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => _unnamedIndexes.GetValueOrDefault(Check.NotEmpty(properties));
 
     /// <summary>
@@ -2068,7 +2127,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<Index> FindDerivedIndexes(IReadOnlyList<IReadOnlyProperty> properties)
+    public virtual IEnumerable<Index> FindDerivedIndexes(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => DirectlyDerivedTypes.Count == 0
             ? []
             : (IEnumerable<Index>)GetDerivedTypes<EntityType>()
@@ -2086,14 +2145,13 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             : (IEnumerable<Index>)GetDerivedTypes<EntityType>()
                 .Select(et => et.FindDeclaredIndex(Check.NotEmpty(name)))
                 .Where(i => i != null);
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<Index> FindIndexesInHierarchy(IReadOnlyList<IReadOnlyProperty> properties)
+    public virtual IEnumerable<Index> FindIndexesInHierarchy(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => DirectlyDerivedTypes.Count == 0
             ? ToEnumerable(FindIndex(properties))
             : ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
@@ -2115,7 +2173,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Index? RemoveIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    public virtual Index? RemoveIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
     {
         Check.NotEmpty(properties);
 
@@ -3858,8 +3916,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
-        => AddIndex(properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(), ConfigurationSource.Explicit)!;
+    IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutablePropertyBase> properties)
+        => AddIndex(properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(), ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3868,8 +3926,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties, string name)
-        => AddIndex(properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(), name, ConfigurationSource.Explicit)!;
+    IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutablePropertyBase> properties, string name)
+        => AddIndex(properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(), name, ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3878,9 +3936,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionIndex? IConventionEntityType.AddIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
+    IConventionIndex? IConventionEntityType.AddIndex(IReadOnlyList<IConventionPropertyBase> properties, bool fromDataAnnotation)
         => AddIndex(
-            properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
+            properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -3891,11 +3949,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [DebuggerStepThrough]
     IConventionIndex? IConventionEntityType.AddIndex(
-        IReadOnlyList<IConventionProperty> properties,
+        IReadOnlyList<IConventionPropertyBase> properties,
         string name,
         bool fromDataAnnotation)
         => AddIndex(
-            properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
+            properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(),
             name,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -3906,7 +3964,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IReadOnlyIndex? IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    IReadOnlyIndex? IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => FindIndex(properties);
 
     /// <summary>
@@ -3916,7 +3974,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableIndex? IMutableEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    IMutableIndex? IMutableEntityType.FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => FindIndex(properties);
 
     /// <summary>
@@ -3926,7 +3984,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionIndex? IConventionEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    IConventionIndex? IConventionEntityType.FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => FindIndex(properties);
 
     /// <summary>
@@ -3936,7 +3994,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IIndex? IEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    IIndex? IEntityType.FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => FindIndex(properties);
 
     /// <summary>
@@ -4066,7 +4124,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionIndex? IConventionEntityType.RemoveIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    IConventionIndex? IConventionEntityType.RemoveIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => RemoveIndex(properties);
 
     /// <summary>
@@ -4076,7 +4134,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableIndex? IMutableEntityType.RemoveIndex(IReadOnlyList<IReadOnlyProperty> properties)
+    IMutableIndex? IMutableEntityType.RemoveIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
         => RemoveIndex(properties);
 
     /// <summary>
