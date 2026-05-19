@@ -108,6 +108,7 @@ WHERE [Id] = @p1;
 @complex_type_Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
 ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -120,6 +121,7 @@ FROM [JsonTypeEntity] AS [j]
 @complex_type_Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
 ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -135,6 +137,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', N'MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625)), ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))')
 FROM [JsonTypeEntity] AS [j]
@@ -144,6 +147,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625)), ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))')
 FROM [JsonTypeEntity] AS [j]
@@ -159,6 +163,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING nvarchar(max)))
 FROM [JsonTypeEntity] AS [j]
@@ -168,6 +173,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue'))
 FROM [JsonTypeEntity] AS [j]
@@ -186,6 +192,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -195,6 +202,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]

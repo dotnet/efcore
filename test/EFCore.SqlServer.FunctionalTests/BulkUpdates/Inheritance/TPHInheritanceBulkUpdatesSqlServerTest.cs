@@ -20,6 +20,7 @@ public class TPHInheritanceBulkUpdatesSqlServerTest(
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [a]
 FROM [Animals] AS [a]
 WHERE [a].[Name] = N'Great spotted kiwi'
@@ -32,6 +33,7 @@ WHERE [a].[Name] = N'Great spotted kiwi'
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [a]
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi' AND [a].[Name] = N'Great spotted kiwi'
@@ -44,6 +46,7 @@ WHERE [a].[Discriminator] = N'Kiwi' AND [a].[Name] = N'Great spotted kiwi'
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -59,6 +62,7 @@ WHERE (
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -88,6 +92,7 @@ WHERE (
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [a]
 FROM [Animals] AS [a]
 WHERE [a].[Id] IN (
@@ -118,6 +123,7 @@ WHERE [a].[Id] IN (
 @p='0'
 @p1='3'
 
+SET NOCOUNT OFF;
 DELETE FROM [a]
 FROM [Animals] AS [a]
 WHERE [a].[Id] IN (
@@ -138,6 +144,7 @@ WHERE [a].[Id] IN (
             """
 @p='Animal' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -153,6 +160,7 @@ WHERE [a].[Name] = N'Great spotted kiwi'
             """
 @p='NewBird' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -175,6 +183,7 @@ WHERE [a].[Discriminator] = N'Kiwi'
             """
 @p='SomeOtherKiwi' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -190,6 +199,7 @@ WHERE [a].[Discriminator] = N'Kiwi'
             """
 @p='0' (Size = 1)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[FoundOn] = @p
 FROM [Animals] AS [a]
@@ -205,6 +215,7 @@ WHERE [a].[Discriminator] = N'Kiwi'
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -224,6 +235,7 @@ WHERE (
 @p='Kiwi' (Size = 4000)
 @p1='0' (Size = 1)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p,
     [a].[FoundOn] = @p1
@@ -240,6 +252,7 @@ WHERE [a].[Discriminator] = N'Kiwi'
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -265,6 +278,7 @@ WHERE (
             """
 @p='0'
 
+SET NOCOUNT OFF;
 UPDATE [d]
 SET [d].[SugarGrams] = @p
 FROM [Drinks] AS [d]
@@ -280,6 +294,7 @@ WHERE [d].[Discriminator] = 1
             """
 @p='0'
 
+SET NOCOUNT OFF;
 UPDATE [d]
 SET [d].[SugarGrams] = @p
 FROM [Drinks] AS [d]

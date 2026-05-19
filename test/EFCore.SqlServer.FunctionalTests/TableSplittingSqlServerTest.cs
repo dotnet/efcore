@@ -192,6 +192,7 @@ ORDER BY [v].[Name]
             """
 @p='1'
 
+SET NOCOUNT OFF;
 UPDATE [v]
 SET [v].[SeatingCapacity] = @p
 FROM [Vehicles] AS [v]
