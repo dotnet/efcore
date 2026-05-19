@@ -67,7 +67,8 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
 
     [ConditionalTheory, InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
      InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime)), InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal)),
-     InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid)), InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
+     InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid)), InlineData(typeof(SqliteHalfTypeMapping), typeof(Half)),
+     InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
 
@@ -136,6 +137,16 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, ulong.MinValue, "0");
         Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "-1");
         Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue + 1ul, "-9223372036854775808");
+    }
+
+    [ConditionalFact]
+    public void Half_literal_generated_correctly()
+    {
+        var typeMapping = SqliteHalfTypeMapping.Default;
+
+        Test_GenerateSqlLiteral_helper(typeMapping, Half.MinValue, "-65504");
+        Test_GenerateSqlLiteral_helper(typeMapping, Half.MaxValue, "65504");
+        Test_GenerateSqlLiteral_helper(typeMapping, (Half)3.14f, "3.140625");
     }
 
     protected override DbContextOptions ContextOptions { get; }
