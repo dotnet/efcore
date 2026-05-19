@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
@@ -1415,9 +1416,17 @@ WHERE [b].[String] >= N'Seattle' AND [b].[String] < N'Toronto'
 
     #region Join
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
-    public override async Task Join_over_non_nullable_column()
+        public override async Task Join_over_non_nullable_column()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+
+        }
+
         await base.Join_over_non_nullable_column();
 
         AssertSql(
@@ -1428,9 +1437,17 @@ GROUP BY [b].[Int]
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
-    public override async Task Join_over_nullable_column()
+        public override async Task Join_over_nullable_column()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+
+        }
+
         await base.Join_over_nullable_column();
 
         AssertSql(
@@ -1444,9 +1461,17 @@ GROUP BY [n0].[Key]
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
-    public override async Task Join_with_predicate()
+        public override async Task Join_with_predicate()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+
+        }
+
         await base.Join_with_predicate();
 
         AssertSql(
@@ -1459,9 +1484,17 @@ GROUP BY [b].[Int]
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
-    public override async Task Join_with_ordering()
+        public override async Task Join_with_ordering()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+
+        }
+
         await base.Join_with_ordering();
 
         AssertSql(
@@ -1472,9 +1505,17 @@ GROUP BY [b].[Int]
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
-    public override async Task Join_non_aggregate()
+        public override async Task Join_non_aggregate()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+
+        }
+
         await base.Join_non_aggregate();
 
         AssertSql(
@@ -1503,9 +1544,17 @@ WHERE [b].[String] + N'Boston' = N'SeattleBoston'
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2017Supported))]
-    public override async Task Concat_aggregate()
+        public override async Task Concat_aggregate()
     {
+
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+
+        }
+
         await base.Concat_aggregate();
 
         AssertSql(

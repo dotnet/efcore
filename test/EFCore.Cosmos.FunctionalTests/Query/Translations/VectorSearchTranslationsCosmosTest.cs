@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
 public class VectorSearchTranslationsCosmosTest : IClassFixture<VectorSearchTranslationsCosmosTest.VectorSearchFixture>
 {
     public VectorSearchTranslationsCosmosTest(VectorSearchFixture fixture, ITestOutputHelper testOutputHelper)

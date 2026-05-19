@@ -951,6 +951,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
             if (field == null)
             {
                 EnsureReadOnly();
+                ((IKey)PrincipalKey).GetPrincipalKeyValueFactory();
             }
 
             return field!;

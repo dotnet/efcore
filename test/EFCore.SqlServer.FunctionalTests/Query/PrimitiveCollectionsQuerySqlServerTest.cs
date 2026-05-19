@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 using static System.Linq.Expressions.Expression;
+using Xunit.Sdk;
 
 public class PrimitiveCollectionsQuerySqlServerTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerTest.PrimitiveCollectionsQuerySqlServerFixture>
@@ -2291,9 +2292,17 @@ WHERE (
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
-    public override async Task Parameter_collection_index_Column_equal_Column()
+        public override async Task Parameter_collection_index_Column_equal_Column()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Parameter_collection_index_Column_equal_Column();
 
         if (SqlServerTestEnvironment.IsJsonTypeSupported)
@@ -2320,9 +2329,17 @@ WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS i
         }
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
-    public override async Task Parameter_collection_index_Column_equal_constant()
+        public override async Task Parameter_collection_index_Column_equal_constant()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Parameter_collection_index_Column_equal_constant();
 
         if (SqlServerTestEnvironment.IsJsonTypeSupported)
@@ -2732,9 +2749,17 @@ WHERE (
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsJsonPathExpressions))]
-    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
+        public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Parameter_collection_with_type_inference_for_JsonScalarExpression();
 
         if (SqlServerTestEnvironment.IsJsonTypeSupported)

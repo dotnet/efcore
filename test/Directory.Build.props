@@ -6,9 +6,11 @@
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.test.ruleset</CodeAnalysisRuleSet>
     <LangVersion>preview</LangVersion>
     <NuGetAudit>false</NuGetAudit>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsUnitTestProject)' == 'true'">
+  <PropertyGroup Condition="'$(IsTestProject)' != 'false'">
+    <OutputType>Exe</OutputType>
     <TestRunnerName>XUnitV3</TestRunnerName>
   </PropertyGroup>
 

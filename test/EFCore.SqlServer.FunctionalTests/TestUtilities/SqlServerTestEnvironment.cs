@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
+using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
@@ -143,7 +144,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _IsHiddenColumnsSupported = ((GetProductMajorVersion() >= 13 && GetEngineEdition() != 6) || IsAzureSql) && GetCompatibilityLevel() >= 130;
+                _IsHiddenColumnsSupported = GetEngineEdition() != 6 && GetCompatibilityLevel() >= 130;
             }
             catch (PlatformNotSupportedException)
             {
@@ -263,7 +264,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _IsTemporalTablesCascadeDeleteSupported = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
+                _IsTemporalTablesCascadeDeleteSupported = GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
@@ -290,7 +291,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _IsUtf8Supported = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
+                _IsUtf8Supported = GetCompatibilityLevel() >= 150;
             }
             catch (PlatformNotSupportedException)
             {
@@ -317,7 +318,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _supportsJsonPathExpressions = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
+                _supportsJsonPathExpressions = GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
@@ -344,7 +345,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _IsFunctions2017Supported = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
+                _IsFunctions2017Supported = GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
@@ -371,7 +372,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _IsFunctions2019Supported = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
+                _IsFunctions2019Supported = GetCompatibilityLevel() >= 150;
             }
             catch (PlatformNotSupportedException)
             {
@@ -398,7 +399,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _IsFunctions2022Supported = (GetProductMajorVersion() >= 16 || IsAzureSql) && GetCompatibilityLevel() >= 160;
+                _IsFunctions2022Supported = GetCompatibilityLevel() >= 160;
             }
             catch (PlatformNotSupportedException)
             {
@@ -425,7 +426,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _isJsonTypeSupported = (GetProductMajorVersion() >= 17 || IsAzureSql) && GetCompatibilityLevel() >= 170;
+                _isJsonTypeSupported = GetCompatibilityLevel() >= 170;
             }
             catch (PlatformNotSupportedException)
             {
@@ -452,8 +453,7 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                _isVectorTypeSupported = ((!IsLocalDb && GetProductMajorVersion() >= 17) || IsAzureSql)
-                    && GetCompatibilityLevel() >= 170;
+                _isVectorTypeSupported = !IsLocalDb && GetCompatibilityLevel() >= 170;
             }
             catch (PlatformNotSupportedException)
             {
@@ -480,7 +480,11 @@ public static class SqlServerTestEnvironment
     }
 
     public static DbContextOptionsBuilder SetCompatibilityLevelFromEnvironment(DbContextOptionsBuilder builder)
-        => builder.UseSqlServerCompatibilityLevel(SqlServerMajorVersion * 10);
+    {
+        builder.UseSqlServerCompatibilityLevel(GetCompatibilityLevel());
+
+        return builder;
+    }
 
     public static string? ElasticPoolName { get; } = Config["ElasticPoolName"];
 
@@ -535,7 +539,7 @@ public static class SqlServerTestEnvironment
         sqlConnection.Open();
 
         using var command = new SqlCommand(
-            "SELECT compatibility_level FROM sys.databases WHERE [name] = 'master';", sqlConnection);
+            "SELECT compatibility_level FROM sys.databases WHERE [name] = 'model';", sqlConnection);
         _compatibilityLevel = (byte)command.ExecuteScalar();
 
         return _compatibilityLevel.Value;
