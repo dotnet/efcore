@@ -188,8 +188,8 @@ WHERE CONVERT(time, [b].[DateTime]) = '00:00:00'
 """);
     }
 
-    public override Task subtract_and_TotalDays()
-        => AssertTranslationFailed(() => base.subtract_and_TotalDays());
+    public override Task Subtract_and_TotalDays()
+        => AssertTranslationFailed(() => base.Subtract_and_TotalDays());
 
     public override async Task Parse_with_constant()
     {
