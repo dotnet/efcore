@@ -41,6 +41,11 @@ internal partial class MigrationsBundleCommand
                 throw new CommandException(Resources.VersionRequired("6.0.0"));
             }
 
+            if (Context!.Value() == "*")
+            {
+                throw new CommandException(Resources.WildcardNotSupported);
+            }
+
             context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
         }
 

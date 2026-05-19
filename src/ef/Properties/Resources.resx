@@ -441,4 +441,7 @@
   <data name="WritingFile" xml:space="preserve">
     <value>Writing '{file}'...</value>
   </data>
+  <data name="WildcardNotSupported" xml:space="preserve">
+    <value>The wildcard '*' is not supported for this command.</value>
+  </data>
 </root>
