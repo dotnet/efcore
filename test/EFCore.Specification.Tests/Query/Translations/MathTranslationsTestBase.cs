@@ -186,12 +186,36 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Sqrt(b.Float) > 0));
 
     [ConditionalFact]
-    public virtual Task Sign()
-        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Double) > 0));
+    public virtual async Task Sign()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Double) > 0));
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Sign(b.Double)));
+    }
 
     [ConditionalFact]
-    public virtual Task Sign_float()
-        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Sign(b.Float) > 0));
+    public virtual async Task Sign_decimal()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Decimal) > 0));
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Sign(b.Decimal)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Sign_int()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Int) > 0));
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Sign(b.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Sign_float()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Sign(b.Float) > 0));
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => MathF.Sign(b.Float)));
+    }
 
     [ConditionalFact]
     public virtual Task Max()
