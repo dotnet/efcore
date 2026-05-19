@@ -1230,6 +1230,19 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
+    public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+    {
+        await base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async);
+
+        AssertSql(
+            """
+SELECT [v].[Value] AS [k], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS APPLY (VALUES (CAST(N'a' AS nvarchar(max))), (N'b')) AS [v]([Value])
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
+    }
+
     public override async Task SelectMany_correlated_with_outer_1(bool async)
     {
         await base.SelectMany_correlated_with_outer_1(async);

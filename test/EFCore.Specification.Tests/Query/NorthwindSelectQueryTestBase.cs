@@ -1204,6 +1204,15 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             ss => ss.Set<Customer>().SelectMany(c => c.Orders.Select(o => o.CustomerID)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.CustomerID == "ALFKI")
+                .SelectMany(c => new[] { "a", "b" }.Select(k => new { k, c })),
+            elementSorter: e => e.k);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_correlated_with_outer_1(bool async)
         => AssertQuery(
             async,

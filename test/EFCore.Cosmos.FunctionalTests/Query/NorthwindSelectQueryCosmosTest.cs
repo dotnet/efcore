@@ -1056,6 +1056,14 @@ WHERE STARTSWITH(c["id"], "A")
         AssertSql();
     }
 
+    public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+
+        AssertSql();
+    }
+
     public override async Task SelectMany_correlated_with_outer_2(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
