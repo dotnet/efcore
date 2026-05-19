@@ -1,9 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
 public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerJsonTypeTest.PrimitiveCollectionsQuerySqlServerFixture>
 {
@@ -18,7 +20,7 @@ public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectio
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1660,7 +1662,7 @@ WHERE JSON_CONTAINS([p].[Bools], CAST(1 AS bit)) = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Json_representation_of_bool_array()
     {
         await using var context = CreateContext();
@@ -1727,7 +1729,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task Multidimensional_array_is_not_supported()
         => base.Multidimensional_array_is_not_supported();
 
@@ -1961,9 +1963,17 @@ WHERE (
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Parameter_collection_index_Column_equal_Column()
+        public override async Task Parameter_collection_index_Column_equal_Column()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Parameter_collection_index_Column_equal_Column();
 
         AssertSql(
@@ -1976,9 +1986,17 @@ WHERE JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']' RETURNING 
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Parameter_collection_index_Column_equal_constant()
+        public override async Task Parameter_collection_index_Column_equal_constant()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Parameter_collection_index_Column_equal_constant();
 
         AssertSql(

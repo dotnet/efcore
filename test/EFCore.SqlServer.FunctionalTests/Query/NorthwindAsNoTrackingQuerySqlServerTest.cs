@@ -17,7 +17,7 @@ public class NorthwindAsNoTrackingQuerySqlServerTest : NorthwindAsNoTrackingQuer
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

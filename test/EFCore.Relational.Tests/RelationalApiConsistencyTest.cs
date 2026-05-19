@@ -16,7 +16,7 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
     protected override Assembly TargetAssembly
         => typeof(RelationalDatabase).Assembly;
 
-    [ConditionalFact]
+    [Fact]
     public void Readonly_relational_metadata_methods_have_expected_name()
     {
         var errors =

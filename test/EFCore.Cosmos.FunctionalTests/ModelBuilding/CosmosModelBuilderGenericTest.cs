@@ -126,7 +126,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(ValueGenerated.OnUpdate, entityType.FindProperty("Bottom")!.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Partition_key_is_added_to_the_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -148,7 +148,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Hierarchical_partition_key_is_added_to_the_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -169,7 +169,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Three_level_hierarchical_partition_key_is_added_to_the_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -196,7 +196,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Partition_key_is_added_to_the_alternate_key_if_primary_key_contains_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -222,7 +222,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Hierarchical_partition_key_is_added_to_the_alternate_key_if_primary_key_contains_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -253,7 +253,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Id_property_created_if_key_not_mapped_to_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -277,7 +277,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_id_property_created_if_another_property_mapped_to_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -298,7 +298,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_id_property_created_if_another_property_mapped_to_id_in_pk()
         {
             var modelBuilder = CreateModelBuilder();
@@ -326,7 +326,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -350,7 +350,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -374,7 +374,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_hierarchical_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -417,7 +417,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_hierarchical_partition_key_in_different_order()
         {
             var modelBuilder = CreateModelBuilder();
@@ -460,7 +460,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Hierarchical_partition_key_is_added_to_the_alternate_key_if_primary_key_contains_part_of_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -496,7 +496,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_id_is_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -518,7 +518,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_id_is_hierarchical_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -550,7 +550,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Single_string_primary_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -577,7 +577,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34511
+        [Fact] // Issue #34511
         public virtual void Single_string_primary_key_with_single_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -604,7 +604,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34511
+        [Fact] // Issue #34511
         public virtual void Single_string_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -645,7 +645,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             public string P3 { get; set; } = null!;
         }
 
-        [ConditionalFact] // Issue #34554
+        [Fact] // Issue #34554
         public virtual void Single_GUID_primary_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -672,7 +672,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34554
+        [Fact] // Issue #34554
         public virtual void Single_GUID_primary_key_with_single_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -699,7 +699,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34554
+        [Fact] // Issue #34554
         public virtual void Single_GUID_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1017,7 +1017,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 owned.DisplayName());
         }
 
-        [ConditionalFact] // Issue #34329
+        [Fact] // Issue #34329
         public virtual void Navigation_cycle_can_be_broken()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1064,7 +1064,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
     public class CosmosGenericManyToMany(CosmosModelBuilderFixture fixture)
         : ManyToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_shared_type_as_join_entity_with_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1116,7 +1116,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_shared_type_as_join_entity_with_hierarchical_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1176,7 +1176,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 joinType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_join_entity_with_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1213,7 +1213,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_join_entity_with_hierarchical_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1261,7 +1261,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_join_entity_with_partition_keys_changed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1383,7 +1383,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(
                     base.Shared_type_entity_types_with_FK_to_another_entity_works).Message);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Reference_type_is_discovered_as_owned()
         {
             var modelBuilder = CreateModelBuilder();

@@ -6,7 +6,7 @@ Imports Microsoft.EntityFrameworkCore.TestModels.Northwind
 Imports Microsoft.EntityFrameworkCore.TestUtilities
 Imports Xunit
 
-<SqlServerConfiguredCondition>
+<ConditionalClass(GetType(SqlServerTestEnvironment), NameOf(SqlServerTestEnvironment.SqlServerAvailable))>
 Partial Public Class NorthwindQueryVisualBasicTest
     Inherits QueryTestBase(Of NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer))
 
@@ -16,7 +16,7 @@ Partial Public Class NorthwindQueryVisualBasicTest
         fixture.TestSqlLoggerFactory.Clear()
     End Sub
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Async Sub CompareString_Equals_Binary(async As Boolean)
         Await AssertQuery(
@@ -29,7 +29,7 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'")
     End Sub
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Async Sub CompareString_LessThanOrEqual_Binary(async As Boolean)
         Await AssertQuery(
@@ -42,7 +42,7 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'ALFKI'")
     End Sub
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Async Sub AddChecked(async As Boolean)
         Await AssertQuery(
@@ -55,7 +55,7 @@ FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] + CAST(1 AS smallint) = CAST(102 AS smallint)")
     End Sub
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Async Sub SubtractChecked(async As Boolean)
         Await AssertQuery(
@@ -68,7 +68,7 @@ FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] - CAST(1 AS smallint) = CAST(100 AS smallint)")
     End Sub
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Async Sub MultiplyChecked(async As Boolean)
         Await AssertQuery(
@@ -81,7 +81,7 @@ FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] * CAST(1 AS smallint) = CAST(101 AS smallint)")
     End Sub
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Async Sub Parameter_name_gets_sanitized(async As Boolean)
         Dim units = 101

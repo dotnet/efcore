@@ -15,7 +15,7 @@ public class SqlServerConfigPatternsTest
 {
     public class ImplicitServicesAndConfig
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_query_with_implicit_services_and_OnConfiguring()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -43,7 +43,7 @@ public class SqlServerConfigPatternsTest
 
     public class ImplicitServicesExplicitConfig
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_query_with_implicit_services_and_explicit_config()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -68,7 +68,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitServicesImplicitConfig
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_query_with_explicit_services_and_OnConfiguring()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -97,7 +97,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitServicesAndConfig
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_query_with_explicit_services_and_explicit_config()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -124,7 +124,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitServicesAndNoConfig
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_on_attempt_to_use_SQL_Server_without_providing_connection_string()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -154,7 +154,7 @@ public class SqlServerConfigPatternsTest
 
     public class NoServicesAndNoConfig
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_on_attempt_to_use_context_with_no_store()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -183,7 +183,7 @@ public class SqlServerConfigPatternsTest
 
     public class ImplicitConfigButNoServices
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_on_attempt_to_use_store_with_no_store_services()
         {
             var serviceCollection = new ServiceCollection();
@@ -219,7 +219,7 @@ public class SqlServerConfigPatternsTest
 
     public class InjectContext
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_register_context_with_DI_container_and_have_it_injected()
         {
             var serviceProvider = new ServiceCollection()
@@ -269,7 +269,7 @@ public class SqlServerConfigPatternsTest
 
     public class InjectContextAndConfiguration
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
         {
             var serviceProvider = new ServiceCollection()
@@ -317,7 +317,7 @@ public class SqlServerConfigPatternsTest
 
     public class ConstructorArgsToBuilder
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_pass_context_options_to_constructor_and_use_in_builder()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -342,7 +342,7 @@ public class SqlServerConfigPatternsTest
 
     public class ConstructorArgsToOnConfiguring
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_pass_connection_string_to_constructor_and_use_in_OnConfiguring()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -370,7 +370,7 @@ public class SqlServerConfigPatternsTest
 
     public class NestedContext
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_use_one_context_nested_inside_another_of_the_same_type()
         {
             await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -414,7 +414,7 @@ public class SqlServerConfigPatternsTest
 
     public class NonDefaultAzureSqlDatabase
     {
-        [InlineData(true), InlineData(false), ConditionalTheory]
+        [InlineData(true), InlineData(false), Theory]
         public void Retry_on_failure_enabled_if_Azure_SQL_configured(bool useAzure)
         {
             using var context = new NorthwindContext(useAzure);
@@ -454,7 +454,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_SqlServer
     {
-        [InlineData(true), InlineData(false), ConditionalTheory]
+        [InlineData(true), InlineData(false), Theory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);
@@ -498,7 +498,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_AzureSql
     {
-        [InlineData(true), InlineData(false), ConditionalTheory]
+        [InlineData(true), InlineData(false), Theory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);
@@ -542,7 +542,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_AzureSynapse
     {
-        [InlineData(true), InlineData(false), ConditionalTheory]
+        [InlineData(true), InlineData(false), Theory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);
@@ -586,7 +586,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_ConfigureSqlEngine_AzureSql
     {
-        [InlineData(true), InlineData(false), ConditionalTheory]
+        [InlineData(true), InlineData(false), Theory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public partial class CSharpMigrationsGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Snapshots_compile()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -121,7 +121,7 @@ partial class MySnapshot : ModelSnapshot
         Assert.Equal(2, snapshot.Model.GetEntityTypes().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Snapshot_with_migration_id()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -151,7 +151,7 @@ partial class MySnapshot : ModelSnapshot
         Assert.Equal("20240101120000_InitialCreate", snapshot.LastMigrationId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Snapshot_without_migration_id()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -178,7 +178,7 @@ partial class MySnapshot : ModelSnapshot
         Assert.Null(snapshot.LastMigrationId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Snapshot_default_values_are_round_tripped()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -691,7 +691,7 @@ partial class MySnapshot : ModelSnapshot
 
     #region Model
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_annotations_are_stored_in_snapshot()
         => Test(
             builder => builder.HasAnnotation("AnnotationName", "AnnotationValue")
@@ -716,7 +716,7 @@ partial class MySnapshot : ModelSnapshot
                 Assert.Equal("AnnotationValue", o["AnnotationName"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_Fluent_APIs_are_properly_generated()
         => Test(
             builder =>
@@ -757,7 +757,7 @@ partial class MySnapshot : ModelSnapshot
                     Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_fluent_APIs_for_sequence_key_are_properly_generated()
         => Test(
             builder =>
@@ -798,7 +798,7 @@ partial class MySnapshot : ModelSnapshot
                     Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -822,7 +822,7 @@ partial class MySnapshot : ModelSnapshot
                 Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_are_stored_in_model_snapshot()
         => Test(
             builder =>
@@ -873,7 +873,7 @@ partial class MySnapshot : ModelSnapshot
                         "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", t.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_are_stored_in_model_snapshot_for_TPT()
         => Test(
             builder =>
@@ -948,7 +948,7 @@ partial class MySnapshot : ModelSnapshot
                 Assert.Equal("foo", derived.GetSchema());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_are_stored_in_model_snapshot_for_TPT_with_one_excluded()
         => Test(
             builder =>
@@ -1011,7 +1011,7 @@ partial class MySnapshot : ModelSnapshot
                         .GetTableName());
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Views_are_stored_in_the_model_snapshot()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToView("EntityWithOneProperty"),
@@ -1032,7 +1032,7 @@ partial class MySnapshot : ModelSnapshot
 """),
             o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
 
-    [ConditionalFact]
+    [Fact]
     public void Views_with_schemas_are_stored_in_the_model_snapshot()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>()
@@ -1059,7 +1059,7 @@ partial class MySnapshot : ModelSnapshot
                 Assert.Equal("ViewSchema", o.GetEntityTypes().Single().GetViewSchema());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_are_stored_in_model_snapshot_for_TPC()
         => Test(
             builder =>
@@ -1132,7 +1132,7 @@ partial class MySnapshot : ModelSnapshot
                 Assert.Equal("DerivedView", derived.GetViewName());
             });
 
-    [ConditionalFact] // Issue #30058
+    [Fact] // Issue #30058
     public virtual void Non_base_abstract_base_class_with_TPC()
         => Test(
             builder =>
@@ -1304,7 +1304,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Null(humanPetType.GetViewName());
             });
 
-    [ConditionalFact] // Issue #33605
+    [Fact] // Issue #33605
     public virtual void Abstract_base_class_with_TPT()
         => Test(
             builder =>
@@ -1402,7 +1402,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Null(dogType.GetViewName());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entity_splitting_is_stored_in_snapshot_with_tables()
         => Test(
             builder =>
@@ -1693,7 +1693,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(["OrderId", "ShippingShadow", "StreetAddress_City"], shippingTable.Columns.Select(c => c.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entity_splitting_is_stored_in_snapshot_with_views()
         => Test(
             builder =>
@@ -1815,7 +1815,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(["Id", "Shadow", "SomeOtherId"], splitView.Columns.Select(c => c.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Unmapped_entity_types_are_stored_in_the_model_snapshot()
         => Test(
             builder =>
@@ -1856,7 +1856,7 @@ partial class Snapshot : ModelSnapshot
     private static IQueryable<TestKeylessType> GetCountByYear(int id)
         => throw new NotImplementedException();
 
-    [ConditionalFact]
+    [Fact]
     public void TVF_types_are_stored_in_the_model_snapshot()
         => Test(
             builder =>
@@ -1886,7 +1886,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Null(entityType.GetTableName());
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Entity_types_mapped_to_functions_are_stored_in_the_model_snapshot()
         => Test(
             builder =>
@@ -1910,7 +1910,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal("GetCount", o.GetEntityTypes().Single().GetFunctionName()));
 
-    [ConditionalFact]
+    [Fact]
     public void Entity_types_mapped_to_queries_are_stored_in_the_model_snapshot()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToSqlQuery("query"),
@@ -1931,7 +1931,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal("query", o.GetEntityTypes().Single().GetSqlQuery()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Sequence_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -1968,7 +1968,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("bar", sequence["foo"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void HiLoSequence_with_default_model_schema()
         => Test(
             modelBuilder => modelBuilder
@@ -2006,7 +2006,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("dbo", sequence.Schema);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CheckConstraint_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -2048,7 +2048,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("bar", constraint["foo"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CheckConstraint_is_only_stored_in_snapshot_once_for_TPH()
         => Test(
             builder =>
@@ -2103,7 +2103,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("CK_BaseEntity_AlternateId", constraint.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Trigger_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -2142,7 +2142,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("SomeTrg", trigger.GetDatabaseName());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Triggers_and_ExcludeFromMigrations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2193,7 +2193,7 @@ partial class Snapshot : ModelSnapshot
                     t => Assert.Equal("SomeTrigger2", t.GetDatabaseName()));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ProductVersion_is_stored_in_snapshot()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -2205,7 +2205,7 @@ partial class Snapshot : ModelSnapshot
         Assert.Equal(ProductInfo.GetVersion(), modelFromSnapshot.GetProductVersion());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_use_identity_columns()
         => Test(
             builder => builder.UseIdentityColumns(),
@@ -2225,7 +2225,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(1, o.GetIdentityIncrement());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_use_identity_columns_custom_seed()
         => Test(
             builder => builder.UseIdentityColumns(5),
@@ -2245,7 +2245,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(1, o.GetIdentityIncrement());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_use_identity_columns_custom_increment()
         => Test(
             builder => builder.UseIdentityColumns(increment: 5),
@@ -2265,7 +2265,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(5, o.GetIdentityIncrement());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Model_use_identity_columns_custom_seed_increment()
         => Test(
             builder =>
@@ -2319,7 +2319,7 @@ partial class Snapshot : ModelSnapshot
 
     #region EntityType
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EntityType_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2351,7 +2351,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EntityType_Fluent_APIs_are_properly_generated()
         => Test(
             builder =>
@@ -2381,7 +2381,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().Single().IsMemoryOptimized()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BaseType_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -2446,7 +2446,7 @@ partial class Snapshot : ModelSnapshot
                 );
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Discriminator_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2515,7 +2515,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Converted_discriminator_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2604,7 +2604,7 @@ partial class Snapshot : ModelSnapshot
                     o.FindEntityType(typeof(DerivedEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Properties_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2641,7 +2641,7 @@ partial class Snapshot : ModelSnapshot
                 );
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Primary_key_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -2675,7 +2675,7 @@ partial class Snapshot : ModelSnapshot
                 );
             });
 
-    [ConditionalFact]
+    [Fact]
     public void HasNoKey_is_handled()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).HasNoKey(),
@@ -2698,7 +2698,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Null(entityType.FindPrimaryKey());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Alternate_keys_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2736,7 +2736,7 @@ partial class Snapshot : ModelSnapshot
                 );
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Indexes_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2771,7 +2771,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("AlternateId", o.GetEntityTypes().First().GetIndexes().First().Properties[0].Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Indexes_are_stored_in_snapshot_including_composite_index()
         => Test(
             builder =>
@@ -2809,7 +2809,7 @@ partial class Snapshot : ModelSnapshot
                     t => Assert.Equal("AlternateId", t.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Foreign_keys_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -2879,7 +2879,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("EntityWithOneProperty", foreignKey.DependentToPrincipal.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Many_to_many_join_table_stored_in_snapshot()
         => Test(
             builder =>
@@ -3028,7 +3028,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("schema", joinEntity.GetSchema());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_override_table_name_for_many_to_many_join_table_stored_in_snapshot()
         => Test(
             builder =>
@@ -3173,7 +3173,7 @@ partial class Snapshot : ModelSnapshot
                     });
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TableName_preserved_when_generic()
     {
         IReadOnlyModel originalModel = null;
@@ -3209,7 +3209,7 @@ partial class Snapshot : ModelSnapshot
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Shared_columns_are_stored_in_the_snapshot()
         => Test(
             builder =>
@@ -3286,7 +3286,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(ValueGenerated.OnUpdateSometimes, entityType.FindProperty("AlternateId").ValueGenerated);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void PrimaryKey_name_preserved_when_generic()
     {
         IReadOnlyModel originalModel = null;
@@ -3325,7 +3325,7 @@ partial class Snapshot : ModelSnapshot
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlternateKey_name_preserved_when_generic()
     {
         IReadOnlyModel originalModel = null;
@@ -3371,7 +3371,7 @@ partial class Snapshot : ModelSnapshot
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Discriminator_of_enum()
         => Test(
             builder => builder.Entity<EntityWithEnumType>().HasDiscriminator(e => e.Day),
@@ -3398,7 +3398,7 @@ partial class Snapshot : ModelSnapshot
 """),
             model => Assert.Equal(typeof(long), model.GetEntityTypes().First().FindDiscriminatorProperty().ClrType));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Discriminator_of_enum_to_string()
         => Test(
             builder => builder.Entity<EntityWithEnumType>(x =>
@@ -3435,7 +3435,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.False(discriminatorProperty.IsNullable);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Discriminator_with_non_string_default_name_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -3484,7 +3484,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("Discriminator", discriminatorProperty.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Temporal_table_information_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal(ttb =>
@@ -3551,7 +3551,7 @@ partial class Snapshot : ModelSnapshot
                     annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "End");
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Temporal_table_information_is_stored_in_snapshot_minimal_setup()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal()),
@@ -3615,7 +3615,7 @@ partial class Snapshot : ModelSnapshot
 
     #region Owned types
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Owned_types_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -3834,7 +3834,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().TargetEntityType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Owned_types_are_stored_in_snapshot_when_excluded()
         => Test(
             builder =>
@@ -4067,7 +4067,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().TargetEntityType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Shared_owned_types_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -4222,7 +4222,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(2, orderShippingDetailsAddress.PropertyCount);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Owned_types_can_be_mapped_to_view()
         => Test(
             modelBuilder =>
@@ -4308,7 +4308,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("OwnedView", testOwnee.GetViewName());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Snapshot_with_OwnedNavigationBuilder_HasCheckConstraint_compiles()
         => Test(
             modelBuilder =>
@@ -4400,7 +4400,7 @@ partial class Snapshot : ModelSnapshot
             });
 
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
-    [ConditionalFact]
+    [Fact]
     public virtual void Owned_types_mapped_to_json_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -4564,7 +4564,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("Name", ownedProperties3[3].Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Owned_types_mapped_to_json_with_explicit_column_type_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -4667,7 +4667,7 @@ partial class Snapshot : ModelSnapshot
 
     #region Property
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -4698,7 +4698,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"])
         );
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Custom_value_generator_is_ignored_in_snapshot()
         => Test(
             builder =>
@@ -4725,7 +4725,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactory])
         );
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_isNullable_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsRequired(),
@@ -4751,7 +4751,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsNullable));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_ValueGenerated_value_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -4782,7 +4782,7 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: true),
             o => Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_ValueGenerated_non_identity()
         => Test(
             modelBuilder => modelBuilder.Entity<EntityWithEnumType>(x =>
@@ -4821,7 +4821,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(SqlServerValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(day));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_maxLength_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(100),
@@ -4847,7 +4847,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_maximum_maxLength_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(-1),
@@ -4873,7 +4873,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(-1, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_unicodeness_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsUnicode(false),
@@ -4899,7 +4899,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_fixedlengthness_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength().HasMaxLength(100),
@@ -4926,7 +4926,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("Name").IsFixedLength()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_precision_is_stored_in_snapshot()
         => Test(
             builder => builder
@@ -4960,7 +4960,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Null(property.GetScale());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_precision_and_scale_is_stored_in_snapshot()
         => Test(
             builder => builder
@@ -4994,7 +4994,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(3, property.GetScale());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Many_facets_chained_in_snapshot()
         => Test(
             builder =>
@@ -5035,7 +5035,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("AnnotationValue", property["AnnotationName"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_concurrencyToken_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -5065,7 +5065,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_column_name_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -5095,7 +5095,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_column_name_is_stored_in_snapshot_when_DefaultColumnName_uses_clr_type()
         => Test(
             modelBuilder => modelBuilder
@@ -5194,7 +5194,7 @@ partial class Snapshot : ModelSnapshot
                     });
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Generic_entity_type_with_owned_entities()
         => Test(
             modelBuilder => modelBuilder.Entity<Parrot<Beak>>().OwnsOne(e => e.Child),
@@ -5254,7 +5254,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(["Id", "Child_Name", "Name"], table.Columns.Select(t => t.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_generic_entity_type_with_owned_entities()
         => Test(
             modelBuilder => modelBuilder.Entity<Parrot>().OwnsOne(e => e.Child),
@@ -5314,7 +5314,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(["Id", "Child_Name", "Name"], table.Columns.Select(t => t.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_column_name_on_specific_table_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -5393,7 +5393,7 @@ partial class Snapshot : ModelSnapshot
                 );
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_column_type_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -5422,7 +5422,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -5453,7 +5453,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
         => Test(
             builder =>
@@ -5485,7 +5485,7 @@ partial class Snapshot : ModelSnapshot
                 usingSystem: true),
             o => Assert.Equal(DBNull.Value, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
         => Test(
             builder =>
@@ -5516,7 +5516,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -5547,7 +5547,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -5578,7 +5578,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_computed_column_sql_stored_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -5613,7 +5613,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:IsStored"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
         => Test(
             builder =>
@@ -5644,7 +5644,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
         => Test(
             builder => builder.Entity<EntityWithEnumType>().Property(e => e.Day).HasDefaultValue(Days.Wed),
@@ -5671,7 +5671,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_enum_type_is_stored_in_snapshot_with_custom_conversion_and_seed_data()
         => Test(
             builder => builder.Entity<EntityWithEnumType>(eb =>
@@ -5718,7 +5718,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.False(property.IsNullable);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_of_nullable_enum()
         => Test(
             builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day)
@@ -5744,7 +5744,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_of_enum_to_nullable()
         => Test(
             builder => builder.Entity<EntityWithEnumType>().Property(e => e.Day)
@@ -5770,7 +5770,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_of_nullable_enum_to_string()
         => Test(
             builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day).HasConversion<string>(),
@@ -5795,7 +5795,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_multiple_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -5834,7 +5834,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("int", property["Relational:ColumnType"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_without_column_type()
         => Test(
             builder =>
@@ -5877,7 +5877,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("int", property.GetColumnType());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_with_identity_column()
         => Test(
             builder =>
@@ -5916,7 +5916,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(1, property.GetIdentityIncrement());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_with_identity_column_custom_seed()
         => Test(
             builder =>
@@ -5955,7 +5955,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(1, property.GetIdentityIncrement());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_with_identity_column_custom_increment()
         => Test(
             builder =>
@@ -5994,7 +5994,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_with_identity_column_custom_seed_increment()
         => Test(
             builder =>
@@ -6033,7 +6033,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Property_column_order_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -6063,7 +6063,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId").GetColumnOrder()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SQLServer_model_legacy_identity_seed_int_annotation()
         => Test(
             builder => builder.HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8),
@@ -6077,7 +6077,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(8L, o.GetIdentitySeed()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SQLServer_property_legacy_identity_seed_int_annotation()
         => Test(
             builder =>
@@ -6111,7 +6111,7 @@ partial class Snapshot : ModelSnapshot
 
     #region Primitive collection
 
-    [ConditionalFact]
+    [Fact]
     public virtual void PrimitiveCollection_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -6178,7 +6178,7 @@ partial class Snapshot : ModelSnapshot
 
     #region Complex types
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Complex_properties_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -6327,7 +6327,7 @@ partial class Snapshot : ModelSnapshot
         public decimal Longitude { get; } = longitude;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Complex_types_mapped_to_json_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -6446,7 +6446,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Complex_types_mapped_to_json_with_explicit_column_type_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -6565,7 +6565,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Complex_collection_property_annotations_not_supported_by_builder_are_ignored_in_snapshot()
         => Test(
             builder =>
@@ -6664,7 +6664,7 @@ partial class Snapshot : ModelSnapshot
 
     #region HasKey
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Key_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -6698,7 +6698,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal(
                 "AnnotationValue", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["AnnotationName"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Key_Fluent_APIs_are_properly_generated()
         => Test(
             builder =>
@@ -6726,7 +6726,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().First().GetKeys().Single(k => k.IsPrimaryKey()).IsClustered()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Key_name_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -6759,7 +6759,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal(
                 "KeyName", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["Relational:Name"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Key_multiple_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -6799,7 +6799,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("IndexName", key["Relational:Name"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Key_fill_factor_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -6827,7 +6827,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal(90, o.GetEntityTypes().First().GetKeys().Single(k => k.IsPrimaryKey()).GetFillFactor()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Unique_constraint_fill_factor_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -6869,7 +6869,7 @@ partial class Snapshot : ModelSnapshot
 
     #region Index
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -6902,7 +6902,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_Fluent_APIs_are_properly_generated()
         => Test(
             builder =>
@@ -6935,7 +6935,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().Single().GetIndexes().Single().IsClustered()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_IsUnique_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -6967,7 +6967,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(o.GetEntityTypes().First().GetIndexes().First().IsUnique));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_IsDescending_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -7074,7 +7074,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal([false, true, false], mixedIndex.IsDescending);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_database_name_annotation_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -7113,7 +7113,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("IndexName", index.GetDatabaseName());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_filter_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -7148,7 +7148,7 @@ partial class Snapshot : ModelSnapshot
                 "AlternateId <> 0",
                 o.GetEntityTypes().First().GetIndexes().First().GetFilter()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_multiple_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -7188,7 +7188,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Null(index["RelationalAnnotationNames.Name"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Index_with_default_constraint_name_exceeding_max()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>(x =>
@@ -7224,7 +7224,7 @@ partial class Snapshot : ModelSnapshot
 """),
             model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexAttribute_causes_column_to_have_key_or_index_column_length()
         => Test(
             builder => builder.Entity<EntityWithIndexAttribute>(),
@@ -7267,7 +7267,7 @@ partial class Snapshot : ModelSnapshot
                     }
                 ));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexAttribute_name_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithNamedIndexAttribute>(),
@@ -7314,7 +7314,7 @@ partial class Snapshot : ModelSnapshot
                 );
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexAttribute_IsUnique_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithUniqueIndexAttribute>(),
@@ -7363,7 +7363,7 @@ partial class Snapshot : ModelSnapshot
                 );
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexAttribute_IncludeProperties_generated_without_fluent_api()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>(x =>
@@ -7399,7 +7399,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("Name", Assert.Single(index.GetIncludeProperties()));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexAttribute_HasFillFactor_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>(x =>
@@ -7435,7 +7435,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(29, index.GetFillFactor());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexAttribute_UseDataCompression_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>(x =>
@@ -7471,7 +7471,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(DataCompressionType.Row, index.GetDataCompression());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexAttribute_SortInTempDb_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>(x =>
@@ -7511,7 +7511,7 @@ partial class Snapshot : ModelSnapshot
 
     #region ForeignKey
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -7577,7 +7577,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal(
                 "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_isRequired_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -7633,7 +7633,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_isUnique_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -7688,7 +7688,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_with_non_primary_principal_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -7752,7 +7752,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -7806,7 +7806,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal(
                 DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
         => Test(
             builder =>
@@ -7864,7 +7864,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal(
                 DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_name_preserved_when_generic()
     {
         IReadOnlyModel originalModel = null;
@@ -7946,7 +7946,7 @@ partial class Snapshot : ModelSnapshot
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_constraint_name_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
@@ -8012,7 +8012,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal(
                 "Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_excluded_from_migrations_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -8078,7 +8078,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.True(
                 o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First().IsExcludedFromMigrations()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -8151,7 +8151,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("Constraint", fk["Relational:Name"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
         => Test(
             builder =>
@@ -8221,7 +8221,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o => { });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_principal_key_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -8284,7 +8284,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.True(o.FindEntityType(typeof(EntityWithTwoProperties)).FindProperty("AlternateId").IsKey());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_principal_key_with_non_default_name_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -8358,7 +8358,7 @@ partial class Snapshot : ModelSnapshot
 
     #region Navigation
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Navigation_annotations_are_stored_in_snapshot()
         => Test(
             builder =>
@@ -8426,7 +8426,7 @@ partial class Snapshot : ModelSnapshot
             o => Assert.Equal(
                 "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetNavigations().First()["AnnotationName"]));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Navigation_isRequired_is_stored_in_snapshot()
         => Test(
             builder =>
@@ -8497,7 +8497,7 @@ partial class Snapshot : ModelSnapshot
 
     #region SeedData
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SeedData_annotations_are_stored_in_snapshot()
     {
         static List<IProperty> getAllProperties(IModel model)

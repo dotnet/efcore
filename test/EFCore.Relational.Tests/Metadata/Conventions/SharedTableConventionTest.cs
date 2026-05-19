@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class SharedTableConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Keys_are_not_uniquified_across_schemas_when_KeysUniqueAcrossSchemas_is_false()
     {
         var (modelBuilder, context) = GetModelBuilder(keysUniqueAcrossSchemas: false);
@@ -32,7 +32,7 @@ public class SharedTableConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Keys_are_uniquified_across_schemas_when_KeysUniqueAcrossSchemas_is_true()
     {
         var (modelBuilder, context) = GetModelBuilder(keysUniqueAcrossSchemas: true);

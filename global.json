@@ -9,6 +9,9 @@
     ],
     "errorMessage": "The required .NET SDK wasn't found. Please run ./restore.sh or .\\restore.cmd to install it."
   },
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  },
   "tools": {
     "dotnet": "11.0.100-preview.5.26227.104",
     "runtimes": {

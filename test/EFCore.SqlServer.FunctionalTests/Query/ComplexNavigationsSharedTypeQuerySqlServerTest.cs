@@ -19,11 +19,11 @@ public class ComplexNavigationsSharedTypeQuerySqlServerTest :
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_skip_without_orderby(bool async)
     {
         await AssertQuery(
@@ -71,7 +71,7 @@ WHERE [l].[Id] < 3
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
@@ -1021,7 +1021,7 @@ LEFT JOIN (
 """);
     }
 
-    [ConditionalTheory]
+    [Theory]
     public override async Task GroupBy_aggregate_where_required_relationship_2(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship_2(async);
@@ -1172,7 +1172,7 @@ WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id]
 """);
     }
 
-    [ConditionalTheory]
+    [Theory]
     public override async Task GroupBy_aggregate_where_required_relationship(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship(async);
@@ -6598,7 +6598,7 @@ WHERE (
     {
         await base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """

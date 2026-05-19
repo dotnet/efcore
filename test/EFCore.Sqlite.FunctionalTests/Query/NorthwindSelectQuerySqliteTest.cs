@@ -28,7 +28,7 @@ FROM "Orders" AS "o"
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_year_component_composed(bool async)
     {
         await AssertQueryScalar(

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class StructuredJsonPathTest
 {
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPathSegment_property_name()
     {
         var segment = new StructuredJsonPathSegment("Name");
@@ -16,7 +16,7 @@ public class StructuredJsonPathTest
         Assert.Equal("Name", segment.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPathSegment_array()
     {
         var segment = StructuredJsonPathSegment.Array;
@@ -25,13 +25,13 @@ public class StructuredJsonPathTest
         Assert.Equal("[]", segment.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPathSegment_empty_name_throws()
     {
         Assert.Throws<ArgumentException>(() => new StructuredJsonPathSegment(""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_root()
     {
         var path = StructuredJsonPath.Root;
@@ -41,7 +41,7 @@ public class StructuredJsonPathTest
         Assert.Equal("$", path.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_simple_property()
     {
         var path = new StructuredJsonPath([new StructuredJsonPathSegment("Address")], []);
@@ -49,7 +49,7 @@ public class StructuredJsonPathTest
         Assert.Equal("$.Address", path.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_nested_properties()
     {
         var path = new StructuredJsonPath(
@@ -58,7 +58,7 @@ public class StructuredJsonPathTest
         Assert.Equal("$.Address.City", path.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_root_array_index()
     {
         var path = new StructuredJsonPath(
@@ -67,7 +67,7 @@ public class StructuredJsonPathTest
         Assert.Equal("$[3].Name", path.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_with_array_index()
     {
         var path = new StructuredJsonPath(
@@ -76,7 +76,7 @@ public class StructuredJsonPathTest
         Assert.Equal("$.Items[3].Name", path.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_with_multiple_array_indices()
     {
         var path = new StructuredJsonPath(
@@ -91,7 +91,7 @@ public class StructuredJsonPathTest
         Assert.Equal("$.Orders[1].Items[2].Name", path.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_array_only()
     {
         var path = new StructuredJsonPath(
@@ -100,7 +100,7 @@ public class StructuredJsonPathTest
         Assert.Equal("$.Items[0]", path.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StructuredJsonPath_AppendTo_builds_same_as_ToString()
     {
         var path = new StructuredJsonPath(

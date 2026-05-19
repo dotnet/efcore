@@ -13,11 +13,11 @@ public class ComplexJsonSqlServerFixture : ComplexJsonRelationalFixtureBase
     {
         var options = base.AddOptions(builder);
 
-        return TestEnvironment.SqlServerMajorVersion < 17
+        return SqlServerTestEnvironment.SqlServerMajorVersion < 17
             ? options
             : options.UseSqlServerCompatibilityLevel(170);
     }
 
     public virtual bool UsingJsonType
-        => TestEnvironment.SqlServerMajorVersion >= 17;
+        => SqlServerTestEnvironment.SqlServerMajorVersion >= 17;
 }

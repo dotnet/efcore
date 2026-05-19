@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
@@ -190,7 +190,7 @@ ORDER BY [l].[Id]
 """);
     }
 
-    [ConditionalTheory(Skip = "See issue#28058")]
+    [Theory(Skip = "See issue#28058")]
     public override async Task Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(bool async)
     {
         await base.Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(async);
@@ -3284,7 +3284,7 @@ ORDER BY [l3].[Id], [s].[c]
         Assert.True(exception.InnerException is InvalidCastException);
     }
 
-    [ConditionalTheory(Skip = "issue #26922")]
+    [Theory(Skip = "issue #26922")]
     public override async Task Filtered_include_include_parameter_used_inside_filter_throws(bool async)
     {
         await base.Filtered_include_include_parameter_used_inside_filter_throws(async);
@@ -3292,7 +3292,7 @@ ORDER BY [l3].[Id], [s].[c]
         AssertSql("");
     }
 
-    [ConditionalTheory(Skip = "issue #26922")]
+    [Theory(Skip = "issue #26922")]
     public override async Task Filtered_include_outer_parameter_used_inside_filter(bool async)
     {
         await base.Filtered_include_outer_parameter_used_inside_filter(async);
@@ -3300,7 +3300,7 @@ ORDER BY [l3].[Id], [s].[c]
         AssertSql("");
     }
 
-    [ConditionalTheory(Skip = "issue #26922")]
+    [Theory(Skip = "issue #26922")]
     public override async Task Include_inside_subquery(bool async)
     {
         await base.Include_inside_subquery(async);

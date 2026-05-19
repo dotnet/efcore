@@ -22,7 +22,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         fixture.ListLoggerFactory.Clear();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_Get()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -41,7 +41,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.All(sessions, s => Assert.NotEmpty(s.Title));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_GetSessions()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -55,7 +55,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.All(sessions, s => Assert.NotNull(s.Track));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_Post_with_new_attendee()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -78,7 +78,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Null(result.Sessions);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_Post_with_existing_attendee()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -96,7 +96,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Null(result);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_AddSession()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -138,7 +138,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                     .ToList());
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_AddSession_bad_session()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -149,7 +149,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal("No session", result);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_AddSession_bad_attendee()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -162,7 +162,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal("No attendee", result);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_RemoveSession()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -194,7 +194,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.All(afterRemove, s => Assert.Contains(s, beforeRemove));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_RemoveSession_bad_session()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -205,7 +205,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal("No session", result);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AttendeesController_RemoveSession_bad_attendee()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -320,7 +320,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         }
     }
 
-    [ConditionalTheory, InlineData("ran", 5, 1), InlineData("Scott", 1, 0), InlineData("C#", 3, 3)]
+    [Theory, InlineData("ran", 5, 1), InlineData("Scott", 1, 0), InlineData("C#", 3, 3)]
     public virtual async Task SearchController_Search(
         string searchTerm,
         int totalCount,
@@ -382,7 +382,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Get()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -397,7 +397,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.All(results, s => Assert.NotNull(s.Track));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Get_with_ID()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -412,7 +412,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.NotNull(result.Track);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Get_with_bad_ID()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -423,7 +423,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Null(result);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Post()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -449,7 +449,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal(track.Id, result.Track.Id);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Put()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -477,7 +477,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.StartsWith("F# and Rust: combining ", updatedSession.Title);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Put_with_bad_ID()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -488,7 +488,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal("Not found", result);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Delete()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -505,7 +505,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Null(context.Sessions.AsNoTracking().SingleOrDefault(e => e.Id == session.Id));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SessionsController_Delete_with_bad_ID()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -593,7 +593,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SpeakersController_GetSpeakers()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -607,7 +607,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.All(results, s => Assert.NotEmpty(s.Sessions));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SpeakersController_GetSpeaker_with_ID()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -621,7 +621,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.NotEmpty(result.Sessions);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SpeakersController_GetSpeaker_with_bad_ID()
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {

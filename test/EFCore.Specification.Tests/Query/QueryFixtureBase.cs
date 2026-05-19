@@ -41,7 +41,7 @@ public abstract class QueryFixtureBase<TContext> : SharedStoreFixtureBase<TConte
     public ITestStoreFactory GetTestStoreFactory()
         => TestStoreFactory;
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
 

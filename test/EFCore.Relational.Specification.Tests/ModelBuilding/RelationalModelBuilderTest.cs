@@ -12,7 +12,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 {
     public abstract class RelationalNonRelationshipTestBase(RelationalModelBuilderFixture fixture) : NonRelationshipTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_table_splitting()
         {
             var modelBuilder = CreateModelBuilder();
@@ -56,7 +56,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_table_splitting_with_schema()
         {
             var modelBuilder = CreateModelBuilder();
@@ -90,7 +90,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_view_splitting()
         {
             var modelBuilder = CreateModelBuilder();
@@ -128,7 +128,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.View("OrderDetails")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_view_splitting_with_schema()
         {
             var modelBuilder = CreateModelBuilder();
@@ -158,7 +158,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.View("Order")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_return_and_parameter_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -171,7 +171,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_return_and_result_column_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -184,7 +184,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_parameter_and_return_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -197,7 +197,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_result_column_and_return_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -210,7 +210,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_result_column_and_parameter_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -223,7 +223,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_rows_affected_result_column_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -237,7 +237,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_parameter_and_result_column_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -250,7 +250,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_rows_affected_parameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -264,7 +264,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_parameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -278,7 +278,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_original_value_parameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -292,7 +292,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_result_column_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -306,7 +306,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Configuring_direction_on_RowsAffectedParameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -323,7 +323,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalComplexTypeTestBase(RelationalModelBuilderFixture fixture) : ComplexTypeTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_TPH()
         {
             var modelBuilder = CreateModelBuilder();
@@ -347,7 +347,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(property.IsColumnNullable());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_table_splitting()
         {
             var modelBuilder = CreateModelBuilder();
@@ -391,7 +391,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_table_splitting_with_schema()
         {
             var modelBuilder = CreateModelBuilder();
@@ -425,7 +425,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_view_splitting()
         {
             var modelBuilder = CreateModelBuilder();
@@ -463,7 +463,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.View("OrderDetails")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_view_splitting_with_schema()
         {
             var modelBuilder = CreateModelBuilder();
@@ -493,7 +493,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.View("Order")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_return_and_parameter_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -506,7 +506,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_return_and_result_column_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -519,7 +519,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_parameter_and_return_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -532,7 +532,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_result_column_and_return_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -545,7 +545,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_result_column_and_parameter_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -558,7 +558,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_rows_affected_result_column_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -572,7 +572,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conflicting_sproc_rows_affected_parameter_and_result_column_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -585,7 +585,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_rows_affected_parameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -599,7 +599,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_parameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -613,7 +613,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_original_value_parameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -627,7 +627,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Duplicate_sproc_result_column_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -641,7 +641,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Configuring_direction_on_RowsAffectedParameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -655,7 +655,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Complex_property_mapped_to_json_with_nested_complex_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -683,7 +683,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(nestedComplexProperty.ComplexType.IsMappedToJson());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Complex_property_mapped_to_json_uses_property_name_when_column_name_not_specified()
         {
             var modelBuilder = CreateModelBuilder();
@@ -712,7 +712,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override void Complex_properties_can_be_configured_by_type()
             => Assert.Throws<InvalidOperationException>(base.Complex_properties_can_be_configured_by_type);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Complex_type_discriminator_mapped_to_json_has_default_json_property_name()
         {
             var modelBuilder = CreateModelBuilder();
@@ -746,7 +746,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("$type", discriminatorProperty.GetJsonPropertyName());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Complex_property_mapped_to_json_can_specify_column_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -818,7 +818,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(someOrdersComplex!.IsCollection);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Complex_collection_mapped_to_json_uses_property_name_when_column_name_not_specified()
         {
             var modelBuilder = CreateModelBuilder();
@@ -841,7 +841,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal(nameof(ComplexProperties.QuarksCollection), complexType.GetContainerColumnName());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void ComplexCollection_can_have_nested_complex_properties_mapped_to_json()
         {
             var modelBuilder = CreateModelBuilder();
@@ -964,7 +964,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Complex_collection_mapped_to_json_can_specify_column_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -992,7 +992,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalInheritanceTestBase(RelationalModelBuilderFixture fixture) : InheritanceTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_table_splitting()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1036,7 +1036,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture) : OneToManyTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_foreign_key_from_migrations_for_one_to_many()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1056,7 +1056,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture) : ManyToOneTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_foreign_key_from_migrations_for_many_to_one()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1076,7 +1076,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture) : OneToOneTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_foreign_key_from_migrations_for_one_to_one()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1096,7 +1096,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture) : ManyToManyTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_foreign_key_from_migrations_for_many_to_many()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1120,7 +1120,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             }
         }
 
-        [ConditionalFact] // Issue #27990
+        [Fact] // Issue #27990
         public virtual void Can_use_ForeignKeyAttribute_with_InversePropertyAttribute()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1258,7 +1258,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture) : OwnedTypesTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_foreign_key_from_migrations_for_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1285,7 +1285,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(foreignKey.IsExcludedFromMigrations());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_table_splitting_with_owned_reference()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1355,7 +1355,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal(3, readOnlyModel.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_view_splitting_with_owned_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1414,7 +1414,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Same(anotherCustomerId, overrides.Property);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_sproc_mapping_with_owned_reference()
         {
             var modelBuilder = CreateModelBuilder();

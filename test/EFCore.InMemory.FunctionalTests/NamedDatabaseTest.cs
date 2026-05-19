@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class NamedDatabaseTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Transient_databases_are_not_shared()
     {
         using (var context = new PusheenContext())
@@ -21,7 +21,7 @@ public class NamedDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Database_per_app_domain_is_default_with_internal_service_provider()
     {
         using (var context = new PusheenContext(nameof(PusheenContext)))
@@ -37,7 +37,7 @@ public class NamedDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Database_per_service_provider_is_default()
     {
         var provider1 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
@@ -70,7 +70,7 @@ public class NamedDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_databases_shared_per_app_domain_with_internal_service_provider()
     {
         using (var context = new PusheenContext("Cats"))
@@ -100,7 +100,7 @@ public class NamedDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_databases_shared_per_service_provider()
     {
         var provider1 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);

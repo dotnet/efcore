@@ -1522,7 +1522,7 @@ LIMIT 2
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task Multidimensional_array_is_not_supported()
         => base.Multidimensional_array_is_not_supported();
 
@@ -2109,7 +2109,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Parameter_collection_Concat_column_collection()
     {
         // Issue #32561
@@ -2619,7 +2619,7 @@ WHERE json_array_length("b"."Ints") > 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Empty_string_used_for_primitive_collection_throws()
     {
         await using var connection = new SqliteConnection("DataSource=:memory:");
@@ -2814,7 +2814,7 @@ WHERE (
         return optionsBuilder;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

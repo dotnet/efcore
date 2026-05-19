@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalEntityTypeBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Relationship_returns_same_instance_for_same_navigations()
     {
         var modelBuilder = CreateModelBuilder();
@@ -42,7 +42,7 @@ public class InternalEntityTypeBuilderTest
                 ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_relationship_if_principal_entity_has_no_PK()
     {
         var modelBuilder = CreateModelBuilder();
@@ -64,7 +64,7 @@ public class InternalEntityTypeBuilderTest
         Assert.True(fkProperty.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Collection_navigation_to_principal_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -82,7 +82,7 @@ public class InternalEntityTypeBuilderTest
                     targetIsPrincipal: true)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_relationship_if_principal_entity_PK_name_contains_principal_entity_name()
     {
         var modelBuilder = CreateModelBuilder();
@@ -106,7 +106,7 @@ public class InternalEntityTypeBuilderTest
         Assert.True(fkProperty.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_relationship_if_principal_entity_PK_name_contains_principal_navigation_name()
     {
         var modelBuilder = CreateModelBuilder();
@@ -131,7 +131,7 @@ public class InternalEntityTypeBuilderTest
         Assert.True(fkProperty.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_relationship_if_navigation_to_dependent_ignored_at_lower_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -147,7 +147,7 @@ public class InternalEntityTypeBuilderTest
                 ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_relationship_if_navigation_to_principal_ignored_at_lower_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -163,7 +163,7 @@ public class InternalEntityTypeBuilderTest
                 ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_relationship_on_property_bag()
     {
         var modelBuilder = CreateModelBuilder();
@@ -192,7 +192,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(dependentEntityBuilder.Metadata.FindIndexerPropertyInfo(), skipNavigationBuilder.Metadata.PropertyInfo);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_non_shadow()
     {
         var modelBuilder = CreateModelBuilder();
@@ -211,7 +211,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_creates_shadow_properties_if_principal_type_does_not_have_primary_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -229,7 +229,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(1, relationshipBuilder.Metadata.PrincipalKey.Properties.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_properties_has_different_count()
     {
         var modelBuilder = CreateModelBuilder();
@@ -247,7 +247,7 @@ public class InternalEntityTypeBuilderTest
                 ConfigurationSource.Convention)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_shadow()
     {
         var modelBuilder = CreateModelBuilder();
@@ -268,7 +268,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_promotes_derived_foreign_key_of_lower_or_equal_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -306,7 +306,7 @@ public class InternalEntityTypeBuilderTest
         Assert.True(foreignKeyBuilder.Metadata.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_returns_inherited_foreign_key_of_lower_or_equal_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -340,7 +340,7 @@ public class InternalEntityTypeBuilderTest
                 ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_matches_existing_foreign_key_if_same_or_no_principal_key_specified_or_lower_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -380,7 +380,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(2, dependentEntityBuilder.Metadata.GetForeignKeys().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Promotes_derived_relationship()
     {
         var modelBuilder = CreateModelBuilder();
@@ -414,7 +414,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(relationship.Metadata.PrincipalKey, principalEntityBuilder.Metadata.GetKeys().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_inherited_relationship_of_lower_or_equal_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -451,7 +451,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(relationshipBuilder.Metadata, dependentEntityBuilder.Metadata.GetForeignKeys().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_index_on_foreign_key_properties_by_convention()
     {
         var modelBuilder = CreateModelBuilder();
@@ -467,7 +467,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(dependentEntityBuilder.Metadata.GetIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_foreign_key_on_mix_of_inherited_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -496,7 +496,7 @@ public class InternalEntityTypeBuilderTest
             t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_remove_lower_or_equal_source_relationship()
     {
         var modelBuilder = CreateModelBuilder();
@@ -521,7 +521,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_a_relationship_from_the_wrong_entity_type_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -543,7 +543,7 @@ public class InternalEntityTypeBuilderTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_relationship_removes_unused_contained_shadow_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -566,7 +566,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere()
     {
         Test_removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere((entityBuilder, property)
@@ -611,7 +611,7 @@ public class InternalEntityTypeBuilderTest
             foreignKey => foreignKey.Properties.SequenceEqual(relationshipBuilder.Metadata.Properties));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_returns_same_instance_for_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -625,7 +625,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.HasIndex([Order.IdProperty.Name, Order.CustomerIdProperty.Name], ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_returns_same_instance_for_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -639,7 +639,7 @@ public class InternalEntityTypeBuilderTest
             indexBuilder, entityBuilder.HasIndex([Order.IdProperty, Order.CustomerIdProperty], ConfigurationSource.Explicit));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_returns_same_instance_if_asked_for_twice()
     {
         var modelBuilder = CreateModelBuilder();
@@ -654,7 +654,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.HasIndex([Order.IdProperty, Order.CustomerIdProperty], ConfigurationSource.Explicit));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_index_returns_same_instance_for_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -670,7 +670,7 @@ public class InternalEntityTypeBuilderTest
                 [Order.IdProperty.Name, Order.CustomerIdProperty.Name], "TestIndex", ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_index_returns_same_instance_for_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -685,7 +685,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.HasIndex([Order.IdProperty, Order.CustomerIdProperty], "TestIndex", ConfigurationSource.Explicit));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_index_returns_same_instance_if_asked_for_twice()
     {
         var modelBuilder = CreateModelBuilder();
@@ -700,7 +700,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.HasIndex([Order.IdProperty, Order.CustomerIdProperty], "TestIndex", ConfigurationSource.Explicit));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_index_throws_if_try_to_create_a_new_different_index_with_same_name_on_same_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -717,7 +717,7 @@ public class InternalEntityTypeBuilderTest
                     [Order.CustomerIdProperty, Order.IdProperty], "NamedIndex", ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_index_throws_if_try_to_create_a_new_different_index_with_same_name_on_derived_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -737,7 +737,7 @@ public class InternalEntityTypeBuilderTest
                 [Order.CustomerIdProperty, Order.IdProperty], "NamedIndex", ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Named_index_throws_if_try_to_create_a_new_different_index_with_same_name_on_base_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -757,7 +757,7 @@ public class InternalEntityTypeBuilderTest
                 [Order.CustomerIdProperty, Order.IdProperty], "NamedIndex", ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_promote_index_to_base()
     {
         var modelBuilder = CreateModelBuilder();
@@ -773,7 +773,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_promote_named_index_to_base()
     {
         var modelBuilder = CreateModelBuilder();
@@ -789,7 +789,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_promote_index_to_base_with_facets()
     {
         var modelBuilder = CreateModelBuilder();
@@ -807,7 +807,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_promote_named_index_to_base_with_facets()
     {
         var modelBuilder = CreateModelBuilder();
@@ -825,7 +825,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_inherited_index()
     {
         var modelBuilder = CreateModelBuilder();
@@ -843,7 +843,7 @@ public class InternalEntityTypeBuilderTest
         Assert.True(indexBuilder.Metadata.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_index_on_inherited_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -860,7 +860,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(entityBuilder.Metadata, indexBuilder.Metadata.Properties.First().DeclaringType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_index_on_mix_of_inherited_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -882,7 +882,7 @@ public class InternalEntityTypeBuilderTest
             t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_returns_null_for_ignored_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -892,7 +892,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(entityBuilder.HasIndex([Order.IdProperty, Order.CustomerIdProperty], ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_returns_null_for_ignored_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -903,7 +903,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.HasIndex([Order.IdProperty.Name, Order.CustomerIdProperty.Name], ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_remove_lower_or_equal_source_index()
     {
         var modelBuilder = CreateModelBuilder();
@@ -922,7 +922,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(entityBuilder.Metadata.GetIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_index_removes_unused_contained_shadow_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -939,7 +939,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(entityBuilder.Metadata.GetIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere()
     {
         Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere((entityBuilder, property)
@@ -980,7 +980,7 @@ public class InternalEntityTypeBuilderTest
         Assert.DoesNotContain(entityBuilder.Metadata.GetIndexes(), i => i.Properties.SequenceEqual(index.Metadata.Properties));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_returns_same_instance_for_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -994,7 +994,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.PrimaryKey([Order.IdProperty.Name, Order.CustomerIdProperty.Name], ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_returns_same_instance_for_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1008,7 +1008,7 @@ public class InternalEntityTypeBuilderTest
             keyBuilder, entityBuilder.HasKey([Order.IdProperty, Order.CustomerIdProperty], ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_sets_properties_to_required()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1035,7 +1035,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_throws_for_property_names_if_they_do_not_exist()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1047,7 +1047,7 @@ public class InternalEntityTypeBuilderTest
                 entityBuilder.HasKey([Customer.UniqueProperty.Name], ConfigurationSource.Convention)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_throws_for_derived_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1064,7 +1064,7 @@ public class InternalEntityTypeBuilderTest
                     [Order.IdProperty.Name, Order.CustomerIdProperty.Name], ConfigurationSource.DataAnnotation)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_throws_for_derived_type_before_HasBase()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1080,7 +1080,7 @@ public class InternalEntityTypeBuilderTest
                 entityBuilder.Metadata, ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_throws_for_property_names_for_shared_entity_type_if_they_do_not_exist()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1092,7 +1092,7 @@ public class InternalEntityTypeBuilderTest
                 [Order.IdProperty.Name], ConfigurationSource.Convention)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_works_for_property_names_for_shadow_entity_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1104,7 +1104,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Order.CustomerIdProperty.Name, entityBuilder.Metadata.GetKeys().Single().Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_returns_null_for_ignored_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1114,7 +1114,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(entityBuilder.HasKey([Order.IdProperty, Order.CustomerIdProperty], ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Key_returns_null_for_ignored_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1125,7 +1125,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.HasKey([Order.IdProperty.Name, Order.CustomerIdProperty.Name], ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_remove_lower_or_equal_source_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1141,7 +1141,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(entityBuilder.Metadata.GetKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_key_removes_unused_contained_shadow_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1158,7 +1158,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(entityBuilder.Metadata.GetKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere()
     {
         Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere((entityBuilder, property)
@@ -1200,7 +1200,7 @@ public class InternalEntityTypeBuilderTest
         Assert.DoesNotContain(entityBuilder.Metadata.GetKeys(), foreignKey => foreignKey.Properties.SequenceEqual(key.Metadata.Properties));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasNoKey_can_override_lower_or_equal_source_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1239,7 +1239,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotEmpty(entityType.GetKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasKey_can_override_lower_or_equal_source_HasNoKey()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1276,7 +1276,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotNull(entityBuilder.HasKey([Order.CustomerIdProperty.Name], ConfigurationSource.Explicit));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_returns_same_instance_for_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1293,7 +1293,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(entityBuilder.Metadata.FindPrimaryKey(), entityBuilder.Metadata.GetKeys().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_returns_same_instance_for_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1310,7 +1310,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(entityBuilder.Metadata.FindPrimaryKey(), entityBuilder.Metadata.GetKeys().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_throws_for_property_names_if_they_do_not_exist()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1322,7 +1322,7 @@ public class InternalEntityTypeBuilderTest
                 [Customer.UniqueProperty.Name], ConfigurationSource.Convention)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_throws_for_property_names_for_shared_entity_type_if_they_do_not_exist()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1334,7 +1334,7 @@ public class InternalEntityTypeBuilderTest
                 [Order.IdProperty.Name], ConfigurationSource.Convention)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_throws_for_derived_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1351,7 +1351,7 @@ public class InternalEntityTypeBuilderTest
                     [Order.IdProperty.Name, Order.CustomerIdProperty.Name], ConfigurationSource.DataAnnotation)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_works_for_property_names_for_shadow_entity_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1363,7 +1363,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Order.CustomerIdProperty.Name, entityBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_returns_null_for_ignored_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1373,7 +1373,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(entityBuilder.PrimaryKey([Order.IdProperty, Order.CustomerIdProperty], ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKey_returns_null_for_ignored_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1384,7 +1384,7 @@ public class InternalEntityTypeBuilderTest
             entityBuilder.PrimaryKey([Order.IdProperty.Name, Order.CustomerIdProperty.Name], ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_primary_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1416,7 +1416,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(2, entityType.GetKeys().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_primary_key_explicitly()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1445,7 +1445,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Order.IdProperty.Name, entityType.FindPrimaryKey().Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Changing_primary_key_removes_previously_referenced_primary_key_of_lower_or_equal_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1467,7 +1467,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal([fkProperty1, fkProperty2], fk.Properties);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Changing_primary_key_removes_previously_referenced_key_of_lower_or_equal_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1487,7 +1487,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(keyBuilder.Metadata, principalEntityBuilder.Metadata.GetKeys().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Changing_primary_key_does_not_remove_previously_explicitly_referenced_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1505,7 +1505,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Contains(keyBuilder.Metadata, principalEntityBuilder.Metadata.GetKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_returns_same_instance_for_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1517,7 +1517,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(propertyBuilder, entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.Explicit));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_returns_same_instance_for_property_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1529,7 +1529,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty, ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_returns_same_instance_if_type_matches()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1563,7 +1563,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal([propertyBuilder.Metadata], entityBuilder.GetActualProperties([propertyBuilder.Metadata], null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_indexed_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1575,7 +1575,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotNull(propertyBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_returns_same_instance_for_existing_index_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1596,7 +1596,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(entityBuilder.Property(typeof(int), IndexedClass.IndexerPropertyName, ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_removes_existing_index_property_for_higher_source_if_type_mismatch()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1618,7 +1618,7 @@ public class InternalEntityTypeBuilderTest
         Assert.False(replacedPropertyBuilder.Metadata.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Indexer_property_removes_existing_shadow_property_for_higher_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1639,7 +1639,7 @@ public class InternalEntityTypeBuilderTest
         Assert.False(replacedPropertyBuilder.Metadata.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Indexer_property_throws_when_entityType_is_not_indexer()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1651,7 +1651,7 @@ public class InternalEntityTypeBuilderTest
                 typeof(string), IndexedClass.IndexerPropertyName, ConfigurationSource.Convention)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_throws_for_navigation()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1673,7 +1673,7 @@ public class InternalEntityTypeBuilderTest
                 .Property(Order.CustomerProperty, ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_add_shadow_property_without_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1685,7 +1685,7 @@ public class InternalEntityTypeBuilderTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_promote_property_to_base()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1710,7 +1710,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(1, propertyBuilder.Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_inherited_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1740,7 +1740,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotNull(entityBuilder.Metadata.FindPrimaryKey());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_reuniquify_temporary_properties_with_same_names()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1769,7 +1769,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_reuniquify_temporary_properties_with_same_names_different_types_in_two_passes()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1798,7 +1798,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_reuniquify_temporary_properties_avoiding_unmapped_clr_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1827,7 +1827,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
     }
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) }],
          MemberType = typeof(DataGenerator))]
@@ -1971,7 +1971,7 @@ public class InternalEntityTypeBuilderTest
         derivedEntityBuilder.HasBaseType(typeof(SpecialOrder), ConfigurationSource.Explicit);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_service_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -1984,7 +1984,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(entityBuilder.Metadata.GetServiceProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_property_that_is_part_of_lower_source_foreign_key_preserving_the_relationship()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2027,7 +2027,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotNull(dependentEntityBuilder.Metadata.GetForeignKeys().Where(foreignKey => foreignKey != newFk));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_ignore_property_that_is_part_of_higher_source_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2048,7 +2048,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotEmpty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_property_that_is_part_of_lower_source_index()
     {
         var logger = CreateTestLogger();
@@ -2066,7 +2066,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_property_that_was_explicitly_mapped()
     {
         var logger = CreateTestLogger();
@@ -2084,7 +2084,7 @@ public class InternalEntityTypeBuilderTest
             logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_navigation_that_is_part_of_lower_source_index()
     {
         var logger = CreateTestLogger();
@@ -2106,7 +2106,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_navigation_that_was_explicitly_mapped()
     {
         var logger = CreateTestLogger();
@@ -2130,7 +2130,7 @@ public class InternalEntityTypeBuilderTest
             logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_skip_navigation_that_is_part_of_lower_source_index()
     {
         var logger = CreateTestLogger();
@@ -2151,7 +2151,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_skip_navigation_that_was_explicitly_mapped()
     {
         var logger = CreateTestLogger();
@@ -2174,7 +2174,7 @@ public class InternalEntityTypeBuilderTest
             logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_index()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2188,7 +2188,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotEmpty(entityBuilder.Metadata.GetIndexes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_property_that_is_part_of_lower_source_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2203,7 +2203,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(entityBuilder.Metadata.GetKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_property_that_is_part_of_lower_source_principal_key_preserving_the_relationship()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2245,7 +2245,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Customer.OrdersProperty.Name, newFk.PrincipalToDependent.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2259,7 +2259,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotEmpty(entityBuilder.Metadata.GetKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_returns_same_value()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2312,7 +2312,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(foreignKeyBuilder.Metadata.PrincipalKey, principalEntityBuilder.Metadata.GetKeys().Single());
     }
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) }],
          MemberType = typeof(DataGenerator))]
@@ -2351,7 +2351,7 @@ public class InternalEntityTypeBuilderTest
             modelBuilder => { },
             Order.CustomerProperty.Name);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_merge_with_intrahierarchical_relationship_of_higher_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2377,7 +2377,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(nameof(SpecialCustomer.Customer), baseNavigation.Inverse?.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Relationship_does_not_return_same_instance_if_no_navigations()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2392,7 +2392,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(2, orderEntityBuilder.Metadata.GetForeignKeys().Count());
     }
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) }],
          MemberType = typeof(DataGenerator))]
@@ -2434,7 +2434,7 @@ public class InternalEntityTypeBuilderTest
                 ConfigurationSource.Convention),
             nameof(Order.Products));
 
-    [ConditionalTheory, MemberData(
+    [Theory, MemberData(
          nameof(DataGenerator.GetCombinations),
          [
              new[] { typeof(ConfigurationSource), typeof(ConfigurationSource), typeof(MemberType), typeof(MemberType), typeof(bool) }
@@ -2640,7 +2640,7 @@ public class InternalEntityTypeBuilderTest
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_lower_source_weak_entity_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2653,7 +2653,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(typeof(Customer).FullName, modelBuilder.Metadata.GetEntityTypes().Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_lower_source_principal_entity_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2666,7 +2666,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(typeof(Order).FullName, modelBuilder.Metadata.GetEntityTypes().Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_lower_source_navigation_to_dependent()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2687,7 +2687,7 @@ public class InternalEntityTypeBuilderTest
                 principalEntityBuilder.Metadata, null, Customer.OrdersProperty.Name, ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_lower_source_navigation_to_principal()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2708,7 +2708,7 @@ public class InternalEntityTypeBuilderTest
                 principalEntityBuilder.Metadata, Order.CustomerProperty, null, ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_add_navigation_to_principal_if_null_navigation_is_higher_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2728,7 +2728,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Customer.OrdersProperty.Name, fk.PrincipalToDependent.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_add_navigation_to_dependent_if_null_navigation_is_higher_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2747,7 +2747,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Dependent_conflicting_relationship_is_not_removed_if_principal_conflicting_relationship_cannot_be_removed()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2775,7 +2775,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(customerFk.DependentToPrincipal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Principal_conflicting_relationship_is_not_removed_if_dependent_conflicting_relationship_cannot_be_removed()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2801,7 +2801,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(customerRelationship.Metadata.DependentToPrincipal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Conflicting_navigations_are_not_removed_if_conflicting_fk_cannot_be_removed()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2845,7 +2845,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotNull(fkRelationship.Metadata.Builder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_base_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2866,7 +2866,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(entityBuilder.Metadata, derivedEntityBuilder.Metadata.BaseType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_base_type_explicitly()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2880,7 +2880,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(derivedEntityBuilder.Metadata.BaseType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_base_type_if_duplicate_properties_of_higher_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2897,7 +2897,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_set_base_type_if_keys_of_data_annotation_or_lower_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2917,7 +2917,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_set_base_type_for_relationship_with_explicit_conflicting_incompatible_navigations()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2947,7 +2947,7 @@ public class InternalEntityTypeBuilderTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_base_type_for_relationship_with_explicit_conflicting_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2967,7 +2967,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_preserves_index()
     {
         var modelBuilder = CreateModelBuilder();
@@ -2987,7 +2987,7 @@ public class InternalEntityTypeBuilderTest
         Assert.True(derivedEntityBuilder.Metadata.GetDeclaredIndexes().First().IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_preserves_non_conflicting_referencing_relationship()
     {
         var modelBuilder = CreateModelBuilder();
@@ -3019,7 +3019,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Customer.OrdersProperty.Name, fk.PrincipalToDependent.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_preserves_non_conflicting_relationship_on_duplicate_foreign_key_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -3048,7 +3048,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(Order.IdProperty.Name, fk.Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_fixes_relationship_conflicting_with_PK()
     {
         var modelBuilder = CreateModelBuilder();
@@ -3078,7 +3078,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Single(dependentEntityBuilder.Metadata.GetDeclaredProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_removes_duplicate_derived_service_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -3097,7 +3097,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredServiceProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_preserves_duplicate_base_service_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -3116,7 +3116,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredServiceProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_discriminator()
     {
         IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
@@ -3152,7 +3152,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Null(typeBuilder.HasNoDiscriminator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Discriminator_is_not_set_if_ignored()
     {
         IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
@@ -3167,7 +3167,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Discriminator_is_not_set_if_default_ignored()
     {
         IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
@@ -3177,7 +3177,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(typeBuilder.Metadata.GetProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_discriminator_value()
     {
         IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity("Splot", ConfigurationSource.Convention);
@@ -3234,7 +3234,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(typeBuilder.Metadata.GetProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Changing_discriminator_type_removes_values()
     {
         IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity("Splot", ConfigurationSource.Convention);
@@ -3286,7 +3286,7 @@ public class InternalEntityTypeBuilderTest
                 .Metadata[CoreAnnotationNames.DiscriminatorValue]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_discriminator_value_generic()
     {
         IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -3323,7 +3323,7 @@ public class InternalEntityTypeBuilderTest
         Assert.Equal(6, splod.GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscriminatorValue_throws_if_base_cannot_be_set()
     {
         IConventionModelBuilder modelBuilder = CreateModelBuilder();
@@ -3337,7 +3337,7 @@ public class InternalEntityTypeBuilderTest
             Assert.Throws<InvalidOperationException>(() => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_replace_query_filter_only_with_lower_or_equal_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -3371,7 +3371,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotEqual(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(null).Expression);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_replace_named_query_filter_only_with_lower_or_equal_source()
     {
         var modelBuilder = CreateModelBuilder();
@@ -3406,7 +3406,7 @@ public class InternalEntityTypeBuilderTest
         Assert.NotEqual(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_override_named_query_filter_from_convention_with_explicit_configuration()
     {
         // This test verifies that named query filters set by conventions can be overridden by explicit configuration

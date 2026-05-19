@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class IndexTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_model_is_readonly()
     {
         var model = CreateModel();
@@ -32,7 +32,7 @@ public class IndexTest
             Assert.Throws<InvalidOperationException>(() => index.IsUnique = false).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Gets_expected_default_values()
     {
         var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
@@ -46,7 +46,7 @@ public class IndexTest
         Assert.Equal(ConfigurationSource.Convention, index.GetConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_unique()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -60,7 +60,7 @@ public class IndexTest
         Assert.True(index.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsDescending_all_ascending_is_normalized_to_null()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -74,7 +74,7 @@ public class IndexTest
         Assert.Null(index.IsDescending);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsDescending_all_descending_is_normalized_to_empty()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -88,7 +88,7 @@ public class IndexTest
         Assert.Equal([], index.IsDescending);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsDescending_invalid_number_of_columns_throws()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));

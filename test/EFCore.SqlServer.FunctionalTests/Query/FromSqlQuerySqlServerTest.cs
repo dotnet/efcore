@@ -1031,7 +1031,7 @@ LEFT JOIN (
         Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FromSql_output_parameter_works_with_transient_errors()
     {
         using var context = Fixture.CreateContext();

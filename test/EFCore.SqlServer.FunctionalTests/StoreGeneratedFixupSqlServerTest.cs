@@ -11,7 +11,7 @@ public class StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerTest.S
     : StoreGeneratedFixupRelationalTestBase<
         StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public Task Temp_values_are_replaced_on_save()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {

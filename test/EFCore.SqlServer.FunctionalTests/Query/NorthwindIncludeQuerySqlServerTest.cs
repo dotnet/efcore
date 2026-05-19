@@ -19,7 +19,7 @@ public class NorthwindIncludeQuerySqlServerTest : NorthwindIncludeQueryRelationa
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -174,7 +174,7 @@ ORDER BY [o].[OrderID], [o0].[OrderID]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ToQueryString_for_include_reference_and_collection()
     {
         using var context = CreateContext();
@@ -1654,7 +1654,7 @@ ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
     {
         await base.Multi_level_includes_are_applied_with_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -1706,7 +1706,7 @@ ORDER BY [c1].[CustomerID], [s].[OrderID], [s].[OrderID0]
     {
         await base.Multi_level_includes_are_applied_with_skip_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """

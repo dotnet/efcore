@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
-    [ConditionalTheory,
+    [Theory,
      InlineData("INTEGER", typeof(byte), DbType.Byte),
      InlineData("INTEGER", typeof(short), DbType.Int16),
      InlineData("INTEGER", typeof(int), DbType.Int32),
@@ -70,7 +70,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
         Assert.False(mapping.IsFixedLength);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData("INTEGER", typeof(long), DbType.Int64),
      InlineData("INT", typeof(long), DbType.Int64),
      InlineData("LINT", typeof(long), DbType.Int64),
@@ -127,7 +127,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData("INTEGER", typeof(byte), DbType.Byte),
      InlineData("MINTED", typeof(byte), DbType.Byte),
      InlineData("RUBBISH", typeof(byte), DbType.Byte),
@@ -286,7 +286,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_default_mappings_for_values()
     {
         var model = CreateModel();
@@ -306,7 +306,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
         Assert.Equal("REAL", CreateRelationalTypeMappingSource(model).GetMappingForValue(1.0f).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_default_mappings_for_null_values()
     {
         var model = CreateModel();
@@ -314,7 +314,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
         Assert.Equal("NULL", CreateRelationalTypeMappingSource(model).GetMappingForValue(DBNull.Value).StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_unrecognized_property_types()
     {
         var property = ((IMutableModel)new Model()).AddEntityType("Entity1")
@@ -330,7 +330,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Plugins_can_override_builtin_mappings()
     {
         var typeMappingSource = new SqliteTypeMappingSource(

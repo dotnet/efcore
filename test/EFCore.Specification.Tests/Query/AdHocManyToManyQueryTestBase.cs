@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
 
     #region 7973
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SelectMany_with_collection_selector_having_subquery()
     {
         var contextFactory = await InitializeNonSharedTest<MyContext7973>(seed: c => c.SeedAsync());
@@ -79,7 +79,7 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
 
     #region 20277
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Many_to_many_load_works_when_join_entity_has_custom_key(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context20277>();

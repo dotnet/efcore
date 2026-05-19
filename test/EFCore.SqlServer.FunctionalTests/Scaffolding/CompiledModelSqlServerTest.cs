@@ -192,7 +192,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             model.GetEntityTypes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Vector_index()
         => Test(
             modelBuilder =>
@@ -220,7 +220,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             useContext: null,
             additionalSourceFiles: []);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Full_text_index()
         => Test(
             modelBuilder =>
@@ -392,7 +392,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             Assert.Throws<InvalidOperationException>(() => detailsProperty.IsSparse()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_HiLo_sequence()
         => Test(
             modelBuilder =>
@@ -423,7 +423,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.Same(hiLo, dataEntity.FindPrimaryKey()!.Properties.Single().FindHiLoSequence());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_sequence()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -451,7 +451,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.Same(keySequence, dataEntity!.FindPrimaryKey()!.Properties.Single().FindSequence());
             });
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public virtual Task SpatialTypesTest()
         => Test(
             modelBuilder => modelBuilder.Entity<SpatialTypes>(eb =>

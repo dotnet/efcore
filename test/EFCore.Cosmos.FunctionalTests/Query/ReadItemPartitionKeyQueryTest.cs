@@ -13,7 +13,7 @@ public class ReadItemPartitionKeyQueryTest : ReadItemPartitionKeyQueryTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -88,9 +88,10 @@ FROM root c
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_hierarchical_partition_key();
 
         // Not ReadItem because no primary key value, but partial partition key value is extracted
@@ -115,11 +116,12 @@ WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND c["PartitionKey3"])
 """);
     }
 
-    [ConditionalFact]
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key();
 
         // Not ReadItem because part of primary key value missing
@@ -208,9 +210,10 @@ FROM root c
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key();
 
         AssertSql(
