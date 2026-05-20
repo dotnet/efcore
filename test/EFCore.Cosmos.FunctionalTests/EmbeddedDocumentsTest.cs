@@ -99,6 +99,59 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
+    [ConditionalFact]
+    public virtual async Task Can_manipulate_embedded_document_simple()
+    {
+        var options = await Fixture.CreateOptions(seed: false);
+        var swappedOptions = await Fixture.CreateOptions(seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            await context.AddAsync(new Person { Id = 1, MainAddress = new Address { Street = "First", City = "Village" } });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var person = await context.Set<Person>().SingleAsync();
+            person.MainAddress.Street = "Second Street";
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var person = await context.Set<Person>().SingleAsync();
+            Assert.Equal("Second Street", person.MainAddress.Street);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Can_manipulate_embedded_collections_simple()
+    {
+        var options = await Fixture.CreateOptions(seed: false);
+        var swappedOptions = await Fixture.CreateOptions(
+            modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
+                v => v.Addresses, b =>
+                {
+                    b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
+                    b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                })),
+            seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            await context.AddAsync(new Person { Id = 1, Addresses = [ new Address { Street = "First", City = "Village" }] });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var person = await context.Set<Person>().SingleAsync();
+            person.Addresses.Add(new Address { Street = "Second", City = "Village" });
+            await context.SaveChangesAsync();
+        }
+    }
+
     [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
@@ -419,12 +472,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             var idNote = address.IdNotes.Single();
             Assert.Equal(3, idNote.Id);
             Assert.Equal("Second note", idNote.Content);
-
-            var noteEntry = context.Entry(idNote);
-            var noteJson = noteEntry.Property<JObject>("__jObject").CurrentValue;
-
-            Assert.Equal(3, noteJson[nameof(NoteWithId.Id)]);
-            Assert.Null(noteJson[nameof(NoteWithId.AddressId)]);
         }
 
         using (var context = new EmbeddedTransportationContext(swappedOptions))
@@ -859,12 +906,15 @@ OFFSET 0 LIMIT 2
             modelBuilder.Ignore<SolidRocket>();
 
             modelBuilder.Entity<PersonBase>();
-            modelBuilder.Entity<Person>(eb => eb.OwnsMany(
-                v => v.Addresses, b =>
+            modelBuilder.Entity<Person>(eb =>
+            {
+                eb.OwnsMany(v => v.Addresses, b =>
                 {
                     b.ToJsonProperty("Stored Addresses");
                     b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
-                }));
+                });
+                eb.OwnsOne(x => x.MainAddress);
+            });
         }
     }
 
@@ -884,6 +934,7 @@ OFFSET 0 LIMIT 2
 
     private class Person : PersonBase
     {
+        public Address MainAddress { get; set; }
         public ICollection<Address> Addresses { get; set; } = new List<Address>();
     }
 

@@ -856,6 +856,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // Check if this is the top level document, where Key values are successfully translated by the JsonEntityMaterializerRewriter to $varN
                     // We don't remove the top level document start tracking call, because it only happens after the document has fully deserialized.
                     // We use the shadowSnapshot in the final query root start tracking call
+
+                    // @TODO: Nested documents aren't tracked now...
+                    // @TODO: But what if the owned type has a shadow key?
                     if (arguments.Any(x => x == null))
                     {
                         break;

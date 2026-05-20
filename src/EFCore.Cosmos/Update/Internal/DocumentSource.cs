@@ -167,7 +167,8 @@ public class DocumentSource
 
             var entry = structuralType is IComplexType
                 ? parentEntry
-                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(value!, (IEntityType)structuralType)!;
+                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(value, (IEntityType)structuralType)
+                    ?? throw new UnreachableException("Embedded navigation not tracked.");
 
             WriteJsonObject(writer, entry, structuralType, null);
         }

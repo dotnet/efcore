@@ -1058,7 +1058,7 @@ WHERE (c["Terminator"] = "Barton")
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);

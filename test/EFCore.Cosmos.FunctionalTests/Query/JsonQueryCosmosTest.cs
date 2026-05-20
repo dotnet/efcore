@@ -90,7 +90,7 @@ WHERE (c["Discriminator"] = "Basic")
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
@@ -104,7 +104,11 @@ WHERE (c["Discriminator"] = "Basic")
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE
+{
+    "Root1" : c["OwnedReferenceRoot"],
+    "Leaf1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]
+}
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 ORDER BY c["Id"]
@@ -119,7 +123,11 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE
+{
+    "Root1" : c["OwnedReferenceRoot"],
+    "Branch1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
+}
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 ORDER BY c["Id"]
@@ -149,7 +157,7 @@ WHERE (c["Discriminator"] = "Basic")
                 // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedReferenceRoot"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
