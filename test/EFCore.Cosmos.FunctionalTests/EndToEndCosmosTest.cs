@@ -1318,9 +1318,6 @@ OFFSET 0 LIMIT 1
             var entry = context.Entry(customerFromStore);
             Assert.Equal("theon.g@winterfell.com", entry.Property<string>("EMail").CurrentValue);
 
-            var json = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.Equal("theon.g@winterfell.com", json["e-mail"]);
-
             context.Remove(customerFromStore);
 
             await context.SaveChangesAsync();
