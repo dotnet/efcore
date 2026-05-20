@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -26,7 +25,7 @@ namespace TestNamespace
                 discriminatorProperty: "EnumDiscriminator",
                 discriminatorValue: CompiledModelTestBase.Enum1.One,
                 derivedTypesCount: 1,
-                propertyCount: 6,
+                propertyCount: 5,
                 navigationCount: 1,
                 foreignKeyCount: 2,
                 keyCount: 1);
@@ -63,12 +62,6 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new IdValueGeneratorFactory().Create);
             __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-            var __jObject = runtimeEntityType.AddProperty(
-                "__jObject",
-                typeof(JObject),
-                nullable: true);
-            __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalId, principalAlternateId });

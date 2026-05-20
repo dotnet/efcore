@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -32,7 +31,7 @@ namespace TestNamespace
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data",
                 typeof(CompiledModelTestBase.Data),
                 baseEntityType,
-                propertyCount: 9,
+                propertyCount: 8,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -320,40 +319,6 @@ namespace TestNamespace
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
             __id.AddAnnotation("Cosmos:PropertyName", "id");
 
-            var __jObject = runtimeEntityType.AddProperty(
-                "__jObject",
-                typeof(JObject),
-                nullable: true,
-                valueGenerated: ValueGenerated.OnAddOrUpdate,
-                beforeSaveBehavior: PropertySaveBehavior.Ignore,
-                afterSaveBehavior: PropertySaveBehavior.Ignore);
-            __jObject.SetAccessors(
-                JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(7) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(7) && entry.ReadShadowValue<JObject>(6) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(6))),
-                JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(6),
-                JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 7),
-                JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-            __jObject.SetPropertyIndexes(
-                index: 7,
-                originalValueIndex: 7,
-                shadowIndex: 6,
-                relationshipIndex: -1,
-                storeGenerationIndex: 0);
-            __jObject.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                keyComparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                providerValueComparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                clrType: typeof(JObject));
-            __jObject.AddAnnotation("Cosmos:PropertyName", "");
-
             var _etag = runtimeEntityType.AddProperty(
                 "_etag",
                 typeof(string),
@@ -363,16 +328,16 @@ namespace TestNamespace
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
             _etag.SetAccessors(
-                string (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(8) ? entry.ReadStoreGeneratedValue<string>(1) : (entry.FlaggedAsTemporary(8) && entry.ReadShadowValue<string>(7) == null ? entry.ReadTemporaryValue<string>(1) : entry.ReadShadowValue<string>(7))),
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(7),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(_etag, 8),
+                string (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(7) ? entry.ReadStoreGeneratedValue<string>(0) : (entry.FlaggedAsTemporary(7) && entry.ReadShadowValue<string>(6) == null ? entry.ReadTemporaryValue<string>(0) : entry.ReadShadowValue<string>(6))),
+                string (IInternalEntry entry) => entry.ReadShadowValue<string>(6),
+                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(_etag, 7),
                 string (IInternalEntry entry) => entry.GetCurrentValue<string>(_etag));
             _etag.SetPropertyIndexes(
-                index: 8,
-                originalValueIndex: 8,
-                shadowIndex: 7,
+                index: 7,
+                originalValueIndex: 7,
+                shadowIndex: 6,
                 relationshipIndex: -1,
-                storeGenerationIndex: 1);
+                storeGenerationIndex: 0);
             _etag.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -405,7 +370,6 @@ namespace TestNamespace
             var list = runtimeEntityType.FindProperty("List");
             var map = runtimeEntityType.FindProperty("Map");
             var __id = runtimeEntityType.FindProperty("__id");
-            var __jObject = runtimeEntityType.FindProperty("__jObject");
             var _etag = runtimeEntityType.FindProperty("_etag");
             var key = runtimeEntityType.FindKey(new[] { id, partitionId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
@@ -414,16 +378,16 @@ namespace TestNamespace
                 ISnapshot (IInternalEntry source) =>
                 {
                     var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<int, long?, byte[], ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))), (source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))), ((ValueComparer<ReadOnlyMemory<byte>>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<ReadOnlyMemory<byte>>(bytes)), (((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))) == null ? null : ((List<Dictionary<string, int>>)(((ValueComparer<object>)(((IProperty)list).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))))))), (((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))) == null ? null : ((Dictionary<string, string[]>)(((ValueComparer<object>)(((IProperty)map).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(_etag) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(_etag))))));
+                    return ((ISnapshot)(new Snapshot<int, long?, byte[], ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))), (source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))), ((ValueComparer<ReadOnlyMemory<byte>>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<ReadOnlyMemory<byte>>(bytes)), (((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))) == null ? null : ((List<Dictionary<string, int>>)(((ValueComparer<object>)(((IProperty)list).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))))))), (((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))) == null ? null : ((Dictionary<string, string[]>)(((ValueComparer<object>)(((IProperty)map).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<string>(_etag) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(_etag))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<JObject, string>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject))), (default(string) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(default(string)))))));
+                ISnapshot () => ((ISnapshot)(new Snapshot<string>((default(string) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(default(string)))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<JObject, string>(default(JObject), default(string)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<string>(default(string)))));
             runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>((source.ContainsKey("Id") ? ((int)(source["Id"])) : 0), (source.ContainsKey("PartitionId") ? ((long? )(source["PartitionId"])) : null), (source.ContainsKey("Bytes") ? ((ReadOnlyMemory<byte>)(source["Bytes"])) : default(ReadOnlyMemory<byte>)), (source.ContainsKey("List") ? ((List<Dictionary<string, int>>)(source["List"])) : null), (source.ContainsKey("Map") ? ((Dictionary<string, string[]>)(source["Map"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null), (source.ContainsKey("_etag") ? ((string)(source["_etag"])) : null)))));
+                ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, string>((source.ContainsKey("Id") ? ((int)(source["Id"])) : 0), (source.ContainsKey("PartitionId") ? ((long? )(source["PartitionId"])) : null), (source.ContainsKey("Bytes") ? ((ReadOnlyMemory<byte>)(source["Bytes"])) : default(ReadOnlyMemory<byte>)), (source.ContainsKey("List") ? ((List<Dictionary<string, int>>)(source["List"])) : null), (source.ContainsKey("Map") ? ((Dictionary<string, string[]>)(source["Map"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("_etag") ? ((string)(source["_etag"])) : null)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>(default(int), default(long? ), default(ReadOnlyMemory<byte>), default(List<Dictionary<string, int>>), default(Dictionary<string, string[]>), default(string), default(JObject), default(string)))));
+                ISnapshot () => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, string>(default(int), default(long? ), default(ReadOnlyMemory<byte>), default(List<Dictionary<string, int>>), default(Dictionary<string, string[]>), default(string), default(string)))));
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
@@ -431,14 +395,14 @@ namespace TestNamespace
                     return ((ISnapshot)(new Snapshot<int, long?>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(
-                propertyCount: 9,
+                propertyCount: 8,
                 navigationCount: 0,
                 complexPropertyCount: 0,
                 complexCollectionCount: 0,
-                originalValueCount: 9,
-                shadowCount: 8,
+                originalValueCount: 8,
+                shadowCount: 7,
                 relationshipCount: 2,
-                storeGeneratedCount: 2));
+                storeGeneratedCount: 1));
             runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "DataContainer");
             runtimeEntityType.AddAnnotation("Cosmos:ETagName", "_etag");
             runtimeEntityType.AddAnnotation("Cosmos:PartitionKeyNames", new List<string> { "PartitionId" });

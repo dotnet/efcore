@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -36,7 +35,7 @@ namespace TestNamespace
                 propertyBag: true,
                 discriminatorProperty: "$type",
                 discriminatorValue: "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
-                propertyCount: 8,
+                propertyCount: 7,
                 foreignKeyCount: 2,
                 keyCount: 1);
 
@@ -437,56 +436,6 @@ namespace TestNamespace
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
             __id.AddAnnotation("Cosmos:PropertyName", "id");
 
-            var __jObject = runtimeEntityType.AddProperty(
-                "__jObject",
-                typeof(JObject),
-                propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
-                nullable: true,
-                valueGenerated: ValueGenerated.OnAddOrUpdate,
-                beforeSaveBehavior: PropertySaveBehavior.Ignore,
-                afterSaveBehavior: PropertySaveBehavior.Ignore);
-            __jObject.SetGetter(
-                JObject (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("__jObject") ? instance["__jObject"] : null) == null ? null : ((JObject)((((IDictionary<string, object>)instance).ContainsKey("__jObject") ? instance["__jObject"] : null)))),
-                bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("__jObject") ? instance["__jObject"] : null) == null);
-            __jObject.SetSetter(
-                Dictionary<string, object> (Dictionary<string, object> instance, JObject value) =>
-                {
-                    instance["__jObject"] = ((object)value);
-                    return instance;
-                });
-            __jObject.SetMaterializationSetter(
-                Dictionary<string, object> (Dictionary<string, object> instance, JObject value) =>
-                {
-                    instance["__jObject"] = ((object)value);
-                    return instance;
-                });
-            __jObject.SetAccessors(
-                JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(6) ? entry.ReadStoreGeneratedValue<JObject>(4) : (entry.FlaggedAsTemporary(6) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null) == null ? entry.ReadTemporaryValue<JObject>(4) : ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null))))),
-                JObject (IInternalEntry entry) => ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null))),
-                JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 6),
-                JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-            __jObject.SetPropertyIndexes(
-                index: 6,
-                originalValueIndex: 6,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: 4);
-            __jObject.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                keyComparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                providerValueComparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                clrType: typeof(JObject));
-            __jObject.AddAnnotation("Cosmos:PropertyName", "");
-
             var rowid = runtimeEntityType.AddProperty(
                 "rowid",
                 typeof(byte[]),
@@ -510,11 +459,11 @@ namespace TestNamespace
             rowid.SetAccessors(
                 byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Entity))["rowid"] : null))),
                 byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Entity))["rowid"] : null))),
-                byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(rowid, 7),
+                byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(rowid, 6),
                 byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(rowid));
             rowid.SetPropertyIndexes(
-                index: 7,
-                originalValueIndex: 7,
+                index: 6,
+                originalValueIndex: 6,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -577,7 +526,6 @@ namespace TestNamespace
             var principalsAlternateId = runtimeEntityType.FindProperty("PrincipalsAlternateId");
             var type = runtimeEntityType.FindProperty("$type");
             var __id = runtimeEntityType.FindProperty("__id");
-            var __jObject = runtimeEntityType.FindProperty("__jObject");
             var rowid = runtimeEntityType.FindProperty("rowid");
             var key = runtimeEntityType.FindKey(new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
@@ -586,12 +534,12 @@ namespace TestNamespace
                 ISnapshot (IInternalEntry source) =>
                 {
                     var structuralType5 = ((Dictionary<string, object>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, JObject, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
+                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, long, Guid, JObject>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(default(Guid)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(default(Guid)), (default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
+                ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, long, Guid>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(default(Guid)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(default(Guid))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long, Guid, long, Guid, JObject>(default(long), default(Guid), default(long), default(Guid), default(JObject)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long, Guid, long, Guid>(default(long), default(Guid), default(long), default(Guid)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
             runtimeEntityType.SetEmptyShadowValuesFactory(
@@ -603,14 +551,14 @@ namespace TestNamespace
                     return ((ISnapshot)(new Snapshot<long, Guid, long, Guid>(((ValueComparer<long>)(((IProperty)derivedsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(
-                propertyCount: 8,
+                propertyCount: 7,
                 navigationCount: 0,
                 complexPropertyCount: 0,
                 complexCollectionCount: 0,
-                originalValueCount: 8,
+                originalValueCount: 7,
                 shadowCount: 0,
                 relationshipCount: 4,
-                storeGeneratedCount: 5));
+                storeGeneratedCount: 4));
 
             Customize(runtimeEntityType);
         }
