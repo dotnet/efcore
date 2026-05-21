@@ -136,6 +136,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         {
                             if (method is not { Name: nameof(Enumerable.ToList) or nameof(Enumerable.ToArray) })
                             {
+                                // We might actually be able to translate a subquery here without having to allocate an ARRAY on the client (e.g. ElementAt), add support in the future?
                                 throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
                             }
 
@@ -309,6 +310,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
                     {
+                        // There is no actual binding here because the inner shaper is directly over the collection, and not a subquery.
+                        // Subqueries currently require a ToList call and are handled in Visit
                         structuralTypeShaper = structuralTypeShaper.Update(Expression.Convert(Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                         return new CollectionShaperExpression(
@@ -376,6 +379,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
                 }
 
+                // There is no actual binding here because the inner shaper is directly over the collection, and not a subquery.
+                // Subqueries currently require a ToList call and are handled in Visit
                 shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                 return new CollectionShaperExpression(
