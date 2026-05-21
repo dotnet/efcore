@@ -153,8 +153,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                             // "reprojection" subquery, effectively to change the CLR type.
                             if (array is SqlExpression scalarArray && !(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
                             {
-                                Check.DebugAssert(
-                                array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
+                                Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
 
                                 if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
                                 {
@@ -178,7 +177,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                             // Then are able to use the projection binding's query expression directly in ShaperProcessingVisitor, instead of storing the select expression separately there
                             // This appears to be needed because ShapedQueryExpression doesn't properly replace projection bindings their query expression when updating the shaper expression.
                             // But fixing that causes a lot of errors (in other providers?).
-                            new ProjectionBindigQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
+                            new ProjectionBindingQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
 
                             var listType = typeof(List<>).MakeGenericType(elementType);
                             var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
@@ -277,18 +276,17 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     case ProjectionBindingExpression innerProjectionBinding:
 
-                        if (innerProjectionBinding.ProjectionMember is null)
-                        {
-                            return _clientEval
-                                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(structuralTypeShaper.Print()))
-                                : QueryCompilationContext.NotTranslatedExpression;
-                        }
+                        // @TODO: Do we need this? Can't the inner select use client eval and the outer not?
+                        //if (innerProjectionBinding.ProjectionMember is null && !_clientEval)
+                        //{
+                        //    return QueryCompilationContext.NotTranslatedExpression;
+                        //}
 
-                        VerifySelectExpression(innerProjectionBinding);
-
-                        structuralTypeProjection =
-                            (StructuralTypeProjectionExpression)_selectExpression
-                                .GetMappedProjection(innerProjectionBinding.ProjectionMember);
+                        var innerSelect = (SelectExpression)innerProjectionBinding.QueryExpression;
+                        structuralTypeProjection = (StructuralTypeProjectionExpression)
+                            (innerProjectionBinding.ProjectionMember is not null
+                                ? innerSelect.GetMappedProjection(innerProjectionBinding.ProjectionMember)
+                                : innerSelect.Projection[innerProjectionBinding.Index!.Value]);
 
                         break;
                     default:
@@ -311,7 +309,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
                     {
-                        // @TODO: Shouldn't this actually be a ProjectionBindingExpression related to a select expression that holds a projection?
                         structuralTypeShaper = structuralTypeShaper.Update(Expression.Convert(Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                         return new CollectionShaperExpression(
@@ -379,7 +376,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
                 }
 
-                // @TODO: Shouldn't this actually be a ProjectionBindingExpression related to a select expression that holds a projection?
                 shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                 return new CollectionShaperExpression(
@@ -647,7 +643,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
         => (T)queryContext.Parameters[parameterName]!;
 
-    private sealed class ProjectionBindigQueryProjectionApplyingExpressionVisitor : ExpressionVisitor
+    private sealed class ProjectionBindingQueryProjectionApplyingExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression node)
         {

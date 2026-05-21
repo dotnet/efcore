@@ -131,8 +131,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
             };
 
-            Expression jsonMaterializeExpression;
-            ProjectionExpression projection;
             switch (extensionExpression)
             {
                 case StructuralTypeShaperExpression shaper:
@@ -150,18 +148,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         shaper.ValueBufferExpression
                     );
 
-                    jsonMaterializeExpression = Block(
+                    Expression jsonMaterializeExpression = Block(
                         [jsonReaderData, jsonReaderManager],
                         [ ..jsonReaderInitializeExpessions,
                             Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Visit(shapers)]);
 
-                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // @TODO: Why isn't this always true? It's for collection shapers right?
+                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // Otherwise this is an inner shaper of a CollectionShaperExpression,
                     {
-                        var projection1 = GetProjection(projectionBindingExpression);
-                        if (!projection1.IsValueProjection && projection1.Alias != null)
+                        var projection = GetProjection(projectionBindingExpression);
+                        if (!projection.IsValueProjection && projection.Alias != null)
                         {
-                            jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection1.Alias]);
+                            jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection.Alias]);
                         }
                     }
 
@@ -169,11 +167,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    projection = GetProjection(projectionBindingExpression);
+                {
+                    var projection = GetProjection(projectionBindingExpression);
                     var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
                     var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
 
-                    jsonMaterializeExpression = Block(
+                    Expression jsonMaterializeExpression = Block(
                         [jsonReaderData, jsonReaderManager, returnValue],
                         [ ..jsonReaderInitializeExpessions,
                             Assign(
@@ -182,31 +181,34 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             returnValue]);
 
-                    if (!projection.IsValueProjection && projection.Alias != null) // @TODO: We could do this in a switch read loop aswell..
+                    if (!projection.IsValueProjection && projection.Alias != null) 
                     {
                         jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection.Alias]);
                     }
 
                     return jsonMaterializeExpression;
+                }
 
                 case CollectionShaperExpression collectionShaperExpression:
+                {
                     var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
 
-                    jsonMaterializeExpression = Call(
+                    Expression jsonMaterializeExpression = Call(
                         ReadShapedCollectionMethod.MakeGenericMethod(collectionShaperExpression.ElementType, collectionShaperExpression.Type),
                         CosmosQueryCompilationContext.QueryContextParameter,
                         data,
                         Constant(collectionShaperExpression.CollectionCreator),
                         innerShaper);
 
-                    projection = GetProjection((ProjectionBindingExpression)collectionShaperExpression.Projection);
-                    if (!projection.IsValueProjection && projection.Alias != null) // @TODO: We could do this in a switch read loop aswell..
+                    var projection = GetProjection((ProjectionBindingExpression)collectionShaperExpression.Projection);
+                    if (!projection.IsValueProjection && projection.Alias != null)
                     {
                         jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection.Alias]);
                     }
 
                     return jsonMaterializeExpression;
 
+                }
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);
             }
@@ -475,7 +477,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 [dataSubset],
                 Assign(dataSubset, Call(ReadPathMethod, data, Constant(jsonPropertyPathBytes))),
                 ReplacingExpressionVisitor.Replace(data, dataSubset, materializeExpression));
-        }
+        } // @TODO: We could do this in a switch read loop aswell..
 
         protected override Expression VisitBlock(BlockExpression blockExpression)
         {
@@ -648,7 +650,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     Utf8JsonReaderTokenTypeProperty)),
                         };
 
-                    // @TODO: Change serializer to put "$type" first.
+                    // @TODO: Change serializer to put "$type" first.?
                     // Generate a loop to get the discriminator
                     // entityType = default
                     // while (true)
