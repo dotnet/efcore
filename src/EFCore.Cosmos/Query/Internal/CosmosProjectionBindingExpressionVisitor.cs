@@ -23,8 +23,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         = typeof(CosmosProjectionBindingExpressionVisitor)
             .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
 
-    private string? _translationErrorDetails;
-
     private readonly CosmosQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly ITypeMappingSource _typeMappingSource;
@@ -72,19 +70,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         if (result == QueryCompilationContext.NotTranslatedExpression)
         {
             _clientEval = true;
-            _translationErrorDetails = null;
 
             result = Visit(expression);
 
             _projectionMapping.Clear();
-        }
-
-        if (result == QueryCompilationContext.NotTranslatedExpression) // @TODO: Instead throw where needed? Then we can remove all the if NotTranslatedExpression in other methods?
-        {
-            var message = _translationErrorDetails == null
-                ? CoreStrings.TranslationFailed(expression.Print())
-                : CoreStrings.TranslationFailedWithDetails(expression.Print(), _translationErrorDetails);
-            throw new InvalidOperationException(message);
         }
 
         _selectExpression.ReplaceProjectionMapping(_projectionMapping);
@@ -256,20 +245,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
     {
         var test = Visit(conditionalExpression.Test);
-        if (test == QueryCompilationContext.NotTranslatedExpression)
-        {
-            return QueryCompilationContext.NotTranslatedExpression;
-        }
         var ifTrue = Visit(conditionalExpression.IfTrue);
-        if (ifTrue == QueryCompilationContext.NotTranslatedExpression)
-        {
-            return QueryCompilationContext.NotTranslatedExpression;
-        }
         var ifFalse = Visit(conditionalExpression.IfFalse);
-        if (ifFalse == QueryCompilationContext.NotTranslatedExpression)
-        {
-            return QueryCompilationContext.NotTranslatedExpression;
-        }
 
         if (test.Type == typeof(bool?))
         {
@@ -302,7 +279,9 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                         if (innerProjectionBinding.ProjectionMember is null)
                         {
-                            return QueryCompilationContext.NotTranslatedExpression;
+                            return _clientEval
+                                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(structuralTypeShaper.Print()))
+                                : QueryCompilationContext.NotTranslatedExpression;
                         }
 
                         VerifySelectExpression(innerProjectionBinding);
@@ -382,10 +361,11 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
                 }
 
-                var shaper = _sqlTranslator.TranslateProjection(subquery) as StructuralTypeShaperExpression;
-                if (shaper == null)
+                if (_sqlTranslator.TranslateProjection(subquery) is not StructuralTypeShaperExpression shaper)
                 {
-                    return QueryCompilationContext.NotTranslatedExpression;
+                    return _clientEval
+                        ? throw new InvalidOperationException(CoreStrings.TranslationFailed(subquery.Print()))
+                        : QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 ProjectionBindingExpression valueBuffer;
@@ -442,10 +422,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
         var expression = Visit(memberExpression.Expression);
-        if (expression == QueryCompilationContext.NotTranslatedExpression)
-        {
-            return QueryCompilationContext.NotTranslatedExpression;
-        }
         Expression updatedMemberExpression = memberExpression.Update(
             expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
 
@@ -543,20 +519,11 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var @object = Visit(methodCallExpression.Object);
-        if (@object == QueryCompilationContext.NotTranslatedExpression)
-        {
-            return QueryCompilationContext.NotTranslatedExpression;
-        }
-
         var arguments = new Expression[methodCallExpression.Arguments.Count];
         for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
         {
-            var argument = Visit(methodCallExpression.Arguments[i]);
-            if (argument == QueryCompilationContext.NotTranslatedExpression)
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-            arguments[i] = MatchTypes(argument, methodCallExpression.Arguments[i].Type);
+            var argument = methodCallExpression.Arguments[i];
+            arguments[i] = MatchTypes(Visit(argument), argument.Type);
         }
 
         Expression updatedMethodCallExpression = methodCallExpression.Update(
@@ -582,20 +549,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         return updatedMethodCallExpression;
     }
 
-    private sealed class ProjectionBindigQueryProjectionApplyingExpressionVisitor : ExpressionVisitor
-    {
-        protected override Expression VisitExtension(Expression node)
-        {
-            if (node is ProjectionBindingExpression projectionBindingExpression)
-            {
-                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-                selectExpression.ApplyProjection();
-            }
-
-            return base.VisitExtension(node);
-        }
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -609,7 +562,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             return newExpression;
         }
 
-        if (!_clientEval && newExpression.Members == null)
+        if (!_clientEval
+            && newExpression.Members == null)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
@@ -618,14 +572,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         for (var i = 0; i < newArguments.Length; i++)
         {
             var argument = newExpression.Arguments[i];
-            Expression visitedArgument;
+            Expression? visitedArgument;
             if (_clientEval)
             {
                 visitedArgument = Visit(argument);
-                if (visitedArgument == QueryCompilationContext.NotTranslatedExpression)
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
             }
             else
             {
@@ -653,20 +603,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-    {
-        var expressions = new Expression[newArrayExpression.Expressions.Count];
-        for (var i = 0; i < expressions.Length; i++)
-        {
-            var expression = Visit(newArrayExpression.Expressions[i]);
-            if (expression == QueryCompilationContext.NotTranslatedExpression)
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-            expressions[i] = MatchTypes(expression, newArrayExpression.Expressions[i].Type);
-        }
-
-        return newArrayExpression.Update(expressions);
-    }
+        => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -677,13 +614,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
     {
         var operand = Visit(unaryExpression.Operand);
-        if (operand == QueryCompilationContext.NotTranslatedExpression)
-        {
-            return QueryCompilationContext.NotTranslatedExpression;
-        }
 
-        return (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+        return unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
             && unaryExpression.Type == operand.Type
                 ? operand
                 : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
@@ -714,4 +646,18 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     [UsedImplicitly]
     private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
         => (T)queryContext.Parameters[parameterName]!;
+
+    private sealed class ProjectionBindigQueryProjectionApplyingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is ProjectionBindingExpression projectionBindingExpression)
+            {
+                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
+                selectExpression.ApplyProjection();
+            }
+
+            return base.VisitExtension(node);
+        }
+    }
 }
