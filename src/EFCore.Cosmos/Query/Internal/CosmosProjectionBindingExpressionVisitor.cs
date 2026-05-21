@@ -121,142 +121,98 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     case StructuralTypeShaperExpression:
                         return base.Visit(translation);
                     default:
-                        if (!_clientEval)
-                        {
-                            return QueryCompilationContext.NotTranslatedExpression;
-                        }
-
-                        if (expression is MethodCallExpression
-                            {
-                                Method: { IsGenericMethod: true } method,
-                                Arguments: [var collectionArgument, ..]
-                            } methodCallExpression
-                            && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType
-                            && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
-                        {
-                            if (method is not { Name: nameof(Enumerable.ToList) or nameof(Enumerable.ToArray) })
-                            {
-                                // We might actually be able to translate a subquery here without having to allocate an ARRAY on the client (e.g. ElementAt), add support in the future?
-                                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
-                            }
-
-                            if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
-                            || !subquery.TryConvertToArray(_typeMappingSource, out var array))
-                            {
-                                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
-                            }
-
-                            // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
-                            // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
-                            // simply read the JSON results out successfully.
-                            // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
-                            // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
-                            // "reprojection" subquery, effectively to change the CLR type.
-                            if (array is SqlExpression scalarArray && !(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-                            {
-                                Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
-
-                                if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
-                                {
-                                    throw new UnreachableException("Scalar array with no element type mapping");
-                                }
-
-                                // @TODO: Doesn't this cause an additional ARRAY(SELECT ...) to be generated in the SQL? This is bad for RU's as it will allocate an additional array
-                                // TODO: Proper alias management (#33894).
-                                var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
-                                    array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
-                                arrayReprojectionSubquery.ApplyProjection();
-
-                                array = new ScalarArrayExpression(
-                                    arrayReprojectionSubquery,
-                                    methodCallExpression.Type, // List<>
-                                    _typeMappingSource.FindMapping(methodCallExpression.Type, _model, elementTypeMapping));
-                            }
-
-                            // @TODO: Ask if there is a better way for this..
-                            // We should update projection bindings in the subquery shaper to relate to a query expression that can actually provide the correct binding information.
-                            // Then are able to use the projection binding's query expression directly in ShaperProcessingVisitor, instead of storing the select expression separately there
-                            // This appears to be needed because ShapedQueryExpression doesn't properly replace projection bindings their query expression when updating the shaper expression.
-                            // But fixing that causes a lot of errors (in other providers?).
-                            new ProjectionBindingQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
-
-                            var listType = typeof(List<>).MakeGenericType(elementType);
-                            var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
-
-                            ProjectionBindingExpression binding;
-                            if (_clientEval)
-                            {
-                                binding = new ProjectionBindingExpression(
-                                    _selectExpression,
-                                    _selectExpression.AddToProjection(array),
-                                    listType);
-                            }
-                            else
-                            {
-                                _projectionMapping[_projectionMembers.Peek()] = array;
-                                binding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), listType);
-                            }
-
-                            Expression shaper = new CollectionShaperExpression(binding, subquery.ShaperExpression, listType, collectionCreator, elementType);
-
-                            if (method.Name == nameof(Enumerable.ToArray))
-                            {
-                                shaper = Expression.Call(shaper, listType.GetMethod(nameof(List<>.ToArray))!);
-                            }
-
-                            return shaper;
-                        }
-
-                        return base.Visit(expression);
+                        break;
                 }
+                break;
         }
-    }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
-    {
-        var left = Visit(binaryExpression.Left);
-        if (left == QueryCompilationContext.NotTranslatedExpression)
+        if (!_clientEval)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
-        var right = Visit(binaryExpression.Right);
-        if (right == QueryCompilationContext.NotTranslatedExpression)
+
+        if (expression is MethodCallExpression
+            {
+                Method: { IsGenericMethod: true } method,
+                Arguments: [var collectionArgument, ..]
+            } methodCallExpression
+            && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType
+            && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
         {
-            return QueryCompilationContext.NotTranslatedExpression;
+            if (method is not { Name: nameof(Enumerable.ToList) or nameof(Enumerable.ToArray) })
+            {
+                // We might actually be able to translate a subquery here without having to allocate an ARRAY on the client (e.g. ElementAt), add support in the future?
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+            }
+
+            if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
+            || !subquery.TryConvertToArray(_typeMappingSource, out var array))
+            {
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+            }
+
+            // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
+            // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
+            // simply read the JSON results out successfully.
+            // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
+            // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
+            // "reprojection" subquery, effectively to change the CLR type.
+            if (array is SqlExpression scalarArray && !(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            {
+                Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
+
+                if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
+                {
+                    throw new UnreachableException("Scalar array with no element type mapping");
+                }
+
+                // @TODO: Doesn't this cause an additional ARRAY(SELECT ...) to be generated in the SQL? This is bad for RU's as it will allocate an additional array
+                // TODO: Proper alias management (#33894).
+                var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
+                    array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
+                arrayReprojectionSubquery.ApplyProjection();
+
+                array = new ScalarArrayExpression(
+                    arrayReprojectionSubquery,
+                    methodCallExpression.Type, // List<>
+                    _typeMappingSource.FindMapping(methodCallExpression.Type, _model, elementTypeMapping));
+            }
+
+            // @TODO: Ask if there is a better way for this..
+            // We should update projection bindings in the subquery shaper to relate to a query expression that can actually provide the correct binding information.
+            // Then are able to use the projection binding's query expression directly in ShaperProcessingVisitor, instead of storing the select expression separately there
+            // This appears to be needed because ShapedQueryExpression doesn't properly replace projection bindings their query expression when updating the shaper expression.
+            // But fixing that causes a lot of errors (in other providers?).
+            new ProjectionBindingQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
+
+            var listType = typeof(List<>).MakeGenericType(elementType);
+            var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
+
+            ProjectionBindingExpression binding;
+            if (_clientEval)
+            {
+                binding = new ProjectionBindingExpression(
+                    _selectExpression,
+                    _selectExpression.AddToProjection(array),
+                    listType);
+            }
+            else
+            {
+                _projectionMapping[_projectionMembers.Peek()] = array;
+                binding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), listType);
+            }
+
+            Expression shaper = new CollectionShaperExpression(binding, subquery.ShaperExpression, listType, collectionCreator, elementType);
+
+            if (method.Name == nameof(Enumerable.ToArray))
+            {
+                shaper = Expression.Call(shaper, listType.GetMethod(nameof(List<>.ToArray))!);
+            }
+
+            return shaper;
         }
-        left = MatchTypes(left, binaryExpression.Left.Type);
-        right = MatchTypes(right, binaryExpression.Right.Type);
 
-        return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
-    {
-        var test = Visit(conditionalExpression.Test);
-        var ifTrue = Visit(conditionalExpression.IfTrue);
-        var ifFalse = Visit(conditionalExpression.IfFalse);
-
-        if (test.Type == typeof(bool?))
-        {
-            test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
-        }
-
-        ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
-        ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
-
-        return conditionalExpression.Update(test, ifTrue, ifFalse);
+        return base.Visit(expression);
     }
 
     /// <summary>
@@ -404,15 +360,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
         }
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override ElementInit VisitElementInit(ElementInit elementInit)
-        => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -596,6 +543,62 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
         return newExpression.Update(newArguments);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    {
+        var left = Visit(binaryExpression.Left);
+        if (left == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+        var right = Visit(binaryExpression.Right);
+        if (right == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+        left = MatchTypes(left, binaryExpression.Left.Type);
+        right = MatchTypes(right, binaryExpression.Right.Type);
+
+        return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    {
+        var test = Visit(conditionalExpression.Test);
+        var ifTrue = Visit(conditionalExpression.IfTrue);
+        var ifFalse = Visit(conditionalExpression.IfFalse);
+
+        if (test.Type == typeof(bool?))
+        {
+            test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
+        }
+
+        ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
+        ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
+
+        return conditionalExpression.Update(test, ifTrue, ifFalse);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ElementInit VisitElementInit(ElementInit elementInit)
+        => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
