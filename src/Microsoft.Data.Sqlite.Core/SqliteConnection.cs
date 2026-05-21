@@ -82,6 +82,10 @@ public partial class SqliteConnection : DbConnection
             {
                 // Ignore "The process has no package identity."
             }
+            catch (InvalidOperationException)
+            {
+                // Ignore "The process has no package identity." when thrown directly by the WinRT projection.
+            }
 
             if (currentAppData != null)
             {
