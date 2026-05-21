@@ -1770,19 +1770,16 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"
             });
 
     public override Task Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_original(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_original(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_deduplication_with_collection_indexer_in_original(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_target(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_deduplication_with_collection_indexer_in_target(async));
 
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
@@ -1887,9 +1884,8 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(
         bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async));
 
     [ConditionalTheory(Skip = "issue #34350")]
     public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
