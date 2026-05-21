@@ -78,13 +78,11 @@ public partial class SqliteConnection : DbConnection
             {
                 currentAppData = appDataType?.GetRuntimeProperty("Current")?.GetValue(null);
             }
-            catch (TargetInvocationException)
+            catch (TargetInvocationException ex) when (IsNoPackageIdentityException(ex.InnerException))
             {
-                // Ignore "The process has no package identity."
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException ex) when (IsNoPackageIdentityException(ex))
             {
-                // Ignore "The process has no package identity." when thrown directly by the WinRT projection.
             }
 
             if (currentAppData != null)
@@ -107,6 +105,11 @@ public partial class SqliteConnection : DbConnection
             }
         }
     }
+
+    private static bool IsNoPackageIdentityException(Exception? ex)
+        => ex is InvalidOperationException or COMException
+            && (ex.HResult == unchecked((int)0x80073D54) // APPMODEL_ERROR_NO_PACKAGE
+                || ex.HResult == unchecked((int)0x8000000D)); // E_ILLEGAL_STATE_CHANGE
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
