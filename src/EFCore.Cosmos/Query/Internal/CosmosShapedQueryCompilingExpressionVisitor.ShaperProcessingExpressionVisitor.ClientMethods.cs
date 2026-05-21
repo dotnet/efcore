@@ -180,7 +180,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return (TCollection)collection;
             }
 
-            Debug.Assert(reader.TokenType == JsonTokenType.StartArray);
+            if (reader.TokenType != JsonTokenType.StartArray)
+            {
+                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(reader.TokenType));
+            }
 
             while (TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, out var bytesConsumed, out var item))
             {
@@ -217,7 +220,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             result = shaper(queryContext, data)!;
 
-            // @TODO: Get BytesConsumed from shaper?
+            // @TODO: Get BytesConsumed from shaper instead
             var reader = new Utf8JsonReader(data.Span);
             reader.Read();
             // This could be a scalar or a structural type, if it is an object, we need to move past it.
@@ -242,6 +245,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return true;
         }
+
+        private static readonly byte[] NullBytes = Encoding.UTF8.GetBytes("null");
 
         public static ReadOnlyMemory<byte> ReadPath(ReadOnlyMemory<byte> data, LinkedList<byte[]> jsonPropertyPath)
         {
@@ -273,9 +278,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         break;
                     case JsonTokenType.EndObject:
-                        // @TODO: Missing property We need to return the default value from the shaper???
+                        return NullBytes; // @TODO: Improve? ReadPath is going to be thrown out anyway, so this won't need to be improved here, but in the new implementation.
                     case JsonTokenType.Null:
-                        throw new NullReferenceException(); // This is what 10.0 threw
+                        throw new NullReferenceException(); // This is what 10.0 threw... Should we just continue instead?
                     default:
                         throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(jsonReader.TokenType));
                 }
