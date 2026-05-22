@@ -550,6 +550,10 @@ OFFSET 0 LIMIT 2
 """);
     }
 
+    public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+        => await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Inline_collection_SelectMany_with_unreferenced_collection_value());
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Parameter_collection_Count()

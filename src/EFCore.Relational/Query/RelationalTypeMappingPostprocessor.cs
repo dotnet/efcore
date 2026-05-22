@@ -152,9 +152,14 @@ public class RelationalTypeMappingPostprocessor(
                         var value = rowValue.Values[j];
 
                         if (value.TypeMapping is null
-                            && inferredTypeMappings[j] is { } inferredTypeMapping)
+                            // Fall back to the default type mapping for the CLR type when no type mapping was inferred
+                            // from usage context (e.g. SelectMany where the value column isn't referenced).
+                            && (inferredTypeMappings[j]
+                                ?? RelationalDependencies.TypeMappingSource.FindMapping(
+                                    value.Type, QueryCompilationContext.Model))
+                            is { } resolvedTypeMapping)
                         {
-                            value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
+                            value = _sqlExpressionFactory.ApplyTypeMapping(value, resolvedTypeMapping);
                         }
 
                         // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred
