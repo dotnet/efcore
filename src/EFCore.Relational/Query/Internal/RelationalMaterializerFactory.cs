@@ -341,7 +341,7 @@ public partial class RelationalMaterializerFactory(
                     .ToArray();
                 var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
                 var splitCollectionStartIndexes = splitCollectionInfos is null ? null : new int[subMaterializers.Length];
-                object[]? currentValues = null;
+                var currentValues = new AsyncLocal<object[]?>();
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
                     if (splitCollectionStartIndexes is not null)
@@ -366,7 +366,7 @@ public partial class RelationalMaterializerFactory(
 
                         for (var j = startIndex; j < endIndex; j++)
                         {
-                            splitCollectionInfosLocal[j].ParentEntityProvider ??= () => currentValues?[subMaterializerIndex];
+                            splitCollectionInfosLocal[j].ParentEntityProvider ??= () => currentValues.Value?[subMaterializerIndex];
                         }
                     }
                 }
@@ -384,7 +384,7 @@ public partial class RelationalMaterializerFactory(
                 return (queryCtx, reader, rc, coord) =>
                 {
                     var result = composedMaterializer(queryCtx, reader, rc, coord);
-                    currentValues = rc.Values;
+                    currentValues.Value = rc.Values;
 
                     return result;
                 };
@@ -426,7 +426,7 @@ public partial class RelationalMaterializerFactory(
                 // Build materializers for extracted sub-expressions (entities and scalars).
                 var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[rewriter.ExtractedSubExpressions.Count];
                 var splitCollectionStartIndexes = splitCollectionInfos is null ? null : new int[subMaterializers.Length];
-                object[]? currentValues = null;
+                var currentValues = new AsyncLocal<object[]?>();
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
                     if (splitCollectionStartIndexes is not null)
@@ -451,7 +451,7 @@ public partial class RelationalMaterializerFactory(
 
                         for (var j = startIndex; j < endIndex; j++)
                         {
-                            splitCollectionInfosLocal[j].ParentEntityProvider ??= () => currentValues?[subMaterializerIndex];
+                            splitCollectionInfosLocal[j].ParentEntityProvider ??= () => currentValues.Value?[subMaterializerIndex];
                         }
                     }
                 }
@@ -470,7 +470,7 @@ public partial class RelationalMaterializerFactory(
                 return (queryCtx, reader, rc, coord) =>
                 {
                     var result = composedMaterializer(queryCtx, reader, rc, coord);
-                    currentValues = rc.Values;
+                    currentValues.Value = rc.Values;
 
                     return result;
                 };
@@ -1171,17 +1171,34 @@ public partial class RelationalMaterializerFactory(
         [NotNullWhen(true)] out Func<object, object?>? resultFinalizer)
     {
         collectionShaper = null;
-        resultFinalizer = null;
 
-        if (methodCallExpression.Method.DeclaringType != typeof(Enumerable)
-            || !methodCallExpression.Method.IsGenericMethod
-            || methodCallExpression.Arguments is not [var source]
-            || StripIgnorableConvert(source) is not RelationalCollectionShaperExpression relationalCollectionShaper)
+        if (!TryGetCollectionTerminalSource(methodCallExpression, out var source, out resultFinalizer)
+            || source is not RelationalCollectionShaperExpression relationalCollectionShaper)
         {
+            resultFinalizer = null;
             return false;
         }
 
         collectionShaper = relationalCollectionShaper;
+        return true;
+    }
+
+    private static bool TryGetCollectionTerminalSource(
+        MethodCallExpression methodCallExpression,
+        [NotNullWhen(true)] out Expression? source,
+        [NotNullWhen(true)] out Func<object, object?>? resultFinalizer)
+    {
+        source = null;
+        resultFinalizer = null;
+
+        if (methodCallExpression.Method.DeclaringType != typeof(Enumerable)
+            || !methodCallExpression.Method.IsGenericMethod
+            || methodCallExpression.Arguments is not [var terminalSource])
+        {
+            return false;
+        }
+
+        var strippedSource = StripIgnorableConvert(terminalSource)!;
 
         switch (methodCallExpression.Method.Name)
         {
@@ -1189,6 +1206,7 @@ public partial class RelationalMaterializerFactory(
             {
                 var terminalMethod = methodCallExpression.Method;
                 resultFinalizer = collection => terminalMethod.Invoke(null, [collection]);
+                source = strippedSource;
                 return true;
             }
 
@@ -1203,6 +1221,7 @@ public partial class RelationalMaterializerFactory(
 
                     return collection;
                 };
+                source = strippedSource;
 
                 return true;
             }
@@ -1211,6 +1230,7 @@ public partial class RelationalMaterializerFactory(
             {
                 var terminalMethod = methodCallExpression.Method;
                 resultFinalizer = collection => terminalMethod.Invoke(null, [collection]);
+                source = strippedSource;
                 return true;
             }
 

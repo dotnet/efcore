@@ -60,14 +60,12 @@ public partial class RelationalMaterializerFactory
             shaper = convert.Operand;
         }
 
-        // Build the entity materializer. For split queries, the entity materializer handles the
-        // main query result (entity + reference includes) but NOT collection includes — those are
-        // handled by separate relatedDataLoaders.
         var splitCollectionInfos = new List<SplitCollectionIncludeInfo>();
         var nextCollectionId = 0;
         var entityMaterializer = BuildSplitEntityMaterializer(
             shaper, select, isTracking, queryCompilationContext.QueryTrackingBehavior,
             splitCollectionInfos, ref nextCollectionId);
+        var recomposesSplitCollectionTerminal = SplitCollectionTerminalDetector.ContainsTerminal(shaper);
 
         // Build the shaper delegate that wraps the entity materializer.
         // When there are collections (relatedDataLoaders non-null), the shaper is called twice per row:
@@ -81,7 +79,7 @@ public partial class RelationalMaterializerFactory
             {
                 if (rc.Values is null)
                 {
-                    var entity = entityMaterializer(queryCtx, reader);
+                    var entity = entityMaterializer(queryCtx, reader, true);
                     rc.Values = [entity!];
 
                     for (var i = 0; i < splitCollectionInfos.Count; i++)
@@ -98,12 +96,14 @@ public partial class RelationalMaterializerFactory
                     return default!;
                 }
 
-                return (TElement)rc.Values[0];
+                return recomposesSplitCollectionTerminal
+                    ? (TElement)entityMaterializer(queryCtx, reader, false)!
+                    : (TElement)rc.Values[0];
             };
         }
         else
         {
-            splitShaper = (queryCtx, reader, rc, coord) => (TElement?)entityMaterializer(queryCtx, reader);
+            splitShaper = (queryCtx, reader, rc, coord) => (TElement?)entityMaterializer(queryCtx, reader, true);
         }
 
         // Build relatedDataLoaders: for each split collection, execute a separate query and populate.
@@ -143,7 +143,7 @@ public partial class RelationalMaterializerFactory
     ///     and reference includes from a single row. Collection includes are collected into
     ///     <paramref name="splitCollectionInfos" /> for separate loading.
     /// </summary>
-    private Func<QueryContext, DbDataReader, object?> BuildSplitEntityMaterializer(
+    private Func<QueryContext, DbDataReader, bool, object?> BuildSplitEntityMaterializer(
         Expression shaperExpression,
         SelectExpression select,
         bool isTracking,
@@ -162,13 +162,19 @@ public partial class RelationalMaterializerFactory
             var entityMaterializer = BuildMaterializerFromShaper(
                 shaperExpression, select, isTracking, queryTrackingBehavior, splitCollectionInfos, ref nextCollectionId);
 
-            var resultContext = new ResultContext();
-            var dummyCoordinator = new SingleQueryResultCoordinator();
+            var materializerState = new AsyncLocal<SplitEntityMaterializerState?>();
 
-            return (queryCtx, reader) =>
+            return (queryCtx, reader, initializing) =>
             {
-                resultContext.Values = null;
-                return entityMaterializer.Materialize(queryCtx, reader, resultContext, dummyCoordinator);
+                var currentState = materializerState.Value ??= new SplitEntityMaterializerState();
+
+                if (initializing)
+                {
+                    currentState.ResultContext.Values = null;
+                }
+
+                currentState.Coordinator.ResultReady = true;
+                return entityMaterializer.Materialize(queryCtx, reader, currentState.ResultContext, currentState.Coordinator);
             };
         }
 
@@ -177,7 +183,7 @@ public partial class RelationalMaterializerFactory
         if (shaperExpression is NewExpression newExpression)
         {
             var invoker = ConstructorInvoker.Create(newExpression.Constructor!);
-            var argMaterializers = new Func<QueryContext, DbDataReader, object?>[newExpression.Arguments.Count];
+            var argMaterializers = new Func<QueryContext, DbDataReader, bool, object?>[newExpression.Arguments.Count];
             var argSplitStartIndices = new int[newExpression.Arguments.Count];
 
             for (var i = 0; i < newExpression.Arguments.Count; i++)
@@ -189,7 +195,7 @@ public partial class RelationalMaterializerFactory
             }
 
             // Set ParentEntityProvider on each split collection to read from its arg materializer's result.
-            var argResults = new object?[newExpression.Arguments.Count];
+            var currentArgResults = new AsyncLocal<object?[]?>();
 
             for (var i = 0; i < newExpression.Arguments.Count; i++)
             {
@@ -199,17 +205,18 @@ public partial class RelationalMaterializerFactory
 
                 for (var j = startIndex; j < endIndex; j++)
                 {
-                    splitCollectionInfos[j].ParentEntityProvider ??= () => argResults[argIndex];
+                    splitCollectionInfos[j].ParentEntityProvider ??= () => currentArgResults.Value?[argIndex];
                 }
             }
 
-            var invokerArgs = new object?[newExpression.Arguments.Count];
-
-            return (queryCtx, reader) =>
+            return (queryCtx, reader, initializing) =>
             {
+                var argResults = currentArgResults.Value ??= new object?[newExpression.Arguments.Count];
+                var invokerArgs = new object?[newExpression.Arguments.Count];
+
                 for (var i = 0; i < argMaterializers.Length; i++)
                 {
-                    argResults[i] = argMaterializers[i](queryCtx, reader);
+                    argResults[i] = argMaterializers[i](queryCtx, reader, initializing);
                     invokerArgs[i] = argResults[i];
                 }
 
@@ -220,15 +227,52 @@ public partial class RelationalMaterializerFactory
         // For other shaper types (scalars, method calls, etc.)
         var materializer = BuildMaterializer<object>(
             shaperExpression, select, isTracking, queryTrackingBehavior, ref nextCollectionId, splitCollectionInfos);
-        var rc = new ResultContext();
-        var coord = new SingleQueryResultCoordinator();
+        var fallbackState = new AsyncLocal<SplitEntityMaterializerState?>();
 
-        return (queryCtx, reader) =>
+        return (queryCtx, reader, initializing) =>
         {
-            rc.Values = null;
-            coord.ResultReady = true;
-            return materializer(queryCtx, reader, rc, coord);
+            var currentState = fallbackState.Value ??= new SplitEntityMaterializerState();
+
+            if (initializing)
+            {
+                currentState.ResultContext.Values = null;
+            }
+
+            currentState.Coordinator.ResultReady = true;
+            return materializer(queryCtx, reader, currentState.ResultContext, currentState.Coordinator);
         };
+    }
+
+    private sealed class SplitEntityMaterializerState
+    {
+        public ResultContext ResultContext { get; } = new();
+
+        public SingleQueryResultCoordinator Coordinator { get; } = new();
+    }
+
+    private sealed class SplitCollectionTerminalDetector : ExpressionVisitor
+    {
+        private bool _containsTerminal;
+
+        public static bool ContainsTerminal(Expression expression)
+        {
+            var visitor = new SplitCollectionTerminalDetector();
+            visitor.Visit(expression);
+
+            return visitor._containsTerminal;
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            if (TryGetCollectionTerminalSource(node, out var source, out _)
+                && source is RelationalSplitCollectionShaperExpression)
+            {
+                _containsTerminal = true;
+                return node;
+            }
+
+            return base.VisitMethodCall(node);
+        }
     }
 
     #region Split query collection population
