@@ -598,8 +598,6 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/291 (Session tokens not properly tracked)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public class CosmosNonSharedSessionTokenTests(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     {
         protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -609,7 +607,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         protected override TestStore CreateTestStore() => CosmosTestStore.Create(NonSharedStoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
 
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/322
         [ConditionalFact]
+        [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
         public virtual async Task UseSessionTokens_uses_session_tokens()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -653,7 +653,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Null(result);
         }
 
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/322
         [ConditionalFact]
+        [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
         public virtual async Task Read_item_session_not_found_throws_CosmosException()
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
@@ -740,7 +742,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.True(_sessionTokenStorage.ClearCalled);
         }
 
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/319
         [ConditionalTheory]
+        [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
         [InlineData(AutoTransactionBehavior.Never)]
         [InlineData(AutoTransactionBehavior.Always)]
         public virtual async Task Optimistic_concurrency_precondition_failure_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
