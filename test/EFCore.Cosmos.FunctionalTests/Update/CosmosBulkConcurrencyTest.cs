@@ -5,12 +5,12 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class CosmosBulkConcurrencyTest(CosmosBulkConcurrencyTest.ConcurrencyFixture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<CosmosBulkConcurrencyTest.ConcurrencyFixture>
 {
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/319
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         => base.Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException();
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/319
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         => base.Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException();
