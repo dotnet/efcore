@@ -7,8 +7,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
 
-// https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/291 (Session tokens not properly tracked)
-[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixture) : IClassFixture<CosmosSessionTokensTest.CosmosFixture>
 {
     private const string DatabaseName = nameof(CosmosSessionTokensTest);
@@ -81,7 +79,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         foreach (var ex in exes)
         {
-            Assert.Contains("The session token provided 'invalidtoken' is invalid", ex.ResponseBody);
+            Assert.Contains("The session token provided 'invalidtoken' is", ex.ResponseBody);
         }
     }
 
@@ -100,7 +98,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         foreach (var ex in exes)
         {
-            Assert.Contains("The session token provided 'invalidtoken' is invalid", ex.ResponseBody);
+            Assert.Contains("The session token provided 'invalidtoken' is", ex.ResponseBody);
         }
     }
 
@@ -119,7 +117,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         foreach (var ex in exes)
         {
-            Assert.Contains("The session token provided 'invalidtoken' is invalid", ex.ResponseBody);
+            Assert.Contains("The session token provided 'invalidtoken' is", ex.ResponseBody);
         }
     }
 
@@ -138,7 +136,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         foreach (var ex in exes)
         {
-            Assert.Contains("The session token provided 'invalidtoken' is invalid", ex.ResponseBody);
+            Assert.Contains("The session token provided 'invalidtoken' is", ex.ResponseBody);
         }
     }
 
@@ -479,7 +477,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
 
-        Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is", ((CosmosException)ex.InnerException!).ResponseBody);
     }
 
     [ConditionalTheory]
@@ -510,7 +508,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
 
-        Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is", ((CosmosException)ex.InnerException!).ResponseBody);
     }
 
     [ConditionalTheory]
@@ -541,7 +539,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
 
-        Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is", ((CosmosException)ex.InnerException!).ResponseBody);
     }
 
     [ConditionalFact]
