@@ -49,44 +49,37 @@ public class SqliteSqlTranslatingExpressionVisitor(
                 typeof(DateOnly),
                 typeof(DateTime),
                 typeof(DateTimeOffset),
-                typeof(TimeOnly),
-                typeof(TimeSpan)
+                typeof(TimeOnly)
             },
             [ExpressionType.Divide] = new HashSet<Type>
             {
                 typeof(TimeOnly),
-                typeof(TimeSpan),
                 typeof(ulong)
             },
             [ExpressionType.GreaterThan] = new HashSet<Type>
             {
                 typeof(DateTimeOffset),
-                typeof(TimeSpan),
                 typeof(ulong)
             },
             [ExpressionType.GreaterThanOrEqual] = new HashSet<Type>
             {
                 typeof(DateTimeOffset),
-                typeof(TimeSpan),
                 typeof(ulong)
             },
             [ExpressionType.LessThan] = new HashSet<Type>
             {
                 typeof(DateTimeOffset),
-                typeof(TimeSpan),
                 typeof(ulong)
             },
             [ExpressionType.LessThanOrEqual] = new HashSet<Type>
             {
                 typeof(DateTimeOffset),
-                typeof(TimeSpan),
                 typeof(ulong)
             },
             [ExpressionType.Modulo] = new HashSet<Type> { typeof(ulong) },
             [ExpressionType.Multiply] = new HashSet<Type>
             {
                 typeof(TimeOnly),
-                typeof(TimeSpan),
                 typeof(ulong)
             },
             [ExpressionType.Subtract] = new HashSet<Type>
@@ -94,8 +87,7 @@ public class SqliteSqlTranslatingExpressionVisitor(
                 typeof(DateOnly),
                 typeof(DateTime),
                 typeof(DateTimeOffset),
-                typeof(TimeOnly),
-                typeof(TimeSpan)
+                typeof(TimeOnly)
             }
         };
 
@@ -128,8 +120,12 @@ public class SqliteSqlTranslatingExpressionVisitor(
                     [true],
                     translation.Type),
 
-                var t when t == typeof(TimeOnly) || t == typeof(TimeSpan)
+                var t when t == typeof(TimeOnly)
                     => QueryCompilationContext.NotTranslatedExpression,
+
+                var t when t == typeof(TimeSpan)
+                    && _sqlExpressionFactory is SqliteSqlExpressionFactory sqliteFactory
+                    => sqliteFactory.EfTimespan(Dependencies.SqlExpressionFactory.Negate(sqliteFactory.EfDays(sqlUnary.Operand))),
 
                 _ => translation
             };
@@ -191,6 +187,11 @@ public class SqliteSqlTranslatingExpressionVisitor(
                 case { } when AttemptDecimalArithmetic(sqlBinary):
                     return DoDecimalArithmetics(translation, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
 
+                case { } when _sqlExpressionFactory is SqliteSqlExpressionFactory sqliteFactory
+                    && TryTranslateTimeSpanDateTimeBinary(sqlBinary, sqliteFactory, out var timeSpanDateTimeResult)
+                    && timeSpanDateTimeResult != null:
+                    return timeSpanDateTimeResult;
+
                 case { }
                     when RestrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
                         && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
@@ -202,6 +203,145 @@ public class SqliteSqlTranslatingExpressionVisitor(
         }
 
         return translation;
+    }
+
+    private static bool TryTranslateTimeSpanDateTimeBinary(
+        SqlBinaryExpression sqlBinary,
+        SqliteSqlExpressionFactory sqliteFactory,
+        out SqlExpression? result)
+    {
+        result = null;
+        var leftType = GetProviderType(sqlBinary.Left);
+        var rightType = GetProviderType(sqlBinary.Right);
+        var operatorType = sqlBinary.OperatorType;
+
+        if (leftType == typeof(TimeSpan) && rightType == typeof(TimeSpan))
+        {
+            var leftDays = sqliteFactory.EfDays(sqlBinary.Left);
+            var rightDays = sqliteFactory.EfDays(sqlBinary.Right);
+            switch (operatorType)
+            {
+                case ExpressionType.Add:
+                    result = sqliteFactory.EfTimespan(
+                        sqliteFactory.Add(leftDays, rightDays));
+                    return true;
+                case ExpressionType.Subtract:
+                    result = sqliteFactory.EfTimespan(
+                        sqliteFactory.Subtract(leftDays, rightDays));
+                    return true;
+                case ExpressionType.Divide:
+                    result = sqliteFactory.Divide(leftDays, rightDays);
+                    return true;
+                case ExpressionType.GreaterThan:
+                    result = sqliteFactory.GreaterThan(leftDays, rightDays);
+                    return true;
+                case ExpressionType.GreaterThanOrEqual:
+                    result = sqliteFactory.GreaterThanOrEqual(leftDays, rightDays);
+                    return true;
+                case ExpressionType.LessThan:
+                    result = sqliteFactory.LessThan(leftDays, rightDays);
+                    return true;
+                case ExpressionType.LessThanOrEqual:
+                    result = sqliteFactory.LessThanOrEqual(leftDays, rightDays);
+                    return true;
+            }
+        }
+
+        if (operatorType == ExpressionType.Divide && leftType == typeof(TimeSpan) && (rightType == typeof(double) || rightType == typeof(float)))
+        {
+            result = sqliteFactory.EfTimespan(
+                sqliteFactory.Divide(sqliteFactory.EfDays(sqlBinary.Left), sqlBinary.Right));
+            return true;
+        }
+
+        if (operatorType == ExpressionType.Multiply)
+        {
+            if ((leftType == typeof(double) || leftType == typeof(float)) && rightType == typeof(TimeSpan))
+            {
+                result = sqliteFactory.EfTimespan(
+                    sqliteFactory.Multiply(sqlBinary.Left, sqliteFactory.EfDays(sqlBinary.Right)));
+                return true;
+            }
+            if (leftType == typeof(TimeSpan) && (rightType == typeof(double) || rightType == typeof(float)))
+            {
+                result = sqliteFactory.EfTimespan(
+                    sqliteFactory.Multiply(sqliteFactory.EfDays(sqlBinary.Left), sqlBinary.Right));
+                return true;
+            }
+        }
+
+        if (leftType == typeof(DateTime) && rightType == typeof(TimeSpan))
+        {
+            if (operatorType == ExpressionType.Add)
+            {
+                var juliandayLeft = sqliteFactory.Function(
+                    "julianday",
+                    [sqlBinary.Left],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    typeof(double));
+                var sumDays = sqliteFactory.Add(juliandayLeft, sqliteFactory.EfDays(sqlBinary.Right));
+                result = MakeDateTimeFromJulianDay(sqliteFactory, sumDays);
+                return true;
+            }
+            if (operatorType == ExpressionType.Subtract)
+            {
+                var juliandayLeft = sqliteFactory.Function(
+                    "julianday",
+                    [sqlBinary.Left],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    typeof(double));
+                var diffDays = sqliteFactory.Subtract(juliandayLeft, sqliteFactory.EfDays(sqlBinary.Right));
+                result = MakeDateTimeFromJulianDay(sqliteFactory, diffDays);
+                return true;
+            }
+        }
+
+        if (leftType == typeof(DateTime) && rightType == typeof(DateTime) && operatorType == ExpressionType.Subtract)
+        {
+            var juliandayLeft = sqliteFactory.Function(
+                "julianday",
+                [sqlBinary.Left],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
+                typeof(double));
+            var juliandayRight = sqliteFactory.Function(
+                "julianday",
+                [sqlBinary.Right],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
+                typeof(double));
+            result = sqliteFactory.EfTimespan(sqliteFactory.Subtract(juliandayLeft, juliandayRight));
+            return true;
+        }
+
+        return false;
+    }
+
+    private static SqlExpression MakeDateTimeFromJulianDay(SqliteSqlExpressionFactory sqliteFactory, SqlExpression julianDayExpression)
+    {
+        var strftimeResult = sqliteFactory.Strftime(
+            typeof(DateTime),
+            "%Y-%m-%d %H:%M:%f",
+            julianDayExpression);
+        return sqliteFactory.Function(
+            "rtrim",
+            [
+                sqliteFactory.Function(
+                    "rtrim",
+                    [
+                        strftimeResult,
+                        sqliteFactory.Constant("0")
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueFalse,
+                    typeof(DateTime)),
+                sqliteFactory.Constant(".")
+            ],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueFalse,
+            typeof(DateTime));
     }
 
     /// <inheritdoc />
