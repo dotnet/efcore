@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<NavigationTestFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public void Duplicate_entries_are_not_created_for_navigations_to_principal()
     {
         using var context = _fixture.CreateContext();
@@ -32,7 +32,7 @@ public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<Navig
             entityType.GetForeignKeys().Skip(1).First().ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Duplicate_entries_are_not_created_for_navigations_to_dependent()
     {
         using var context = _fixture.CreateContext();
@@ -88,7 +88,7 @@ public class NavigationTestFixture
             .AddEntityFrameworkSqlServer()
             .BuildServiceProvider(validateScopes: true);
 
-        var connStrBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
+        var connStrBuilder = new SqlConnectionStringBuilder(SqlServerTestEnvironment.DefaultConnection)
         {
             InitialCatalog = "StateManagerBug",
             MultipleActiveResultSets = true,

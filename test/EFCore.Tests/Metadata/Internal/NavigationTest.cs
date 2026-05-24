@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class NavigationTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_create_navigation()
     {
         var foreignKey = CreateForeignKey();
@@ -17,7 +17,7 @@ public class NavigationTest
         Assert.Same(foreignKey.DeclaringEntityType, navigation.DeclaringEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_navigations_to_keyless_types()
     {
         IMutableModel model = new Model();

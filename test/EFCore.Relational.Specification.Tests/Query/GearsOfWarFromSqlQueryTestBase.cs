@@ -13,7 +13,7 @@ public abstract class GearsOfWarFromSqlQueryTestBase<TFixture>(TFixture fixture)
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void From_sql_queryable_simple_columns_out_of_order()
     {
         using var context = CreateContext();

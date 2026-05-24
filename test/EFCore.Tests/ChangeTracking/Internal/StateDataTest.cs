@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class StateDataTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_modification_flags()
     {
         for (var i = 0; i < 70; i++)
@@ -22,7 +22,7 @@ public class StateDataTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_null_flags()
     {
         for (var i = 0; i < 70; i++)
@@ -39,7 +39,7 @@ public class StateDataTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_not_set_flags()
     {
         for (var i = 0; i < 70; i++)
@@ -56,7 +56,7 @@ public class StateDataTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_is_loaded_flags()
     {
         for (var i = 0; i < 70; i++)
@@ -73,7 +73,7 @@ public class StateDataTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_temporary_flags()
     {
         for (var i = 0; i < 70; i++)
@@ -90,7 +90,7 @@ public class StateDataTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_store_generated_flags()
     {
         for (var i = 0; i < 70; i++)
@@ -107,7 +107,7 @@ public class StateDataTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_is_property_loaded_flags()
     {
         for (var i = 0; i < 70; i++)
@@ -246,7 +246,7 @@ public class StateDataTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_EntityState()
     {
         var data = new InternalEntryBase.StateData(70, 0);

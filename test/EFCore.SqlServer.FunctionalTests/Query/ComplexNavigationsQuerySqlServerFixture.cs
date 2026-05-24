@@ -11,5 +11,5 @@ public class ComplexNavigationsQuerySqlServerFixture : ComplexNavigationsQueryRe
         => SqlServerTestStoreFactory.Instance;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
+        => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 }

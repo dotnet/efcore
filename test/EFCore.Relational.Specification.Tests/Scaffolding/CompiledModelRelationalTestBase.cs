@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task BigModel_with_JSON_columns()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
@@ -529,7 +529,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task ComplexTypes()
         => Test(
             BuildComplexTypesModel,
@@ -685,7 +685,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         Assert.Same(dependentJsonColumn, dependentTableIndex.Columns.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Tpc_Sprocs()
         => Test(
             BuildTpcSprocsModel,
@@ -1071,7 +1071,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             model.GetEntityTypes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sequences()
         => Test(
             modelBuilder =>
@@ -1096,7 +1096,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.NotNull(longSequence.ToString());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task CheckConstraints()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -1116,7 +1116,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     Assert.Throws<InvalidOperationException>(() => dataEntity.GetCheckConstraints()).Message);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Triggers()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -1137,7 +1137,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.Equal(2, dataEntity.GetDeclaredTriggers().Count());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>
@@ -1358,7 +1358,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Custom_function_type_mapping()
         => Test<FunctionTypeMappingContext>(
             assertModel: model =>
@@ -1384,7 +1384,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Custom_function_parameter_type_mapping()
         => Test<FunctionParameterTypeMappingContext>(
             assertModel: model =>
@@ -1411,7 +1411,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Throws_for_custom_function_translation()
         => Test<FunctionTranslationContext>(
             expectedExceptionMessage: RelationalStrings.CompiledModelFunctionTranslation("GetSqlFragmentStatic"));
@@ -1430,7 +1430,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Dynamic_schema()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>

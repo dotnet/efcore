@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalNavigationBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_HasField()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -43,7 +43,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_HasField_string()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -79,7 +79,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_PropertyAccessMode()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -118,7 +118,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetPropertyAccessModeConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_IsEagerLoaded()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -154,7 +154,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetIsEagerLoadedConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_LazyLoadingEnabled()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -190,7 +190,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetLazyLoadingEnabledConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Configuring_IsRequired_on_to_dependent_nonUnique_throws()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -200,7 +200,7 @@ public class InternalNavigationBuilderTest
             Assert.Throws<InvalidOperationException>(() => builder.IsRequired(true, ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_IsRequired_on_to_principal_nonUnique()
     {
         var builder = CreateInternalNavigationBuilder()
@@ -212,7 +212,7 @@ public class InternalNavigationBuilderTest
         Assert.True(builder.Metadata.ForeignKey.IsRequired);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_IsRequired_on_to_dependent_unique()
     {
         var foreignKey = CreateInternalNavigationBuilder()
@@ -226,7 +226,7 @@ public class InternalNavigationBuilderTest
         Assert.True(foreignKey.IsRequiredDependent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_IsRequired_on_to_principal_unique()
     {
         var foreignKey = CreateInternalNavigationBuilder()

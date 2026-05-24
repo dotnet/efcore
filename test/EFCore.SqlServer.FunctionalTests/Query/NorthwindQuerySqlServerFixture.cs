@@ -14,7 +14,7 @@ public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRe
         => SqlServerNorthwindTestStoreFactory.Instance;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
+        => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

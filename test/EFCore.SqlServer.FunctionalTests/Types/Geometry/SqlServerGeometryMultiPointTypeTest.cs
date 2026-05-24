@@ -2,8 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite.Geometries;
-
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geometry;
 
@@ -178,10 +177,14 @@ FROM [JsonTypeEntity] AS [j]
     }
 
     // TODO: Currently failing on Helix only, see #36746
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    [SkipOnHelixCondition]
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
+        }
+
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
         if (Fixture.UsingJsonType)
@@ -222,7 +225,7 @@ FROM [JsonTypeEntity] AS [j]
         ]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

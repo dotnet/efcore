@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -19,7 +19,7 @@ public class NorthwindSplitIncludeQuerySqlServerTest : NorthwindSplitIncludeQuer
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -229,7 +229,7 @@ ORDER BY [o].[OrderID]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ToQueryString_for_include_reference_and_collection()
     {
         using var context = CreateContext();
@@ -2331,7 +2331,7 @@ ORDER BY [c0].[CustomerID], [o3].[OrderID]
     {
         await base.Multi_level_includes_are_applied_with_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -2431,7 +2431,7 @@ ORDER BY [c1].[CustomerID], [o3].[OrderID]
     {
         await base.Multi_level_includes_are_applied_with_skip_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """

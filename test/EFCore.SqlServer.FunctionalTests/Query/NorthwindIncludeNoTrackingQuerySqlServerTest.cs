@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -12,7 +12,7 @@ public class NorthwindIncludeNoTrackingQuerySqlServerTest : NorthwindIncludeNoTr
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -771,7 +771,7 @@ ORDER BY [c0].[ContactName], [c0].[CustomerID]
     {
         await base.Multi_level_includes_are_applied_with_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -1376,7 +1376,7 @@ ORDER BY [c].[CustomerID]
     {
         await base.Multi_level_includes_are_applied_with_skip_take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
@@ -9,7 +9,7 @@ public class TimeSpanConvertersTest
 {
     private static readonly TimeSpanToStringConverter _timeSpanToString = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_string()
     {
         var converter = _timeSpanToString.ConvertToProviderExpression.Compile();
@@ -21,7 +21,7 @@ public class TimeSpanConvertersTest
         Assert.Equal("00:00:00", converter(new TimeSpan()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_TimeSpan()
     {
         var converter = _timeSpanToString.ConvertFromProviderExpression.Compile();
@@ -36,7 +36,7 @@ public class TimeSpanConvertersTest
         Assert.Throws<FormatException>(() => converter("Not a timespan"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_string_object()
     {
         var converter = _timeSpanToString.ConvertToProvider;
@@ -50,7 +50,7 @@ public class TimeSpanConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_TimeSpan_object()
     {
         var converter = _timeSpanToString.ConvertFromProvider;
@@ -67,7 +67,7 @@ public class TimeSpanConvertersTest
 
     private static readonly TimeSpanToTicksConverter _timeSpanToTicks = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_ticks()
     {
         var converter = _timeSpanToTicks.ConvertToProviderExpression.Compile();
@@ -76,7 +76,7 @@ public class TimeSpanConvertersTest
         Assert.Equal(0, converter(new TimeSpan()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ticks_to_TimeSpan()
     {
         var converter = _timeSpanToTicks.ConvertFromProviderExpression.Compile();
@@ -85,7 +85,7 @@ public class TimeSpanConvertersTest
         Assert.Equal(new TimeSpan(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_ticks_object()
     {
         var converter = _timeSpanToTicks.ConvertToProvider;
@@ -95,7 +95,7 @@ public class TimeSpanConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ticks_to_TimeSpan_object()
     {
         var converter = _timeSpanToTicks.ConvertFromProvider;
@@ -109,7 +109,7 @@ public class TimeSpanConvertersTest
         = (CompositeValueConverter<TimeSpan, long, uint>)new TimeSpanToTicksConverter().ComposeWith(
             new CastingConverter<long, uint>());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_int_ticks()
     {
         var converter = _timeSpanToIntTicks.ConvertToProviderExpression.Compile();
@@ -118,7 +118,7 @@ public class TimeSpanConvertersTest
         Assert.Equal((uint)0, converter(new TimeSpan()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_int_ticks_to_TimeSpan()
     {
         var converter = _timeSpanToIntTicks.ConvertFromProviderExpression.Compile();
@@ -127,7 +127,7 @@ public class TimeSpanConvertersTest
         Assert.Equal(new TimeSpan(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_int_ticks_object()
     {
         var converter = _timeSpanToIntTicks.ConvertToProvider;
@@ -137,7 +137,7 @@ public class TimeSpanConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_int_ticks_to_TimeSpan_object()
     {
         var converter = _timeSpanToIntTicks.ConvertFromProvider;

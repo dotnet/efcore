@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ModelTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Model_throws_when_readonly()
     {
         var model = CreateModel();
@@ -48,11 +48,11 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => ((Model)model).SkipDetectChanges = false).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Snapshot_change_tracking_is_used_by_default()
         => Assert.Equal(ChangeTrackingStrategy.Snapshot, CreateModel().GetChangeTrackingStrategy());
 
-    [ConditionalFact]
+    [Fact]
     public void Change_tracking_strategy_can_be_changed()
     {
         var model = CreateModel();
@@ -63,7 +63,7 @@ public class ModelTest
         Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, model.GetChangeTrackingStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_entity_by_type()
     {
         var model = CreateModel();
@@ -88,7 +88,7 @@ public class ModelTest
         Assert.False(((EntityType)entityType).IsInModel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_entity_by_name()
     {
         var model = CreateModel();
@@ -114,7 +114,7 @@ public class ModelTest
         Assert.False(((EntityType)entityType).IsInModel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_shared_entity()
     {
         var model = CreateModel();
@@ -142,7 +142,7 @@ public class ModelTest
         Assert.False(((EntityType)entityType).IsInModel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_a_shared_entity_with_same_name_throws()
     {
         var model = CreateModel();
@@ -153,7 +153,7 @@ public class ModelTest
                 => model.AddEntityType(typeof(Customer).DisplayName(), typeof(Customer))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_remove_entity_type_when_referenced_by_foreign_key()
     {
         var model = CreateModel();
@@ -173,7 +173,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_remove_entity_type_when_it_has_derived_types()
     {
         var model = CreateModel();
@@ -187,7 +187,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Using_invalid_entity_type_throws()
     {
         var model = CreateModel();
@@ -197,7 +197,7 @@ public class ModelTest
             Assert.Throws<ArgumentException>(() => model.AddEntityType(typeof(IReadOnlyList<int>))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_entity_by_type_throws()
     {
         var model = CreateModel();
@@ -210,7 +210,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_entity_by_name_throws()
     {
         var model = CreateModel();
@@ -223,7 +223,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_shared_type_throws()
     {
         var model = (Model)CreateModel();
@@ -236,7 +236,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.AddShared(typeof(Customer), ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_entity_by_type()
     {
         var model = CreateModel();
@@ -248,7 +248,7 @@ public class ModelTest
         Assert.Null(model.FindEntityType(typeof(IList<>).GetGenericArguments().Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_entity_by_name()
     {
         var model = CreateModel();
@@ -259,7 +259,7 @@ public class ModelTest
         Assert.Null(model.FindEntityType(typeof(string)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entities_are_ordered_by_name()
     {
         var model = CreateModel();
@@ -269,7 +269,7 @@ public class ModelTest
         Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.GetEntityTypes()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_referencing_foreign_keys()
     {
         var model = CreateModel();

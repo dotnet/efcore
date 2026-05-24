@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class PropertyListComparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Distinguishes_properties_with_same_name_in_different_complex_types()
     {
         var model = new Model();
@@ -37,7 +37,7 @@ public class PropertyListComparerTest
             PropertyListComparer.Instance.GetHashCode(new IReadOnlyPropertyBase[] { homeCity }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Allows_index_with_same_property_names_through_different_complex_paths()
     {
         var model = new Model();
@@ -61,7 +61,7 @@ public class PropertyListComparerTest
         Assert.Same(workIndex, entityType.FindIndex([workCity]));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Distinguishes_properties_with_same_name_through_nested_complex_paths()
     {
         var model = new Model();
@@ -92,7 +92,7 @@ public class PropertyListComparerTest
             PropertyListComparer.Instance.GetHashCode(newList));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyNameComparer_orders_keys_with_same_name_in_different_complex_types_independently()
     {
         var model = new Model();

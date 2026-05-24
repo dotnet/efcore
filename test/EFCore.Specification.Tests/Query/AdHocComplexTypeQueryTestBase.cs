@@ -9,7 +9,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 {
     #region 33449
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
         var contextFactory = await InitializeNonSharedTest<Context33449>(
@@ -83,7 +83,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region 34749
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_complex_property_does_not_auto_include_owned_types()
     {
         var contextFactory = await InitializeNonSharedTest<Context34749>();
@@ -128,7 +128,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region ShadowDiscriminator
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_complex_type_with_discriminator()
     {
         var contextFactory = await InitializeNonSharedTest<ContextShadowDiscriminator>(
@@ -198,7 +198,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region 37162
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Non_optional_complex_type_with_all_nullable_properties()
     {
         var contextFactory = await InitializeNonSharedTest<Context37162>(
@@ -251,7 +251,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region 37304
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
     {
         var contextFactory = await InitializeNonSharedTest<Context37304>(
@@ -327,7 +327,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     private const string Issue37337CreatedByShadowPropertyName = "CreatedBy";
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nullable_complex_type_with_discriminator_and_shadow_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context37337>(
@@ -391,7 +391,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region Issue38119
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
     {
         var contextFactory = await InitializeNonSharedTest<Context38119>(
@@ -418,7 +418,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
     {
         var contextFactory = await InitializeNonSharedTest<Context38119>(
@@ -449,7 +449,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
     {
         var contextFactory = await InitializeNonSharedTest<Context38119>(
@@ -482,7 +482,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nullable_complex_type_with_discriminator_set_to_different_value()
     {
         var contextFactory = await InitializeNonSharedTest<Context38119>();
@@ -514,7 +514,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nullable_complex_type_with_discriminator_set_to_null()
     {
         var contextFactory = await InitializeNonSharedTest<Context38119>();
@@ -545,7 +545,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
     {
         var contextFactory = await InitializeNonSharedTest<Context38119Nested>(
@@ -641,7 +641,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region Issue38105
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
     {
         var contextFactory = await InitializeNonSharedTest<Context37337>(
@@ -694,7 +694,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region Issue31246
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_by_complex_type_property_with_index()
     {
         var contextFactory = await InitializeNonSharedTest<Context31246>(
@@ -725,7 +725,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         Assert.Equal("98101", found.Address.PostalCode);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_update_entity_with_index_on_complex_type_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context31246>(
@@ -750,7 +750,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_delete_entity_with_index_on_complex_type_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context31246>(
@@ -774,7 +774,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_by_alternate_key_on_complex_type_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context31246>(
@@ -792,7 +792,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         Assert.Equal(new Context31246.StronglyTypedId(2), found.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context31246>(

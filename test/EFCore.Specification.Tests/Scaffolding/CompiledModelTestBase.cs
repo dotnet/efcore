@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public abstract class CompiledModelTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task SimpleModel()
         => Test(
             modelBuilder =>
@@ -75,11 +75,11 @@ namespace TestNamespace
                 Assert.NotNull(model);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task No_NativeAOT()
         => BigModel(false);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task BigModel()
         => BigModel(true);
 
@@ -1144,7 +1144,7 @@ namespace TestNamespace
         Assert.Equal(types.NullIntToNullStringConverterProperty, otherTypes.NullIntToNullStringConverterProperty);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task ComplexTypes()
         => Test(
             BuildComplexTypesModel,
@@ -1175,7 +1175,7 @@ namespace TestNamespace
             },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Throws_for_Backing_Field_Not_Found()
         => Test(
             modelBuilder =>

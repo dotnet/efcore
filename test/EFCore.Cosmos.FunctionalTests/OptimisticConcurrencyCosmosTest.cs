@@ -120,9 +120,9 @@ public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
             => Task.CompletedTask;
     }
 
-    public Task InitializeAsync()
-        => Fixture.ReseedAsync();
+    public async ValueTask InitializeAsync()
+        => await Fixture.ReseedAsync();
 
-    public Task DisposeAsync()
-        => Task.CompletedTask;
+    public ValueTask DisposeAsync()
+        => ValueTask.CompletedTask;
 }

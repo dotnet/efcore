@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -6,14 +6,14 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
 public class JsonUpdateJsonTypeSqlServerTest : JsonUpdateTestBase<JsonUpdateJsonTypeSqlServerFixture>
 {
     public JsonUpdateJsonTypeSqlServerTest(JsonUpdateJsonTypeSqlServerFixture fixture)
         : base(fixture)
         => ClearLog();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1463,7 +1463,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Edit_single_property_with_converter_string_True_False_to_bool()
     {
         await base.Edit_single_property_with_converter_string_True_False_to_bool();
@@ -1487,7 +1487,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Edit_single_property_with_converter_string_Y_N_to_bool()
     {
         await base.Edit_single_property_with_converter_string_Y_N_to_bool();
@@ -1582,7 +1582,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact(Skip = "TODO:SQLJSON Hangs (See InsertsHang.cs")]
+    [Fact(Skip = "TODO:SQLJSON Hangs (See InsertsHang.cs")]
     public override async Task Edit_single_property_collection_of_char()
     {
         await base.Edit_single_property_collection_of_char();
@@ -2702,7 +2702,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact(Skip = "TODO:SQLJSON Investigate")]
+    [Fact(Skip = "TODO:SQLJSON Investigate")]
     public override async Task Edit_single_property_relational_collection_of_char()
     {
         await base.Edit_single_property_relational_collection_of_char();

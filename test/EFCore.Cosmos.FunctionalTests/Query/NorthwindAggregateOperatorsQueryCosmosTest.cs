@@ -5,8 +5,6 @@ using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -23,7 +21,7 @@ public class NorthwindAggregateOperatorsQueryCosmosTest
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1450,7 +1448,8 @@ FROM root c
 """);
             });
 
-    [SkipOnCiCondition(SkipReason = "Fails on CI #27688")]
+    // Tracked in #27688
+    [Theory, SkipOnCI("Test does not run on CI")]
     public override Task Distinct_Scalar(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1464,7 +1463,7 @@ FROM root c
 """);
             });
 
-    [ConditionalTheory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
+    [Theory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
     public override Task OrderBy_Distinct(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2612,11 +2611,12 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
             });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Where_subquery_where_any(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_any(a);
 
                 AssertSql(
@@ -2684,11 +2684,12 @@ WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
             });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Where_subquery_where_all(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_all(a);
 
                 AssertSql(
@@ -3071,7 +3072,7 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    [ConditionalTheory(Skip = "Issue #20677")]
+    [Theory(Skip = "Issue #20677")]
     public override async Task Type_casting_inside_sum(bool async)
     {
         await base.Type_casting_inside_sum(async);

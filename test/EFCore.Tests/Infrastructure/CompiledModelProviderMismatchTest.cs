@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class CompiledModelProviderMismatchTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Compiled_model_with_mismatched_provider_is_skipped_and_warning_is_logged()
     {
         var serviceProvider = new ServiceCollection()
@@ -45,7 +45,7 @@ public class CompiledModelProviderMismatchTest
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Compiled_model_with_matching_provider_is_used_when_multiple_attributes_exist()
     {
         var serviceProvider = new ServiceCollection()

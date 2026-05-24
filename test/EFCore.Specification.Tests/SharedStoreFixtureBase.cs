@@ -44,7 +44,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
 
     private MethodInfo? _createDbContext;
 
-    public virtual async Task InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
         _testStore = RecreateStore ? TestStoreFactory.Create(StoreName) : TestStoreFactory.GetOrCreate(StoreName);
 
@@ -113,6 +113,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
         return Task.CompletedTask;
     }
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }

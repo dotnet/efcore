@@ -36,7 +36,7 @@ public class ByteArrayTranslationsCosmosTest : ByteArrayTranslationsTestBase<Bas
     public override Task SequenceEqual()
         => AssertTranslationFailed(() => base.SequenceEqual());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

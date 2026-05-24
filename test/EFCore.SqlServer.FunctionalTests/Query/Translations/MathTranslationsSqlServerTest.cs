@@ -523,7 +523,7 @@ FROM [BasicTypesEntities] AS [b]
 
     public override async Task Max()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.Max();
 
@@ -542,7 +542,7 @@ WHERE GREATEST([b].[Int], [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
 
     public override async Task Max_nested()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.Max_nested();
 
@@ -561,7 +561,7 @@ WHERE GREATEST([b].[Short] - CAST(3 AS smallint), [b].[Int], 1) = [b].[Int]
 
     public override async Task Max_nested_twice()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.Max_nested_twice();
 
@@ -580,7 +580,7 @@ WHERE GREATEST(1, [b].[Int], 2, [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
 
     public override async Task Min()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.Min();
 
@@ -599,7 +599,7 @@ WHERE LEAST([b].[Int], [b].[Short] + CAST(3 AS smallint)) = [b].[Int]
 
     public override async Task Min_nested()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.Min_nested();
 
@@ -618,7 +618,7 @@ WHERE LEAST([b].[Short] + CAST(3 AS smallint), [b].[Int], 99999) = [b].[Int]
 
     public override async Task Min_nested_twice()
     {
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             await base.Min_nested_twice();
 
@@ -873,7 +873,7 @@ WHERE TAN([b].[Float]) > CAST(0 AS real)
 
     #endregion Trigonometry
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

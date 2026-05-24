@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalModelTest
     {
-        [ConditionalFact]
+        [Fact]
         public void GetRelationalModel_throws_if_convention_has_not_run()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<InvalidOperationException>(() => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
         }
 
-        [ConditionalTheory]
+        [Theory]
         [InlineData(DeleteBehavior.Cascade, ReferentialAction.Cascade)]
         [InlineData(DeleteBehavior.SetNull, ReferentialAction.SetNull)]
         [InlineData(DeleteBehavior.SetDefault, ReferentialAction.SetDefault)]
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected, RelationalModel.ToReferentialAction(deleteBehavior));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Both_design_and_runtime_RelationalModels_are_built_for_external_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(((Table)runtimeRelationalModel.Tables.Single()).CheckConstraints);
         }
 
-        [ConditionalTheory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
+        [Theory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
          InlineData(false, Mapping.TPH), InlineData(false, Mapping.TPT), InlineData(false, Mapping.TPC)]
         public void Can_use_relational_model_with_tables(bool useExplicitMapping, Mapping mapping)
         {
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertTables(model, mapping);
         }
 
-        [ConditionalTheory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
+        [Theory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: false, mapToViews: true, mapping: mapping);
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertViews(model, mapping);
         }
 
-        [ConditionalTheory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
+        [Theory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
          InlineData(false, Mapping.TPH), InlineData(false, Mapping.TPT), InlineData(false, Mapping.TPC)]
         public void Can_use_relational_model_with_sprocs(bool mapToTables, Mapping mapping)
         {
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertSprocs(model, mapping, mappedToTables: true);
         }
 
-        [ConditionalTheory(Skip = "#28703"), InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
+        [Theory(Skip = "#28703"), InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_sprocs_and_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToViews: true, mapToSprocs: true, mapping: mapping);
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertSprocs(model, mapping);
         }
 
-        [ConditionalTheory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
+        [Theory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_tables_and_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: true, mapToViews: true, mapping: mapping);
@@ -2413,7 +2413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return Finalize(modelBuilder);
         }
 
-        [ConditionalTheory, InlineData(true), InlineData(false)]
+        [Theory, InlineData(true), InlineData(false)]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_both_fragments(bool mapToViews)
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2602,7 +2602,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_main_fragments()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2722,7 +2722,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(specialtyFk.IsRequiredDependent);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_leaf_and_main_fragments()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2855,7 +2855,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(detailsType, detailsFk.DeclaringEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_keyless_TPH()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2901,7 +2901,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(specialtyColumn.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_tables_in_different_schemas()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2925,7 +2925,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(3, orderDetailsTable.ReferencingForeignKeyConstraints.Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_SQL_queries()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2999,7 +2999,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private static IQueryable<Order> GetOrdersForCustomer(string name)
             => throw new NotImplementedException();
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_property_container_column_type_is_used_in_relational_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3027,7 +3027,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_collection_container_column_type_is_used_in_relational_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3055,7 +3055,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_property_gets_default_container_column_type_when_not_set_explicitly()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3082,7 +3082,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_collection_gets_default_container_column_type_when_not_set_explicitly()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3109,7 +3109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_functions()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3228,7 +3228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(tvfDbFunction2.Parameters.Single().Name, tvfFunction2.Parameters.Single().DbFunctionParameters.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Default_mappings_does_not_share_tableBase()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3255,7 +3255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(defaultMapping2.Table.Columns.Single().IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Container_column_type_is_used_for_complex_property_json_column()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3278,7 +3278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Container_column_type_is_used_for_complex_collection_json_column()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3301,7 +3301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_property_json_column_is_nullable_in_TPH_hierarchy()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3321,7 +3321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Json_element_tree_is_built_for_owned_entity_json_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3429,7 +3429,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.All(datePropertyMappings, m => Assert.Equal("Date", m.Element.PropertyName));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Json_element_tree_is_merged_for_existing_json_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3460,7 +3460,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.All(numberMappings, m => Assert.Equal("Number", m.Element.PropertyName));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Json_element_tree_is_built_for_complex_property_json_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3524,7 +3524,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same((RelationalTypeMapping)valueProperty.GetTypeMapping(), valueMappings[0].Element.StoreTypeMapping);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Json_element_tree_is_built_for_primitive_collection_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3602,7 +3602,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_functions_and_json_owned_types()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3638,7 +3638,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(storeFunction.FindColumn("addresses"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Alternate_key_on_complex_property_is_mapped_to_unique_constraint()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3665,7 +3665,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(table, column.Table);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Index_on_complex_property_is_mapped_to_table_index()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3693,7 +3693,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(table, column.Table);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void GetIndex_resolves_index_on_json_mapped_complex_property()
         {
             var modelBuilder = CreateConventionModelBuilder();

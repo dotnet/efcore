@@ -10,7 +10,7 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
     where TFixture : TypeFixtureBase<T>
     where T : notnull
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Equality_in_query_with_parameter()
     {
         await using var context = Fixture.CreateContext();
@@ -20,7 +20,7 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Equality_in_query_with_constant()
     {
         await using var context = Fixture.CreateContext();
@@ -38,7 +38,7 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Primitive_collection_in_query()
     {
         await using var context = Fixture.CreateContext();
@@ -48,7 +48,7 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
         Assert.Equal(1, result.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SaveChanges()
     {
         await using var context = Fixture.CreateContext();

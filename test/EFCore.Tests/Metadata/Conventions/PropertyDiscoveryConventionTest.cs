@@ -47,7 +47,7 @@ public class PropertyDiscoveryConventionTest
                 .UseInMemoryDatabase(nameof(WithPrivatesContext));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_with_private_setters_on_unmapped_base_types_are_discovered()
     {
         using var context = new WithPrivatesContext();
@@ -78,7 +78,7 @@ public class PropertyDiscoveryConventionTest
         context.SaveChanges();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_and_query_using_entities_with_private_setters_on_base_types()
     {
         int id;
@@ -136,7 +136,7 @@ public class PropertyDiscoveryConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsValidProperty_returns_false_when_invalid()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
@@ -194,7 +194,7 @@ public class PropertyDiscoveryConventionTest
         Default
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsPrimitiveProperty_returns_true_when_supported_type()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
@@ -213,7 +213,7 @@ public class PropertyDiscoveryConventionTest
         public object Object { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsPrimitiveProperty_returns_false_when_unsupported_type()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();

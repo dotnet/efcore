@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class SnapshotModelProcessorTest
     {
-        [ConditionalFact]
+        [Fact]
         public void Updates_provider_annotations_on_model()
         {
             var builder = new ModelBuilder();
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_resolve_ISnapshotModelProcessor_from_DI()
         {
             var assembly = typeof(SnapshotModelProcessorTest).Assembly;
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.NotNull(snapshotModelProcessor);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Warns_for_conflicting_annotations()
         {
             var model = new Model();
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.True(actual is "Value1" or "Value2");
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Warns_for_conflicting_annotations_one_relational()
         {
             var model = new Model();
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.True(actual is "Value1" or "Value2");
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Does_not_warn_for_duplicate_non_conflicting_annotations()
         {
             var model = new ModelBuilder().Model;
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal("Value", (string)model["Relational:DefaultSchema"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Does_not_process_non_v1_models()
         {
             var model = new Model();
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal("Value", (string)model["Unicorn:DefaultSchema"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Sets_owned_type_keys()
         {
             var builder = new ModelBuilder();
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Name);
         }
 
-        [ConditionalTheory, InlineData(typeof(OwnershipModelSnapshot2_0)), InlineData(typeof(OwnershipModelSnapshot2_1)),
+        [Theory, InlineData(typeof(OwnershipModelSnapshot2_0)), InlineData(typeof(OwnershipModelSnapshot2_1)),
          InlineData(typeof(OwnershipModelSnapshot2_2)), InlineData(typeof(OwnershipModelSnapshot3_0))]
         public void Can_diff_against_older_ownership_model(Type snapshotType)
         {
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             AssertSameSnapshot(snapshotType, context);
         }
 
-        [ConditionalTheory, InlineData(typeof(SequenceModelSnapshot1_1)), InlineData(typeof(SequenceModelSnapshot2_2)),
+        [Theory, InlineData(typeof(SequenceModelSnapshot1_1)), InlineData(typeof(SequenceModelSnapshot2_2)),
          InlineData(typeof(SequenceModelSnapshot3_1))]
         public void Can_diff_against_older_sequence_model(Type snapshotType)
         {
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             AssertSameSnapshot(snapshotType, context);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Updates_complex_property_nullability_for_pre_10_snapshots()
         {
             var builder = new ModelBuilder();
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Does_not_update_complex_property_nullability_for_10_or_later_snapshots()
         {
             var builder = new ModelBuilder();
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Updates_nested_complex_property_nullability_for_pre_10_snapshots()
         {
             var builder = new ModelBuilder();
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Updates_property_bag_complex_property_nullability_for_pre_10_snapshots()
         {
             var builder = new ModelBuilder();

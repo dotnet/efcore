@@ -14,7 +14,7 @@ public class NorthwindChangeTrackingQuerySqlServerTest : NorthwindChangeTracking
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -100,7 +100,7 @@ ORDER BY [e].[EmployeeID]
     {
         base.Entity_range_does_not_revert_when_attached_dbSet();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -216,7 +216,7 @@ FROM [Employees] AS [e]
     {
         base.Entity_range_does_not_revert_when_attached_dbContext();
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """

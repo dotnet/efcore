@@ -11,7 +11,7 @@ public class InMemoryOptionsExtensionTest
     private static readonly MethodInfo _applyServices
         = typeof(InMemoryOptionsExtension).GetTypeInfo().DeclaredMethods.Single(m => m.Name == "ApplyServices");
 
-    [ConditionalFact]
+    [Fact]
     public void Adds_in_memory_services()
     {
         var services = new ServiceCollection();

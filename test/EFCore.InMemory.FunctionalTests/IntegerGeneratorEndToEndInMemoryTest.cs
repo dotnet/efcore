@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class IntegerGeneratorEndToEndInMemoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_sequence_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -40,7 +40,7 @@ public class IntegerGeneratorEndToEndInMemoryTest
         context.SaveChanges();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_sequence_end_to_end_async()
     {
         var serviceProvider = new ServiceCollection()
@@ -75,7 +75,7 @@ public class IntegerGeneratorEndToEndInMemoryTest
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
     {
         var serviceProvider = new ServiceCollection()
