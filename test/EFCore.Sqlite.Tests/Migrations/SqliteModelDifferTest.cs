@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class SqliteModelDifferTest : MigrationsModelDifferTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Add_property_with_autoincrement_strategy()
         => Execute(
             _ => { },
@@ -30,7 +30,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(true, idColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Alter_property_add_autoincrement_strategy()
         => Execute(
             common => common.Entity(
@@ -51,7 +51,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Null(alterColumnOperation.OldColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Alter_property_remove_autoincrement_strategy()
         => Execute(
             common => common.Entity(
@@ -72,7 +72,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(true, alterColumnOperation.OldColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Autoincrement_with_value_converter_generates_consistent_migrations()
         => Execute(
             common => common.Entity<ProductWithConverter>(
@@ -94,7 +94,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Null(alterColumnOperation.OldColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void No_repeated_alter_column_for_autoincrement_with_converter()
         => Execute(
             common => common.Entity<ProductWithConverter>(
@@ -110,7 +110,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
             target => { },
             Assert.Empty);
 
-    [ConditionalFact]
+    [Fact]
     public void Noop_when_changing_to_autoincrement_property_with_converter()
         => Execute(
             source => source.Entity(

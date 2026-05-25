@@ -70,7 +70,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void DbSet_Local_contains_Unchanged_Modified_and_Added_entities_but_not_Deleted_entities(
         bool toObservableCollection)
     {
@@ -89,7 +89,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Adding_entity_to_context_is_reflected_in_local_view(
         bool toObservableCollection)
     {
@@ -113,7 +113,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.True(local.Contains(larry));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Attaching_entity_to_context_is_reflected_in_local_view(
         bool toObservableCollection)
     {
@@ -137,7 +137,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.True(local.Contains(larry));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_materialized_into_context_are_reflected_in_local_view(
         bool toObservableCollection)
     {
@@ -154,7 +154,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(UnchangedCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_detached_from_context_are_removed_from_local_view(
         bool toObservableCollection)
     {
@@ -177,7 +177,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount - UnchangedCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_deleted_from_context_are_removed_from_local_view(
         bool toObservableCollection)
     {
@@ -200,7 +200,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount - UnchangedCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_with_state_changed_to_deleted_are_removed_from_local_view(
         bool toObservableCollection)
     {
@@ -223,7 +223,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount - UnchangedCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     // Issue #35243
     public virtual void Remove_detached_entity_from_LocalView(bool toObservableCollection)
     {
@@ -294,7 +294,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.DoesNotContain(driver3, localView);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_with_state_changed_to_detached_are_removed_from_local_view(
         bool toObservableCollection)
     {
@@ -335,7 +335,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_with_state_changed_from_deleted_to_added_are_added_to_local_view(
         bool toObservableCollection)
     {
@@ -358,7 +358,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount + DeletedCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_with_state_changed_from_deleted_to_unchanged_are_added_to_local_view(
         bool toObservableCollection)
     {
@@ -381,7 +381,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount + DeletedCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_added_to_local_view_are_added_to_state_manager(
         bool toObservableCollection)
     {
@@ -411,7 +411,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Contains(larry, localView);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_and_owned_children_added_to_local_view_are_added_to_state_manager(
         bool toObservableCollection)
     {
@@ -450,7 +450,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Contains(teamCosmos, localView);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_removed_from_the_local_view_are_marked_deleted_in_the_state_manager(
         bool toObservableCollection)
     {
@@ -476,7 +476,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.DoesNotContain(alonso, localView);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Adding_entity_to_local_view_that_is_already_in_the_state_manager_and_not_Deleted_is_noop()
     {
         using var context = CreateF1Context();
@@ -495,7 +495,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Contains(alonso, local);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Adding_entity_to_local_view_that_is_Deleted_in_the_state_manager_makes_entity_Added(
         bool toObservableCollection)
     {
@@ -528,7 +528,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Adding_entity_to_state_manager_of_different_type_than_local_keyless_type_has_no_effect_on_local_view(
         bool toObservableCollection)
     {
@@ -548,7 +548,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount, local.Count);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Adding_entity_to_state_manager_of_subtype_still_shows_up_in_local_view(
         bool toObservableCollection)
     {
@@ -566,7 +566,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.True(local.Contains(newDriver));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_Local_is_cached_on_the_set()
     {
         using var context = CreateF1Context();
@@ -575,7 +575,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Same(local, context.Drivers.Local);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_Local_calls_DetectChanges()
     {
         using var context = CreateF1Context();
@@ -599,7 +599,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(EntityState.Modified, context.Entry(alonso).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Load_executes_query_on_keyless_entity_type()
     {
         using var context = CreateF1Context();
@@ -608,7 +608,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(UnchangedCount, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void LocalView_is_initialized_with_entities_from_the_context(
         bool toObservableCollection)
     {
@@ -643,7 +643,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
             context.ChangeTracker.Entries<Driver>().Select(e => e.Entity), e => Assert.DoesNotContain((object)e, teamsLocal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_Local_ToBindingList_contains_Unchanged_Modified_and_Added_entities_but_not_Deleted_entities()
     {
         using var context = CreateF1Context();
@@ -657,7 +657,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount, bindingList.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Adding_entity_to_context_is_reflected_in_local_binding_list()
     {
         using var context = CreateF1Context();
@@ -677,7 +677,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Single(bindingList);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_materialized_into_context_are_reflected_in_local_binding_list()
     {
         using var context = CreateF1Context();
@@ -690,7 +690,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(UnchangedCount, bindingList.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_detached_from_context_are_removed_from_local_binding_list()
     {
         using var context = CreateF1Context();
@@ -708,7 +708,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount - UnchangedCount, bindingList.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_deleted_from_context_are_removed_from_local_binding_list()
     {
         using var context = CreateF1Context();
@@ -726,7 +726,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(TotalCount - UnchangedCount, bindingList.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_added_to_local_binding_list_are_added_to_state_manager()
     {
         using var context = CreateF1Context();
@@ -756,7 +756,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Contains(larry, observable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entities_removed_from_the_local_binding_list_are_marked_deleted_in_the_state_manager()
     {
         using var context = CreateF1Context();
@@ -781,7 +781,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.DoesNotContain(alonso, observable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Adding_entity_to_local_binding_list_that_is_Deleted_in_the_state_manager_makes_entity_Added()
     {
         using var context = CreateF1Context();
@@ -813,7 +813,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Adding_entity_to_state_manager_of_different_type_than_local_keyless_type_has_no_effect_on_local_binding_list()
     {
         using var context = CreateF1Context();
@@ -827,7 +827,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(count, bindingList.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Adding_entity_to_state_manager_of_subtype_still_shows_up_in_local_binding_list()
     {
         using var context = CreateF1Context();
@@ -840,7 +840,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Contains(testDriver, bindingList);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Sets_of_subtypes_can_still_be_sorted()
     {
         using var context = CreateF1Context();
@@ -863,7 +863,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(4, bindingList[2].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Sets_containing_instances_of_subtypes_can_still_be_sorted()
     {
         using var context = CreateF1Context();
@@ -885,7 +885,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(4, bindingList[2].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_Local_ToBindingList_is_cached_on_the_set()
     {
         using var context = CreateF1Context();
@@ -894,7 +894,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Same(bindingList, context.Drivers.Local.ToBindingList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entity_added_to_context_is_added_to_navigation_property_binding_list()
     {
         using var context = CreateF1Context();
@@ -912,7 +912,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.True(navBindingList.Contains(larry));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entity_added_to_navigation_property_binding_list_is_added_to_context_after_DetectChanges()
     {
         using var context = CreateF1Context();
@@ -937,7 +937,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Same(larry, context.Drivers.Find(-1));
     }
 
-    [ConditionalTheory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Never)]
+    [Theory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Never)]
     public virtual void Entity_removed_from_navigation_property_binding_list_is_removed_from_nav_property_but_not_marked_Deleted(
         CascadeTiming deleteOrphansTiming)
     {

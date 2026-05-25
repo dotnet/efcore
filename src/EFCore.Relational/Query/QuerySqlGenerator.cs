@@ -651,8 +651,15 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
     protected virtual Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
+        if (sqlConstantExpression.TypeMapping is null)
+        {
+            throw new UnreachableException(
+                "SqlConstantExpression has no type mapping. "
+                + "Please file a bug report at https://github.com/dotnet/efcore.");
+        }
+
         _relationalCommandBuilder
-            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value), sqlConstantExpression.IsSensitive);
+            .Append(sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value), sqlConstantExpression.IsSensitive);
 
         return sqlConstantExpression;
     }
@@ -663,6 +670,13 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     /// <param name="sqlParameterExpression">The <see cref="SqlParameterExpression" /> for which to generate SQL.</param>
     protected virtual Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
+        if (sqlParameterExpression.TypeMapping is null)
+        {
+            throw new UnreachableException(
+                $"SqlParameterExpression '{sqlParameterExpression.Name}' has no type mapping. "
+                + "Please file a bug report at https://github.com/dotnet/efcore.");
+        }
+
         var name = sqlParameterExpression.Name;
 
         // Only add the parameter to the command the first time we see its (non-invariant) name, even though we may need to add its
@@ -672,7 +686,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             _relationalCommandBuilder.AddParameter(
                 sqlParameterExpression.InvariantName,
                 _sqlGenerationHelper.GenerateParameterName(name),
-                sqlParameterExpression.TypeMapping!,
+                sqlParameterExpression.TypeMapping,
                 sqlParameterExpression.IsNullable);
             _parameterNames.Add(name);
         }

@@ -27,18 +27,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 public interface IValueGeneratorSelector
 {
     /// <summary>
-    ///     Selects the appropriate value generator for a given property.
-    /// </summary>
-    /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="typeBase">
-    ///     The type that the value generator will be used for. When called on inherited properties on derived types,
-    ///     this type may be different from the declaring type for <paramref name="property" />
-    /// </param>
-    /// <returns>The value generator to be used.</returns>
-    [Obsolete("Use TrySelect and throw if needed when the generator is not found.")]
-    ValueGenerator? Select(IProperty property, ITypeBase typeBase);
-
-    /// <summary>
     ///     Selects the appropriate value generator for a given property, if available.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>

@@ -9,7 +9,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 {
     #region 33449
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
         var contextFactory = await InitializeNonSharedTest<Context33449>(
@@ -83,7 +83,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region 34749
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_complex_property_does_not_auto_include_owned_types()
     {
         var contextFactory = await InitializeNonSharedTest<Context34749>();
@@ -128,7 +128,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region ShadowDiscriminator
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_complex_type_with_discriminator()
     {
         var contextFactory = await InitializeNonSharedTest<ContextShadowDiscriminator>(
@@ -154,13 +154,23 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateDbContext();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var complexTypeNull = await context.Set<ContextShadowDiscriminator.EntityType>()
+                .SingleAsync(b => b.AllOptionalsComplexType == null);
+            Assert.Null(complexTypeNull.AllOptionalsComplexType);
 
-        var complexTypeNull = await context.Set<ContextShadowDiscriminator.EntityType>().SingleAsync(b => b.AllOptionalsComplexType == null);
-        Assert.Null(complexTypeNull.AllOptionalsComplexType);
+            complexTypeNull.AllOptionalsComplexType =
+                new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "New thing" };
+            await context.SaveChangesAsync();
+        }
 
-        complexTypeNull.AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "New thing" };
-        await context.SaveChangesAsync();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entities = await context.Set<ContextShadowDiscriminator.EntityType>().ToListAsync();
+            Assert.Equal(3, entities.Count);
+            Assert.All(entities, e => Assert.NotNull(e.AllOptionalsComplexType));
+        }
     }
 
     private class ContextShadowDiscriminator(DbContextOptions options) : DbContext(options)
@@ -188,7 +198,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region 37162
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Non_optional_complex_type_with_all_nullable_properties()
     {
         var contextFactory = await InitializeNonSharedTest<Context37162>(
@@ -241,7 +251,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region 37304
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
     {
         var contextFactory = await InitializeNonSharedTest<Context37304>(
@@ -317,7 +327,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     private const string Issue37337CreatedByShadowPropertyName = "CreatedBy";
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nullable_complex_type_with_discriminator_and_shadow_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context37337>(
@@ -379,9 +389,259 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion Issue37337
 
+    #region Issue38119
+
+    [Fact]
+    public virtual async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38119>(
+            seed: context =>
+            {
+                context.Add(new Context38119.EntityType { Id = Guid.NewGuid() });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.Null(entity.Prop);
+
+            entity.Prop = new Context38119.OptionalComplexProperty { OptionalValue = true };
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38119>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context38119.EntityType
+                    {
+                        Id = Guid.NewGuid(),
+                        Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+
+            entity.Prop = null;
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.Null(entity.Prop);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38119>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context38119.EntityType
+                    {
+                        Id = Guid.NewGuid(),
+                        Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+
+            context.Update(entity);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Nullable_complex_type_with_discriminator_set_to_different_value()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38119>();
+
+        Guid entityId;
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = new Context38119.EntityType
+            {
+                Id = Guid.NewGuid(),
+                Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+            };
+            context.Add(entity);
+            entityId = entity.Id;
+
+            // Override the discriminator value before saving
+            var discriminatorEntry = context.Entry(entity).ComplexProperty(e => e.Prop).Property("Discriminator");
+            Assert.Equal("OptionalComplexProperty", discriminatorEntry.CurrentValue);
+            discriminatorEntry.CurrentValue = "SomeOtherValue";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            // The discriminator is non-null so the complex property is still materialized
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync(e => e.Id == entityId);
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Nullable_complex_type_with_discriminator_set_to_null()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38119>();
+
+        Guid entityId;
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = new Context38119.EntityType
+            {
+                Id = Guid.NewGuid(),
+                Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+            };
+            context.Add(entity);
+            entityId = entity.Id;
+
+            // Set discriminator to null before saving, which should cause the complex property to be null on reload
+            var discriminatorEntry = context.Entry(entity).ComplexProperty(e => e.Prop).Property("Discriminator");
+            Assert.Equal("OptionalComplexProperty", discriminatorEntry.CurrentValue);
+            discriminatorEntry.CurrentValue = null;
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            // With null discriminator, the complex property should be materialized as null
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync(e => e.Id == entityId);
+            Assert.Null(entity.Prop);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38119Nested>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context38119Nested.EntityType
+                    {
+                        Id = Guid.NewGuid(),
+                        Outer = new Context38119Nested.OuterComplexProperty { Name = "outer" }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119Nested.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Outer);
+            Assert.Null(entity.Outer.Inner);
+
+            entity.Outer.Inner = new Context38119Nested.InnerComplexProperty { Value = 42 };
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119Nested.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Outer);
+            Assert.NotNull(entity.Outer.Inner);
+            Assert.Equal(42, entity.Outer.Inner.Value);
+        }
+    }
+
+    protected class Context38119(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var entity = modelBuilder.Entity<EntityType>();
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Id).ValueGeneratedNever();
+
+            var compl = entity.ComplexProperty(p => p.Prop);
+            compl.HasDiscriminator();
+        }
+
+        public class EntityType
+        {
+            public Guid Id { get; set; }
+            public OptionalComplexProperty? Prop { get; set; }
+        }
+
+        public class OptionalComplexProperty
+        {
+            public bool? OptionalValue { get; set; }
+        }
+    }
+
+    private class Context38119Nested(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var entity = modelBuilder.Entity<EntityType>();
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Id).ValueGeneratedNever();
+
+            entity.ComplexProperty(
+                p => p.Outer, outer =>
+                {
+                    outer.ComplexProperty(
+                        p => p.Inner, inner => inner.HasDiscriminator());
+                });
+        }
+
+        public class EntityType
+        {
+            public Guid Id { get; set; }
+            public OuterComplexProperty Outer { get; set; } = null!;
+        }
+
+        public class OuterComplexProperty
+        {
+            public string? Name { get; set; }
+            public InnerComplexProperty? Inner { get; set; }
+        }
+
+        public class InnerComplexProperty
+        {
+            public int? Value { get; set; }
+        }
+    }
+
+    #endregion Issue38119
+
     #region Issue38105
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
     {
         var contextFactory = await InitializeNonSharedTest<Context37337>(
@@ -431,6 +691,166 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion Issue38105
+
+    #region Issue31246
+
+    [Fact]
+    public virtual async Task Can_query_by_complex_type_property_with_index()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } },
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(2), Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" } });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        // The primary key Id.Id reorders the entity's complex properties so that the chain containing
+        // the PK property comes first, and reorders the properties inside the Id complex type so that
+        // the PK property is listed first.
+        var personType = context.Model.FindEntityType(typeof(Context31246.Person))!;
+        Assert.Equal(
+            [nameof(Context31246.Person.Id), nameof(Context31246.Person.Address)],
+            personType.GetComplexProperties().Select(p => p.Name));
+        var idComplexType = personType.FindComplexProperty(nameof(Context31246.Person.Id))!.ComplexType;
+        Assert.Equal(
+            [nameof(Context31246.StronglyTypedId.Id)],
+            idComplexType.GetProperties().Select(p => p.Name));
+
+        var found = await context.Set<Context31246.Person>().SingleAsync(p => p.Address.City == "Seattle");
+        Assert.Equal(new Context31246.StronglyTypedId(1), found.Id);
+        Assert.Equal("98101", found.Address.PostalCode);
+    }
+
+    [Fact]
+    public virtual async Task Can_update_entity_with_index_on_complex_type_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var person = await context.Set<Context31246.Person>().SingleAsync();
+            person.Address.PostalCode = "98102";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var person = await context.Set<Context31246.Person>().SingleAsync();
+            Assert.Equal("98102", person.Address.PostalCode);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Can_delete_entity_with_index_on_complex_type_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var person = await context.Set<Context31246.Person>().SingleAsync();
+            context.Remove(person);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Equal(0, await context.Set<Context31246.Person>().CountAsync());
+        }
+    }
+
+    [Fact]
+    public virtual async Task Can_query_by_alternate_key_on_complex_type_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } },
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(2), Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" } });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var found = await context.Set<Context31246.Person>().SingleAsync(p => p.Address.City == "Redmond");
+        Assert.Equal(new Context31246.StronglyTypedId(2), found.Id);
+    }
+
+    [Fact]
+    public virtual async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } },
+                    new Context31246.Person { Id = new Context31246.StronglyTypedId(2), Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" } });
+                return context.SaveChangesAsync();
+            });
+
+        // Update non-AK columns on multiple rows in the same batch. The CommandBatchPreparer
+        // still has to read the alternate-key column values (Address_City) for each command in
+        // order to build edges in the topological sort (AddUniqueValueEdges).
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var people = await context.Set<Context31246.Person>().OrderBy(p => p.Id.Id).ToListAsync();
+            people[0].Address.PostalCode = "98103";
+            people[1].Address.PostalCode = "98054";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var people = await context.Set<Context31246.Person>().OrderBy(p => p.Id.Id).ToListAsync();
+            Assert.Equal("98103", people[0].Address.PostalCode);
+            Assert.Equal("98054", people[1].Address.PostalCode);
+        }
+    }
+
+    protected class Context31246(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Person>(b =>
+            {
+                b.ComplexProperty(p => p.Id);
+                b.HasKey(p => p.Id.Id);
+                b.Property(p => p.Id.Id).ValueGeneratedNever();
+                b.HasAlternateKey(p => p.Address.City);
+                b.HasIndex(p => p.Address.PostalCode);
+            });
+
+        public readonly record struct StronglyTypedId(int Id);
+
+        public class Person
+        {
+            public StronglyTypedId Id { get; set; }
+            public Address Address { get; set; } = null!;
+        }
+
+        public class Address
+        {
+            public string City { get; set; } = null!;
+            public string PostalCode { get; set; } = null!;
+        }
+    }
+
+    #endregion Issue31246
 
     protected override string NonSharedStoreName
         => "AdHocComplexTypeQueryTest";

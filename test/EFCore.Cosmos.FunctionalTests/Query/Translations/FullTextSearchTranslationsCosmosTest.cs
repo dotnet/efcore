@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.IsNotEmulator)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential), nameof(CosmosTestEnvironment.IsNotEmulator))]
 public class FullTextSearchTranslationsCosmosTest : IClassFixture<FullTextSearchTranslationsCosmosTest.FullTextSearchFixture>
 {
     public FullTextSearchTranslationsCosmosTest(FullTextSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -21,7 +21,7 @@ public class FullTextSearchTranslationsCosmosTest : IClassFixture<FullTextSearch
 
     #region FullTextContains
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContains_with_constant()
     {
         await using var context = CreateContext();
@@ -41,7 +41,7 @@ WHERE FullTextContains(c["Description"], "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContains_with_parameter()
     {
         await using var context = CreateContext();
@@ -64,7 +64,7 @@ WHERE FullTextContains(c["Description"], @beaver)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContains_projected()
     {
         await using var context = CreateContext();
@@ -88,7 +88,7 @@ ORDER BY c["Id"]
 
     #region FullTextContainsAny
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAny_with_constant()
     {
         await using var context = CreateContext();
@@ -108,7 +108,7 @@ WHERE FullTextContainsAny(c["Description"], "bat")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAny_with_constants_array()
     {
         await using var context = CreateContext();
@@ -128,7 +128,7 @@ WHERE FullTextContainsAny(c["Description"], "bat", "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAny_with_constant_and_parameter()
     {
         await using var context = CreateContext();
@@ -156,7 +156,7 @@ WHERE FullTextContainsAny(c["Description"], @beaver, "bat")
 
     #region FullTextContainsAll
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAll_with_constants_array()
     {
         await using var context = CreateContext();
@@ -179,7 +179,7 @@ WHERE FullTextContainsAll(c["Description"], @beaver, "salmon", "frog")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAll_with_parameter()
     {
         await using var context = CreateContext();
@@ -203,7 +203,7 @@ WHERE FullTextContainsAll(c["Description"], @beaver)
     }
 
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAll_with_parameterized_array()
     {
         await using var context = CreateContext();
@@ -229,7 +229,7 @@ WHERE FullTextContainsAll(c["Description"], "beaver", "salmon", "frog")
 
     #region FullTextScore
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_constant()
     {
         await using var context = CreateContext();
@@ -246,7 +246,7 @@ ORDER BY RANK FullTextScore(c["Description"], "otter")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_parameter()
     {
         await using var context = CreateContext();
@@ -267,7 +267,7 @@ ORDER BY RANK FullTextScore(c["Description"], @otter)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_constants_array()
     {
         await using var context = CreateContext();
@@ -284,7 +284,7 @@ ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_parameterized_array()
     {
         await using var context = CreateContext();
@@ -302,7 +302,7 @@ ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_complex_expression()
     {
         await using var context = CreateContext();
@@ -317,7 +317,7 @@ ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
                 .ToListAsync())).Message;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_projected()
     {
         await using var context = CreateContext();
@@ -332,7 +332,7 @@ ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
             message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_on_non_FTS_property()
     {
         await using var context = CreateContext();
@@ -352,7 +352,7 @@ ORDER BY RANK FullTextScore(c["PartitionKey"], "taxonomy")
 
     #region RRF
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rrf_using_two_FullTextScore_functions()
     {
         await using var context = CreateContext();
@@ -371,7 +371,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), FullTextScore(c["De
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_RRF()
     {
         await using var context = CreateContext();
@@ -395,7 +395,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), FullTextScore(c["De
 
     #region ORDER BY RANK
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_Take()
     {
         await using var context = CreateContext();
@@ -413,7 +413,7 @@ OFFSET 0 LIMIT 10
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_Skip_Take()
     {
         await using var context = CreateContext();
@@ -432,7 +432,7 @@ OFFSET 1 LIMIT 20
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_scoring_function_overridden_by_another()
     {
         await using var context = CreateContext();
@@ -449,7 +449,7 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin", "second")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_scoring_function_overridden_by_regular_OrderBy()
     {
         await using var context = CreateContext();
@@ -466,7 +466,7 @@ ORDER BY c["Name"]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Regular_OrderBy_overridden_by_OrderByRank()
     {
         await using var context = CreateContext();

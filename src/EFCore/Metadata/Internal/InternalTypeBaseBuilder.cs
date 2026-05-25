@@ -547,7 +547,11 @@ public abstract class InternalTypeBaseBuilder :
         for (var i = 0; i < propertyNames.Count; i++)
         {
             var propertyName = propertyNames[i];
-            var property = Metadata.FindProperty(propertyName);
+
+            var resolved = ResolveComplexChainByName(propertyName);
+            var typeBuilder = resolved.Builder;
+            var leafName = resolved.FinalName;
+            var property = typeBuilder.Metadata.FindProperty(leafName);
             if (property == null)
             {
                 var type = referencedProperties == null
@@ -561,11 +565,11 @@ public abstract class InternalTypeBaseBuilder :
                     return null;
                 }
 
-                var propertyBuilder = Property(
+                var propertyBuilder = typeBuilder.Property(
                     required
                         ? type
                         : type?.MakeNullable(),
-                    propertyName,
+                    leafName,
                     typeConfigurationSource: null,
                     configurationSource.Value);
 
@@ -637,8 +641,108 @@ public abstract class InternalTypeBaseBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual IReadOnlyList<Property>? GetOrCreateProperties(
+        IReadOnlyList<IReadOnlyList<MemberInfo>>? memberChains,
+        ConfigurationSource? configurationSource)
+    {
+        if (memberChains == null)
+        {
+            return null;
+        }
+
+        var list = new List<Property>(memberChains.Count);
+        foreach (var memberChain in memberChains)
+        {
+            var (ownerBuilder, finalMember) = ResolveComplexChain(memberChain);
+            var propertyBuilder = ownerBuilder.Property(finalMember, configurationSource);
+            if (propertyBuilder == null)
+            {
+                return null;
+            }
+
+            list.Add(propertyBuilder.Metadata);
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<PropertyBase>? GetOrCreatePropertyBases(
+        IReadOnlyList<IReadOnlyList<MemberInfo>>? memberChains,
+        ConfigurationSource? configurationSource)
+    {
+        if (memberChains == null)
+        {
+            return null;
+        }
+
+        var list = new List<PropertyBase>(memberChains.Count);
+        foreach (var memberChain in memberChains)
+        {
+            var (ownerBuilder, finalMember) = ResolveComplexChain(memberChain);
+            var existing = ownerBuilder.Metadata.FindMembersInHierarchy(finalMember.GetSimpleMemberName())
+                .FirstOrDefault();
+            if (existing is ComplexProperty complexProperty)
+            {
+                list.Add(complexProperty);
+                continue;
+            }
+
+            var propertyBuilder = ownerBuilder.Property(finalMember, configurationSource);
+            if (propertyBuilder == null)
+            {
+                return null;
+            }
+
+            list.Add(propertyBuilder.Metadata);
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IReadOnlyList<Property>? GetActualProperties(
         IReadOnlyList<Property>? properties,
+        ConfigurationSource? configurationSource)
+    {
+        var actual = GetActualProperties((IReadOnlyList<PropertyBase>?)properties, configurationSource);
+        if (actual == null)
+        {
+            return null;
+        }
+
+        if (actual is IReadOnlyList<Property> typed)
+        {
+            return typed;
+        }
+
+        var result = new Property[actual.Count];
+        for (var i = 0; i < result.Length; i++)
+        {
+            result[i] = (Property)actual[i];
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<PropertyBase>? GetActualProperties(
+        IReadOnlyList<PropertyBase>? properties,
         ConfigurationSource? configurationSource)
     {
         if (properties == null)
@@ -653,8 +757,7 @@ public abstract class InternalTypeBaseBuilder :
 
         for (var i = 0;; i++)
         {
-            var property = properties[i];
-            if (!property.IsInModel || !property.DeclaringType.IsAssignableFrom(Metadata))
+            if (!IsActual(properties[i]))
             {
                 break;
             }
@@ -665,14 +768,38 @@ public abstract class InternalTypeBaseBuilder :
             }
         }
 
-        var actualProperties = new Property[properties.Count];
+        var actualProperties = new PropertyBase[properties.Count];
         for (var i = 0; i < actualProperties.Length; i++)
         {
-            var property = properties[i];
+            var member = properties[i];
+            if (member is not Property property)
+            {
+                if (!IsActual(member))
+                {
+                    var resolved = Metadata.FindMembersInHierarchy(member.Name)
+                        .FirstOrDefault(m => m.GetType() == member.GetType());
+                    if (resolved == null)
+                    {
+                        return null;
+                    }
+
+                    member = resolved;
+                }
+
+                actualProperties[i] = member;
+                continue;
+            }
+
             var typeConfigurationSource = property.GetTypeConfigurationSource();
-            var builder = Property(
+            var typeBuilder = property.IsInModel
+                && property.DeclaringType is ComplexType ownerComplex
+                && ownerComplex.ContainingEntityType.IsAssignableFrom(Metadata)
+                    ? ownerComplex.Builder
+                    : this;
+
+            var builder = typeBuilder.Property(
                 typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
-                || (property.IsInModel && Metadata.IsAssignableFrom(property.DeclaringType))
+                || (property.IsInModel && typeBuilder.Metadata.IsAssignableFrom(property.DeclaringType))
                     ? property.ClrType
                     : null,
                 property.Name,
@@ -690,6 +817,12 @@ public abstract class InternalTypeBaseBuilder :
 
         return actualProperties;
     }
+
+    private bool IsActual(PropertyBase property)
+        => ((IConventionPropertyBase)property).IsInModel
+            && (property.DeclaringType.IsAssignableFrom(Metadata)
+                || (property.DeclaringType is ComplexType complexType
+                    && complexType.ContainingEntityType.IsAssignableFrom(Metadata)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1553,6 +1686,112 @@ public abstract class InternalTypeBaseBuilder :
                 }
             }
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual (InternalTypeBaseBuilder Builder, MemberInfo FinalMember) ResolveComplexChain(
+        IReadOnlyList<MemberInfo> memberChain)
+    {
+        if (memberChain.Count == 1)
+        {
+            return (this, memberChain[0].ResolveMemberForType(Metadata.ClrType));
+        }
+
+        var builder = this;
+        for (var i = 0; i < memberChain.Count - 1; i++)
+        {
+            var member = memberChain[i].ResolveMemberForType(builder.Metadata.ClrType);
+            var memberName = member.GetSimpleMemberName();
+            var metadata = builder.Metadata;
+
+            var conflictingMember = metadata.FindMembersInHierarchy(memberName).FirstOrDefault();
+            builder = conflictingMember switch
+            {
+                ComplexProperty { IsCollection: true } =>
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainOnCollection(memberName, ((IReadOnlyTypeBase)metadata).DisplayName())),
+                not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit =>
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainInvalidMember(memberName, ((IReadOnlyTypeBase)metadata).DisplayName())),
+                _ => builder.ComplexProperty(
+                    member,
+                    complexTypeName: null,
+                    collection: false,
+                    ConfigurationSource.Explicit)!.Metadata.ComplexType.Builder
+            };
+        }
+
+        return (builder, memberChain[^1].ResolveMemberForType(builder.Metadata.ClrType));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual (InternalTypeBaseBuilder Builder, string FinalName) ResolveComplexChainByName(string dottedName)
+    {
+        var segments = dottedName.Split('.');
+        if (segments.Length == 1)
+        {
+            return (this, dottedName);
+        }
+
+        // Validate no empty segments (including the final one, e.g. "Address." or "Address..Street")
+        foreach (var segment in segments)
+        {
+            if (string.IsNullOrEmpty(segment))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ComplexPropertyChainInvalidSegment(dottedName));
+            }
+        }
+
+        var builder = this;
+        for (var i = 0; i < segments.Length - 1; i++)
+        {
+            var segment = segments[i];
+            var metadata = builder.Metadata;
+
+            var conflictingMember = metadata.FindMembersInHierarchy(segment).FirstOrDefault();
+            switch (conflictingMember)
+            {
+                case ComplexProperty { IsCollection: true }:
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainOnCollection(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+                case not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit:
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainInvalidMember(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+            }
+
+            var memberInfo = metadata.ClrType.GetMembersInHierarchy(segment).FirstOrDefault();
+            if (conflictingMember is ComplexProperty complexProperty)
+            {
+                complexProperty.UpdateConfigurationSource(ConfigurationSource.Explicit);
+                
+                builder = complexProperty.ComplexType.Builder;
+                continue;
+            }
+            else if (memberInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ComplexPropertyChainIntermediateNotFound(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+            }
+
+            var complexBuilder = builder.ComplexProperty(
+                propertyType: null, segment, memberInfo, complexTypeName: null,
+                complexType: null, collection: false, ConfigurationSource.Explicit);
+
+            builder = complexBuilder!.Metadata.ComplexType.Builder;
+        }
+
+        return (builder, segments[^1]);
     }
 
     IConventionTypeBase IConventionTypeBaseBuilder.Metadata

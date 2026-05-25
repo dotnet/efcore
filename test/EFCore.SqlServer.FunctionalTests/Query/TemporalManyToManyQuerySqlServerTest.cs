@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsTemporalTablesCascadeDeleteSupported))]
 public class TemporalManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTestBase<TemporalManyToManyQuerySqlServerFixture>
 {
     public TemporalManyToManyQuerySqlServerTest(TemporalManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

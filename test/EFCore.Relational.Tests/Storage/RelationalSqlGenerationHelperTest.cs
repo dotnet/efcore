@@ -5,15 +5,15 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalSqlGenerationHelperTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GenerateParameterName_returns_parameter_name()
         => Assert.Equal("@name", CreateSqlGenerationHelper().GenerateParameterName("name"));
 
-    [ConditionalFact]
+    [Fact]
     public void Default_BatchCommandSeparator_is_semicolon()
         => Assert.Equal(";", CreateSqlGenerationHelper().StatementTerminator);
 
-    [ConditionalFact]
+    [Fact]
     public void BatchSeparator_returns_separator()
         => Assert.Equal(Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
 

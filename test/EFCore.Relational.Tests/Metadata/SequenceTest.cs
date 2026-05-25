@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class SequenceTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_be_created_with_default_values()
     {
         IMutableModel model = new Model();
@@ -38,7 +38,7 @@ public class SequenceTest
         Assert.Null(conventionSequence.GetIsCyclicConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_be_created_with_specified_values()
     {
         IMutableModel model = new Model();
@@ -72,7 +72,7 @@ public class SequenceTest
         Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetIsCyclicConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_be_created_for_byte_short_int_and_long_decimal()
     {
         var sequence = ((IMutableModel)new Model()).AddSequence("Foo");

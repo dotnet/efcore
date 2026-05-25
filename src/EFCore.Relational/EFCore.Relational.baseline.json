@@ -775,15 +775,7 @@
           "Member": "virtual System.Type ElementType { get; }"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.INavigationBase? Navigation { get; }",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Query.ProjectionBindingExpression ProjectionBindingExpression { get; }",
-          "Stage": "Obsolete"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression QueryExpression { get; }"
@@ -944,7 +936,7 @@
           "Member": "virtual bool IsWrite { get; set; }"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; }"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; }"
         },
         {
           "Member": "virtual string? OriginalParameterName { get; }"
@@ -994,7 +986,7 @@
           "Member": "ColumnModificationParameters(Microsoft.EntityFrameworkCore.Update.IUpdateEntry? entry, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, Microsoft.EntityFrameworkCore.Metadata.IColumnBase column, System.Func<string> generateParameterName, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping, bool valueIsRead, bool valueIsWrite, bool columnIsKey, bool columnIsCondition, bool sensitiveLoggingEnabled);"
         },
         {
-          "Member": "ColumnModificationParameters(string columnName, object? value, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, string? columnType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping, Microsoft.EntityFrameworkCore.Infrastructure.JsonPath jsonPath, bool read, bool write, bool key, bool condition, bool sensitiveLoggingEnabled, bool? isNullable = null);"
+          "Member": "ColumnModificationParameters(string columnName, object? value, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, string? columnType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping, Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath jsonPath, bool read, bool write, bool key, bool condition, bool sensitiveLoggingEnabled, bool? isNullable = null);"
         },
         {
           "Member": "ColumnModificationParameters();"
@@ -1050,7 +1042,7 @@
           "Member": "bool IsWrite { get; init; }"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; init; }"
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; init; }"
         },
         {
           "Member": "object? OriginalValue { get; init; }"
@@ -1306,11 +1298,6 @@
         }
       ],
       "Fields": [
-        {
-          "Member": "const Microsoft.EntityFrameworkCore.Diagnostics.CommandSource BulkUpdate",
-          "Stage": "Obsolete",
-          "Value": "8"
-        },
         {
           "Member": "const Microsoft.EntityFrameworkCore.Diagnostics.CommandSource ExecuteDelete",
           "Value": "9"
@@ -3594,7 +3581,7 @@
           "Member": "bool IsWrite { get; set; }"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; }"
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; }"
         },
         {
           "Member": "string? OriginalParameterName { get; }"
@@ -5894,10 +5881,6 @@
         },
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.IRelationalParameter> Parameters { get; }"
-        },
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource TypeMappingSource { get; }",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -6209,7 +6192,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? ParentElement { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> Path { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Path { get; }"
         },
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IJsonElementMapping> PropertyMappings { get; }"
@@ -6874,10 +6857,6 @@
         },
         {
           "Member": "string StoreType { get; }"
-        },
-        {
-          "Member": "string Type { get; }",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -7322,56 +7301,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase Table { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.JsonPath",
-      "Methods": [
-        {
-          "Member": "JsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> segments, int[] ordinals);"
-        },
-        {
-          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder);"
-        },
-        {
-          "Member": "override string ToString();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual bool IsRoot { get; }"
-        },
-        {
-          "Member": "virtual int[] Ordinals { get; }"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.JsonPath Root { get; }"
-        },
-        {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> Segments { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment",
-      "Methods": [
-        {
-          "Member": "JsonPathSegment(string propertyName);"
-        },
-        {
-          "Member": "override string ToString();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment Array { get; }"
-        },
-        {
-          "Member": "bool IsArray { get; }"
-        },
-        {
-          "Member": "string? PropertyName { get; }"
         }
       ]
     },
@@ -7992,6 +7921,9 @@
           "Member": "int LastCommittedCommandIndex { get; set; }"
         },
         {
+          "Member": "bool SeedingCompleted { get; set; }"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? Transaction { get; set; }"
         }
       ]
@@ -8466,7 +8398,7 @@
       ],
       "Properties": [
         {
-          "Member": "virtual string? LatestMigrationId { get; }"
+          "Member": "virtual string? LastMigrationId { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IModel Model { get; }"
@@ -9954,11 +9886,6 @@
           "Value": "Relational:ContainerColumnType"
         },
         {
-          "Member": "const string ContainerColumnTypeMapping",
-          "Stage": "Obsolete",
-          "Value": "Relational:ContainerColumnTypeMapping"
-        },
-        {
           "Member": "const string DbFunctions",
           "Value": "Relational:DbFunctions"
         },
@@ -10470,10 +10397,6 @@
         },
         {
           "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.IRelationalParameter> Parameters { get; }"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource TypeMappingSource { get; }",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -10508,10 +10431,6 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Diagnostics.ILoggingOptions LoggingOptions { get; init; }"
-        },
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource TypeMappingSource { get; init; }",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -10520,10 +10439,6 @@
       "Methods": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder AddCompositeParameter(this Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder commandBuilder, string invariantName, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.IRelationalParameter> subParameters);"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder AddParameter(this Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder commandBuilder, string invariantName, string name);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder AddParameter(this Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder commandBuilder, string invariantName, string name, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping relationalTypeMapping, bool? nullable, System.Data.ParameterDirection direction = System.Data.ParameterDirection.Input);"
@@ -10757,6 +10672,9 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetJsonPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionComplexProperty complexProperty);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier> GetMappedStoreObjects(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyComplexProperty property, Microsoft.EntityFrameworkCore.Metadata.StoreObjectType storeObjectType);"
         },
         {
           "Member": "static void SetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableComplexProperty complexProperty, string? name);"
@@ -11217,11 +11135,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Storage.ValueConversion.RelationalConverterMappingHints : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
       "Methods": [
         {
-          "Member": "RelationalConverterMappingHints(int? size = null, int? precision = null, int? scale = null, bool? unicode = null, bool? fixedLength = null, System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>? valueGeneratorFactory = null, System.Data.DbType? dbType = null);"
-        },
-        {
-          "Member": "RelationalConverterMappingHints(int? size, int? precision, int? scale, bool? unicode, bool? fixedLength, System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.ITypeBase, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>? valueGeneratorFactory);",
-          "Stage": "Obsolete"
+          "Member": "RelationalConverterMappingHints(int? size = null, int? precision = null, int? scale = null, bool? unicode = null, bool? fixedLength = null, System.Data.DbType? dbType = null);"
         },
         {
           "Member": "override Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints OverrideWith(Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? hints);"
@@ -11368,6 +11282,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy ExecutionStrategy { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> Logger { get; init; }"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Migrations.IMigrationCommandExecutor MigrationCommandExecutor { get; init; }"
@@ -11625,14 +11542,6 @@
         },
         {
           "Member": "override string? ToString();"
-        },
-        {
-          "Member": "virtual TBuilder TranslateParameterizedCollectionsToConstants();",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "virtual TBuilder TranslateParameterizedCollectionsToParameters();",
-          "Stage": "Obsolete"
         },
         {
           "Member": "virtual TBuilder UseParameterizedCollectionMode(Microsoft.EntityFrameworkCore.ParameterTranslationMode parameterizedCollectionMode);"
@@ -12291,14 +12200,6 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetCommentConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? GetContainerColumnTypeMapping(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetContainerColumnTypeMappingConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyCheckConstraint> GetDeclaredCheckConstraints(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
         },
         {
@@ -12504,14 +12405,6 @@
         },
         {
           "Member": "static string? SetComment(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, string? comment, bool fromDataAnnotation = false);"
-        },
-        {
-          "Member": "static void SetContainerColumnTypeMapping(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? SetContainerColumnTypeMapping(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.IMutableStoredProcedure SetDeleteStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType);"
@@ -13623,14 +13516,10 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalMapToJsonConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalMapToJsonConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
       "Methods": [
         {
           "Member": "RelationalMapToJsonConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
-        },
-        {
-          "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
@@ -14226,7 +14115,7 @@
           "Member": "override void ValidateIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
-          "Member": "virtual void ValidateIndexMappedToTable(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+          "Member": "override void ValidateIndexOnComplexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> complexProperties, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateIndexPropertyMapping(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -14577,10 +14466,6 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression ExpandFromSqlParameter(System.Linq.Expressions.Expression queryExpression, Microsoft.EntityFrameworkCore.Query.ParametersCacheDecorator decorator);"
-        },
-        {
-          "Member": "virtual System.Linq.Expressions.Expression Optimize(System.Linq.Expressions.Expression queryExpression, System.Collections.Generic.IReadOnlyDictionary<string, object?> parametersValues, out bool canCache);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression queryExpression, Microsoft.EntityFrameworkCore.Query.ParametersCacheDecorator parametersDecorator);"
@@ -14991,10 +14876,6 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetCollationConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
         },
         {
-          "Member": "static string GetColumnBaseName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "static string GetColumnName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
         },
         {
@@ -15047,10 +14928,6 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetComputedColumnSqlConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
-        },
-        {
-          "Member": "static string GetDefaultColumnBaseName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase> GetDefaultColumnMappings(this Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
@@ -15364,10 +15241,6 @@
           "Member": "virtual bool IsValidSelectExpressionForExecuteDelete(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression);"
         },
         {
-          "Member": "virtual bool IsValidSelectExpressionForExecuteDelete(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, Microsoft.EntityFrameworkCore.Query.StructuralTypeShaperExpression shaper, out Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression? tableExpression);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "virtual bool IsValidSelectExpressionForExecuteUpdate(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase targetTable, out Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression? tableExpression);"
         },
         {
@@ -15522,16 +15395,6 @@
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "class Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.RelationalInferredTypeMappingApplier",
-      "Stage": "Obsolete",
-      "Methods": [
-        {
-          "Member": "RelationalInferredTypeMappingApplier();",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -16600,6 +16463,12 @@
           "Member": "static string IncorrectDefaultValueType(object? value, object? valueType, object? property, object? propertyType, object? entityType);"
         },
         {
+          "Member": "static string IndexOnNonJsonComplexProperty(object? indexProperties, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string IndexPropertiesMixedJsonAndNonJsonMapping(object? indexProperties, object? entityType);"
+        },
+        {
           "Member": "static string InsertDataOperationNoModel(object? table);"
         },
         {
@@ -16709,6 +16578,9 @@
         },
         {
           "Member": "static string KeylessMappingStrategy(object? mappingStrategy, object? entityType);"
+        },
+        {
+          "Member": "static string KeyPropertyInJsonComplexType(object? keyProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string LastUsedWithoutOrderBy(object? method);"
@@ -16982,6 +16854,9 @@
         },
         {
           "Member": "static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor);"
+        },
+        {
+          "Member": "static string UniqueIndexOnComplexProperty(object? indexProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string UnknownOperation(object? sqlGeneratorType, object? operationType);"
@@ -19010,10 +18885,6 @@
           "Member": "SqlConstantExpression(object value, bool sensitive, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
         },
         {
-          "Member": "SqlConstantExpression(System.Linq.Expressions.ConstantExpression constantExpression, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression ApplyTypeMapping(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
         },
         {
@@ -20026,6 +19897,56 @@
         },
         {
           "Member": "override System.Type Type { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath",
+      "Methods": [
+        {
+          "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, int[] indices);"
+        },
+        {
+          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual int[] Indices { get; }"
+        },
+        {
+          "Member": "virtual bool IsRoot { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath Root { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Segments { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment",
+      "Methods": [
+        {
+          "Member": "StructuredJsonPathSegment(string propertyName);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment Array { get; }"
+        },
+        {
+          "Member": "bool IsArray { get; }"
+        },
+        {
+          "Member": "string? PropertyName { get; }"
         }
       ]
     },

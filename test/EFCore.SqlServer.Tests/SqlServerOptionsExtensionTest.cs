@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqlServerOptionsExtensionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Compiled_model_is_thread_safe()
     {
         var tasks = new Task[Environment.ProcessorCount];
@@ -51,7 +51,7 @@ public class SqlServerOptionsExtensionTest
             => _instance;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ApplyServices_adds_correct_services()
     {
         var services = new ServiceCollection();

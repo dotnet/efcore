@@ -2480,14 +2480,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             .GetMethod(nameof(FakeDefaultIfEmpty), BindingFlags.NonPublic | BindingFlags.Static)!);
 
     /// <summary>
-    ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from
-    ///     <see cref="RelationalQueryTranslationPostprocessor.ProcessTypeMappings" />.
-    /// </summary>
-    [Obsolete(
-        "Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
-    protected class RelationalInferredTypeMappingApplier;
-
-    /// <summary>
     ///     Determines whether a join is guaranteed to match at most one inner row per outer row (a "to-one" join).
     ///     This is detected by checking whether the inner key selector's properties form a primary/alternate key
     ///     or are covered by a unique index on the inner entity type.
@@ -2514,7 +2506,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // Check if the inner key properties are covered by a unique index (e.g. unique FK in a 1:1 relationship).
         foreach (var index in entityType.GetIndexes())
         {
-            if (index.IsUnique && index.Properties.SequenceEqual(keyProperties))
+            if (index.IsUnique
+                && index.Properties.Count == keyProperties.Count
+                && index.Properties.OfType<IProperty>().SequenceEqual(keyProperties))
             {
                 return true;
             }

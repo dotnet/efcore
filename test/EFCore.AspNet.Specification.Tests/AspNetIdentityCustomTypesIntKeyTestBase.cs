@@ -12,7 +12,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
     where TFixture : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContextInt, CustomUserInt, CustomRoleInt, int, CustomUserClaimInt,
         CustomUserRoleInt, CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>.AspNetIdentityFixtureBase
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_navigation_properties_on_User()
     {
         var userId = 0;

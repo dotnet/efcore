@@ -514,8 +514,10 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                     string.Join(",", index.Properties.Select(e => e.Name))));
         }
 
-        if (index.Properties[0].GetVectorDistanceFunction() == null
-            || index.Properties[0].GetVectorDimensions() == null)
+        var firstVectorIndexProperty = index.Properties[0] as IProperty;
+        if (firstVectorIndexProperty == null
+            || firstVectorIndexProperty.GetVectorDistanceFunction() == null
+            || firstVectorIndexProperty.GetVectorDimensions() == null)
         {
             throw new InvalidOperationException(
                 CosmosStrings.VectorIndexOnNonVector(
@@ -542,7 +544,9 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                     string.Join(",", index.Properties.Select(e => e.Name))));
         }
 
-        if (index.Properties[0].GetIsFullTextSearchEnabled() != true)
+        var firstFullTextProperty = index.Properties[0] as IProperty;
+        if (firstFullTextProperty == null
+            || firstFullTextProperty.GetIsFullTextSearchEnabled() != true)
         {
             throw new InvalidOperationException(
                 CosmosStrings.FullTextIndexOnNonFullTextProperty(

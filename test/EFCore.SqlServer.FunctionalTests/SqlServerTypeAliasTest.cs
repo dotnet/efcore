@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,7 +11,7 @@ public class SqlServerTypeAliasTest(SqlServerFixture fixture) : IClassFixture<Sq
 
     protected SqlServerFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_create_database_with_alias_columns()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);

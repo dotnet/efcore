@@ -17,7 +17,6 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
     <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
     <PackageVersion Include="Microsoft.Extensions.HostFactoryResolver.Sources" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MicrosoftExtensionsConfigurationAbstractionsVersion)" />
     <!-- Roslyn dependencies-->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisCSharpVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisCSharpWorkspacesVersion)" />
@@ -31,7 +30,7 @@
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildTasksCoreVersion)" />
     <PackageVersion Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" />
     <!-- Azure SDK for .NET dependencies -->
-    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.58.0" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.59.0" />
     <!-- SQL Server dependencies -->
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.0" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="170.1000.7" />

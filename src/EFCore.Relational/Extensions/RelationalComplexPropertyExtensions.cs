@@ -53,4 +53,64 @@ public static class RelationalComplexPropertyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given complex property.</returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionComplexProperty complexProperty)
         => complexProperty.ComplexType.GetJsonPropertyNameConfigurationSource();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the table-like store objects to which this complex property is mapped if it's mapped to a JSON column.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The complex property.</param>
+    /// <param name="storeObjectType">The type of the store object.</param>
+    /// <returns>The table-like store objects to which this property is mapped.</returns>
+    public static IEnumerable<StoreObjectIdentifier> GetMappedStoreObjects(
+        this IReadOnlyComplexProperty property,
+        StoreObjectType storeObjectType)
+    {
+        var declaringType = property.DeclaringType;
+        var declaringStoreObject = StoreObjectIdentifier.Create(declaringType, storeObjectType);
+
+        // TODO: Support different JSON column names for different store objects. Issue #28584
+        if (declaringStoreObject != null
+            && property.ComplexType.GetContainerColumnName() != null)
+        {
+            yield return declaringStoreObject.Value;
+        }
+
+        if (storeObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
+        {
+            yield break;
+        }
+
+        // TODO: Support entity splitting with JSON columns. Issue #36172
+        // foreach (var fragment in declaringType.GetMappingFragments(storeObjectType))
+        // {
+        //     if (property.ComplexType.GetContainerColumnName(fragment.StoreObject) != null)
+        //     {
+        //         yield return fragment.StoreObject;
+        //     }
+        // }
+
+        if (declaringType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+        {
+            yield break;
+        }
+
+        if (declaringType is IReadOnlyEntityType entityType)
+        {
+            foreach (var derivedType in entityType.GetDerivedTypes())
+            {
+                // TODO: Support different JSON column names in derived types. Issue #38214
+                var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
+                if (derivedStoreObject != null
+                    && property.ComplexType.GetContainerColumnName() != null)
+                {
+                    yield return derivedStoreObject.Value;
+                }
+            }
+        }
+    }
 }

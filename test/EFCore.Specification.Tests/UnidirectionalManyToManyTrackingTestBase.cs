@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ManyToManyTrackingTestBase<TFixture>
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_with_navs_unidirectional(bool async)
     {
         List<int> leftKeys = null;
@@ -132,7 +132,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_with_navs_unidirectional()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -260,7 +260,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_with_navs_unidirectional()
     {
         var key1 = 0;
@@ -424,7 +424,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_additional_pk_with_navs_unidirectional(bool async)
     {
         List<string> keys = null;
@@ -568,7 +568,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_additional_pk_with_navs_unidirectional()
     {
         List<int> threeIds = null;
@@ -770,7 +770,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_additional_pk_with_navs_unidirectional()
     {
         var threeId = 0;
@@ -924,7 +924,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_shared_unidirectional(bool async)
     {
         List<int> leftKeys = null;
@@ -1031,7 +1031,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_self_unidirectional()
     {
         List<int> ids = null;
@@ -1198,7 +1198,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_inheritance_unidirectional(bool async)
     {
         List<int> keys = null;
@@ -1289,7 +1289,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_with_inheritance_unidirectional()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -1445,7 +1445,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_with_payload_unidirectional(bool async)
     {
         List<int> leftKeys = null;
@@ -1575,7 +1575,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_self_with_payload_unidirectional()
     {
         List<int> keys = null;
@@ -1782,7 +1782,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_with_payload_unidirectional(bool async)
     {
         List<int> keys = null;
@@ -1890,7 +1890,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_shared_with_payload_unidirectional()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -2094,7 +2094,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_unidirectional(bool async)
     {
         List<int> keys = null;
@@ -2185,7 +2185,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_shared_unidirectional()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -2353,7 +2353,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_suspected_dangling_join_unidirectional(
@@ -2529,7 +2529,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_dangling_join_unidirectional(
@@ -2664,7 +2664,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_insert_update_delete_proxyable_shared_type_entity_type_unidirectional()
     {
         var id = 0;
@@ -2713,7 +2713,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_navs_by_join_entity_unidirectional(bool async)
     {
         await ExecuteWithStrategyInTransactionAsync(

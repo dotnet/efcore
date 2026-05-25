@@ -2000,7 +2000,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ValueGeneratedOnAdd_on_properties()
     {
         await Test(
@@ -2107,7 +2107,7 @@ CREATE TABLE "Suppliers" (
             base.Multiop_rename_table_and_drop,
             SqliteStrings.InvalidMigrationOperation(nameof(DropPrimaryKeyOperation)));
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_to_existing_table()
     {
         await base.Add_required_primitve_collection_to_existing_table();
@@ -2118,7 +2118,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
@@ -2129,7 +2129,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
@@ -2140,7 +2140,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
@@ -2151,7 +2151,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -2162,7 +2162,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_to_existing_table()
     {
         await base.Add_required_primitive_collection_to_existing_table();
@@ -2173,7 +2173,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
@@ -2184,7 +2184,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
@@ -2195,7 +2195,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
@@ -2206,7 +2206,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -2217,7 +2217,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_optional_primitive_collection_to_existing_table()
     {
         await base.Add_optional_primitive_collection_to_existing_table();
@@ -2228,7 +2228,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_required_primitive_collection()
     {
         await base.Create_table_with_required_primitive_collection();
@@ -2243,7 +2243,7 @@ CREATE TABLE "Customers" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_optional_primitive_collection()
     {
         await base.Create_table_with_optional_primitive_collection();
@@ -2285,7 +2285,7 @@ CREATE TABLE "Customers" (
     protected override string NonDefaultCollation
         => "NOCASE";
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Replace_string_primary_key_with_autoincrement_identity()
     {
         await Test(
@@ -2358,7 +2358,7 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_autoincrement_and_value_converter()
     {
         await Test(
@@ -2391,7 +2391,7 @@ CREATE TABLE "ProductWithStrongId" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_autoincrement_and_value_converter_by_convention()
     {
         await Test(
@@ -2424,7 +2424,7 @@ CREATE TABLE "ProductWithStrongId" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_composite_primary_key_ignores_autoincrement()
     {
         await Test(
@@ -2459,7 +2459,7 @@ CREATE TABLE "CompositeEntity" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_remove_autoincrement()
     {
         await Test(

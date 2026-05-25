@@ -29,15 +29,6 @@ public static class RelationalPropertyExtensions
         = typeof(RelationalPropertyExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
     /// <summary>
-    ///     Returns the base name of the column to which the property would be mapped.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <returns>The base name of the column to which the property would be mapped.</returns>
-    [Obsolete("Use GetColumnName")]
-    public static string GetColumnBaseName(this IReadOnlyProperty property)
-        => property.GetColumnName();
-
-    /// <summary>
     ///     Returns the name of the column to which the property would be mapped.
     /// </summary>
     /// <param name="property">The property.</param>
@@ -87,6 +78,18 @@ public static class RelationalPropertyExtensions
                 else if (property.DeclaringType is IReadOnlyEntityType declaringEntityType)
                 {
                     foreach (var containingType in declaringEntityType.GetDerivedTypesInclusive())
+                    {
+                        if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    var containingEntityType = property.DeclaringType.ContainingEntityType;
+                    foreach (var containingType in containingEntityType.GetDerivedTypesInclusive())
                     {
                         if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
                         {
@@ -161,15 +164,6 @@ public static class RelationalPropertyExtensions
             return true;
         }
     }
-
-    /// <summary>
-    ///     Returns the default base name of the column to which the property would be mapped
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <returns>The default base column name to which the property would be mapped.</returns>
-    [Obsolete("Use GetDefaultColumnName")]
-    public static string GetDefaultColumnBaseName(this IReadOnlyProperty property)
-        => property.GetDefaultColumnName();
 
     /// <summary>
     ///     Returns the default base name of the column to which the property would be mapped

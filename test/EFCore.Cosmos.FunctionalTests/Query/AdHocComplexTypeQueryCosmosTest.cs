@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -11,9 +11,10 @@ public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocCo
         => CosmosTestStoreFactory.Instance;
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Complex_type_equals_parameter_with_nested_types_with_property_of_same_name();
 
         AssertSql(
@@ -49,6 +50,11 @@ SELECT VALUE c
 FROM root c
 WHERE (c["AllOptionalsComplexType"] = null)
 OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
 """);
     }
 
@@ -103,11 +109,150 @@ OFFSET 0 LIMIT 2
 """);
     }
 
+    public override async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_set_to_different_value()
+    {
+        await base.Nullable_complex_type_with_discriminator_set_to_different_value();
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_set_to_null()
+    {
+        // On Cosmos, setting the discriminator shadow property to null doesn't affect materialization
+        // because the complex property's data is still present in the JSON document.
+        var contextFactory = await InitializeNonSharedTest<Context38119>();
+
+        Guid entityId;
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = new Context38119.EntityType
+            {
+                Id = Guid.NewGuid(),
+                Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+            };
+            context.Add(entity);
+            entityId = entity.Id;
+
+            var discriminatorEntry = context.Entry(entity).ComplexProperty(e => e.Prop).Property("Discriminator");
+            Assert.Equal("OptionalComplexProperty", discriminatorEntry.CurrentValue);
+            discriminatorEntry.CurrentValue = null;
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync(e => e.Id == entityId);
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+
+    }
+
+    public override async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
        => base.AddNonSharedOptions(builder)
                .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
-    [ConditionalFact]
+    public override async Task Can_query_by_complex_type_property_with_index()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_query_by_complex_type_property_with_index)).Message);
+
+    public override async Task Can_update_entity_with_index_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_update_entity_with_index_on_complex_type_property)).Message);
+
+    public override async Task Can_delete_entity_with_index_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_delete_entity_with_index_on_complex_type_property)).Message);
+
+    public override async Task Can_query_by_alternate_key_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_query_by_alternate_key_on_complex_type_property)).Message);
+
+    public override async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_save_batch_swapping_alternate_key_values_on_complex_type_property)).Message);
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

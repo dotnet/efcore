@@ -428,12 +428,48 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             subquery.ClearOrdering();
         }
 
-        var translation = _sqlExpressionFactory.Exists(subquery);
-        var selectExpression = new SelectExpression(translation);
+        // For subqueries, Cosmos supports EXISTS over correlated subqueries (e.g. within a WHERE clause).
+        if (_subquery)
+        {
+            var translation = _sqlExpressionFactory.Exists(subquery);
+            var selectExpression = new SelectExpression(translation);
 
-        return source.Update(
-            selectExpression,
-            Expression.Convert(new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+            return source.Update(
+                selectExpression,
+                Expression.Convert(
+                    new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+        }
+
+        // For top-level Any(), Cosmos doesn't support EXISTS over uncorrelated subqueries. Instead, we project a constant 'true'
+        // with LIMIT 1:
+        //   SELECT VALUE true FROM root c WHERE <predicate> OFFSET 0 LIMIT 1
+        // If at least one document matches, we get back 'true'; if no documents match, the result set is empty.
+        // We override the result cardinality to SingleOrDefault so that an empty result returns default(bool) = false
+        // (the caller sets ResultCardinality.Single which would throw on empty results).
+
+        // TODO: Subquery pushdown, #33968
+        if (subquery.IsDistinct)
+        {
+            return null;
+        }
+
+        subquery.ClearOrdering();
+
+        var topLevelTranslation = _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(true));
+        var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), topLevelTranslation } };
+        subquery.ReplaceProjectionMapping(projectionMapping);
+
+        if (!TryApplyLimit(subquery, TranslateExpression(Expression.Constant(1))!))
+        {
+            return null;
+        }
+
+        return source
+            .UpdateShaperExpression(
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)))
+            .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
     }
 
     /// <summary>

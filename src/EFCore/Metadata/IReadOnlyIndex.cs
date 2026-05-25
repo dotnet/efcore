@@ -16,7 +16,7 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
     /// <summary>
     ///     Gets the properties that this index is defined on.
     /// </summary>
-    IReadOnlyList<IReadOnlyProperty> Properties { get; }
+    IReadOnlyList<IReadOnlyPropertyBase> Properties { get; }
 
     /// <summary>
     ///     Gets the name of this index.

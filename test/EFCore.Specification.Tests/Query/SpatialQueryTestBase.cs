@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
@@ -16,7 +16,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     protected virtual bool AssertDistances
         => true;
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SimpleSelect(bool async)
     {
         await AssertQuery(
@@ -36,13 +36,13 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<MultiLineStringEntity>());
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task WithConversion(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<GeoPointEntity>());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Area(bool async)
         => AssertQuery(
             async,
@@ -62,7 +62,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task AsBinary(bool async)
         => AssertQuery(
             async,
@@ -75,7 +75,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Binary, a.Binary);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task AsBinary_with_null_check(bool async)
         => AssertQuery(
             async,
@@ -87,7 +87,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Binary, a.Binary);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task AsText(bool async)
         => AssertQuery(
             async,
@@ -100,7 +100,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Text, a.Text, WktComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Boundary(bool async)
         => AssertQuery(
             async,
@@ -112,7 +112,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Boundary, a.Boundary, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Buffer(bool async)
         => AssertQuery(
             async,
@@ -134,7 +134,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Buffer_quadrantSegments(bool async)
         => AssertQuery(
             async,
@@ -156,7 +156,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Centroid(bool async)
         => AssertQuery(
             async,
@@ -168,7 +168,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Centroid, a.Centroid, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Combine_aggregate(bool async)
         => AssertQuery(
             async,
@@ -189,7 +189,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(eCollection.Geometries, aCollection.Geometries);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task EnvelopeCombine_aggregate(bool async)
         => AssertQuery(
             async,
@@ -204,7 +204,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Combined, a.Combined, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.25, 0.25));
@@ -217,7 +217,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ConvexHull(bool async)
         => AssertQuery(
             async,
@@ -230,7 +230,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.ConvexHull, a.ConvexHull, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ConvexHull_aggregate(bool async)
         => AssertQuery(
             async,
@@ -245,7 +245,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.ConvexHull, a.ConvexHull, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IGeometryCollection_Count(bool async)
         => AssertQuery(
             async,
@@ -253,14 +253,14 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, Count = e.MultiLineString == null ? (int?)null : e.MultiLineString.Count }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task LineString_Count(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Count = e.LineString == null ? (int?)null : e.LineString.Count }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task CoveredBy(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -274,7 +274,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Covers(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.25, 0.25));
@@ -286,7 +286,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Crosses(bool async)
     {
         var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);
@@ -299,7 +299,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Difference(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -318,14 +318,14 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Dimension(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, Dimension = e.Point == null ? (Dimension?)null : e.Point.Dimension }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Disjoint_with_cast_to_nullable(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(1, 1));
@@ -338,7 +338,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Disjoint_with_null_check(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(1, 1));
@@ -350,7 +350,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_with_null_check(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
@@ -376,7 +376,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_with_cast_to_nullable(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
@@ -401,7 +401,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_geometry(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
@@ -427,7 +427,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_constant(bool async)
         => AssertQuery(
             async,
@@ -449,7 +449,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_constant_srid_4326(bool async)
         => AssertQuery(
             async,
@@ -472,7 +472,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_constant_lhs(bool async)
         => AssertQuery(
             async,
@@ -494,7 +494,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_on_converted_geometry_type(bool async)
     {
         var point = new GeoPoint(1, 0);
@@ -506,7 +506,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_on_converted_geometry_type_lhs(bool async)
     {
         var point = new GeoPoint(1, 0);
@@ -518,7 +518,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_on_converted_geometry_type_constant(bool async)
         => AssertQuery(
             async,
@@ -533,7 +533,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distance_on_converted_geometry_type_constant_lhs(bool async)
         => AssertQuery(
             async,
@@ -548,14 +548,14 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task EndPoint(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, EndPoint = e.LineString == null ? null : e.LineString.EndPoint }),
             elementSorter: e => e.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Envelope(bool async)
         => AssertQuery(
             async,
@@ -567,7 +567,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Envelope, a.Envelope, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task EqualsTopologically(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 0));
@@ -580,21 +580,21 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ExteriorRing(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ExteriorRing = e.Polygon == null ? null : e.Polygon.ExteriorRing }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GeometryType(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, GeometryType = e.Point == null ? null : e.Point.GeometryType }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GetGeometryN(bool async)
         => AssertQuery(
             async,
@@ -603,7 +603,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 => new { e.Id, Geometry0 = e.MultiLineString == null ? null : e.MultiLineString.GetGeometryN(0) }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GetGeometryN_with_null_argument(bool async)
         => AssertQuery(
             async,
@@ -614,7 +614,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = default(Geometry) }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GetInteriorRingN(bool async)
         => AssertQuery(
             async,
@@ -634,7 +634,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GetPointN(bool async)
         => AssertQuery(
             async,
@@ -643,7 +643,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, Point0 = e.LineString == null ? null : e.LineString.GetPointN(0) }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task InteriorPoint(bool async)
         => AssertQuery(
             async,
@@ -668,7 +668,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Intersection(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -687,7 +687,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Intersects(bool async)
     {
         var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);
@@ -700,7 +700,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ICurve_IsClosed(bool async)
         => AssertQuery(
             async,
@@ -708,7 +708,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, IsClosed = e.LineString == null ? (bool?)null : e.LineString.IsClosed }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IMultiCurve_IsClosed(bool async)
         => AssertQuery(
             async,
@@ -716,7 +716,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 => new { e.Id, IsClosed = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsClosed }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsEmpty(bool async)
         => AssertQuery(
             async,
@@ -724,7 +724,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, IsEmpty = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsEmpty }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsRing(bool async)
         => AssertQuery(
             async,
@@ -732,7 +732,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, IsRing = e.LineString == null ? (bool?)null : e.LineString.IsRing }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsSimple(bool async)
         => AssertQuery(
             async,
@@ -740,7 +740,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 new { e.Id, IsSimple = e.LineString == null ? (bool?)null : e.LineString.IsSimple }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsValid(bool async)
         => AssertQuery(
             async,
@@ -748,7 +748,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, IsValid = e.Point == null ? (bool?)null : e.Point.IsValid }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsWithinDistance(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
@@ -774,7 +774,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Item(bool async)
         => AssertQuery(
             async,
@@ -783,7 +783,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, Item0 = e.MultiLineString == null ? null : e.MultiLineString[0] }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Length(bool async)
         => AssertQuery(
             async,
@@ -804,7 +804,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task M(bool async)
         => AssertQuery(
             async,
@@ -824,7 +824,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Normalized(bool async)
         => AssertQuery(
             async,
@@ -837,7 +837,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Normalized, a.Normalized, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task NumGeometries(bool async)
         => AssertQuery(
             async,
@@ -845,7 +845,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 => new { e.Id, NumGeometries = e.MultiLineString == null ? (int?)null : e.MultiLineString.NumGeometries }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task NumInteriorRings(bool async)
         => AssertQuery(
             async,
@@ -853,7 +853,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, NumInteriorRings = e.Polygon == null ? (int?)null : e.Polygon.NumInteriorRings }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task NumPoints(bool async)
         => AssertQuery(
             async,
@@ -861,7 +861,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, NumPoints = e.LineString == null ? (int?)null : e.LineString.NumPoints }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OgcGeometryType(bool async)
         => AssertQuery(
             async,
@@ -869,7 +869,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 => new { e.Id, OgcGeometryType = e.Point == null ? (OgcGeometryType?)null : e.Point.OgcGeometryType }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Overlaps(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -883,7 +883,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task PointOnSurface(bool async)
         => AssertQuery(
             async,
@@ -908,7 +908,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Relate(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -922,7 +922,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Reverse(bool async)
         => AssertQuery(
             async,
@@ -930,21 +930,21 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Reverse = e.LineString == null ? null : e.LineString.Reverse() }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SRID(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, SRID = e.Point == null ? (int?)null : e.Point.SRID }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SRID_geometry(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, SRID = e.Geometry == null ? (int?)null : e.Geometry.SRID }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task StartPoint(bool async)
         => AssertQuery(
             async,
@@ -952,7 +952,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, StartPoint = e.LineString == null ? null : e.LineString.StartPoint }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SymmetricDifference(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -971,7 +971,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ToBinary(bool async)
         => AssertQuery(
             async,
@@ -984,7 +984,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Binary, a.Binary);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ToText(bool async)
         => AssertQuery(
             async,
@@ -997,7 +997,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Text, a.Text, WktComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Touches(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -1011,7 +1011,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -1029,7 +1029,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_aggregate(bool async)
         => AssertQuery(
             async,
@@ -1044,7 +1044,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(e.Union, a.Union, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_void(bool async)
         => AssertQuery(
             async,
@@ -1053,7 +1053,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 .Select(e => new { e.Id, Union = e.MultiLineString == null ? null : e.MultiLineString.Union() }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Within(bool async)
     {
         var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -1066,21 +1066,21 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task X(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, X = e.Point == null ? (double?)null : e.Point.X }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Y(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, Y = e.Point == null ? (double?)null : e.Point.Y }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Z(bool async)
         => AssertQuery(
             async,
@@ -1100,7 +1100,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task XY_with_collection_join(bool async)
         => AssertFirstOrDefault(
             async,
@@ -1119,7 +1119,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 AssertCollection(e.List, a.List);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsEmpty_equal_to_null(bool async)
     {
         return AssertQueryScalar(
@@ -1130,7 +1130,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<PointEntity>().Where(e => e.Point == null).Select(e => e.Id));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsEmpty_not_equal_to_null(bool async)
     {
         return AssertQueryScalar(
@@ -1141,7 +1141,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<PointEntity>().Where(e => e.Point != null).Select(e => e.Id));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Intersects_equal_to_null(bool async)
     {
         var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);
@@ -1161,7 +1161,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<LineStringEntity>().Where(e => e.LineString == null).Select(e => e.Id));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Intersects_not_equal_to_null(bool async)
     {
         var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ModelBuilding101TestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredTest()
         => Model101Test();
 
@@ -88,7 +88,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalTest()
         => Model101Test();
 
@@ -165,7 +165,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredPkToPkTest()
         => Model101Test();
 
@@ -269,7 +269,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithShadowFkTest()
         => Model101Test();
 
@@ -372,7 +372,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithShadowFkTest()
         => Model101Test();
 
@@ -474,7 +474,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -545,7 +545,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -593,7 +593,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithShadowFkAndNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -647,7 +647,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithShadowFkAndNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -700,7 +700,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -783,7 +783,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -866,7 +866,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithShadowFkAndNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -947,7 +947,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithShadowFkAndNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -1027,7 +1027,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredNoNavigationsTest()
         => Model101Test();
 
@@ -1106,7 +1106,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalNoNavigationsTest()
         => Model101Test();
 
@@ -1158,7 +1158,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithShadowFkAndNoNavigationsTest()
         => Model101Test();
 
@@ -1211,7 +1211,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithShadowFkAndNoNavigationsTest()
         => Model101Test();
 
@@ -1263,7 +1263,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithAlternateKeyTest()
         => Model101Test();
 
@@ -1356,7 +1356,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithAlternateKeyTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1449,7 +1449,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithShadowFkWithAlternateKeyTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1569,7 +1569,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithShadowFkWithAlternateKeyTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1658,7 +1658,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithCompositeKeyTest()
         => Model101Test();
 
@@ -1784,7 +1784,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithCompositeKeyTest()
         => Model101Test();
 
@@ -1909,7 +1909,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOneToOneRequiredWithShadowFkWithCompositeKeyTest()
         => Model101Test();
 
@@ -2032,7 +2032,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneOptionalWithShadowFkWithCompositeKeyTest()
         => Model101Test();
 
@@ -2154,7 +2154,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneSelfReferencingTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30355
 
@@ -2214,7 +2214,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToOneRequiredWithoutCascadeDeleteTest()
         => Model101Test();
 

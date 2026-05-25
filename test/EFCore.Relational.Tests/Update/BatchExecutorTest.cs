@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class BatchExecutorTest
 {
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ExecuteAsync_calls_Commit_if_no_transaction(bool async)
     {
         using var context = new TestContext();
@@ -28,7 +28,7 @@ public class BatchExecutorTest
         Assert.Equal(1, connection.DbTransactions.Single().CommitCount);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction(bool async)
     {
         using var context = new TestContext();

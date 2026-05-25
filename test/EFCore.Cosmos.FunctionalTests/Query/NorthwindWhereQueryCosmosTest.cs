@@ -19,7 +19,7 @@ public class NorthwindWhereQueryCosmosTest : NorthwindWhereQueryTestBase<Northwi
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -419,7 +419,7 @@ WHERE (c["City"] = @InstanceFieldValue)
         AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Always uses sync code.")]
+    [Theory(Skip = "Always uses sync code.")]
     public override Task Where_subquery_closure_via_query_cache(bool async)
         => Task.CompletedTask;
 

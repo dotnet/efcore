@@ -41,6 +41,11 @@ internal partial class MigrationsBundleCommand
                 throw new CommandException(Resources.VersionRequired("6.0.0"));
             }
 
+            if (Context!.Value() == "*")
+            {
+                throw new CommandException(Resources.WildcardNotSupported);
+            }
+
             context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
         }
 
@@ -162,8 +167,7 @@ internal partial class MigrationsBundleCommand
                     : "--no-self-contained");
 
             var configuration = Configuration!.Value();
-            if (string.Equals(configuration, "Debug", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(configuration, "Release", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(configuration))
             {
                 publishArgs.Add("--configuration");
                 publishArgs.Add(configuration!);

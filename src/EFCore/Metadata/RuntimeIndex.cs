@@ -27,7 +27,7 @@ public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
     /// </summary>
     [EntityFrameworkInternal]
     public RuntimeIndex(
-        IReadOnlyList<RuntimeProperty> properties,
+        IReadOnlyList<RuntimePropertyBase> properties,
         RuntimeEntityType declaringEntityType,
         string? name,
         bool unique)
@@ -41,7 +41,7 @@ public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
     /// <summary>
     ///     Gets the properties that this index is defined on.
     /// </summary>
-    public virtual IReadOnlyList<RuntimeProperty> Properties { get; }
+    public virtual IReadOnlyList<RuntimePropertyBase> Properties { get; }
 
     /// <summary>
     ///     Gets the name of this index.
@@ -84,7 +84,7 @@ public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
             () => ((IIndex)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <inheritdoc />
-    IReadOnlyList<IReadOnlyProperty> IReadOnlyIndex.Properties
+    IReadOnlyList<IReadOnlyPropertyBase> IReadOnlyIndex.Properties
     {
         [DebuggerStepThrough]
         get => Properties;
@@ -98,7 +98,7 @@ public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
     }
 
     /// <inheritdoc />
-    IReadOnlyList<IProperty> IIndex.Properties
+    IReadOnlyList<IPropertyBase> IIndex.Properties
     {
         [DebuggerStepThrough]
         get => Properties;
@@ -122,5 +122,23 @@ public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
     [DebuggerStepThrough]
     IDependentKeyValueFactory<TKey> IIndex.GetNullableValueFactory<TKey>()
         => (IDependentKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _nullableValueFactory, this, static index => new CompositeValueFactory(index.Properties));
+            ref _nullableValueFactory, this, static index =>
+            {
+                var properties = new List<IProperty>(index.Properties.Count);
+                foreach (var property in index.Properties)
+                {
+                    if (property is IComplexProperty complexProperty)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.IndexValueFactoryWithComplexProperty(
+                                index.Properties.Format(),
+                                ((IReadOnlyEntityType)index.DeclaringEntityType).DisplayName(),
+                                complexProperty.Name));
+                    }
+
+                    properties.Add((IProperty)property);
+                }
+
+                return new CompositeValueFactory(properties);
+            });
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class StringToTimeSpanConverterTest
 {
     private static readonly StringToTimeSpanConverter _stringToTimeSpan = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_TimeSpan()
     {
         var converter = _stringToTimeSpan.ConvertToProviderExpression.Compile();
@@ -22,7 +22,7 @@ public class StringToTimeSpanConverterTest
         Assert.Throws<FormatException>(() => converter("Not a TimeSpan"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_string()
     {
         var converter = _stringToTimeSpan.ConvertFromProviderExpression.Compile();
@@ -34,7 +34,7 @@ public class StringToTimeSpanConverterTest
         Assert.Equal("00:00:00", converter(new TimeSpan()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_TimeSpan_object()
     {
         var converter = _stringToTimeSpan.ConvertToProvider;
@@ -49,7 +49,7 @@ public class StringToTimeSpanConverterTest
         Assert.Throws<FormatException>(() => converter("Not a TimeSpan"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeSpan_to_string_object()
     {
         var converter = _stringToTimeSpan.ConvertFromProvider;

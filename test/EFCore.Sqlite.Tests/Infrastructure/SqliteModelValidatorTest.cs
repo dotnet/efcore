@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqliteModelValidatorTest : RelationalModelValidatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_srid()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -23,7 +23,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_schemas()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -34,7 +34,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_sequences()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -45,7 +45,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_insert_stored_procedures()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -60,7 +60,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_update_stored_procedures()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -75,7 +75,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_delete_stored_procedures()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -85,7 +85,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_sql_returning_clause_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -252,7 +252,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_conflicting_autoincrement_and_default_value_sql()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -267,7 +267,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_conflicting_autoincrement_and_computed_column()
     {
         var modelBuilder = CreateConventionModelBuilder();

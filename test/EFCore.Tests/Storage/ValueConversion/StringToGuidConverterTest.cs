@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class StringToGuidConverterTest
 {
     private static readonly StringToGuidConverter _stringToGuid = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_String_to_GUIDs()
     {
         var converter = _stringToGuid.ConvertToProviderExpression.Compile();
@@ -24,7 +24,7 @@ public class StringToGuidConverterTest
         Assert.Throws<FormatException>(() => converter("Not a GUID"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_GUIDs_to_String()
     {
         var converter = _stringToGuid.ConvertFromProviderExpression.Compile();
@@ -38,7 +38,7 @@ public class StringToGuidConverterTest
             converter(Guid.Empty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_String_to_GUIDs_object()
     {
         var converter = _stringToGuid.ConvertToProvider;
@@ -55,7 +55,7 @@ public class StringToGuidConverterTest
         Assert.Throws<FormatException>(() => converter("Not a GUID"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_GUIDs_to_String_object()
     {
         var converter = _stringToGuid.ConvertFromProvider;

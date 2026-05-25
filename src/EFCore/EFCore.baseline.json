@@ -199,10 +199,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableBuilder<TMetadata, TModelBuilder> MergeAnnotationsFrom(TMetadata annotatable, Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource minimalConfigurationSource);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableBuilder<TMetadata, TModelBuilder>? RemoveAnnotation(string name, Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource configurationSource);",
-          "Stage": "Obsolete"
         }
       ],
       "Properties": [
@@ -2846,7 +2842,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
       "Methods": [
         {
-          "Member": "ConverterMappingHints(int? size = null, int? precision = null, int? scale = null, bool? unicode = null, System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>? valueGeneratorFactory = null);"
+          "Member": "ConverterMappingHints(int? size = null, int? precision = null, int? scale = null, bool? unicode = null);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints OverrideWith(Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? hints);"
@@ -2867,10 +2863,6 @@
         },
         {
           "Member": "virtual int? Size { get; }"
-        },
-        {
-          "Member": "virtual System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>? ValueGeneratorFactory { get; }",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -2939,6 +2931,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId DuplicateDependentEntityTypeInstanceWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId EnsureCreatedWithTrackedEntitiesWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ExecutionStrategyRetrying"
         },
         {
@@ -2997,10 +2992,6 @@
         },
         {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId NoEntityTypeConfigurationsWarning"
-        },
-        {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId NonDefiningInverseNavigationWarning",
-          "Stage": "Obsolete"
         },
         {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId NonOwnershipInverseNavigationWarning"
@@ -3189,6 +3180,9 @@
         },
         {
           "Member": "static void DuplicateDependentEntityTypeInstanceWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Update> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType dependent1, Microsoft.EntityFrameworkCore.Metadata.IEntityType dependent2);"
+        },
+        {
+          "Member": "static void EnsureCreatedWithTrackedEntitiesWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> diagnostics);"
         },
         {
           "Member": "static void ExecutionStrategyRetrying(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> diagnostics, System.Collections.Generic.IReadOnlyList<System.Exception> exceptionsEncountered, System.TimeSpan delay, bool async);"
@@ -3788,6 +3782,18 @@
           "Member": "static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType);"
         },
         {
+          "Member": "static string ComplexPropertyChainIntermediateNotFound(object? member, object? type);"
+        },
+        {
+          "Member": "static string ComplexPropertyChainInvalidMember(object? member, object? type);"
+        },
+        {
+          "Member": "static string ComplexPropertyChainInvalidSegment(object? dottedName);"
+        },
+        {
+          "Member": "static string ComplexPropertyChainOnCollection(object? member, object? type);"
+        },
+        {
           "Member": "static string ComplexPropertyIndexer(object? type, object? property);"
         },
         {
@@ -3845,7 +3851,10 @@
           "Member": "static string ConflictingKeylessAndPrimaryKeyAttributes(object? entity);"
         },
         {
-          "Member": "static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingType);"
+          "Member": "static string ConflictingPropertyOrNavigationOnBaseType(object? member, object? type, object? conflictingMemberKind, object? conflictingType);"
+        },
+        {
+          "Member": "static string ConflictingPropertyOrNavigationWithKind(object? member, object? type, object? conflictingMemberKind);"
         },
         {
           "Member": "static string ConflictingRelationshipConversions(object? entityType, object? property, object? valueConversion, object? conflictingValueConversion);"
@@ -3969,6 +3978,9 @@
         },
         {
           "Member": "static string DuplicateTrigger(object? trigger, object? entityType, object? conflictingEntityType);"
+        },
+        {
+          "Member": "static string EFMethodNotSupportedInCompiledQueries(object? methodName);"
         },
         {
           "Member": "static string EFMethodWithNonEvaluatableArgument(object? methodName);"
@@ -4119,7 +4131,19 @@
           "Member": "static string IncorrectNumberOfArguments(object? method, object? argumentCount, object? parameterCount);"
         },
         {
+          "Member": "static string IndexOnComplexCollection(object? indexProperties, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string IndexOnComplexProperty(object? indexProperties, object? entityType, object? property);"
+        },
+        {
           "Member": "static string IndexPropertiesWrongEntity(object? indexProperties, object? entityType);"
+        },
+        {
+          "Member": "static string IndexPropertyMustBePropertyOrComplexProperty(object? property, object? entityType);"
+        },
+        {
+          "Member": "static string IndexValueFactoryWithComplexProperty(object? indexProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string IndexWrongType(object? index, object? entityType, object? otherEntityType);"
@@ -4149,10 +4173,10 @@
           "Member": "static string InvalidIncludeExpression(object? expression);"
         },
         {
-          "Member": "static string InvalidJsonPathOrdinalCount(object? ordinalsCount, object? arraySegmentCount);"
+          "Member": "static string InvalidKeyValue(object? entityType, object? keyProperty);"
         },
         {
-          "Member": "static string InvalidKeyValue(object? entityType, object? keyProperty);"
+          "Member": "static string InvalidMemberAccessChainExpression(object? expression);"
         },
         {
           "Member": "static string InvalidMemberExpression(object? expression);"
@@ -4189,6 +4213,9 @@
         },
         {
           "Member": "static string InvalidSetTypeOwned(object? typeName, object? ownerType);"
+        },
+        {
+          "Member": "static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount);"
         },
         {
           "Member": "static string InvalidSwitch(object? name, object? value);"
@@ -4231,6 +4258,12 @@
         },
         {
           "Member": "static string KeylessTypeWithKey(object? keyProperties, object? entityType);"
+        },
+        {
+          "Member": "static string KeyOnComplexCollection(object? keyProperties, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string KeyOnNullableComplexProperty(object? keyProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string KeyPropertiesWrongEntity(object? keyProperties, object? entityType);"
@@ -4951,10 +4984,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer ProviderValueComparer { get; }"
-        },
-        {
-          "Member": "virtual System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>? ValueGeneratorFactory { get; }",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -5140,10 +5169,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.AutoTransactionBehavior AutoTransactionBehavior { get; set; }"
-        },
-        {
-          "Member": "virtual bool AutoTransactionsEnabled { get; set; }",
-          "Stage": "Obsolete"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? CurrentTransaction { get; }"
@@ -9188,7 +9213,7 @@
           "Member": "ForeignKeyIndexConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
         },
         {
-          "Member": "virtual bool AreIndexedBy(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool unique, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> coveringIndexProperties, bool coveringIndexUnique);"
+          "Member": "virtual bool AreIndexedBy(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> properties, bool unique, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> coveringIndexProperties, bool coveringIndexUnique);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? CreateIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool unique, Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder);"
@@ -9692,14 +9717,6 @@
         },
         {
           "Member": "void GetBindings(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyComplexType complexType, out Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding constructorBinding, out Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding? serviceOnlyBinding);"
-        },
-        {
-          "Member": "bool TryBindConstructor(Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Reflection.ConstructorInfo constructor, out Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding? binding, out System.Collections.Generic.IEnumerable<System.Reflection.ParameterInfo>? unboundParameters);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "bool TryBindConstructor(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Reflection.ConstructorInfo constructor, out Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding? binding, out System.Collections.Generic.IEnumerable<System.Reflection.ParameterInfo>? unboundParameters);",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -10151,16 +10168,16 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, Microsoft.EntityFrameworkCore.Metadata.IConventionKey principalKey, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType principalEntityType, bool setComponentConfigurationSource = true, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase property, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> properties, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, string name, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase property, string name, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, string name, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> properties, string name, bool fromDataAnnotation = false);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionKey? AddKey(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, bool fromDataAnnotation = false);"
@@ -10205,10 +10222,10 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(string name);"
@@ -10358,7 +10375,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? RemoveForeignKey(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? RemoveIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex index);"
@@ -10892,7 +10909,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType DeclaringEntityType { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> Properties { get; }"
         }
       ]
     },
@@ -10979,14 +10996,6 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? AddEntityType(string name, System.Type clrType, bool fromDataAnnotation = false);"
-        },
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? AddEntityType(string name, string definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType definingEntityType, bool fromDataAnnotation = false);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? AddEntityType(System.Type type, string definingNavigationName, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType definingEntityType, bool fromDataAnnotation = false);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "string? AddIgnored(string typeName, bool fromDataAnnotation = false);"
@@ -11444,10 +11453,6 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder Builder { get; }"
-        },
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType DeclaringEntityType { get; }",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -12170,6 +12175,9 @@
           "Member": "string Lambda(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IProperty> properties, string? lambdaIdentifier = null);"
         },
         {
+          "Member": "string Lambda(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase> properties, string? lambdaIdentifier = null);"
+        },
+        {
           "Member": "string Literal(object?[, ] values);"
         },
         {
@@ -12732,13 +12740,13 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(string name);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IKey? FindKey(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
@@ -13176,7 +13184,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IEntityType DeclaringEntityType { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase> Properties { get; }"
         }
       ]
     },
@@ -13671,16 +13679,16 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> properties, Microsoft.EntityFrameworkCore.Metadata.IMutableKey principalKey, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType principalEntityType);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase property);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, string name);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase property, string name);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> properties, string name);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> properties, string name);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableKey AddKey(Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property);"
@@ -13728,10 +13736,10 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(string name);"
@@ -13860,7 +13868,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey? RemoveForeignKey(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? RemoveIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex index);"
@@ -13988,7 +13996,7 @@
           "Member": "bool IsUnique { get; set; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> Properties { get; }"
         }
       ]
     },
@@ -14237,10 +14245,6 @@
         }
       ],
       "Properties": [
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType DeclaringEntityType { get; }",
-          "Stage": "Obsolete"
-        },
         {
           "Member": "bool IsAutoLoaded { get; set; }"
         },
@@ -15077,12 +15081,6 @@
         {
           "Member": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer GetValueComparer();"
         }
-      ],
-      "Properties": [
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IEntityType DeclaringEntityType { get; }",
-          "Stage": "Obsolete"
-        }
       ]
     },
     {
@@ -15411,13 +15409,13 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(string name);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey? FindKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
@@ -15529,10 +15527,6 @@
         },
         {
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyNavigation> GetNavigations();"
-        },
-        {
-          "Member": "System.Linq.Expressions.LambdaExpression? GetQueryFilter();",
-          "Stage": "Obsolete"
         },
         {
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey> GetReferencingForeignKeys();"
@@ -15656,7 +15650,7 @@
           "Member": "string? Name { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> Properties { get; }"
         }
       ]
     },
@@ -15863,10 +15857,6 @@
         }
       ],
       "Properties": [
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType DeclaringEntityType { get; }",
-          "Stage": "Obsolete"
-        },
         {
           "Member": "bool IsAutoLoaded { get; }"
         },
@@ -16465,10 +16455,6 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(Microsoft.EntityFrameworkCore.Metadata.IElementType elementType);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(System.Reflection.MemberInfo member);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(System.Reflection.MemberInfo member, Microsoft.EntityFrameworkCore.Metadata.IModel model, bool useAttributes);"
         },
         {
@@ -16636,10 +16622,6 @@
     {
       "Type": "interface Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorSelector",
       "Methods": [
-        {
-          "Member": "Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator? Select(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase typeBase);",
-          "Stage": "Obsolete"
-        },
         {
           "Member": "bool TrySelect(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase typeBase, out Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator? valueGenerator);"
         }
@@ -17412,6 +17394,25 @@
       "Fields": [
         {
           "Member": "static readonly Microsoft.EntityFrameworkCore.Metadata.KeyComparer Instance"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.KeyComplexPropertyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyRemovedConvention",
+      "Methods": [
+        {
+          "Member": "KeyComplexPropertyConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void ProcessKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder> context);"
+        },
+        {
+          "Member": "virtual void ProcessKeyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionKey> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
         }
       ]
     },
@@ -18791,6 +18792,9 @@
           "Member": "virtual void ValidateIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
+          "Member": "virtual void ValidateIndexOnComplexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> complexProperties, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
           "Member": "virtual void ValidateInheritanceMapping(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
@@ -19801,14 +19805,6 @@
           "Member": "ParameterQueryRootExpression(System.Type elementType, Microsoft.EntityFrameworkCore.Query.QueryParameterExpression queryParameterExpression);"
         },
         {
-          "Member": "ParameterQueryRootExpression(Microsoft.EntityFrameworkCore.Query.IAsyncQueryProvider asyncQueryProvider, System.Type elementType, System.Linq.Expressions.ParameterExpression parameterExpression);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "ParameterQueryRootExpression(System.Type elementType, System.Linq.Expressions.ParameterExpression parameterExpression);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "override System.Linq.Expressions.Expression DetachQueryProvider();"
         },
         {
@@ -19819,10 +19815,6 @@
         }
       ],
       "Properties": [
-        {
-          "Member": "virtual System.Linq.Expressions.ParameterExpression ParameterExpression { get; }",
-          "Stage": "Obsolete"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.QueryParameterExpression QueryParameterExpression { get; }"
         }
@@ -20832,15 +20824,15 @@
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.ProviderMismatchEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
-          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string compiledProviderName, string currentProviderName);"
+          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string mismatchedProviderName, string currentProviderName);"
         }
       ],
       "Properties": [
         {
-          "Member": "virtual string CompiledProviderName { get; }"
+          "Member": "virtual string CurrentProviderName { get; }"
         },
         {
-          "Member": "virtual string CurrentProviderName { get; }"
+          "Member": "virtual string MismatchedProviderName { get; }"
         }
       ]
     },
@@ -22389,7 +22381,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties, Microsoft.EntityFrameworkCore.Metadata.RuntimeKey principalKey, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType principalEntityType, Microsoft.EntityFrameworkCore.DeleteBehavior deleteBehavior = Microsoft.EntityFrameworkCore.DeleteBehavior.ClientSetNull, bool unique = false, bool required = false, bool requiredDependent = false, bool ownership = false);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties, string? name = null, bool unique = false);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> properties, string? name = null, bool unique = false);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeKey AddKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties);"
@@ -22419,7 +22411,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey? FindForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey principalKey, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType principalEntityType);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex? FindIndex(string name);"
@@ -22534,7 +22526,7 @@
           "Member": "virtual string? Name { get; }"
         },
         {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> Properties { get; }"
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> Properties { get; }"
         }
       ]
     },
@@ -22574,10 +22566,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType GetOrAddAdHocEntityType(Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType entityType);"
-        },
-        {
-          "Member": "virtual void SetSkipDetectChanges(bool skipDetectChanges);",
-          "Stage": "Obsolete"
         }
       ]
     },
@@ -25083,15 +25071,7 @@
           "Member": "ValueGeneratorSelector(Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies dependencies);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator Create(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase typeBase);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator? FindForType(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase typeBase, System.Type clrType);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator? Select(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase typeBase);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "virtual bool TryCreate(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase typeBase, out Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator? valueGenerator);"

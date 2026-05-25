@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqliteMetadataExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_srid()
     {
         var modelBuilder = new ModelBuilder();
@@ -26,7 +26,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Null(property.GetSrid());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_value_generation_strategy()
     {
         var modelBuilder = new ModelBuilder();
@@ -47,7 +47,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_value_generation_strategy_on_mutable_property()
     {
         var modelBuilder = new ModelBuilder();
@@ -64,7 +64,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_value_generation_strategy_for_integer_primary_key()
     {
         var modelBuilder = new ModelBuilder();
@@ -78,7 +78,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_for_non_primary_key()
     {
         var modelBuilder = new ModelBuilder();
@@ -91,7 +91,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_for_non_integer_primary_key()
     {
         var modelBuilder = new ModelBuilder();
@@ -104,7 +104,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_for_composite_primary_key()
     {
         var modelBuilder = new ModelBuilder();
@@ -122,7 +122,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property2.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_when_default_value_set()
     {
         var modelBuilder = new ModelBuilder();
@@ -136,7 +136,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_when_default_value_sql_set()
     {
         var modelBuilder = new ModelBuilder();
@@ -150,7 +150,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_when_computed_column_sql_set()
     {
         var modelBuilder = new ModelBuilder();
@@ -164,7 +164,7 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_when_property_is_foreign_key()
     {
         var modelBuilder = new ModelBuilder();

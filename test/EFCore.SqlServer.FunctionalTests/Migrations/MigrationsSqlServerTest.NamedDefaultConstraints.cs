@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
@@ -7,7 +7,7 @@ public partial class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlS
 {
     #region basic operations with explicit name
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_add_column_with_explicit_name()
     {
         await Test(
@@ -40,7 +40,7 @@ ALTER TABLE [Entity] ADD [Number] int NOT NULL CONSTRAINT [MyConstraint] DEFAULT
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_drop_column_with_explicit_name()
     {
         await Test(
@@ -69,7 +69,7 @@ ALTER TABLE [Entity] DROP COLUMN [Number];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_create_table_with_column_with_explicit_name()
     {
         await Test(
@@ -102,7 +102,7 @@ CREATE TABLE [Entity] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_drop_table_with_column_with_explicit_name()
     {
         await Test(
@@ -124,7 +124,7 @@ DROP TABLE [Entity];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_rename_constraint()
     {
         await Test(
@@ -165,7 +165,7 @@ ALTER TABLE [Entity] ADD CONSTRAINT [RenamedConstraintSql] DEFAULT (NEWID()) FOR
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_add_explicit_constraint_name()
     {
         await Test(
@@ -215,7 +215,7 @@ ALTER TABLE [Entity] ADD CONSTRAINT [MyConstraintSql] DEFAULT (NEWID()) FOR [Gui
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_remove_explicit_constraint_name()
     {
         await Test(
@@ -255,7 +255,7 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_add_column_with_implicit_name_on_nested_owned()
     {
         await Test(
@@ -308,7 +308,7 @@ ALTER TABLE [Entity] ADD [MyOwned_MyNested_Number] int NULL CONSTRAINT [DF_Entit
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_add_column_with_explicit_name_and_null_value()
     {
         await Test(
@@ -355,7 +355,7 @@ ALTER TABLE [Entity] ADD [NumberNamed] int NULL;
 
     #region basic operations with implicit name
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_add_column_with_implicit_constraint_name()
     {
         await Test(
@@ -392,7 +392,7 @@ ALTER TABLE [Entity] ADD [Number] int NOT NULL CONSTRAINT [DF_Entity_Number] DEF
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_drop_column_with_implicit_constraint_name()
     {
         await Test(
@@ -425,7 +425,7 @@ ALTER TABLE [Entity] DROP COLUMN [Number];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_create_table_with_column_with_implicit_constraint_name()
     {
         await Test(
@@ -460,7 +460,7 @@ CREATE TABLE [Entity] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_drop_table_with_column_with_implicit_constraint_name()
     {
         await Test(
@@ -483,7 +483,7 @@ DROP TABLE [Entity];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_rename_column_with_implicit_constraint_name()
     {
         await Test(
@@ -536,7 +536,7 @@ ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_ModifiedGuid] DEFAULT (NEWID()) F
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_rename_table_with_column_with_implicit_constraint_name()
     {
         await Test(
@@ -593,7 +593,7 @@ ALTER TABLE [RenamedEntities] ADD CONSTRAINT [PK_RenamedEntities] PRIMARY KEY ([
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_add_opt_in_with_column_with_implicit_constraint_name()
     {
         await Test(
@@ -641,7 +641,7 @@ ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_Guid] DEFAULT (NEWID()) FOR [Guid
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_remove_opt_in_with_column_with_implicit_constraint_name()
     {
         await Test(
@@ -679,7 +679,7 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_add_opt_in_with_column_with_explicit_constraint_name()
     {
         await Test(
@@ -707,7 +707,7 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_remove_opt_in_with_column_with_explicit_constraint_name()
     {
         await Test(
@@ -739,7 +739,7 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
 
     #region edge/advanced cases (e.g. table sharing, name clashes)
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_TPT_inheritance_explicit_default_constraint_name()
     {
         await Test(
@@ -783,7 +783,7 @@ ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [MyConstraint] DEFAU
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_TPT_inheritance_implicit_default_constraint_name()
     {
         await Test(
@@ -826,7 +826,7 @@ ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [DF_Branches_Number]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_with_opt_in_TPC_inheritance_implicit_default_constraint_name()
     {
         await Test(
@@ -882,7 +882,7 @@ ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [DF_Branches_Number]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_name_clash_between_explicit_and_implicit_default_constraint_gets_deduplicated()
     {
         await Test(
@@ -930,7 +930,7 @@ ALTER TABLE [Entity] ADD [YetAnother] uniqueidentifier NOT NULL CONSTRAINT [DF_E
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_very_long_implicit_constraint_name_gets_trimmed_and_deduplicated()
     {
         await Test(
@@ -989,7 +989,7 @@ ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_funky_table_name_with_implicit_constraint()
     {
         await Test(
@@ -1023,7 +1023,7 @@ ALTER TABLE [My Entity] ADD [Number] int NOT NULL CONSTRAINT [DF_My Entity_Numbe
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Named_default_constraints_funky_column_name_with_implicit_constraint()
     {
         await Test(

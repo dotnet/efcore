@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class CollectionEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference()
     {
         using var context = new FreezerContext();
@@ -18,7 +18,7 @@ public class CollectionEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Collection("Monkeys").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_generic()
     {
         using var context = new FreezerContext();
@@ -29,7 +29,7 @@ public class CollectionEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Collection(e => e.Monkeys).EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata()
     {
         using var context = new FreezerContext();
@@ -39,7 +39,7 @@ public class CollectionEntryTest
         Assert.Equal("Monkeys", context.Entry(entity).Collection("Monkeys").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_generic()
     {
         using var context = new FreezerContext();
@@ -49,7 +49,7 @@ public class CollectionEntryTest
         Assert.Equal("Monkeys", context.Entry(entity).Collection(e => e.Monkeys).Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value()
     {
         using var context = new FreezerContext();
@@ -78,7 +78,7 @@ public class CollectionEntryTest
         Assert.Null(collection.FindEntry(chunky));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_generic()
     {
         using var context = new FreezerContext();
@@ -107,7 +107,7 @@ public class CollectionEntryTest
         Assert.Null(collection.FindEntry(chunky));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_not_tracked()
     {
         using var context = new FreezerContext();
@@ -133,7 +133,7 @@ public class CollectionEntryTest
         Assert.Null(collection.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_generic_not_tracked()
     {
         using var context = new FreezerContext();
@@ -159,7 +159,7 @@ public class CollectionEntryTest
         Assert.Null(collection.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_start_tracking()
     {
         using var context = new FreezerContext();
@@ -192,7 +192,7 @@ public class CollectionEntryTest
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_start_tracking_generic()
     {
         using var context = new FreezerContext();
@@ -225,7 +225,7 @@ public class CollectionEntryTest
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_attached()
     {
         using var context = new FreezerContext();
@@ -260,7 +260,7 @@ public class CollectionEntryTest
         Assert.True(context.Entry(chunky).Property(e => e.GarciaId).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_generic_attached()
     {
         using var context = new FreezerContext();
@@ -295,7 +295,7 @@ public class CollectionEntryTest
         Assert.True(context.Entry(chunky).Property(e => e.GarciaId).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_tracks_state_of_FK_property_principal()
     {
         using var context = new FreezerContext();
@@ -318,7 +318,7 @@ public class CollectionEntryTest
         Assert.False(collection.IsModified);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Added), InlineData(EntityState.Added, EntityState.Added),
+    [Theory, InlineData(EntityState.Detached, EntityState.Added), InlineData(EntityState.Added, EntityState.Added),
      InlineData(EntityState.Modified, EntityState.Added), InlineData(EntityState.Deleted, EntityState.Added),
      InlineData(EntityState.Unchanged, EntityState.Added), InlineData(EntityState.Detached, EntityState.Deleted),
      InlineData(EntityState.Added, EntityState.Deleted), InlineData(EntityState.Modified, EntityState.Deleted),
@@ -372,7 +372,7 @@ public class CollectionEntryTest
         Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Unchanged), InlineData(EntityState.Added, EntityState.Unchanged),
+    [Theory, InlineData(EntityState.Detached, EntityState.Unchanged), InlineData(EntityState.Added, EntityState.Unchanged),
      InlineData(EntityState.Modified, EntityState.Unchanged), InlineData(EntityState.Deleted, EntityState.Unchanged),
      InlineData(EntityState.Unchanged, EntityState.Unchanged)]
     public void IsModified_can_set_fk_to_modified_principal_with_Unchanged_dependents(
@@ -408,7 +408,7 @@ public class CollectionEntryTest
         Assert.Equal(dependentState, context.Entry(chunky2).State);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Modified), InlineData(EntityState.Added, EntityState.Modified),
+    [Theory, InlineData(EntityState.Detached, EntityState.Modified), InlineData(EntityState.Added, EntityState.Modified),
      InlineData(EntityState.Modified, EntityState.Modified), InlineData(EntityState.Deleted, EntityState.Modified),
      InlineData(EntityState.Unchanged, EntityState.Modified)]
     public void IsModified_can_set_fk_to_modified_principal_with_Modified_dependents(

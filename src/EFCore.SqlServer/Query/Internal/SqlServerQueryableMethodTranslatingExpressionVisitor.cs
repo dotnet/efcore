@@ -171,6 +171,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 #pragma warning restore EF9105 // VectorSearch is experimental
                 }
 
+                case nameof(SqlServerQueryableExtensions.WithApproximate):
+                {
+                    return TranslateWithApproximate(source);
+                }
+
                 case nameof(SqlServerQueryableExtensions.FreeTextTable) or nameof(SqlServerQueryableExtensions.ContainsTable)
                     when source is
                     {
@@ -792,6 +797,34 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             result = source.UpdateQueryExpression(new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
 #pragma warning restore EF1001
             return true;
+        }
+    }
+
+    private ShapedQueryExpression TranslateWithApproximate(ShapedQueryExpression source)
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+
+        switch (selectExpression)
+        {
+            // WithApproximate() after Skip().Take() — not yet supported; SQL Server will add native OFFSET+FETCH
+            // WITH APPROXIMATE support in the future.
+            case { Limit: not null, Offset: not null }:
+                throw new InvalidOperationException(SqlServerStrings.WithApproximateNotSupportedWithSkipAndTake);
+
+            // Already wrapped — calling WithApproximate() twice is a no-op.
+            case { Limit: WithApproximateExpression }:
+                return source;
+
+            // Normal case: WithApproximate() after Take() — wrap the Limit with WithApproximateExpression
+            case { Limit: { } limit }:
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                selectExpression.SetLimit(new WithApproximateExpression(limit));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                return source;
+
+            // WithApproximate() without Take()
+            default:
+                throw new InvalidOperationException(SqlServerStrings.WithApproximateRequiresTake);
         }
     }
 

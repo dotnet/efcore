@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -16,7 +16,7 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -272,7 +272,7 @@ ORDER BY c["Species"]
 """);
             });
 
-    [ConditionalTheory(Skip = "Issue#17246 Views are not supported")]
+    [Theory(Skip = "Issue#17246 Views are not supported")]
     public override async Task Can_query_all_animal_views(bool async)
     {
         await base.Can_query_all_animal_views(async);
@@ -355,7 +355,7 @@ OFFSET 0 LIMIT 2
 """);
             });
 
-    [ConditionalTheory(Skip = "Issue#17246 Non-embedded Include")]
+    [Theory(Skip = "Issue#17246 Non-embedded Include")]
     public override async Task Can_include_animals(bool async)
     {
         await base.Can_include_animals(async);
@@ -363,7 +363,7 @@ OFFSET 0 LIMIT 2
         AssertSql(" ");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246 Non-embedded Include")]
+    [Theory(Skip = "Issue#17246 Non-embedded Include")]
     public override async Task Can_include_prey(bool async)
     {
         await base.Can_include_prey(async);
@@ -455,7 +455,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
 """);
             });
 
-    [ConditionalFact(Skip = "Issue#17246 Transations not supported")]
+    [Fact(Skip = "Issue#17246 Transations not supported")]
     public override async Task Can_insert_update_delete()
     {
         await base.Can_insert_update_delete();
@@ -536,7 +536,7 @@ ORDER BY c["Name"]
 """);
     }
 
-    [ConditionalTheory(Skip = "Issue#17246 subquery usage")]
+    [Theory(Skip = "Issue#17246 subquery usage")]
     public override async Task Is_operator_on_result_of_FirstOrDefault(bool async)
     {
         await base.Is_operator_on_result_of_FirstOrDefault(async);

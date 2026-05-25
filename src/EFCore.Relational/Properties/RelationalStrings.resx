@@ -511,6 +511,12 @@
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Default value '{value}' of type '{valueType}' cannot be set on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
   </data>
+  <data name="IndexOnNonJsonComplexProperty" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot defined on the complex property '{property}' as it's not mapped to mulptiple columns. Reference each property of the complex type individually.</value>
+  </data>
+  <data name="IndexPropertiesMixedJsonAndNonJsonMapping" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because some of its properties are contained within a complex property mapped to a JSON column while others are not. All properties of an index must either all be mapped to JSON or all be mapped to regular columns.</value>
+  </data>
   <data name="InsertDataOperationNoModel" xml:space="preserve">
     <value>The data insertion operation on '{table}' is not associated with a model. Either add a model to the migration, or specify the column types in all data operations.</value>
   </data>
@@ -648,6 +654,9 @@
   </data>
   <data name="KeylessMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
+  <data name="KeyPropertyInJsonComplexType" xml:space="preserve">
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be configured because the property '{property}' is contained in a complex type mapped to a JSON column. Keys cannot reference properties that are stored inside a JSON document.</value>
   </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.</value>
@@ -876,10 +885,6 @@
     <value>Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.</value>
     <comment>Information RelationalEventId.ModelSnapshotNotFound string</comment>
   </data>
-  <data name="LogOldMigrationVersion" xml:space="preserve">
-    <value>Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.</value>
-    <comment>Warning RelationalEventId.OldMigrationVersionWarning string string</comment>
-  </data>
   <data name="LogNonDeterministicModel" xml:space="preserve">
     <value>The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.</value>
     <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
@@ -887,6 +892,10 @@
   <data name="LogNonTransactionalMigrationOperationWarning" xml:space="preserve">
     <value>The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.</value>
     <comment>Warning RelationalEventId.NonTransactionalMigrationOperationWarning string string</comment>
+  </data>
+  <data name="LogOldMigrationVersion" xml:space="preserve">
+    <value>Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.</value>
+    <comment>Warning RelationalEventId.OldMigrationVersionWarning string string</comment>
   </data>
   <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
@@ -1324,6 +1333,9 @@
   </data>
   <data name="UnhandledExpressionInVisitor" xml:space="preserve">
     <value>Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.</value>
+  </data>
+  <data name="UniqueIndexOnComplexProperty" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured as unique because it contains the complex property '{property}'. Unique indexes are not supported on complex properties.</value>
   </data>
   <data name="UnknownOperation" xml:space="preserve">
     <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>

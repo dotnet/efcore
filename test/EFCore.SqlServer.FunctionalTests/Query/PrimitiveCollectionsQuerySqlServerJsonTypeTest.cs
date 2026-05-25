@@ -1,9 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
 public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerJsonTypeTest.PrimitiveCollectionsQuerySqlServerFixture>
 {
@@ -18,7 +20,7 @@ public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectio
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -48,7 +50,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (CAST(@i AS int))) AS [v]([Value])
+    FROM (VALUES (@i)) AS [v]([Value])
     WHERE [v].[Value] > [p].[Id]) = 1
 """);
     }
@@ -652,6 +654,18 @@ WHERE (
     SELECT COUNT(*)
     FROM (VALUES (CAST(1 AS int)), (2), (3)) AS [v]([Value])
     WHERE [v].[Value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+    {
+        await base.Inline_collection_SelectMany_with_unreferenced_collection_value();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+CROSS APPLY (VALUES (CAST(N'a' AS nvarchar(max))), (N'b')) AS [v]([Value])
 """);
     }
 
@@ -1660,7 +1674,7 @@ WHERE JSON_CONTAINS([p].[Bools], CAST(1 AS bit)) = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Json_representation_of_bool_array()
     {
         await using var context = CreateContext();
@@ -1727,7 +1741,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task Multidimensional_array_is_not_supported()
         => base.Multidimensional_array_is_not_supported();
 
@@ -1961,9 +1975,17 @@ WHERE (
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Parameter_collection_index_Column_equal_Column()
+        public override async Task Parameter_collection_index_Column_equal_Column()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Parameter_collection_index_Column_equal_Column();
 
         AssertSql(
@@ -1976,9 +1998,17 @@ WHERE JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']' RETURNING 
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Parameter_collection_index_Column_equal_constant()
+        public override async Task Parameter_collection_index_Column_equal_constant()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Parameter_collection_index_Column_equal_constant();
 
         AssertSql(

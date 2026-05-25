@@ -245,8 +245,10 @@ public class SqlServerModelValidator(
         var includeProperties = index.GetIncludeProperties();
         if (includeProperties?.Count > 0)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var notFound = includeProperties
-                .FirstOrDefault(i => index.DeclaringEntityType.FindProperty(i) == null);
+                .FirstOrDefault(i => RelationalModel.FindPropertyByPath(index.DeclaringEntityType, i) == null);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             if (notFound != null)
             {
@@ -319,16 +321,17 @@ public class SqlServerModelValidator(
         }
 
         // Validate that FTS columns are text or varbinary types
-        foreach (var property in index.Properties)
+        foreach (var propertyBase in index.Properties)
         {
-            var typeMapping = (RelationalTypeMapping?)property.FindTypeMapping();
+            var property = propertyBase as IProperty;
+            var typeMapping = (RelationalTypeMapping?)property?.FindTypeMapping();
             if (typeMapping?.StoreTypeNameBase is not ("varchar" or "nvarchar" or "varbinary" or "binary"))
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.FullTextIndexOnInvalidColumn(
                         index.DisplayName(),
                         entityType.DisplayName(),
-                        property.Name));
+                        propertyBase.Name));
             }
         }
 
@@ -360,7 +363,7 @@ public class SqlServerModelValidator(
     {
         if (index.IsVectorIndex())
         {
-            if (index.Properties is not [var property])
+            if (index.Properties is not [var propertyBase])
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.VectorIndexRequiresSingleProperty(
@@ -384,15 +387,14 @@ public class SqlServerModelValidator(
                         index.DeclaringEntityType.DisplayName()));
             }
 
-            var typeMapping = property.FindTypeMapping();
 
-            if (typeMapping is not SqlServerVectorTypeMapping)
+            if (propertyBase is IProperty property && property.FindTypeMapping() is not SqlServerVectorTypeMapping)
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.VectorIndexOnNonVectorProperty(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        property.Name));
+                        propertyBase.Name));
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class EntityTypeConfigurationAttributeConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void EntityTypeConfigurationAttribute_should_apply_configuration_to_EntityType()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -18,7 +18,7 @@ public class EntityTypeConfigurationAttributeConventionTest
         Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EntityTypeConfigurationAttribute_should_apply_configuration_to_EntityType_Generic()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -29,7 +29,7 @@ public class EntityTypeConfigurationAttributeConventionTest
         Assert.Equal(1000, entityType.FindProperty(nameof(CustomerGeneric.Name)).GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EntityTypeConfigurationAttribute_should_throw_when_configuration_is_wrong_type()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -39,7 +39,7 @@ public class EntityTypeConfigurationAttributeConventionTest
             Assert.Throws<InvalidOperationException>(() => builder.Entity<User>()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EntityTypeConfigurationAttribute_should_throw_when_configuration_is_for_wrong_entity_type()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

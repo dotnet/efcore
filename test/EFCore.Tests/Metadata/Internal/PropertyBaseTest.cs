@@ -20,7 +20,7 @@ public class PropertyBaseTest
     private const string Collection = "Collection";
     private const string SkipCollection = "SkipCollection";
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_auto_props()
     {
         const string field = "<Foo>k__BackingField";
@@ -34,7 +34,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_props()
     {
         const string field = "_foo";
@@ -48,7 +48,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_props()
     {
         const string field = "_foo";
@@ -64,7 +64,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_auto_props()
     {
         const string field = "<Foo>k__BackingField";
@@ -81,7 +81,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_field_props()
     {
         const string field = "_foo";
@@ -98,7 +98,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_props()
     {
         const string field = "_foo";
@@ -113,7 +113,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Property, Property, field);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_field_only_props()
     {
         const string field = "_foo";
@@ -130,7 +130,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<FieldOnly>(field, field), PropertyAccessMode.PreferProperty, field, field, field);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_field_only_props()
     {
         const string field = "_foo";
@@ -148,7 +148,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.PreferProperty, field, field, field);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_props_with_field_not_found()
     {
         MemberInfoTest(CreateProperty<FullPropNoField>(null), null, Property, Property, Property);
@@ -165,7 +165,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Property, Property, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_props_with_field_not_found()
     {
         MemberInfoTest(
@@ -191,7 +191,7 @@ public class PropertyBaseTest
             NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_props_with_field_not_found()
     {
         MemberInfoTest(CreateProperty<WriteOnlyPropNoField>(null), null, Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
@@ -215,7 +215,7 @@ public class PropertyBaseTest
             Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_props_private_setter_in_base()
     {
         const string field = "_foo";
@@ -231,7 +231,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_props_private_getter_in_base()
     {
         const string field = "_foo";
@@ -247,7 +247,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_auto_prop_navigations()
     {
         const string field = "<Reference>k__BackingField";
@@ -263,7 +263,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_navigations()
     {
         const string field = "_reference";
@@ -279,7 +279,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_prop_navigations()
     {
         const string field = "_reference";
@@ -297,7 +297,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_auto_prop_navigations()
     {
         const string field = "<Reference>k__BackingField";
@@ -316,7 +316,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_field_prop_navigations()
     {
         const string field = "_reference";
@@ -335,7 +335,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_prop_navigations()
     {
         const string field = "_reference";
@@ -353,7 +353,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, field);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_navigations_with_field_not_found()
     {
         MemberInfoTest(CreateReferenceNavigation<FullPropNoField>(null), null, Reference, Reference, Reference);
@@ -374,7 +374,7 @@ public class PropertyBaseTest
             CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_prop_navigations_with_field_not_found()
     {
         MemberInfoTest(
@@ -405,7 +405,7 @@ public class PropertyBaseTest
             NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_prop_navigations_with_field_not_found()
     {
         MemberInfoTest(
@@ -431,7 +431,7 @@ public class PropertyBaseTest
             Reference, Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_navigations_private_setter_in_base()
     {
         const string field = "_reference";
@@ -451,7 +451,7 @@ public class PropertyBaseTest
             CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_navigations_private_getter_in_base()
     {
         const string field = "_reference";
@@ -471,7 +471,7 @@ public class PropertyBaseTest
             CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_auto_prop_collection_navigations()
     {
         const string field = "<Collection>k__BackingField";
@@ -489,7 +489,7 @@ public class PropertyBaseTest
             CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_collection_navigations()
     {
         const string field = "_collection";
@@ -507,7 +507,7 @@ public class PropertyBaseTest
             CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_prop_collection_navigations()
     {
         const string field = "_collection";
@@ -524,7 +524,7 @@ public class PropertyBaseTest
         MemberInfoTest(CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_auto_prop_collection_navigations()
     {
         const string field = "<Collection>k__BackingField";
@@ -542,7 +542,7 @@ public class PropertyBaseTest
             CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_field_prop_collection_navigations()
     {
         const string field = "_collection";
@@ -560,7 +560,7 @@ public class PropertyBaseTest
             CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_prop_collection_navigations()
     {
         const string field = "_collection";
@@ -580,7 +580,7 @@ public class PropertyBaseTest
             CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, field);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_collection_navigations_with_field_not_found()
     {
         MemberInfoTest(CreateCollectionNavigation<FullPropNoField>(null), null, Collection, Collection, Collection);
@@ -600,7 +600,7 @@ public class PropertyBaseTest
             CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_prop_collection_navigations_with_field_not_found()
     {
         MemberInfoTest(CreateCollectionNavigation<ReadOnlyPropNoField>(null), null, null, null, Collection);
@@ -618,7 +618,7 @@ public class PropertyBaseTest
             CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferProperty, null, null, Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_prop_collection_navigations_with_field_not_found()
     {
         MemberInfoTest(
@@ -641,7 +641,7 @@ public class PropertyBaseTest
             Collection, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_collection_navigations_private_setter_in_base()
     {
         const string field = "_collection";
@@ -659,7 +659,7 @@ public class PropertyBaseTest
             Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_collection_navigations_private_getter_in_base()
     {
         const string field = "_collection";
@@ -677,7 +677,7 @@ public class PropertyBaseTest
             Collection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_auto_prop_skip_collection_navigations()
     {
         const string field = "<SkipCollection>k__BackingField";
@@ -700,7 +700,7 @@ public class PropertyBaseTest
             SkipCollection, SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_skip_collection_navigations()
     {
         const string field = "_skipCollection";
@@ -723,7 +723,7 @@ public class PropertyBaseTest
             SkipCollection, SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_prop_skip_collection_navigations()
     {
         const string field = "_skipCollection";
@@ -748,7 +748,7 @@ public class PropertyBaseTest
             SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_auto_prop_skip_collection_navigations()
     {
         const string field = "<SkipCollection>k__BackingField";
@@ -774,7 +774,7 @@ public class PropertyBaseTest
             SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_field_prop_skip_collection_navigations()
     {
         const string field = "_skipCollection";
@@ -801,7 +801,7 @@ public class PropertyBaseTest
             field, SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_prop_skip_collection_navigations()
     {
         const string field = "_skipCollection";
@@ -826,7 +826,7 @@ public class PropertyBaseTest
             SkipCollection, field);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_skip_collection_navigations_with_field_not_found()
     {
         MemberInfoTest(
@@ -853,7 +853,7 @@ public class PropertyBaseTest
             SkipCollection, SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_read_only_prop_skip_collection_navigations_with_field_not_found()
     {
         MemberInfoTest(
@@ -879,7 +879,7 @@ public class PropertyBaseTest
             null, SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_write_only_prop_skip_collection_navigations_with_field_not_found()
     {
         MemberInfoTest(
@@ -903,7 +903,7 @@ public class PropertyBaseTest
             SkipCollection, SkipCollection, NoFieldOrGetterSkipColl<WriteOnlyPropNoField>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_skip_collection_navigations_private_setter_in_base()
     {
         const string field = "_skipCollection";
@@ -928,7 +928,7 @@ public class PropertyBaseTest
             SkipCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_MemberInfos_for_full_prop_skip_collection_navigations_private_getter_in_base()
     {
         const string field = "_skipCollection";
@@ -1181,7 +1181,7 @@ public class PropertyBaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Access_mode_can_be_overridden_at_entity_and_property_levels()
     {
         IMutableModel model = new Model();
@@ -1209,7 +1209,7 @@ public class PropertyBaseTest
         Assert.Equal(PropertyAccessMode.Property, e2p2.GetPropertyAccessMode());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Properties_can_have_field_cleared()
     {
         var propertyInfo = typeof(FullProp).GetAnyProperty("Foo");
@@ -1218,7 +1218,7 @@ public class PropertyBaseTest
             ((IMutableModel)new Model()).AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Field_only_properties_throws_when_field_cleared()
     {
         var propertyBase = ((IMutableModel)new Model()).AddEntityType(typeof(FieldOnly)).AddProperty("_foo", typeof(int));
@@ -1228,7 +1228,7 @@ public class PropertyBaseTest
             Assert.Throws<InvalidOperationException>(() => propertyBase.SetField(null)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Navigations_can_have_field_cleared()
     {
         var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(FullProp));
@@ -1273,7 +1273,7 @@ public class PropertyBaseTest
         Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_fieldInfo_for_shadow_property_throws()
     {
         IMutableModel model = new Model();

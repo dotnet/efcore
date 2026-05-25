@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class TimeOnlyConvertersTest
 {
     private static readonly TimeOnlyToStringConverter TimeOnlyToString = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeOnly_to_string()
     {
         var converter = TimeOnlyToString.ConvertToProviderExpression.Compile();
@@ -19,7 +19,7 @@ public class TimeOnlyConvertersTest
         Assert.Equal("00:00:00", converter(new TimeOnly()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_TimeOnly()
     {
         var converter = TimeOnlyToString.ConvertFromProviderExpression.Compile();
@@ -34,7 +34,7 @@ public class TimeOnlyConvertersTest
         Assert.Throws<FormatException>(() => converter("Not a TimeOnly"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeOnly_to_string_object()
     {
         var converter = TimeOnlyToString.ConvertToProvider;
@@ -48,7 +48,7 @@ public class TimeOnlyConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_TimeOnly_object()
     {
         var converter = TimeOnlyToString.ConvertFromProvider;
@@ -65,7 +65,7 @@ public class TimeOnlyConvertersTest
 
     private static readonly TimeOnlyToTicksConverter TimeOnlyToTicks = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeOnly_to_ticks()
     {
         var converter = TimeOnlyToTicks.ConvertToProviderExpression.Compile();
@@ -74,7 +74,7 @@ public class TimeOnlyConvertersTest
         Assert.Equal(0, converter(new TimeOnly()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ticks_to_TimeOnly()
     {
         var converter = TimeOnlyToTicks.ConvertFromProviderExpression.Compile();
@@ -83,7 +83,7 @@ public class TimeOnlyConvertersTest
         Assert.Equal(new TimeOnly(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_TimeOnly_to_ticks_object()
     {
         var converter = TimeOnlyToTicks.ConvertToProvider;
@@ -93,7 +93,7 @@ public class TimeOnlyConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ticks_to_TimeOnly_object()
     {
         var converter = TimeOnlyToTicks.ConvertFromProvider;

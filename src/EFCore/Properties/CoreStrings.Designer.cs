@@ -687,6 +687,38 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
+        ///     The intermediate complex property '{member}' was not found on type '{type}'. When using dotted property names, all intermediate segments must refer to complex properties.
+        /// </summary>
+        public static string ComplexPropertyChainIntermediateNotFound(object? member, object? type)
+            => string.Format(
+                GetString("ComplexPropertyChainIntermediateNotFound", nameof(member), nameof(type)),
+                member, type);
+
+        /// <summary>
+        ///     The member '{member}' on type '{type}' is configured as a non-complex property and cannot be used as an intermediate in a chained property access. Configure it as a complex property first if that's the intention.
+        /// </summary>
+        public static string ComplexPropertyChainInvalidMember(object? member, object? type)
+            => string.Format(
+                GetString("ComplexPropertyChainInvalidMember", nameof(member), nameof(type)),
+                member, type);
+
+        /// <summary>
+        ///     The dotted property name '{dottedName}' contains an empty segment. Dotted property names must consist of non-empty segments separated by '.'.
+        /// </summary>
+        public static string ComplexPropertyChainInvalidSegment(object? dottedName)
+            => string.Format(
+                GetString("ComplexPropertyChainInvalidSegment", nameof(dottedName)),
+                dottedName);
+
+        /// <summary>
+        ///     The member '{member}' on type '{type}' is a complex collection property and cannot be traversed in a chained property access. Configure properties on complex collection element types using the 'ComplexCollection' method.
+        /// </summary>
+        public static string ComplexPropertyChainOnCollection(object? member, object? type)
+            => string.Format(
+                GetString("ComplexPropertyChainOnCollection", nameof(member), nameof(type)),
+                member, type);
+
+        /// <summary>
         ///     Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.
         /// </summary>
         public static string ComplexPropertyIndexer(object? type, object? property)
@@ -845,12 +877,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entity);
 
         /// <summary>
-        ///     The property or navigation '{member}' cannot be added to the '{type}' type because a property or navigation with the same name already exists on the '{conflictingType}' type.
+        ///     The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.
         /// </summary>
-        public static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingType)
+        public static string ConflictingPropertyOrNavigationOnBaseType(object? member, object? type, object? conflictingMemberKind, object? conflictingType)
             => string.Format(
-                GetString("ConflictingPropertyOrNavigation", nameof(member), nameof(type), nameof(conflictingType)),
-                member, type, conflictingType);
+                GetString("ConflictingPropertyOrNavigationOnBaseType", nameof(member), nameof(type), nameof(conflictingMemberKind), nameof(conflictingType)),
+                member, type, conflictingMemberKind, conflictingType);
+
+        /// <summary>
+        ///     The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists. Remove the existing {conflictingMemberKind} first.
+        /// </summary>
+        public static string ConflictingPropertyOrNavigationWithKind(object? member, object? type, object? conflictingMemberKind)
+            => string.Format(
+                GetString("ConflictingPropertyOrNavigationWithKind", nameof(member), nameof(type), nameof(conflictingMemberKind)),
+                member, type, conflictingMemberKind);
 
         /// <summary>
         ///     The property '{entityType}.{property}' participates in several relationship chains that have conflicting conversions: '{valueConversion}' and '{conflictingValueConversion}'.
@@ -1227,6 +1267,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string EFConstantNotSupportedInPrecompiledQueries
             => GetString("EFConstantNotSupportedInPrecompiledQueries");
+
+        /// <summary>
+        ///     '{methodName}' is not supported when using compiled queries or query filters.
+        /// </summary>
+        public static string EFMethodNotSupportedInCompiledQueries(object? methodName)
+            => string.Format(
+                GetString("EFMethodNotSupportedInCompiledQueries", nameof(methodName)),
+                methodName);
 
         /// <summary>
         ///     The '{methodName}' method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
@@ -1664,12 +1712,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method, argumentCount, parameterCount);
 
         /// <summary>
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot be configured because it traverses the complex collection '{property}'. Indexes cannot reference properties whose path goes through a complex collection.
+        /// </summary>
+        public static string IndexOnComplexCollection(object? indexProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("IndexOnComplexCollection", nameof(indexProperties), nameof(entityType), nameof(property)),
+                indexProperties, entityType, property);
+
+        /// <summary>
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot be configured because it is defined on the complex property '{property}'. Indexes are not supported on complex properties.
+        /// </summary>
+        public static string IndexOnComplexProperty(object? indexProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("IndexOnComplexProperty", nameof(indexProperties), nameof(entityType), nameof(property)),
+                indexProperties, entityType, property);
+
+        /// <summary>
+        ///     A value factory cannot be created for the index {indexProperties} on the entity type '{entityType}' because it contains the complex property '{property}'. Index value factories are not supported for indexes that contain complex properties.
+        /// </summary>
+        public static string IndexValueFactoryWithComplexProperty(object? indexProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("IndexValueFactoryWithComplexProperty", nameof(indexProperties), nameof(entityType), nameof(property)),
+                indexProperties, entityType, property);
+
+        /// <summary>
         ///     The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.
         /// </summary>
         public static string IndexPropertiesWrongEntity(object? indexProperties, object? entityType)
             => string.Format(
                 GetString("IndexPropertiesWrongEntity", nameof(indexProperties), nameof(entityType)),
                 indexProperties, entityType);
+
+        /// <summary>
+        ///     The index property '{property}' on the entity type '{entityType}' cannot be configured because it is not a scalar property or a complex property. Only scalar properties and complex properties can be referenced by an index.
+        /// </summary>
+        public static string IndexPropertyMustBePropertyOrComplexProperty(object? property, object? entityType)
+            => string.Format(
+                GetString("IndexPropertyMustBePropertyOrComplexProperty", nameof(property), nameof(entityType)),
+                property, entityType);
 
         /// <summary>
         ///     The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
@@ -1750,12 +1830,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The number of ordinals provided ({ordinalsCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).
+        ///     The number of indices provided ({indicesCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).
         /// </summary>
-        public static string InvalidJsonPathOrdinalCount(object? ordinalsCount, object? arraySegmentCount)
+        public static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount)
             => string.Format(
-                GetString("InvalidJsonPathOrdinalCount", nameof(ordinalsCount), nameof(arraySegmentCount)),
-                ordinalsCount, arraySegmentCount);
+                GetString("InvalidStructuredJsonPathIndexCount", nameof(indicesCount), nameof(arraySegmentCount)),
+                indicesCount, arraySegmentCount);
 
         /// <summary>
         ///     Unable to track an entity of type '{entityType}' because its primary key property '{keyProperty}' is null.
@@ -1764,6 +1844,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("InvalidKeyValue", nameof(entityType), nameof(keyProperty)),
                 entityType, keyProperty);
+
+        /// <summary>
+        ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty' or a chain of member accesses through non-collection complex properties: 't =&gt; t.MyComplex.MyProperty'.
+        /// </summary>
+        public static string InvalidMemberAccessChainExpression(object? expression)
+            => string.Format(
+                GetString("InvalidMemberAccessChainExpression", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.
@@ -1984,6 +2072,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("KeylessTypeWithKey", nameof(keyProperties), nameof(entityType)),
                 keyProperties, entityType);
+
+        /// <summary>
+        ///     The key {keyProperties} on the entity type '{entityType}' cannot be configured because it traverses the complex collection '{property}'. Keys cannot reference properties whose path goes through a complex collection.
+        /// </summary>
+        public static string KeyOnComplexCollection(object? keyProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("KeyOnComplexCollection", nameof(keyProperties), nameof(entityType), nameof(property)),
+                keyProperties, entityType, property);
+
+        /// <summary>
+        ///     The key {keyProperties} on the entity type '{entityType}' cannot be configured because the complex property '{property}' it traverses is configured as optional. Mark the complex property as required in order to use one of its properties as part of a key.
+        /// </summary>
+        public static string KeyOnNullableComplexProperty(object? keyProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("KeyOnNullableComplexProperty", nameof(keyProperties), nameof(entityType), nameof(property)),
+                keyProperties, entityType, property);
 
         /// <summary>
         ///     The specified key properties {keyProperties} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.
@@ -3844,6 +3948,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     'EnsureCreated' was called on a context that is already tracking added, modified, or deleted entities. These tracked changes would be lost if a retry occurs due to a transient failure.
+        /// </summary>
+        public static EventDefinition LogEnsureCreatedWithTrackedEntities(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogEnsureCreatedWithTrackedEntities;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogEnsureCreatedWithTrackedEntities,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.EnsureCreatedWithTrackedEntitiesWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.EnsureCreatedWithTrackedEntitiesWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.EnsureCreatedWithTrackedEntitiesWarning,
+                            _resourceManager.GetString("LogEnsureCreatedWithTrackedEntities")!)));
+            }
+
+            return (EventDefinition)definition;
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
     : ODataQueryTestBase(fixture), IClassFixture<GearsOfWarODataQueryTestFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Basic_query_gears()
     {
         var requestUri = $"{BaseAddress}/odata/Gears";
@@ -26,7 +26,7 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         Assert.Equal(5, gears.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Basic_query_inheritance()
     {
         var requestUri = $"{BaseAddress}/odata/Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer";
@@ -43,7 +43,7 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         Assert.Equal(2, gears.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Basic_query_single_element_from_set_composite_key()
     {
         var requestUri = $"{BaseAddress}/odata/Gears(Nickname='Marcus',SquadId=1)";
@@ -60,7 +60,7 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         Assert.Equal("Marcus", result["Nickname"].ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Complex_query_with_any_on_collection_navigation()
     {
         var requestUri = string.Format(@"{0}/odata/Gears?$filter=Weapons/any(w: w/Id gt 4)", BaseAddress);
@@ -76,7 +76,7 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         Assert.Equal(3, officers.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Query_with_expand_and_key_projection()
     {
         var requestUri = string.Format(@"{0}/odata/Gears?$select=SquadId&$expand=Tag($select=Id)", BaseAddress);

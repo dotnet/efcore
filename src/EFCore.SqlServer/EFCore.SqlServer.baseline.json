@@ -435,10 +435,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder UseAzureSqlDefaults(bool enable = true);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel);"
         }
       ]
@@ -1300,6 +1296,9 @@
         },
         {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId UniqueConstraintFound"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId VectorSearchWithoutApproximateWarning"
         }
       ]
     },
@@ -2661,6 +2660,10 @@
         },
         {
           "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.VectorSearchResult<T>> VectorSearch<T, TVector>(this Microsoft.EntityFrameworkCore.DbSet<T> source, System.Linq.Expressions.Expression<System.Func<T, TVector>> vectorPropertySelector, TVector similarTo, string metric);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "static System.Linq.IQueryable<T> WithApproximate<T>(this System.Linq.IQueryable<T> source);",
           "Stage": "Experimental"
         }
       ]

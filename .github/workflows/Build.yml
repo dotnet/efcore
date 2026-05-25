@@ -1,0 +1,247 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # Test projects requiring SQL Server (run in the sqlserver job, excluded from the main test job)
+  SQLSERVER_TEST_PROJECTS: >-
+    test/EFCore.SqlServer.FunctionalTests
+    test/EFCore.SqlServer.HierarchyId.Tests
+    test/EFCore.CrossStore.FunctionalTests
+    test/EFCore.OData.FunctionalTests
+    test/EFCore.AspNet.SqlServer.FunctionalTests
+    test/EFCore.VisualBasic.FunctionalTests
+    test/EFCore.FSharp.FunctionalTests
+
+jobs:
+  Main:
+    env:
+      # Additional projects to exclude (covered by other dedicated jobs, or not directly runnable)
+      ADDITIONAL_EXCLUDED_PROJECTS: >-
+        Cosmos.FunctionalTests
+        Specification.Tests
+        Microsoft.Data.Sqlite
+        EFCore.Sqlite
+        EFCore.AspNet.Sqlite
+        TrimmingTests
+        NativeAotTests
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+          - os: ubuntu-24.04
+          - os: macos-15
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Restore
+        if: runner.os != 'Windows'
+        run: ./restore.sh
+
+      - name: Restore
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: restore.cmd
+
+      - name: Test
+        run: |
+          pattern=$(echo "$SQLSERVER_TEST_PROJECTS $ADDITIONAL_EXCLUDED_PROJECTS" | xargs -n1 | tr '\n' '|' | sed 's/|$//')
+          failed=0
+          for proj in $(find test -maxdepth 2 \( -name '*.csproj' -o -name '*.fsproj' -o -name '*.vbproj' \) \
+            | grep -v -E "$pattern"); do
+            dotnet test "$proj" || failed=1
+          done
+          exit $failed
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-main-${{ matrix.os }}
+          path: artifacts/log/Debug/*
+
+  Cosmos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+          - os: ubuntu-24.04
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Start Cosmos Emulator
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
+          Start-CosmosDbEmulator -Timeout 540 -NoUI -NoTelemetry -NoFirewall -EnablePreview
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Restore
+        if: runner.os != 'Windows'
+        run: ./restore.sh
+
+      - name: Restore
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: restore.cmd
+
+      - name: Test on Cosmos
+        run: dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
+        env:
+          Test__Cosmos__DefaultConnection: ${{ runner.os == 'Windows' && 'https://localhost:8081' || '' }}
+          Test__Cosmos__SkipConnectionCheck: ${{ runner.os == 'Windows' && 'true' || '' }}
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-cosmos-${{ matrix.os }}
+          path: artifacts/log/Debug/*
+
+  SqlServer:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        sqlserver_version: [2025, 2022, 2019]
+
+    env:
+      MSSQL_SA_PASSWORD: 'PLACEHOLDERPass$$w0rd'
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:${{ matrix.sqlserver_version }}-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: ${{ env.MSSQL_SA_PASSWORD }}
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' -C"
+          --health-start-period=20s
+          --health-interval=2s
+          --health-retries=30
+          --health-timeout=5s
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Restore
+        run: ./restore.sh
+
+      - name: Test on SQL Server
+        env:
+          Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=${{ env.MSSQL_SA_PASSWORD }};Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
+        run: |
+          failed=0
+          for proj in $SQLSERVER_TEST_PROJECTS; do
+            dotnet test "$proj" || failed=1
+          done
+          exit $failed
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-sqlserver-${{ matrix.sqlserver_version }}
+          path: artifacts/log/Debug/*
+
+  Sqlite:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+          - os: ubuntu-24.04
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Restore
+        if: runner.os != 'Windows'
+        run: ./restore.sh
+
+      - name: Restore
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: restore.cmd
+
+      - name: Test EF Core Sqlite
+        run: |
+          failed=0
+          for proj in test/EFCore.Sqlite.FunctionalTests test/EFCore.Sqlite.Tests test/EFCore.AspNet.Sqlite.FunctionalTests; do
+            dotnet test "$proj" || failed=1
+          done
+          exit $failed
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-sqlite-${{ matrix.os }}
+          path: artifacts/log/Debug/*
+
+  microsoft-data-sqlite:
+    name: Microsoft.Data.Sqlite
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+          - os: ubuntu-24.04
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Restore
+        if: runner.os != 'Windows'
+        run: ./restore.sh
+
+      - name: Restore
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: restore.cmd
+
+      - name: Test Microsoft.Data.Sqlite
+        run: |
+          failed=0
+          for proj in $(find test/Microsoft.Data.Sqlite.Tests -name '*.csproj' \
+            | if [ "$RUNNER_OS" != "Windows" ]; then grep -v winsqlite3; else cat; fi); do
+            dotnet test "$proj" || failed=1
+          done
+          exit $failed
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-microsoft-data-sqlite-${{ matrix.os }}
+          path: artifacts/log/Debug/*
