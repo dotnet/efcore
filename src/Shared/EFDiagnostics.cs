@@ -11,6 +11,7 @@ internal static class EFDiagnostics
     internal const string InternalUsage = "EF1001";
     internal const string InterpolatedStringUsageInRawQueries = "EF1002";
     internal const string StringConcatenationUsageInRawQueries = "EF1003";
+    internal const string ToAsyncEnumerableOnQueryable = "EF1004";
     internal const string SuppressUninitializedDbSetRule = "EFSPR1001";
 
     // Diagnostics for [Obsolete]

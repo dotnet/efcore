@@ -7,7 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
-using Microsoft.Data.Sqlite.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite;

@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(DefaultNetCoreTargetFramework);$(NetFrameworkCurrent)</TargetFrameworks>
-    <TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('Windows'))">$(DefaultNetCoreTargetFramework)</TargetFrameworks>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <DefineConstants>$(DefineConstants);SQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <!-- The default RootNamespace would create a sub-namespace named 'sqlite3' under Microsoft.Data.Sqlite, which shadows the SQLitePCL.sqlite3 type. -->
+    <RootNamespace>Microsoft.Data.Sqlite.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,8 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\Xunit\ConditionalAssemblyAttribute.cs" Link="TestUtilities\Xunit\ConditionalAssemblyAttribute.cs" />
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\Xunit\UseCultureAttribute.cs" Link="TestUtilities\Xunit\UseCultureAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SQLitePCLRaw.core" />
     <PackageReference Include="SQLitePCLRaw.provider.sqlite3" />
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
   </ItemGroup>
 
 </Project>

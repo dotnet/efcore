@@ -197,7 +197,7 @@ extends:
           - job: Linux_Cosmos
             displayName: 'Linux Cosmos'
             condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
-            timeoutInMinutes: 210
+            timeoutInMinutes: 300
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-ubuntu-2204
@@ -623,7 +623,7 @@ extends:
       condition: always()
       jobs:
       - job: Validate_Job_Results
-        displayName: Validate Job Results
+        displayName: Job Results
         pool:
           name: $(DncEngInternalBuildPool)
           demands: ImageOverride -equals 1es-windows-2022

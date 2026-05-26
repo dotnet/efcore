@@ -8,6 +8,9 @@
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
+    <!-- This project contains base tests to be used by providers, but is not itself a test project with
+         tests to be executed. Disable test discovery. -->
+    <IsTestProject>false</IsTestProject>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);8981</NoWarn>
@@ -39,7 +42,6 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Xunit" />
-    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

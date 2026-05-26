@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Transactions;
 
@@ -237,6 +238,12 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         using var transactionScope = new TransactionScope(
             TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
+        }
+
         var operationsPerformed = false;
         if (!Exists())
         {
@@ -250,24 +257,34 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
             operationsPerformed = true;
         }
 
-        var coreOptionsExtension =
-            Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
+        return Dependencies.ExecutionStrategy.Execute(
+            (Creator: this, Created: operationsPerformed, Seeded: new StrongBox<bool>(false)),
+            static (context, state) =>
+            {
+                if (state.Seeded.Value)
+                {
+                    return state.Created;
+                }
 
-        var seed = coreOptionsExtension.Seeder;
-        if (seed != null)
-        {
-            var context = Dependencies.CurrentContext.Context;
-            using var transaction = context.Database.BeginTransaction();
-            seed(context, operationsPerformed);
-            transaction.Commit();
-        }
-        else if (coreOptionsExtension.AsyncSeeder != null)
-        {
-            throw new InvalidOperationException(CoreStrings.MissingSeeder);
-        }
+                var coreOptionsExtension =
+                    state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
-        return operationsPerformed;
+                var seed = coreOptionsExtension?.Seeder;
+                if (seed != null)
+                {
+                    using var transaction = context.Database.BeginTransaction();
+                    seed(context, state.Created);
+                    transaction.Commit();
+                }
+                else if (coreOptionsExtension?.AsyncSeeder != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.MissingSeeder);
+                }
+
+                state.Seeded.Value = true;
+
+                return state.Created;
+            }, verifySucceeded: null);
     }
 
     /// <summary>
@@ -285,6 +302,12 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
+        }
+
         var operationsPerformed = false;
         if (!await ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -300,25 +323,35 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
             operationsPerformed = true;
         }
 
-        var coreOptionsExtension =
-            Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
+        return await Dependencies.ExecutionStrategy.ExecuteAsync(
+            (Creator: this, Created: operationsPerformed, Seeded: new StrongBox<bool>(false)),
+            static async (context, state, ct) =>
+            {
+                if (state.Seeded.Value)
+                {
+                    return state.Created;
+                }
 
-        var seedAsync = coreOptionsExtension.AsyncSeeder;
-        if (seedAsync != null)
-        {
-            var context = Dependencies.CurrentContext.Context;
-            var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-            await using var _ = transaction.ConfigureAwait(false);
-            await seedAsync(context, operationsPerformed, cancellationToken).ConfigureAwait(false);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-        }
-        else if (coreOptionsExtension.Seeder != null)
-        {
-            throw new InvalidOperationException(CoreStrings.MissingSeeder);
-        }
+                var coreOptionsExtension =
+                    state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
-        return operationsPerformed;
+                var seedAsync = coreOptionsExtension?.AsyncSeeder;
+                if (seedAsync != null)
+                {
+                    var transaction = await context.Database.BeginTransactionAsync(ct).ConfigureAwait(false);
+                    await using var _ = transaction.ConfigureAwait(false);
+                    await seedAsync(context, state.Created, ct).ConfigureAwait(false);
+                    await transaction.CommitAsync(ct).ConfigureAwait(false);
+                }
+                else if (coreOptionsExtension?.Seeder != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.MissingSeeder);
+                }
+
+                state.Seeded.Value = true;
+
+                return state.Created;
+            }, verifySucceeded: null, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

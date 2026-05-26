@@ -40,7 +40,45 @@ public sealed class ApiType : IEquatable<ApiType>
     [JsonIgnore]
     public bool IsRemoved { get; set; }
 
-    public bool Equals(ApiType? other) => other != null && Type == other.Type;
+    /// <summary>
+    /// The baseline declaration when only the type header changed (e.g. an interface was added or removed).
+    /// Not serialized; only used by the in-memory delta to surface header-only modifications.
+    /// </summary>
+    [JsonIgnore]
+    public string? PreviousType { get; set; }
+
+    /// <summary>
+    /// Stable identity for matching baseline and current types. Strips the base/interface list and generic
+    /// constraints so that changes to those are reported as modifications instead of a removed-and-re-added type.
+    /// </summary>
+    [JsonIgnore]
+    public string Identity => GetIdentity(Type);
+
+    private static string GetIdentity(string type)
+    {
+        if (string.IsNullOrEmpty(type))
+        {
+            return string.Empty;
+        }
+
+        var endIdx = type.Length;
+
+        var whereIdx = type.IndexOf(" where ", StringComparison.Ordinal);
+        if (whereIdx >= 0)
+        {
+            endIdx = whereIdx;
+        }
+
+        var colonIdx = type.IndexOf(" : ", StringComparison.Ordinal);
+        if (colonIdx >= 0 && colonIdx < endIdx)
+        {
+            endIdx = colonIdx;
+        }
+
+        return type[..endIdx].TrimEnd();
+    }
+
+    public bool Equals(ApiType? other) => other != null && Identity == other.Identity;
     public override bool Equals(object? obj) => Equals(obj as ApiType);
-    public override int GetHashCode() => Type.GetHashCode();
+    public override int GetHashCode() => Identity.GetHashCode();
 }

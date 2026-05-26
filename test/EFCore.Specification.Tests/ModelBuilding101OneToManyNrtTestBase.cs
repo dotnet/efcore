@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ModelBuilding101TestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNrtTest()
         => Model101Test();
 
@@ -96,7 +96,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNrtTest()
         => Model101Test();
 
@@ -183,7 +183,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkNrtTest()
         => Model101Test();
 
@@ -266,7 +266,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkNrtTest()
         => Model101Test();
 
@@ -349,7 +349,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -430,7 +430,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -509,7 +509,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -564,7 +564,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -641,7 +641,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -724,7 +724,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -807,7 +807,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -886,7 +886,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -965,7 +965,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1046,7 +1046,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1125,7 +1125,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1179,7 +1179,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1232,7 +1232,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithAlternateKeyNrtTest()
         => Model101Test();
 
@@ -1325,7 +1325,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1418,7 +1418,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30344
 
@@ -1507,7 +1507,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1596,7 +1596,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1728,7 +1728,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1860,7 +1860,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1986,7 +1986,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -2112,7 +2112,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManySelfReferencingNrtTest()
         => Model101Test();
 
@@ -2173,7 +2173,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithoutCascadeDeleteNrtTest()
         => Model101Test();
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public class MigrationsBundleTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Short_names_are_unique()
     {
         foreach (var command in GetCommands())
@@ -24,7 +24,7 @@ public class MigrationsBundleTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Long_names_are_unique()
     {
         foreach (var command in GetCommands())
@@ -41,7 +41,7 @@ public class MigrationsBundleTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HandleResponseFiles_is_true()
     {
         var app = new CommandLineApplication { Name = "efbundle" };
@@ -50,7 +50,7 @@ public class MigrationsBundleTest
         Assert.True(app.HandleResponseFiles);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AllowArgumentSeparator_is_true()
     {
         var app = new CommandLineApplication { Name = "efbundle" };

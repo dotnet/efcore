@@ -1635,7 +1635,7 @@ WHERE 'Seattle' REGEXP "b"."String"
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Regex_IsMatch_negated()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => !Regex.IsMatch(o.String, "^[^S]")));
@@ -1702,7 +1702,7 @@ WHERE CAST("b"."Int" AS TEXT) LIKE '%5%'
 
     #endregion Like
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

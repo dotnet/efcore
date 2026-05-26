@@ -49,6 +49,29 @@ jobs:
               pull_number: prNumber
             });
 
+            let baseSha = pullRequest.base.sha;
+            const targetSha = pullRequest.merge_commit_sha ?? pullRequest.head.sha;
+
+            // pull_request_target's `base.sha` is the original base from when the PR was opened, so it
+            // includes anything pushed to the target branch while the PR was open. The merge commit's
+            // first parent is the target tip immediately before the merge — that gives a diff that
+            // reflects only what the PR introduced.
+            if (pullRequest.merged && pullRequest.merge_commit_sha) {
+              try {
+                const { data: mergeCommit } = await github.rest.git.getCommit({
+                  owner,
+                  repo,
+                  commit_sha: pullRequest.merge_commit_sha
+                });
+                if (mergeCommit.parents.length > 0) {
+                  baseSha = mergeCommit.parents[0].sha;
+                  console.log(`Using merge commit's first parent ${baseSha} as base.`);
+                }
+              } catch (err) {
+                console.log(`Failed to fetch merge commit; falling back to PR base.sha: ${err.message}`);
+              }
+            }
+
             const files = await github.paginate(github.rest.pulls.listFiles, {
               owner,
               repo,
@@ -65,8 +88,8 @@ jobs:
               }));
 
             core.setOutput('pr_number', String(prNumber));
-            core.setOutput('base_sha', pullRequest.base.sha);
-            core.setOutput('target_sha', pullRequest.merge_commit_sha ?? pullRequest.head.sha);
+            core.setOutput('base_sha', baseSha);
+            core.setOutput('target_sha', targetSha);
             core.setOutput('has_baselines', String(baselineFiles.length > 0));
             core.setOutput('files_json', JSON.stringify(baselineFiles));
 

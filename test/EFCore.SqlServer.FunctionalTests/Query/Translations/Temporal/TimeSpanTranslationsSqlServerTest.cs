@@ -84,7 +84,7 @@ WHERE DATEPART(nanosecond, [b].[TimeSpan]) % 1000 = 400
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

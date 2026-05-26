@@ -788,11 +788,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 // FindCommonJsonPartialUpdateInfo may have reduced the update to a common ancestor
                 // that has fewer array levels than the originally collected ordinals.
                 var arraySegmentCount = pathSegments.Count(s => s.IsArray);
-                var ordinalsArray = ordinals.Count > arraySegmentCount
+                var indicesArray = ordinals.Count > arraySegmentCount
                     ? ordinals.GetRange(0, arraySegmentCount).ToArray()
                     : ordinals.ToArray();
 
-                var jsonPath = new JsonPath(pathSegments, ordinalsArray);
+                var jsonPath = new StructuredJsonPath(pathSegments, indicesArray);
                 if (jsonProperty is IProperty property)
                 {
                     var columnModificationParameters = new ColumnModificationParameters(

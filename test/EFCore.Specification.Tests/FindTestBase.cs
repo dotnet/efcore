@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract TestFinder Finder { get; }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_int_key_tracked()
         {
             using var context = CreateContext();
@@ -26,21 +26,21 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, Finder.Find<IntKey>(context, 88));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_int_key_from_store()
         {
             using var context = CreateContext();
             Assert.Equal("Smokey", Finder.Find<IntKey>(context, 77).Foo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_int_key_not_in_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<IntKey>(context, 99));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_nullable_int_key_tracked()
         {
             using var context = CreateContext();
@@ -50,21 +50,21 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, Finder.Find<NullableIntKey>(context, 88));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_nullable_int_key_from_store()
         {
             using var context = CreateContext();
             Assert.Equal("Smokey", Finder.Find<NullableIntKey>(context, 77).Foo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_nullable_int_key_not_in_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<NullableIntKey>(context, 99));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_string_key_tracked()
         {
             using var context = CreateContext();
@@ -74,21 +74,21 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, Finder.Find<StringKey>(context, "Rabbit"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_string_key_from_store()
         {
             using var context = CreateContext();
             Assert.Equal("Alice", Finder.Find<StringKey>(context, "Cat").Foo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_string_key_not_in_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<StringKey>(context, "Fox"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_composite_key_tracked()
         {
             using var context = CreateContext();
@@ -98,21 +98,21 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, Finder.Find<CompositeKey>(context, 88, "Rabbit"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_composite_key_from_store()
         {
             using var context = CreateContext();
             Assert.Equal("Olive", Finder.Find<CompositeKey>(context, 77, "Dog").Foo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_composite_key_not_in_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<CompositeKey>(context, 77, "Fox"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_base_type_tracked()
         {
             using var context = CreateContext();
@@ -122,21 +122,21 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, Finder.Find<BaseType>(context, 88));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_base_type_from_store()
         {
             using var context = CreateContext();
             Assert.Equal("Baxter", Finder.Find<BaseType>(context, 77).Foo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_base_type_not_in_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<BaseType>(context, 99));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_derived_type_tracked()
         {
             using var context = CreateContext();
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, Finder.Find<DerivedType>(context, 88));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_derived_type_from_store()
         {
             using var context = CreateContext();
@@ -155,14 +155,14 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Cheesecake", derivedType.Boo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_derived_type_not_in_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<DerivedType>(context, 99));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_base_type_using_derived_set_tracked()
         {
             using var context = CreateContext();
@@ -172,14 +172,14 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(Finder.Find<DerivedType>(context, 88));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_base_type_using_derived_set_from_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<DerivedType>(context, 77));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_derived_type_using_base_set_tracked()
         {
             using var context = CreateContext();
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, Finder.Find<BaseType>(context, 88));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_derived_using_base_set_type_from_store()
         {
             using var context = CreateContext();
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_shadow_key_tracked()
         {
             using var context = CreateContext();
@@ -209,49 +209,49 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entry.Entity, Finder.Find<ShadowKey>(context, 88));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Find_shadow_key_from_store()
         {
             using var context = CreateContext();
             Assert.Equal("Clippy", Finder.Find<ShadowKey>(context, 77).Foo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_shadow_key_not_in_store()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<ShadowKey>(context, 99));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_null_key_values_array()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<CompositeKey>(context, null));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_null_key()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<IntKey>(context, [null]));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_null_nullable_key()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<NullableIntKey>(context, [null]));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Returns_null_for_null_in_composite_key()
         {
             using var context = CreateContext();
             Assert.Null(Finder.Find<CompositeKey>(context, 77, null));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_multiple_values_passed_for_simple_key()
         {
             using var context = CreateContext();
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<ArgumentException>(() => Finder.Find<IntKey>(context, 77, 88)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_wrong_number_of_values_for_composite_key()
         {
             using var context = CreateContext();
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<ArgumentException>(() => Finder.Find<CompositeKey>(context, 77)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_bad_type_for_simple_key()
         {
             using var context = CreateContext();
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<ArgumentException>(() => Finder.Find<IntKey>(context, "77")).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_bad_type_for_composite_key()
         {
             using var context = CreateContext();
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<ArgumentException>(() => Finder.Find<CompositeKey>(context, 77, 88)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_bad_entity_type()
         {
             using var context = CreateContext();
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(() => Finder.Find<Random>(context, 77)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_bad_entity_type_with_different_namespace()
         {
             using var context = CreateContext();
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(() => Finder.Find<DifferentNamespace.ShadowKey>(context, 77)).Message);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_int_key_tracked_async(CancellationType cancellationType)
         {
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, await valueTask);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_int_key_from_store_async(CancellationType cancellationType)
         {
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Contains("72", entity.OwnedReference.NestedOwnedCollection.Select(e => e.Prop));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_int_key_not_in_store_async(CancellationType cancellationType)
         {
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<IntKey>(cancellationType, context, [99]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_nullable_int_key_tracked_async(CancellationType cancellationType)
         {
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, await Finder.FindAsync<NullableIntKey>(cancellationType, context, [88]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_nullable_int_key_from_store_async(CancellationType cancellationType)
         {
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Smokey", (await Finder.FindAsync<NullableIntKey>(cancellationType, context, [77])).Foo);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_nullable_int_key_not_in_store_async(CancellationType cancellationType)
         {
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<NullableIntKey>(cancellationType, context, [99]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_string_key_tracked_async(CancellationType cancellationType)
         {
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, await Finder.FindAsync<StringKey>(cancellationType, context, ["Rabbit"]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_string_key_from_store_async(CancellationType cancellationType)
         {
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Alice", (await Finder.FindAsync<StringKey>(cancellationType, context, ["Cat"])).Foo);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_string_key_not_in_store_async(CancellationType cancellationType)
         {
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<StringKey>(cancellationType, context, ["Fox"]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_composite_key_tracked_async(CancellationType cancellationType)
         {
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, await Finder.FindAsync<CompositeKey>(cancellationType, context, [88, "Rabbit"]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_composite_key_from_store_async(CancellationType cancellationType)
         {
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Olive", (await Finder.FindAsync<CompositeKey>(cancellationType, context, [77, "Dog"])).Foo);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_composite_key_not_in_store_async(CancellationType cancellationType)
         {
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, [77, "Fox"]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_base_type_tracked_async(CancellationType cancellationType)
         {
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, await Finder.FindAsync<BaseType>(cancellationType, context, [88]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_base_type_from_store_async(CancellationType cancellationType)
         {
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Baxter", (await Finder.FindAsync<BaseType>(cancellationType, context, [77])).Foo);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_base_type_not_in_store_async(CancellationType cancellationType)
         {
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<BaseType>(cancellationType, context, [99]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_derived_type_tracked_async(CancellationType cancellationType)
         {
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, await Finder.FindAsync<DerivedType>(cancellationType, context, [88]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_derived_type_from_store_async(CancellationType cancellationType)
         {
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Cheesecake", derivedType.Boo);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_derived_type_not_in_store_async(CancellationType cancellationType)
         {
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<DerivedType>(cancellationType, context, [99]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_base_type_using_derived_set_tracked_async(CancellationType cancellationType)
         {
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<DerivedType>(cancellationType, context, [88]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_base_type_using_derived_set_from_store_async(CancellationType cancellationType)
         {
@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<DerivedType>(cancellationType, context, [77]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_derived_type_using_base_set_tracked_async(CancellationType cancellationType)
         {
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entity, await Finder.FindAsync<BaseType>(cancellationType, context, [88]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_derived_using_base_set_type_from_store_async(CancellationType cancellationType)
         {
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_shadow_key_tracked_async(CancellationType cancellationType)
         {
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(entry.Entity, await Finder.FindAsync<ShadowKey>(cancellationType, context, [88]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Find_shadow_key_from_store_async(CancellationType cancellationType)
         {
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Clippy", (await Finder.FindAsync<ShadowKey>(cancellationType, context, [77])).Foo);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_shadow_key_not_in_store_async(CancellationType cancellationType)
         {
@@ -554,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<ShadowKey>(cancellationType, context, [99]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_null_key_values_array_async(CancellationType cancellationType)
         {
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, null));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_null_key_async(CancellationType cancellationType)
         {
@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<IntKey>(cancellationType, context, [null]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Returns_null_for_null_in_composite_key_async(CancellationType cancellationType)
         {
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, [77, null]));
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Throws_for_multiple_values_passed_for_simple_key_async(CancellationType cancellationType)
         {
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Message);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Throws_for_wrong_number_of_values_for_composite_key_async(CancellationType cancellationType)
         {
@@ -602,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore
                     => Finder.FindAsync<CompositeKey>(cancellationType, context, [77]).AsTask())).Message);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Throws_for_bad_type_for_simple_key_async(CancellationType cancellationType)
         {
@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Message);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Throws_for_bad_type_for_composite_key_async(CancellationType cancellationType)
         {
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore
                     => Finder.FindAsync<CompositeKey>(cancellationType, context, [77, 78]).AsTask())).Message);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Throws_for_bad_entity_type_async(CancellationType cancellationType)
         {
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore
                     => Finder.FindAsync<Random>(cancellationType, context, [77]).AsTask())).Message);
         }
 
-        [ConditionalTheory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
+        [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
          InlineData((int)CancellationType.None)]
         public virtual async Task Throws_for_bad_entity_type_with_different_namespace_async(CancellationType cancellationType)
         {

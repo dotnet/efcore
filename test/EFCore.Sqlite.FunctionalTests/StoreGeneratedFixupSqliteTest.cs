@@ -11,7 +11,7 @@ public class StoreGeneratedFixupSqliteTest(StoreGeneratedFixupSqliteTest.StoreGe
     : StoreGeneratedFixupRelationalTestBase<
         StoreGeneratedFixupSqliteTest.StoreGeneratedFixupSqliteFixture>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public void Temp_values_can_be_made_permanent()
     {
         using var context = CreateContext();

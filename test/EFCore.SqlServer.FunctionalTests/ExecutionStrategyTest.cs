@@ -22,7 +22,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
     protected ExecutionStrategyFixture Fixture { get; }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
     public void Handles_commit_failure(bool realFailure)
     {
         // Use all overloads of ExecuteInTransaction
@@ -114,7 +114,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
     public async Task Handles_commit_failure_async(bool realFailure)
     {
         // Use all overloads of ExecuteInTransactionAsync
@@ -227,7 +227,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
     public void Handles_commit_failure_multiple_SaveChanges(bool realFailure)
     {
         CleanContext();
@@ -263,7 +263,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         Assert.Equal(2, context.Products.Count());
     }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 4, MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 4, MemberType = typeof(DataGenerator))]
     public async Task Retries_SaveChanges_on_execution_failure(
         bool realFailure,
         bool externalStrategy,
@@ -367,7 +367,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 3, MemberType = typeof(DataGenerator))] // Issue #25946
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 3, MemberType = typeof(DataGenerator))] // Issue #25946
     public async Task Retries_SaveChanges_on_execution_failure_with_two_contexts(
         bool realFailure,
         bool openConnection,
@@ -523,7 +523,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
     public async Task Retries_query_on_execution_failure(bool externalStrategy, bool async)
     {
         CleanContext();
@@ -578,7 +578,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
     public async Task Retries_FromSqlRaw_on_execution_failure(bool externalStrategy, bool async)
     {
         CleanContext();
@@ -643,7 +643,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
     public async Task Retries_OpenConnection_on_execution_failure(bool externalStrategy, bool async)
     {
         using var context = CreateContext();
@@ -694,7 +694,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Retries_BeginTransaction_on_execution_failure(bool async)
     {
         using var context = CreateContext();
@@ -726,7 +726,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Verification_is_retried_using_same_retry_limit()
     {
         CleanContext();

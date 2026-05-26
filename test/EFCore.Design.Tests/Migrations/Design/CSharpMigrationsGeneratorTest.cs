@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.RegularExpressions;
@@ -21,7 +21,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
     private static readonly string _toTable = _nl + @"entityTypeBuilder.ToTable(""WithAnnotations"")";
     private static readonly string _toNullTable = _nl + @"entityTypeBuilder.ToTable((string)null)";
 
-    [ConditionalFact]
+    [Fact]
     public void Test_new_annotations_handled_for_entity_types()
     {
         // Only add the annotation here if it will never be present on IEntityType
@@ -186,7 +186,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
             (g, m, b) => g.TestGenerateEntityTypeAnnotations("entityTypeBuilder", (IEntityType)m, b));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Test_new_annotations_handled_for_properties()
     {
         // Only add the annotation here if it will never be present on IProperty
@@ -466,7 +466,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
 
     private class Derived : WithAnnotations;
 
-    [ConditionalFact]
+    [Fact]
     public void Snapshot_with_enum_discriminator_uses_converted_values()
     {
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
@@ -546,7 +546,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
         Assert.Equal(expected + _nl + ".HasMaxLength(1000)", sb.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migrations_compile()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -587,39 +587,38 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 #nullable disable
 
-namespace MyNamespace
+namespace MyNamespace;
+
+/// <inheritdoc />
+public partial class MyMigration : Migration
 {
     /// <inheritdoc />
-    public partial class MyMigration : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql("-- TEST")
-                .Annotation("Some:EnumValue", RegexOptions.Multiline);
+        migrationBuilder.Sql("-- TEST")
+            .Annotation("Some:EnumValue", RegexOptions.Multiline);
 
-            migrationBuilder.AlterColumn<Database>(
-                name: "C2",
-                table: "T1",
-                nullable: false,
-                oldClrType: typeof(Property));
+        migrationBuilder.AlterColumn<Database>(
+            name: "C2",
+            table: "T1",
+            nullable: false,
+            oldClrType: typeof(Property));
 
-            migrationBuilder.AddColumn<PropertyEntry>(
-                name: "C3",
-                table: "T1",
-                nullable: false);
+        migrationBuilder.AddColumn<PropertyEntry>(
+            name: "C3",
+            table: "T1",
+            nullable: false);
 
-            migrationBuilder.InsertData(
-                table: "T1",
-                columns: new[] { "Id", "C2", "C3" },
-                values: new object[] { 1, null, -1 });
-        }
+        migrationBuilder.InsertData(
+            table: "T1",
+            columns: new[] { "Id", "C2", "C3" },
+            values: new object[] { 1, null, -1 });
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
 
-        }
     }
 }
 
@@ -660,36 +659,35 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MyNamespace
+namespace MyNamespace;
+
+[DbContext(typeof(CSharpMigrationsGeneratorTest.MyContext))]
+[Migration("20150511161616_MyMigration")]
+partial class MyMigration
 {
-    [DbContext(typeof(CSharpMigrationsGeneratorTest.MyContext))]
-    [Migration("20150511161616_MyMigration")]
-    partial class MyMigration
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
+        modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
 
-            modelBuilder.Entity("T1", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
+        modelBuilder.Entity("T1", b =>
+            {
+                b.Property<int>("Id")
+                    .HasColumnType("int");
 
-                    b.Property<string>("C2")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("C2")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("C3")
-                        .HasColumnType("int");
+                b.Property<int>("C3")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("T1");
-                });
+                b.ToTable("T1");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -742,7 +740,7 @@ namespace MyNamespace
 
     public class MyContext;
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_insert_data()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -763,7 +761,7 @@ namespace MyNamespace
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_update_data_Values()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -786,7 +784,7 @@ namespace MyNamespace
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_update_data_KeyValues()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -809,7 +807,7 @@ namespace MyNamespace
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Namespaces_imported_for_delete_data()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -830,7 +828,7 @@ namespace MyNamespace
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multidimensional_array_warning_is_suppressed_for_multidimensional_seed_data()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -851,7 +849,7 @@ namespace MyNamespace
         Assert.Contains("#pragma warning disable CA1814", migration);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multidimensional_array_warning_is_not_suppressed_for_unidimensional_seed_data()
     {
         var generator = CreateMigrationsCodeGenerator();

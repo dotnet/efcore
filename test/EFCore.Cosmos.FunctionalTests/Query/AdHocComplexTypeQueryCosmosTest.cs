@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -11,9 +11,10 @@ public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocCo
         => CosmosTestStoreFactory.Instance;
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Complex_type_equals_parameter_with_nested_types_with_property_of_same_name();
 
         AssertSql(
@@ -221,7 +222,37 @@ OFFSET 0 LIMIT 2
        => base.AddNonSharedOptions(builder)
                .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
-    [ConditionalFact]
+    public override async Task Can_query_by_complex_type_property_with_index()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_query_by_complex_type_property_with_index)).Message);
+
+    public override async Task Can_update_entity_with_index_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_update_entity_with_index_on_complex_type_property)).Message);
+
+    public override async Task Can_delete_entity_with_index_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_delete_entity_with_index_on_complex_type_property)).Message);
+
+    public override async Task Can_query_by_alternate_key_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_query_by_alternate_key_on_complex_type_property)).Message);
+
+    public override async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
+        => Assert.Equal(
+            CosmosStrings.IndexesExist("Person", "PostalCode"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Can_save_batch_swapping_alternate_key_values_on_complex_type_property)).Message);
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

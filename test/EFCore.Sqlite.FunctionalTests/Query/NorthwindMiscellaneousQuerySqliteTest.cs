@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -53,7 +53,7 @@ LIMIT -1 OFFSET @p1
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_millisecond_component_composed(bool async)
     {
         await AssertQueryScalar(
@@ -67,7 +67,7 @@ FROM "Orders" AS "o"
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_TimeOfDay_component_composed(bool async)
     {
         await AssertQueryScalar(
@@ -441,7 +441,7 @@ FROM "Orders" AS "o"
     public override Task Where_nanosecond_and_microsecond_component(bool async)
         => AssertTranslationFailed(() => base.Where_nanosecond_and_microsecond_component(async));
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_Predicate_Cancellation()
         => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
             await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));

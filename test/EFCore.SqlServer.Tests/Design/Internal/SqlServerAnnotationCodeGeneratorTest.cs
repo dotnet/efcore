@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class SqlServerAnnotationCodeGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_when_clustered()
     {
         var generator = CreateGenerator();
@@ -35,7 +35,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(0, result.Arguments.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_when_nonclustered()
     {
         var generator = CreateGenerator();
@@ -58,7 +58,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -80,7 +80,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(80, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IUniqueConstraint_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -103,7 +103,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(80, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_when_clustered()
     {
         var generator = CreateGenerator();
@@ -126,7 +126,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(0, result.Arguments.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_when_nonclustered()
     {
         var generator = CreateGenerator();
@@ -150,7 +150,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -173,7 +173,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(90, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_with_includes()
     {
         var generator = CreateGenerator();
@@ -199,7 +199,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(["FirstName"], properties.AsEnumerable());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_full_text_catalog()
     {
         var generator = CreateGenerator();
@@ -225,7 +225,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, accentChain.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_full_text_catalog_defaults()
     {
         var generator = CreateGenerator();
@@ -243,7 +243,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Null(catalogResult.ChainedCall);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_identity()
     {
         var generator = CreateGenerator();
@@ -262,7 +262,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             increment => Assert.Equal(10, increment));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_identity()
     {
         var generator = CreateGenerator();
@@ -282,7 +282,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             increment => Assert.Equal(10, increment));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_identity_default_seed_increment()
     {
         var generator = CreateGenerator();
@@ -299,7 +299,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Empty(result.Arguments);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_HiLo()
     {
         var generator = CreateGenerator();
@@ -318,7 +318,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("HiLoIndexSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_HiLo()
     {
         var generator = CreateGenerator();
@@ -338,7 +338,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("HiLoIndexSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_KeySequence()
     {
         var generator = CreateGenerator();
@@ -357,7 +357,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("KeySequenceSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_KeySequence()
     {
         var generator = CreateGenerator();
@@ -377,7 +377,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("KeySequenceSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_IsSparse()
     {
         var generator = CreateGenerator();
@@ -408,7 +408,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_with_DefaultConstraintName_and_no_DefaultValue_does_not_throw()
     {
         // Reproduces https://github.com/dotnet/efcore/issues/37175
@@ -435,7 +435,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Empty(result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_DatabaseMaxSize()
     {
         var generator = CreateGenerator();
@@ -449,7 +449,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("100", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_ServiceTier()
     {
         var generator = CreateGenerator();
@@ -463,7 +463,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("'foo'", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_PerformanceLevel()
     {
         var generator = CreateGenerator();
@@ -477,7 +477,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("'foo'", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IEntityType_works_when_IsMemoryOptimized()
     {
         var generator = CreateGenerator();

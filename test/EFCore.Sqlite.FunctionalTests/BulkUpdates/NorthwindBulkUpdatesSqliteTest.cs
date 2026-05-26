@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -12,7 +12,7 @@ public class NorthwindBulkUpdatesSqliteTest(
     ITestOutputHelper testOutputHelper)
     : NorthwindBulkUpdatesRelationalTestBase<NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1409,7 +1409,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_outer_apply_set_constant(async))).Message);
 
-    [ConditionalTheory(Skip = "Issue#28886")]
+    [Theory(Skip = "Issue#28886")]
     public override async Task Update_with_cross_join_left_join_set_constant(bool async)
     {
         await base.Update_with_cross_join_left_join_set_constant(async);
@@ -1524,7 +1524,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
 
-    [ConditionalTheory(Skip = "Issue#28886")]
+    [Theory(Skip = "Issue#28886")]
     public override async Task Update_with_two_inner_joins(bool async)
     {
         await base.Update_with_two_inner_joins(async);
@@ -1535,7 +1535,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
     {
         await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);

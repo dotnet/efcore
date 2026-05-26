@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class CosmosBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_collection_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -29,7 +29,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal("Unicorn", entityType.Metadata.GetContainer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_partition_key_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -71,7 +71,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_hierarchical_partition_key_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -100,7 +100,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_container_name_is_used_if_not_set()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -126,7 +126,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal("db1", entityType.GetContainer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_discriminator_can_be_removed()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -153,7 +153,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Null(entityType.FindDiscriminatorProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_etag_concurrency_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -166,7 +166,7 @@ public class CosmosBuilderExtensionsTest
         Assert.True(etagProperty.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_etag_concurrency_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -180,7 +180,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal("_etag", etagProperty.GetJsonPropertyName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_convention_trigger_builder()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -204,7 +204,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal(ConfigurationSource.DataAnnotation, conventionTrigger.GetTriggerTypeConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_trigger()
     {
         var modelBuilder = CreateConventionModelBuilder();

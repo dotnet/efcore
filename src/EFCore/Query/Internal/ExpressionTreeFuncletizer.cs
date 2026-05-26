@@ -1288,11 +1288,25 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     /// </summary>
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
     {
-        // ParameterExpressions are lambda parameters, which we cannot evaluate.
-        // However, _allowedParameters is a mechanism to allow evaluating Select(), see VisitMethodCall.
-        _state = _evaluatableParameters.Contains(parameterExpression)
-            ? State.CreateEvaluatable(typeof(ParameterExpression), containsCapturedVariable: false)
-            : State.NoEvaluatability;
+        // ParameterExpressions are lambda parameters, which are not evaluatable unless they are part of an evaluatable lambda;
+        // see the Enumerable.Select handling in VisitMethodCall. Even then, a parameter can only be evaluated as part of that
+        // larger lambda fragment, and never as an evaluatable root - see TryHandleNonEvaluatableAsRoot below.
+        if (_evaluatableParameters.Contains(parameterExpression))
+        {
+            var capturedParameterExpression = parameterExpression;
+            _state = State.CreateEvaluatable(
+                typeof(ParameterExpression),
+                containsCapturedVariable: false,
+                notEvaluatableAsRootHandler: () =>
+                {
+                    _state = State.NoEvaluatability;
+                    return capturedParameterExpression;
+                });
+        }
+        else
+        {
+            _state = State.NoEvaluatability;
+        }
 
         return parameterExpression;
     }
@@ -1932,9 +1946,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // different SQLs for each value.
                 || !_inLambda);
 
-        // We have some cases where a node is evaluatable, but only as part of a larger subtree, and should not be evaluated as a tree root.
-        // For these cases, the node's state has a notEvaluatableAsRootHandler lambda, which we can invoke to make evaluate the node's
-        // children (as needed), but not itself.
+        // Some nodes are evaluatable only as part of a larger subtree, and must not be evaluated as roots by themselves.
+        // For example, new[] { x, y } should generally be preserved as an inline list, and a ParameterExpression made
+        // evaluatable for an Enumerable.Select lambda is only bound inside that lambda. For these cases, the node's state
+        // has a notEvaluatableAsRootHandler lambda, which evaluates children as needed or otherwise preserves the node
+        // while setting the appropriate state, but does not evaluate the root itself.
         if (!forceEvaluation && TryHandleNonEvaluatableAsRoot(evaluatableRoot, state, evaluateAsParameter, out var result))
         {
             return result;
@@ -2039,6 +2055,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // There are some cases of Convert nodes which we shouldn't evaluate when they're at the top of an evaluatable root (but can
                 // evaluate when they're part of a larger fragment).
                 case UnaryExpression unary when PreserveConvertNode(unary):
+                // Parameters made evaluatable for an Enumerable.Select lambda are only evaluatable inside that lambda, and attempting to
+                // evaluate them as roots produces an unbound parameter.
+                case ParameterExpression:
                     result = state.NotEvaluatableAsRootHandler!();
                     return true;
 

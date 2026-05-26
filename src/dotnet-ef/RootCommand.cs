@@ -85,8 +85,14 @@ internal class RootCommand : CommandBase
             projectPath,
             startupProjectPath);
 
-        Reporter.WriteVerbose(Resources.UsingProject(projectFile));
-        Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
+        Reporter.WriteVerbose(
+            IsFileBasedApp(projectFile)
+                ? Resources.UsingFileBasedApp(projectFile)
+                : Resources.UsingProject(projectFile));
+        Reporter.WriteVerbose(
+            IsFileBasedApp(startupProjectFile)
+                ? Resources.UsingStartupFileBasedApp(startupProjectFile)
+                : Resources.UsingStartupProject(startupProjectFile));
 
         var project = Project.FromFile(
             projectFile,
@@ -344,6 +350,9 @@ internal class RootCommand : CommandBase
 
         return projectFiles;
     }
+
+    private static bool IsFileBasedApp(string file)
+        => string.Equals(Path.GetExtension(file), ".cs", StringComparison.OrdinalIgnoreCase);
 
     internal static string? ResolveContext(IList<string> args, string? configValue)
         => configValue != null

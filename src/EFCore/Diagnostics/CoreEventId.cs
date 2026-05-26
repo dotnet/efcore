@@ -91,6 +91,7 @@ public static class CoreEventId
         RedundantAddServicesCallWarning = CoreBaseId + 410,
         OldModelVersionWarning = CoreBaseId + 411,
         CompiledModelProviderMismatchWarning = CoreBaseId + 412,
+        EnsureCreatedWithTrackedEntitiesWarning = CoreBaseId + 413,
 
         // Model and ModelValidation events
         ShadowPropertyCreated = CoreBaseId + 600,
@@ -504,6 +505,20 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId CompiledModelProviderMismatchWarning = MakeInfraId(Id.CompiledModelProviderMismatchWarning);
+
+    /// <summary>
+    ///     <para>
+    ///         <see cref="IDatabaseCreator.EnsureCreatedAsync" /> was called on a context that is already tracking
+    ///         added, modified, or deleted entities. These changes would be lost if a retry occurs due to a transient failure.
+    ///     </para>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </summary>
+    public static readonly EventId EnsureCreatedWithTrackedEntitiesWarning = MakeInfraId(Id.EnsureCreatedWithTrackedEntitiesWarning);
 
     private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
 

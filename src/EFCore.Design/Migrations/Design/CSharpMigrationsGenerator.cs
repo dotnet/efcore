@@ -86,12 +86,11 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         {
             builder
                 .AppendLine()
-                .Append("namespace ").AppendLine(Code.Namespace(migrationNamespace))
-                .AppendLine("{")
-                .IncrementIndent();
+                .Append("namespace ").Append(Code.Namespace(migrationNamespace)).AppendLine(";");
         }
 
         builder
+            .AppendLine()
             .AppendLine("/// <inheritdoc />")
             .Append("public partial class ").Append(Code.Identifier(migrationName)).AppendLine(" : Migration")
             .AppendLine("{");
@@ -124,13 +123,6 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         }
 
         builder.AppendLine("}");
-
-        if (!string.IsNullOrEmpty(migrationNamespace))
-        {
-            builder
-                .DecrementIndent()
-                .AppendLine("}");
-        }
 
         return builder.ToString();
     }
@@ -185,12 +177,11 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         {
             builder
                 .AppendLine()
-                .Append("namespace ").AppendLine(Code.Namespace(migrationNamespace))
-                .AppendLine("{")
-                .IncrementIndent();
+                .Append("namespace ").Append(Code.Namespace(migrationNamespace)).AppendLine(";");
         }
 
         builder
+            .AppendLine()
             .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
             .Append("[Migration(").Append(Code.Literal(migrationId)).AppendLine(")]")
             .Append("partial class ").AppendLine(Code.Identifier(migrationName))
@@ -202,9 +193,7 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
                 .AppendLine("protected override void BuildTargetModel(ModelBuilder modelBuilder)")
                 .AppendLine("{")
                 .DecrementIndent()
-                .DecrementIndent()
                 .AppendLine("#pragma warning disable 612, 618")
-                .IncrementIndent()
                 .IncrementIndent();
             using (builder.Indent())
             {
@@ -214,21 +203,12 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
 
             builder
                 .DecrementIndent()
-                .DecrementIndent()
                 .AppendLine("#pragma warning restore 612, 618")
-                .IncrementIndent()
                 .IncrementIndent()
                 .AppendLine("}");
         }
 
         builder.AppendLine("}");
-
-        if (!string.IsNullOrEmpty(migrationNamespace))
-        {
-            builder
-                .DecrementIndent()
-                .AppendLine("}");
-        }
 
         return builder.ToString();
     }
@@ -279,12 +259,11 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         {
             builder
                 .AppendLine()
-                .Append("namespace ").AppendLine(Code.Namespace(modelSnapshotNamespace))
-                .AppendLine("{")
-                .IncrementIndent();
+                .Append("namespace ").Append(Code.Namespace(modelSnapshotNamespace)).AppendLine(";");
         }
 
         builder
+            .AppendLine()
             .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
             .Append("partial class ").Append(Code.Identifier(modelSnapshotName)).AppendLine(" : ModelSnapshot")
             .AppendLine("{");
@@ -296,7 +275,7 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
                     .AppendLine("// If you encounter a merge conflict in the line below, it means you need to")
                     .AppendLine("// discard one of the migration branches and recreate its migrations on top of")
                     .AppendLine("// the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.")
-                    .Append("public override string LatestMigrationId => ").Append(Code.Literal(latestMigrationId)).AppendLine(";")
+                    .Append("public override string LastMigrationId => ").Append(Code.Literal(latestMigrationId)).AppendLine(";")
                     .AppendLine();
             }
 
@@ -304,9 +283,7 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
                 .AppendLine("protected override void BuildModel(ModelBuilder modelBuilder)")
                 .AppendLine("{")
                 .DecrementIndent()
-                .DecrementIndent()
                 .AppendLine("#pragma warning disable 612, 618")
-                .IncrementIndent()
                 .IncrementIndent();
             using (builder.Indent())
             {
@@ -315,21 +292,12 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
 
             builder
                 .DecrementIndent()
-                .DecrementIndent()
                 .AppendLine("#pragma warning restore 612, 618")
-                .IncrementIndent()
                 .IncrementIndent()
                 .AppendLine("}");
         }
 
         builder.AppendLine("}");
-
-        if (!string.IsNullOrEmpty(modelSnapshotNamespace))
-        {
-            builder
-                .DecrementIndent()
-                .AppendLine("}");
-        }
 
         return builder.ToString();
     }

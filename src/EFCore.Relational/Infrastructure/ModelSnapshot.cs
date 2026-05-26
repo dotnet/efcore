@@ -34,7 +34,7 @@ public abstract class ModelSnapshot
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations-conflicts">Database migrations</see> for more information and examples.
     /// </remarks>
-    public virtual string? LatestMigrationId
+    public virtual string? LastMigrationId
         => null;
 
     /// <summary>

@@ -7,13 +7,13 @@ public class NonSharedFixture : IAsyncLifetime
 {
     private TestStore? _testStore;
 
-    public Task InitializeAsync()
-        => Task.CompletedTask;
+    public ValueTask InitializeAsync()
+        => ValueTask.CompletedTask;
 
     public virtual TestStore GetOrCreateTestStore(Func<TestStore> createTestStore)
         => _testStore ??= createTestStore();
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         if (_testStore != null)
         {

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -31,7 +31,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     // Positive cases
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -55,7 +55,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     public class BlogContextIdentity(string databaseName, Action<ModelBuilder> modelBuilder) : ContextBase(databaseName, modelBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_sequence_HiLo()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -95,7 +95,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_key_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -135,7 +135,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -173,7 +173,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_default_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -243,7 +243,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_default_string_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -296,7 +296,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_key_default_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -337,7 +337,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_uint_to_Identity_column_using_value_converter()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -386,7 +386,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_int_enum_to_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -442,7 +442,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         SixSixSeven,
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_ulong_enum_to_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -497,7 +497,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         Sentinel
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_string_to_Identity_column_using_value_converter()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -547,7 +547,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_non_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -584,7 +584,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_with_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -625,7 +625,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_default_value()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -694,7 +694,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public async Task Insert_with_non_key_default_spatial_value()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -809,7 +809,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_default_value_readonly()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -888,7 +888,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -964,7 +964,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     }
 
     // #6044
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column_with_function()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1038,7 +1038,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
     }
 
     // #6044
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column_with_querying_function()
     {
         SqlServerTestStore testStore = null;
@@ -1135,7 +1135,7 @@ END");
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_computed_column_with_function_without_metadata_configuration(bool async)
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1182,7 +1182,7 @@ END");
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_trigger_without_metadata_configuration(bool async)
     {
         // Execute an insert against a table which has a trigger, but which haven't identified as such in our metadata.
@@ -1225,7 +1225,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_client_generated_GUID_key()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1281,7 +1281,7 @@ END");
         }
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql))]
     public async Task Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1320,7 +1320,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_server_generated_GUID_key()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1379,7 +1379,7 @@ END");
     }
 
     // Negative cases
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_non_default_keys_by_default()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1396,7 +1396,7 @@ END");
         context.Database.CreateExecutionStrategy().Execute(context, c => Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1416,7 +1416,7 @@ END");
 
     public class BlogContext(string databaseName, Action<ModelBuilder> modelBuilder) : ContextBase(databaseName, modelBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_implicit_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1456,7 +1456,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_throws_when_readonly_sequence_before_save()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1494,7 +1494,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_throws_when_readonly_before_save()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1522,7 +1522,7 @@ END");
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_into_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1545,7 +1545,7 @@ END");
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Update_explicit_value_in_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1580,7 +1580,7 @@ END");
     }
 
     // Concurrency
-    [ConditionalFact]
+    [Fact]
     public async Task Resolve_concurrency()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CollectionComparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_arrays()
     {
         using var context = new SomeLists();
@@ -108,7 +108,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_List()
     {
         using var context = new SomeLists();
@@ -393,7 +393,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_Collection()
     {
         using var context = new SomeLists();
@@ -678,7 +678,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_ObservableCollection()
     {
         using var context = new SomeLists();
@@ -963,7 +963,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void List_comparer_throws_when_used_with_non_list()
     {
         var comparer = new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(favorStructuralComparisons: false));
@@ -981,7 +981,7 @@ public class CollectionComparerTest
             Assert.Throws<InvalidOperationException>(() => comparer.Snapshot(new HashSet<string>())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Nullable_list_comparer_throws_when_used_with_non_list()
     {
         var comparer = new ListOfNullableValueTypesComparer<List<int?>, int>(new ValueComparer<int?>(favorStructuralComparisons: false));

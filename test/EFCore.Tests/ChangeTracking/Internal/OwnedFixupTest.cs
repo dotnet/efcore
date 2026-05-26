@@ -26,7 +26,7 @@ public class OwnedFixupTest
         public Thing Thing { get; set; }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false), InlineData(true)] // Issue #18982
     public void Detaching_owner_does_not_delete_owned_entities(bool delayCascade)
     {
@@ -72,7 +72,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_detach_Added_owner_referencing_detached_weak_owned_entity()
     {
         using var context = new FixupContext();
@@ -93,7 +93,7 @@ public class OwnedFixupTest
         Assert.Equal(EntityState.Detached, context.Entry(owner).Reference(e => e.Child1).TargetEntry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_owned_entity_entry()
     {
         using var context = new FixupContext();
@@ -124,7 +124,7 @@ public class OwnedFixupTest
             Assert.Throws<InvalidOperationException>(() => context.Entry(dependent)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_owned_entity_throws_by_default()
     {
         using var context = new FixupContext(false);
@@ -148,7 +148,7 @@ public class OwnedFixupTest
             Assert.Throws<InvalidOperationException>(() => context.Entry(principal).Reference(p => p.Child2).TargetEntry).Message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, true),
      InlineData(EntityState.Added, false),
      InlineData(EntityState.Added, null),
@@ -236,7 +236,7 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, true),
      InlineData(EntityState.Added, false),
      InlineData(EntityState.Added, null),
@@ -341,7 +341,7 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, true),
      InlineData(EntityState.Added, false),
      InlineData(EntityState.Added, null),
@@ -445,7 +445,7 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, true, CollectionType.HashSet),
      InlineData(EntityState.Added, false, CollectionType.HashSet),
      InlineData(EntityState.Added, null, CollectionType.HashSet),
@@ -598,7 +598,7 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, true, CollectionType.HashSet),
      InlineData(EntityState.Added, false, CollectionType.HashSet),
      InlineData(EntityState.Added, null, CollectionType.HashSet),
@@ -748,7 +748,7 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, true, CollectionType.HashSet),
      InlineData(EntityState.Added, false, CollectionType.HashSet),
      InlineData(EntityState.Added, null, CollectionType.HashSet),
@@ -898,7 +898,7 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Principal_nav_set_unidirectional_AddAsync()
     {
         using var context = new FixupContext();
@@ -923,7 +923,7 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -997,7 +997,7 @@ public class OwnedFixupTest
         Assert.False(context.ChangeTracker.HasChanges());
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -1095,7 +1095,7 @@ public class OwnedFixupTest
         Assert.Same(subDependent22, dependent2.SubChild2);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -1202,7 +1202,7 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -1311,7 +1311,7 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -1393,7 +1393,7 @@ public class OwnedFixupTest
         Assert.Same(subDependent, dependent.SubChild);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -1486,7 +1486,7 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent2.Parent);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -1583,7 +1583,7 @@ public class OwnedFixupTest
         Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -1682,7 +1682,7 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent.Parent);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -1789,7 +1789,7 @@ public class OwnedFixupTest
         Assert.Same(subDependent2, dependent2.SubChild);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -1938,7 +1938,7 @@ public class OwnedFixupTest
         Assert.Same(subDependent22, dependent2.SubChild2);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -2089,7 +2089,7 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -2244,7 +2244,7 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -2335,7 +2335,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -2449,7 +2449,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -2571,7 +2571,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -2695,7 +2695,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -2815,7 +2815,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -2983,7 +2983,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -3137,7 +3137,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -3299,7 +3299,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -3380,7 +3380,7 @@ public class OwnedFixupTest
         Assert.Same(subDependent, dependent.SubChild);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -3494,7 +3494,7 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent2.Parent);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -3603,7 +3603,7 @@ public class OwnedFixupTest
         Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -3722,7 +3722,7 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent.Parent);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -3837,7 +3837,7 @@ public class OwnedFixupTest
         Assert.Same(subDependent2, dependent2.SubChild);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added),
      InlineData(EntityState.Modified),
      InlineData(EntityState.Unchanged)]
@@ -3958,7 +3958,7 @@ public class OwnedFixupTest
         Assert.Same(dependent2, subDependent2.Parent);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -4121,7 +4121,7 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, CollectionType.HashSet),
      InlineData(EntityState.Modified, CollectionType.HashSet),
      InlineData(EntityState.Unchanged, CollectionType.HashSet),
@@ -4296,7 +4296,7 @@ public class OwnedFixupTest
         Assert.Same(dependent2, subDependent2.Parent);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(EntityState.Added, true, true, true),
      InlineData(EntityState.Modified, true, true, true),
      InlineData(EntityState.Unchanged, true, true, true),
@@ -4382,7 +4382,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Fixup_works_when_changing_state_from_Detached_to_Modified(bool detachDependent)
@@ -4471,7 +4471,7 @@ public class OwnedFixupTest
             => builder.Entity<Product>().OwnsOne(x => x.Details);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_multiple_deep_owned_entities()
     {
         using var context = new StreetContext(nameof(StreetContext));
@@ -4537,7 +4537,7 @@ public class OwnedFixupTest
                 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_replace_owned_entity_after_deleting()
     {
         const long MyBookId = 1234;
@@ -4621,7 +4621,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_replace_owned_entity_with_unchanged_entity_after_deleting()
     {
         const long MyBookId = 1534;
@@ -4741,7 +4741,7 @@ public class OwnedFixupTest
             => Book.OnModelCreating(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entities_with_owned_custom_enum_pattern_are_tracked_correctly_if_not_shared()
     {
         using var context = new TestCurrencyContext(nameof(TestCurrencyContext));
@@ -4849,7 +4849,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entities_with_owned_custom_enum_pattern_using_ValueConverter_are_tracked_correctly()
     {
         using var context = new TestCurrencyContextRevisited(nameof(TestCurrencyContextRevisited));
@@ -4916,7 +4916,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Equatable_entities_that_comply_are_tracked_correctly()
     {
         EntityState GetEntryState<TEntity>(EquatableEntitiesContext context, string role = null)
@@ -4982,7 +4982,7 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public async Task SaveChanges_when_owner_has_PK_with_default_values(bool async)

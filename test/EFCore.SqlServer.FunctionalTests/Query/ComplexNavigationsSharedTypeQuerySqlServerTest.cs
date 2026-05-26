@@ -19,11 +19,11 @@ public class ComplexNavigationsSharedTypeQuerySqlServerTest :
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_skip_without_orderby(bool async)
     {
         await AssertQuery(
@@ -71,7 +71,7 @@ WHERE [l].[Id] < 3
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
@@ -1021,7 +1021,7 @@ LEFT JOIN (
 """);
     }
 
-    [ConditionalTheory]
+    [Theory]
     public override async Task GroupBy_aggregate_where_required_relationship_2(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship_2(async);
@@ -1172,7 +1172,7 @@ WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id]
 """);
     }
 
-    [ConditionalTheory]
+    [Theory]
     public override async Task GroupBy_aggregate_where_required_relationship(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship(async);
@@ -6598,8 +6598,24 @@ WHERE (
     {
         await base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT GREATEST([l1].[Level1_Required_Id], 7)
+FROM [Level1] AS [l]
+LEFT JOIN (
+    SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
+    FROM [Level1] AS [l0]
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
+) AS [l1] ON [l].[Id] = [l1].[OneToOne_Optional_PK_Inverse2Id]
+WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [l1].[Level1_Required_Id]
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -6609,6 +6625,7 @@ LEFT JOIN (
 ) AS [l1] ON [l].[Id] = [l1].[OneToOne_Optional_PK_Inverse2Id]
 WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
+        }
     }
 
     public override async Task Result_operator_nav_prop_reference_optional_Min(bool async)

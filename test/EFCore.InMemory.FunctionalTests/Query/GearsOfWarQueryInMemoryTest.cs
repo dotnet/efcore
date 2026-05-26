@@ -144,7 +144,7 @@ public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
     public override Task Correlated_collections_on_RightJoin_with_predicate(bool async)
         => AssertTranslationFailed(() => base.Correlated_collections_on_RightJoin_with_predicate(async));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_ToString_on_non_nullable_property_of_an_optional_entity(bool async)
         => AssertQuery(
             async,

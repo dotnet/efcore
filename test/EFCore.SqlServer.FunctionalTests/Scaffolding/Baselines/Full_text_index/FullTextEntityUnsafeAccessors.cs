@@ -6,14 +6,13 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
-{
-    public static class FullTextEntityUnsafeAccessors
-    {
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int Id(CompiledModelSqlServerTest.FullTextEntity @this);
+namespace TestNamespace;
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Title>k__BackingField")]
-        public static extern ref string Title(CompiledModelSqlServerTest.FullTextEntity @this);
-    }
+public static class FullTextEntityUnsafeAccessors
+{
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+    public static extern ref int Id(CompiledModelSqlServerTest.FullTextEntity @this);
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Title>k__BackingField")]
+    public static extern ref string Title(CompiledModelSqlServerTest.FullTextEntity @this);
 }

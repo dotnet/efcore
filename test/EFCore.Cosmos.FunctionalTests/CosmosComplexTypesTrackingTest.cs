@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Xunit.Sdk;
@@ -7,73 +7,110 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.CosmosFixture fixture) : ComplexTypesTrackingTestBase<CosmosComplexTypesTrackingTest.CosmosFixture>(fixture)
 {
-    [ConditionalFact]
-    public async Task Can_reorder_complex_collection_elements()
+    [Fact]
+    public Task Can_reorder_complex_collection_elements()
     {
-        await using var context = CreateContext();
-        var pub = CreatePubWithCollections(context);
-        await context.AddAsync(pub);
-        await context.SaveChangesAsync();
+        Guid pubId = default;
+        ActivityWithCollection? expectedFirst = null;
+        ActivityWithCollection? expectedLast = null;
 
-        pub.Activities.Reverse();
-        var first = pub.Activities[0];
-        var last = pub.Activities.Last();
-        await context.SaveChangesAsync();
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var pub = CreatePubWithCollections(context);
+                await context.AddAsync(pub);
+                await context.SaveChangesAsync();
 
-        await using var assertContext = CreateContext();
-        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        Assert.Equivalent(first, dbPub.Activities[0]);
-        Assert.Equivalent(last, dbPub.Activities.Last());
+                pub.Activities.Reverse();
+                expectedFirst = pub.Activities[0];
+                expectedLast = pub.Activities.Last();
+                await context.SaveChangesAsync();
+
+                pubId = pub.Id;
+            },
+            async assertContext =>
+            {
+                var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pubId);
+                Assert.Equivalent(expectedFirst, dbPub.Activities[0]);
+                Assert.Equivalent(expectedLast, dbPub.Activities.Last());
+            });
     }
 
-    [ConditionalFact]
-    public async Task Can_change_complex_collection_element()
+    [Fact]
+    public Task Can_change_complex_collection_element()
     {
-        await using var context = CreateContext();
-        var pub = CreatePubWithCollections(context);
-        await context.AddAsync(pub);
-        await context.SaveChangesAsync();
+        Guid pubId = default;
 
-        pub.Activities[0].Name = "Changed123";
-        await context.SaveChangesAsync();
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var pub = CreatePubWithCollections(context);
+                await context.AddAsync(pub);
+                await context.SaveChangesAsync();
 
-        await using var assertContext = CreateContext();
-        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        Assert.Equivalent("Changed123", dbPub.Activities[0].Name);
+                pub.Activities[0].Name = "Changed123";
+                await context.SaveChangesAsync();
+
+                pubId = pub.Id;
+            },
+            async assertContext =>
+            {
+                var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pubId);
+                Assert.Equivalent("Changed123", dbPub.Activities[0].Name);
+            });
     }
 
-    [ConditionalFact]
-    public async Task Can_change_complex_collection_element_complex_collection()
+    [Fact]
+    public Task Can_change_complex_collection_element_complex_collection()
     {
-        await using var context = CreateContext();
-        var pub = CreatePubWithCollections(context);
-        await context.AddAsync(pub);
-        await context.SaveChangesAsync();
+        Guid pubId = default;
 
-        pub.Activities[0].Teams.Add(new Team { Name = "NewTeam" });
-        await context.SaveChangesAsync();
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var pub = CreatePubWithCollections(context);
+                await context.AddAsync(pub);
+                await context.SaveChangesAsync();
 
-        await using var assertContext = CreateContext();
-        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        Assert.Equal("NewTeam", dbPub.Activities[0].Teams.Last().Name);
+                pub.Activities[0].Teams.Add(new Team { Name = "NewTeam" });
+                await context.SaveChangesAsync();
+
+                pubId = pub.Id;
+            },
+            async assertContext =>
+            {
+                var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pubId);
+                Assert.Equal("NewTeam", dbPub.Activities[0].Teams.Last().Name);
+            });
     }
 
-    [ConditionalFact]
-    public async Task Can_add_complex_collection_element()
+    [Fact]
+    public Task Can_add_complex_collection_element()
     {
-        await using var context = CreateContext();
-        var pub = CreatePubWithCollections(context);
-        await context.AddAsync(pub);
-        await context.SaveChangesAsync();
+        Guid pubId = default;
+        var expectedCount = 0;
 
-        pub.Activities.Add(new ActivityWithCollection { Name = "NewActivity" });
-        await context.SaveChangesAsync();
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var pub = CreatePubWithCollections(context);
+                await context.AddAsync(pub);
+                await context.SaveChangesAsync();
 
-        await using var assertContext = CreateContext();
-        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        Assert.Equivalent("NewActivity", dbPub.Activities.Last().Name);
-        Assert.Equivalent(pub.Activities.Count, dbPub.Activities.Count);
+                pub.Activities.Add(new ActivityWithCollection { Name = "NewActivity" });
+                await context.SaveChangesAsync();
+
+                pubId = pub.Id;
+                expectedCount = pub.Activities.Count;
+            },
+            async assertContext =>
+            {
+                var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pubId);
+                Assert.Equivalent("NewActivity", dbPub.Activities.Last().Name);
+                Assert.Equivalent(expectedCount, dbPub.Activities.Count);
+            });
     }
+
 
     public override Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
         => async

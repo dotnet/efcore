@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -8,37 +8,37 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : Ef6GroupByTestBase<TFixture>.Ef6GroupByFixtureBase, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_group_key(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o.FirstName).Select(g => g.Key));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_group_count(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o.FirstName).Select(g => g.Count()));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_expression_containing_group_key(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o.Id).Select(g => g.Key * 2));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_aggregate_on_the_group(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o.FirstName).Select(g => g.Max(p => p.Id)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_anonymous_type_containing_group_key_and_group_aggregate(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o.FirstName).Select(g => new { g.Key, Aggregate = g.Max(p => p.Id) }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_anonymous_type_containing_group_key_and_multiple_group_aggregates(
         bool async)
         => AssertQuery(
@@ -51,7 +51,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 min = g.Min(s => s.Id + 2)
             }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_conditional_expression_containing_group_key(bool async)
     {
         var a = true;
@@ -64,7 +64,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 => new { keyIsNull = g.Key == null ? "is null" : "not null", logicExpression = (a && b || b && c) }));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_filtering_and_projecting_anonymous_type_with_group_key_and_function_aggregate(
         bool async)
         => AssertQuery(
@@ -72,26 +72,26 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
             ss => ss.Set<ArubaOwner>().Where(o => o.Id > 5).GroupBy(o => o.FirstName)
                 .Select(g => new { FirstName = g.Key, AverageId = g.Average(p => p.Id) }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_function_aggregate_with_expression(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(p => p.FirstName).Select(g => g.Max(p => p.Id * 2)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_expression_with_multiple_function_aggregates(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o.FirstName)
                 .Select(g => new { maxMinusMin = g.Max(p => p.Id) - g.Min(s => s.Id) }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_grouping_by_row_and_projecting_column_of_the_key_row(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ArubaOwner>().Where(o => o.Id < 4).GroupBy(g => new { g.FirstName }).Select(g => g.Key.FirstName));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_doesnt_produce_a_groupby_statement(bool async)
         => AssertQuery(
             async,
@@ -105,7 +105,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 Assert.Equal(e.LastName, a.LastName);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_1(bool async)
         => AssertQueryScalar(
             async,
@@ -118,31 +118,31 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                     o.Alias
                 }, c => new { c.LastName, c.FirstName }, (k, g) => g.Count()));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_2(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => new { c.LastName, c.FirstName }, (k, g) => g.Count()));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_3(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => g.Count()));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_4(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => new { Count = g.Count() }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_5(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => new { k.Id, Count = g.Count() }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_6(bool async)
         => AssertQuery(
             async,
@@ -154,7 +154,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                     Count = g.Count()
                 }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_7(bool async)
         => AssertQueryScalar(
             async,
@@ -163,7 +163,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select g.Count());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_8(bool async)
         => AssertQuery(
             async,
@@ -172,7 +172,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { g.Key.Id, Count = g.Count() });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_9(bool async)
         => AssertQuery(
             async,
@@ -186,7 +186,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                       Count = g.Count()
                   });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_10(bool async)
         => AssertQuery(
             async,
@@ -200,7 +200,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                       Count = g.Count()
                   });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Simple_1_from_LINQ_101(bool async)
         // GroupBy final operator. Issue #19929.
         => AssertTranslationFailed(() => AssertQuery(
@@ -210,7 +210,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { Remainder = g.Key, Numbers = g }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Simple_2_from_LINQ_101(bool async)
         // GroupBy final operator. Issue #19929.
         => AssertTranslationFailed(() => AssertQuery(
@@ -220,7 +220,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { FirstLetter = g.Key, Words = g }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Simple_3_from_LINQ_101(bool async)
         // GroupBy final operator. Issue #19929.
         => AssertTranslationFailed(() => AssertQuery(
@@ -230,7 +230,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { Category = g.Key, Products = g }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Nested_from_LINQ_101(bool async)
         // GroupBy final operator. Issue #19929.
         => AssertTranslationFailed(() => AssertQuery(
@@ -253,7 +253,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                                    }
                   }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Any_Grouped_from_LINQ_101(bool async)
         // GroupBy final operator. Issue #19929.
         => AssertTranslationFailed(() => AssertQuery(
@@ -264,7 +264,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   where g.Any(p => p.UnitsInStock == 0)
                   select new { Category = g.Key, Products = g }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task All_Grouped_from_LINQ_101(bool async)
         // GroupBy final operator. Issue #19929.
         => AssertTranslationFailed(() => AssertQuery(
@@ -275,7 +275,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   where g.All(p => p.UnitsInStock > 0)
                   select new { Category = g.Key, Products = g }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Count_Grouped_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -284,7 +284,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { Category = g.Key, ProductCount = g.Count() });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task LongCount_Grouped_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -293,7 +293,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { Category = g.Key, ProductLongCount = g.LongCount() });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_Grouped_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -302,7 +302,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { Category = g.Key, TotalUnitsInStock = g.Sum(p => p.UnitsInStock) });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Min_Grouped_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -311,7 +311,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { Category = g.Key, CheapestPrice = g.Min(p => p.UnitPrice) });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Min_Elements_from_LINQ_101(bool async)
         // Navigation expansion phase 2. Issue #23206.
         => AssertTranslationFailed(() => AssertQuery(
@@ -322,7 +322,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   let minPrice = g.Min(decimal (p) => p.UnitPrice)
                   select new { Category = g.Key, CheapestProducts = g.Where(p => p.UnitPrice == minPrice) }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Max_Grouped_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -331,7 +331,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   into g
                   select new { Category = g.Key, MostExpensivePrice = g.Max(p => p.UnitPrice) });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Max_Elements_from_LINQ_101(bool async)
         // Navigation expansion phase 2. Issue #23206.
         => AssertTranslationFailed(() => AssertQuery(
@@ -342,7 +342,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   let minPrice = g.Max(decimal (p) => p.UnitPrice)
                   select new { Category = g.Key, MostExpensiveProducts = g.Where(p => p.UnitPrice == minPrice) }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Average_Grouped_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -357,7 +357,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 Assert.Equal(e.AveragePrice, a.AveragePrice, 5);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Group_Join_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -371,7 +371,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 AssertCollection(e.Products, a.Products);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Cross_Join_with_Group_Join_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -392,7 +392,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 Assert.Equal(l.Customer.CompanyName, r.Customer.CompanyName);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Left_Outer_Join_with_Group_Join_from_LINQ_101(bool async)
         => AssertQuery(
             async,
@@ -411,7 +411,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 AssertEqual(l.Customer, r.Customer);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12088
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12088
     public virtual Task Whats_new_2021_sample_1(bool async)
         => AssertQuery(
             async,
@@ -422,7 +422,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                     .ThenBy(e => e.LastName)
                     .FirstOrDefault()));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #16648
+    [Theory, MemberData(nameof(IsAsyncData))] // From #16648
     public virtual Task Whats_new_2021_sample_2(bool async)
         => AssertFirst(
             async,
@@ -432,7 +432,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .OrderBy(e => e.Key)
                 .Select(g => g.First()));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12640
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12640
     public virtual Task Whats_new_2021_sample_3(bool async)
         => AssertQuery(
             async,
@@ -443,7 +443,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .OrderBy(e => e.Length),
             assertOrder: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #18037
+    [Theory, MemberData(nameof(IsAsyncData))] // From #18037
     public virtual Task Whats_new_2021_sample_4(bool async)
         => AssertQuery(
             async,
@@ -458,7 +458,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                       Count = people.Count()
                   });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12601
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12601
     public virtual Task Whats_new_2021_sample_5(bool async)
         => AssertQuery(
             async,
@@ -468,7 +468,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .OrderBy(e => e),
             assertOrder: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12600
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12600
     public virtual Task Whats_new_2021_sample_6(bool async)
         => AssertQuery(
             async,
@@ -479,7 +479,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .OrderBy(e => e),
             assertOrder: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #25460
+    [Theory, MemberData(nameof(IsAsyncData))] // From #25460
     public virtual Task Whats_new_2021_sample_7(bool async)
     {
         var size = 11;
@@ -499,7 +499,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 }));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #24869
+    [Theory, MemberData(nameof(IsAsyncData))] // From #24869
     public virtual Task Whats_new_2021_sample_8(bool async)
         => AssertCount(
             async,
@@ -516,7 +516,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                     TotalCallOutCharges = x.Sum(el => el.Feet.Size == 11 ? 1 : 0)
                 }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #24591
+    [Theory, MemberData(nameof(IsAsyncData))] // From #24591
     public virtual Task Whats_new_2021_sample_9(bool async)
         => AssertQuery(
             async,
@@ -524,7 +524,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .GroupBy(n => n.FirstName)
                 .Select(g => new { Feet = g.Key, Total = g.Sum(n => n.Feet.Size) }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #24695
+    [Theory, MemberData(nameof(IsAsyncData))] // From #24695
     public virtual Task Whats_new_2021_sample_10(bool async)
         => AssertQuery(
             async,
@@ -569,7 +569,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 AssertCollection(l.Values, r.Values, elementSorter: e => (e.Id, e.Style, e.Age));
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #19506
+    [Theory, MemberData(nameof(IsAsyncData))] // From #19506
     public virtual Task Whats_new_2021_sample_11(bool async)
         => AssertQuery(
             async,
@@ -602,7 +602,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
             },
             assertOrder: false);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #13805
+    [Theory, MemberData(nameof(IsAsyncData))] // From #13805
     public virtual Task Whats_new_2021_sample_12(bool async)
         => AssertQuery(
             async,
@@ -623,7 +623,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12088
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12088
     public virtual Task Whats_new_2021_sample_13(bool async)
         => AssertQuery(
             async,
@@ -641,7 +641,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12088
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12088
     public virtual Task Whats_new_2021_sample_14(bool async)
         => AssertTranslationFailed(() => AssertQuery(
             async,
@@ -649,7 +649,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .GroupBy(bp => bp.Feet)
                 .SelectMany(g => g.OrderByDescending(bp => bp.Id).Take(1).DefaultIfEmpty())));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12088
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12088
     public virtual Task Whats_new_2021_sample_15(bool async)
         => AssertQuery(
             async,
@@ -657,7 +657,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .GroupBy(bp => bp.Feet)
                 .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // From #12573
+    [Theory, MemberData(nameof(IsAsyncData))] // From #12573
     public virtual Task Whats_new_2021_sample_16(bool async)
         // GroupBy final operator. Issue #19929.
         => AssertTranslationFailed(() => AssertQuery(

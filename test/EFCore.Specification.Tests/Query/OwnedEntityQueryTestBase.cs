@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
@@ -14,7 +14,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 9202
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_collection_for_entity_with_owned_type_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context9202>(seed: c => c.SeedAsync());
@@ -105,7 +105,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 13079
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Multilevel_owned_entities_determine_correct_nullability()
     {
         var contextFactory = await InitializeNonSharedTest<Context13079>();
@@ -149,7 +149,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 13157
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context13157>(seed: c => c.SeedAsync());
@@ -227,7 +227,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 14911
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_entity_multiple_level_in_aggregate()
     {
         var contextFactory = await InitializeNonSharedTest<Context14911>(seed: c => c.SeedAsync());
@@ -359,7 +359,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 18582
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context18582>(seed: c => c.SeedAsync());
@@ -433,7 +433,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 19138
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Accessing_scalar_property_in_derived_type_projection_does_not_load_owned_navigations()
     {
         var contextFactory = await InitializeNonSharedTest<Context19138>(seed: c => c.SeedAsync());
@@ -494,7 +494,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 20277
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_single_result_in_projection_containing_owned_types(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context20277>();
@@ -570,7 +570,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 21540
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_auto_include_navigation_from_model()
     {
         var contextFactory = await InitializeNonSharedTest<Context21540>(seed: c => c.SeedAsync());
@@ -685,7 +685,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 21807
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_owned_required_dependents_are_materialized()
     {
         var contextFactory = await InitializeNonSharedTest<Context21807>(seed: c => c.SeedAsync());
@@ -746,7 +746,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 22090
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task OwnsMany_correlated_projection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context22089>();
@@ -799,7 +799,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 24133
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_owned_collection_and_aggregate(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context24133>();

@@ -198,7 +198,7 @@ WHERE ((c["Int"] >> 1) = 4)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

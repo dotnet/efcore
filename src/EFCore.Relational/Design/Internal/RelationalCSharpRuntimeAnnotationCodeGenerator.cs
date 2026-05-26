@@ -1200,7 +1200,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 mainBuilder
                     .AppendLine($"var {keyVariable} = RelationalModel.GetKey(this,").IncrementIndent()
                     .AppendLine($"{code.Literal(mappedKey.DeclaringEntityType.Name)},")
-                    .AppendLine($"{code.Literal(mappedKey.Properties.Select(p => p.Name).ToArray())});")
+                    .AppendLine($"{code.Literal(mappedKey.Properties.Select(GetPropertyPathFromContainingEntity).ToArray())});")
                     .DecrementIndent();
             }
 
@@ -1269,7 +1269,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .AppendLine($"{code.Literal(mappedIndex.DeclaringEntityType.Name)},")
                     .AppendLine(
                         $"{(mappedIndex.Name == null
-                            ? code.Literal(mappedIndex.Properties.Select(p => p.Name).ToArray())
+                            ? code.Literal(mappedIndex.Properties.Select(GetPropertyPathFromContainingEntity).ToArray())
                             : code.Literal(mappedIndex.Name))});")
                     .DecrementIndent();
             }
@@ -2674,6 +2674,24 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
                 return char.ToUpperInvariant(@string[0]) + @string[1..];
         }
+    }
+
+    private static string GetPropertyPathFromContainingEntity(IPropertyBase property)
+    {
+        if (property.DeclaringType is not IComplexType)
+        {
+            return property.Name;
+        }
+
+        var segments = new List<string> { property.Name };
+        var typeBase = property.DeclaringType;
+        while (typeBase is IComplexType complexType)
+        {
+            segments.Insert(0, complexType.ComplexProperty.Name);
+            typeBase = complexType.ComplexProperty.DeclaringType;
+        }
+
+        return string.Join(".", segments);
     }
 
     private static void AppendLiteral(StoreObjectIdentifier storeObject, IndentedStringBuilder builder, ICSharpHelper code)

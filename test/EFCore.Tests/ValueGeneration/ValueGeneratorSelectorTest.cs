@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class ValueGeneratorSelectorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Returns_built_in_generators_for_types_setup_for_value_generation_using_Try_method()
     {
         var model = BuildModel();
@@ -64,7 +64,7 @@ public class ValueGeneratorSelectorTest
             selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_null_for_unsupported_combinations_with_Try_method()
     {
         var model = BuildModel();

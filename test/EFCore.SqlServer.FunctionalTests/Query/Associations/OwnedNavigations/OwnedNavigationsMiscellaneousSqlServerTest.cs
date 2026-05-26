@@ -125,7 +125,7 @@ ORDER BY [m].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[A
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

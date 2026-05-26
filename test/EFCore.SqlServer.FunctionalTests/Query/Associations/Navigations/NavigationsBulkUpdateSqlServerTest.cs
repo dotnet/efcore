@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.Navigations;
 public class NavigationsBulkUpdateSqlServerTest(NavigationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : NavigationsBulkUpdateRelationalTestBase<NavigationsSqlServerFixture>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
