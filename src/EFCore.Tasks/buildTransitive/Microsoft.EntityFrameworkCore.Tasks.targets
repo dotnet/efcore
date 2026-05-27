@@ -73,7 +73,7 @@ For Publish:
              Targets="OptimizeDbContext"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);_EFGenerationStage=$(_EFGenerationStage)" />
+             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=;SelfContained=false;_EFGenerationStage=$(_EFGenerationStage)" />
   </Target>
 
   <Target Name="OptimizeDbContext" DependsOnTargets="ResolvePackageAssets">
