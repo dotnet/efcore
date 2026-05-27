@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
 
 namespace Microsoft.Data.Sqlite;
@@ -274,7 +273,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 #endif
 
             { typeof(DBNull), SqliteType.Text },
-            { typeof(BigInteger), SqliteType.Text },
 #if NET7_0_OR_GREATER
             { typeof(Int128), SqliteType.Text },
             { typeof(UInt128), SqliteType.Text },

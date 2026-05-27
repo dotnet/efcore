@@ -589,22 +589,6 @@ public class SqliteParameterTest
         }
     }
 
-    [Fact]
-    public void Bind_BigInteger_parameter_as_text()
-    {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Parameter;";
-            var value = BigInteger.Parse("1234567890123456789012345678901234567890");
-            command.Parameters.AddWithValue("@Parameter", value);
-            connection.Open();
-            var result = (string)command.ExecuteScalar()!;
-            Assert.Equal("1234567890123456789012345678901234567890", result);
-        }
-    }
-
-
 #if NET7_0_OR_GREATER
     [Fact]
     public void Bind_Int128_zero_as_text()
