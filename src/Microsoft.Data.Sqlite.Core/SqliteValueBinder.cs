@@ -239,18 +239,16 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             var value1 = (long)(ushort)value;
             BindInt64(value1);
         }
-        else if (type == typeof(BigInteger))
-        {
-            BindText(((BigInteger)value).ToString(CultureInfo.InvariantCulture));
-        }
 #if NET7_0_OR_GREATER
         else if (type == typeof(Int128))
         {
-            BindText(((Int128)value).ToString(CultureInfo.InvariantCulture));
+            var shifted = (UInt128)((Int128)value - Int128.MinValue);
+
+            BindText(shifted.ToString("D39", CultureInfo.InvariantCulture));
         }
         else if (type == typeof(UInt128))
         {
-            BindText(((UInt128)value).ToString(CultureInfo.InvariantCulture));
+            BindText(((UInt128)value).ToString("D39", CultureInfo.InvariantCulture));
         }
 #endif
         else

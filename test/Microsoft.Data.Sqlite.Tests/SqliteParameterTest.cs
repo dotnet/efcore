@@ -607,13 +607,58 @@ public class SqliteParameterTest
 
 #if NET7_0_OR_GREATER
     [Fact]
-    public void Bind_Int128_parameter_as_text()
+    public void Bind_Int128_zero_as_text()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
         {
             var command = connection.CreateCommand();
             command.CommandText = "SELECT @Parameter;";
-            var value = Int128.Parse("170141183460469231731687303715884105727");
+            var value = (Int128)0;
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("170141183460469231731687303715884105728", result);
+        }
+    }
+
+    [Fact]
+    public void Bind_Int128_min_value_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = Int128.MinValue;
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("000000000000000000000000000000000000000", result);
+        }
+    }
+
+    [Fact]
+    public void Bind_Int128_max_value_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = Int128.MaxValue;
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("340282366920938463463374607431768211455", result);
+        }
+    }
+
+    [Fact]
+    public void Bind_Int128_negative_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = (Int128)(-1);
             command.Parameters.AddWithValue("@Parameter", value);
             connection.Open();
             var result = (string)command.ExecuteScalar()!;
@@ -622,13 +667,28 @@ public class SqliteParameterTest
     }
 
     [Fact]
-    public void Bind_UInt128_parameter_as_text()
+    public void Bind_UInt128_zero_as_text()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
         {
             var command = connection.CreateCommand();
             command.CommandText = "SELECT @Parameter;";
-            var value = UInt128.Parse("340282366920938463463374607431768211455");
+            var value = (UInt128)0;
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("000000000000000000000000000000000000000", result);
+        }
+    }
+
+    [Fact]
+    public void Bind_UInt128_max_value_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = UInt128.MaxValue;
             command.Parameters.AddWithValue("@Parameter", value);
             connection.Open();
             var result = (string)command.ExecuteScalar()!;
