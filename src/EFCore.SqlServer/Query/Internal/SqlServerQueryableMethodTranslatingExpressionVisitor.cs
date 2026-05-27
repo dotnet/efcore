@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -537,13 +538,17 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
         }
 
-        // Find the container column in the relational model to get its type mapping
+        // Find the container column in the relational model to get its type mapping.
+        // Use GetViewOrTableMappings since the entity may be mapped to a view (ToView) rather than a table (see #38315),
+        // in which case GetTableMappings returns an empty sequence.
         // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
         // See #38060 about improving this.
         var containerColumnName = structuralType.GetContainerColumnName()!;
-        var containerColumn = structuralType.ContainingEntityType.GetTableMappings()
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var containerColumn = structuralType.ContainingEntityType.GetViewOrTableMappings()
             .Select(m => m.Table.FindColumn(containerColumnName))
-            .Single(c => c is not null)!;
+            .First(c => c is not null)!;
+#pragma warning restore EF1001
 
         var nestedJsonPropertyNames = jsonQueryExpression.StructuralType switch
         {
