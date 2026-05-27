@@ -307,8 +307,108 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                 }
             }
         }
+
+        ValidateContainerIndexing(mappedTypes, container);
     }
 
+    private static void ValidateContainerIndexing(IReadOnlyList<IEntityType> mappedTypes, string container)
+    {
+        IEntityType? automaticIndexingOwner = null;
+        bool? automaticIndexingEnabled = null;
+        IReadOnlyList<string>? automaticIndexingExceptions = null;
+
+        foreach (var entityType in mappedTypes)
+        {
+            // Only document-root entity types can carry automatic-indexing configuration.
+            // The same setting must apply to every entity type in a shared container.
+            if (entityType.BaseType is not null
+                && (entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled) is not null
+                    || entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions) is not null))
+            {
+                throw new InvalidOperationException(
+                    CosmosStrings.AutomaticIndexingNotOnRoot(
+                        entityType.DisplayName(),
+                        entityType.GetRootType().DisplayName()));
+            }
+
+            var currentEnabled = entityType.BaseType is null
+                 ? (bool?)entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled)?.Value
+                 : null;
+             var currentExceptions = entityType.BaseType is null
+                 ? (IReadOnlyList<string>?)entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions)?.Value
+                 : null;
+            if (currentEnabled is not null || currentExceptions is not null)
+            {
+                if (automaticIndexingOwner is null)
+                {
+                    automaticIndexingOwner = entityType;
+                    automaticIndexingEnabled = currentEnabled;
+                    automaticIndexingExceptions = currentExceptions;
+                }
+                else
+                {
+                    // Automatic indexing is enabled by default, so treat an unconfigured (null) value as equivalent to
+                    // an explicit 'true' when comparing across entity types in the same container.
+                    if ((currentEnabled ?? true) != (automaticIndexingEnabled ?? true))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.InconsistentAutomaticIndexingEnabled(
+                                container,
+                                automaticIndexingOwner.DisplayName(),
+                                entityType.DisplayName()));
+                    }
+
+                    // Exceptions only affect the indexing policy when automatic indexing is enabled, so don't compare
+                    // them when it is disabled.
+                    if ((automaticIndexingEnabled ?? true)
+                        && ((currentExceptions is null) != (automaticIndexingExceptions is null)
+                            || (currentExceptions is not null && automaticIndexingExceptions is not null
+                                && !currentExceptions.SequenceEqual(automaticIndexingExceptions, StringComparer.Ordinal))))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.InconsistentAutomaticIndexing(
+                                container,
+                                automaticIndexingOwner.DisplayName(),
+                                entityType.DisplayName()));
+                    }
+                }
+            }
+
+            // Walk the full owned/complex tree to surface every HasIndex declared in this container.
+            // Vector and full-text indexes are allowed to traverse owned types; only regular indexes are
+            // rejected
+            foreach (var (declaringEntityType, index) in EnumerateContainerIndexes(entityType))
+            {
+                if (!declaringEntityType.IsDocumentRoot()
+                    && index.GetVectorIndexType() == null
+                    && index.IsFullTextIndex() != true)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.IndexOnOwnedType(
+                            string.Join(",", index.Properties.Select(e => e.Name)),
+                            declaringEntityType.DisplayName(),
+                            entityType.DisplayName()));
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<(IEntityType DeclaringEntityType, IIndex Index)> EnumerateContainerIndexes(IEntityType root)
+    {
+        foreach (var index in root.GetIndexes())
+        {
+            yield return (root, index);
+        }
+
+        foreach (var ownedNav in root.GetNavigations()
+                     .Where(n => n.ForeignKey.IsOwnership && !n.IsOnDependent && !n.TargetEntityType.IsDocumentRoot()))
+        {
+            foreach (var pair in EnumerateContainerIndexes(ownedNav.TargetEntityType))
+            {
+                yield return pair;
+            }
+        }
+    }
 
 
     /// <summary>
@@ -488,10 +588,15 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
         {
             ValidateFullTextIndex(index, logger);
         }
-        else
-        {
-            ValidateUnsupportedIndex(index, logger);
-        }
+    }
+
+    /// <inheritdoc />
+    protected override void ValidateIndexProperty(
+        IIndex index,
+        IPropertyBase property,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        // Cosmos maps every property to JSON; no additional validation is needed here.
     }
 
     /// <summary>
@@ -554,23 +659,6 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                     index.Properties[0].Name,
                     nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)));
         }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual void ValidateUnsupportedIndex(
-        IIndex index,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-    {
-        var entityType = index.DeclaringEntityType;
-        throw new InvalidOperationException(
-            CosmosStrings.IndexesExist(
-                entityType.DisplayName(),
-                string.Join(",", index.Properties.Select(e => e.Name))));
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
@@ -123,6 +123,10 @@ public class CosmosTestStore : TestStore
 
     protected override DbContext CreateDefaultContext()
         => new TestStoreContext(this);
+
+    // Cosmos has no multi-document transactions, so a partially-completed seed must be cleaned before retrying.
+    public override bool SupportsTransactions
+        => false;
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
     {
@@ -455,7 +459,9 @@ public class CosmosTestStore : TestStore
                 indexes,
                 vectors,
                 fullTextDefaultLanguage ?? "en-US",
-                fullTextProperties);
+                fullTextProperties,
+                AutomaticIndexingExceptions: mappedTypes.Select(et => et.GetAutomaticIndexingExceptions()).FirstOrDefault(e => e is not null),
+                AutomaticIndexingEnabled: mappedTypes.Select(et => et.GetAutomaticIndexingEnabled()).FirstOrDefault(e => e is not null));
         }
 
         static void ProcessEntityType(

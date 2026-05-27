@@ -91,6 +91,7 @@ FROM root c
     {
         await base.Select_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -108,6 +109,7 @@ FROM root c
     {
         await base.Select_optional_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -119,6 +121,7 @@ FROM root c
     {
         await base.Select_required_nested_on_required_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -130,6 +133,7 @@ FROM root c
     {
         await base.Select_optional_nested_on_required_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -141,6 +145,7 @@ FROM root c
     {
         await base.Select_required_nested_on_optional_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -152,6 +157,7 @@ FROM root c
     {
         await base.Select_optional_nested_on_optional_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -167,6 +173,7 @@ FROM root c
     {
         await base.Select_unmapped_associate_scalar_property(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -193,6 +200,7 @@ FROM root c
     {
         await base.Select_associate_collection(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -205,6 +213,7 @@ ORDER BY c["Id"]
     {
         await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c
@@ -217,6 +226,7 @@ ORDER BY c["Id"]
     {
         await base.Select_nested_collection_on_optional_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c

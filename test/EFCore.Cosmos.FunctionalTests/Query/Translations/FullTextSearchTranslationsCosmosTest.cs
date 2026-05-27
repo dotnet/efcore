@@ -485,6 +485,19 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 
     #endregion ORDER BY RANK
 
+    [Fact]
+    public virtual async Task Full_text_index_through_complex_collection_roundtrips()
+    {
+        // The fixture configures a full-text index on a property inside a complex collection
+        // ("ComplexNestedCollection[].AnotherDescription"). Loading the seeded data verifies that
+        // the container was created with that indexing-policy entry and the documents roundtrip.
+        await using var context = CreateContext();
+        var animals = await context.Set<FullTextSearchAnimals>().ToListAsync();
+
+        Assert.Equal(5, animals.Count);
+        Assert.All(animals, a => Assert.Single(a.ComplexNestedCollection));
+    }
+
     private class FullTextSearchAnimals
     {
         public int Id { get; set; }
@@ -499,6 +512,8 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
         public string DescriptionNoIndex { get; set; } = null!;
 
         public FullTextSearchOwned Owned { get; set; } = null!;
+
+        public List<FullTextSearchComplexNested> ComplexNestedCollection { get; set; } = null!;
     }
 
     private class FullTextSearchOwned
@@ -510,6 +525,11 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
     }
 
     private class FullTextSearchNested
+    {
+        public string AnotherDescription { get; set; } = null!;
+    }
+
+    private class FullTextSearchComplexNested
     {
         public string AnotherDescription { get; set; } = null!;
     }
@@ -565,6 +585,9 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //    bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
                     //});
                 });
+
+                b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.AnotherDescription).EnableFullTextSearch());
+                b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.AnotherDescription)).IsFullTextIndex();
             });
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -595,7 +618,14 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested
+                    {
+                        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog"
+                    }
+                ]
             };
 
             var waterAnimals = new FullTextSearchAnimals
@@ -624,7 +654,14 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested
+                    {
+                        AnotherDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog"
+                    }
+                ]
             };
 
             var airAnimals = new FullTextSearchAnimals
@@ -653,7 +690,14 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "duck, bat, eagle, butterfly, sparrow",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested
+                    {
+                        AnotherDescription = "duck, bat, eagle, butterfly, sparrow"
+                    }
+                ]
             };
 
             var mammals = new FullTextSearchAnimals
@@ -682,7 +726,14 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested
+                    {
+                        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat"
+                    }
+                ]
             };
 
             var avians = new FullTextSearchAnimals
@@ -711,7 +762,14 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "duck, eagle, sparrow",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested
+                    {
+                        AnotherDescription = "duck, eagle, sparrow"
+                    }
+                ]
             };
 
             context.Set<FullTextSearchAnimals>().AddRange(landAnimals, waterAnimals, airAnimals, mammals, avians);

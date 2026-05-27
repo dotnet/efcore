@@ -606,6 +606,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var entityType = property.DeclaringType as IEntityType;
             var ownership = entityType?.FindOwnership();
             var storeName = property.GetJsonPropertyName();
+
+            // A property read directly against a structural type may actually be declared on a complex type (e.g. a key,
+            // alternate key or concurrency token that spans a complex property). Its value is then nested inside one JSON
+            // object per complex property in the chain, so navigate into those objects before reading the leaf.
+            // This is skipped when jTokenExpression is already a binding to the containing complex type's JObject (i.e. the
+            // complex type itself is being materialized).
+            if (property.DeclaringType is IComplexType complexType
+                && jTokenExpression is not ComplexPropertyBindingExpression)
+            {
+                foreach (var segment in GetComplexTypePathFromRoot(complexType))
+                {
+                    jTokenExpression = CreateGetValueExpression(jTokenExpression, segment, typeof(JObject));
+                }
+            }
+
             if (storeName.Length == 0)
             {
                 if (entityType == null
@@ -696,7 +711,41 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // special case keys - we check them for null to see if the entity needs to be materialized, so we want to keep the null, rather than non-nullable default
                     // returning defaults is supposed to help with evolving the schema - so this doesn't concern keys anyway (they shouldn't evolve)
                     isNonNullableScalar: !property.IsNullable && !property.IsKey()),
-                type);
+                type);                
+
+            // Returns the JSON property names to descend through, outermost first, to reach the given complex type's JObject
+            // from the structural type's root JObject. Walking up stops early if a complex *collection* is encountered: in that
+            // case the root JObject is already the collection element (e.g. SelectMany over a complex collection), so there is
+            // nothing to navigate and an empty path is returned.
+            static IReadOnlyList<string> GetComplexTypePathFromRoot(IComplexType complexType)
+            {
+                var pathSegments = new List<string>();
+                for (var currentType = complexType;;)
+                {
+                    var containingComplexProperty = currentType.ComplexProperty;
+                    if (containingComplexProperty.IsCollection)
+                    {
+                        return [];
+                    }
+
+                    pathSegments.Add(containingComplexProperty.GetJsonPropertyName());
+
+                    if (containingComplexProperty.DeclaringType is IComplexType parentComplexType)
+                    {
+                        currentType = parentComplexType;
+                        continue;
+                    }
+
+                    Check.DebugAssert(
+                        containingComplexProperty.DeclaringType is IEntityType,
+                        $"Unexpected declaring type '{containingComplexProperty.DeclaringType.GetType().ShortDisplayName()}' "
+                        + $"while walking the complex-property chain for '{complexType.DisplayName()}'.");
+                    break;
+                }
+
+                pathSegments.Reverse();
+                return pathSegments;
+            }
         }
 
         private Expression CreateGetValueExpression(
