@@ -239,12 +239,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             BindInt64(value1);
         }
 #if NET7_0_OR_GREATER
-        else if (type == typeof(Int128))
-        {
-            var shifted = (UInt128)((Int128)value - Int128.MinValue);
-
-            BindText(shifted.ToString("D39", CultureInfo.InvariantCulture));
-        }
         else if (type == typeof(UInt128))
         {
             BindText(((UInt128)value).ToString("D39", CultureInfo.InvariantCulture));
@@ -274,7 +268,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 
             { typeof(DBNull), SqliteType.Text },
 #if NET7_0_OR_GREATER
-            { typeof(Int128), SqliteType.Text },
             { typeof(UInt128), SqliteType.Text },
 #endif
             { typeof(decimal), SqliteType.Text },
