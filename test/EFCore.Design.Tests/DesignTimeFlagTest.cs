@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 [Collection("DesignTimeFlagTest")]
 public class DesignTimeFlagTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Operations_have_design_time_flag_set()
     {
         EF.IsDesignTime = false;
@@ -25,7 +25,7 @@ public class DesignTimeFlagTest
         Assert.Equal("Twilight Sparkle", handler.Result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateInstance_sets_design_time_flag()
     {
         EF.IsDesignTime = false;
@@ -35,7 +35,7 @@ public class DesignTimeFlagTest
         Assert.True(EF.IsDesignTime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateInstance_with_arguments_sets_design_time_flag()
     {
         EF.IsDesignTime = false;

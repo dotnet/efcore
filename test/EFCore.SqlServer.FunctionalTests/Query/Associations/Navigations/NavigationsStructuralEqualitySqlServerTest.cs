@@ -412,7 +412,7 @@ ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n6].[Id]
 
     #endregion Contains
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

@@ -5,14 +5,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class SqliteMigrationBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void IsSqlite_when_using_Sqlite()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.Sqlite");
         Assert.True(migrationBuilder.IsSqlite());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Not_IsSqlite_when_using_different_provider()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.InMemory");

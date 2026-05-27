@@ -23,7 +23,7 @@ public abstract class QueryLoggingCosmosTestBase
     protected virtual bool ExpectSensitiveData
         => true;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Queryable_simple()
     {
         using var context = CreateContext();
@@ -57,7 +57,7 @@ public abstract class QueryLoggingCosmosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Queryable_with_parameter_outputs_parameter_value_logging_warning()
     {
         using var context = CreateContext();
@@ -95,7 +95,7 @@ public abstract class QueryLoggingCosmosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Skip_without_order_by()
     {
         using var context = CreateContext();
@@ -108,7 +108,7 @@ public abstract class QueryLoggingCosmosTestBase
             Fixture.TestSqlLoggerFactory.Log[1].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Take_without_order_by()
     {
         using var context = CreateContext();

@@ -199,7 +199,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 }
 
                 vectorIndexes.Add(
-                    new VectorIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]), Type = vectorIndexType.Value });
+                    new VectorIndexPath { Path = GetJsonPropertyPathFromRoot((IReadOnlyProperty)index.Properties[0]), Type = vectorIndexType.Value });
             }
 
             if (index.IsFullTextIndex() == true)
@@ -213,7 +213,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 }
 
                 fullTextIndexPaths.Add(
-                    new FullTextIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]) });
+                    new FullTextIndexPath { Path = GetJsonPropertyPathFromRoot((IReadOnlyProperty)index.Properties[0]) });
             }
         }
 

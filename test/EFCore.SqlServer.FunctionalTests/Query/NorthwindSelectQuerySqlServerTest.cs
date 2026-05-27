@@ -17,7 +17,7 @@ public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalT
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -856,7 +856,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
     {
         await base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """
@@ -1230,6 +1230,19 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
+    public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+    {
+        await base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async);
+
+        AssertSql(
+            """
+SELECT [v].[Value] AS [k], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS APPLY (VALUES (CAST(N'a' AS nvarchar(max))), (N'b')) AS [v]([Value])
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
+    }
+
     public override async Task SelectMany_correlated_with_outer_1(bool async)
     {
         await base.SelectMany_correlated_with_outer_1(async);
@@ -1386,7 +1399,7 @@ INNER JOIN (
     {
         await base.Select_with_multiple_Take(async);
 
-        if (TestEnvironment.IsFunctions2022Supported)
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
         {
             AssertSql(
                 """

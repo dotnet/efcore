@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqlServerTestBase<TFixture>.GraphUpdatesSqlServerFixtureBase, new()
 {
-    [ConditionalFact] // Issue #32638
+    [Fact] // Issue #32638
     public virtual void Key_and_index_properties_use_appropriate_comparer()
     {
         var parent = new StringKeyAndIndexParent
@@ -257,7 +257,7 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task SetDefault_with_default_value_sets_FK_to_default_on_delete(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>

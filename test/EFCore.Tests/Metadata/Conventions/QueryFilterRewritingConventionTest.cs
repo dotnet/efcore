@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class QueryFilterRewritingConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_with_not_included_type()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
@@ -24,7 +24,7 @@ public class QueryFilterRewritingConventionTest
             Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_with_shared_type_without_name()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
@@ -38,7 +38,7 @@ public class QueryFilterRewritingConventionTest
             Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_of_incorrect_type()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
@@ -52,7 +52,7 @@ public class QueryFilterRewritingConventionTest
             Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_of_owned()
     {
         var modelBuilder = new InternalModelBuilder(new Model());

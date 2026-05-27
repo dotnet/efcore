@@ -463,7 +463,30 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             foreach (var property in primaryKey.Properties)
             {
-                identifier.Add((propertyMap[property], property.GetKeyValueComparer()));
+                if (!propertyMap.TryGetValue(property, out var columnExpression))
+                {
+                    // The key property is declared on a complex type; navigate the complex-property chain
+                    // from the entity to its declaring complex type and bind the property there.
+                    var chain = new Stack<IComplexProperty>();
+                    for (var current = property.DeclaringType as IComplexType;
+                         current != null;
+                         current = current.ComplexProperty.DeclaringType as IComplexType)
+                    {
+                        chain.Push(current.ComplexProperty);
+                    }
+
+                    var shaper = (RelationalStructuralTypeShaperExpression)complexPropertyMap[chain.Pop()];
+                    var complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
+                    while (chain.Count > 0)
+                    {
+                        shaper = (RelationalStructuralTypeShaperExpression)complexProjection.BindComplexProperty(chain.Pop());
+                        complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
+                    }
+
+                    columnExpression = complexProjection.BindProperty(property);
+                }
+
+                identifier.Add((columnExpression, property.GetKeyValueComparer()));
             }
         }
 

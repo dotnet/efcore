@@ -82,7 +82,7 @@ public abstract partial class ModelBuilderTest
 
         public override TestKeyBuilder<TEntity> HasKey(Expression<Func<TEntity, object?>> keyExpression)
             => new NonGenericTestKeyBuilder<TEntity>(
-                EntityTypeBuilder.HasKey(keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                EntityTypeBuilder.HasKey(keyExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray()));
 
         public override TestKeyBuilder<TEntity> HasKey(params string[] propertyNames)
             => new NonGenericTestKeyBuilder<TEntity>(EntityTypeBuilder.HasKey(propertyNames));
@@ -90,7 +90,7 @@ public abstract partial class ModelBuilderTest
         public override TestKeyBuilder<TEntity> HasAlternateKey(Expression<Func<TEntity, object?>> keyExpression)
             => new NonGenericTestKeyBuilder<TEntity>(
                 EntityTypeBuilder.HasAlternateKey(
-                    keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                    keyExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray()));
 
         public override TestKeyBuilder<TEntity> HasAlternateKey(params string[] propertyNames)
             => new NonGenericTestKeyBuilder<TEntity>(EntityTypeBuilder.HasAlternateKey(propertyNames));
@@ -259,11 +259,11 @@ public abstract partial class ModelBuilderTest
 
         public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
             => new NonGenericTestIndexBuilder<TEntity>(
-                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray()));
 
         public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression, string name)
             => new NonGenericTestIndexBuilder<TEntity>(
-                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray(), name));
+                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray(), name));
 
         public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
             => new NonGenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));

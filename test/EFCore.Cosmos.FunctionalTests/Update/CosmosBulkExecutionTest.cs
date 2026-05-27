@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
@@ -13,9 +13,9 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
 
     protected override ITestStoreFactory NonSharedTestStoreFactory => CosmosTestStoreFactory.Instance;
 
-    [ConditionalFact]
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task DoesNotBatchSingleBatchableWrite()
     {
         using var context = fixture.CreateContext();
@@ -34,7 +34,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         Assert.Equal(CosmosEventId.ExecutedTransactionalBatch, fixture.ListLoggerFactory.Log[3].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AutoTransactionBehaviorNever_DoesNotThrow()
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
@@ -46,9 +46,9 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task AutoTransactionBehaviorWhenNeeded_Throws()
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
@@ -61,9 +61,9 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
     }
 
-    [ConditionalFact]
+
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task AutoTransactionBehaviorAlways_Throws()
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
@@ -76,7 +76,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task SessionEnabled_Throws()
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
@@ -94,7 +94,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
             inner.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Trigger_Throws()
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(

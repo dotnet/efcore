@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -270,7 +270,7 @@ ORDER BY [p1].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Using_AsSplitQuery_without_multiple_active_result_sets_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context21355>(

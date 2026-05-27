@@ -3,10 +3,11 @@
 
 Imports Microsoft.EntityFrameworkCore.Query
 Imports Microsoft.EntityFrameworkCore.TestModels.Northwind
+Imports System.Threading.Tasks
 Imports Microsoft.EntityFrameworkCore.TestUtilities
 Imports Xunit
 
-<SqlServerConfiguredCondition>
+<ConditionalClass(GetType(SqlServerTestEnvironment), NameOf(SqlServerTestEnvironment.SqlServerAvailable))>
 Partial Public Class NorthwindQueryVisualBasicTest
     Inherits QueryTestBase(Of NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer))
 
@@ -16,9 +17,9 @@ Partial Public Class NorthwindQueryVisualBasicTest
         fixture.TestSqlLoggerFactory.Clear()
     End Sub
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
-    Public Async Sub CompareString_Equals_Binary(async As Boolean)
+    Public Async Function CompareString_Equals_Binary(async As Boolean) As Task
         Await AssertQuery(
             async,
             Function(ss) ss.Set(Of Customer).Where(Function(c) c.CustomerID = "ALFKI"))
@@ -27,11 +28,11 @@ Partial Public Class NorthwindQueryVisualBasicTest
             "SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'")
-    End Sub
+    End Function
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
-    Public Async Sub CompareString_LessThanOrEqual_Binary(async As Boolean)
+    Public Async Function CompareString_LessThanOrEqual_Binary(async As Boolean) As Task
         Await AssertQuery(
             async,
             Function(ss) ss.Set(Of Customer).Where(Function(c) c.CustomerID <= "ALFKI"))
@@ -40,11 +41,11 @@ WHERE [c].[CustomerID] = N'ALFKI'")
             "SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'ALFKI'")
-    End Sub
+    End Function
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
-    Public Async Sub AddChecked(async As Boolean)
+    Public Async Function AddChecked(async As Boolean) As Task
         Await AssertQuery(
             async,
             Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock + 1 = 102))
@@ -53,11 +54,11 @@ WHERE [c].[CustomerID] <= N'ALFKI'")
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] + CAST(1 AS smallint) = CAST(102 AS smallint)")
-    End Sub
+    End Function
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
-    Public Async Sub SubtractChecked(async As Boolean)
+    Public Async Function SubtractChecked(async As Boolean) As Task
         Await AssertQuery(
             async,
             Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock - 1 = 100))
@@ -66,11 +67,11 @@ WHERE [p].[UnitsInStock] + CAST(1 AS smallint) = CAST(102 AS smallint)")
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] - CAST(1 AS smallint) = CAST(100 AS smallint)")
-    End Sub
+    End Function
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
-    Public Async Sub MultiplyChecked(async As Boolean)
+    Public Async Function MultiplyChecked(async As Boolean) As Task
         Await AssertQuery(
             async,
             Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock * 1 = 101))
@@ -79,11 +80,11 @@ WHERE [p].[UnitsInStock] - CAST(1 AS smallint) = CAST(100 AS smallint)")
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] * CAST(1 AS smallint) = CAST(101 AS smallint)")
-    End Sub
+    End Function
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
-    Public Async Sub Parameter_name_gets_sanitized(async As Boolean)
+    Public Async Function Parameter_name_gets_sanitized(async As Boolean) As Task
         Dim units = 101
         Await AssertQuery(
             async,
@@ -95,7 +96,7 @@ WHERE [p].[UnitsInStock] * CAST(1 AS smallint) = CAST(101 AS smallint)")
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] = @units")
-    End Sub
+    End Function
 
     Private Sub AssertSql(ParamArray expected As String())
         Fixture.TestSqlLoggerFactory.AssertBaseline(expected)

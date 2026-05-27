@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential))]
 public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string NonSharedStoreName
@@ -17,7 +17,7 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
 
     #region CompositeVectorIndex
 
-    [ConditionalFact]
+    [Fact]
     public async Task Validate_composite_vector_index_throws()
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextCompositeVectorIndex>())).Message;
@@ -56,7 +56,7 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
 
     #region VectorPropertyOnCollectionNavigation
 
-    [ConditionalFact]
+    [Fact]
     public async Task Validate_vector_property_on_collection_navigation_container_creation()
     {
         var message =

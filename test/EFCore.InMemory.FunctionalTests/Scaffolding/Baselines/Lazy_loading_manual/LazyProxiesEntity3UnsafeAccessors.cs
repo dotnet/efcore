@@ -7,17 +7,16 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public static class LazyProxiesEntity3UnsafeAccessors
 {
-    public static class LazyProxiesEntity3UnsafeAccessors
-    {
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int Id(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+    public static extern ref int Id(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Name>k__BackingField")]
-        public static extern ref string Name(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Name>k__BackingField")]
+    public static extern ref string Name(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_collectionNavigation")]
-        public static extern ref ICollection<CompiledModelInMemoryTest.LazyProxiesEntity4> _collectionNavigation(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
-    }
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_collectionNavigation")]
+    public static extern ref ICollection<CompiledModelInMemoryTest.LazyProxiesEntity4> _collectionNavigation(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
 }

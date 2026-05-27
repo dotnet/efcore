@@ -112,10 +112,13 @@ public sealed class ApiModel
         var additions = CreateChangeSet(addedStage, addedMethods, addedFields, addedProperties);
         var removals = CreateChangeSet(removedStage, removedMethods, removedFields, removedProperties);
 
+        var headerChanged = currentType != null && baselineType != null && currentType.Type != baselineType.Type;
+
         if (addedStage == ApiStage.Stable
             && removedStage == ApiStage.Stable
             && additions == null
-            && removals == null)
+            && removals == null
+            && !headerChanged)
         {
             return null;
         }
@@ -124,6 +127,7 @@ public sealed class ApiModel
         {
             Type = outputType.Type,
             Stage = currentType?.Stage ?? baselineType?.Stage ?? ApiStage.Stable,
+            PreviousType = headerChanged ? baselineType!.Type : null,
             Methods = ToDisplayMembers(sharedMethods),
             Fields = ToDisplayMembers(sharedFields),
             Properties = ToDisplayMembers(sharedProperties),

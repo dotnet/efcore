@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
@@ -11,7 +11,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
     : InheritanceRelationshipsQueryTestBase<TFixture>(fixture)
     where TFixture : InheritanceRelationshipsQueryRelationalFixture, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_split(bool async)
         => AssertQuery(
             async,
@@ -20,7 +20,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -29,7 +29,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_with_filter_split(bool async)
         => AssertQuery(
             async,
@@ -39,7 +39,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_with_filter_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -48,7 +48,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_split(bool async)
         => AssertQuery(
             async,
@@ -57,7 +57,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -66,7 +66,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_with_filter_split(bool async)
         => AssertQuery(
             async,
@@ -76,7 +76,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_with_filter_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -85,7 +85,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived1_split(bool async)
         => AssertQuery(
             async,
@@ -94,7 +94,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived2_split(bool async)
         => AssertQuery(
             async,
@@ -103,7 +103,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived3_split(bool async)
         => AssertQuery(
             async,
@@ -112,7 +112,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedCollectionOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -121,7 +121,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 e, a,
                 new ExpectedInclude<BaseCollectionOnDerived>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_split(bool async)
         => AssertQuery(
             async,
@@ -131,7 +131,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_on_base_split(bool async)
         => AssertQuery(
             async,
@@ -141,7 +141,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -151,7 +151,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<NestedCollectionBase>(x => x.ParentReference),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_reference_split(bool async)
         => AssertQuery(
             async,
@@ -162,7 +162,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedReference)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_reference_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -172,7 +172,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<NestedReferenceBase>(x => x.ParentCollection),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_collection_split(bool async)
         => AssertQuery(
             async,
@@ -183,7 +183,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedCollection)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_collection_reverse_split(bool async)
         => AssertQuery(
             async,
@@ -193,7 +193,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<NestedCollectionBase>(x => x.ParentCollection),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_collection_reference_on_non_entity_base_split(bool async)
         => AssertQuery(
             async,
@@ -203,7 +203,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 new ExpectedInclude<ReferencedEntity>(x => x.Principals),
                 new ExpectedInclude<PrincipalEntity>(x => x.Reference)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_projection_on_base_type_split(bool async)
         => AssertQuery(
             async,
@@ -216,7 +216,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
                 AssertCollection(e.BaseCollectionOnBase, a.BaseCollectionOnBase);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_derived_type_with_queryable_Cast_split(bool async)
         => AssertQuery(
             async,

@@ -82,10 +82,10 @@ public class CosmosTestStore : TestStore
         Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         : base(CreateName(name), shared)
     {
-        ConnectionUri = TestEnvironment.DefaultConnection;
-        AuthToken = TestEnvironment.AuthToken;
-        ConnectionString = TestEnvironment.ConnectionString;
-        TokenCredential = TestEnvironment.TokenCredential;
+        ConnectionUri = CosmosTestEnvironment.DefaultConnection;
+        AuthToken = CosmosTestEnvironment.AuthToken;
+        ConnectionString = CosmosTestEnvironment.ConnectionString;
+        TokenCredential = CosmosTestEnvironment.TokenCredential;
         _configureCosmos = extensionConfiguration == null
             ? b => b.ApplyConfiguration()
             : b =>
@@ -110,7 +110,7 @@ public class CosmosTestStore : TestStore
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator
+        => CosmosTestEnvironment.IsEmulator
             ? name
             : name + _runId;
 
@@ -126,11 +126,11 @@ public class CosmosTestStore : TestStore
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
     {
-        var result = TestEnvironment.UseTokenCredential
+        var result = CosmosTestEnvironment.UseTokenCredential
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
-        if (TestEnvironment.IsLinuxEmulator)
+        if (CosmosTestEnvironment.IsLinuxEmulator)
         {
             result.AddInterceptors(LinuxEmulatorSaveChangesInterceptor.Instance);
         }
@@ -140,7 +140,7 @@ public class CosmosTestStore : TestStore
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
-        if (TestEnvironment.SkipConnectionCheck)
+        if (CosmosTestEnvironment.SkipConnectionCheck)
         {
             return true;
         }
@@ -210,11 +210,11 @@ public class CosmosTestStore : TestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        await TestEnvironment.InitializeAsync().ConfigureAwait(false);
+        await CosmosTestEnvironment.InitializeAsync().ConfigureAwait(false);
 
         // Update connection details in case InitializeAsync changed them (e.g., testcontainer started).
-        ConnectionUri = TestEnvironment.DefaultConnection;
-        ConnectionString = TestEnvironment.ConnectionString;
+        ConnectionUri = CosmosTestEnvironment.DefaultConnection;
+        ConnectionString = CosmosTestEnvironment.ConnectionString;
 
         _initialized = true;
 
@@ -226,11 +226,11 @@ public class CosmosTestStore : TestStore
         await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
     }
 
-    private static readonly ArmClient _armClient = new(TestEnvironment.TokenCredential);
+    private static readonly ArmClient _armClient = new(CosmosTestEnvironment.TokenCredential);
 
     public async Task<bool> EnsureCreatedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
             return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
@@ -239,7 +239,7 @@ public class CosmosTestStore : TestStore
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
         var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
-            TestEnvironment.AzureLocation,
+            CosmosTestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
         if (await collection.ExistsAsync(Name, cancellationToken))
         {
@@ -271,7 +271,7 @@ public class CosmosTestStore : TestStore
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             return await context.Database.EnsureDeletedAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -294,7 +294,7 @@ public class CosmosTestStore : TestStore
     {
         var accountName = new Uri(ConnectionUri).Host.Split('.').First();
         var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
-            TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
+            CosmosTestEnvironment.SubscriptionId, CosmosTestEnvironment.ResourceGroup, accountName);
         return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
@@ -330,7 +330,7 @@ public class CosmosTestStore : TestStore
                 return;
             }
 
-            if (!TestEnvironment.UseTokenCredential)
+            if (!CosmosTestEnvironment.UseTokenCredential)
             {
                 created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
                 if (!created)
@@ -384,7 +384,7 @@ public class CosmosTestStore : TestStore
                 resource.PartitionKey.Paths.Add("/" + partitionKey);
             }
 
-            var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
+            var content = new CosmosDBSqlContainerCreateOrUpdateContent(CosmosTestEnvironment.AzureLocation, resource);
             if (container.Throughput != null)
             {
                 content.Options = new CosmosDBCreateUpdateConfig
@@ -498,7 +498,7 @@ public class CosmosTestStore : TestStore
 
     private async Task DeleteContainersAsync(DbContext context)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             var cosmosClient = context.Database.GetCosmosClient();
             var database = cosmosClient.GetDatabase(Name);
@@ -569,7 +569,7 @@ public class CosmosTestStore : TestStore
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (TestEnvironment.UseTokenCredential)
+            if (CosmosTestEnvironment.UseTokenCredential)
             {
                 optionsBuilder.UseCosmos(
                     _testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);

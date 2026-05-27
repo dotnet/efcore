@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class StringBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void AppendJoin_joins_values()
     {
         Assert.Equal("a:b:c", new StringBuilder().AppendJoin(["a", "b", "c"], ":").ToString());

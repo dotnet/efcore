@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class TemporaryNumberValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_int_types()
     {
         var generator = new TemporaryIntValueGenerator();
@@ -17,7 +17,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(int.MinValue + 1003, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_long_types()
     {
         var generator = new TemporaryLongValueGenerator();
@@ -27,7 +27,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(long.MinValue + 1003, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_short_types()
     {
         var generator = new TemporaryShortValueGenerator();
@@ -37,7 +37,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(short.MinValue + 103, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_byte_types()
     {
         var generator = new TemporaryByteValueGenerator();
@@ -47,7 +47,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(253, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_uint_types()
     {
         var generator = new TemporaryUIntValueGenerator();
@@ -57,7 +57,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(unchecked((uint)int.MinValue + 1003), generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_ulong_types()
     {
         var generator = new TemporaryULongValueGenerator();
@@ -67,7 +67,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(unchecked((ulong)long.MinValue + 1003), generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_ushort_types()
     {
         var generator = new TemporaryUShortValueGenerator();
@@ -77,7 +77,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(unchecked((ushort)short.MinValue + 103), generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_sbyte_types()
     {
         var generator = new TemporarySByteValueGenerator();
@@ -87,7 +87,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(-125, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_char_types()
     {
         var generator = new TemporaryCharValueGenerator();
@@ -97,7 +97,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(char.MaxValue - 103, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_decimal_types()
     {
         var generator = new TemporaryDecimalValueGenerator();
@@ -106,7 +106,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(-2147482646m, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_float_types()
     {
         var generator = new TemporaryFloatValueGenerator();
@@ -115,7 +115,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(-2147482646.0f, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_double_types()
     {
         var generator = new TemporaryDoubleValueGenerator();
@@ -124,7 +124,7 @@ public class TemporaryNumberValueGeneratorTest
         Assert.Equal(-2147482646.0, generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Generates_temporary_values()
     {
         Assert.True(new TemporaryIntValueGenerator().GeneratesTemporaryValues);

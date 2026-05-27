@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Xunit.Sdk;
@@ -1411,7 +1411,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Edit_single_property_with_converter_string_True_False_to_bool()
     {
         await base.Edit_single_property_with_converter_string_True_False_to_bool();
@@ -1435,7 +1435,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Edit_single_property_with_converter_string_Y_N_to_bool()
     {
         await base.Edit_single_property_with_converter_string_Y_N_to_bool();

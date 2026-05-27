@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Update;
 
 // Newer Sqlite versions support the RETURNING clause, so we use those (see StoreValueGenerationLegacySqliteTest for older Sqlite versions)
-[SqliteVersionCondition(Min = "3.35.0")]
+[ConditionalClass(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.VersionAtLeast3_35))]
 public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<StoreValueGenerationSqliteFixture>
 {
     public StoreValueGenerationSqliteTest(StoreValueGenerationSqliteFixture fixture, ITestOutputHelper testOutputHelper)

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class ModificationCommandComparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Compare_returns_0_only_for_commands_that_are_equal()
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
@@ -110,7 +110,7 @@ public class ModificationCommandComparerTest
         Assert.True(0 < mCC.Compare(modificationCommandModified, modificationCommandDeleted));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Compare_returns_0_only_for_entries_that_have_same_key_values()
     {
         Compare_returns_0_only_for_entries_that_have_same_key_values_generic<short>(-1, 1);

@@ -233,10 +233,12 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
 
         if (modelIndex.GetIncludeProperties(table) is { } includeProperties)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var includeColumns = includeProperties
-                .Select(p => modelIndex.DeclaringEntityType.FindProperty(p)!
+                .Select(p => RelationalModel.FindPropertyByPath(modelIndex.DeclaringEntityType, p)!
                     .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
                 .ToArray();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             yield return new Annotation(
                 SqlServerAnnotationNames.Include,

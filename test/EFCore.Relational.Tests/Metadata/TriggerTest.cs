@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class TriggerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_create_trigger_for_default_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -25,7 +25,7 @@ public class TriggerTest
         Assert.Equal(ConfigurationSource.Explicit, ((IConventionTrigger)trigger).GetConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_trigger_for_specific_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -45,7 +45,7 @@ public class TriggerTest
         Assert.Equal(ConfigurationSource.Explicit, ((IConventionTrigger)trigger).GetConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddTrigger_with_duplicate_names_throws_exception()
     {
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
@@ -58,7 +58,7 @@ public class TriggerTest
             Assert.Throws<InvalidOperationException>(() => entityType.AddTrigger("SomeTrigger")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RemoveTrigger_returns_trigger_when_trigger_exists()
     {
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
@@ -70,7 +70,7 @@ public class TriggerTest
         Assert.Same(trigger, entityType.RemoveTrigger("SomeTrigger"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RemoveTrigger_returns_null_when_trigger_is_missing()
     {
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();

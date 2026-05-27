@@ -16,7 +16,7 @@ public class NorthwindCompiledQuerySqlServerTest : NorthwindCompiledQueryTestBas
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -393,7 +393,7 @@ WHERE [c].[CustomerID] = @s1 OR [c].[CustomerID] = @s2 OR [c].[CustomerID] = @s3
     {
         base.Query_with_array_parameter();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """
@@ -437,7 +437,7 @@ WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
     {
         await base.Query_with_array_parameter_async();
 
-        if (TestEnvironment.IsJsonTypeSupported)
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
         {
             AssertSql(
                 """

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -24,7 +24,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_for_top_level_single()
     {
         using var context = CreateContext();
@@ -33,7 +33,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.NotNull(query);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Paging_operation_without_orderby_issues_warning()
     {
         using var context = CreateContext();
@@ -41,7 +41,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(3, query.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Paging_operation_without_orderby_issues_warning_async()
     {
         using var context = CreateContext();
@@ -49,7 +49,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(3, query.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FirstOrDefault_without_orderby_and_filter_issues_warning_subquery()
     {
         using var context = CreateContext();
@@ -57,7 +57,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Single(query);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FirstOrDefault_without_orderby_but_with_filter_doesnt_issue_warning()
     {
         using var context = CreateContext();
@@ -65,7 +65,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.NotNull(query);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Single_SingleOrDefault_without_orderby_doesnt_issue_warning()
     {
         using var context = CreateContext();
@@ -76,7 +76,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.NotNull(query2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void LastOrDefault_with_order_by_does_not_issue_client_eval_warning()
     {
         using var context = CreateContext();
@@ -88,7 +88,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.NotNull(query2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Last_with_order_by_does_not_issue_client_eval_warning_if_at_top_level()
     {
         using var context = CreateContext();
@@ -96,14 +96,14 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.NotNull(query);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Max_does_not_issue_client_eval_warning_when_at_top_level()
     {
         using var context = CreateContext();
         var query = context.Orders.Select(o => o.OrderID).Max();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning()
     {
         using var context = CreateContext();
@@ -111,7 +111,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(91, query.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning()
     {
         using var context = CreateContext();

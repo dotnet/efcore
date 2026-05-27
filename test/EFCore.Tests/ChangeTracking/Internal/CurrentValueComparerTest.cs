@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class CurrentValueComparerTest
 {
-    [ConditionalTheory, InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Id)),
+    [Theory, InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Id)),
      InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Int)),
      InlineData(typeof(EntryCurrentValueComparer<ulong>), nameof(Godzilla.ULong)),
      InlineData(typeof(CurrentProviderValueComparer<IntStruct, int>), nameof(Godzilla.IntStruct)),
@@ -41,7 +41,7 @@ public class CurrentValueComparerTest
         Assert.IsType(expectedComparer, factory.Create(context.Model.FindEntityType(typeof(Godzilla)).FindProperty(property)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Factory_throws_if_provider_type_is_not_comparable()
     {
         using var context = new GodzillaContext();
@@ -55,7 +55,7 @@ public class CurrentValueComparerTest
                 context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparable)))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Factory_throws_if_model_and_provider_type_are_not_comparable()
     {
         using var context = new GodzillaContext();
@@ -69,29 +69,29 @@ public class CurrentValueComparerTest
                 context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparableConverted)))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_ints()
         => CanSort(nameof(Godzilla.Int), i => new Godzilla { Int = i }, g => g.Int);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_ulongs()
         => CanSort(nameof(Godzilla.ULong), i => new Godzilla { ULong = (ulong)i }, g => (int)g.ULong);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_IntStructs()
         => CanSort(
             nameof(Godzilla.IntStruct),
             i => new Godzilla { IntStruct = new IntStruct { Value = i } },
             g => g.IntStruct.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_ComparableIntStructs()
         => CanSort(
             nameof(Godzilla.ComparableIntStruct),
             i => new Godzilla { ComparableIntStruct = new ComparableIntStruct { Value = i } },
             g => g.ComparableIntStruct.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_GenericComparableIntStructs()
         => CanSort(
             nameof(Godzilla.GenericComparableIntStruct),
@@ -123,28 +123,28 @@ public class CurrentValueComparerTest
         Assert.Equal(new[] { 0, 0, 1, 3, 3, 7, 9, 9 }, entries);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_BytesStructs()
         => CanSort(
             nameof(Godzilla.BytesStruct),
             i => new Godzilla { BytesStruct = new BytesStruct { Value = i } },
             g => g.BytesStruct.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_ComparableBytesStructs()
         => CanSort(
             nameof(Godzilla.ComparableBytesStruct),
             i => new Godzilla { ComparableBytesStruct = new ComparableBytesStruct { Value = i } },
             g => g.ComparableBytesStruct.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_GenericComparableBytesStruct()
         => CanSort(
             nameof(Godzilla.GenericComparableBytesStruct),
             i => new Godzilla { GenericComparableBytesStruct = new GenericComparableBytesStruct { Value = i } },
             g => g.GenericComparableBytesStruct.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_StructuralComparableBytesStruct()
         => CanSort(
             nameof(Godzilla.StructuralComparableBytesStruct),
@@ -178,21 +178,21 @@ public class CurrentValueComparerTest
             entries);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableIntStructs()
         => CanSortNullable(
             nameof(Godzilla.NullableIntStruct),
             i => new Godzilla { NullableIntStruct = i.HasValue ? new IntStruct { Value = i.Value } : null },
             g => g.NullableIntStruct?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableComparableIntStructs()
         => CanSortNullable(
             nameof(Godzilla.NullableComparableIntStruct),
             i => new Godzilla { NullableComparableIntStruct = i.HasValue ? new ComparableIntStruct { Value = i.Value } : null },
             g => g.NullableComparableIntStruct?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableGenericComparableIntStructs()
         => CanSortNullable(
             nameof(Godzilla.NullableGenericComparableIntStruct),
@@ -203,42 +203,42 @@ public class CurrentValueComparerTest
             },
             g => g.NullableGenericComparableIntStruct?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableInts()
         => CanSortNullable(
             nameof(Godzilla.NullableInt),
             i => new Godzilla { NullableInt = i },
             g => g.NullableInt);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableULongs()
         => CanSortNullable(
             nameof(Godzilla.NullableULong),
             i => new Godzilla { NullableULong = (ulong?)i },
             g => (int?)g.NullableULong);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_Strings()
         => CanSortNullable(
             nameof(Godzilla.String),
             i => new Godzilla { String = i?.ToString() },
             g => g.String == null ? null : int.Parse(g.String));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_IntClasses()
         => CanSortNullable(
             nameof(Godzilla.IntClass),
             i => new Godzilla { IntClass = i.HasValue ? new IntClass { Value = i.Value } : null },
             g => g.IntClass?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_ComparableIntClasses()
         => CanSortNullable(
             nameof(Godzilla.ComparableIntClass),
             i => new Godzilla { ComparableIntClass = i.HasValue ? new ComparableIntClass { Value = i.Value } : null },
             g => g.ComparableIntClass?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_GenericComparableIntClass()
         => CanSortNullable(
             nameof(Godzilla.GenericComparableIntClass),
@@ -270,21 +270,21 @@ public class CurrentValueComparerTest
         Assert.Equal(new int?[] { null, null, 1, 3, 3, 7, 9, 9 }, entries);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableBytesStructs()
         => CanSortNullable(
             nameof(Godzilla.NullableBytesStruct),
             i => new Godzilla { NullableBytesStruct = i == null ? null : new BytesStruct { Value = i } },
             g => g.NullableBytesStruct?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableComparableBytesStructs()
         => CanSortNullable(
             nameof(Godzilla.NullableComparableBytesStruct),
             i => new Godzilla { NullableComparableBytesStruct = i == null ? null : new ComparableBytesStruct { Value = i } },
             g => g.NullableComparableBytesStruct?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableGenericComparableBytesStructs()
         => CanSortNullable(
             nameof(Godzilla.NullableGenericComparableBytesStruct),
@@ -295,7 +295,7 @@ public class CurrentValueComparerTest
             },
             g => g.NullableGenericComparableBytesStruct?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_NullableStructuralComparableBytesStructs()
         => CanSortNullable(
             nameof(Godzilla.NullableStructuralComparableBytesStruct),
@@ -307,7 +307,7 @@ public class CurrentValueComparerTest
             },
             g => g.NullableStructuralComparableBytesStruct?.Value);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_sort_Bytes()
         => CanSortNullable(
             nameof(Godzilla.Bytes),

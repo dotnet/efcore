@@ -1776,6 +1776,51 @@ public class RelationalModel : Annotatable, IRelationalModel
             .FirstOrDefault(cm => cm.TableMapping.Table == table)
             ?.Column;
 
+    private static List<Column>? GetIndexColumns(Table table, IIndex index)
+    {
+        var columns = new List<Column>(index.Properties.Count);
+        foreach (var propertyBase in index.Properties)
+        {
+            if (!TryAppendIndexColumns(table, propertyBase, columns))
+            {
+                return null;
+            }
+        }
+
+        return columns;
+    }
+
+    private static bool TryAppendIndexColumns(Table table, IPropertyBase propertyBase, List<Column> columns)
+    {
+        switch (propertyBase)
+        {
+            case IProperty property:
+                Check.DebugAssert(property.DeclaringType is not IComplexType complexType || !complexType.IsMappedToJson(),
+                    "Properties mapped to JSON should not be indexed directly; the index should be on the JSON container column instead.");
+
+                if (FindColumn(table, property) is not Column column)
+                {
+                    return false;
+                }
+
+                columns.Add(column);
+                return true;
+
+            case IComplexProperty { IsCollection: false } complexProperty:
+                var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
+                if (string.IsNullOrEmpty(containerColumnName)
+                    || table.FindColumn(containerColumnName) is not Column jsonColumn)
+                {
+                    return false;
+                }
+
+                columns.Add(jsonColumn);
+                return true;
+
+            default:
+                return false;
+        }
+    }
     private static void PopulateTableConfiguration(Table table, bool designTime)
     {
         var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
@@ -1836,20 +1881,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                 if (!table.Indexes.TryGetValue(name, out var tableIndex))
                 {
-                    var columns = new Column[index.Properties.Count];
-                    for (var i = 0; i < columns.Length; i++)
-                    {
-                        if (FindColumn(table, index.Properties[i]) is Column indexColumn)
-                        {
-                            columns[i] = indexColumn;
-                        }
-                        else
-                        {
-                            columns = null;
-                            break;
-                        }
-                    }
-
+                    var columns = GetIndexColumns(table, index);
                     if (columns == null)
                     {
                         continue;
@@ -2398,7 +2430,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     {
         var declaringEntityType = model.FindEntityType(declaringEntityTypeName)!;
 
-        return declaringEntityType.FindKey(properties.Select(p => declaringEntityType.FindProperty(p)!).ToArray())!;
+        return declaringEntityType.FindKey(properties.Select(p => FindPropertyByPath(declaringEntityType, p)!).ToArray())!;
     }
 
     /// <summary>
@@ -2430,8 +2462,42 @@ public class RelationalModel : Annotatable, IRelationalModel
     {
         var declaringEntityType = model.FindEntityType(declaringEntityTypeName)!;
 
-        return declaringEntityType.FindIndex(properties.Select(p => declaringEntityType.FindProperty(p)!).ToArray())!;
+        return declaringEntityType.FindIndex(properties.Select(p => FindPropertyBaseByPath(declaringEntityType, p)!).ToArray())!;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IReadOnlyPropertyBase? FindPropertyBaseByPath(IReadOnlyEntityType declaringEntityType, string propertyPath)
+    {
+        var segments = propertyPath.Split('.');
+        IReadOnlyTypeBase currentType = declaringEntityType;
+        for (var i = 0; i < segments.Length - 1; i++)
+        {
+            var nestedComplexProperty = currentType.FindComplexProperty(segments[i]);
+            if (nestedComplexProperty == null)
+            {
+                return null;
+            }
+
+            currentType = nestedComplexProperty.ComplexType;
+        }
+
+        var lastSegment = segments[^1];
+        return (IReadOnlyPropertyBase?)currentType.FindProperty(lastSegment) ?? currentType.FindComplexProperty(lastSegment);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IReadOnlyProperty? FindPropertyByPath(IReadOnlyEntityType declaringEntityType, string propertyPath)
+        => FindPropertyBaseByPath(declaringEntityType, propertyPath) as IReadOnlyProperty;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

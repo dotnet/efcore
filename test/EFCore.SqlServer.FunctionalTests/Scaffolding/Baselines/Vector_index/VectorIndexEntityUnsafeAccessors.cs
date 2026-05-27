@@ -7,14 +7,13 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
-{
-    public static class VectorIndexEntityUnsafeAccessors
-    {
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int Id(CompiledModelSqlServerTest.VectorIndexEntity @this);
+namespace TestNamespace;
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Vector>k__BackingField")]
-        public static extern ref SqlVector<float>? Vector(CompiledModelSqlServerTest.VectorIndexEntity @this);
-    }
+public static class VectorIndexEntityUnsafeAccessors
+{
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+    public static extern ref int Id(CompiledModelSqlServerTest.VectorIndexEntity @this);
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Vector>k__BackingField")]
+    public static extern ref SqlVector<float>? Vector(CompiledModelSqlServerTest.VectorIndexEntity @this);
 }

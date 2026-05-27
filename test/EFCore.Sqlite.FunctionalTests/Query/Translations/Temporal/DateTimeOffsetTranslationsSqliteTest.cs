@@ -239,7 +239,7 @@ WHERE "b"."DateTimeOffset" = '1902-01-02 10:00:00.1234567+01:30'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

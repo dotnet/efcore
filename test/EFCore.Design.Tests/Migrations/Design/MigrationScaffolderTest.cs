@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public class MigrationsScaffolderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldMigration_reuses_model_snapshot()
     {
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
@@ -27,7 +27,7 @@ public class MigrationsScaffolderTest
         Assert.Equal(typeof(ContextWithSnapshotModelSnapshot).Namespace, migration.SnapshotSubnamespace);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldMigration_handles_generic_contexts()
     {
         var scaffolder = CreateMigrationScaffolder<GenericContext<int>>();
@@ -37,7 +37,7 @@ public class MigrationsScaffolderTest
         Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldMigration_can_override_namespace()
     {
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
@@ -51,7 +51,7 @@ public class MigrationsScaffolderTest
         Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.SnapshotSubnamespace);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldMigration_uses_migration_id_as_type_name()
     {
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();

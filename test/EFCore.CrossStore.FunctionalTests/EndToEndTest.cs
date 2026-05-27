@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ public abstract class EndToEndTest(CrossStoreFixture fixture) : IAsyncLifetime
     protected abstract ITestStoreFactory TestStoreFactory { get; }
     protected TestStore TestStore { get; private set; }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_save_changes_and_query()
     {
         int secondId;
@@ -61,10 +62,10 @@ public abstract class EndToEndTest(CrossStoreFixture fixture) : IAsyncLifetime
     protected CrossStoreContext CreateContext()
         => Fixture.CreateContext(TestStore);
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
         => TestStore = await Fixture.CreateTestStoreAsync(TestStoreFactory, "CrossStoreTest");
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }
 
@@ -74,7 +75,7 @@ public class InMemoryEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixt
         => InMemoryTestStoreFactory.Instance;
 }
 
-[SqlServerConfiguredCondition]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]
 public class SqlServerEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>
 {
     protected override ITestStoreFactory TestStoreFactory

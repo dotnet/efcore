@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class ChangeDetectorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_does_not_snapshot_if_eager_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -32,7 +32,7 @@ public class ChangeDetectorTest
         Assert.False(entry.HasRelationshipSnapshot);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_snapshots_original_and_FK_value_if_lazy_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -62,7 +62,7 @@ public class ChangeDetectorTest
         Assert.Equal(777, entry.GetCurrentValue(property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_does_not_snapshot_original_values_for_properties_with_no_original_value_tracking()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -86,7 +86,7 @@ public class ChangeDetectorTest
         Assert.Equal("Pickle", entry.GetCurrentValue(property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_snapshots_reference_navigations_if_lazy_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -116,7 +116,7 @@ public class ChangeDetectorTest
         Assert.NotSame(category, entry.GetCurrentValue(navigation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_snapshots_PK_for_relationships_if_lazy_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -146,7 +146,7 @@ public class ChangeDetectorTest
         Assert.Equal(newId, entry.GetCurrentValue(property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_scalar_property_change()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -165,7 +165,7 @@ public class ChangeDetectorTest
         Assert.True(entry.IsModified(entry.EntityType.FindProperty("Name")));
     }
 
-    [ConditionalTheory, InlineData(true, true, true), InlineData(false, true, true), InlineData(true, false, true),
+    [Theory, InlineData(true, true, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(false, false, true), InlineData(true, true, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(false, false, false)]
     public void Can_insert_with_array_comparer(bool useTypeMapping, bool useStateChange, bool nullValue)
@@ -208,7 +208,7 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Detects_scalar_property_change_with_custom_comparer(bool useTypeMapping)
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
@@ -232,7 +232,7 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Detects_scalar_shadow_property_change_with_custom_comparer(bool useTypeMapping)
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
@@ -363,7 +363,7 @@ public class ChangeDetectorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detection_of_scalar_property_change_for_notification_entities()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
@@ -383,7 +383,7 @@ public class ChangeDetectorTest
         Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_local_detection_of_scalar_property_change_for_notification_entities()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
@@ -402,7 +402,7 @@ public class ChangeDetectorTest
         Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_principal_key_change()
     {
         var contextServices = CreateContextServices();
@@ -433,7 +433,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_principal_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices();
@@ -466,7 +466,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reacts_to_principal_key_change_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -498,7 +498,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_primary_key_change()
     {
         var contextServices = CreateContextServices();
@@ -532,7 +532,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reacts_to_primary_key_change_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -569,7 +569,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_principal_key()
     {
         var contextServices = CreateContextServices();
@@ -592,7 +592,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_principal_key_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -618,7 +618,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_foreign_key_change()
     {
         var contextServices = CreateContextServices();
@@ -647,7 +647,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_foreign_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices();
@@ -680,7 +680,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reacts_to_foreign_key_change_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -711,7 +711,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_foreign_key()
     {
         var contextServices = CreateContextServices();
@@ -734,7 +734,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_foreign_key_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -759,7 +759,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_reference_navigation_change()
     {
         var contextServices = CreateContextServices();
@@ -796,7 +796,7 @@ public class ChangeDetectorTest
         Assert.Equal(2, testListener.KeyChange.Item6);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Detects_reference_navigation_changing_back_to_original_value(bool useNull)
     {
         var contextServices = CreateContextServices();
@@ -847,7 +847,7 @@ public class ChangeDetectorTest
         Assert.Equal(1, testListener.KeyChange.Item6);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_reference_navigation()
     {
         var contextServices = CreateContextServices();
@@ -876,7 +876,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_adding_to_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -918,7 +918,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_removing_from_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -952,7 +952,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.ReferenceChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -983,7 +983,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.ReferenceChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_primary_principal_key_for_notification_entities()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1006,7 +1006,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_foreign_key_for_notification_entities()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1029,7 +1029,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_reference_navigation_for_notification_entities()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1058,7 +1058,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_notifying_collections()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1090,7 +1090,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_set_on_reference_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1119,7 +1119,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_principal_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1147,7 +1147,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1170,7 +1170,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_set_on_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1200,7 +1200,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices();
@@ -1223,7 +1223,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices();
@@ -1246,7 +1246,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_principal_key_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1272,7 +1272,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_principal_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1299,7 +1299,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_primary_key_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1330,7 +1330,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_no_change_to_principal_key()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1350,7 +1350,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_foreign_key_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1376,7 +1376,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_foreign_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1403,7 +1403,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_no_change_to_foreign_key()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1423,7 +1423,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_reference_navigation_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1455,7 +1455,7 @@ public class ChangeDetectorTest
         Assert.Equal(2, testListener.KeyChange.Item6);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Handles_notification_of_reference_navigation_changing_back_to_original_value(bool useNull)
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1501,7 +1501,7 @@ public class ChangeDetectorTest
         Assert.Equal(1, testListener.KeyChange.Item6);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_no_change_to_reference_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1527,7 +1527,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_adding_to_collection_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1564,7 +1564,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_removing_from_collection_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1598,7 +1598,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_on_notification_of_set_on_reference_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1624,7 +1624,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1649,7 +1649,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1669,7 +1669,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_on_notification_of_set_on_collection_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1696,7 +1696,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1716,7 +1716,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
