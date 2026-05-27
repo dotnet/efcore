@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBase<TFixture>
@@ -288,25 +286,40 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")));
 
     [ConditionalFact] // Issue #38238
-    public virtual async Task ReadItem_with_WithPartitionKey_and_conflicting_partition_key_predicate_throws()
-    {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+    public virtual Task WithPartitionKey_and_conflicting_partition_key_predicate_returns_empty()
+        => AssertQuery(
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1")
-                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2")));
-
-        Assert.Equal(CosmosStrings.WithPartitionKeyConflictingPartitionKeyPredicate, exception.Message);
-    }
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2"),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1")
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2"),
+            assertEmpty: true);
 
     [ConditionalFact] // Issue #38238
-    public virtual async Task ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw()
+    public virtual Task WithPartitionKey_and_partition_key_predicate_same_local()
     {
         var partitionKey = "PK1";
 
-        await AssertQuery(
+        return AssertQuery(
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey(partitionKey)
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == partitionKey)
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));
+    }
+
+    [ConditionalFact] // Issue #38238
+    public virtual Task WithPartitionKey_and_partition_key_predicate_two_locals_same_value()
+    {
+        var pkForWith = "PK1";
+        var pkForWhere = "PK1";
+
+        return AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey(pkForWith)
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == pkForWhere),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == pkForWith)
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == pkForWhere));
     }
 
     [ConditionalFact]

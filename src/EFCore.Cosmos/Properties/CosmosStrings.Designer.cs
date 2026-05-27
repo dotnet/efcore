@@ -663,12 +663,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         public static string WithPartitionKeyNotConstantOrParameter
             => GetString("WithPartitionKeyNotConstantOrParameter");
 
-        /// <summary>
-        ///     The partition key value specified via 'WithPartitionKey' conflicts with a partition key predicate in the query. Remove the predicate or ensure both specify the same value.
-        /// </summary>
-        public static string WithPartitionKeyConflictingPartitionKeyPredicate
-            => GetString("WithPartitionKeyConflictingPartitionKeyPredicate");
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

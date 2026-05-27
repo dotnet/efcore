@@ -442,17 +442,9 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
 """);
     }
 
-    public override async Task ReadItem_with_WithPartitionKey_and_conflicting_partition_key_predicate_throws()
+    public override async Task WithPartitionKey_and_conflicting_partition_key_predicate_returns_empty()
     {
-        // Not ReadItem when the discriminator is stored in the JSON id: the conflicting partition key predicate remains in SQL
-        // and the query returns no results (see #38238; validation only applies to the ReadItem optimization path).
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1")
-                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2"),
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1")
-                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2"),
-            assertEmpty: true);
+        await base.WithPartitionKey_and_conflicting_partition_key_predicate_returns_empty();
 
         AssertSql(
             """
@@ -462,9 +454,9 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
 """);
     }
 
-    public override async Task ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw()
+    public override async Task WithPartitionKey_and_partition_key_predicate_same_local()
     {
-        await base.ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw();
+        await base.WithPartitionKey_and_partition_key_predicate_same_local();
 
         AssertSql(
             """
@@ -473,6 +465,21 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @partitionKey)))
+""");
+    }
+
+    public override async Task WithPartitionKey_and_partition_key_predicate_two_locals_same_value()
+    {
+        await base.WithPartitionKey_and_partition_key_predicate_two_locals_same_value();
+
+        AssertSql(
+            """
+@pkForWith='PK1'
+@pkForWhere='PK1'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @pkForWhere)))
 """);
     }
 
@@ -825,7 +832,12 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] =
     {
         await base.Both_WithPartitionKey_and_predicate_comparisons_with_same_values_with_only_partition_key_leaf();
 
-        AssertSql("""ReadItem(["PK1c"], DerivedOnlySinglePartitionKeyEntity|PK1c)""");
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK1c"))
+""");
     }
 
     public override async Task ReadItem_with_hierarchical_partition_key_leaf()
@@ -919,7 +931,12 @@ ReadItem(["PK1",1.0,true], DerivedHierarchicalPartitionKeyEntity|316c846c-787f-4
     {
         await base.ReadItem_with_WithPartitionKey_with_only_partition_key_leaf();
 
-        AssertSql("""ReadItem(["PK1c"], DerivedOnlySinglePartitionKeyEntity|PK1c)""");
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK1c"))
+""");
     }
 
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_leaf()
