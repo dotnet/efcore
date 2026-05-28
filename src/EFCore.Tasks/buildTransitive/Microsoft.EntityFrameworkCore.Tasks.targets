@@ -67,7 +67,7 @@ For Publish:
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
              Condition="'$(PublishAot)'=='true'"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;_EFGenerationStage=$(_EFGenerationStage)" />
+             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=;SelfContained=false;_EFGenerationStage=$(_EFGenerationStage)" />
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="OptimizeDbContext"
