@@ -539,8 +539,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         }
 
         // Find the container column in the relational model to get its type mapping.
-        // Use GetViewOrTableMappings since the entity may be mapped to a view (ToView) rather than a table (see #38315),
-        // in which case GetTableMappings returns an empty sequence.
         // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
         // See #38060 about improving this.
         var containerColumnName = structuralType.GetContainerColumnName()!;
