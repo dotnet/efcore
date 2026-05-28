@@ -78,7 +78,7 @@ For Publish:
              ContinueOnError="$(ContinueOnError)"
              Properties="$(_EFInnerBuildProperties)" />
 
-    <!-- Refresh the RID-specific assembly so it includes the generated sources. -->
+    <!-- Refresh the RID-specific assembly so it includes the generated sources using the current invocation properties. -->
     <CallTarget Targets="Build" />
   </Target>
 
