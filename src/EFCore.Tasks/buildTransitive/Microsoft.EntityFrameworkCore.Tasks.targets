@@ -61,19 +61,29 @@ For Publish:
 
   <!-- Invokes OptimizeDbContext on projects that had changes since the last time they were optimized -->
   <Target Name="_EFGenerateFiles">
-    <!-- The assembly used for file generation should be compiled without using AOT mode -->
+    <PropertyGroup>
+      <!--
+        The assembly used for file generation should be compiled without using AOT mode. When PublishAot is
+        true the outer build produced an AOT-pruned dll that can't be reflected on, so clear RuntimeIdentifier
+        and SelfContained in the inner builds so they share a non-RID output path. When PublishAot is false
+        the outer build's assembly is usable, so keep the RID to find it at the correct path.
+      -->
+      <_EFInnerBuildProperties>Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;_EFGenerationStage=$(_EFGenerationStage)</_EFInnerBuildProperties>
+      <_EFInnerBuildProperties Condition="'$(PublishAot)'=='true'">$(_EFInnerBuildProperties);RuntimeIdentifier=;SelfContained=false</_EFInnerBuildProperties>
+    </PropertyGroup>
+
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Build"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
              Condition="'$(PublishAot)'=='true'"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=;SelfContained=false;_EFGenerationStage=$(_EFGenerationStage)" />
+             Properties="$(_EFInnerBuildProperties)" />
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="OptimizeDbContext"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=;SelfContained=false;_EFGenerationStage=$(_EFGenerationStage)" />
+             Properties="$(_EFInnerBuildProperties)" />
   </Target>
 
   <Target Name="OptimizeDbContext" DependsOnTargets="ResolvePackageAssets">
