@@ -78,16 +78,8 @@ For Publish:
              ContinueOnError="$(ContinueOnError)"
              Properties="$(_EFInnerBuildProperties)" />
 
-    <!--
-      Refresh the RID-specific assembly so it includes the generated sources. PublishAot is preserved so the
-      RID assembly is built with the same AOT settings as the outer build (ILC runs on Publish, not Build,
-      so this does not recurse).
-    -->
-    <MSBuild Projects="$(MSBuildProjectFullPath)"
-             Targets="Build"
-             BuildInParallel="$(BuildInParallel)"
-             ContinueOnError="$(ContinueOnError)"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=$(PublishAot);RuntimeIdentifier=$(RuntimeIdentifier);SelfContained=$(SelfContained);AppendRuntimeIdentifierToOutputPath=$(AppendRuntimeIdentifierToOutputPath);_EFGenerationStage=$(_EFGenerationStage)" />
+    <!-- Refresh the RID-specific assembly so it includes the generated sources. -->
+    <CallTarget Targets="Build" />
   </Target>
 
   <Target Name="OptimizeDbContext" DependsOnTargets="ResolvePackageAssets">
