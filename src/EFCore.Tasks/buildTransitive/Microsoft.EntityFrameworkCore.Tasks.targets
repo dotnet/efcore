@@ -62,14 +62,16 @@ For Publish:
   <!-- Invokes OptimizeDbContext on projects that had changes since the last time they were optimized -->
   <Target Name="_EFGenerateFiles">
     <PropertyGroup>
-      <!-- Inner builds clear RID/SelfContained and disable AOT so they share a non-RID, reflection-friendly output. -->
-      <_EFInnerBuildProperties>Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=;SelfContained=false;_EFGenerationStage=$(_EFGenerationStage)</_EFInnerBuildProperties>
+      <!-- Inner builds disable AOT; for AOT publish they also clear RID/SelfContained to use reflection-friendly output. -->
+      <_EFInnerBuildProperties>Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;_EFGenerationStage=$(_EFGenerationStage)</_EFInnerBuildProperties>
+      <_EFInnerBuildProperties Condition="'$(PublishAot)'=='true' Or '$(_EFPublishAOT)'=='true'">$(_EFInnerBuildProperties);RuntimeIdentifier=;SelfContained=false</_EFInnerBuildProperties>
     </PropertyGroup>
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Build"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
+             Condition="'$(PublishAot)'=='true' Or '$(_EFPublishAOT)'=='true'"
              Properties="$(_EFInnerBuildProperties)" />
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
