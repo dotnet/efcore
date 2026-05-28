@@ -62,14 +62,8 @@ For Publish:
   <!-- Invokes OptimizeDbContext on projects that had changes since the last time they were optimized -->
   <Target Name="_EFGenerateFiles">
     <PropertyGroup>
-      <!--
-        The assembly used for file generation should be compiled without using AOT mode. When PublishAot is
-        true the outer build produced an AOT-pruned dll that can't be reflected on, so clear RuntimeIdentifier
-        and SelfContained in the inner builds so they share a non-RID output path. When PublishAot is false
-        the outer build's assembly is usable, so keep the RID to find it at the correct path.
-      -->
-      <_EFInnerBuildProperties>Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;_EFGenerationStage=$(_EFGenerationStage)</_EFInnerBuildProperties>
-      <_EFInnerBuildProperties Condition="'$(PublishAot)'=='true'">$(_EFInnerBuildProperties);RuntimeIdentifier=;SelfContained=false</_EFInnerBuildProperties>
+      <!-- Inner builds clear RID/SelfContained and disable AOT so they share a non-RID, reflection-friendly output. -->
+      <_EFInnerBuildProperties>Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=;SelfContained=false;_EFGenerationStage=$(_EFGenerationStage)</_EFInnerBuildProperties>
     </PropertyGroup>
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
@@ -86,18 +80,15 @@ For Publish:
              Properties="$(_EFInnerBuildProperties)" />
 
     <!--
-      When PublishAot is true the inner OptimizeDbContext call wrote the generated sources but only refreshed
-      the non-RID intermediate assembly. The outer publish flow consumes the RID-specific intermediate assembly
-      for AOT compilation, which was produced by CoreCompile before generation ran and therefore lacks the
-      generated sources. Re-run Build with the RID preserved (and PublishAot=false to skip ILC) so the
-      RID-specific assembly is rebuilt to include the compiled model and precompiled queries.
+      Refresh the RID-specific assembly so it includes the generated sources. PublishAot is preserved so the
+      RID assembly is built with the same AOT settings as the outer build (ILC runs on Publish, not Build,
+      so this does not recurse).
     -->
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Build"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
-             Condition="'$(PublishAot)'=='true'"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=$(RuntimeIdentifier);SelfContained=$(SelfContained);AppendRuntimeIdentifierToOutputPath=$(AppendRuntimeIdentifierToOutputPath);_EFGenerationStage=$(_EFGenerationStage)" />
+             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=$(PublishAot);RuntimeIdentifier=$(RuntimeIdentifier);SelfContained=$(SelfContained);AppendRuntimeIdentifierToOutputPath=$(AppendRuntimeIdentifierToOutputPath);_EFGenerationStage=$(_EFGenerationStage)" />
   </Target>
 
   <Target Name="OptimizeDbContext" DependsOnTargets="ResolvePackageAssets">
@@ -150,8 +141,6 @@ For Publish:
     <WriteLinesToFile File="$(EFGeneratedSourcesPublishFile)"
                       Lines="$(_EFGeneratedFiles)"
                       Condition="'$(_EFGenerationStage)'=='publish'" />
-
-    <CallTarget Targets="Build" />
   </Target>
 
   <Target Name="_EFValidateProperties"
