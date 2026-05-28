@@ -84,6 +84,20 @@ For Publish:
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
              Properties="$(_EFInnerBuildProperties)" />
+
+    <!--
+      When PublishAot is true the inner OptimizeDbContext call wrote the generated sources but only refreshed
+      the non-RID intermediate assembly. The outer publish flow consumes the RID-specific intermediate assembly
+      for AOT compilation, which was produced by CoreCompile before generation ran and therefore lacks the
+      generated sources. Re-run Build with the RID preserved (and PublishAot=false to skip ILC) so the
+      RID-specific assembly is rebuilt to include the compiled model and precompiled queries.
+    -->
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Build"
+             BuildInParallel="$(BuildInParallel)"
+             ContinueOnError="$(ContinueOnError)"
+             Condition="'$(PublishAot)'=='true'"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;RuntimeIdentifier=$(RuntimeIdentifier);SelfContained=$(SelfContained);AppendRuntimeIdentifierToOutputPath=$(AppendRuntimeIdentifierToOutputPath);_EFGenerationStage=$(_EFGenerationStage)" />
   </Target>
 
   <Target Name="OptimizeDbContext" DependsOnTargets="ResolvePackageAssets">
