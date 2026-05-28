@@ -70,7 +70,6 @@ For Publish:
              Targets="Build"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
-             Condition="'$(PublishAot)'=='true'"
              Properties="$(_EFInnerBuildProperties)" />
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
