@@ -8,8 +8,6 @@
     <EFScaffoldModelStage Condition="'$(EFScaffoldModelStage)'==''">publish</EFScaffoldModelStage>
     <EFPrecompileQueriesStage Condition="'$(EFPrecompileQueriesStage)'==''">publish</EFPrecompileQueriesStage>
     <DbContextType Condition="'$(DbContextType)'==''">*</DbContextType>
-    <!-- Enable the interceptors namespace used by EF Core's precompiled query interceptors. -->
-    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.EntityFrameworkCore.GeneratedInterceptors</InterceptorsNamespaces>
   </PropertyGroup>
 
   <UsingTask TaskName="$(MSBuildThisFileName).OptimizeDbContext" AssemblyFile="$(_EFCustomTasksAssembly)" />
