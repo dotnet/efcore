@@ -104,12 +104,33 @@ public class DbContextOperations
     {
         if (contextType == "*")
         {
-            throw new OperationException(DesignStrings.WildcardNotSupported);
+            var contexts = CreateAllContexts();
+
+            if (!contexts.Any())
+            {
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+            }
+
+            foreach(var item in contexts)
+            {
+                using (item)
+                {
+                    DropDatabaseContext(item, connectionString);
+                }
+            }
+
+            return;
         }
 
-        using var context = CreateContext(contextType);
+        using (var context = CreateContext(contextType))
+        {
+            DropDatabaseContext(context, connectionString);
+        }
+    }
 
-        if (connectionString != null)
+    private void DropDatabaseContext(DbContext context, string? connectionString)
+    {
+        if (connectionString is not null)
         {
             context.Database.SetConnectionString(connectionString);
         }
