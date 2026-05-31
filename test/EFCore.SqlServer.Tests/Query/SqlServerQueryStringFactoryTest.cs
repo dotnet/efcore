@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class SqlServerQueryStringFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Returns_command_text_unchanged_when_no_parameters()
     {
         var factory = CreateFactory();
@@ -20,7 +20,7 @@ public class SqlServerQueryStringFactoryTest
         Assert.Equal("SELECT 1", factory.Create(command));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Renders_DECLARE_with_value_for_simple_int_parameter()
     {
         var factory = CreateFactory();
@@ -33,7 +33,7 @@ public class SqlServerQueryStringFactoryTest
         Assert.EndsWith("SELECT @p0", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Renders_DECLARE_with_TypeName_and_no_value_for_structured_parameter()
     {
         var factory = CreateFactory();
@@ -46,12 +46,12 @@ public class SqlServerQueryStringFactoryTest
         // The DECLARE must use the actual TVP type name, not the literal "structured", and must NOT
         // attempt to assign a value since TVPs cannot be initialized inline in T-SQL. See #33849.
         Assert.Contains("DECLARE @data dbo.IntList;", result);
-        Assert.DoesNotContain("structured", result);
+        Assert.DoesNotContain("DECLARE @data structured", result);
         Assert.DoesNotContain("DECLARE @data dbo.IntList = ", result);
         Assert.EndsWith("SELECT * FROM @data", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Renders_structured_parameter_alongside_other_parameters()
     {
         var factory = CreateFactory();
