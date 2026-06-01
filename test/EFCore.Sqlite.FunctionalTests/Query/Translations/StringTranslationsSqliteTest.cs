@@ -1418,19 +1418,13 @@ GROUP BY "b"."Int"
 
     public override async Task Join_with_ordering()
     {
-        // SQLite does not support input ordering on aggregate methods; the below does client evaluation.
         await base.Join_with_ordering();
 
         AssertSql(
             """
-SELECT "b1"."Int", "b0"."String", "b0"."Id"
-FROM (
-    SELECT "b"."Int"
-    FROM "BasicTypesEntities" AS "b"
-    GROUP BY "b"."Int"
-) AS "b1"
-LEFT JOIN "BasicTypesEntities" AS "b0" ON "b1"."Int" = "b0"."Int"
-ORDER BY "b1"."Int", "b0"."Id" DESC
+SELECT "b"."Int" AS "Key", COALESCE(group_concat("b"."String", '|' ORDER BY "b"."Id" DESC), '') AS "Strings"
+FROM "BasicTypesEntities" AS "b"
+GROUP BY "b"."Int"
 """);
     }
 

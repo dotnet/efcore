@@ -47,13 +47,6 @@ public class SqliteStringAggregateMethodTranslator(ISqlExpressionFactory sqlExpr
                 return null;
         }
 
-        // SQLite does not support input ordering on aggregate methods. Since ordering matters very much for translating, if the user
-        // specified an ordering we refuse to translate (but to error than to ignore in this case).
-        if (source.Orderings.Count > 0)
-        {
-            return null;
-        }
-
         sqlExpression = sqlExpressionFactory.Coalesce(
             sqlExpression,
             sqlExpressionFactory.Constant(string.Empty, typeof(string)));
@@ -75,17 +68,33 @@ public class SqliteStringAggregateMethodTranslator(ISqlExpressionFactory sqlExpr
             sqlExpression = new DistinctExpression(sqlExpression);
         }
 
-        // group_concat returns null when there are no rows (or non-null values), but string.Join returns an empty string.
-        return sqlExpressionFactory.Coalesce(
-            sqlExpressionFactory.Function(
+        var functionArguments = new[]
+        {
+            sqlExpression,
+            sqlExpressionFactory.ApplyTypeMapping(separator, sqlExpression.TypeMapping)
+        };
+
+        // SQLite supports ORDER BY inside aggregate functions since 3.44.0: group_concat(value, separator ORDER BY ...).
+        // When the user specified an ordering we emit our custom expression that renders it; otherwise a plain function call.
+        SqlExpression aggregate = source.Orderings.Count == 0
+            ? sqlExpressionFactory.Function(
                 "group_concat",
-                [
-                    sqlExpression,
-                    sqlExpressionFactory.ApplyTypeMapping(separator, sqlExpression.TypeMapping)
-                ],
+                functionArguments,
                 nullable: true,
                 argumentsPropagateNullability: Statics.FalseArrays[2],
-                typeof(string)),
+                typeof(string))
+            : new SqliteAggregateFunctionExpression(
+                "group_concat",
+                functionArguments,
+                source.Orderings,
+                nullable: true,
+                argumentsPropagateNullability: Statics.FalseArrays[2],
+                typeof(string),
+                sqlExpression.TypeMapping);
+
+        // group_concat returns null when there are no rows (or non-null values), but string.Join returns an empty string.
+        return sqlExpressionFactory.Coalesce(
+            aggregate,
             sqlExpressionFactory.Constant(string.Empty, typeof(string)),
             sqlExpression.TypeMapping);
     }

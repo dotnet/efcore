@@ -36,6 +36,10 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
                 GenerateJsonEach(jsonEachExpression);
                 return extensionExpression;
 
+            case SqliteAggregateFunctionExpression aggregateFunctionExpression:
+                GenerateAggregateFunction(aggregateFunctionExpression);
+                return extensionExpression;
+
             default:
                 return base.VisitExtension(extensionExpression);
         }
@@ -172,6 +176,40 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
 
         Sql.Append(" REGEXP ");
         Visit(regexpExpression.Pattern);
+    }
+
+    private void GenerateAggregateFunction(SqliteAggregateFunctionExpression aggregateFunctionExpression)
+    {
+        Sql.Append(aggregateFunctionExpression.Name).Append("(");
+
+        for (var i = 0; i < aggregateFunctionExpression.Arguments.Count; i++)
+        {
+            if (i > 0)
+            {
+                Sql.Append(", ");
+            }
+
+            Visit(aggregateFunctionExpression.Arguments[i]);
+        }
+
+        // Unlike SQL Server's "WITHIN GROUP (ORDER BY ...)", SQLite renders the ordering inside the function
+        // parentheses: group_concat(value, separator ORDER BY ...). Supported since SQLite 3.44.0.
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            Sql.Append(" ORDER BY ");
+
+            for (var i = 0; i < aggregateFunctionExpression.Orderings.Count; i++)
+            {
+                if (i > 0)
+                {
+                    Sql.Append(", ");
+                }
+
+                Visit(aggregateFunctionExpression.Orderings[i]);
+            }
+        }
+
+        Sql.Append(")");
     }
 
     /// <summary>
