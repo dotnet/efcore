@@ -35,7 +35,7 @@ $(EFTargetNamespace) and $(EFOutputDir) can be used to further fine-tune the gen
 
 For Publish:
 
-1. If PublishAot is true _EFPrepareDependenciesForPublishAOT in the startup project invokes _EFGenerateFilesBeforePublish on all dependencies. Otherwise _EFGenerateFilesBeforePublish runs on the projects before Publish.
+1. If PublishAot is true _EFPrepareDependenciesForPublishAot in the startup project invokes _EFGenerateFilesBeforePublish on all dependencies. Otherwise _EFGenerateFilesBeforePublish runs on the projects before Publish.
 2. _EFGenerateFilesBeforePublish calls _EFGenerateFiles and the rest is similar to the Build flow.
   -->
 
@@ -210,7 +210,7 @@ For Publish:
   </Target>
 
   <!-- Go through the dependencies to check whether they need code generated for Native AOT -->
-  <Target Name="_EFPrepareDependenciesForPublishAOT"
+  <Target Name="_EFPrepareDependenciesForPublishAot"
           BeforeTargets="GetCopyToPublishDirectoryItems"
           Condition="'$(PublishAot)'=='true' And '$(_EFGenerationStage)'=='' and '@(_MSBuildProjectReferenceExistent)' != ''">
     <MSBuild
