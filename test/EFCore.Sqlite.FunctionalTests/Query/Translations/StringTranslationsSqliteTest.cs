@@ -1418,6 +1418,9 @@ GROUP BY "b"."Int"
 
     public override async Task Join_with_ordering()
     {
+        // group_concat with an ORDER BY clause requires SQLite 3.44.0.
+        Assert.SkipUnless(SqliteTestEnvironment.VersionAtLeast3_44, "Requires SQLite 3.44.0 for ORDER BY in aggregate functions.");
+
         await base.Join_with_ordering();
 
         AssertSql(

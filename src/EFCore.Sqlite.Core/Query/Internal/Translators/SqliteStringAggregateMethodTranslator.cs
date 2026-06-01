@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 // ReSharper disable once CheckNamespace
@@ -14,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteStringAggregateMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IAggregateMethodCallTranslator
 {
+    // group_concat supports an in-function ORDER BY clause since SQLite 3.44.0.
+    private readonly bool _isOrderedAggregateSupported
+        = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 44);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -45,6 +50,15 @@ public class SqliteStringAggregateMethodTranslator(ISqlExpressionFactory sqlExpr
                 break;
             default:
                 return null;
+        }
+
+        // group_concat supports ORDER BY only since SQLite 3.44.0, and combining ORDER BY with DISTINCT is restricted
+        // (valid only when ordering by the distinct value itself). Refuse translation - falling back to client evaluation -
+        // for cases we cannot emit safely.
+        if (source.Orderings.Count > 0
+            && (!_isOrderedAggregateSupported || source.IsDistinct))
+        {
+            return null;
         }
 
         sqlExpression = sqlExpressionFactory.Coalesce(
