@@ -1291,8 +1291,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     return propertyAccess;
                 }
 
-                var table = entityType.GetViewOrTableMappings().SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
-                    ?? entityType.GetDefaultMappings().Single().Table;
+                // Scope to actually-projected tables when known (entity-splitting).
+                var table = entityType.GetProjectedQueryMappings(projection.TableMap)
+                    .Single(e => e.IsSplitEntityTypePrincipal ?? true).Table;
                 if (!table.IsOptional(entityType))
                 {
                     return propertyAccess;

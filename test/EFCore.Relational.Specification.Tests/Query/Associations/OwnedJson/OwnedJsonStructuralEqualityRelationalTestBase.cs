@@ -33,7 +33,7 @@ public abstract class OwnedJsonStructuralEqualityRelationalTestBase<TFixture> : 
     public override async Task Contains_with_parameter()
     {
         // No backing field could be found for property 'RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType.RelatedTypeRootEntityId' and the property does not have a getter.
-        await Assert.ThrowsAsync<KeyNotFoundException>(base.Contains_with_parameter);
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_parameter);
 
         AssertSql();
     }
@@ -41,7 +41,7 @@ public abstract class OwnedJsonStructuralEqualityRelationalTestBase<TFixture> : 
     public override async Task Contains_with_operators_composed_on_the_collection()
     {
         // No backing field could be found for property 'RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType.RelatedTypeRootEntityId' and the property does not have a getter.
-        await Assert.ThrowsAsync<KeyNotFoundException>(base.Contains_with_operators_composed_on_the_collection);
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_operators_composed_on_the_collection);
 
         AssertSql();
     }
@@ -49,7 +49,7 @@ public abstract class OwnedJsonStructuralEqualityRelationalTestBase<TFixture> : 
     public override async Task Contains_with_nested_and_composed_operators()
     {
         // No backing field could be found for property 'RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType.RelatedTypeRootEntityId' and the property does not have a getter.
-        await Assert.ThrowsAsync<KeyNotFoundException>(base.Contains_with_nested_and_composed_operators);
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_nested_and_composed_operators);
 
         AssertSql();
     }

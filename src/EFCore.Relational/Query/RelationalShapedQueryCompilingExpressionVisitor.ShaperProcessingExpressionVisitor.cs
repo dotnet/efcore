@@ -2555,15 +2555,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        internal ParameterExpression GenerateJsonReader(int jsonColumnIndex, ITypeBase structuralType)
+        internal ParameterExpression GenerateJsonReader(int jsonColumnIndex, ITypeBase structuralType, IColumnBase? jsonColumn = null)
         {
             Check.DebugAssert(structuralType.IsMappedToJson());
 
-            var jsonColumnName = structuralType.GetContainerColumnName()!;
-            var jsonColumn = structuralType.ContainingEntityType.GetViewOrTableMappings()
-                .Select(m => m.Table.FindColumn(jsonColumnName))
-                .FirstOrDefault(c => c is not null)
-               ?? throw new UnreachableException($"Could not find JSON container column '{jsonColumnName}' for entity type '{structuralType.DisplayName()}'.");
+            if (jsonColumn is null)
+            {
+                var jsonColumnName = structuralType.GetContainerColumnName()!;
+                jsonColumn = structuralType.ContainingEntityType.GetQueryMappings()
+                    .Select(m => m.Table.FindColumn(jsonColumnName))
+                    .FirstOrDefault(c => c is not null)
+                    ?? throw new UnreachableException($"Could not find JSON container column '{jsonColumnName}' for entity type '{structuralType.DisplayName()}'.");
+            }
 
             var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
 
@@ -2624,7 +2627,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ITypeBase structuralType,
             bool isCollection)
         {
-            var jsonReaderDataVariable = GenerateJsonReader(jsonProjectionInfo.JsonColumnIndex, structuralType);
+            var jsonReaderDataVariable = GenerateJsonReader(jsonProjectionInfo.JsonColumnIndex, structuralType, jsonProjectionInfo.JsonColumn);
 
             // we should have keyAccessInfo for every PK property of the entity, unless we are generating shaper for the collection
             // in that case the final key property will be synthesized in the shaper code

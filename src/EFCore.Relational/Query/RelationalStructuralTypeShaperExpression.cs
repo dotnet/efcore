@@ -103,8 +103,9 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             return baseCondition;
         }
 
-        var table = entityType.GetViewOrTableMappings().SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
-            ?? entityType.GetDefaultMappings().Single().Table;
+        var tableMap = (ValueBufferExpression as StructuralTypeProjectionExpression)?.TableMap;
+        var table = entityType.GetProjectedQueryMappings(tableMap)
+            .Single(e => e.IsSplitEntityTypePrincipal ?? true).Table;
         if (table.IsOptional(entityType))
         {
             // Optional dependent

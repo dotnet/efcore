@@ -525,27 +525,28 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // (for owned JSON entities)
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
-            if (property.GetJsonPropertyName() is { } jsonPropertyName)
+            var element = jsonQueryExpression.GetJsonElement(property);
+            if (element.PropertyName is { } jsonPropertyName)
             {
+                var typeMapping = element.StoreTypeMapping!;
                 columnInfos.Add(
                     new SqlServerOpenJsonExpression.ColumnInfo
                     {
                         Name = jsonPropertyName,
-                        TypeMapping = property.GetRelationalTypeMapping(),
+                        TypeMapping = typeMapping,
                         Path = [new PathSegment(jsonPropertyName)],
-                        AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
+                        AsJson = typeMapping.ElementTypeMapping is not null
                     });
             }
         }
 
-        // Find the container column in the relational model to get its type mapping.
-        // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
-        // See #38060 about improving this.
-        var containerColumnName = structuralType.GetContainerColumnName()!;
+        // Prefer the JsonQueryExpression's column (chosen at CreateSelect time) over re-resolving via the model,
+        // which is ambiguous under entity-splitting / TPT + JSON; fall back for synthetic JSON columns over OPENJSON.
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        var containerColumn = structuralType.ContainingEntityType.GetViewOrTableMappings()
-            .Select(m => m.Table.FindColumn(containerColumnName))
-            .First(c => c is not null)!;
+        var containerColumn = jsonQueryExpression.JsonColumn.Column
+            ?? structuralType.ContainingEntityType.GetQueryMappings()
+                .Select(m => m.Table.FindColumn(structuralType.GetContainerColumnName()!))
+                .First(c => c is not null)!;
 #pragma warning restore EF1001
 
         var nestedJsonPropertyNames = jsonQueryExpression.StructuralType switch
@@ -555,10 +556,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     .Where(n => n.ForeignKey.IsOwnership
                         && n.TargetEntityType.IsMappedToJson()
                         && n.ForeignKey.PrincipalToDependent == n)
-                    .Select(n => n.TargetEntityType.GetJsonPropertyName() ?? throw new UnreachableException()),
+                    .Select(n => jsonQueryExpression.GetJsonElement(n).PropertyName ?? throw new UnreachableException()),
 
             IComplexType complexType
-                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName() ?? throw new UnreachableException()),
+                => complexType.GetComplexProperties()
+                    .Select(p => jsonQueryExpression.GetJsonElement(p).PropertyName ?? throw new UnreachableException()),
 
             _ => throw new UnreachableException()
         };

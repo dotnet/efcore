@@ -137,11 +137,13 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             return match;
         }
 
+        var element = GetJsonElement(property);
+
         return new JsonScalarExpression(
             JsonColumn,
-            [.. Path, new PathSegment(property.GetJsonPropertyName()!)],
+            [.. Path, new PathSegment(element.PropertyName!)],
             property.ClrType.UnwrapNullableType(),
-            property.FindRelationalTypeMapping()!,
+            element.StoreTypeMapping!,
             IsNullable || property.IsNullable);
     }
 
@@ -175,7 +177,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
 
                 var targetEntityType = navigation.TargetEntityType;
                 var newPath = Path.ToList();
-                newPath.Add(new PathSegment(targetEntityType.GetJsonPropertyName()!));
+                newPath.Add(new PathSegment(GetJsonElement(navigation).PropertyName!));
 
                 var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
                 var targetPrimaryKeyProperties = targetEntityType.FindPrimaryKey()!.Properties.Take(KeyPropertyMap.Count);
@@ -206,7 +208,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
 
                 var targetComplexType = complexProperty.ComplexType;
                 var newPath = Path.ToList();
-                newPath.Add(new PathSegment(targetComplexType.GetJsonPropertyName()!));
+                newPath.Add(new PathSegment(GetJsonElement(complexProperty).PropertyName!));
 
                 return new JsonQueryExpression(
                     targetComplexType,
@@ -288,6 +290,36 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         }
 
         return Update(jsonColumn, newKeyPropertyMap);
+    }
+
+    /// <summary>
+    ///     Finds the <see cref="IRelationalJsonElement" /> for the given property/navigation/complex property within the
+    ///     JSON column referenced by this expression by matching <see cref="JsonColumn" />'s underlying
+    ///     <see cref="ColumnExpression.Column" /> against <see cref="IRelationalJsonElement.ContainingColumn" />. This
+    ///     disambiguates entity-splitting, TPT and TPC scenarios where the same property has multiple JSON element
+    ///     mappings — one per concrete table.
+    ///     <see cref="IRelationalJsonElement.PropertyName" /> may be <see langword="null" /> for shadow keys that have
+    ///     no JSON representation; callers iterating over <see cref="ITypeBase.GetProperties" /> must handle that case
+    ///     and skip them.
+    /// </summary>
+    /// <param name="propertyBase">The property, navigation or complex property to look up.</param>
+    /// <returns>The JSON element mapping for <paramref name="propertyBase" />.</returns>
+    public virtual IRelationalJsonElement GetJsonElement(IPropertyBase propertyBase)
+    {
+        var column = JsonColumn.Column
+            ?? throw new InvalidOperationException(
+                RelationalStrings.JsonQueryExpressionWithoutUnderlyingColumn(propertyBase.DeclaringType.DisplayName()));
+
+        foreach (var mapping in propertyBase.GetJsonElementMappings())
+        {
+            if (ReferenceEquals(mapping.Element.ContainingColumn, column))
+            {
+                return mapping.Element;
+            }
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.JsonElementMappingNotFound(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, column.Name));
     }
 
     /// <summary>

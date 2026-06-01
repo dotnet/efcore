@@ -160,6 +160,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 && entityQueryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
                     { } sqlQuery:
             {
+                // TODO: Use the SqlQuery directly instead of the default mapping once hierarchy support is implemented.
+                // Issue #21660
                 var table = entityQueryRootExpression.EntityType.GetDefaultMappings().Single().Table;
                 var alias = _sqlAliasManager.GenerateTableAlias(table);
 

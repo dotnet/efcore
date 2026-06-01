@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var orderType = model.Model.FindEntityType(typeof(Order))!;
             var orderMapping = orderType.GetViewMappings().Single();
-            Assert.Equal(orderType.GetViewMappings(), orderType.GetViewOrTableMappings());
+            Assert.Equal(orderType.GetViewMappings(), orderType.GetQueryMappings());
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
                 [nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
@@ -3253,6 +3253,66 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.True(defaultMapping1.Table.Columns.Single().IsNullable);
             Assert.False(defaultMapping2.Table.Columns.Single().IsNullable);
+        }
+
+        [Fact]
+        public void GetQueryMappings_returns_in_priority_order_sql_query_function_view_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.DateDetails);
+                cb.Ignore(c => c.Addresses);
+                cb.HasNoKey();
+            });
+
+            var sqlQueryOnly = (IEntityType)modelBuilder.Model.AddEntityType(typeof(NameSpace1.SameEntityType));
+            modelBuilder.Entity(sqlQueryOnly.ClrType).HasNoKey().ToSqlQuery("SELECT 1 AS Id");
+
+            // Table + view: view wins (table mappings are not returned).
+            var viewAndTable = modelBuilder.Entity<NameSpace2.SameEntityType>(b => b.HasNoKey().ToView("V").ToTable("T"));
+
+            // Function + view + table: function wins.
+            modelBuilder.Ignore<Tag>();
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.Ignore(c => c.Orders);
+                b.HasNoKey();
+                b.ToFunction("GetCustomers");
+                b.ToView("CustomersView");
+                b.ToTable("Customers");
+            });
+
+            // Table-only.
+            modelBuilder.Entity<Order>(b => b.ToTable("Orders"));
+
+            var model = Finalize(modelBuilder);
+
+            // Table-only -> table mappings.
+            var orderType = model.Model.FindEntityType(typeof(Order));
+            var orderMappings = orderType.GetQueryMappings().ToList();
+            Assert.Single(orderMappings);
+            Assert.IsAssignableFrom<ITableMapping>(orderMappings[0]);
+
+            // SqlQuery-only -> SQL query mappings.
+            var sqlQueryEntity = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
+            var sqlQueryMappings = sqlQueryEntity.GetQueryMappings().ToList();
+            Assert.Single(sqlQueryMappings);
+            Assert.IsAssignableFrom<ISqlQueryMapping>(sqlQueryMappings[0]);
+
+            // Table + view -> view mappings win (lower-priority table mappings are not returned).
+            var viewAndTableEntity = model.Model.FindEntityType(typeof(NameSpace2.SameEntityType));
+            var viewAndTableMappings = viewAndTableEntity.GetQueryMappings().ToList();
+            Assert.Single(viewAndTableMappings);
+            Assert.IsAssignableFrom<IViewMapping>(viewAndTableMappings[0]);
+
+            // Function + view + table -> function mappings win (lower-priority view/table mappings are not returned).
+            var customerType = model.Model.FindEntityType(typeof(Customer));
+            var customerMappings = customerType.GetQueryMappings().ToList();
+            Assert.Single(customerMappings);
+            Assert.IsAssignableFrom<IFunctionMapping>(customerMappings[0]);
         }
 
         [Fact]

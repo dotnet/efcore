@@ -1286,10 +1286,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                         keyProjectionIndex != null ? projectionIndexMap[keyProjectionIndex.Value] : null));
                             }
 
+                            // The outer projection still references the same underlying JSON column; only the
+                            // index into the outer projection changes, so preserve JsonColumn for the shaper.
                             remappedConstant = Constant(
                                 new JsonProjectionInfo(
                                     projectionIndexMap[jsonProjectionInfo.JsonColumnIndex],
-                                    newKeyAccessInfo));
+                                    newKeyAccessInfo,
+                                    jsonProjectionInfo.JsonColumn));
                             break;
                         }
 
@@ -1317,7 +1320,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 newChildrenProjectionInfo.Add(
                                     (new JsonProjectionInfo(
                                             projectionIndexMap[childProjectionInfo.JsonProjectionInfo.JsonColumnIndex],
-                                            newKeyAccessInfo),
+                                            newKeyAccessInfo,
+                                            childProjectionInfo.JsonProjectionInfo.JsonColumn),
                                         childProjectionInfo.Navigation));
                             }
 
@@ -1508,7 +1512,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     throw new UnreachableException();
             }
 
-            return Constant(new JsonProjectionInfo(jsonColumnIndex, keyAccessInfo));
+            return Constant(new JsonProjectionInfo(jsonColumnIndex, keyAccessInfo, jsonQueryExpression.JsonColumn.Column));
         }
 
         static IReadOnlyList<IProperty> GetMappedKeyProperties(IKey key)
@@ -2453,7 +2457,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
 
                 var outerProjection = new StructuralTypeProjectionExpression(
-                    type, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression);
+                    type, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression,
+                    structuralProjection1.TableMap);
 
                 if (outerIdentifiers.Length > 0 && outerProjection is { StructuralType: IEntityType entityType })
                 {
@@ -2654,7 +2659,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             var sourceTableForAnnotations = FindRootTableExpressionForColumn(selectExpression, identifyingColumn);
             var ownerType = navigation.DeclaringEntityType;
             var entityType = navigation.TargetEntityType;
-            var principalMappings = ownerType.GetViewOrTableMappings().Select(e => e.Table);
+            var principalMappings = ownerType.GetQueryMappings().Select(e => e.Table);
             var derivedType = ownerType.BaseType != null;
             var derivedTpt = derivedType && ownerType.GetMappingStrategy() == RelationalAnnotationNames.TptMappingStrategy;
             var parentNullable = identifyingColumn.IsNullable;
@@ -2665,11 +2670,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                 || derivedType;
             if (derivedTpt)
             {
-                principalMappings = principalMappings.Except(ownerType.BaseType!.GetViewOrTableMappings().Select(e => e.Table));
+                principalMappings = principalMappings.Except(ownerType.BaseType!.GetQueryMappings().Select(e => e.Table));
             }
 
             var principalTables = principalMappings.ToList();
-            var dependentTables = entityType.GetViewOrTableMappings().Select(e => e.Table).ToList();
+            var dependentTables = entityType.GetQueryMappings().Select(e => e.Table).ToList();
             var baseTableIndex = selectExpression._tables.FindIndex(teb => ReferenceEquals(teb.UnwrapJoin(), tableExpressionBase));
             var dependentMainTable = dependentTables[0];
             var tableMap = new Dictionary<ITableBase, string>();
@@ -3952,7 +3957,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             var newEntityProjection = new StructuralTypeProjectionExpression(
-                projection.StructuralType, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression);
+                projection.StructuralType, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression,
+                projection.TableMap);
 
             if (projection.StructuralType is IEntityType entityType2)
             {
@@ -4242,7 +4248,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         => new(
             subqueryProjection.Alias,
             tableAlias,
-            column: subqueryProjection.Expression is ColumnExpression { Column: { } column } ? column : null,
+            // Preserve the underlying model column through subquery boundaries so JsonQueryExpression.FindJsonElement keeps
+            // matching after lifts (e.g. LiftJsonQueryFromSubquery wraps the json column in a JsonScalarExpression).
+            column: subqueryProjection.Expression switch
+            {
+                ColumnExpression { Column: { } column } => column,
+                JsonScalarExpression { Json: ColumnExpression { Column: { } jsonColumn } } => jsonColumn,
+                _ => null
+            },
             subqueryProjection.Type,
             subqueryProjection.Expression.TypeMapping!,
             nullable: subqueryProjection.Expression switch
