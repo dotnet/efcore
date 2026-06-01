@@ -14,26 +14,38 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
 
     public override async Task Hour()
     {
-        // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Hour());
+        await base.Hour();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(strftime('%H', "b"."TimeOnly") AS INTEGER) = 15
+""");
     }
 
     public override async Task Minute()
     {
-        // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Minute());
+        await base.Minute();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(strftime('%M', "b"."TimeOnly") AS INTEGER) = 30
+""");
     }
 
     public override async Task Second()
     {
-        // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Second());
+        await base.Second();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
+""");
     }
 
     public override async Task Millisecond()
