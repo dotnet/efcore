@@ -298,6 +298,56 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             e => (e.c.CustomerID, e.o?.OrderID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task RightJoin_with_filtered_outer(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .RightJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o }),
+            e => (e.c?.CustomerID, e.o.OrderID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task FullJoin(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .FullJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o }),
+            e => (e.c?.CustomerID, e.o?.OrderID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task FullJoin_with_unmatched_rows_on_both_sides(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .FullJoin(
+                    ss.Set<Order>().Where(o => o.CustomerID.StartsWith("B")),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o }),
+            e => (e.c?.CustomerID, e.o?.OrderID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task FullJoin_with_custom_comparer_does_not_translate(bool async)
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .FullJoin(
+                        ss.Set<Order>(),
+                        c => c.CustomerID,
+                        o => o.CustomerID,
+                        (c, o) => new { c, o },
+                        StringComparer.Ordinal),
+                e => (e.c?.CustomerID, e.o?.OrderID)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_customers_employees_shadow(bool async)
         => AssertQuery(
             async,

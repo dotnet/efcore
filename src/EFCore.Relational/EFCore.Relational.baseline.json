@@ -3040,6 +3040,35 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.PredicateJoinExpressionBase",
+      "Methods": [
+        {
+          "Member": "FullJoinExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase table, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate, bool prunable = false);"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression Quote();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression Update(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase table, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression Update(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase table);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression WithAnnotations(System.Collections.Generic.IReadOnlyDictionary<string, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> annotations);"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Storage.GuidTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
       "Methods": [
         {
@@ -9457,6 +9486,9 @@
           "Member": "virtual System.Linq.Expressions.Expression VisitFromSql(Microsoft.EntityFrameworkCore.Query.SqlExpressions.FromSqlExpression fromSqlExpression);"
         },
         {
+          "Member": "virtual System.Linq.Expressions.Expression VisitFullJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression fullJoinExpression);"
+        },
+        {
           "Member": "virtual System.Linq.Expressions.Expression VisitInnerJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.InnerJoinExpression innerJoinExpression);"
         },
         {
@@ -15292,6 +15324,9 @@
           "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFirstOrDefault(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression? predicate, System.Type returnType, bool returnDefault);"
         },
         {
+          "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFullJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression outer, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression inner, System.Linq.Expressions.LambdaExpression outerKeySelector, System.Linq.Expressions.LambdaExpression innerKeySelector, System.Linq.Expressions.LambdaExpression resultSelector);"
+        },
+        {
           "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateGroupBy(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression keySelector, System.Linq.Expressions.LambdaExpression? elementSelector, System.Linq.Expressions.LambdaExpression? resultSelector);"
         },
         {
@@ -18325,6 +18360,12 @@
         },
         {
           "Member": "System.Linq.Expressions.Expression AddCrossJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression innerSource, System.Linq.Expressions.Expression outerShaper);"
+        },
+        {
+          "Member": "void AddFullJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression innerSelectExpression, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate);"
+        },
+        {
+          "Member": "System.Linq.Expressions.Expression AddFullJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression innerSource, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate, System.Linq.Expressions.Expression outerShaper);"
         },
         {
           "Member": "void AddInnerJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression innerSelectExpression, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate);"

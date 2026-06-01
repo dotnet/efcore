@@ -826,7 +826,17 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             e => e.Order,
             s => s.SetProperty(t => t.Order.OrderDate, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
             rowsAffectedCount: 2,
-            (b, a) => Assert.All(a, o => Assert.Equal(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc), o.OrderDate)));
+            // The RIGHT JOIN returns all F-prefixed customers; those without a matching order (OrderID < 10300) yield a null outer
+            // Order, which is left untouched. Only the matched (non-null) orders are updated.
+            (b, a) =>
+            {
+                Assert.Equal(b.Count, a.Count);
+                Assert.Contains(null, a);
+                Assert.Equal(2, a.Count(o => o is not null));
+                Assert.All(
+                    a.Where(o => o is not null),
+                    o => Assert.Equal(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc), o!.OrderDate));
+            });
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_with_cross_join_set_constant(bool async)

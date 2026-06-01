@@ -600,15 +600,19 @@ WHERE EXISTS (
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
-    FROM "Order Details" AS "o0"
+    FROM (
+        SELECT "o1"."OrderID", "o1"."ProductID"
+        FROM "Order Details" AS "o1"
+        WHERE "o1"."OrderID" < 10276
+    ) AS "o0"
     RIGHT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
+        SELECT "o3"."OrderID"
+        FROM "Orders" AS "o3"
+        WHERE "o3"."OrderID" < 10300
+        ORDER BY "o3"."OrderID"
         LIMIT @p1 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
-    WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
+    ) AS "o2" ON "o0"."OrderID" = "o2"."OrderID"
+    WHERE "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
 
@@ -1364,19 +1368,22 @@ WHERE "c0"."CustomerID" = "s"."CustomerID"
             """
 @p='2020-01-01T00:00:00.0000000Z' (Nullable = true) (DbType = DateTime)
 
-UPDATE "Orders" AS "o0"
+UPDATE "Orders" AS "o1"
 SET "OrderDate" = @p
 FROM (
-    SELECT "o"."OrderID"
-    FROM "Orders" AS "o"
+    SELECT "o0"."OrderID"
+    FROM (
+        SELECT "o"."OrderID", "o"."CustomerID"
+        FROM "Orders" AS "o"
+        WHERE "o"."OrderID" < 10300
+    ) AS "o0"
     RIGHT JOIN (
         SELECT "c"."CustomerID"
         FROM "Customers" AS "c"
         WHERE "c"."CustomerID" LIKE 'F%'
-    ) AS "c0" ON "o"."CustomerID" = "c0"."CustomerID"
-    WHERE "o"."OrderID" < 10300
+    ) AS "c0" ON "o0"."CustomerID" = "c0"."CustomerID"
 ) AS "s"
-WHERE "o0"."OrderID" = "s"."OrderID"
+WHERE "o1"."OrderID" = "s"."OrderID"
 """);
     }
 
