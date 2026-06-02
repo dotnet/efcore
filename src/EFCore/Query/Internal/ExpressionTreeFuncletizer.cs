@@ -2278,7 +2278,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
     private bool IsParameterParameterizable(MethodInfo method, ParameterInfo parameter)
         => parameter.GetCustomAttribute<NotParameterizedAttribute>() is null
-            && !_model.IsIndexerMethod(method);
+            && !_model.IsIndexerMethod(method)
+            // An equality comparer is structural rather than a value: it affects the query's translatability, so it must never be
+            // parameterized (we always evaluate it as a constant, like a [NotParameterized]-annotated argument). This matters for operators
+            // with a single overload taking an optional comparer (e.g. Queryable.FullJoin), where the compiler-supplied default null would
+            // otherwise be parameterized, hiding from the translator whether a (non-translatable) custom comparer was supplied.
+            && !(parameter.ParameterType.IsGenericType && parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEqualityComparer<>));
 
     private enum StateType
     {

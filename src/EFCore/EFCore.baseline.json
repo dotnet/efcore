@@ -20923,6 +20923,9 @@
           "Member": "static System.Reflection.MethodInfo FirstWithPredicate { get; }"
         },
         {
+          "Member": "static System.Reflection.MethodInfo FullJoin { get; }"
+        },
+        {
           "Member": "static System.Reflection.MethodInfo GroupByWithKeyElementResultSelector { get; }"
         },
         {
@@ -21112,6 +21115,9 @@
         },
         {
           "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFirstOrDefault(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression? predicate, System.Type returnType, bool returnDefault);"
+        },
+        {
+          "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFullJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression outer, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression inner, System.Linq.Expressions.LambdaExpression outerKeySelector, System.Linq.Expressions.LambdaExpression innerKeySelector, System.Linq.Expressions.LambdaExpression resultSelector);"
         },
         {
           "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateGroupBy(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression keySelector, System.Linq.Expressions.LambdaExpression? elementSelector, System.Linq.Expressions.LambdaExpression? resultSelector);"

@@ -1011,6 +1011,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return null;
     }
 
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateFullJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
+        if (joinPredicate != null)
+        {
+            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+            var outerShaperExpression = outerSelectExpression.AddFullJoin(inner, joinPredicate, outer.ShaperExpression);
+            outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+            return TranslateTwoParameterSelector(outer, resultSelector);
+        }
+
+        return null;
+    }
+
     private SqlExpression CreateJoinPredicate(
         ShapedQueryExpression outer,
         LambdaExpression outerKeySelector,

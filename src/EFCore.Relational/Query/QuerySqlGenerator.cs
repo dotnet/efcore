@@ -137,6 +137,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             ProjectionExpression e => VisitProjection(e),
             TableValuedFunctionExpression e => VisitTableValuedFunction(e),
             RightJoinExpression e => VisitRightJoin(e),
+            FullJoinExpression e => VisitFullJoin(e),
             RowNumberExpression e => VisitRowNumber(e),
             RowValueExpression e => VisitRowValue(e),
             ScalarSubqueryExpression e => VisitScalarSubquery(e),
@@ -1297,6 +1298,20 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         Visit(rightJoinExpression.JoinPredicate);
 
         return rightJoinExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a full join.
+    /// </summary>
+    /// <param name="fullJoinExpression">The <see cref="FullJoinExpression" /> for which to generate SQL.</param>
+    protected virtual Expression VisitFullJoin(FullJoinExpression fullJoinExpression)
+    {
+        _relationalCommandBuilder.Append("FULL JOIN ");
+        Visit(fullJoinExpression.Table);
+        _relationalCommandBuilder.Append(" ON ");
+        Visit(fullJoinExpression.JoinPredicate);
+
+        return fullJoinExpression;
     }
 
     /// <summary>

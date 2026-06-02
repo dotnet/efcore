@@ -422,6 +422,21 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                         break;
                     }
 
+                    case nameof(Queryable.FullJoin)
+                        when genericMethod == QueryableMethods.FullJoin
+                        && methodCallExpression.Arguments[5] is ConstantExpression { Value: null }:
+                    {
+                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        {
+                            return CheckTranslated(
+                                TranslateFullJoin(
+                                    shapedQueryExpression, innerShapedQueryExpression, GetLambdaExpressionFromArgument(2),
+                                    GetLambdaExpressionFromArgument(3), GetLambdaExpressionFromArgument(4)));
+                        }
+
+                        break;
+                    }
+
                     case nameof(Queryable.Last)
                         when genericMethod == QueryableMethods.LastWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
@@ -892,6 +907,22 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     /// <param name="resultSelector">The result selector supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
     protected abstract ShapedQueryExpression? TranslateRightJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector);
+
+    /// <summary>
+    ///     Translates FullJoin over the given source.
+    /// </summary>
+    /// <param name="outer">The shaped query on which the operator is applied.</param>
+    /// <param name="inner">The inner shaped query to perform join with.</param>
+    /// <param name="outerKeySelector">The key selector for the outer source.</param>
+    /// <param name="innerKeySelector">The key selector for the inner source.</param>
+    /// <param name="resultSelector">The result selector supplied in the call.</param>
+    /// <returns>The shaped query after translation.</returns>
+    protected abstract ShapedQueryExpression? TranslateFullJoin(
         ShapedQueryExpression outer,
         ShapedQueryExpression inner,
         LambdaExpression outerKeySelector,
