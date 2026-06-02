@@ -856,6 +856,7 @@ public class ModelAsserter
             () => Assert.Equal(expected.IsRequiredDependent, actual.IsRequiredDependent),
             () => Assert.Equal(expected.IsUnique, actual.IsUnique),
             () => Assert.Equal(expected.DeleteBehavior, actual.DeleteBehavior),
+            () => Assert.Equal(expected.IsConstrained, actual.IsConstrained),
             () => AssertEqual(
                 expected.DependentToPrincipal, actual.DependentToPrincipal,
                 compareMemberAnnotations
@@ -1225,6 +1226,7 @@ public class ModelAsserter
         targetForeignKey.IsRequired = sourceForeignKey.IsRequired;
         targetForeignKey.IsRequiredDependent = sourceForeignKey.IsRequiredDependent;
         targetForeignKey.DeleteBehavior = sourceForeignKey.DeleteBehavior;
+        targetForeignKey.IsConstrained = sourceForeignKey.IsConstrained;
 
         if (sourceForeignKey.DependentToPrincipal != null)
         {

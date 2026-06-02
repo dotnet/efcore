@@ -277,7 +277,8 @@ public partial class DependentBaseEntityType
             principalEntityType,
             deleteBehavior: DeleteBehavior.Cascade,
             unique: true,
-            required: true);
+            required: true,
+            constrained: false);
 
         return runtimeForeignKey;
     }
@@ -289,7 +290,8 @@ public partial class DependentBaseEntityType
             principalEntityType,
             deleteBehavior: DeleteBehavior.ClientNoAction,
             unique: true,
-            required: true);
+            required: true,
+            constrained: false);
 
         var principal = declaringEntityType.AddNavigation("Principal",
             runtimeForeignKey,

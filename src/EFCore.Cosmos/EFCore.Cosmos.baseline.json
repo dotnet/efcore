@@ -1306,6 +1306,22 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.CosmosUnconstrainedForeignKeyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "CosmosUnconstrainedForeignKeyConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosValueGenerationConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.ValueGenerationConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
       "Methods": [
         {

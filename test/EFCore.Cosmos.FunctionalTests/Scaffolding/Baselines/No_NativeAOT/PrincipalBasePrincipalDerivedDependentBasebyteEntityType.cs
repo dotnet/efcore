@@ -100,7 +100,8 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id"), principalEntityType.FindProperty("AlternateId") }),
             principalEntityType,
             deleteBehavior: DeleteBehavior.Cascade,
-            required: true);
+            required: true,
+            constrained: false);
 
         return runtimeForeignKey;
     }
@@ -111,7 +112,8 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id"), principalEntityType.FindProperty("AlternateId") }),
             principalEntityType,
             deleteBehavior: DeleteBehavior.Cascade,
-            required: true);
+            required: true,
+            constrained: false);
 
         return runtimeForeignKey;
     }

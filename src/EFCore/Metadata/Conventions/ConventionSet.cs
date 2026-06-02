@@ -142,6 +142,11 @@ public class ConventionSet
     public virtual List<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; } = [];
 
     /// <summary>
+    ///     Conventions to run when the constrainedness of a foreign key is changed.
+    /// </summary>
+    public virtual List<IForeignKeyConstrainednessChangedConvention> ForeignKeyConstrainednessChangedConventions { get; } = [];
+
+    /// <summary>
     ///     Conventions to run when the requiredness of a foreign key is changed.
     /// </summary>
     public virtual List<IForeignKeyDependentRequirednessChangedConvention> ForeignKeyDependentRequirednessChangedConventions { get; }
@@ -461,6 +466,12 @@ public class ConventionSet
             && !Replace(ForeignKeyRequirednessChangedConventions, foreignKeyRequirednessChangedConvention, oldConventionType))
         {
             ForeignKeyRequirednessChangedConventions.Add(foreignKeyRequirednessChangedConvention);
+        }
+
+        if (newConvention is IForeignKeyConstrainednessChangedConvention foreignKeyConstrainednessChangedConvention
+            && !Replace(ForeignKeyConstrainednessChangedConventions, foreignKeyConstrainednessChangedConvention, oldConventionType))
+        {
+            ForeignKeyConstrainednessChangedConventions.Add(foreignKeyConstrainednessChangedConvention);
         }
 
         if (newConvention is IForeignKeyDependentRequirednessChangedConvention foreignKeyDependentRequirednessChangedConvention
@@ -828,6 +839,11 @@ public class ConventionSet
             ForeignKeyRequirednessChangedConventions.Add(foreignKeyRequirednessChangedConvention);
         }
 
+        if (convention is IForeignKeyConstrainednessChangedConvention foreignKeyConstrainednessChangedConvention)
+        {
+            ForeignKeyConstrainednessChangedConventions.Add(foreignKeyConstrainednessChangedConvention);
+        }
+
         if (convention is IForeignKeyDependentRequirednessChangedConvention foreignKeyDependentRequirednessChangedConvention)
         {
             ForeignKeyDependentRequirednessChangedConventions.Add(foreignKeyDependentRequirednessChangedConvention);
@@ -1174,6 +1190,11 @@ public class ConventionSet
         if (typeof(IForeignKeyRequirednessChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(ForeignKeyRequirednessChangedConventions, conventionType);
+        }
+
+        if (typeof(IForeignKeyConstrainednessChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ForeignKeyConstrainednessChangedConventions, conventionType);
         }
 
         if (typeof(IForeignKeyDependentRequirednessChangedConvention).IsAssignableFrom(conventionType))

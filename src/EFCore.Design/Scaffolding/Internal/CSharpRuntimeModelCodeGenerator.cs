@@ -2531,6 +2531,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append(_code.Literal(true));
             }
 
+            if (!foreignKey.IsConstrained)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("constrained: ")
+                    .Append(_code.Literal(false));
+            }
+
             mainBuilder
                 .AppendLine(");")
                 .AppendLine()

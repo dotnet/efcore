@@ -699,6 +699,29 @@ public class InternalForeignKeyBuilderTest
     }
 
     [Fact]
+    public void IsConstrained_is_preserved_when_relationship_is_inverted()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        var relationshipBuilder = orderEntityBuilder
+            .HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.Convention)
+            .IsConstrained(false, ConfigurationSource.Explicit);
+
+        Assert.False(relationshipBuilder.Metadata.IsConstrained);
+
+        // Inverting routes through ReplaceForeignKey, which builds a brand-new ForeignKey. IsConstrained
+        // is a property of the relationship (not of an end), so it must be carried onto the new one.
+        relationshipBuilder = relationshipBuilder.HasEntityTypes(
+            relationshipBuilder.Metadata.DeclaringEntityType,
+            relationshipBuilder.Metadata.PrincipalEntityType,
+            ConfigurationSource.Convention);
+
+        Assert.False(relationshipBuilder.Metadata.IsConstrained);
+    }
+
+    [Fact]
     public void Inverting_to_keyless_throws()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -1015,6 +1038,28 @@ public class InternalForeignKeyBuilderTest
             pointsToPrincipal: false,
             ConfigurationSource.Convention);
         Assert.Equal("Orders", foreignKeyBuilder.Metadata.PrincipalToDependent.Name);
+    }
+
+    [Fact]
+    public void Can_set_IsConstrained_and_respects_configuration_source()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        principalEntityBuilder.PrimaryKey([Customer.IdProperty, Customer.UniqueProperty], ConfigurationSource.Convention);
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        var relationshipBuilder = dependentEntityBuilder.HasRelationship(
+            principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+
+        Assert.True(relationshipBuilder.Metadata.IsConstrained);
+
+        var result = relationshipBuilder.IsConstrained(false, ConfigurationSource.Convention);
+        Assert.NotNull(result);
+        Assert.False(result.Metadata.IsConstrained);
+
+        relationshipBuilder.IsConstrained(false, ConfigurationSource.Explicit);
+        Assert.Null(relationshipBuilder.IsConstrained(true, ConfigurationSource.Convention));
+        Assert.False(relationshipBuilder.Metadata.IsConstrained);
     }
 
     private InternalModelBuilder CreateInternalModelBuilder()

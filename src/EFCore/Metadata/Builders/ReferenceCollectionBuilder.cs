@@ -161,6 +161,16 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
         => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
 
     /// <summary>
+    ///     Configures whether the relationship is constrained (backed by a guarantee that a matching principal
+    ///     key exists for every set foreign key value). When <see langword="false" /> no database foreign key
+    ///     constraint is created and the relationship is always optional.
+    /// </summary>
+    /// <param name="constrained">A value indicating whether the relationship is constrained.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ReferenceCollectionBuilder IsConstrained(bool constrained = true)
+        => new(Builder.IsConstrained(constrained, ConfigurationSource.Explicit)!, this);
+
+    /// <summary>
     ///     Configures the operation applied to dependent entities in the relationship when the
     ///     principal is deleted or the relationship is severed.
     /// </summary>

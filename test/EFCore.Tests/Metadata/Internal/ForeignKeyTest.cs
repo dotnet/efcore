@@ -794,6 +794,67 @@ public class ForeignKeyTest
             Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
     }
 
+    [Fact]
+    public void IsConstrained_defaults_to_true()
+    {
+        var entityType = (IConventionEntityType)CreateModel().AddEntityType("E");
+        var dependentProp = entityType.AddProperty("P", typeof(int));
+        var principalProp = entityType.AddProperty("Id", typeof(int));
+        entityType.SetPrimaryKey(principalProp);
+        var foreignKey = entityType.AddForeignKey([dependentProp], entityType.FindPrimaryKey(), entityType);
+
+        Assert.True(foreignKey.IsConstrained);
+        Assert.Null(foreignKey.GetIsConstrainedConfigurationSource());
+    }
+
+    [Fact]
+    public void Can_set_and_reset_IsConstrained()
+    {
+        var entityType = (IConventionEntityType)CreateModel().AddEntityType("E");
+        var dependentProp = entityType.AddProperty("P", typeof(int));
+        var principalProp = entityType.AddProperty("Id", typeof(int));
+        entityType.SetPrimaryKey(principalProp);
+        var foreignKey = entityType.AddForeignKey([dependentProp], entityType.FindPrimaryKey(), entityType);
+
+        foreignKey.SetIsConstrained(false);
+
+        Assert.False(foreignKey.IsConstrained);
+        Assert.Equal(ConfigurationSource.Convention, foreignKey.GetIsConstrainedConfigurationSource());
+
+        foreignKey.SetIsConstrained(null);
+
+        Assert.True(foreignKey.IsConstrained);
+        Assert.Null(foreignKey.GetIsConstrainedConfigurationSource());
+    }
+
+    [Fact]
+    public void Fluent_IsConstrained_configures_metadata()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<FluentTestPrincipal>().HasKey(e => e.Id);
+        modelBuilder.Entity<FluentTestDependent>(
+            b =>
+            {
+                b.HasKey(e => e.Id);
+                b.HasOne<FluentTestPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId).IsConstrained(false);
+            });
+
+        var fk = modelBuilder.Model.FindEntityType(typeof(FluentTestDependent))!.GetForeignKeys().Single();
+        Assert.False(fk.IsConstrained);
+    }
+
+    private class FluentTestPrincipal
+    {
+        public int Id { get; set; }
+    }
+
+    private class FluentTestDependent
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
+    }
+
     private static IMutableModel CreateModel()
         => new Model();
 }

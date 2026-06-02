@@ -410,6 +410,79 @@ partial class MySnapshot : ModelSnapshot
         SomeValue = sbyte.MinValue
     }
 
+    [Fact]
+    public virtual void Unconstrained_foreign_key_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<UnconstrainedFkPrincipal>();
+                builder.Entity<UnconstrainedFkDependent>()
+                    .HasOne(e => e.Principal).WithMany().HasForeignKey(e => e.PrincipalId).IsConstrained(false);
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+UnconstrainedFkDependent", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.Property<int>("PrincipalId")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.HasIndex("PrincipalId");
+
+                b.ToTable("UnconstrainedFkDependent", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+UnconstrainedFkPrincipal", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.HasKey("Id");
+
+                b.ToTable("UnconstrainedFkPrincipal", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+UnconstrainedFkDependent", b =>
+            {
+                b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+UnconstrainedFkPrincipal", "Principal")
+                    .WithMany()
+                    .HasForeignKey("PrincipalId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .IsConstrained(false);
+
+                b.Navigation("Principal");
+            });
+"""),
+            o =>
+            {
+                var fk = o.FindEntityType(typeof(UnconstrainedFkDependent).FullName)!.GetForeignKeys().Single();
+                Assert.False(fk.IsConstrained);
+            });
+
+    private class UnconstrainedFkPrincipal
+    {
+        public int Id { get; set; }
+    }
+
+    private class UnconstrainedFkDependent
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
+        public UnconstrainedFkPrincipal Principal { get; set; }
+    }
+
     private class EntityWithOneProperty
     {
         public int Id { get; set; }

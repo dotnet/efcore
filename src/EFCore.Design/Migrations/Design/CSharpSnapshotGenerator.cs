@@ -1793,6 +1793,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .AppendLine()
                     .Append(".IsRequired()");
             }
+
+            if (!foreignKey.IsConstrained)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".IsConstrained(false)");
+            }
         }
 
         GenerateForeignKeyAnnotations(foreignKeyBuilderName, foreignKey, stringBuilder);

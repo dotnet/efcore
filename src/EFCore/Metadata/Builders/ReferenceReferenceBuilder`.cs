@@ -324,6 +324,15 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
 
     /// <summary>
+    ///     Configures whether the relationship is constrained. When <see langword="false" /> no database foreign
+    ///     key constraint is created and the relationship is always optional.
+    /// </summary>
+    /// <param name="constrained">A value indicating whether the relationship is constrained.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true)
+        => new(Builder.IsConstrained(constrained, ConfigurationSource.Explicit)!, this);
+
+    /// <summary>
     ///     Configures the operation applied to dependent entities in the relationship when the
     ///     principal is deleted or the relationship is severed.
     /// </summary>
