@@ -1,9 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
+
+#nullable disable
 
 public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateOperatorsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
@@ -16,9 +19,6 @@ public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateO
         ClearLog();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -155,15 +155,15 @@ WHERE [o].[OrderID] = 10248
 
         AssertSql(
             """
-SELECT AVG(CAST(COALESCE([t].[OrderID], 0) AS float))
+SELECT AVG(CAST(COALESCE([o0].[OrderID], 0) AS float))
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10243
-) AS [t] ON 1 = 1
+) AS [o0] ON 1 = 1
 """);
     }
 
@@ -173,15 +173,15 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MAX(COALESCE([t].[OrderID], 0))
+SELECT MAX(COALESCE([o0].[OrderID], 0))
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10243
-) AS [t] ON 1 = 1
+) AS [o0] ON 1 = 1
 """);
     }
 
@@ -191,15 +191,15 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MIN(COALESCE([t].[OrderID], 0))
+SELECT MIN(COALESCE([o0].[OrderID], 0))
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10243
-) AS [t] ON 1 = 1
+) AS [o0] ON 1 = 1
 """);
     }
 
@@ -701,63 +701,124 @@ WHERE [p].[ProductID] < 40
 """);
     }
 
-    public override async Task Sum_over_subquery_is_client_eval(bool async)
+    public override async Task Sum_over_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Sum_over_subquery_is_client_eval(async))).Number);
+        await base.Sum_over_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID])), 0)
+SELECT COALESCE(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [value]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [s]
 """);
     }
 
-    public override async Task Sum_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Sum_over_nested_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Sum_over_nested_subquery_is_client_eval(async))).Number);
+        await base.Sum_over_nested_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM((
-    SELECT COALESCE(SUM(5 + (
-        SELECT COALESCE(SUM([o0].[ProductID]), 0)
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID])), 0)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID])), 0)
+SELECT COALESCE(SUM([s0].[value]), 0)
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT COALESCE(SUM([s].[value]), 0) AS [value]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT 5 + (
+            SELECT COALESCE(SUM([o0].[ProductID]), 0)
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
+    ) AS [s]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [s0]
 """);
     }
 
-    public override async Task Sum_over_min_subquery_is_client_eval(bool async)
+    public override async Task Sum_over_min_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Sum_over_min_subquery_is_client_eval(async))).Number);
+        await base.Sum_over_min_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM((
-    SELECT COALESCE(SUM(5 + (
-        SELECT MIN([o0].[ProductID])
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID])), 0)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID])), 0)
+SELECT COALESCE(SUM([s0].[value]), 0)
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT COALESCE(SUM([s].[value]), 0) AS [value]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT 5 + (
+            SELECT MIN([o0].[ProductID])
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
+    ) AS [s]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [s0]
+""");
+    }
+
+    public override async Task Sum_over_scalar_returning_subquery(bool async)
+    {
+        await base.Sum_over_scalar_returning_subquery(async);
+
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
+        AssertSql(
+            """
+SELECT COALESCE(SUM([s].[OrderID]), 0)
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [s]
+""");
+    }
+
+    public override async Task Sum_over_Any_subquery(bool async)
+    {
+        await base.Sum_over_Any_subquery(async);
+
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
+        AssertSql(
+            """
+SELECT COALESCE(SUM([s].[value]), 0)
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [c].[CustomerID] = [o].[CustomerID]) THEN (
+            SELECT TOP(1) [o0].[OrderID]
+            FROM [Orders] AS [o0]
+            WHERE [c].[CustomerID] = [o0].[CustomerID])
+        ELSE 0
+    END AS [value]
+) AS [s]
+""");
+    }
+
+    public override async Task Sum_over_uncorrelated_subquery(bool async)
+    {
+        await base.Sum_over_uncorrelated_subquery(async);
+
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
+        AssertSql(
+            """
+SELECT COALESCE(SUM([s].[value]), 0)
+FROM [Customers] AS [c]
+CROSS JOIN (
+    SELECT COUNT(*) AS [value]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] > 10300
+) AS [s]
 """);
     }
 
@@ -866,75 +927,87 @@ WHERE [p].[ProductID] < 40
 """);
     }
 
-    public override async Task Average_over_subquery_is_client_eval(bool async)
+    public override async Task Average_over_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Average_over_subquery_is_client_eval(async))).Number);
+        await base.Average_over_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT AVG(CAST((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]) AS float))
+SELECT AVG([s].[value])
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT CAST((
+        SELECT COALESCE(SUM([o].[OrderID]), 0)
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) AS float) AS [value]
+) AS [s]
 """);
     }
 
-    public override async Task Average_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Average_over_nested_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Average_over_nested_subquery_is_client_eval(async))).Number);
+        await AssertAverage(
+            async,
+            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
+            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)),
+            asserter: (e, a) => Assert.Equal(e, a, precision: 3));
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
 @__p_0='3'
 
-SELECT AVG(CAST((
-    SELECT AVG(5.0E0 + (
-        SELECT AVG(CAST([o0].[ProductID] AS float))
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]))
-    FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
+SELECT AVG([s0].[value])
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
+OUTER APPLY (
+    SELECT CAST((
+        SELECT AVG([s].[value])
+        FROM [Orders] AS [o]
+        OUTER APPLY (
+            SELECT 5.0E0 + (
+                SELECT AVG(CAST([o0].[ProductID] AS float))
+                FROM [Order Details] AS [o0]
+                WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
+        ) AS [s]
+        WHERE [c0].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)) AS [value]
+) AS [s0]
 """);
     }
 
-    public override async Task Average_over_max_subquery_is_client_eval(bool async)
+    public override async Task Average_over_max_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Average_over_max_subquery_is_client_eval(async))).Number);
+        // Expected: 59.841269841269866666666666667
+        // Actual:   59.843333
+        await Assert.ThrowsAsync<EqualException>(() => base.Average_over_max_subquery(async));
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
 @__p_0='3'
 
-SELECT AVG(CAST((
-    SELECT AVG(CAST(5 + (
-        SELECT MAX([o0].[ProductID])
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]) AS float))
-    FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
+SELECT AVG([s0].[value])
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
+OUTER APPLY (
+    SELECT CAST((
+        SELECT AVG([s].[value])
+        FROM [Orders] AS [o]
+        OUTER APPLY (
+            SELECT CAST(5 + (
+                SELECT MAX([o0].[ProductID])
+                FROM [Order Details] AS [o0]
+                WHERE [o].[OrderID] = [o0].[OrderID]) AS float) AS [value]
+        ) AS [s]
+        WHERE [c0].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)) AS [value]
+) AS [s0]
 """);
     }
 
@@ -1014,75 +1087,78 @@ WHERE [p].[ProductID] < 40
 """);
     }
 
-    public override async Task Min_over_subquery_is_client_eval(bool async)
+    public override async Task Min_over_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Min_over_subquery_is_client_eval(async))).Number);
+        await base.Min_over_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT MIN((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))
+SELECT MIN([s].[value])
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [value]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [s]
 """);
     }
 
-    public override async Task Min_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Min_over_nested_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Min_over_nested_subquery_is_client_eval(async))).Number);
+        await base.Min_over_nested_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
 @__p_0='3'
 
-SELECT MIN((
-    SELECT MIN(5 + (
-        SELECT MIN([o0].[ProductID])
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]))
-    FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+SELECT MIN([s0].[value])
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
+OUTER APPLY (
+    SELECT MIN([s].[value]) AS [value]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT 5 + (
+            SELECT MIN([o0].[ProductID])
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
+    ) AS [s]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]
+) AS [s0]
 """);
     }
 
-    public override async Task Min_over_max_subquery_is_client_eval(bool async)
+    public override async Task Min_over_max_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Min_over_max_subquery_is_client_eval(async))).Number);
+        await base.Min_over_max_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
 @__p_0='3'
 
-SELECT MIN((
-    SELECT MIN(5 + (
-        SELECT MAX([o0].[ProductID])
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]))
-    FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+SELECT MIN([s0].[value])
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
+OUTER APPLY (
+    SELECT MIN([s].[value]) AS [value]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT 5 + (
+            SELECT MAX([o0].[ProductID])
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
+    ) AS [s]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]
+) AS [s0]
 """);
     }
 
@@ -1120,75 +1196,78 @@ WHERE [p].[ProductID] < 40
 """);
     }
 
-    public override async Task Max_over_subquery_is_client_eval(bool async)
+    public override async Task Max_over_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Max_over_subquery_is_client_eval(async))).Number);
+        await base.Max_over_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT MAX((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))
+SELECT MAX([s].[value])
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [value]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [s]
 """);
     }
 
-    public override async Task Max_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Max_over_nested_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Max_over_nested_subquery_is_client_eval(async))).Number);
+        await base.Max_over_nested_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
 @__p_0='3'
 
-SELECT MAX((
-    SELECT MAX(5 + (
-        SELECT MAX([o0].[ProductID])
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]))
-    FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+SELECT MAX([s0].[value])
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
+OUTER APPLY (
+    SELECT MAX([s].[value]) AS [value]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT 5 + (
+            SELECT MAX([o0].[ProductID])
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
+    ) AS [s]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]
+) AS [s0]
 """);
     }
 
-    public override async Task Max_over_sum_subquery_is_client_eval(bool async)
+    public override async Task Max_over_sum_subquery(bool async)
     {
-        // Aggregates. Issue #15937.
-        Assert.Equal(
-            130,
-            (await Assert.ThrowsAsync<SqlException>(
-                async () => await base.Max_over_sum_subquery_is_client_eval(async))).Number);
+        await base.Max_over_sum_subquery(async);
 
+        // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
 @__p_0='3'
 
-SELECT MAX((
-    SELECT MAX(5 + (
-        SELECT COALESCE(SUM([o0].[ProductID]), 0)
-        FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]))
-    FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+SELECT MAX([s0].[value])
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
+OUTER APPLY (
+    SELECT MAX([s].[value]) AS [value]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT 5 + (
+            SELECT COALESCE(SUM([o0].[ProductID]), 0)
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
+    ) AS [s]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]
+) AS [s0]
 """);
     }
 
@@ -1292,12 +1371,12 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT [t].[Country]
+SELECT [c0].[Country]
 FROM (
     SELECT DISTINCT [c].[Country]
     FROM [Customers] AS [c]
-) AS [t]
-ORDER BY [t].[Country]
+) AS [c0]
+ORDER BY [c0].[Country]
 """);
     }
 
@@ -1307,12 +1386,12 @@ ORDER BY [t].[Country]
 
         AssertSql(
             """
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 """);
     }
 
@@ -1322,12 +1401,12 @@ ORDER BY [t].[CustomerID]
 
         AssertSql(
             """
-SELECT [t].[CustomerID]
+SELECT [c0].[CustomerID]
 FROM (
     SELECT DISTINCT [c].[CustomerID]
     FROM [Customers] AS [c]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 """);
     }
 
@@ -1341,7 +1420,7 @@ SELECT COUNT(*)
 FROM (
     SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1355,7 +1434,7 @@ SELECT COUNT(*)
 FROM (
     SELECT DISTINCT [c].[City]
     FROM [Customers] AS [c]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1392,7 +1471,7 @@ WHERE [c].[CustomerID] = N'ALFKI' AND (
 
         AssertSql(
             """
-SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
+SELECT [o2].[OrderID], [o2].[ProductID], [o2].[Discount], [o2].[Quantity], [o2].[UnitPrice]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
@@ -1407,7 +1486,7 @@ OUTER APPLY (
         WHERE [c].[CustomerID] = [o1].[CustomerID]
         ORDER BY [o1].[OrderID]) = [o].[OrderID]
     ORDER BY [o].[ProductID]
-) AS [t]
+) AS [o2]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]
 """);
@@ -1809,7 +1888,7 @@ WHERE [c].[CustomerID] IN (
 )
 """,
             //
-"""
+            """
 @__ids_0='["ABCDE"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1891,7 +1970,7 @@ WHERE [c].[CustomerID] IN (
 )
 """,
             //
-"""
+            """
 @__ids_0='["ABCDE"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1965,7 +2044,7 @@ WHERE [c].[CustomerID] IN (
 )
 """,
             //
-"""
+            """
 @__Order_0='["ABCDE","ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1983,15 +2062,25 @@ WHERE [c].[CustomerID] IN (
 
         AssertSql(
             """
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """,
             //
-"""
+            """
+@__ids_0='["ABCDE"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ABCDE'
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2001,9 +2090,14 @@ WHERE [c].[CustomerID] = N'ABCDE'
 
         AssertSql(
             """
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2013,9 +2107,14 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
 
         AssertSql(
             """
+@__ids_0='[null,null]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE 0 = 1
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2037,15 +2136,25 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
 
         AssertSql(
             """
+@__AsReadOnly_0='["ABCDE","ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+WHERE [c].[CustomerID] IN (
+    SELECT [a].[value]
+    FROM OPENJSON(@__AsReadOnly_0) WITH ([value] nchar(5) '$') AS [a]
+)
 """,
             //
-"""
+            """
+@__AsReadOnly_0='["ABCDE","ANATR"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ANATR')
+WHERE [c].[CustomerID] IN (
+    SELECT [a].[value]
+    FROM OPENJSON(@__AsReadOnly_0) WITH ([value] nchar(5) '$') AS [a]
+)
 """);
     }
 
@@ -2189,7 +2298,6 @@ END
 
     public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
     {
-        // Aggregates. Issue #15937.
         await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
 
         AssertSql();
@@ -2265,13 +2373,13 @@ WHERE [o].[CustomerID] LIKE N'A%'
             """
 @__p_0='20'
 
-SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID] DESC
+) AS [c0]
+ORDER BY [c0].[CustomerID] DESC
 """);
     }
 
@@ -2283,14 +2391,14 @@ ORDER BY [t].[CustomerID] DESC
             """
 @__p_0='20'
 
-SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
     OFFSET @__p_0 ROWS
-) AS [t]
-ORDER BY [t].[CustomerID] DESC
+) AS [c0]
+ORDER BY [c0].[CustomerID] DESC
 """);
     }
 
@@ -2413,9 +2521,14 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
         AssertSql(
             """
+@__ids_0='["ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2425,9 +2538,14 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
         AssertSql(
             """
+@__ids_0='["ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2780,7 +2898,7 @@ FROM [Customers] AS [c]
             """
 SELECT [p].[ProductName]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN [Products] AS [p] ON 1 = 1
 """);
@@ -2875,9 +2993,9 @@ ORDER BY [c].[CustomerID]
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Orders] AS [o]
-) AS [t]
+) AS [o0]
 """);
     }
 
@@ -2908,10 +3026,18 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COUNT(CASE
-    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
-END)
+@__cities_0='["London","Berlin"]' (Size = 4000)
+
+SELECT COUNT([s].[value])
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT CASE
+        WHEN [c].[City] IN (
+            SELECT [c0].[value]
+            FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
+        ) THEN 1
+    END AS [value]
+) AS [s]
 GROUP BY [c].[Country]
 """);
     }
@@ -2922,11 +3048,19 @@ GROUP BY [c].[Country]
 
         AssertSql(
             """
-SELECT AVG(CASE
-    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1.0E0
-    ELSE 0.0E0
-END)
+@__cities_0='["London","Berlin"]' (Size = 4000)
+
+SELECT AVG([s].[value])
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT CASE
+        WHEN [c].[City] IN (
+            SELECT [c0].[value]
+            FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
+        ) THEN 1.0E0
+        ELSE 0.0E0
+    END AS [value]
+) AS [s]
 """);
     }
 
@@ -2936,11 +3070,19 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CASE
-    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
-    ELSE 0
-END), 0)
+@__cities_0='["London","Berlin"]' (Size = 4000)
+
+SELECT COALESCE(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT CASE
+        WHEN [c].[City] IN (
+            SELECT [c0].[value]
+            FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
+        ) THEN 1
+        ELSE 0
+    END AS [value]
+) AS [s]
 """);
     }
 
@@ -2950,9 +3092,14 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
+@__cities_0='["London","Berlin"]' (Size = 4000)
+
 SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[City] IN (N'London', N'Berlin')
+WHERE [c].[City] IN (
+    SELECT [c0].[value]
+    FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
+)
 """);
     }
 
@@ -2962,9 +3109,14 @@ WHERE [c].[City] IN (N'London', N'Berlin')
 
         AssertSql(
             """
+@__cities_0='["London","Berlin"]' (Size = 4000)
+
 SELECT COUNT_BIG(*)
 FROM [Customers] AS [c]
-WHERE [c].[City] IN (N'London', N'Berlin')
+WHERE [c].[City] IN (
+    SELECT [c0].[value]
+    FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
+)
 """);
     }
 
@@ -2974,11 +3126,19 @@ WHERE [c].[City] IN (N'London', N'Berlin')
 
         AssertSql(
             """
-SELECT MAX(CASE
-    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
-    ELSE 0
-END)
+@__cities_0='["London","Berlin"]' (Size = 4000)
+
+SELECT MAX([s].[value])
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT CASE
+        WHEN [c].[City] IN (
+            SELECT [c0].[value]
+            FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
+        ) THEN 1
+        ELSE 0
+    END AS [value]
+) AS [s]
 """);
     }
 
@@ -2988,11 +3148,74 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT MIN(CASE
-    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
-    ELSE 0
-END)
+@__cities_0='["London","Berlin"]' (Size = 4000)
+
+SELECT MIN([s].[value])
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT CASE
+        WHEN [c].[City] IN (
+            SELECT [c0].[value]
+            FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
+        ) THEN 1
+        ELSE 0
+    END AS [value]
+) AS [s]
+""");
+    }
+
+    public override async Task Return_type_of_singular_operator_is_preserved(bool async)
+    {
+        await base.Return_type_of_singular_operator_is_preserved(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+            //
+            """
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+            //
+            """
+SELECT TOP(2) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+            //
+            """
+SELECT TOP(2) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+            //
+            """
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID] DESC
+""",
+            //
+            """
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID] DESC
+""");
+    }
+
+    public override async Task Type_casting_inside_sum(bool async)
+    {
+        await base.Type_casting_inside_sum(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
+FROM [Order Details] AS [o]
 """);
     }
 

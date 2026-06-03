@@ -19,13 +19,9 @@ public class ExpressionPrinterTest
             _expressionPrinter.PrintExpression(Expression.TypeAs(Expression.Constant(new BaseClass()), typeof(DerivedClass))));
     }
 
-    private class BaseClass
-    {
-    }
+    private class BaseClass;
 
-    private class DerivedClass : BaseClass
-    {
-    }
+    private class DerivedClass : BaseClass;
 
     [ConditionalFact]
     public void BinaryExpression_printed_correctly()

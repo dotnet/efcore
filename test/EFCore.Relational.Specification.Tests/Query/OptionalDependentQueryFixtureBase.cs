@@ -5,7 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>, IQueryFixtureBase
+#nullable disable
+
+public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>,
+    IQueryFixtureBase,
+    ITestSqlLoggerFactory
 {
     private OptionalDependentData _expectedData;
 
@@ -89,7 +93,6 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
         Assert.Equal(expected.OpProp2, actual.OpProp2);
         Assert.Equal(expected.ReqProp, actual.ReqProp);
 
-
         if (expected.OpNav1 is not null || actual.OpNav1 is not null)
         {
             AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1, actual.OpNav1);
@@ -130,8 +133,8 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected override void Seed(OptionalDependentContext context)
-        => OptionalDependentContext.Seed(context);
+    protected override Task SeedAsync(OptionalDependentContext context)
+        => OptionalDependentContext.SeedAsync(context);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

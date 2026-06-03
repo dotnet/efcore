@@ -50,7 +50,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
             name,
             column,
             principalTable,
-            principalColumn == null ? null : new[] { principalColumn },
+            principalColumn == null ? null : [principalColumn],
             principalSchema,
             onUpdate,
             onDelete);

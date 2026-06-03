@@ -151,14 +151,9 @@ public class GlobalDatabaseTest
         Assert.NotSame(((IInfrastructure<IServiceProvider>)context1).Instance, ((IInfrastructure<IServiceProvider>)context2).Instance);
     }
 
-    private class ChangeNullabilityChecksContext : DbContext
+    private class ChangeNullabilityChecksContext(bool enableNullChecks) : DbContext
     {
-        private readonly bool _enableNullChecks;
-
-        public ChangeNullabilityChecksContext(bool enableNullChecks)
-        {
-            _enableNullChecks = enableNullChecks;
-        }
+        private readonly bool _enableNullChecks = enableNullChecks;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -185,19 +180,14 @@ public class GlobalDatabaseTest
         }
     }
 
-    private class ChangeSdlCacheContext : DbContext
+    private class ChangeSdlCacheContext(bool on) : DbContext
     {
         private static readonly IServiceProvider _serviceProvider
             = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider(validateScopes: true);
 
-        private readonly bool _on;
-
-        public ChangeSdlCacheContext(bool on)
-        {
-            _on = on;
-        }
+        private readonly bool _on = on;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -223,19 +213,14 @@ public class GlobalDatabaseTest
         }
     }
 
-    private class ChangeNullabilityChecksCacheContext : DbContext
+    private class ChangeNullabilityChecksCacheContext(bool on) : DbContext
     {
         private static readonly IServiceProvider _serviceProvider
             = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider(validateScopes: true);
 
-        private readonly bool _on;
-
-        public ChangeNullabilityChecksCacheContext(bool on)
-        {
-            _on = on;
-        }
+        private readonly bool _on = on;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -243,13 +228,8 @@ public class GlobalDatabaseTest
                 .UseInMemoryDatabase(nameof(ChangeSdlCacheContext), b => b.EnableNullChecks(_on));
     }
 
-    private class BooFooContext : DbContext
+    private class BooFooContext(DbContextOptions options) : DbContext(options)
     {
-        public BooFooContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Foo>(

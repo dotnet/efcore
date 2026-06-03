@@ -8,6 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public sealed class SqlParameterExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlParameterExpression" /> class.
     /// </summary>
@@ -19,8 +21,15 @@ public sealed class SqlParameterExpression : SqlExpression
     {
     }
 
-    private SqlParameterExpression(string name, Type type, bool nullable, RelationalTypeMapping? typeMapping)
-        : base(type, typeMapping)
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SqlParameterExpression" /> class.
+    /// </summary>
+    /// <param name="name">The parameter name.</param>
+    /// <param name="type">The <see cref="Type" /> of the expression.</param>
+    /// <param name="nullable">Whether this parameter can have null values.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    public SqlParameterExpression(string name, Type type, bool nullable, RelationalTypeMapping? typeMapping)
+        : base(type.UnwrapNullableType(), typeMapping)
     {
         Name = name;
         IsNullable = nullable;
@@ -47,6 +56,15 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlParameterExpression).GetConstructor(
+                [typeof(string), typeof(Type), typeof(RelationalTypeMapping)])!, // TODO: There's a dead IsNullable there...
+            Constant(Name, typeof(string)),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

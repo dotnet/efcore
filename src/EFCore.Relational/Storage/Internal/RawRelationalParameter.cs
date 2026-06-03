@@ -25,9 +25,7 @@ public class RawRelationalParameter : RelationalParameterBase
         string invariantName,
         DbParameter parameter)
         : base(invariantName)
-    {
-        _parameter = parameter;
-    }
+        => _parameter = parameter;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

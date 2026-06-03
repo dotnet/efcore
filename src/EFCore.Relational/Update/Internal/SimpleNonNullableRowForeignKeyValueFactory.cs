@@ -22,15 +22,10 @@ public class SimpleNonNullableRowForeignKeyValueFactory<TKey, TForeignKey> : Row
     public SimpleNonNullableRowForeignKeyValueFactory(
         IForeignKeyConstraint foreignKey,
         IColumn column,
-        ColumnAccessors columnAccessors,
-        IValueConverterSelector valueConverterSelector)
-        : base(foreignKey, column, columnAccessors, valueConverterSelector)
+        ColumnAccessors columnAccessors)
+        : base(foreignKey, column, columnAccessors)
     {
-        EqualityComparer = CreateKeyEqualityComparer(column);
     }
-
-    /// <inheritdoc />
-    public override IEqualityComparer<TKey> EqualityComparer { get; }
 
     /// <inheritdoc />
     public override bool TryCreateDependentKeyValue(object?[] keyValues, [NotNullWhen(true)] out TKey? key)

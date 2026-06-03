@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo GetInteriorRingN = typeof(Polygon).GetRuntimeMethod(
-        nameof(Polygon.GetInteriorRingN), new[] { typeof(int) })!;
+        nameof(Polygon.GetInteriorRingN), [typeof(int)])!;
 
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

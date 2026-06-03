@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -84,7 +83,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             Visit(
                 selectExpression.Limit
-                ?? new SqlConstantExpression(Expression.Constant(-1), selectExpression.Offset!.TypeMapping));
+                ?? new SqlConstantExpression(-1, selectExpression.Offset!.TypeMapping));
 
             if (selectExpression.Offset != null)
             {
@@ -285,7 +284,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                 case { PropertyName: string propertyName }:
                     if (inJsonpathString)
                     {
-                        Sql.Append(".").Append(propertyName);
+                        Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                         continue;
                     }
 
@@ -294,11 +293,11 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                     // No need to start a $. JSONPATH string if we're the last segment or the next segment isn't a constant
                     if (isLast || path[i + 1] is { ArrayIndex: not null and not SqlConstantExpression })
                     {
-                        Sql.Append("'").Append(propertyName).Append("'");
+                        Sql.Append("'").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName)).Append("'");
                         continue;
                     }
 
-                    Sql.Append("'$.").Append(propertyName);
+                    Sql.Append("'$.").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                     inJsonpathString = true;
                     continue;
 

@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : DataAnnotationTestBase<TFixture>.DataAnnotationFixtureBase, new()
 {
@@ -20,14 +22,17 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
     protected TFixture Fixture { get; }
 
+    protected virtual bool HasForeignKeyIndexes
+        => true;
+
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 
-    protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
-        => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
+    protected virtual Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(CreateContext, UseTransaction, testOperation);
 
-    protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation1, Action<DbContext> testOperation2)
-        => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation1, testOperation2);
+    protected virtual Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation1, Func<DbContext, Task> testOperation2)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(CreateContext, UseTransaction, testOperation1, testOperation2);
 
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
@@ -49,9 +54,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public string Name { get; set; }
     }
 
-    protected class Employee : Person
-    {
-    }
+    protected class Employee : Person;
 
     [ConditionalFact]
     public virtual void Explicit_configuration_on_derived_type_overrides_annotation_on_unmapped_base_type()
@@ -219,9 +222,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public int Id { get; set; }
     }
 
-    protected class NotMappedDerived : NotMappedBase
-    {
-    }
+    protected class NotMappedDerived : NotMappedBase;
 
     [ConditionalFact]
     public virtual void NotMapped_on_base_class_property_ignores_it()
@@ -1628,13 +1629,9 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public virtual Answer Answer { get; set; }
     }
 
-    private class PartialAnswer : PartialAnswerBase
-    {
-    }
+    private class PartialAnswer : PartialAnswerBase;
 
-    private class PartialAnswerRepeating : PartialAnswerBase
-    {
-    }
+    private class PartialAnswerRepeating : PartialAnswerBase;
 
     private class MultipleAnswers : Answer
     {
@@ -1659,17 +1656,25 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         var fk1 = entityType.GetForeignKeys().Single(fk => fk.Properties.Single().Name == nameof(Comment.ParentCommentID));
         Assert.Equal(nameof(Comment.ParentComment), fk1.DependentToPrincipal.Name);
         Assert.Null(fk1.PrincipalToDependent);
-        var index1 = entityType.FindIndex(fk1.Properties);
-        Assert.False(index1.IsUnique);
+
+        if (HasForeignKeyIndexes)
+        {
+            var index1 = entityType.FindIndex(fk1.Properties);
+            Assert.False(index1.IsUnique);
+        }
 
         var fk2 = entityType.GetForeignKeys().Single(fk => fk.Properties.Single().Name == nameof(Comment.ReplyCommentID));
         Assert.Equal(nameof(Comment.ReplyComment), fk2.DependentToPrincipal.Name);
         Assert.Null(fk2.PrincipalToDependent);
-        var index2 = entityType.FindIndex(fk2.Properties);
-        Assert.False(index2.IsUnique);
+
+        if (HasForeignKeyIndexes)
+        {
+            var index2 = entityType.FindIndex(fk2.Properties);
+            Assert.False(index2.IsUnique);
+        }
 
         Assert.Equal(2, entityType.GetForeignKeys().Count());
-        Assert.Equal(2, entityType.GetIndexes().Count());
+        Assert.Equal(HasForeignKeyIndexes ? 2 : 0, entityType.GetIndexes().Count());
     }
 
     private class Comment
@@ -1714,9 +1719,9 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var clientRow = context.Set<One>().First(r => r.UniqueNo == 1);
                 clientRow.RowVersion = new Guid("00000000-0000-0000-0002-000000000001");
@@ -1728,14 +1733,14 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                 storeRow.RowVersion = new Guid("00000000-0000-0000-0003-000000000001");
                 storeRow.RequiredColumn = "ModifiedData";
 
-                innerContext.SaveChanges();
+                await innerContext.SaveChangesAsync();
 
-                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
             });
 
     [ConditionalFact]
-    public virtual void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.Set<One>().Add(
@@ -1747,13 +1752,13 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                         AdditionalDetails = new Details { Name = "Third Additional Name" }
                     });
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
     [ConditionalFact]
-    public virtual void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public virtual async Task MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
-        ExecuteWithStrategyInTransaction(
+        await ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.Set<One>().Add(
@@ -1766,11 +1771,11 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                         AdditionalDetails = new Details { Name = "Third Additional Name" }
                     });
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Set<One>().Add(
                     new One
@@ -1784,7 +1789,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
                 Assert.Equal(
                     "An error occurred while saving the entity changes. See the inner exception for details.",
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())).Message);
             });
     }
 
@@ -2048,9 +2053,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public Book ExtraSpecialBook { get; set; }
     }
 
-    protected class AnotherBookLabel : BookLabel
-    {
-    }
+    protected class AnotherBookLabel : BookLabel;
 
     [ConditionalFact]
     public virtual void InversePropertyAttribute_removes_ambiguity_when_combined_with_other_attributes()
@@ -2189,7 +2192,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                         + $" {nameof(MultipleAnswersInverse)}.{nameof(MultipleAnswersInverse.Answers)}",
                         nameof(PartialAnswerInverse.Answer)),
                 "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
     }
 
     [ConditionalFact]
@@ -2211,9 +2214,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public virtual AnswerBaseInverse Answer { get; set; }
     }
 
-    private class PartialAnswerRepeatingInverse : PartialAnswerInverse
-    {
-    }
+    private class PartialAnswerRepeatingInverse : PartialAnswerInverse;
 
     private abstract class AnswerBaseInverse
     {
@@ -2237,7 +2238,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder.Entity<AmbiguousInversePropertyLeft>();
-        modelBuilder.Entity<AmbiguousInversePropertyLeftDerived>();
+        modelBuilder.Entity<AmbiguousInversePropertyRightDerived>();
 
         Assert.Equal(
             CoreStrings.WarningAsErrorTemplate(
@@ -2259,7 +2260,6 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
     protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
     {
-        public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
     }
 
     protected class AmbiguousInversePropertyRight
@@ -2516,7 +2516,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     {
         public Guid Id { get; set; }
         private readonly string _email = string.Empty;
-        private readonly List<Profile13694> _profiles = new();
+        private readonly List<Profile13694> _profiles = [];
     }
 
     protected class Profile13694
@@ -2528,32 +2528,32 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
+    public virtual async Task RequiredAttribute_for_navigation_throws_while_inserting_null_value()
     {
-        ExecuteWithStrategyInTransaction(
+        await ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.Set<BookDetails>().Add(
                     new BookDetails { AnotherBookId = 1 });
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Set<BookDetails>().Add(new BookDetails());
 
                 Assert.Equal(
                     "An error occurred while saving the entity changes. See the inner exception for details.",
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())).Message);
             });
     }
 
     [ConditionalFact]
-    public virtual void RequiredAttribute_for_property_throws_while_inserting_null_value()
+    public virtual async Task RequiredAttribute_for_property_throws_while_inserting_null_value()
     {
-        ExecuteWithStrategyInTransaction(
+        await ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.Set<One>().Add(
@@ -2565,11 +2565,11 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                         AdditionalDetails = new Details { Name = "Two" }
                     });
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Set<One>().Add(
                     new One
@@ -2582,38 +2582,38 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
                 Assert.Equal(
                     "An error occurred while saving the entity changes. See the inner exception for details.",
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())).Message);
             });
     }
 
     [ConditionalFact]
-    public virtual void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public virtual async Task StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
-        ExecuteWithStrategyInTransaction(
+        await ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.Set<Two>().Add(
                     new Two { Data = "ValidString" });
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Set<Two>().Add(
                     new Two { Data = "ValidButLongString" });
 
                 Assert.Equal(
                     "An error occurred while saving the entity changes. See the inner exception for details.",
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())).Message);
             });
     }
 
     [ConditionalFact]
-    public virtual void TimestampAttribute_throws_if_value_in_database_changed()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task TimestampAttribute_throws_if_value_in_database_changed()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var clientRow = context.Set<Two>().First(r => r.Id == 1);
                 clientRow.Data = "ChangedData";
@@ -2625,7 +2625,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
                 innerContext.SaveChanges();
 
-                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
             });
 
     [ConditionalFact]
@@ -2781,6 +2781,21 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         Validate(modelBuilder);
     }
 
+    [ConditionalFact]
+    public virtual void InverseProperty_with_potentially_ambigous_derived_types()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var model = modelBuilder.Model;
+
+        modelBuilder.Ignore<CPSorder>();
+        modelBuilder.Entity<SpecialOrder>();
+        modelBuilder.Entity<CPSpecialOrder>();
+
+        modelBuilder.Entity<CPSorder>().HasKey(e => e.Id);
+
+        Validate(modelBuilder);
+    }
+
     public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
         protected override string StoreName
@@ -2810,7 +2825,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
             => logCategory == DbLoggerCategory.Model.Name
                 || logCategory == DbLoggerCategory.Model.Validation.Name;
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.Set<One>().Add(
                 new One
@@ -2837,7 +2852,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
             context.Set<Book>().Add(
                 new Book { Id = 1, AdditionalDetails = new Details { Name = "Book Name" } });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 
@@ -2938,5 +2953,13 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
         [InverseProperty(nameof(CPSorder.CPSchargePartner))]
         public virtual ICollection<CPSorder> CPSorders { get; set; }
+    }
+
+    protected class SpecialOrder : CPSorder
+    {
+    }
+
+    protected class CPSpecialOrder : CPSorder
+    {
     }
 }

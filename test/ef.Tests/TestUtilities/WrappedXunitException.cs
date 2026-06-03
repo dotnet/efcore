@@ -5,10 +5,4 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
-internal class WrappedXunitException : XunitException
-{
-    public WrappedXunitException(WrappedException ex)
-        : base(ex.ToString(), "(See error message)")
-    {
-    }
-}
+internal class WrappedXunitException(WrappedException ex) : XunitException("(See error message)", ex);

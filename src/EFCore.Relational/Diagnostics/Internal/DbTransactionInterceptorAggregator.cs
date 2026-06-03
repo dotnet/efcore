@@ -20,14 +20,9 @@ public class DbTransactionInterceptorAggregator : InterceptorAggregator<IDbTrans
     protected override IDbTransactionInterceptor CreateChain(IEnumerable<IDbTransactionInterceptor> interceptors)
         => new CompositeDbTransactionInterceptor(interceptors);
 
-    private sealed class CompositeDbTransactionInterceptor : IDbTransactionInterceptor
+    private sealed class CompositeDbTransactionInterceptor(IEnumerable<IDbTransactionInterceptor> interceptors) : IDbTransactionInterceptor
     {
-        private readonly IDbTransactionInterceptor[] _interceptors;
-
-        public CompositeDbTransactionInterceptor(IEnumerable<IDbTransactionInterceptor> interceptors)
-        {
-            _interceptors = interceptors.ToArray();
-        }
+        private readonly IDbTransactionInterceptor[] _interceptors = interceptors.ToArray();
 
         public InterceptionResult<DbTransaction> TransactionStarting(
             DbConnection connection,

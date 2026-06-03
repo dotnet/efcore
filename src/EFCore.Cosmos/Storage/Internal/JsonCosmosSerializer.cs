@@ -28,7 +28,7 @@ public class JsonCosmosSerializer : CosmosSerializer
 
             using var streamReader = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(streamReader);
-            return GetSerializer().Deserialize<T>(jsonTextReader);
+            return GetSerializer().Deserialize<T>(jsonTextReader)!;
         }
     }
 

@@ -17,7 +17,7 @@ public sealed class ConditionalFactTestCase : XunitTestCase
         TestMethodDisplay defaultMethodDisplay,
         TestMethodDisplayOptions defaultMethodDisplayOptions,
         ITestMethod testMethod,
-        object[] testMethodArguments = null)
+        object[]? testMethodArguments = null)
         : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
     {
     }

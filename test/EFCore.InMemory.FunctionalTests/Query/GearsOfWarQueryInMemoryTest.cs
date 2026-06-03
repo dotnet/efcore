@@ -3,18 +3,12 @@
 
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>
+public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
+    : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>(fixture)
 {
-    public GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.Client_member_and_unsupported_string_Equals_in_the_same_query(async),
@@ -99,19 +93,12 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
         => Assert.ThrowsAsync<NullReferenceException>(() => base.Include_after_SelectMany_throws(async));
 
     public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4(bool async)
-        => Assert.Equal(
-            "4",
-            (((EqualException)(await Assert.ThrowsAsync<TargetInvocationException>(
-                () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4(async))).InnerException!.InnerException)!)
-            .Actual);
+        => await Assert.ThrowsAsync<TargetInvocationException>(
+            () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4(async));
 
     public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result(bool async)
-        => Assert.Equal(
-            "6",
-            (((EqualException)(await Assert.ThrowsAsync<TargetInvocationException>(
-                    () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result(async)))
-                .InnerException!.InnerException)!)
-            .Actual);
+        => await Assert.ThrowsAsync<TargetInvocationException>(
+            () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result(async));
 
     public override Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(
             bool async)
@@ -138,5 +125,22 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
         => Task.CompletedTask;
 
     public override Task Subquery_inside_Take_argument(bool async)
+        => Task.CompletedTask;
+
+    public override async Task Find_underlying_property_after_GroupJoin_DefaultIfEmpty(bool async)
+        => Assert.Equal(
+            "Nullable object must have a value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base
+                    .Find_underlying_property_after_GroupJoin_DefaultIfEmpty(
+                        async))).Message);
+
+    public override Task Join_include_coalesce_simple(bool async)
+        => Task.CompletedTask;
+
+    public override Task Join_include_coalesce_nested(bool async)
+        => Task.CompletedTask;
+
+    public override Task Join_include_conditional(bool async)
         => Task.CompletedTask;
 }

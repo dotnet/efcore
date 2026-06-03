@@ -19,9 +19,7 @@ public class SqlServerParameterBasedSqlProcessorFactory : IRelationalParameterBa
     /// </summary>
     public SqlServerParameterBasedSqlProcessorFactory(
         RelationalParameterBasedSqlProcessorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -34,6 +32,6 @@ public class SqlServerParameterBasedSqlProcessorFactory : IRelationalParameterBa
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls)
-        => new SqlServerParameterBasedSqlProcessor(Dependencies, useRelationalNulls);
+    public virtual RelationalParameterBasedSqlProcessor Create(RelationalParameterBasedSqlProcessorParameters parameters)
+        => new SqlServerParameterBasedSqlProcessor(Dependencies, parameters);
 }

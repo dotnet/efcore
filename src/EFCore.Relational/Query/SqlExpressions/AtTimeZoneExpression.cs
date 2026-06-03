@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class AtTimeZoneExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="AtTimeZoneExpression" /> class.
     /// </summary>
@@ -62,6 +64,16 @@ public class AtTimeZoneExpression : SqlExpression
         => operand != Operand || timeZone != TimeZone
             ? new AtTimeZoneExpression(operand, timeZone, Type, TypeMapping)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(AtTimeZoneExpression).GetConstructor(
+                [typeof(SqlExpression), typeof(SqlExpression), typeof(Type), typeof(RelationalTypeMapping)])!,
+            Operand.Quote(),
+            TimeZone.Quote(),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

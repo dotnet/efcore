@@ -8,14 +8,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 public class BufferedDataReaderTest
 {
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public async Task Metadata_methods_return_expected_results(bool async)
     {
-        var reader = new FakeDbDataReader(new[] { "columnName" }, new[] { new[] { new object() }, new[] { new object() } });
+        var reader = new FakeDbDataReader(["columnName"], new[] { [new object()], new[] { new object() } });
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var bufferedDataReader = new BufferedDataReader(reader, false);
         if (async)
         {
@@ -39,12 +41,14 @@ public class BufferedDataReaderTest
     public async Task Manipulation_methods_perform_expected_actions(bool async)
     {
         var reader = new FakeDbDataReader(
-            new[] { "id", "name" },
-            new List<IList<object[]>> { new[] { new object[] { 1, "a" } }, new object[0][] });
+            ["id", "name"],
+            new List<IList<object[]>> { new[] { new object[] { 1, "a" } }, Array.Empty<object[]>() });
         var columns = new ReaderColumn[]
         {
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             new ReaderColumn<int>(false, null, null, (r, _) => r.GetInt32(0)),
             new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(1))
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         };
 
         var bufferedDataReader = new BufferedDataReader(reader, false);
@@ -107,8 +111,10 @@ public class BufferedDataReaderTest
     [MemberData(nameof(IsAsyncData))]
     public async Task Initialize_is_idempotent(bool async)
     {
-        var reader = new FakeDbDataReader(new[] { "name" }, new[] { new[] { new object() } });
+        var reader = new FakeDbDataReader(["name"], new[] { new[] { new object() } });
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var bufferedReader = new BufferedDataReader(reader, false);
 
         Assert.False(reader.IsClosed);
@@ -150,18 +156,18 @@ public class BufferedDataReaderTest
         await Verify_get_method_returns_supplied_value(DateTime.Now, async);
         await Verify_get_method_returns_supplied_value(Guid.NewGuid(), async);
         var obj = new object();
-        await Verify_method_result(r => r.GetValue(0), async, obj, new[] { obj });
-        await Verify_method_result(r => r.GetFieldValue<object>(0), async, obj, new[] { obj });
-        await Verify_method_result(r => r.GetFieldValueAsync<object>(0).Result, async, obj, new[] { obj });
-        await Verify_method_result(r => r.IsDBNull(0), async, true, new object[] { DBNull.Value });
-        await Verify_method_result(r => r.IsDBNull(0), async, false, new object[] { true });
-        await Verify_method_result(r => r.IsDBNullAsync(0).Result, async, true, new object[] { DBNull.Value });
-        await Verify_method_result(r => r.IsDBNullAsync(0).Result, async, false, new object[] { true });
+        await Verify_method_result(r => r.GetValue(0), async, obj, [obj]);
+        await Verify_method_result(r => r.GetFieldValue<object>(0), async, obj, [obj]);
+        await Verify_method_result(r => r.GetFieldValueAsync<object>(0).Result, async, obj, [obj]);
+        await Verify_method_result(r => r.IsDBNull(0), async, true, [DBNull.Value]);
+        await Verify_method_result(r => r.IsDBNull(0), async, false, [true]);
+        await Verify_method_result(r => r.IsDBNullAsync(0).Result, async, true, [DBNull.Value]);
+        await Verify_method_result(r => r.IsDBNullAsync(0).Result, async, false, [true]);
 
         await Assert.ThrowsAsync<NotSupportedException>(
-            () => Verify_method_result(r => r.GetBytes(0, 0, new byte[0], 0, 0), async, 0, new object[] { 1L }));
+            () => Verify_method_result(r => r.GetBytes(0, 0, [], 0, 0), async, 0, [1L]));
         await Assert.ThrowsAsync<NotSupportedException>(
-            () => Verify_method_result(r => r.GetChars(0, 0, new char[0], 0, 0), async, 0, new object[] { 1L }));
+            () => Verify_method_result(r => r.GetChars(0, 0, [], 0, 0), async, 0, [1L]));
     }
 
     private async Task Verify_method_result<T>(
@@ -170,16 +176,25 @@ public class BufferedDataReaderTest
         T expectedResult,
         params object[][] dataReaderContents)
     {
-        var reader = new FakeDbDataReader(new[] { "name" }, dataReaderContents);
+        var reader = new FakeDbDataReader(["name"], dataReaderContents);
         var columnType = typeof(T);
         if (!columnType.IsValueType)
         {
             columnType = typeof(object);
         }
 
+        var getFieldValueMethod = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetFieldValue)).MakeGenericMethod(columnType);
+        var prm = Expression.Parameter(typeof(DbDataReader), "r");
+        var getFieldValueLambda = Expression.Lambda(
+            Expression.Call(prm, getFieldValueMethod, Expression.Constant(0)),
+            prm,
+            Expression.Parameter(typeof(int[]), "_"));
+
         var columns = new[]
         {
-            ReaderColumn.Create(columnType, true, null, null, (Func<DbDataReader, int[], T>)((r, _) => r.GetFieldValue<T>(0)))
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            ReaderColumn.Create(columnType, true, null, null, getFieldValueLambda)
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         };
 
         var bufferedReader = new BufferedDataReader(reader, false);
@@ -204,7 +219,7 @@ public class BufferedDataReaderTest
         // use the specific reader.GetXXX method
         var readerMethod = GetReaderMethod(typeof(T));
         return Verify_method_result(
-            r => (T)readerMethod.Invoke(r, new object[] { 0 }), async, value, new object[] { value });
+            r => (T)readerMethod.Invoke(r, [0]), async, value, [value]);
     }
 
     private static MethodInfo GetReaderMethod(Type type)

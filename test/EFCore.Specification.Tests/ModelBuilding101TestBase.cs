@@ -1,9 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore;
+
+#nullable disable
 
 public abstract partial class ModelBuilding101TestBase
 {
@@ -32,16 +34,10 @@ public abstract partial class ModelBuilding101TestBase
     protected virtual ModelMetadata GetModelMetadata(Context101 context)
         => new(context.Model);
 
-    protected class ModelMetadata
+    protected class ModelMetadata(IModel model)
     {
-        public ModelMetadata(IModel model)
-        {
-            Model = model;
-            ModelDebugView = model.ToDebugString();
-        }
-
-        public virtual IModel Model { get; }
-        public virtual string ModelDebugView { get; }
+        public virtual IModel Model { get; } = model;
+        public virtual string ModelDebugView { get; } = model.ToDebugString();
 
         protected bool Equals(ModelMetadata other)
             => ModelDebugView == other.ModelDebugView;

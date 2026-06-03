@@ -26,9 +26,7 @@ public abstract class DbContextOptions : IDbContextOptions
     /// </summary>
     [EntityFrameworkInternal]
     protected DbContextOptions()
-    {
-        _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance);
-    }
+        => _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,10 +37,8 @@ public abstract class DbContextOptions : IDbContextOptions
     [EntityFrameworkInternal]
     protected DbContextOptions(
         IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
-    {
-        _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance)
+        => _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance)
             .AddRange(extensions.Select((p, i) => new KeyValuePair<Type, (IDbContextOptionsExtension, int)>(p.Key, (p.Value, i))));
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,9 +49,7 @@ public abstract class DbContextOptions : IDbContextOptions
     [EntityFrameworkInternal]
     protected DbContextOptions(
         ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> extensions)
-    {
-        _extensionsMap = extensions;
-    }
+        => _extensionsMap = extensions;
 
     /// <summary>
     ///     Gets the extensions that store the configured options.

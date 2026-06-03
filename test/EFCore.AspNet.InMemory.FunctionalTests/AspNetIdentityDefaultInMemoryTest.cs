@@ -5,13 +5,11 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityDefaultInMemoryTest
-    : AspNetIdentityDefaultTestBase<AspNetIdentityDefaultInMemoryTest.AspNetDefaultIdentityInMemoryFixture>
+public class AspNetIdentityDefaultInMemoryTest(AspNetIdentityDefaultInMemoryTest.AspNetDefaultIdentityInMemoryFixture fixture)
+    : AspNetIdentityDefaultTestBase<AspNetIdentityDefaultInMemoryTest.AspNetDefaultIdentityInMemoryFixture>(fixture)
 {
-    public AspNetIdentityDefaultInMemoryTest(AspNetDefaultIdentityInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
+    protected override bool HasForeignKeyIndexes
+        => false;
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {

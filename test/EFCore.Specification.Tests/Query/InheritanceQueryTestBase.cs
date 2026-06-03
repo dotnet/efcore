@@ -8,14 +8,9 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 // ReSharper disable StringEndsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : InheritanceQueryFixtureBase, new()
 {
-    protected InheritanceQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_query_when_shared_column(bool async)
@@ -288,15 +283,14 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<Animal>().OfType<Kiwi>().Select(k => k.FoundOn));
 
     [ConditionalFact]
-    public virtual void Can_insert_update_delete()
+    public virtual Task Can_insert_update_delete()
     {
         int? eagleId = null;
-        TestHelpers.ExecuteWithStrategyInTransaction(
+        return TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
-            UseTransaction,
-            context =>
+            UseTransaction, async context =>
             {
-                eagleId = context.Set<Bird>().AsNoTracking().Single(e => e.Species == "Aquila chrysaetos canadensis").Id;
+                eagleId = (await context.Set<Bird>().AsNoTracking().SingleAsync(e => e.Species == "Aquila chrysaetos canadensis")).Id;
 
                 var kiwi = new Kiwi
                 {
@@ -306,31 +300,28 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
                     FoundOn = Island.North
                 };
 
-                var nz = context.Set<Country>().Single(c => c.Id == 1);
+                var nz = await context.Set<Country>().SingleAsync(c => c.Id == 1);
 
                 nz.Animals.Add(kiwi);
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species.EndsWith("owenii"));
 
                 kiwi.EagleId = eagleId;
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species.EndsWith("owenii"));
 
                 context.Set<Bird>().Remove(kiwi);
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var count = context.Set<Kiwi>().Count(k => k.Species.EndsWith("owenii"));
+                var count = await context.Set<Kiwi>().CountAsync(k => k.Species.EndsWith("owenii"));
 
                 Assert.Equal(0, count);
             });
@@ -388,10 +379,10 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Where(b => b == null));
 
     [ConditionalFact]
-    public virtual void Setting_foreign_key_to_a_different_type_throws()
+    public virtual async Task Setting_foreign_key_to_a_different_type_throws()
     {
         using var context = CreateContext();
-        var kiwi = context.Set<Kiwi>().Single();
+        var kiwi = await context.Set<Kiwi>().SingleAsync();
 
         var eagle = new Eagle
         {
@@ -401,7 +392,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
             EagleId = kiwi.Id
         };
 
-        context.Add(eagle);
+        await context.AddAsync(eagle);
 
         // No fixup, because no principal with this key of the correct type is loaded.
         Assert.Empty(eagle.Prey);
@@ -409,7 +400,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
         if (EnforcesFkConstraints)
         {
             // Relational database throws due to constraint violation
-            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
         }
     }
 
@@ -421,7 +412,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<Kiwi>().Select(k => k.IsFlightless ? Island.North : Island.South));
 
     [ConditionalFact]
-    public virtual void Member_access_on_intermediate_type_works()
+    public virtual async Task Member_access_on_intermediate_type_works()
     {
         using var context = CreateContext();
         var query = context.Set<Kiwi>().Select(k => new Kiwi { Name = k.Name });
@@ -432,11 +423,11 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
         var expression = Expression.Call(
             typeof(Queryable), nameof(Queryable.OrderBy),
-            new[] { query.ElementType, typeof(string) }, query.Expression, Expression.Quote(getProperty));
+            [query.ElementType, typeof(string)], query.Expression, Expression.Quote(getProperty));
 
         query = query.Provider.CreateQuery<Kiwi>(expression);
 
-        var result = query.ToList();
+        var result = await query.ToListAsync();
 
         var kiwi = Assert.Single(result);
         Assert.Equal("Great spotted kiwi", kiwi.Name);

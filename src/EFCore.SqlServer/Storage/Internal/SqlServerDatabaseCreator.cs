@@ -14,26 +14,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerDatabaseCreator : RelationalDatabaseCreator
+/// <remarks>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </remarks>
+public class SqlServerDatabaseCreator(
+    RelationalDatabaseCreatorDependencies dependencies,
+    ISqlServerConnection connection,
+    IRawSqlCommandBuilder rawSqlCommandBuilder) : RelationalDatabaseCreator(dependencies)
 {
-    private readonly ISqlServerConnection _connection;
-    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerDatabaseCreator(
-        RelationalDatabaseCreatorDependencies dependencies,
-        ISqlServerConnection connection,
-        IRawSqlCommandBuilder rawSqlCommandBuilder)
-        : base(dependencies)
-    {
-        _connection = connection;
-        _rawSqlCommandBuilder = rawSqlCommandBuilder;
-    }
+    private readonly ISqlServerConnection _connection = connection;
+    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder = rawSqlCommandBuilder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +55,7 @@ public class SqlServerDatabaseCreator : RelationalDatabaseCreator
         using (var masterConnection = _connection.CreateMasterConnection())
         {
             Dependencies.MigrationCommandExecutor
-                .ExecuteNonQuery(CreateCreateOperations(), masterConnection);
+                .ExecuteNonQuery(CreateCreateOperations(), masterConnection, new MigrationExecutionState(), commitTransaction: true);
 
             ClearPool();
         }
@@ -82,7 +75,7 @@ public class SqlServerDatabaseCreator : RelationalDatabaseCreator
         await using (masterConnection.ConfigureAwait(false))
         {
             await Dependencies.MigrationCommandExecutor
-                .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken)
+                .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             ClearPool();
@@ -157,8 +150,7 @@ SELECT 1 ELSE SELECT 0");
     {
         var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
         return Dependencies.MigrationsSqlGenerator.Generate(
-            new[]
-            {
+            [
                 new SqlServerCreateDatabaseOperation
                 {
                     Name = builder.InitialCatalog,
@@ -166,7 +158,7 @@ SELECT 1 ELSE SELECT 0");
                     Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>()
                         .Model.GetRelationalModel().Collation
                 }
-            });
+            ]);
     }
 
     /// <summary>
@@ -345,7 +337,7 @@ SELECT 1 ELSE SELECT 0");
 
         using var masterConnection = _connection.CreateMasterConnection();
         Dependencies.MigrationCommandExecutor
-            .ExecuteNonQuery(CreateDropCommands(), masterConnection);
+            .ExecuteNonQuery(CreateDropCommands(), masterConnection, new MigrationExecutionState(), commitTransaction: true);
     }
 
     /// <summary>
@@ -361,7 +353,7 @@ SELECT 1 ELSE SELECT 0");
         var masterConnection = _connection.CreateMasterConnection();
         await using var _ = masterConnection.ConfigureAwait(false);
         await Dependencies.MigrationCommandExecutor
-            .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken)
+            .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
     }
 

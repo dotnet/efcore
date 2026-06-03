@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class GearsOfWarQuerySqliteFixture : GearsOfWarQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory

@@ -74,6 +74,16 @@ public class ComplexTypePrimitiveCollectionBuilder<TProperty> : ComplexTypePrimi
         => (ComplexTypePrimitiveCollectionBuilder<TProperty>)base.HasSentinel(sentinel);
 
     /// <summary>
+    ///     Configures the value that will be used to determine if the property has been set or not. If the property is set to the
+    ///     sentinel value, then it is considered not set. By default, the sentinel value is the CLR default value for the type of
+    ///     the property.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public virtual ComplexTypePrimitiveCollectionBuilder<TProperty> HasSentinel(TProperty? sentinel)
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)base.HasSentinel(sentinel);
+
+    /// <summary>
     ///     Configures the property as capable of persisting unicode characters.
     ///     Can only be set on <see cref="string" /> properties.
     /// </summary>

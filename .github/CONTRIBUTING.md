@@ -58,6 +58,18 @@ The typical workflow for contributing to EF Core is outlined below. This is not 
 
 The PR will be merged by a member of the EF Team once the C.I. checks have passed and the code has been approved.
 
+## Developer builds
+
+By default, the EF build requires API documentation for all public members. However, this can be turned off while actively working on code by creating a file named "AspNetCoreSettings.props" above the repo root (for example, in the folder that itself contains your solution folder) with the following contents:
+
+```xml
+<Project>
+  <PropertyGroup>
+    <DeveloperBuild>True</DeveloperBuild>
+  </PropertyGroup>
+</Project>
+```
+
 ## Breaking changes
 
 EF Core is used by many thousands of existing applications. We want to make it as easy as possible for those existing applications to update to new versions. A change that causes an existing application to break when being updated is known as a "breaking change". Sometimes it is necessary to make a breaking change to keep the platform alive and moving forward. However, each such breaking change must be explicitly called out and will only be approved if the value of making the change greatly outweighs the pain of breaking existing applications.

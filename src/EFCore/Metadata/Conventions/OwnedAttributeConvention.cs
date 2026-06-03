@@ -23,7 +23,12 @@ public class OwnedAttributeConvention : TypeAttributeConventionBase<OwnedAttribu
     {
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an entity type is added to the model if it has an attribute.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         OwnedAttribute attribute,
@@ -36,7 +41,12 @@ public class OwnedAttributeConvention : TypeAttributeConventionBase<OwnedAttribu
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an complex type is added to the model if it has an attribute.
+    /// </summary>
+    /// <param name="complexTypeBuilder">The builder for the complex type.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessComplexTypeAdded(
         IConventionComplexTypeBuilder complexTypeBuilder,
         OwnedAttribute attribute,

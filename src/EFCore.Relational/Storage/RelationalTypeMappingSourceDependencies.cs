@@ -47,9 +47,7 @@ public sealed record RelationalTypeMappingSourceDependencies
     [EntityFrameworkInternal]
     public RelationalTypeMappingSourceDependencies(
         IEnumerable<IRelationalTypeMappingSourcePlugin> plugins)
-    {
-        Plugins = plugins;
-    }
+        => Plugins = plugins;
 
     /// <summary>
     ///     Gets the plugins.

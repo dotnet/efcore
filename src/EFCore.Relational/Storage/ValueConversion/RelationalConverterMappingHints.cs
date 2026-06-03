@@ -57,9 +57,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
         bool? fixedLength,
         Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory)
         : base(size, precision, scale, unicode, valueGeneratorFactory)
-    {
-        IsFixedLength = fixedLength;
-    }
+        => IsFixedLength = fixedLength;
 
     /// <inheritdoc />
     public override ConverterMappingHints With(ConverterMappingHints? hints)

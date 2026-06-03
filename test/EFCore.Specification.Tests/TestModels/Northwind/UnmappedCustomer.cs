@@ -1,23 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 [Table("Customers")]
-public class UnmappedCustomer
+public class UnmappedCustomer(string customerID)
 {
-    public UnmappedCustomer(string customerID)
-    {
-        CustomerID = customerID;
-    }
-
     [MaxLength(5)]
-    public string CustomerID { get; init; }
+    public string CustomerID { get; init; } = customerID;
 
     [MaxLength(40)]
     [Required]
