@@ -123,7 +123,7 @@ public class MigrationsOperations
             ? string.Join(
                 ".",
                 subPath.Split(
-                    new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+                    [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
                     StringSplitOptions.RemoveEmptyEntries))
             : null;
     }

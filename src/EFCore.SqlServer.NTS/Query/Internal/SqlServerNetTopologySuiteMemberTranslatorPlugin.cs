@@ -20,15 +20,15 @@ public class SqlServerNetTopologySuiteMemberTranslatorPlugin : IMemberTranslator
     public SqlServerNetTopologySuiteMemberTranslatorPlugin(
         IRelationalTypeMappingSource typeMappingSource,
         ISqlExpressionFactory sqlExpressionFactory)
-        => Translators = new IMemberTranslator[]
-        {
+        => Translators =
+        [
             new SqlServerGeometryMemberTranslator(typeMappingSource, sqlExpressionFactory),
             new SqlServerGeometryCollectionMemberTranslator(sqlExpressionFactory),
             new SqlServerLineStringMemberTranslator(typeMappingSource, sqlExpressionFactory),
             new SqlServerMultiLineStringMemberTranslator(sqlExpressionFactory),
             new SqlServerPointMemberTranslator(sqlExpressionFactory),
             new SqlServerPolygonMemberTranslator(typeMappingSource, sqlExpressionFactory)
-        };
+        ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

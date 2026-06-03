@@ -58,7 +58,7 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
     public virtual StoredProcedureResultColumnBuilder HasName(string name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         Builder.HasName(name, ConfigurationSource.Explicit);
 
@@ -75,7 +75,7 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual StoredProcedureResultColumnBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

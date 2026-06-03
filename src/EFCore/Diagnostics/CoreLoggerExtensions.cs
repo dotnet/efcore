@@ -1571,6 +1571,44 @@ public static class CoreLoggerExtensions
         => ((EventDefinition<string>)definition).GenerateMessage(((EntityTypeEventData)payload).EntityType.DisplayName());
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.AccidentalComplexPropertyCollection" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="complexProperty">The complex property.</param>
+    public static void AccidentalComplexPropertyCollection(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IComplexProperty complexProperty)
+    {
+        var definition = CoreResources.LogAccidentalComplexPropertyCollection(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                complexProperty.DeclaringType.DisplayName(),
+                complexProperty.Name,
+                complexProperty.ClrType.ShortDisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ComplexPropertyEventData(definition, AccidentalComplexPropertyCollection, complexProperty);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string AccidentalComplexPropertyCollection(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string>)definition;
+        var p = (ComplexPropertyEventData)payload;
+        return d.GenerateMessage(
+            p.Property.DeclaringType.DisplayName(),
+            p.Property.Name,
+            p.Property.ClrType.ShortDisplayName());
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.AmbiguousEndRequiredWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
@@ -1746,8 +1784,8 @@ public static class CoreLoggerExtensions
             var eventData = new TwoPropertyBaseCollectionsEventData(
                 definition,
                 MultiplePrimaryKeyCandidates,
-                new[] { firstProperty },
-                new[] { secondProperty });
+                [firstProperty],
+                [secondProperty]);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -1778,6 +1816,7 @@ public static class CoreLoggerExtensions
     {
         var definition = CoreResources.LogMultipleNavigationProperties(diagnostics);
 
+        // ReSharper disable PossibleMultipleEnumeration
         if (diagnostics.ShouldLog(definition))
         {
             definition.Log(
@@ -1798,6 +1837,7 @@ public static class CoreLoggerExtensions
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
+        // ReSharper restore PossibleMultipleEnumeration
     }
 
     private static string MultipleNavigationProperties(EventDefinitionBase definition, EventData payload)
@@ -1840,7 +1880,7 @@ public static class CoreLoggerExtensions
                 definition,
                 MultipleInversePropertiesSameTargetWarning,
                 conflictingNavigations,
-                new[] { new Tuple<MemberInfo?, Type>(inverseNavigation, targetType) });
+                [new Tuple<MemberInfo?, Type>(inverseNavigation, targetType)]);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -1891,12 +1931,11 @@ public static class CoreLoggerExtensions
             var eventData = new TwoUnmappedPropertyCollectionsEventData(
                 definition,
                 NonOwnershipInverseNavigationWarning,
-                new[] { new Tuple<MemberInfo?, Type>(navigation, declaringType.ClrType) },
-                new[]
-                {
+                [new Tuple<MemberInfo?, Type>(navigation, declaringType.ClrType)],
+                [
                     new Tuple<MemberInfo?, Type>(inverseNavigation, targetType.ClrType),
                     new Tuple<MemberInfo?, Type>(ownershipNavigation, targetType.ClrType)
-                });
+                ]);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -1951,18 +1990,16 @@ public static class CoreLoggerExtensions
             var eventData = new TwoUnmappedPropertyCollectionsEventData(
                 definition,
                 ForeignKeyAttributesOnBothPropertiesWarning,
-                new[]
-                {
+                [
                     new Tuple<MemberInfo?, Type>(
                         firstNavigation.GetIdentifyingMemberInfo()!, firstNavigation.DeclaringEntityType.ClrType),
                     new Tuple<MemberInfo?, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType)
-                },
-                new[]
-                {
+                ],
+                [
                     new Tuple<MemberInfo?, Type>(
                         secondNavigation.GetIdentifyingMemberInfo()!, secondNavigation.DeclaringEntityType.ClrType),
                     new Tuple<MemberInfo?, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType)
-                });
+                ]);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -2013,8 +2050,8 @@ public static class CoreLoggerExtensions
             var eventData = new TwoPropertyBaseCollectionsEventData(
                 definition,
                 ForeignKeyAttributesOnBothNavigationsWarning,
-                new[] { firstNavigation },
-                new[] { secondNavigation });
+                [firstNavigation],
+                [secondNavigation]);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -2061,8 +2098,8 @@ public static class CoreLoggerExtensions
             var eventData = new TwoUnmappedPropertyCollectionsEventData(
                 definition,
                 ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
-                new[] { new Tuple<MemberInfo?, Type>(navigation.GetIdentifyingMemberInfo()!, navigation.DeclaringEntityType.ClrType) },
-                new[] { new Tuple<MemberInfo?, Type>(property, property.DeclaringType!) });
+                [new Tuple<MemberInfo?, Type>(navigation.GetIdentifyingMemberInfo()!, navigation.DeclaringEntityType.ClrType)],
+                [new Tuple<MemberInfo?, Type>(property, property.DeclaringType!)]);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -2170,7 +2207,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.DeclaringType.ShortName(), property.Name);
+            definition.Log(diagnostics, property.DeclaringType.ShortNameChain(), property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2192,7 +2229,7 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringType.ShortName(),
+            p.Property.DeclaringType.ShortNameChain(),
             p.Property.Name);
     }
 
@@ -2217,7 +2254,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                property.DeclaringType.ShortName(),
+                property.DeclaringType.ShortNameChain(),
                 property.Name,
                 oldValue,
                 newValue,
@@ -2243,11 +2280,112 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string, object?, object?, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringType.ShortName(),
+            p.Property.DeclaringType.ShortNameChain(),
             p.Property.Name,
             p.OldValue,
             p.NewValue,
             p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(
+                p.Property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.ComplexElementPropertyChangeDetected" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="internalComplexEntry">The internal complex entry.</param>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value.</param>
+    /// <param name="newValue">The new value.</param>
+    public static void ComplexElementPropertyChangeDetected(
+        this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+        InternalComplexEntry internalComplexEntry,
+        IProperty property,
+        object? oldValue,
+        object? newValue)
+    {
+        var definition = CoreResources.LogComplexElementPropertyChangeDetected(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, internalComplexEntry.GetPropertyPath(property), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ComplexTypePropertyChangedEventData(
+                definition,
+                ComplexElementPropertyChangeDetected,
+                new ComplexElementEntry(internalComplexEntry),
+                property,
+                oldValue,
+                newValue);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ComplexElementPropertyChangeDetected(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (ComplexTypePropertyChangedEventData)payload;
+        return d.GenerateMessage(
+            p.ComplexEntry.GetInfrastructure().GetPropertyPath(p.Property),
+            p.Property.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.ComplexElementPropertyChangeDetected" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="internalComplexEntry">The internal complex entry.</param>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value.</param>
+    /// <param name="newValue">The new value.</param>
+    public static void ComplexElementPropertyChangeDetectedSensitive(
+        this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+        InternalComplexEntry internalComplexEntry,
+        IProperty property,
+        object? oldValue,
+        object? newValue)
+    {
+        var definition = CoreResources.LogComplexElementPropertyChangeDetectedSensitive(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                internalComplexEntry.GetPropertyPath(property),
+                property.Name,
+                oldValue,
+                newValue,
+                internalComplexEntry.EntityEntry.BuildCurrentValuesString(
+                    property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ComplexTypePropertyChangedEventData(
+                definition,
+                ComplexElementPropertyChangeDetectedSensitive,
+                new ComplexElementEntry(internalComplexEntry),
+                property,
+                oldValue,
+                newValue);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ComplexElementPropertyChangeDetectedSensitive(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, object?, object?, string>)definition;
+        var p = (ComplexTypePropertyChangedEventData)payload;
+        return d.GenerateMessage(
+            p.ComplexEntry.GetInfrastructure().GetPropertyPath(p.Property),
+            p.Property.Name,
+            p.OldValue,
+            p.NewValue,
+            p.ComplexEntry.GetInfrastructure().EntityEntry.BuildCurrentValuesString(
                 p.Property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
     }
 
@@ -2933,7 +3071,7 @@ public static class CoreLoggerExtensions
     /// <param name="internalEntityEntry">The internal entity entry.</param>
     /// <param name="property">The property.</param>
     /// <param name="value">The value generated.</param>
-    /// <param name="temporary">Indicates whether or not the value is a temporary or permanent value.</param>
+    /// <param name="temporary">Indicates whether the value is a temporary or permanent value.</param>
     public static void ValueGeneratedSensitive(
         this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
         InternalEntityEntry internalEntityEntry,

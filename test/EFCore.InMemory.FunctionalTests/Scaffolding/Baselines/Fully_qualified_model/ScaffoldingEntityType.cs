@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 #pragma warning disable 219, 612, 618
@@ -38,20 +37,25 @@ namespace Scaffolding
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
             id.SetGetter(
-                long (CompiledModelInMemoryTest.Scaffolding entity) => ScaffoldingUnsafeAccessors.Id(entity),
-                bool (CompiledModelInMemoryTest.Scaffolding entity) => ScaffoldingUnsafeAccessors.Id(entity) == 0L,
                 long (CompiledModelInMemoryTest.Scaffolding instance) => ScaffoldingUnsafeAccessors.Id(instance),
                 bool (CompiledModelInMemoryTest.Scaffolding instance) => ScaffoldingUnsafeAccessors.Id(instance) == 0L);
             id.SetSetter(
-                (CompiledModelInMemoryTest.Scaffolding entity, long value) => ScaffoldingUnsafeAccessors.Id(entity) = value);
+                CompiledModelInMemoryTest.Scaffolding (CompiledModelInMemoryTest.Scaffolding instance, long value) =>
+                {
+                    ScaffoldingUnsafeAccessors.Id(instance) = value;
+                    return instance;
+                });
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.Scaffolding entity, long value) => ScaffoldingUnsafeAccessors.Id(entity) = value);
+                CompiledModelInMemoryTest.Scaffolding (CompiledModelInMemoryTest.Scaffolding instance, long value) =>
+                {
+                    ScaffoldingUnsafeAccessors.Id(instance) = value;
+                    return instance;
+                });
             id.SetAccessors(
-                long (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : (entry.FlaggedAsTemporary(0) && ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))) == 0L ? entry.ReadTemporaryValue<long>(0) : ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))))),
-                long (InternalEntityEntry entry) => ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))),
-                long (InternalEntityEntry entry) => entry.ReadOriginalValue<long>(id, 0),
-                long (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<long>(id, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+                long (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : (entry.FlaggedAsTemporary(0) && ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))) == 0L ? entry.ReadTemporaryValue<long>(0) : ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))))),
+                long (IInternalEntry entry) => ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))),
+                long (IInternalEntry entry) => entry.ReadOriginalValue<long>(id, 0),
+                long (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -89,33 +93,34 @@ namespace Scaffolding
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long>(key));
             runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(id)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetValueComparer())).Snapshot(default(long))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<long>(default(long)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long>(default(long)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
             runtimeEntityType.SetEmptyShadowValuesFactory(
                 ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(id)))));
                 });
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 1,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 1,
                 shadowCount: 0,
                 relationshipCount: 1,
-                storeGeneratedCount: 1);
+                storeGeneratedCount: 1));
 
             Customize(runtimeEntityType);
         }

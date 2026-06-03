@@ -77,12 +77,12 @@ public class ModelSourceTest
     private class FakeSetFinder : IDbSetFinder
     {
         public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
-            => new[]
-            {
+            =>
+            [
                 new DbSetProperty("One", typeof(SetA), setter: null),
                 new DbSetProperty("Two", typeof(SetB), setter: null),
                 new DbSetProperty("Three", typeof(SetA), setter: null)
-            };
+            ];
     }
 
     private class JustAClass

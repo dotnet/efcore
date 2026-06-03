@@ -28,9 +28,8 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.NotAProviderService("IConcurrencyDetector"),
-            Assert.Throws<InvalidOperationException>(
-                () => builder.TryAddProviderSpecificServices(
-                    s => s.TryAddScoped<IConcurrencyDetector, FakeConcurrencyDetector>())).Message);
+            Assert.Throws<InvalidOperationException>(()
+                => builder.TryAddProviderSpecificServices(s => s.TryAddScoped<IConcurrencyDetector, FakeConcurrencyDetector>())).Message);
     }
 
     [ConditionalFact]
@@ -68,8 +67,7 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.SingletonRequired("Scoped", nameof(IConcurrencyDetector)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAdd<IConcurrencyDetector>(new FakeConcurrencyDetector()))
+            Assert.Throws<InvalidOperationException>(() => builder.TryAdd<IConcurrencyDetector>(new FakeConcurrencyDetector()))
                 .Message);
     }
 
@@ -80,8 +78,7 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.SingletonRequired("Scoped", nameof(IConcurrencyDetector)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAdd(typeof(IConcurrencyDetector), new FakeConcurrencyDetector()))
+            Assert.Throws<InvalidOperationException>(() => builder.TryAdd(typeof(IConcurrencyDetector), new FakeConcurrencyDetector()))
                 .Message);
     }
 
@@ -190,15 +187,13 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.ImplementationTypeRequired(nameof(IResettableService)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAdd<IResettableService>(p => new FakeResetableService()))
+            Assert.Throws<InvalidOperationException>(() => builder.TryAdd<IResettableService>(p => new FakeResetableService()))
                 .Message);
     }
 
     [ConditionalFact]
     public void Can_register_multiple_scoped_service_with_full_factory_non_generic()
-        => TestMultipleScoped(
-            b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService), p => new FakeResetableService()));
+        => TestMultipleScoped(b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService), p => new FakeResetableService()));
 
     [ConditionalFact]
     public void Cannot_register_multiple_scoped_service_with_half_factory_non_generic()
@@ -207,9 +202,8 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.ImplementationTypeRequired(nameof(IResettableService)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAdd(
-                        typeof(IResettableService), typeof(IResettableService), p => new FakeResetableService()))
+            Assert.Throws<InvalidOperationException>(() => builder.TryAdd(
+                    typeof(IResettableService), typeof(IResettableService), p => new FakeResetableService()))
                 .Message);
     }
 
@@ -220,8 +214,8 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.ImplementationTypeRequired(nameof(IResettableService)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAdd(typeof(IResettableService), typeof(object), p => new FakeResetableService()))
+            Assert.Throws<InvalidOperationException>(() => builder.TryAdd(
+                    typeof(IResettableService), typeof(object), p => new FakeResetableService()))
                 .Message);
     }
 
@@ -232,8 +226,7 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.SingletonRequired("Scoped", nameof(IResettableService)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAdd<IResettableService>(new FakeResetableService()))
+            Assert.Throws<InvalidOperationException>(() => builder.TryAdd<IResettableService>(new FakeResetableService()))
                 .Message);
     }
 
@@ -244,8 +237,7 @@ public class EntityFrameworkServicesBuilderTest
 
         Assert.Equal(
             CoreStrings.SingletonRequired("Scoped", nameof(IResettableService)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAdd(typeof(IResettableService), new FakeResetableService()))
+            Assert.Throws<InvalidOperationException>(() => builder.TryAdd(typeof(IResettableService), new FakeResetableService()))
                 .Message);
     }
 

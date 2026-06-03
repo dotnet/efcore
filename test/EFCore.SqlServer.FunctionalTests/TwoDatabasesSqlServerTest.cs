@@ -10,6 +10,11 @@ public class TwoDatabasesSqlServerTest(SqlServerFixture fixture) : TwoDatabasesT
     protected new SqlServerFixture Fixture
         => (SqlServerFixture)base.Fixture;
 
+    [ConditionalTheory(
+        Skip = "In SQL Server specifically, injection of Application Name into the connection string causes this test to fail (#36548)")]
+    public override void Can_set_connection_string_in_interceptor(bool withConnectionString, bool withNullConnectionString)
+        => base.Can_set_connection_string_in_interceptor(withConnectionString, withNullConnectionString);
+
     protected override DbContextOptionsBuilder CreateTestOptions(
         DbContextOptionsBuilder optionsBuilder,
         bool withConnectionString = false,
@@ -24,5 +29,5 @@ public class TwoDatabasesSqlServerTest(SqlServerFixture fixture) : TwoDatabasesT
         => new(Fixture.CreateOptions(SqlServerTestStore.Create(databaseName)));
 
     protected override string DummyConnectionString
-        => "Database=DoesNotExist";
+        => "Database=DoesNotExist;Application Name=foo";
 }

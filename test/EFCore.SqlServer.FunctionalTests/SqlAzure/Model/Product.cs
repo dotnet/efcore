@@ -28,8 +28,7 @@ public class Product
     public int? ProductCategoryID { get; set; }
     public int? ProductModelID { get; set; }
 
-    [Required]
-    [MaxLength(25)]
+    [Required, MaxLength(25)]
     public string ProductNumber { get; set; }
 
     public DateTime? SellEndDate { get; set; }
@@ -50,11 +49,9 @@ public class Product
     [InverseProperty("Product")]
     public virtual ICollection<SalesOrderDetail> OrderDetails { get; set; }
 
-    [ForeignKey("ProductCategoryID")]
-    [InverseProperty("Product")]
+    [ForeignKey("ProductCategoryID"), InverseProperty("Product")]
     public virtual ProductCategory ProductCategory { get; set; }
 
-    [ForeignKey("ProductModelID")]
-    [InverseProperty("Product")]
+    [ForeignKey("ProductModelID"), InverseProperty("Product")]
     public virtual ProductModel ProductModel { get; set; }
 }

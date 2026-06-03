@@ -20,11 +20,9 @@ public class SalesOrderDetail
     public decimal UnitPriceDiscount { get; set; }
     public Guid rowguid { get; set; }
 
-    [ForeignKey("ProductID")]
-    [InverseProperty("OrderDetails")]
+    [ForeignKey("ProductID"), InverseProperty("OrderDetails")]
     public virtual Product Product { get; set; }
 
-    [ForeignKey("SalesOrderID")]
-    [InverseProperty("Details")]
+    [ForeignKey("SalesOrderID"), InverseProperty("Details")]
     public virtual SalesOrder SalesOrder { get; set; }
 }

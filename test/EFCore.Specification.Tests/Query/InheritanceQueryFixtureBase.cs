@@ -30,11 +30,10 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         => true;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            w => w.Ignore(
-                CoreEventId.MappedEntityTypeIgnoredWarning,
-                CoreEventId.MappedPropertyIgnoredWarning,
-                CoreEventId.MappedNavigationIgnoredWarning));
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(
+            CoreEventId.MappedEntityTypeIgnoredWarning,
+            CoreEventId.MappedPropertyIgnoredWarning,
+            CoreEventId.MappedNavigationIgnoredWarning));
 
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();

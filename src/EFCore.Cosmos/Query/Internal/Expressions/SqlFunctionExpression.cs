@@ -3,8 +3,6 @@
 
 // ReSharper disable once CheckNamespace
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -36,7 +34,6 @@ public class SqlFunctionExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public SqlFunctionExpression(
         string name,
         bool isScoringFunction,
@@ -46,7 +43,7 @@ public class SqlFunctionExpression : SqlExpression
         : base(type, typeMapping)
     {
         Name = name;
-        Arguments = arguments.ToList();
+        Arguments = [.. arguments];
         IsScoringFunction = isScoringFunction;
     }
 
@@ -64,7 +61,6 @@ public class SqlFunctionExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public virtual bool IsScoringFunction { get; }
 
     /// <summary>

@@ -420,6 +420,51 @@ public static class SqliteLoggerExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static void ConflictingValueGenerationStrategiesWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        SqliteValueGenerationStrategy sqliteValueGenerationStrategy,
+        string otherValueGenerationStrategy,
+        IReadOnlyProperty property)
+    {
+        var definition = SqliteResources.LogConflictingValueGenerationStrategies(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics, sqliteValueGenerationStrategy.ToString(), otherValueGenerationStrategy,
+                property.Name, property.DeclaringType.DisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ConflictingValueGenerationStrategiesEventData(
+                definition,
+                ConflictingValueGenerationStrategiesWarning,
+                sqliteValueGenerationStrategy,
+                otherValueGenerationStrategy,
+                property);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ConflictingValueGenerationStrategiesWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string, string>)definition;
+        var p = (ConflictingValueGenerationStrategiesEventData)payload;
+        return d.GenerateMessage(
+            p.SqliteValueGenerationStrategy.ToString(),
+            p.OtherValueGenerationStrategy,
+            p.Property.Name,
+            p.Property.DeclaringType.DisplayName());
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public static void InferringTypes(
         this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
         string? tableName)

@@ -39,7 +39,7 @@ public class AddPrimaryKeyOperation : MigrationOperation, ITableMigrationOperati
     /// <returns>The operation.</returns>
     public static AddPrimaryKeyOperation CreateFrom(IPrimaryKeyConstraint primaryKey)
     {
-        Check.NotNull(primaryKey, nameof(primaryKey));
+        Check.NotNull(primaryKey);
 
         var operation = new AddPrimaryKeyOperation
         {

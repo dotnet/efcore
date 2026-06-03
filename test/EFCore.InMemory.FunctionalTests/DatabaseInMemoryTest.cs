@@ -7,9 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DatabaseInMemoryTest
 {
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task CanConnect_returns_true(bool async)
     {
         using var context = new SimpleContext();

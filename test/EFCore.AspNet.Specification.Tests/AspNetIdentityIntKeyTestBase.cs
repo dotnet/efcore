@@ -17,7 +17,7 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
     protected override List<EntityTypeMapping> ExpectedMappings
         =>
         [
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityRole<int>",
                 TableName = "AspNetRoles",
@@ -31,7 +31,7 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
                 },
                 Indexes = { "{'NormalizedName'} Unique", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>",
                 TableName = "AspNetRoleClaims",
@@ -46,7 +46,7 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
                 Indexes = HasForeignKeyIndexes ? ["{'RoleId'} "] : [],
                 FKs = { "ForeignKey: IdentityRoleClaim<int> {'RoleId'} -> IdentityRole<int> {'Id'} Required Cascade", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityUser<int>",
                 TableName = "AspNetUsers",
@@ -74,7 +74,7 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
                     "{'NormalizedEmail'} ", "{'NormalizedUserName'} Unique",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityUserClaim<int>",
                 TableName = "AspNetUserClaims",
@@ -89,7 +89,7 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
                 Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs = { "ForeignKey: IdentityUserClaim<int> {'UserId'} -> IdentityUser<int> {'Id'} Required Cascade", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityUserLogin<int>",
                 TableName = "AspNetUserLogins",
@@ -104,7 +104,7 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
                 Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs = { "ForeignKey: IdentityUserLogin<int> {'UserId'} -> IdentityUser<int> {'Id'} Required Cascade", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityUserRole<int>",
                 TableName = "AspNetUserRoles",
@@ -121,7 +121,7 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
                     "ForeignKey: IdentityUserRole<int> {'UserId'} -> IdentityUser<int> {'Id'} Required Cascade",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityUserToken<int>",
                 TableName = "AspNetUserTokens",

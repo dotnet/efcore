@@ -387,8 +387,7 @@ WHERE [Id] = @p1;
 
     #region Different two operations
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override async Task Delete_Add_with_same_entity_types(bool async)
     {
         await Test(EntityState.Deleted, EntityState.Added, GeneratedValues.Some, async, withSameEntityType: true);

@@ -12,7 +12,7 @@ public static class MetadataExtensions
         => tracking ? source.AsTracking() : source.AsNoTracking();
 
     public static IEnumerable<T> NullChecked<T>(this IEnumerable<T> enumerable)
-        => enumerable ?? Enumerable.Empty<T>();
+        => enumerable ?? [];
 
     public static void ForEach<T>(this IEnumerable<T> @this, Action<T> action)
     {

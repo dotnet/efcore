@@ -43,7 +43,7 @@ public class SqlServerModificationCommand : ModificationCommand
     /// </summary>
     protected override void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
-        // See: Issue #34432
+        // TODO: Move more of this logic to the type mapping. Issue #34432
         var property = parameters.Property!;
         var mapping = property.GetRelationalTypeMapping();
         var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
@@ -51,43 +51,48 @@ public class SqlServerModificationCommand : ModificationCommand
 
         // JSON-compatible non-string values (bool, numeric, null) are sent directly as non-string parameters.
         if (value is null
-            || propertyProviderClrType == typeof(bool)
-            || propertyProviderClrType.IsNumeric())
+            || ((propertyProviderClrType == typeof(bool)
+                || propertyProviderClrType.IsNumeric())
+                && !property.IsPrimitiveCollection))
         {
             parameters = parameters with { Value = value, TypeMapping = mapping };
+
+            return;
         }
-        else
+
+        var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
+        if (jsonValueReaderWriter != null)
         {
-            // Everything else must go as either a string parameter or a json parameter, depending on whether the json type
-            // is being used or not. To determine this, we get the JSON value and check if it is a string or some other
-            // type of JSON object.
-            var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
-            if (jsonValueReaderWriter != null)
+            if (property.IsPrimitiveCollection)
             {
-                var stringValue = jsonValueReaderWriter.ToJsonString(value);
-                if (!stringValue.StartsWith('\"'))
-                {
-                    // This is actual JSON, so send with the original type mapping, which may indicate the column type is JSON.
-                    parameters = parameters with { Value = stringValue };
+                // This is a JSON array, so send with the original type mapping, which may indicate the column type is JSON.
+                parameters = parameters with { Value = jsonValueReaderWriter.ToJsonString(value) };
 
-                    return;
-                }
-
-                // Otherwise remove the quotes and send the value as a string.
-                value = stringValue[1..^1];
-            }
-            else if (mapping.Converter != null)
-            {
-                value = mapping.Converter.ConvertToProvider(value);
+                return;
             }
 
+            // Otherwise, wrap the value in a simple JSON object to avoid double escaping.
             parameters = parameters with
             {
-                Value = value,
-                TypeMapping = parameters.TypeMapping is SqlServerOwnedJsonTypeMapping
-                    ? SqlServerStringTypeMapping.UnicodeDefault
-                    : parameters.TypeMapping
+                Value = jsonValueReaderWriter.ToJsonObjectString("", value),
+                TypeMapping = parameters.TypeMapping is SqlServerStructuralJsonTypeMapping
+                    ? parameters.TypeMapping
+                    : SqlServerStructuralJsonTypeMapping.Default
             };
+
+            return;
         }
+        else if (mapping.Converter != null)
+        {
+            value = mapping.Converter.ConvertToProvider(value);
+        }
+
+        parameters = parameters with
+        {
+            Value = value,
+            TypeMapping = parameters.TypeMapping is SqlServerStructuralJsonTypeMapping
+                ? SqlServerStringTypeMapping.UnicodeDefault
+                : parameters.TypeMapping
+        };
     }
 }

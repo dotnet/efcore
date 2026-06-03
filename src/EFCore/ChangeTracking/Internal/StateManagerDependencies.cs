@@ -48,7 +48,7 @@ public sealed record StateManagerDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public StateManagerDependencies(
-        IInternalEntityEntrySubscriber internalEntityEntrySubscriber,
+        IInternalEntrySubscriber internalEntityEntrySubscriber,
         IInternalEntityEntryNotifier internalEntityEntryNotifier,
         IValueGenerationManager valueGenerationManager,
         IModel model,
@@ -57,7 +57,7 @@ public sealed record StateManagerDependencies
         ICurrentDbContext currentContext,
         IEntityFinderSource entityFinderSource,
         IDbSetSource setSource,
-        IEntityMaterializerSource entityMaterializerSource,
+        IStructuralTypeMaterializerSource entityMaterializerSource,
         IExecutionStrategy executionStrategy,
         ICoreSingletonOptions coreSingletonOptions,
         ILoggingOptions loggingOptions,
@@ -91,7 +91,7 @@ public sealed record StateManagerDependencies
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IInternalEntityEntrySubscriber InternalEntityEntrySubscriber { get; init; }
+    public IInternalEntrySubscriber InternalEntityEntrySubscriber { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,7 +165,7 @@ public sealed record StateManagerDependencies
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IEntityMaterializerSource EntityMaterializerSource { get; init; }
+    public IStructuralTypeMaterializerSource EntityMaterializerSource { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

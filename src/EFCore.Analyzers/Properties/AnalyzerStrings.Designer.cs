@@ -106,6 +106,24 @@ namespace Microsoft.EntityFrameworkCore {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Risk of vulnerability to SQL injection..
+        /// </summary>
+        public static string StringConcatenationUsageInRawQueriesAnalyzerTitle {
+            get {
+                return ResourceManager.GetString("StringConcatenationUsageInRawQueriesAnalyzerTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; inserts concatenated strings directly into the SQL, without any protection against SQL injection. Consider using &apos;{1}&apos; instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning..
+        /// </summary>
+        public static string StringConcatenationUsageInRawQueriesMessageFormat {
+            get {
+                return ResourceManager.GetString("StringConcatenationUsageInRawQueriesMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to DbSet properties on DbContext subclasses are automatically populated by the DbContext constructor..
         /// </summary>
         public static string UninitializedDbSetWarningSuppressionJustification {

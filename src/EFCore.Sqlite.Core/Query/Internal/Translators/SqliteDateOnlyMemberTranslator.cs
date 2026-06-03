@@ -12,29 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteDateOnlyMemberTranslator : IMemberTranslator
+public class SqliteDateOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpressionFactory) : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> DatePartMapping
-        = new()
-        {
-            { nameof(DateOnly.Year), "%Y" },
-            { nameof(DateOnly.Month), "%m" },
-            { nameof(DateOnly.DayOfYear), "%j" },
-            { nameof(DateOnly.Day), "%d" },
-            { nameof(DateOnly.DayOfWeek), "%w" }
-        };
-
-    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteDateOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -46,12 +25,44 @@ public class SqliteDateOnlyMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => member.DeclaringType == typeof(DateOnly) && DatePartMapping.TryGetValue(member.Name, out var datePart)
-            ? _sqlExpressionFactory.Convert(
-                _sqlExpressionFactory.Strftime(
+    {
+        if (member.DeclaringType != typeof(DateOnly) || instance is null)
+        {
+            return null;
+        }
+
+        return member.Name switch
+        {
+            nameof(DateOnly.Year) => DatePart("%Y"),
+            nameof(DateOnly.Month) => DatePart("%m"),
+            nameof(DateOnly.DayOfYear) => DatePart("%j"),
+            nameof(DateOnly.Day) => DatePart("%d"),
+            nameof(DateOnly.DayOfWeek) => DatePart("%w"),
+
+            nameof(DateOnly.DayNumber)
+                => sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Subtract(
+                        JulianDay(instance),
+                        JulianDay(sqlExpressionFactory.Constant(new DateOnly(1, 1, 1)))),
+                    typeof(int)),
+
+            _ => null
+        };
+
+        SqlExpression DatePart(string datePart)
+            => sqlExpressionFactory.Convert(
+                sqlExpressionFactory.Strftime(
                     typeof(string),
                     datePart,
-                    instance!),
-                returnType)
-            : null;
+                    instance),
+                returnType);
+
+        SqlExpression JulianDay(SqlExpression argument)
+            => sqlExpressionFactory.Function(
+                "julianday",
+                [argument],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
+                returnType: typeof(double));
+    }
 }

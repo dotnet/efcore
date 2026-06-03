@@ -14,11 +14,13 @@ public class ModificationCommandComparerTest
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var entityType = modelBuilder.Model.AddEntityType(typeof(object));
-        var key = entityType.AddProperty("Id", typeof(int));
-        entityType.SetPrimaryKey(key);
+        entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
 
         var model = modelBuilder.FinalizeModel();
         var table = model.GetRelationalModel().Tables.Single();
+
+        var runtimeEntityType = model.FindEntityType(typeof(object))!;
+        var key = runtimeEntityType.FindPrimaryKey()!.Properties.Single();
 
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseModel(model)
@@ -30,21 +32,21 @@ public class ModificationCommandComparerTest
         var modificationCommandSource = CreateModificationCommandSource();
 
         var entry1 = stateManager.GetOrCreateEntry(new object());
-        entry1[(IProperty)key] = 1;
+        entry1[key] = 1;
         entry1.SetEntityState(EntityState.Added);
         var modificationCommandAdded = modificationCommandSource.CreateModificationCommand(
             new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommandAdded.AddEntry(entry1, true);
 
         var entry2 = stateManager.GetOrCreateEntry(new object());
-        entry2[(IProperty)key] = 2;
+        entry2[key] = 2;
         entry2.SetEntityState(EntityState.Modified);
         var modificationCommandModified = modificationCommandSource.CreateModificationCommand(
             new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommandModified.AddEntry(entry2, true);
 
         var entry3 = stateManager.GetOrCreateEntry(new object());
-        entry3[(IProperty)key] = 3;
+        entry3[key] = 3;
         entry3.SetEntityState(EntityState.Deleted);
         var modificationCommandDeleted = modificationCommandSource.CreateModificationCommand(
             new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
@@ -173,6 +175,9 @@ public class ModificationCommandComparerTest
         var model = modelBuilder.FinalizeModel();
         var table = model.GetRelationalModel().Tables.Single();
 
+        var runtimeEntityType = model.FindEntityType(typeof(object))!;
+        var key = runtimeEntityType.FindPrimaryKey()!.Properties.Single();
+
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
             .UseModel(model)
@@ -183,14 +188,14 @@ public class ModificationCommandComparerTest
         var modificationCommandSource = CreateModificationCommandSource();
 
         var entry1 = stateManager.GetOrCreateEntry(new object());
-        entry1[(IProperty)keyProperty] = value1;
+        entry1[key] = value1;
         entry1.SetEntityState(EntityState.Modified);
         var modificationCommand1 = modificationCommandSource.CreateModificationCommand(
             new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommand1.AddEntry(entry1, true);
 
         var entry2 = stateManager.GetOrCreateEntry(new object());
-        entry2[(IProperty)keyProperty] = value2;
+        entry2[key] = value2;
         entry2.SetEntityState(EntityState.Modified);
         var modificationCommand2 = modificationCommandSource.CreateModificationCommand(
             new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));

@@ -135,7 +135,7 @@ public class DatabaseOperations
             ? string.Join(
                 ".",
                 subPath.Split(
-                    new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                    [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries))
             : null;
     }
 
