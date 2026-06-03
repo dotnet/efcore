@@ -1357,7 +1357,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(EntityWithComplexCollection))!;
         var collectionProperty = entityType.FindComplexProperty(nameof(EntityWithComplexCollection.Items))!;
-        entityType.AddIndex([collectionProperty], ConfigurationSource.Explicit);
+        entityType.AddIndex([collectionProperty], [[null]], ConfigurationSource.Explicit);
 
         VerifyError(
             CoreStrings.IndexOnComplexProperty(
@@ -1378,7 +1378,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(EntityWithComplexCollection))!;
         var collectionProperty = entityType.FindComplexProperty(nameof(EntityWithComplexCollection.Items))!;
         var leaf = collectionProperty.ComplexType.FindProperty(nameof(ComplexCollectionItem.Value))!;
-        entityType.AddIndex([leaf], ConfigurationSource.Explicit);
+        entityType.AddIndex([leaf], [[null]], ConfigurationSource.Explicit);
 
         VerifyError(
             CoreStrings.IndexOnComplexCollection(

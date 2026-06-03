@@ -78,3 +78,17 @@ Each test gets a fresh model/store. Call `InitializeAsync<TContext>(onModelCreat
 | Baseline mismatch (SQL or compiled model) | Re-run with `EF_TEST_REWRITE_BASELINES=1` |
 | `Check_all_tests_overridden` fails | Override the new test in every inheriting provider class |
 | SQL Server feature missing at lower compat level | Gate with `[SqlServerCondition(...)]`|
+
+## Running Tests Directly Against the Built Assembly
+
+When invoking the test DLL via `dotnet exec` (e.g. to isolate a single test method without rebuilding through `dotnet test`), always append `--filter-not-trait category=failing --ignore-exit-code 8`:
+
+```pwsh
+dotnet exec ./Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll `
+    --filter-method '*MigrationsSqlServerTest.Create_json_index_over_whole_complex_collection' `
+    --filter-not-trait category=failing --ignore-exit-code 8
+```
+
+These flags mirror what `test/Directory.Build.props` passes via `TestingPlatformCommandLineArguments`.
+
+Don't add `--no-build` unless the test assembly was built in the immediate previous step.

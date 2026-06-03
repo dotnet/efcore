@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -2813,6 +2814,372 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
 
         AssertSql("DROP INDEX [IX_VectorEntities_Vector] ON [VectorEntities];");
     }
+
+    #region JSON path indexes
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual Task Create_json_index_over_complex_collection_all_elements()
+    {
+        // SQL Server doesn't support indexes over all elements of JSON arrays
+        return Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                            "Items", cb =>
+                            {
+                                cb.ToJson("ItemsJson").HasColumnType("json");
+                                cb.Property(i => i.Value);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonIndexEntities").HasIndex("Items[].Value"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                    Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+                }));
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_complex_collection_specific_element()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("JsonIndexEntities").HasIndex("Items[0].Value"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Value');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Rename_json_index_over_complex_collection()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_OldName"),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_NewName"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_NewName", index.Name);
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+EXEC sp_rename N'[JsonIndexEntities].[IX_OldName]', N'IX_NewName', 'INDEX';
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Change_json_index_path_index()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Other"], "IX_Items"),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[1].Other"], "IX_Items"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_Items", index.Name);
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+DROP INDEX [IX_Items] ON [JsonIndexEntities];
+""",
+            //
+            """
+CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[1].Other');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Change_json_index_path()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_Items"),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Other"], "IX_Items"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_Items", index.Name);
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+DROP INDEX [IX_Items] ON [JsonIndexEntities];
+""",
+            //
+            """
+CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Other');
+""");
+    }
+
+    private class JsonIndexItem
+    {
+        public string Value { get; set; } = null!;
+        public string Other { get; set; } = null!;
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_whole_complex_collection()
+    {
+        // generates `FOR (N'$[*]')` but rejects indexes that span all array elements at execution time,
+        // so we assert the resulting SqlException and the SQL we produced.
+        await Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                            "Items", cb =>
+                            {
+                                cb.ToJson("ItemsJson").HasColumnType("json");
+                                cb.Property(i => i.Value);
+                                cb.Property(i => i.Other);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonIndexEntities").HasIndex("Items"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                    Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+                }));
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[*]');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_multiple_paths_in_same_column()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("JsonIndexEntities").HasIndex("Items[0].Value", "Items[0].Other"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                // Both properties map to the same JSON column — only one column entry
+                Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Value', N'$[0].Other');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_regular_index_on_json_column_and_regular_column()
+    {
+        // SQL Server does not allow an nvarchar(max) column to participate in a regular index.
+        await Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonRegularIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.ComplexProperty<JsonIndexItem>(
+                            "Details", cb =>
+                            {
+                                cb.ToJson("DetailsJson").HasColumnType("nvarchar(max)");
+                                cb.Property(i => i.Value);
+                                cb.Property(i => i.Other);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonRegularIndexEntities").HasIndex("Name", "Details"),
+                model => { }));
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Drop_json_index_over_complex_collection()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_ItemsValue"),
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql(
+            """
+DROP INDEX [IX_ItemsValue] ON [JsonIndexEntities];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_multiple_paths_with_different_collection_indices()
+    {
+        // Two paths into the same JSON column but pointing at different array elements ([0] and [1]).
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("JsonIndexEntities").HasIndex("Items[0].Value", "Items[1].Other"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Value', N'$[1].Other');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual Task Create_json_index_over_multiple_paths_with_wildcard_and_indexer()
+    {
+        // Mix of "all elements" (Items[].Value) and a specific element (Items[0].Other) in one FOR clause.
+        // SQL Server rejects mixing [*] and [N] in the same JSON index FOR list.
+        return Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                            "Items", cb =>
+                            {
+                                cb.ToJson("ItemsJson").HasColumnType("json");
+                                cb.Property(i => i.Value);
+                                cb.Property(i => i.Other);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonIndexEntities").HasIndex("Items[].Value", "Items[0].Other"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+                }));
+    }
+
+    #endregion
 
     #region Full-text search
 

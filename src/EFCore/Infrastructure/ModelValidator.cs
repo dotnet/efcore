@@ -280,12 +280,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 continue;
             }
 
-            ValidateComplexPropertyChainForKeyOrIndex(
-                property,
-                static (props, type, propName) => CoreStrings.IndexOnComplexCollection(props, type, propName),
-                nullableErrorFactory: null,
-                index.Properties.Format(),
-                index.DeclaringEntityType.DisplayName());
+            ValidateIndexProperty(index, property, logger);
         }
 
         if (complexProperties != null)
@@ -293,6 +288,21 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateIndexOnComplexProperty(index, complexProperties, logger);
         }
     }
+
+    /// <summary>
+    ///     Validates a property contained in an index.
+    /// </summary>
+    /// <param name="index">The index to validate.</param>
+    /// <param name="property">The property contained in the index.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateIndexProperty(
+        IIndex index,
+        IPropertyBase property,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        => ValidateComplexPropertyChainForKeyOrIndex(
+                property,
+                propName => CoreStrings.IndexOnComplexCollection(index.Properties.Format(), index.DeclaringEntityType.DisplayName(), propName),
+                nullableErrorFactory: null);
 
     /// <summary>
     ///     Validates an index that contains a complex property.
@@ -331,19 +341,15 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
 
             ValidateComplexPropertyChainForKeyOrIndex(
                 property,
-                static (props, type, propName) => CoreStrings.KeyOnComplexCollection(props, type, propName),
-                static (props, type, propName) => CoreStrings.KeyOnNullableComplexProperty(props, type, propName),
-                key.Properties.Format(),
-                key.DeclaringEntityType.DisplayName());
+                propName => CoreStrings.KeyOnComplexCollection(key.Properties.Format(), key.DeclaringEntityType.DisplayName(), propName),
+                propName => CoreStrings.KeyOnNullableComplexProperty(key.Properties.Format(), key.DeclaringEntityType.DisplayName(), propName));
         }
     }
 
     private static void ValidateComplexPropertyChainForKeyOrIndex(
         IPropertyBase property,
-        Func<string, string, string, string> collectionErrorFactory,
-        Func<string, string, string, string>? nullableErrorFactory,
-        string propertyListFormatted,
-        string entityTypeName)
+        Func<string, string> collectionErrorFactory,
+        Func<string, string>? nullableErrorFactory)
     {
         var typeBase = property.DeclaringType;
         while (typeBase is IComplexType complexType)
@@ -353,14 +359,14 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             if (complexProperty.IsCollection)
             {
                 throw new InvalidOperationException(
-                    collectionErrorFactory(propertyListFormatted, entityTypeName, complexProperty.Name));
+                    collectionErrorFactory(complexProperty.Name));
             }
 
             if (nullableErrorFactory != null
                 && complexProperty.IsNullable)
             {
                 throw new InvalidOperationException(
-                    nullableErrorFactory(propertyListFormatted, entityTypeName, complexProperty.Name));
+                    nullableErrorFactory(complexProperty.Name));
             }
 
             typeBase = complexProperty.DeclaringType;

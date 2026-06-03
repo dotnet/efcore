@@ -268,18 +268,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 collation);
 
         /// <summary>
+        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
+        /// </summary>
+        public static string InvalidColumnNameForFreeText
+            => GetString("InvalidColumnNameForFreeText");
+
+        /// <summary>
         ///     The datepart '{datepart}' is invalid for the {function} function; datepart values may only contain letters and underscores.
         /// </summary>
         public static string InvalidDatePart(object? datepart, object? function)
             => string.Format(
                 GetString("InvalidDatePart", nameof(datepart), nameof(function)),
                 datepart, function);
-
-        /// <summary>
-        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
-        /// </summary>
-        public static string InvalidColumnNameForFreeText
-            => GetString("InvalidColumnNameForFreeText");
 
         /// <summary>
         ///     Engine type was not configured. Use one of {methods} to configure it.
@@ -478,18 +478,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType);
 
         /// <summary>
-        ///     SQL Server time zone offsets must be specified in whole minutes. The provided TimeSpan value contains sub-minute precision (seconds, milliseconds, or smaller), which is not supported.
-        /// </summary>
-        public static string TimeSpanOffsetPrecisionNotSupported
-            => GetString("TimeSpanOffsetPrecisionNotSupported");
-
-        /// <summary>
         ///     The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.
         /// </summary>
         public static string TimeSpanOffsetOutOfRange(object? offset)
             => string.Format(
                 GetString("TimeSpanOffsetOutOfRange", nameof(offset)),
                 offset);
+
+        /// <summary>
+        ///     SQL Server time zone offsets must be specified in whole minutes. The provided TimeSpan value contains sub-minute precision (seconds, milliseconds, or smaller), which is not supported.
+        /// </summary>
+        public static string TimeSpanOffsetPrecisionNotSupported
+            => GetString("TimeSpanOffsetPrecisionNotSupported");
 
         /// <summary>
         ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
@@ -558,16 +558,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("VectorSearchRequiresColumn");
 
         /// <summary>
-        ///     WithApproximate() must be called after Take() to specify the number of results.
-        /// </summary>
-        public static string WithApproximateRequiresTake
-            => GetString("WithApproximateRequiresTake");
-
-        /// <summary>
         ///     WithApproximate() after Skip().Take() is not supported. Use Take().WithApproximate().Skip() instead, or remove Skip().
         /// </summary>
         public static string WithApproximateNotSupportedWithSkipAndTake
             => GetString("WithApproximateNotSupportedWithSkipAndTake");
+
+        /// <summary>
+        ///     WithApproximate() must be called after Take() to specify the number of results.
+        /// </summary>
+        public static string WithApproximateRequiresTake
+            => GetString("WithApproximateRequiresTake");
 
         private static string GetString(string name, params string[] formatterNames)
         {

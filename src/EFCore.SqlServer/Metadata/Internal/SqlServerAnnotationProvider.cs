@@ -24,6 +24,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
     {
+        foreach (var baseAnnotation in base.For(model, designTime))
+        {
+            yield return baseAnnotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -83,6 +88,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
     {
+        foreach (var annotation in base.For(table, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -141,6 +151,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(IUniqueConstraint constraint, bool designTime)
     {
+        foreach (var annotation in base.For(constraint, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -170,6 +185,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
+        foreach (var annotation in base.For(index, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -274,6 +294,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
+        foreach (var annotation in base.For(column, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;

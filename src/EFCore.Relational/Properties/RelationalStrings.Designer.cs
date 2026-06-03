@@ -1046,7 +1046,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 value, valueType, property, propertyType, entityType);
 
         /// <summary>
-        ///     The index {indexProperties} on the entity type '{entityType}' cannot defined on the complex property '{property}' as it's not mapped to mulptiple columns. Reference each property of the complex type individually.
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot contain the complex property '{property}' because it's mapped to multiple columns. Reference each scalar property of the complex type individually instead.
         /// </summary>
         public static string IndexOnNonJsonComplexProperty(object? indexProperties, object? entityType, object? property)
             => string.Format(
@@ -1350,6 +1350,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string JsonPartialExecuteUpdateNotSupportedByProvider
             => GetString("JsonPartialExecuteUpdateNotSupportedByProvider");
+
+        /// <summary>
+        ///     The number of elements ({elementCount}) must match the number of collection-index entries ({collectionIndicesCount}) when creating a RelationalJsonIndex.
+        /// </summary>
+        public static string JsonPathIndexElementsCollectionIndicesMismatch(object? elementCount, object? collectionIndicesCount)
+            => string.Format(
+                GetString("JsonPathIndexElementsCollectionIndicesMismatch", nameof(elementCount), nameof(collectionIndicesCount)),
+                elementCount, collectionIndicesCount);
+
+        /// <summary>
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot be configured because its properties are mapped to different JSON columns ('{firstColumn}' and '{secondColumn}'). All leaves of a JSON-path index (an index whose properties traverse a complex collection) must be contained in a single JSON column.
+        /// </summary>
+        public static string JsonPathIndexPropertiesInDifferentJsonColumns(object? indexProperties, object? entityType, object? firstColumn, object? secondColumn)
+            => string.Format(
+                GetString("JsonPathIndexPropertiesInDifferentJsonColumns", nameof(indexProperties), nameof(entityType), nameof(firstColumn), nameof(secondColumn)),
+                indexProperties, entityType, firstColumn, secondColumn);
+
+        /// <summary>
+        ///     The index {indexProperties} on the entity type '{entityType}' cannot be configured because its property '{property}' traverses a complex collection but is not mapped to a JSON column.
+        /// </summary>
+        public static string JsonPathIndexPropertyMissingJsonColumn(object? indexProperties, object? entityType, object? property)
+            => string.Format(
+                GetString("JsonPathIndexPropertyMissingJsonColumn", nameof(indexProperties), nameof(entityType), nameof(property)),
+                indexProperties, entityType, property);
 
         /// <summary>
         ///     Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.

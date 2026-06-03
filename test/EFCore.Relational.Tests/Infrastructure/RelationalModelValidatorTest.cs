@@ -137,12 +137,10 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(EntityWithComplexCollection))!;
         var collectionProperty = entityType.FindComplexProperty(nameof(EntityWithComplexCollection.Items))!;
-        entityType.AddIndex([collectionProperty], ConfigurationSource.Explicit);
+        entityType.AddIndex([collectionProperty], [[null]], ConfigurationSource.Explicit);
 
-        VerifyError(
-            CoreStrings.IndexOnComplexCollection(
-                "{'Items'}", nameof(EntityWithComplexCollection), nameof(EntityWithComplexCollection.Items)),
-            modelBuilder);
+        // Indexing a JSON-mapped complex collection is valid for relational providers
+        Validate(modelBuilder);
     }
 
     public override void Detects_index_traversing_complex_collection()
@@ -157,12 +155,11 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(EntityWithComplexCollection))!;
         var collectionProperty = entityType.FindComplexProperty(nameof(EntityWithComplexCollection.Items))!;
         var leaf = collectionProperty.ComplexType.FindProperty(nameof(ComplexCollectionItem.Value))!;
-        entityType.AddIndex([leaf], ConfigurationSource.Explicit);
+        entityType.AddIndex([leaf], [[null]], ConfigurationSource.Explicit);
 
-        VerifyError(
-            CoreStrings.IndexOnComplexCollection(
-                "{'Value'}", nameof(EntityWithComplexCollection), nameof(EntityWithComplexCollection.Items)),
-            modelBuilder);
+        // A wildcard JSON-path index over a leaf inside a JSON-mapped complex collection is valid
+        // for relational providers — every element of the array is indexed.
+        Validate(modelBuilder);
     }
 
     public override void Detects_key_traversing_complex_collection()
@@ -256,6 +253,108 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
         var index = model.FindEntityType(typeof(SampleEntity))!.GetIndexes().Single();
+    }
+
+    [Fact]
+    public virtual void Passes_on_json_path_index_in_single_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Items).ToJson();
+            b.HasIndex("Items[].Value");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithComplexCollection))!.GetIndexes().Single();
+        Assert.Equal("Value", index.Properties.Single().Name);
+        Assert.Equal(new int?[] { null }, index.CollectionIndices.Single());
+    }
+
+    [Fact]
+    public virtual void Passes_on_json_path_index_through_nested_complex_collections()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithNestedComplexCollections>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Posts, cb =>
+            {
+                cb.ToJson();
+                cb.Property(p => p.Title);
+                cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
+            });
+            b.HasIndex("Posts[0].Comments[1].Text");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithNestedComplexCollections))!.GetIndexes().Single();
+        Assert.Equal("Text", index.Properties.Single().Name);
+        Assert.Equal([0, 1], index.CollectionIndices!.Single());
+    }
+
+    [Fact]
+    public virtual void Passes_on_json_path_index_through_nested_complex_collections_all_elements()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithNestedComplexCollections>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Posts, cb =>
+            {
+                cb.ToJson();
+                cb.Property(p => p.Title);
+                cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
+            });
+            b.HasIndex("Posts[].Comments[].Text");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithNestedComplexCollections))!.GetIndexes().Single();
+        Assert.Equal([null, null], index.CollectionIndices!.Single());
+    }
+
+    private sealed class EntityWithNestedComplexCollections
+    {
+        public int Id { get; set; }
+        public List<NestedPost> Posts { get; set; } = [];
+    }
+
+    private sealed class NestedPost
+    {
+        public string Title { get; set; } = null!;
+        public List<NestedComment> Comments { get; set; } = [];
+    }
+
+    private sealed class NestedComment
+    {
+        public string Text { get; set; } = null!;
+    }
+
+    private sealed class EntityWithTwoJsonCollections
+    {
+        public int Id { get; set; }
+        public List<ComplexCollectionItem> ItemsA { get; set; } = [];
+        public List<ComplexCollectionItem> ItemsB { get; set; } = [];
+    }
+
+    [Fact]
+    public virtual void Detects_json_path_index_spanning_multiple_json_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithTwoJsonCollections>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.ItemsA).ToJson("ItemsAJson");
+            b.ComplexCollection(e => e.ItemsB).ToJson("ItemsBJson");
+            b.HasIndex("ItemsA[].Value", "ItemsB[].Value");
+        });
+
+        VerifyError(
+            RelationalStrings.JsonPathIndexPropertiesInDifferentJsonColumns(
+                "{'Value', 'Value'}", nameof(EntityWithTwoJsonCollections), "ItemsAJson", "ItemsBJson"),
+            modelBuilder);
     }
 
     [Fact]

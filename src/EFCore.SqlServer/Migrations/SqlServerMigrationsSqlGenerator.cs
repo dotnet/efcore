@@ -843,6 +843,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             return;
         }
 
+        if (operation[RelationalAnnotationNames.JsonIndex] is RelationalJsonIndex jsonIndex)
+        {
+            GenerateJsonIndex(jsonIndex);
+            return;
+        }
+
         var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
         var hasNullableColumns = operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
@@ -961,6 +967,47 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append("(");
             GenerateIndexColumnList(operation, model, builder);
+            builder.Append(")");
+
+            IndexOptions(operation, model, builder);
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
+        }
+
+        void GenerateJsonIndex(RelationalJsonIndex jsonIndex)
+        {
+            var jsonColumn = jsonIndex.Elements[0].ContainingColumn.Name;
+            builder.Append("CREATE JSON INDEX ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append("(")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(jsonColumn))
+                .Append(") FOR (");
+
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            for (var i = 0; i < jsonIndex.Elements.Count; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                var element = jsonIndex.Elements[i];
+                // Add a trailing wildcard for the leaf JSON array
+                var segments = element is IRelationalJsonArray
+                    ? (IReadOnlyList<StructuredJsonPathSegment>)[.. element.Path, StructuredJsonPathSegment.Array]
+                    : element.Path;
+                builder.Append(stringTypeMapping.GenerateSqlLiteral(
+                    new StructuredJsonPath(segments, jsonIndex.CollectionIndices?[i])
+                    .ToString(useAsteriskForNullIndex: true)));
+            }
+
             builder.Append(")");
 
             IndexOptions(operation, model, builder);

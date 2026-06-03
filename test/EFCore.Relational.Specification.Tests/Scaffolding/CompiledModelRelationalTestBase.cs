@@ -526,6 +526,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 "ManyOwned", "OwnedCollection", eb => eb.ToJson());
             eb.ComplexProperty(p => p.Dependent, cb => cb.ToJson());
             eb.HasIndex(e => e.Dependent, "IX_PrincipalDerived_Dependent");
+            eb.HasIndex(["ManyOwned[0].Details"], "IX_PrincipalDerived_ManyOwned_Indexer");
         });
     }
 
@@ -665,6 +666,13 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     Assert.All(detailsMappings, m => Assert.Same(detailsProp, m.Property));
                 }
             }
+
+            var manyOwnedDetailsProperty = manyOwnedComplexProperty.ComplexType.FindProperty(nameof(OwnedType.Details))!;
+
+            var manyOwnedIndexerIndex = principalDerived.GetIndexes().Single(i => i.Name == "IX_PrincipalDerived_ManyOwned_Indexer");
+            Assert.Same(manyOwnedDetailsProperty, manyOwnedIndexerIndex.Properties.Single());
+            Assert.NotNull(manyOwnedIndexerIndex.CollectionIndices);
+            Assert.Equal(new int?[] { 0 }, manyOwnedIndexerIndex.CollectionIndices.Single());
         }
 
         var dependentComplexProperty = principalDerived.FindComplexProperty(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;

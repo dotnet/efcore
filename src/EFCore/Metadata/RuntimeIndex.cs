@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
 {
     private readonly bool _isUnique;
+    private readonly IReadOnlyList<IReadOnlyList<int?>?>? _collectionIndices;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
     private object? _nullableValueFactory;
@@ -30,12 +31,14 @@ public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
         IReadOnlyList<RuntimePropertyBase> properties,
         RuntimeEntityType declaringEntityType,
         string? name,
-        bool unique)
+        bool unique,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
     {
         Properties = properties;
         Name = name;
         DeclaringEntityType = declaringEntityType;
         _isUnique = unique;
+        _collectionIndices = collectionIndices;
     }
 
     /// <summary>
@@ -62,6 +65,15 @@ public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
     {
         [DebuggerStepThrough]
         get => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+    }
+
+    /// <summary>
+    ///     Gets the complex-collection indices traversed to reach each indexed property.
+    /// </summary>
+    IReadOnlyList<IReadOnlyList<int?>?>? IReadOnlyIndex.CollectionIndices
+    {
+        [DebuggerStepThrough]
+        get => _collectionIndices;
     }
 
     /// <summary>

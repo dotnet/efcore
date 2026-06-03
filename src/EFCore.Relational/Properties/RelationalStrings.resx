@@ -512,7 +512,7 @@
     <value>Default value '{value}' of type '{valueType}' cannot be set on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
   </data>
   <data name="IndexOnNonJsonComplexProperty" xml:space="preserve">
-    <value>The index {indexProperties} on the entity type '{entityType}' cannot defined on the complex property '{property}' as it's not mapped to mulptiple columns. Reference each property of the complex type individually.</value>
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot contain the complex property '{property}' because it's mapped to multiple columns. Reference each scalar property of the complex type individually instead.</value>
   </data>
   <data name="IndexPropertiesMixedJsonAndNonJsonMapping" xml:space="preserve">
     <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because some of its properties are contained within a complex property mapped to a JSON column while others are not. All properties of an index must either all be mapped to JSON or all be mapped to regular columns.</value>
@@ -630,6 +630,15 @@
   </data>
   <data name="JsonPartialExecuteUpdateNotSupportedByProvider" xml:space="preserve">
     <value>The provider in use does not support partial updates with ExecuteUpdate within JSON columns.</value>
+  </data>
+  <data name="JsonPathIndexElementsCollectionIndicesMismatch" xml:space="preserve">
+    <value>The number of elements ({elementCount}) must match the number of collection-index entries ({collectionIndicesCount}) when creating a RelationalJsonIndex.</value>
+  </data>
+  <data name="JsonPathIndexPropertiesInDifferentJsonColumns" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because its properties are mapped to different JSON columns ('{firstColumn}' and '{secondColumn}'). All leaves of a JSON-path index (an index whose properties traverse a complex collection) must be contained in a single JSON column.</value>
+  </data>
+  <data name="JsonPathIndexPropertyMissingJsonColumn" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because its property '{property}' traverses a complex collection but is not mapped to a JSON column.</value>
   </data>
   <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
     <value>Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.</value>

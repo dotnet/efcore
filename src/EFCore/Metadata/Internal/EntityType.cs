@@ -28,8 +28,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
         = new(StringComparer.Ordinal);
 
-    private readonly SortedDictionary<IReadOnlyList<IReadOnlyPropertyBase>, Index> _unnamedIndexes
-        = new(PropertyListComparer.Instance);
+    private readonly SortedDictionary<UnnamedIndexKey, Index> _unnamedIndexes
+        = new(UnnamedIndexKey.Comparer);
 
     private readonly SortedDictionary<string, Index> _namedIndexes
         = new(StringComparer.Ordinal);
@@ -1975,20 +1975,33 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     public virtual Index? AddIndex(
         IReadOnlyList<PropertyBase> properties,
         ConfigurationSource configurationSource)
+        => AddIndex(properties, collectionIndices: null, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Index? AddIndex(
+        IReadOnlyList<PropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices,
+        ConfigurationSource configurationSource)
     {
         Check.NotEmpty(properties);
         Check.HasNoNulls(properties);
         EnsureMutable();
 
-        var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
+        var duplicateIndex = FindIndexesInHierarchy(properties)
+            .FirstOrDefault(i => i.Name == null && Index.CollectionIndicesEqual(i.CollectionIndices, collectionIndices));
         if (duplicateIndex != null)
         {
             throw new InvalidOperationException(
                 CoreStrings.DuplicateIndex(properties.Format(), DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
         }
 
-        var index = new Index(properties, this, configurationSource);
-        _unnamedIndexes.Add(properties, index);
+        var index = new Index(properties, collectionIndices, this, configurationSource);
+        _unnamedIndexes.Add(new UnnamedIndexKey(index.Properties, index.CollectionIndices), index);
 
         UpdatePropertyIndexes(properties, index);
 
@@ -2003,6 +2016,19 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Index? AddIndex(
         IReadOnlyList<PropertyBase> properties,
+        string name,
+        ConfigurationSource configurationSource)
+        => AddIndex(properties, collectionIndices: null, name, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Index? AddIndex(
+        IReadOnlyList<PropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices,
         string name,
         ConfigurationSource configurationSource)
     {
@@ -2022,7 +2048,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                     duplicateIndex.DeclaringEntityType.DisplayName()));
         }
 
-        var index = new Index(properties, name, this, configurationSource);
+        var index = new Index(properties, collectionIndices, name, this, configurationSource);
         _namedIndexes.Add(name, index);
 
         UpdatePropertyIndexes(properties, index);
@@ -2074,6 +2100,22 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual Index? FindIndex(
+        IReadOnlyList<IReadOnlyPropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
+    {
+        Check.HasNoNulls(properties);
+        Check.NotEmpty(properties);
+
+        return FindDeclaredIndex(properties, collectionIndices) ?? BaseType?.FindIndex(properties, collectionIndices);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual Index? FindIndex(string name)
     {
         Check.NotEmpty(name);
@@ -2110,7 +2152,18 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Index? FindDeclaredIndex(IReadOnlyList<IReadOnlyPropertyBase> properties)
-        => _unnamedIndexes.GetValueOrDefault(Check.NotEmpty(properties));
+        => _unnamedIndexes.GetValueOrDefault(new UnnamedIndexKey(Check.NotEmpty(properties)));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Index? FindDeclaredIndex(
+        IReadOnlyList<IReadOnlyPropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
+        => _unnamedIndexes.GetValueOrDefault(new UnnamedIndexKey(Check.NotEmpty(properties), collectionIndices));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2132,6 +2185,21 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             ? []
             : (IEnumerable<Index>)GetDerivedTypes<EntityType>()
                 .Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<Index> FindDerivedIndexes(
+        IReadOnlyList<IReadOnlyPropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
+        => DirectlyDerivedTypes.Count == 0
+            ? []
+            : (IEnumerable<Index>)GetDerivedTypes<EntityType>()
+                .Select(et => et.FindDeclaredIndex(properties, collectionIndices))
+                .Where(i => i != null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2213,7 +2281,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         if (index.Name == null)
         {
-            if (!_unnamedIndexes.Remove(index.Properties))
+            if (!_unnamedIndexes.Remove(new UnnamedIndexKey(index.Properties, index.CollectionIndices)))
             {
                 throw new InvalidOperationException(
                     CoreStrings.IndexWrongType(index.DisplayName(), DisplayName(), index.DeclaringEntityType.DisplayName()));
@@ -3928,6 +3996,38 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     [DebuggerStepThrough]
     IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutablePropertyBase> properties, string name)
         => AddIndex(properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(), name, ConfigurationSource.Explicit)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IMutableIndex IMutableEntityType.AddIndex(
+        IReadOnlyList<IMutablePropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
+        => AddIndex(
+            properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(),
+            collectionIndices,
+            ConfigurationSource.Explicit)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IMutableIndex IMutableEntityType.AddIndex(
+        IReadOnlyList<IMutablePropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices,
+        string name)
+        => AddIndex(
+            properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(),
+            collectionIndices,
+            name,
+            ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
