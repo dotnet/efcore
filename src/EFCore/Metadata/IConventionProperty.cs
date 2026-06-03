@@ -26,13 +26,6 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     new IConventionPropertyBuilder Builder { get; }
 
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IConventionEntityType or IConventionComplexType")]
-    new IConventionEntityType DeclaringEntityType
-        => (IConventionEntityType)DeclaringType;
-
-    /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.</returns>
@@ -96,6 +89,23 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.IsConcurrencyToken" />.</returns>
     ConfigurationSource? GetIsConcurrencyTokenConfigurationSource();
+
+    /// <summary>
+    ///     Sets a value indicating whether this property is automatically loaded when the entity is queried from the database.
+    /// </summary>
+    /// <param name="autoLoaded">
+    ///     A value indicating whether this property is automatically loaded.
+    ///     <see langword="null" /> to reset to default.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    bool? SetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyProperty.IsAutoLoaded" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyProperty.IsAutoLoaded" />.</returns>
+    ConfigurationSource? GetIsAutoLoadedConfigurationSource();
 
     /// <summary>
     ///     Returns a value indicating whether the property was created implicitly and isn't based on the CLR model.

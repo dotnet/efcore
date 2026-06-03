@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -11,16 +11,14 @@ public abstract class RelationalComplianceTestBase : ComplianceTestBase
         => base.GetBaseTestClasses().Concat(
             typeof(RelationalComplianceTestBase).Assembly.ExportedTypes.Where(t => t.Name.Contains("TestBase")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_query_test_fixtures_must_implement_ITestSqlLoggerFactory()
     {
         var queryFixturesWithoutTestSqlLogger = TargetAssembly
             .GetTypes()
             .Where(x => x.BaseType != typeof(object) && (x.IsPublic || x.IsNestedPublic))
-            .Select(x => new { Type = x, Interfaces = x.GetInterfaces().ToList() })
-            .Where(x => x.Interfaces.Contains(typeof(IQueryFixtureBase)))
-            .Where(x => !x.Interfaces.Contains(typeof(ITestSqlLoggerFactory)))
-            .Select(x => x.Type)
+            .Where(x => typeof(IQueryFixtureBase).IsAssignableFrom(x))
+            .Where(x => !x.GetInterfaces().Contains(typeof(ITestSqlLoggerFactory)))
             .ToList();
 
         Assert.False(

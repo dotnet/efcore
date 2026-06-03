@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalCommandBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Builds_simple_command()
     {
         var commandBuilder = CreateCommandBuilder();
@@ -20,7 +20,7 @@ public class RelationalCommandBuilderTest
         Assert.Equal(0, command.Parameters.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Build_command_with_parameter()
     {
         var commandBuilder = CreateCommandBuilder();

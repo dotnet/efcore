@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalGeometryTypeMappingTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Comparer_uses_exact_comparison()
     {
         var geometry1 = new GeometryCollection([new Point(1, 2), new Point(3, 4)]);

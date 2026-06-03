@@ -75,7 +75,7 @@ WHERE ((c["TimeOnly"] - "03:00:00") = "12:30:10")
     public override Task Order_by_FromTimeSpan()
         => AssertTranslationFailed(() => base.Order_by_FromTimeSpan());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

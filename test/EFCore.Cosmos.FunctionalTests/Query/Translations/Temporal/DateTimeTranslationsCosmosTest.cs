@@ -26,7 +26,7 @@ public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<Basic
 
         AssertSql(
             """
-@myDatetime=?
+@myDatetime='2015-04-10T00:00:00'
 
 SELECT VALUE c
 FROM root c
@@ -188,7 +188,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@Parse=?
+@Parse='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
@@ -214,7 +214,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@p=?
+@p='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
@@ -222,7 +222,7 @@ WHERE (c["DateTime"] = @p)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

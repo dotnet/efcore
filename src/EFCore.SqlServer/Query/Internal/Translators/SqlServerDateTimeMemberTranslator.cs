@@ -68,6 +68,61 @@ public class SqlServerDateTimeMemberTranslator(
                     argumentsPropagateNullability: Statics.FalseTrue,
                     returnType),
 
+            nameof(DateTimeOffset.DateTime)
+                when declaringType == typeof(DateTimeOffset)
+                    && instance!.TypeMapping is { StoreTypeNameBase: "datetimeoffset" }
+                => sqlExpressionFactory.Function(
+                    "CONVERT",
+                    [sqlExpressionFactory.Fragment("datetime2"), instance!],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.FalseTrue,
+                    returnType,
+                    typeMappingSource.FindMapping(typeof(DateTime))),
+
+            nameof(DateTimeOffset.UtcDateTime)
+                when declaringType == typeof(DateTimeOffset)
+                    && instance!.TypeMapping is { StoreTypeNameBase: "datetimeoffset" }
+                => sqlExpressionFactory.Function(
+                    "CONVERT",
+                    [
+                        sqlExpressionFactory.Fragment("datetime2"),
+                        new AtTimeZoneExpression(
+                            instance!,
+                            sqlExpressionFactory.ApplyTypeMapping(
+                                sqlExpressionFactory.Constant("UTC"),
+                                typeMappingSource.FindMapping("varchar")),
+                            typeof(DateTimeOffset),
+                            instance!.TypeMapping)
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.FalseTrue,
+                    returnType,
+                    typeMappingSource.FindMapping(typeof(DateTime))),
+
+            nameof(DateTimeOffset.LocalDateTime)
+                when declaringType == typeof(DateTimeOffset)
+                    && instance!.TypeMapping is { StoreTypeNameBase: "datetimeoffset" }
+                => sqlExpressionFactory.Function(
+                    "CONVERT",
+                    [
+                        sqlExpressionFactory.Fragment("datetime2"),
+                        new AtTimeZoneExpression(
+                            instance!,
+                            sqlExpressionFactory.Function(
+                                "CURRENT_TIMEZONE_ID",
+                                arguments: [],
+                                nullable: false,
+                                argumentsPropagateNullability: [],
+                                typeof(string),
+                                typeMappingSource.FindMapping("varchar")),
+                            typeof(DateTimeOffset),
+                            instance!.TypeMapping)
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.FalseTrue,
+                    returnType,
+                    typeMappingSource.FindMapping(typeof(DateTime))),
+
             nameof(DateTime.Now)
                 when declaringType == typeof(DateTime)
                 => sqlExpressionFactory.Function(

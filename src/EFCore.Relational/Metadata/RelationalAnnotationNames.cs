@@ -175,6 +175,11 @@ public static class RelationalAnnotationNames
     public const string IsTableExcludedFromMigrations = Prefix + "IsTableExcludedFromMigrations";
 
     /// <summary>
+    ///     The name for the annotation determining whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    public const string IsForeignKeyExcludedFromMigrations = Prefix + "IsForeignKeyExcludedFromMigrations";
+
+    /// <summary>
     ///     The name for the annotation determining the mapping strategy for inherited properties.
     /// </summary>
     public const string MappingStrategy = Prefix + "MappingStrategy";
@@ -340,12 +345,6 @@ public static class RelationalAnnotationNames
     public const string ContainerColumnType = Prefix + nameof(ContainerColumnType);
 
     /// <summary>
-    ///     The name for the annotation specifying container column type mapping.
-    /// </summary>
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public const string ContainerColumnTypeMapping = Prefix + "ContainerColumnTypeMapping";
-
-    /// <summary>
     ///     The JSON property name for the element that the property/navigation maps to.
     /// </summary>
     public const string JsonPropertyName = Prefix + "JsonPropertyName";
@@ -354,6 +353,11 @@ public static class RelationalAnnotationNames
     ///     The name for store (database) type annotations.
     /// </summary>
     public const string StoreType = Prefix + "StoreType";
+
+    /// <summary>
+    ///     The name for JSON element mappings annotations.
+    /// </summary>
+    public const string JsonElementMappings = Prefix + "JsonElementMappings";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -396,6 +400,7 @@ public static class RelationalAnnotationNames
         IsFixedLength,
         ViewDefinitionSql,
         IsTableExcludedFromMigrations,
+        IsForeignKeyExcludedFromMigrations,
         MappingStrategy,
         RelationalModel,
         RelationalModelFactory,
@@ -426,10 +431,8 @@ public static class RelationalAnnotationNames
         FieldValueGetter,
         ContainerColumnName,
         ContainerColumnType,
-#pragma warning disable CS0618 // Type or member is obsolete
-        ContainerColumnTypeMapping,
-#pragma warning restore CS0618 // Type or member is obsolete
         JsonPropertyName,
-        StoreType
+        StoreType,
+        JsonElementMappings
     };
 }

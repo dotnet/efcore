@@ -20,7 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///         doing so can result in application failures when updating to a new Entity Framework Core release.
 ///     </para>
 /// </remarks>
-public class JsonEachExpression : TableValuedFunctionExpression
+public class JsonEachExpression(
+    string alias,
+    SqlExpression json,
+    IReadOnlyList<PathSegment>? path = null)
+    : TableValuedFunctionExpression(alias, "json_each", schema: null, builtIn: true, [json])
 {
     private static ConstructorInfo? _quotingConstructor;
 
@@ -30,8 +34,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression JsonExpression
-        => Arguments[0];
+    public virtual SqlExpression Json { get; } = json;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,20 +42,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<PathSegment>? Path { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public JsonEachExpression(
-        string alias,
-        SqlExpression jsonExpression,
-        IReadOnlyList<PathSegment>? path = null)
-        : base(alias, "json_each", schema: null, builtIn: true, [jsonExpression])
-        => Path = path;
+    public virtual IReadOnlyList<PathSegment>? Path { get; } = path;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +52,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var visitedJsonExpression = (SqlExpression)visitor.Visit(JsonExpression);
+        var visitedJsonExpression = (SqlExpression)visitor.Visit(Json);
 
         PathSegment[]? visitedPath = null;
 
@@ -119,7 +109,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
     public virtual JsonEachExpression Update(
         SqlExpression jsonExpression,
         IReadOnlyList<PathSegment>? path)
-        => jsonExpression == JsonExpression
+        => jsonExpression == Json
             && (ReferenceEquals(path, Path) || path is not null && Path is not null && path.SequenceEqual(Path))
                 ? this
                 : new JsonEachExpression(Alias, jsonExpression, path);
@@ -132,7 +122,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
     /// </summary>
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
-        var newJsonExpression = (SqlExpression)cloningExpressionVisitor.Visit(JsonExpression);
+        var newJsonExpression = (SqlExpression)cloningExpressionVisitor.Visit(Json);
         var clone = new JsonEachExpression(alias!, newJsonExpression, Path);
 
         foreach (var annotation in GetAnnotations())
@@ -145,7 +135,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
 
     /// <inheritdoc />
     public override JsonEachExpression WithAlias(string newAlias)
-        => new(newAlias, JsonExpression, Path);
+        => new(newAlias, Json, Path);
 
     /// <inheritdoc />
     public override Expression Quote()
@@ -157,7 +147,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
                 typeof(IReadOnlyList<PathSegment>)
             ])!,
             Constant(Alias, typeof(string)),
-            JsonExpression.Quote(),
+            Json.Quote(),
             Path is null
                 ? Constant(null, typeof(IReadOnlyList<PathSegment>))
                 : NewArrayInit(typeof(PathSegment), Path.Select(s => s.Quote())));
@@ -172,7 +162,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
     {
         expressionPrinter.Append(Name);
         expressionPrinter.Append("(");
-        expressionPrinter.Visit(JsonExpression);
+        expressionPrinter.Visit(Json);
 
         if (Path is not null)
         {

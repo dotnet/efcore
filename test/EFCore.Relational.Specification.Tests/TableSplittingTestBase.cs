@@ -17,7 +17,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         // TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_shared()
     {
         await InitializeAsync(OnModelCreating);
@@ -26,7 +26,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(5, context.Set<Operator>().ToList().Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_shared_nonhierarchy()
     {
         await InitializeAsync(modelBuilder =>
@@ -39,7 +39,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(5, context.Set<Operator>().ToList().Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_shared_nonhierarchy_with_nonshared_dependent()
     {
         await InitializeAsync(modelBuilder =>
@@ -53,7 +53,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(5, context.Set<Operator>().ToList().Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_shared_derived_hierarchy()
     {
         await InitializeAsync(OnModelCreating);
@@ -62,7 +62,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_shared_derived_nonhierarchy()
     {
         await InitializeAsync(modelBuilder =>
@@ -75,7 +75,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_shared_derived_nonhierarchy_all_required()
     {
         await InitializeAsync(modelBuilder =>
@@ -93,11 +93,11 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_use_with_redundant_relationships()
         => Test_roundtrip(OnModelCreating);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_use_with_chained_relationships()
         => Test_roundtrip(modelBuilder =>
         {
@@ -105,7 +105,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
             modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_use_with_fanned_relationships()
         => Test_roundtrip(modelBuilder =>
         {
@@ -114,7 +114,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
             modelBuilder.Entity<FuelTank>(eb => eb.Ignore(e => e.Engine));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_share_required_columns()
     {
         await InitializeAsync(
@@ -157,7 +157,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact(Skip = "Issue #35613")]
+    [Fact(Skip = "Issue #35613")]
     public virtual async Task Can_share_required_columns_with_complex_types()
     {
         await InitializeAsync(
@@ -208,7 +208,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_optional_dependents_with_shared_concurrency_tokens()
     {
         await InitializeAsync(
@@ -278,7 +278,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact(Skip = "Issue #35613")]
+    [Fact(Skip = "Issue #35613")]
     public virtual async Task Can_use_optional_dependents_with_shared_concurrency_tokens_with_complex_types()
     {
         await InitializeAsync(
@@ -366,7 +366,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         context.AssertSeeded();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_manipulate_entities_sharing_row_independently()
     {
         await InitializeAsync(modelBuilder =>
@@ -448,7 +448,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_update_just_dependents()
     {
         await InitializeAsync(OnModelCreating);
@@ -474,7 +474,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_dependent_with_just_one_parent()
     {
         await InitializeAsync(OnModelCreating);
@@ -515,7 +515,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_change_dependent_instance_non_derived()
     {
         await InitializeAsync(modelBuilder =>
@@ -558,7 +558,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_change_principal_instance_non_derived()
     {
         await InitializeAsync(modelBuilder =>
@@ -606,7 +606,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_change_principal_and_dependent_instance_non_derived()
     {
         await InitializeAsync(modelBuilder =>
@@ -654,7 +654,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_dependent_materialized_when_no_properties()
     {
         await InitializeAsync(OnModelCreating);
@@ -671,7 +671,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Warn_when_save_optional_dependent_with_null_values_sensitive()
     {
         await InitializeSharedAsync(OnSharedModelCreating);
@@ -692,7 +692,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(expected, log.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Warn_when_save_optional_dependent_with_null_values()
     {
         await InitializeSharedAsync(OnSharedModelCreating, sensitiveLogEnabled: false);
@@ -730,7 +730,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Equal(expected, log.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task No_warn_when_save_optional_dependent_at_least_one_none_null()
     {
         await InitializeSharedAsync(OnSharedModelCreating, sensitiveLogEnabled: false);
@@ -752,7 +752,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task ExecuteDelete_throws_for_table_sharing(bool async)
     {
         await InitializeAsync(OnModelCreating);
@@ -760,10 +760,9 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
             UseTransaction,
-            async context => Assert.Contains(
-                CoreStrings.NonQueryTranslationFailedWithDetails(
-                    "", RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"))[21..],
-                (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 {
                     if (async)
                     {
@@ -773,10 +772,15 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
                     {
                         context.Set<Vehicle>().ExecuteDelete();
                     }
-                })).Message));
+                });
+
+                Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+                var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+                Assert.StartsWith(RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"), innerException.Message);
+            });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task ExecuteUpdate_works_for_table_sharing(bool async)
     {
         await InitializeAsync(OnModelCreating);
@@ -803,13 +807,13 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Optional_dependent_without_required_property(bool async)
     {
-        var contextFactory = await InitializeAsync<Context29196>(
+        var contextFactory = await InitializeNonSharedTest<Context29196>(
             onConfiguring: e => e.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)));
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.DetailedOrders.Where(o => o.Status == OrderStatus.Pending);
 
@@ -890,7 +894,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "TableSplittingTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -968,11 +972,11 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
     }
 
     protected async Task InitializeAsync(Action<ModelBuilder> onModelCreating, bool seed = true)
-        => ContextFactory = await InitializeAsync<TransportationContext>(
+        => ContextFactory = await InitializeNonSharedTest<TransportationContext>(
             onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.SeedAsync() : null);
 
     protected async Task InitializeSharedAsync(Action<ModelBuilder> onModelCreating, bool sensitiveLogEnabled = true)
-        => SharedContextFactory = await InitializeAsync<SharedTableContext>(
+        => SharedContextFactory = await InitializeNonSharedTest<SharedTableContext>(
             onModelCreating,
             shouldLogCategory: _ => true,
             onConfiguring: options =>
@@ -984,12 +988,12 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         );
 
     protected virtual TransportationContext CreateContext()
-        => ContextFactory.CreateContext();
+        => ContextFactory.CreateDbContext();
 
     protected virtual SharedTableContext CreateSharedContext()
-        => SharedContextFactory.CreateContext();
+        => SharedContextFactory.CreateDbContext();
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
 

@@ -118,7 +118,12 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public abstract CoreTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null);
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
+    ///     a field or a property of a CLR type.
+    /// </summary>
+    /// <param name="member">The field or property.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public abstract CoreTypeMapping? FindMapping(MemberInfo member);
 
     /// <inheritdoc />

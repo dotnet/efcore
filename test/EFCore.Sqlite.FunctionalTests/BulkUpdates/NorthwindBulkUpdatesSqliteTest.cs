@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -12,7 +12,7 @@ public class NorthwindBulkUpdatesSqliteTest(
     ITestOutputHelper testOutputHelper)
     : NorthwindBulkUpdatesRelationalTestBase<NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -535,20 +535,10 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p1='100'
-@p='0'
-
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
-    LEFT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
-        LIMIT @p1 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
@@ -559,20 +549,10 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p1='100'
-@p='0'
-
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
-    LEFT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
-        LIMIT @p1 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
@@ -620,15 +600,19 @@ WHERE EXISTS (
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
-    FROM "Order Details" AS "o0"
+    FROM (
+        SELECT "o1"."OrderID", "o1"."ProductID"
+        FROM "Order Details" AS "o1"
+        WHERE "o1"."OrderID" < 10276
+    ) AS "o0"
     RIGHT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
+        SELECT "o3"."OrderID"
+        FROM "Orders" AS "o3"
+        WHERE "o3"."OrderID" < 10300
+        ORDER BY "o3"."OrderID"
         LIMIT @p1 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
-    WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
+    ) AS "o2" ON "o0"."OrderID" = "o2"."OrderID"
+    WHERE "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
 
@@ -645,6 +629,19 @@ WHERE EXISTS (
 UPDATE "Customers" AS "c"
 SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
+""");
+    }
+
+    public override async Task Update_set_constant_TagWith_null(bool async)
+    {
+        await base.Update_set_constant_TagWith_null(async);
+
+        AssertExecuteUpdateSql(
+            """
+-- MyUpdate
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = NULL
 """);
     }
 
@@ -1076,10 +1073,10 @@ WHERE "o0"."OrderID" = "s"."OrderID"
 @p='1'
 
 UPDATE "Order Details" AS "o"
-SET "Quantity" = CAST(@p AS INTEGER)
+SET "Quantity" = @p
 FROM "Orders" AS "o0"
 LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
-WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
+WHERE "c"."City" = 'Seattle' AND "o"."OrderID" = "o0"."OrderID"
 """);
     }
 
@@ -1092,7 +1089,7 @@ WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
 FROM "Customers" AS "c"
-WHERE "c"."CustomerID" = "o"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o"."CustomerID"
 """);
     }
 
@@ -1311,7 +1308,7 @@ FROM (
     FROM "Orders" AS "o"
     WHERE "o"."OrderID" < 10300
 ) AS "o0"
-WHERE "c"."CustomerID" = "o0"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o0"."CustomerID"
 """);
     }
 
@@ -1371,19 +1368,22 @@ WHERE "c0"."CustomerID" = "s"."CustomerID"
             """
 @p='2020-01-01T00:00:00.0000000Z' (Nullable = true) (DbType = DateTime)
 
-UPDATE "Orders" AS "o0"
+UPDATE "Orders" AS "o1"
 SET "OrderDate" = @p
 FROM (
-    SELECT "o"."OrderID"
-    FROM "Orders" AS "o"
+    SELECT "o0"."OrderID"
+    FROM (
+        SELECT "o"."OrderID", "o"."CustomerID"
+        FROM "Orders" AS "o"
+        WHERE "o"."OrderID" < 10300
+    ) AS "o0"
     RIGHT JOIN (
         SELECT "c"."CustomerID"
         FROM "Customers" AS "c"
         WHERE "c"."CustomerID" LIKE 'F%'
-    ) AS "c0" ON "o"."CustomerID" = "c0"."CustomerID"
-    WHERE "o"."OrderID" < 10300
+    ) AS "c0" ON "o0"."CustomerID" = "c0"."CustomerID"
 ) AS "s"
-WHERE "o0"."OrderID" = "s"."OrderID"
+WHERE "o1"."OrderID" = "s"."OrderID"
 """);
     }
 
@@ -1416,7 +1416,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_outer_apply_set_constant(async))).Message);
 
-    [ConditionalTheory(Skip = "Issue#28886")]
+    [Theory(Skip = "Issue#28886")]
     public override async Task Update_with_cross_join_left_join_set_constant(bool async)
     {
         await base.Update_with_cross_join_left_join_set_constant(async);
@@ -1531,7 +1531,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
 
-    [ConditionalTheory(Skip = "Issue#28886")]
+    [Theory(Skip = "Issue#28886")]
     public override async Task Update_with_two_inner_joins(bool async)
     {
         await base.Update_with_two_inner_joins(async);
@@ -1542,7 +1542,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
     {
         await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);
@@ -1553,7 +1553,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 @p2='10'
 
 UPDATE "Order Details" AS "o2"
-SET "Quantity" = CAST(@p AS INTEGER),
+SET "Quantity" = @p,
     "UnitPrice" = @p2
 FROM (
     SELECT "o1"."OrderID", "o1"."ProductID"

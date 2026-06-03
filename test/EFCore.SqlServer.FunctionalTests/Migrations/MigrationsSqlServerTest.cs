@@ -1,12 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
-
 // ReSharper disable StringLiteralTypo
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -172,7 +173,7 @@ CREATE TABLE [Entity] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_sparse_column()
     {
         await Test(
@@ -193,7 +194,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_identity_column_value_converter()
     {
         await Test(
@@ -215,7 +216,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
     public virtual async Task Create_memory_optimized_table()
     {
         await Test(
@@ -280,7 +281,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_memory_optimized_temporal_table()
     {
         await Test(
@@ -352,7 +353,7 @@ EXEC(N'CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_fill_factor()
     {
         await Test(
@@ -520,7 +521,7 @@ ALTER SCHEMA [TestTableSchema] TRANSFER [TestTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Move_table_into_default_schema()
     {
         await Test(
@@ -560,7 +561,7 @@ CREATE TABLE [SomeOtherSchema].[People] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_schema_dbo_is_ignored()
     {
         await Test(
@@ -599,7 +600,7 @@ ALTER TABLE [People] ADD [Birthday] datetime2 NOT NULL DEFAULT '2015-04-12T17:05
 """);
     }
 
-    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+    [Theory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
      InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
      InlineData(7, ".1234567", 1234567), InlineData(7, ".1200000", 1200000)]
     //should this really output trailing zeros?
@@ -624,7 +625,7 @@ ALTER TABLE [People] ADD [Birthday] datetime2({precision}) NOT NULL DEFAULT '201
 """);
     }
 
-    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+    [Theory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
      InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
      InlineData(7, ".1234567", 1234567), InlineData(7, ".1200000", 1200000)]
     //should this really output trailing zeros?
@@ -652,7 +653,7 @@ ALTER TABLE [People] ADD [Birthday] datetimeoffset({precision}) NOT NULL DEFAULT
 """);
     }
 
-    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+    [Theory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
      InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
      InlineData(7, ".1234567", 1234567), InlineData(7, ".12", 1200000)]
     public async Task Add_column_with_defaultValue_time_with_explicit_precision(int precision, string fractionalSeconds, int ticksToAdd)
@@ -677,7 +678,7 @@ ALTER TABLE [People] ADD [Age] time({precision}) NOT NULL DEFAULT '12:34:56{frac
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_defaultValue_datetime_store_type()
     {
         await Test(
@@ -699,7 +700,7 @@ ALTER TABLE [People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_defaultValue_smalldatetime_store_type()
     {
         await Test(
@@ -721,7 +722,7 @@ ALTER TABLE [People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_rowversion()
     {
         await Test(
@@ -742,7 +743,7 @@ ALTER TABLE [People] ADD [RowVersion] rowversion NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_rowversion_and_value_conversion()
     {
         await Test(
@@ -805,7 +806,7 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_generates_exec_when_computed_and_idempotent()
     {
         await Test(
@@ -930,7 +931,7 @@ ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_identity()
     {
         await Test(
@@ -950,7 +951,7 @@ ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_identity_seed_increment()
     {
         await Test(
@@ -973,7 +974,7 @@ ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY(100, 5);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_identity_seed_increment_for_TPC()
     {
         await Test(
@@ -1035,7 +1036,7 @@ ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_sequence()
     {
         await Test(
@@ -1061,7 +1062,7 @@ ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT (NEXT VALUE FOR [
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_hilo()
     {
         await Test(
@@ -1135,7 +1136,7 @@ ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_make_required_with_index()
     {
         await base.Alter_column_make_required_with_index();
@@ -1156,7 +1157,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_make_required_with_composite_index()
     {
         await base.Alter_column_make_required_with_composite_index();
@@ -1269,7 +1270,7 @@ ALTER TABLE [People] ADD [Sum] int NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_add_comment()
     {
         await base.Alter_column_add_comment();
@@ -1284,7 +1285,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_computed_column_add_comment()
     {
         await base.Alter_computed_column_add_comment();
@@ -1299,7 +1300,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_change_comment()
     {
         await base.Alter_column_change_comment();
@@ -1315,7 +1316,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_remove_comment()
     {
         await base.Alter_column_remove_comment();
@@ -1329,7 +1330,7 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema1, 'TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_set_collation()
     {
         await base.Alter_column_set_collation();
@@ -1346,7 +1347,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) COLLATE German_PhoneBook_
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_set_collation_with_index()
     {
         await Test(
@@ -1379,7 +1380,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_reset_collation()
     {
         await base.Alter_column_reset_collation();
@@ -1540,7 +1541,7 @@ ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_make_required_with_index_with_included_properties()
     {
         await Test(
@@ -1582,7 +1583,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Alter_column_memoryOptimized_with_index()
     {
         await Test(
@@ -1618,7 +1619,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_with_index_no_narrowing()
     {
         await Test(
@@ -1650,7 +1651,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_with_index_included_column()
     {
         await Test(
@@ -1690,7 +1691,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_add_identity()
     {
         var ex = await TestThrows<InvalidOperationException>(
@@ -1700,7 +1701,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_remove_identity()
     {
         var ex = await TestThrows<InvalidOperationException>(
@@ -1710,7 +1711,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_type_with_identity()
     {
         await Test(
@@ -1746,7 +1747,7 @@ ALTER TABLE [People] ALTER COLUMN [IdentityColumn] bigint NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_identity_seed()
     {
         await Test(
@@ -1765,7 +1766,7 @@ DBCC CHECKIDENT(N'[People]', RESEED, 100);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_default()
     {
         await Test(
@@ -1791,7 +1792,7 @@ ALTER TABLE [People] ADD DEFAULT N'Doe' FOR [Name];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_comment_with_default()
     {
         await Test(
@@ -1816,7 +1817,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_make_sparse()
     {
         await Test(
@@ -2072,7 +2073,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CreateIndex_generates_exec_when_filter_and_idempotent()
     {
         await Test(
@@ -2129,7 +2130,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NU
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_clustered()
     {
         await Test(
@@ -2160,7 +2161,7 @@ CREATE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_clustered()
     {
         await Test(
@@ -2193,7 +2194,7 @@ CREATE UNIQUE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_with_include()
     {
         await Test(
@@ -2234,7 +2235,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_with_include_and_filter()
     {
         await Test(
@@ -2277,7 +2278,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include()
     {
         await Test(
@@ -2320,7 +2321,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include_and_filter()
     {
         await Test(
@@ -2365,8 +2366,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server"),
-     SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsOnlineIndexingSupported))]
     public virtual async Task Create_index_unique_with_include_and_filter_online()
     {
         await Test(
@@ -2413,8 +2413,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server"),
-     SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsOnlineIndexingSupported))]
     public virtual async Task Create_index_unique_with_include_filter_online_and_fillfactor()
     {
         await Test(
@@ -2462,7 +2461,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include_filter_and_fillfactor()
     {
         await Test(
@@ -2509,7 +2508,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include_fillfactor_and_sortintempdb()
     {
         await Test(
@@ -2557,7 +2556,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalTheory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
+    [Theory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
      InlineData(DataCompressionType.Page, "PAGE")]
     public virtual async Task Create_index_unique_with_include_sortintempdb_and_datacompression(
         DataCompressionType dataCompression,
@@ -2608,7 +2607,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_index_memoryOptimized_unique_nullable()
     {
         await Test(
@@ -2646,7 +2645,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
     public virtual async Task Create_index_memoryOptimized_unique_nullable_with_filter()
     {
         await Test(
@@ -2685,7 +2684,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_index_memoryOptimized_unique_nonclustered_not_nullable()
     {
         await Test(
@@ -2732,6 +2731,646 @@ DROP INDEX [IX_People_SomeField] ON [People];
 EXEC sp_rename N'[People].[Foo]', N'foo', 'INDEX';
 """);
     }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
+    [Experimental("EF9105")]
+    public virtual async Task Create_vector_index()
+    {
+        await Test(
+            builder => builder.Entity(
+                "VectorEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
+                }),
+            builder => { },
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").HasMetric("cosine"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var indexColumn = Assert.Single(index.Columns);
+
+                Assert.Same(table.Columns.Single(c => c.Name == "Vector"), indexColumn);
+                Assert.Equal("COSINE", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
+            });
+
+        AssertSql(
+            """
+CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WITH (METRIC = 'cosine');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
+    [Experimental("EF9105")]
+    public virtual async Task Create_vector_index_with_type()
+    {
+        await Test(
+            builder => builder.Entity(
+                "VectorEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
+                }),
+            builder => { },
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").HasMetric("euclidean").HasType("DiskANN"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var indexColumn = Assert.Single(index.Columns);
+
+                Assert.Same(table.Columns.Single(c => c.Name == "Vector"), indexColumn);
+                Assert.Equal("EUCLIDEAN", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
+            });
+
+        AssertSql(
+            """
+CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WITH (METRIC = 'euclidean', TYPE = 'DiskANN');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
+    [Experimental("EF9105")]
+    public virtual async Task Drop_vector_index()
+    {
+        await Test(
+            builder => builder.Entity(
+                "VectorEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
+                }),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").HasMetric("cosine"),
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql("DROP INDEX [IX_VectorEntities_Vector] ON [VectorEntities];");
+    }
+
+    #region Full-text search
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Create_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var indexColumn = Assert.Single(index.Columns);
+
+                Assert.Same(table.Columns.Single(c => c.Name == "Title"), indexColumn);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Create_full_text_index_with_all_options()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.Property<string>("Body").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title", "Body")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Manual)
+                .UseLanguage("Title", "English")
+                .UseLanguage("Body", "French"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.Equal(2, index.Columns.Count);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("TestCatalog", index[SqlServerAnnotationNames.FullTextCatalog]);
+                Assert.Equal(FullTextChangeTracking.Manual, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [English], [Body] LANGUAGE [French]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = MANUAL;
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Create_full_text_index_with_change_tracking_off()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Off),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal(FullTextChangeTracking.Off, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = OFF;
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Drop_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Create_full_text_catalog()
+    {
+        await Test(
+            builder => { },
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            model => { });
+
+        AssertSql(
+            """
+CREATE FULLTEXT CATALOG [MyCatalog];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Create_full_text_catalog_as_default_accent_insensitive()
+    {
+        await Test(
+            builder => { },
+            builder => builder.HasFullTextCatalog("MyCatalog").IsDefault().IsAccentSensitive(false),
+            model => { });
+
+        AssertSql(
+            """
+CREATE FULLTEXT CATALOG [MyCatalog] WITH ACCENT_SENSITIVITY = OFF AS DEFAULT;
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Drop_full_text_catalog()
+    {
+        await Test(
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            builder => { },
+            model => { });
+
+        AssertSql(
+            """
+DROP FULLTEXT CATALOG [MyCatalog];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Alter_full_text_catalog_accent_sensitivity()
+    {
+        await Test(
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            builder => builder.HasFullTextCatalog("MyCatalog").IsAccentSensitive(false),
+            model => { });
+
+        AssertSql(
+            """
+ALTER FULLTEXT CATALOG [MyCatalog] REBUILD WITH ACCENT_SENSITIVITY = OFF;
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Alter_full_text_catalog_set_as_default()
+    {
+        await Test(
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            builder => builder.HasFullTextCatalog("MyCatalog").IsDefault(),
+            model => { });
+
+        AssertSql(
+            """
+ALTER FULLTEXT CATALOG [MyCatalog] AS DEFAULT;
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Create_full_text_index_with_change_tracking_off_no_population()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.OffNoPopulation),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                // NO POPULATION is a creation-only option; scaffolding reads back as Off
+                Assert.Equal(FullTextChangeTracking.Off, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = OFF, NO POPULATION;
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Add_column_to_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.Property<string>("Body").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title", "Body")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.Equal(2, index.Columns.Count);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title], [Body]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Remove_column_from_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.Property<string>("Body").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title", "Body")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.Single(index.Columns);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Change_full_text_index_change_tracking_mode()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Auto),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Manual),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal(FullTextChangeTracking.Manual, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = MANUAL;
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Change_full_text_index_catalog()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("CatalogA");
+                builder.HasFullTextCatalog("CatalogB");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("CatalogA"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("CatalogB"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("CatalogB", index[SqlServerAnnotationNames.FullTextCatalog]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [CatalogB];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Change_full_text_index_language()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .UseLanguage("Title", "English"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .UseLanguage("Title", "French"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [French]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Create_full_text_catalog_and_index_together()
+    {
+        await Test(
+            builder => builder.Entity(
+                "FullTextEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Title").HasMaxLength(450);
+                    e.HasKey("Id").HasName("PK_FullTextEntities");
+                }),
+            builder => { },
+            builder =>
+            {
+                builder.HasFullTextCatalog("MyCatalog");
+                builder.Entity("FullTextEntities")
+                    .HasFullTextIndex("Title")
+                    .UseKeyIndex("PK_FullTextEntities")
+                    .UseCatalog("MyCatalog");
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("MyCatalog", index[SqlServerAnnotationNames.FullTextCatalog]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT CATALOG [MyCatalog];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [MyCatalog];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Drop_full_text_index_and_catalog_together()
+    {
+        await Test(
+            builder => builder.Entity(
+                "FullTextEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Title").HasMaxLength(450);
+                    e.HasKey("Id").HasName("PK_FullTextEntities");
+                }),
+            builder =>
+            {
+                builder.HasFullTextCatalog("MyCatalog");
+
+                builder.Entity("FullTextEntities")
+                    .HasFullTextIndex("Title")
+                    .UseKeyIndex("PK_FullTextEntities")
+                    .UseCatalog("MyCatalog");
+            },
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+DROP FULLTEXT CATALOG [MyCatalog];
+""");
+    }
+
+    #endregion Full-text search
 
     public override async Task Add_primary_key_int()
     {
@@ -2792,7 +3431,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField1], [SomeFie
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_primary_key_nonclustered()
     {
         await Test(
@@ -2813,7 +3452,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeF
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_primary_key_with_fill_factor()
     {
         await Test(
@@ -2834,7 +3473,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]) WITH (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_alternate_key_with_fill_factor()
     {
         await Test(
@@ -2933,6 +3572,16 @@ DROP INDEX [IX_Orders_CustomerId] ON [Orders];
 """);
     }
 
+    public override async Task Add_foreign_key_excluded_from_migrations()
+    {
+        await base.Add_foreign_key_excluded_from_migrations();
+
+        AssertSql(
+            """
+CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);
+""");
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();
@@ -2973,7 +3622,7 @@ ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_check_constraint_generates_exec_when_idempotent()
     {
         await Test(
@@ -3031,7 +3680,7 @@ CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Create_sequence_byte()
     {
         await Test(
@@ -3048,7 +3697,7 @@ CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Create_sequence_decimal()
     {
         await Test(
@@ -3166,7 +3815,7 @@ ALTER SCHEMA [TestSequenceSchema] TRANSFER [TestSequence];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Move_sequence_into_default_schema()
     {
         await Test(
@@ -3186,7 +3835,7 @@ EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [TestSequenceSchema].[TestS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Create_sequence_and_dependent_column()
     {
         await Test(
@@ -3213,7 +3862,7 @@ ALTER TABLE [People] ADD [SeqProp] int NOT NULL DEFAULT (NEXT VALUE FOR TestSequ
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Drop_sequence_and_dependent_column()
     {
         await Test(
@@ -3326,7 +3975,7 @@ SELECT @@ROWCOUNT;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task InsertDataOperation_generates_exec_when_idempotent()
     {
         await Test(
@@ -3363,7 +4012,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task DeleteDataOperation_generates_exec_when_idempotent()
     {
         await Test(
@@ -3388,7 +4037,7 @@ SELECT @@ROWCOUNT');
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task UpdateDataOperation_generates_exec_when_idempotent()
     {
         await Test(
@@ -3497,7 +4146,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_to_existing_table()
     {
         await base.Add_required_primitive_collection_to_existing_table();
@@ -3508,7 +4157,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
@@ -3519,7 +4168,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
@@ -3530,7 +4179,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
@@ -3541,7 +4190,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -3552,7 +4201,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numb
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_optional_primitive_collection_to_existing_table()
     {
         await base.Add_optional_primitive_collection_to_existing_table();
@@ -3563,7 +4212,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_required_primitive_collection()
     {
         await base.Create_table_with_required_primitive_collection();
@@ -3579,7 +4228,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_optional_primitive_collection()
     {
         await base.Create_table_with_optional_primitive_collection();
@@ -3595,7 +4244,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH()
     {
         await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
@@ -3638,7 +4287,7 @@ CREATE TABLE [Suppliers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_to_existing_table()
     {
         await base.Add_required_primitve_collection_to_existing_table();
@@ -3649,7 +4298,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
@@ -3660,7 +4309,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
@@ -3671,7 +4320,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
@@ -3682,7 +4331,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -3716,6 +4365,10 @@ WHERE name = '{connection.Database}';";
             : null;
     }
 
+    // Required for the SqlVector<T> type, which is in the SqlClient assembly
+    protected override ICollection<BuildReference> GetAdditionalReferences()
+        => [BuildReference.ByName("Microsoft.Data.SqlClient")];
+
     public class MigrationsSqlServerFixture : MigrationsFixtureBase
     {
         protected override string StoreName
@@ -3730,5 +4383,16 @@ WHERE name = '{connection.Database}';";
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
             => base.AddServices(serviceCollection)
                 .AddScoped<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
+
+        public override async ValueTask InitializeAsync()
+        {
+            await base.InitializeAsync();
+
+            if (SqlServerTestEnvironment.IsVectorTypeSupported)
+            {
+                await ((SqlServerTestStore)TestStore).ExecuteNonQueryAsync(
+                    "ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON");
+            }
+        }
     }
 }

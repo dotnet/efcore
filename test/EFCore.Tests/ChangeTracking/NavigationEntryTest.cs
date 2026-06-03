@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class NavigationEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_reference()
     {
         using var context = new FreezerContext();
@@ -19,7 +19,7 @@ public class NavigationEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Navigation("Garcia").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_collection()
     {
         using var context = new FreezerContext();
@@ -30,7 +30,7 @@ public class NavigationEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Navigation("Monkeys").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_reference()
     {
         using var context = new FreezerContext();
@@ -40,7 +40,7 @@ public class NavigationEntryTest
         Assert.Equal("Garcia", context.Entry(entity).Navigation("Garcia").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_collection()
     {
         using var context = new FreezerContext();
@@ -50,7 +50,7 @@ public class NavigationEntryTest
         Assert.Equal("Monkeys", context.Entry(entity).Navigation("Monkeys").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_reference()
     {
         using var context = new FreezerContext();
@@ -77,7 +77,7 @@ public class NavigationEntryTest
         Assert.Null(reference.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_collection()
     {
         using var context = new FreezerContext();
@@ -104,7 +104,7 @@ public class NavigationEntryTest
         Assert.Null(collection.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_tracks_state_of_FK_property_reference()
     {
         using var context = new FreezerContext();
@@ -127,7 +127,7 @@ public class NavigationEntryTest
         Assert.False(reference.IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_can_set_fk_to_modified_collection()
     {
         using var context = new FreezerContext();

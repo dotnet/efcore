@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SequenceEndToEndTest : IAsyncLifetime
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_sequence_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -58,7 +58,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         context.SaveChanges();
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.IsNotCI)]
+    [Fact, SkipOnCI("Flaky on CI")]
     public void Can_use_sequence_end_to_end_on_multiple_databases()
     {
         var serviceProvider = new ServiceCollection()
@@ -125,7 +125,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         context2.SaveChanges();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_sequence_end_to_end_async()
     {
         var serviceProvider = new ServiceCollection()
@@ -174,7 +174,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
     {
         var serviceProvider = new ServiceCollection()
@@ -214,7 +214,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_explicit_values()
     {
         var serviceProvider = new ServiceCollection()
@@ -295,7 +295,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         public string Name { get; set; }
     }
 
-    [ConditionalFact] // Issue #478
+    [Fact] // Issue #478
     public void Can_use_sequence_with_nullable_key_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -323,7 +323,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         }
     }
 
-    [ConditionalFact] // Issue #478
+    [Fact] // Issue #478
     public void Can_use_identity_with_nullable_key_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -402,9 +402,9 @@ public class SequenceEndToEndTest : IAsyncLifetime
 
     protected SqlServerTestStore TestStore { get; private set; }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequenceEndToEndTest");
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }

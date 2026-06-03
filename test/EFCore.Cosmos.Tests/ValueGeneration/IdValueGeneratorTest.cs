@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration;
 
 public class IdValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Generated_ids_do_not_clash()
     {
         var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
@@ -42,6 +42,46 @@ public class IdValueGeneratorTest
             where TEntity : class, new()
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
                 [model.FindEntityType(typeof(TEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+    }
+
+    [Fact]
+    public void Illegal_id_characters_are_not_escaped_by_default()
+    {
+        var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Post>().HasKey(p => new { p.OtherId, p.Id });
+        var model = modelBuilder.FinalizeModel();
+
+        foreach (var c in new[] { "/", "\\", "?", "#" })
+        {
+            var id = (string)CosmosTestHelpers.Instance.CreateInternalEntry(
+                    model, EntityState.Added, new Post { Id = c, OtherId = "1" })
+                [model.FindEntityType(typeof(Post)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+
+            Assert.Contains(c, id);
+            Assert.DoesNotContain("^", id);
+        }
+    }
+
+    [Fact]
+    public void Ids_with_former_escape_sequences_do_not_collide()
+    {
+        var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Post>().HasKey(p => new { p.OtherId, p.Id });
+        var model = modelBuilder.FinalizeModel();
+
+        var pairs = new[] { ("/", "^2F"), ("\\", "^5C"), ("?", "^3F"), ("#", "^23") };
+        foreach (var (raw, escaped) in pairs)
+        {
+            var id1 = Create(raw);
+            var id2 = Create(escaped);
+
+            Assert.NotEqual(id1, id2);
+        }
+
+        string Create(string value)
+            => (string)CosmosTestHelpers.Instance.CreateInternalEntry(
+                    model, EntityState.Added, new Post { Id = value, OtherId = "1" })
+                [model.FindEntityType(typeof(Post)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
     }
 
     private class Blog

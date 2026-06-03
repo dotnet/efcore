@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocMiscellaneousQuerySqliteTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
@@ -62,12 +62,12 @@ FROM "Prices" AS "p"
 """,
             //
             """
-SELECT CAST(AVG("p"."FloatColumn") AS REAL)
+SELECT AVG("p"."FloatColumn")
 FROM "Prices" AS "p"
 """,
             //
             """
-SELECT CAST(AVG("p"."NullableFloatColumn") AS REAL)
+SELECT AVG("p"."NullableFloatColumn")
 FROM "Prices" AS "p"
 """,
             //
@@ -144,5 +144,32 @@ FROM "TestEntities" AS "t"
 WHERE 1 = "t"."Id"
 """);
         }
+    }
+
+    public override async Task Coalesce_in_conditional_with_value_conversion(bool async)
+    {
+        await base.Coalesce_in_conditional_with_value_conversion(async);
+
+        AssertSql(
+            """
+SELECT "d"."Id", CASE
+    WHEN COALESCE("d"."Foo", 99) = 10 THEN 'A'
+    ELSE 'B'
+END AS "Foo"
+FROM "Data" AS "d"
+ORDER BY "d"."Id"
+""");
+    }
+
+    public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
+    {
+        await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "u"."Name"
+FROM "Users" AS "u"
+WHERE "u"."Name" LIKE 'Name%'
+""");
     }
 }

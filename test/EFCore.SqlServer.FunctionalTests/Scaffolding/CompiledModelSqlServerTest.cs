@@ -4,6 +4,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -191,6 +192,65 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             model.GetEntityTypes());
     }
 
+    [Fact]
+    public virtual Task Vector_index()
+        => Test(
+            modelBuilder =>
+            {
+#pragma warning disable EF9105
+                modelBuilder.Entity<VectorIndexEntity>(b =>
+                {
+                    b.Property(e => e.Vector).HasColumnType("vector(3)");
+                    b.HasVectorIndex(e => e.Vector)
+                        .HasMetric("cosine")
+                        .HasType("DiskANN");
+                });
+#pragma warning restore EF9105
+            },
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(VectorIndexEntity))!;
+                var vectorProperty = entityType.FindProperty(nameof(VectorIndexEntity.Vector))!;
+                Assert.False(vectorProperty.IsAutoLoaded);
+
+                var index = entityType.GetIndexes().Single();
+                Assert.Equal("cosine", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
+            },
+            useContext: null,
+            additionalSourceFiles: []);
+
+    [Fact]
+    public virtual Task Full_text_index()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.HasFullTextCatalog("MyCatalog");
+
+                modelBuilder.Entity<FullTextEntity>(b =>
+                {
+                    b.HasFullTextIndex(e => e.Title)
+                        .UseKeyIndex("PK_FullTextEntity")
+                        .UseCatalog("MyCatalog")
+                        .HasChangeTracking(FullTextChangeTracking.Manual)
+                        .UseLanguage("Title", "English");
+                });
+            },
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(FullTextEntity))!;
+                var index = entityType.GetIndexes().Single();
+                // Full-text index annotations are not used at runtime, so they are not included in the compiled model
+                Assert.Null(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextCatalog]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextChangeTracking]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextLanguages]);
+                // Full-text catalogs should also be absent at runtime
+                Assert.Null(model[SqlServerAnnotationNames.FullTextCatalogs]);
+            },
+            useContext: null,
+            additionalSourceFiles: []);
+
     protected override bool UseSprocReturnValue
         => true;
 
@@ -294,6 +354,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                         .UseCollation("Latin1_General_CI_AI");
                 });
         });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.ComplexProperty(p => p.Dependent, cb => cb.HasColumnType("nvarchar(450)"));
+        });
     }
 
     protected override void AssertComplexTypes(IModel model)
@@ -332,7 +397,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             Assert.Throws<InvalidOperationException>(() => detailsProperty.IsSparse()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_HiLo_sequence()
         => Test(
             modelBuilder =>
@@ -363,7 +428,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.Same(hiLo, dataEntity.FindPrimaryKey()!.Properties.Single().FindHiLoSequence());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_sequence()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -391,7 +456,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.Same(keySequence, dataEntity!.FindPrimaryKey()!.Properties.Single().FindSequence());
             });
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public virtual Task SpatialTypesTest()
         => Test(
             modelBuilder => modelBuilder.Entity<SpatialTypes>(eb =>
@@ -424,12 +489,12 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
     {
-        builder = base.AddOptions(builder)
+        builder = base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w.Ignore(SqlServerEventId.DecimalTypeDefaultWarning));
         new SqlServerDbContextOptionsBuilder(builder).UseNetTopologySuite();
         return builder;
@@ -443,7 +508,20 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         base.AddReferences(build);
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite"));
+        build.References.Add(BuildReference.ByName("Microsoft.Data.SqlClient"));
         build.References.Add(BuildReference.ByName("NetTopologySuite"));
         return build;
+    }
+
+    public class VectorIndexEntity
+    {
+        public int Id { get; set; }
+        public SqlVector<float>? Vector { get; set; }
+    }
+
+    public class FullTextEntity
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
     }
 }

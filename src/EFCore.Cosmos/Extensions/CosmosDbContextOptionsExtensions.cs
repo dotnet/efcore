@@ -270,7 +270,7 @@ public static class CosmosDbContextOptionsExtensions
 
         coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
             coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
-                CosmosEventId.SyncNotSupported, WarningBehavior.Throw));
+                CosmosEventId.BulkExecutionWithTransactionalBatch, WarningBehavior.Throw));
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
     }

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class SqlServerOutputClauseConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Output_clause_is_enabled_by_default()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -20,7 +20,7 @@ public class SqlServerOutputClauseConventionTest
         Assert.True(entityType.IsSqlOutputClauseUsed(tableIdentifier));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Trigger_disables_output_clause()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();

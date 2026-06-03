@@ -14,22 +14,31 @@ internal static class Reporter
     public const string DataPrefix = "data:    ";
     public const string VerbosePrefix = "verbose: ";
 
+    private static TextWriter _stdOut = Console.Out;
+    private static AnsiTextWriter _stdOutAnsi = new(Console.Out);
+
     public static bool IsVerbose { get; set; }
     public static bool NoColor { get; set; }
     public static bool PrefixOutput { get; set; }
+
+    public static void SetStdOut(TextWriter writer)
+    {
+        _stdOut = writer;
+        _stdOutAnsi = new AnsiTextWriter(writer);
+    }
 
     [return: NotNullIfNotNull(nameof(value))]
     public static string? Colorize(string? value, Func<string?, string> colorizeFunc)
         => NoColor ? value : colorizeFunc(value);
 
     public static void WriteError(string? message)
-        => WriteLine(Prefix(ErrorPrefix, Colorize(message, x => Bold + Red + x + Reset)));
+        => WriteStdErr(Prefix(ErrorPrefix, Colorize(message, x => Bold + Red + x + Reset)));
 
     public static void WriteWarning(string? message)
-        => WriteLine(Prefix(WarningPrefix, Colorize(message, x => Bold + Yellow + x + Reset)));
+        => WriteStdErr(Prefix(WarningPrefix, Colorize(message, x => Bold + Yellow + x + Reset)));
 
     public static void WriteInformation(string? message)
-        => WriteLine(Prefix(InfoPrefix, message));
+        => WriteStdErr(Prefix(InfoPrefix, message));
 
     public static void WriteData(string? message)
         => WriteLine(Prefix(DataPrefix, Colorize(message, x => Bold + Gray + x + Reset)));
@@ -38,7 +47,7 @@ internal static class Reporter
     {
         if (IsVerbose)
         {
-            WriteLine(Prefix(VerbosePrefix, Colorize(message, x => Bold + Black + x + Reset)));
+            WriteStdErr(Prefix(VerbosePrefix, Colorize(message, x => Bold + Black + x + Reset)));
         }
     }
 
@@ -55,11 +64,29 @@ internal static class Reporter
     {
         if (NoColor)
         {
-            Console.WriteLine(value);
+            _stdOut.WriteLine(value);
         }
         else
         {
-            AnsiConsole.WriteLine(value);
+            _stdOutAnsi.WriteLine(value);
+        }
+    }
+
+    private static void WriteStdErr(string? value)
+    {
+        if (PrefixOutput)
+        {
+            WriteLine(value);
+            return;
+        }
+
+        if (NoColor)
+        {
+            Console.Error.WriteLine(value);
+        }
+        else
+        {
+            AnsiConsole.Error.WriteLine(value);
         }
     }
 }

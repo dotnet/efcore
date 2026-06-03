@@ -12,27 +12,27 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
 {
     #region Single operation
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_with_generated_values(bool async)
         => Test(EntityState.Added, secondOperationType: null, GeneratedValues.Some, async);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_with_no_generated_values(bool async)
         => Test(EntityState.Added, secondOperationType: null, GeneratedValues.None, async);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_with_all_generated_values(bool async)
         => Test(EntityState.Added, secondOperationType: null, GeneratedValues.All, async);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Modify_with_generated_values(bool async)
         => Test(EntityState.Modified, secondOperationType: null, GeneratedValues.Some, async);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Modify_with_no_generated_values(bool async)
         => Test(EntityState.Modified, secondOperationType: null, GeneratedValues.None, async);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete(bool async)
         => Test(EntityState.Deleted, secondOperationType: null, GeneratedValues.Some, async);
 
@@ -40,27 +40,27 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
 
     #region Same two operations with same entity type
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_Add_with_same_entity_type_and_generated_values(bool async)
         => Test(EntityState.Added, EntityState.Added, GeneratedValues.Some, async, withSameEntityType: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_Add_with_same_entity_type_and_no_generated_values(bool async)
         => Test(EntityState.Added, EntityState.Added, GeneratedValues.None, async, withSameEntityType: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_Add_with_same_entity_type_and_all_generated_values(bool async)
         => Test(EntityState.Added, EntityState.Added, GeneratedValues.All, async, withSameEntityType: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Modify_Modify_with_same_entity_type_and_generated_values(bool async)
         => Test(EntityState.Modified, EntityState.Modified, GeneratedValues.Some, async, withSameEntityType: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Modify_Modify_with_same_entity_type_and_no_generated_values(bool async)
         => Test(EntityState.Modified, EntityState.Modified, GeneratedValues.None, async, withSameEntityType: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_Delete_with_same_entity_type(bool async)
         => Test(EntityState.Deleted, EntityState.Deleted, GeneratedValues.Some, async, withSameEntityType: true);
 
@@ -68,27 +68,27 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
 
     #region Same two operations with different entity types
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_Add_with_different_entity_types_and_generated_values(bool async)
         => Test(EntityState.Added, EntityState.Added, GeneratedValues.Some, async, withSameEntityType: false);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_Add_with_different_entity_types_and_no_generated_values(bool async)
         => Test(EntityState.Added, EntityState.Added, GeneratedValues.None, async, withSameEntityType: false);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Add_Add_with_different_entity_types_and_all_generated_values(bool async)
         => Test(EntityState.Added, EntityState.Added, GeneratedValues.All, async, withSameEntityType: false);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Modify_Modify_with_different_entity_types_and_generated_values(bool async)
         => Test(EntityState.Modified, EntityState.Modified, GeneratedValues.Some, async, withSameEntityType: false);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Modify_Modify_with_different_entity_types_and_no_generated_values(bool async)
         => Test(EntityState.Modified, EntityState.Modified, GeneratedValues.None, async, withSameEntityType: false);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_Delete_with_different_entity_types(bool async)
         => Test(EntityState.Deleted, EntityState.Deleted, GeneratedValues.Some, async, withSameEntityType: false);
 
@@ -96,7 +96,7 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
 
     #region Different two operations
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_Add_with_same_entity_types(bool async)
         => Test(EntityState.Deleted, EntityState.Added, GeneratedValues.Some, async, withSameEntityType: true);
 
@@ -359,7 +359,7 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
         All
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         Fixture.CleanData();
         await Fixture.SeedAsync();
@@ -367,6 +367,6 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
         ClearLog();
     }
 
-    public Task DisposeAsync()
-        => Task.CompletedTask;
+    public ValueTask DisposeAsync()
+        => ValueTask.CompletedTask;
 }

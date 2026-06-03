@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -9,7 +9,7 @@ public class SqlServerMigrationsAnnotationProviderTest
 {
     private readonly SqlServerAnnotationProvider _annotations = new(new RelationalAnnotationProviderDependencies());
 
-    [ConditionalFact]
+    [Fact]
     public void For_property_handles_identity_annotations()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -24,7 +24,7 @@ public class SqlServerMigrationsAnnotationProviderTest
         Assert.Equal("2, 3", identity.Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Resolves_column_names_for_Index_with_included_properties()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();

@@ -263,6 +263,20 @@ WHERE instr('12559', CAST("b"."Int" AS TEXT)) - 1 = 1
 """);
     }
 
+    public override async Task IndexOf_with_non_string_column_using_double_cast()
+    {
+        await base.IndexOf_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+@pattern='5' (Size = 1)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr(CAST("b"."Int" AS TEXT), @pattern) - 1 <> -1
+""");
+    }
+
     #endregion IndexOf
 
     #region Replace
@@ -312,6 +326,18 @@ WHERE "b"."String" <> '' AND replace("b"."String", "b"."String", '') = ''
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."String" <> '' AND replace("b"."String", "b"."String", CAST("b"."Int" AS TEXT)) = CAST("b"."Int" AS TEXT)
+""");
+    }
+
+    public override async Task Replace_with_non_string_column_using_double_cast()
+    {
+        await base.Replace_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE replace(CAST("b"."Int" AS TEXT), '8', '3') = '3'
 """);
     }
 
@@ -1609,7 +1635,7 @@ WHERE 'Seattle' REGEXP "b"."String"
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Regex_IsMatch_negated()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => !Regex.IsMatch(o.String, "^[^S]")));
@@ -1676,7 +1702,7 @@ WHERE CAST("b"."Int" AS TEXT) LIKE '%5%'
 
     #endregion Like
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

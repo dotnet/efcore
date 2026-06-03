@@ -650,110 +650,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         {
             if (command.EntityState is EntityState.Modified or EntityState.Added)
             {
-                if (command.Table != null)
-                {
-                    foreach (var foreignKey in command.Table.ReferencingForeignKeyConstraints)
-                    {
-                        if (!IsModified(foreignKey.PrincipalUniqueConstraint.Columns, command))
-                        {
-                            continue;
-                        }
-
-                        var principalKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
-                            .CreatePrincipalEquatableKeyValue(command);
-                        Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
-
-                        if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
-                        {
-                            predecessorCommands = [];
-                            predecessorsMap.Add(principalKeyValue, predecessorCommands);
-                        }
-
-                        predecessorCommands.Add(command);
-                    }
-                }
-
-                for (var i = 0; i < command.Entries.Count; i++)
-                {
-                    var entry = command.Entries[i];
-                    foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
-                    {
-                        if (!CanCreateDependency(foreignKey, command, principal: true)
-                            || !IsModified(foreignKey.PrincipalKey.Properties, entry)
-                            || (command.Table != null
-                                && !IsStoreGenerated(entry, foreignKey.PrincipalKey)))
-                        {
-                            continue;
-                        }
-
-                        var principalKeyValue = foreignKey.GetDependentKeyValueFactory()
-                            .CreatePrincipalEquatableKey(entry);
-                        Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
-
-                        if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
-                        {
-                            predecessorCommands = [];
-                            predecessorsMap.Add(principalKeyValue, predecessorCommands);
-                        }
-
-                        predecessorCommands.Add(command);
-                    }
-                }
+                AddForeignKeyPredecessors(command, predecessorsMap, principal: true);
             }
 
             if (command.EntityState is EntityState.Modified or EntityState.Deleted)
             {
-                if (command.Table != null)
-                {
-                    foreach (var foreignKey in command.Table!.ForeignKeyConstraints)
-                    {
-                        if (!IsModified(foreignKey.Columns, command))
-                        {
-                            continue;
-                        }
-
-                        var dependentKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
-                            .CreateDependentEquatableKeyValue(command, fromOriginalValues: true);
-                        if (dependentKeyValue != null)
-                        {
-                            if (!originalPredecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
-                            {
-                                predecessorCommands = [];
-                                originalPredecessorsMap.Add(dependentKeyValue, predecessorCommands);
-                            }
-
-                            predecessorCommands.Add(command);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var entry in command.Entries)
-                    {
-                        foreach (var foreignKey in entry.EntityType.GetForeignKeys())
-                        {
-                            if (!CanCreateDependency(foreignKey, command, principal: false)
-                                || !IsModified(foreignKey.Properties, entry))
-                            {
-                                continue;
-                            }
-
-                            var dependentKeyValue = foreignKey.GetDependentKeyValueFactory()
-                                ?.CreateDependentEquatableKey(entry, fromOriginalValues: true);
-
-                            if (dependentKeyValue != null)
-                            {
-                                if (!originalPredecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
-                                {
-                                    predecessorCommands = [];
-                                    originalPredecessorsMap.Add(dependentKeyValue, predecessorCommands);
-                                }
-
-                                predecessorCommands.Add(command);
-                            }
-                        }
-                    }
-                }
+                AddForeignKeyPredecessors(command, originalPredecessorsMap, principal: false);
             }
         }
 
@@ -761,93 +663,153 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         {
             if (command.EntityState is EntityState.Modified or EntityState.Added)
             {
-                if (command.Table != null)
-                {
-                    foreach (var foreignKey in command.Table.ForeignKeyConstraints)
-                    {
-                        if (!IsModified(foreignKey.Columns, command))
-                        {
-                            continue;
-                        }
-
-                        var dependentKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
-                            .CreateDependentEquatableKeyValue(command);
-                        if (dependentKeyValue is null)
-                        {
-                            continue;
-                        }
-
-                        AddMatchingPredecessorEdge(
-                            predecessorsMap, dependentKeyValue, command, foreignKey, checkStoreGenerated: true);
-                    }
-                }
-
-                // ReSharper disable once ForCanBeConvertedToForeach
-                for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
-                {
-                    var entry = command.Entries[entryIndex];
-                    foreach (var foreignKey in entry.EntityType.GetForeignKeys())
-                    {
-                        if (!CanCreateDependency(foreignKey, command, principal: false)
-                            || !IsModified(foreignKey.Properties, entry))
-                        {
-                            continue;
-                        }
-
-                        var dependentKeyValue = foreignKey.GetDependentKeyValueFactory()
-                            ?.CreateDependentEquatableKey(entry);
-                        if (dependentKeyValue == null)
-                        {
-                            continue;
-                        }
-
-                        AddMatchingPredecessorEdge(
-                            predecessorsMap, dependentKeyValue, command, foreignKey, checkStoreGenerated: true);
-                    }
-                }
+                AddForeignKeyEdges(command, predecessorsMap, principal: false);
             }
 
             if (command.EntityState is EntityState.Modified or EntityState.Deleted)
             {
-                if (command.Table != null)
-                {
-                    foreach (var foreignKey in command.Table.ReferencingForeignKeyConstraints)
-                    {
-                        if (!IsModified(foreignKey.PrincipalUniqueConstraint.Columns, command))
-                        {
-                            continue;
-                        }
+                AddForeignKeyEdges(command, originalPredecessorsMap, principal: true);
+            }
+        }
+    }
 
-                        var principalKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
-                            .CreatePrincipalEquatableKeyValue(command, fromOriginalValues: true);
-                        Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
-                        AddMatchingPredecessorEdge(
-                            originalPredecessorsMap, principalKeyValue, command, foreignKey);
-                    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    private static void AddForeignKeyPredecessors(
+        IReadOnlyModificationCommand command,
+        Dictionary<object, List<IReadOnlyModificationCommand>> predecessorsMap,
+        bool principal)
+    {
+        // This call doesn't need the IsStoreGenerated check because the constraint-level factory
+        // (IRowForeignKeyValueFactory) works from column modifications and always produces a usable key value,
+        // even for store-generated keys. The model-level factory below works from IUpdateEntry, which may hold
+        // temporary sentinel values for store-generated keys, so it needs to register those separately to ensure
+        // the dependent side can find the principal via either factory.
+        foreach (var (_, keyValue) in GetForeignKeyConstraintValues(command, principal, fromOriginalValues: !principal))
+        {
+            AddPredecessor(predecessorsMap, keyValue, command);
+        }
+
+        // Handle the cases where there is no relational model and where there is no mapped foreign key constraint (TPC)
+        foreach (var (_, keyValue) in GetForeignKeyValues(
+                     command, principal, fromOriginalValues: !principal, checkStoreGenerated: principal))
+        {
+            AddPredecessor(predecessorsMap, keyValue, command);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    private void AddForeignKeyEdges(
+        IReadOnlyModificationCommand command,
+        Dictionary<object, List<IReadOnlyModificationCommand>> predecessorsMap,
+        bool principal)
+    {
+        foreach (var (constraint, keyValue) in GetForeignKeyConstraintValues(command, principal, fromOriginalValues: principal))
+        {
+            AddMatchingPredecessorEdge(predecessorsMap, keyValue, command, constraint, checkStoreGenerated: !principal);
+        }
+
+        // Handle the cases where there is no relational model and where there is no mapped foreign key constraint (TPC)
+        foreach (var (foreignKey, keyValue) in GetForeignKeyValues(
+                     command, principal, fromOriginalValues: principal, checkStoreGenerated: false))
+        {
+            AddMatchingPredecessorEdge(predecessorsMap, keyValue, command, foreignKey, checkStoreGenerated: !principal);
+        }
+    }
+
+    private static IEnumerable<(IForeignKeyConstraint Constraint, object KeyValue)> GetForeignKeyConstraintValues(
+        IReadOnlyModificationCommand command,
+        bool principal,
+        bool fromOriginalValues)
+    {
+        if (command.Table == null)
+        {
+            yield break;
+        }
+
+        var constraints = principal ? command.Table.ReferencingForeignKeyConstraints : command.Table.ForeignKeyConstraints;
+        foreach (var constraint in constraints)
+        {
+            var columns = principal ? constraint.PrincipalUniqueConstraint.Columns : constraint.Columns;
+            if (!IsModified(columns, command))
+            {
+                continue;
+            }
+
+            var foreignKeyValueFactory = ((ForeignKeyConstraint)constraint).GetRowForeignKeyValueFactory();
+            var keyValue = principal
+                ? foreignKeyValueFactory.CreatePrincipalEquatableKeyValue(command, fromOriginalValues)
+                : foreignKeyValueFactory.CreateDependentEquatableKeyValue(command, fromOriginalValues);
+
+            if (keyValue is null)
+            {
+                Check.DebugAssert(!principal, "null principal keyValue");
+                continue;
+            }
+
+            yield return (constraint, keyValue);
+        }
+    }
+
+    private static IEnumerable<(IForeignKey ForeignKey, object KeyValue)> GetForeignKeyValues(
+        IReadOnlyModificationCommand command,
+        bool principal,
+        bool fromOriginalValues,
+        bool checkStoreGenerated)
+    {
+        // ReSharper disable once ForCanBeConvertedToForeach
+        for (var i = 0; i < command.Entries.Count; i++)
+        {
+            var entry = command.Entries[i];
+            var foreignKeys = principal
+                ? entry.EntityType.GetReferencingForeignKeys()
+                : entry.EntityType.GetForeignKeys();
+            foreach (var foreignKey in foreignKeys)
+            {
+                var properties = principal ? foreignKey.PrincipalKey.Properties : foreignKey.Properties;
+                if (!CanCreateDependency(foreignKey, command, principal)
+                    || !IsModified(properties, entry)
+                    || (command.Table != null
+                        && (!checkStoreGenerated || !IsStoreGenerated(entry, foreignKey.PrincipalKey))
+                        && foreignKey.GetMappedConstraints().Any()))
+                {
+                    continue;
                 }
-                else
-                {
-                    // ReSharper disable once ForCanBeConvertedToForeach
-                    for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
-                    {
-                        var entry = command.Entries[entryIndex];
-                        foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
-                        {
-                            if (!CanCreateDependency(foreignKey, command, principal: true))
-                            {
-                                continue;
-                            }
 
-                            var principalKeyValue = foreignKey.GetDependentKeyValueFactory()
-                                .CreatePrincipalEquatableKey(entry, fromOriginalValues: true);
-                            Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
-                            AddMatchingPredecessorEdge(
-                                originalPredecessorsMap, principalKeyValue, command, foreignKey);
-                        }
-                    }
+                var foreignKeyValueFactory = foreignKey.GetDependentKeyValueFactory();
+                var keyValue = principal
+                    ? foreignKeyValueFactory.CreatePrincipalEquatableKey(entry, fromOriginalValues)
+                    : foreignKeyValueFactory.CreateDependentEquatableKey(entry, fromOriginalValues);
+
+                if (keyValue != null)
+                {
+                    yield return (foreignKey, keyValue);
                 }
             }
         }
+    }
+
+    private static void AddPredecessor(
+        Dictionary<object, List<IReadOnlyModificationCommand>> predecessorsMap,
+        object keyValue,
+        IReadOnlyModificationCommand command)
+    {
+        if (!predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))
+        {
+            predecessorCommands = [];
+            predecessorsMap.Add(keyValue, predecessorCommands);
+        }
+
+        predecessorCommands.Add(command);
     }
 
     private static bool IsStoreGenerated(IUpdateEntry entry, IKey key)
@@ -873,6 +835,14 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         if (command.Table != null)
         {
+            // JSON-owned entities are stored inline in their owner's column and never have separate
+            // modification commands, so they cannot participate in inter-command dependency ordering.
+            var otherEntityType = principal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType;
+            if (otherEntityType.IsMappedToJson())
+            {
+                return false;
+            }
+
             if (foreignKey.IsRowInternal(StoreObjectIdentifier.Table(command.TableName, command.Schema))
                 || (foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                     && foreignKey.PrincipalKey.Properties.SequenceEqual(foreignKey.Properties)))
@@ -1091,7 +1061,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         T keyValue,
         IReadOnlyModificationCommand command,
         IForeignKeyConstraint foreignKey,
-        bool checkStoreGenerated = false)
+        bool checkStoreGenerated)
         where T : notnull
     {
         if (predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))

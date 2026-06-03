@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -12,7 +12,7 @@ public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFix
 
     protected abstract Assembly ProviderAssembly { get; }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_reverse_engineering_services()
     {
         using var context = Fixture.CreateContext();
@@ -30,7 +30,7 @@ public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFix
         Assert.NotNull(reverseEngineerScaffolder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_migrations_services()
     {
         using var context = Fixture.CreateContext();

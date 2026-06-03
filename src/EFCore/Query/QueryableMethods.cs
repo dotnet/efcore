@@ -211,6 +211,13 @@ public static class QueryableMethods
     public static MethodInfo LeftJoin { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.FullJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}},IEqualityComparer{TKey})" />
+    /// </summary>
+    public static MethodInfo FullJoin { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LongCount{TSource}(IQueryable{TSource})" />
     /// </summary>
     public static MethodInfo LongCountWithoutPredicate { get; }
@@ -269,6 +276,20 @@ public static class QueryableMethods
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.OrderDescending{T}(IQueryable{T})" />
     /// </summary>
     public static MethodInfo OrderDescending { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.MaxBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    /// </summary>
+    public static MethodInfo MaxBy { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.MinBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    /// </summary>
+    public static MethodInfo MinBy { get; }
 
     /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Reverse{TSource}" />
@@ -724,6 +745,22 @@ public static class QueryableMethods
                 typeof(IQueryable<>).MakeGenericType(types[0])
             ]);
 
+        MaxBy = GetMethod(
+            nameof(Queryable.MaxBy), 2,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
+            ]);
+
+        MinBy = GetMethod(
+            nameof(Queryable.MinBy), 2,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
+            ]);
+
         Reverse = GetMethod(nameof(Queryable.Reverse), 1, types => [typeof(IQueryable<>).MakeGenericType(types[0])]);
 
         RightJoin = GetMethod(
@@ -735,6 +772,18 @@ public static class QueryableMethods
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]))
+            ]);
+
+        FullJoin = GetMethod(
+            nameof(Queryable.FullJoin), 4,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3])),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
             ]);
 
         Select = GetMethod(

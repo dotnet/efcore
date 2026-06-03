@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class SqlServerValueGeneratorSelectorTest
 {
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Returns_built_in_generators_for_types_setup_for_value_generation(bool useTry)
     {
         AssertGenerator<TemporaryIntValueGenerator>("Id", useTry: useTry);
@@ -62,22 +62,11 @@ public class SqlServerValueGeneratorSelectorTest
 
     private static ValueGenerator CreateValueGenerator(IValueGeneratorSelector selector, IProperty property, bool useTry)
     {
-        ValueGenerator generator;
-        if (useTry)
-        {
-            selector.TrySelect(property, property.DeclaringType, out generator);
-        }
-        else
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            generator = selector.Select(property, property.DeclaringType);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
+        selector.TrySelect(property, property.DeclaringType, out var generator);
         return generator;
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Returns_temp_guid_generator_when_default_sql_set(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -96,7 +85,7 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.IsType<TemporaryGuidValueGenerator>(generator);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Returns_temp_string_generator_when_default_sql_set(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -117,7 +106,7 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.True(generator.GeneratesTemporaryValues);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Returns_temp_binary_generator_when_default_sql_set(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -138,7 +127,7 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.True(generator.GeneratesTemporaryValues);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Returns_sequence_value_generators_when_configured_for_model(bool useTry)
     {
         AssertGenerator<SqlServerSequenceHiLoValueGenerator<int>>("Id", useHiLo: true, useTry: useTry);
@@ -156,7 +145,7 @@ public class SqlServerValueGeneratorSelectorTest
         AssertGenerator<BinaryValueGenerator>("Binary", useHiLo: true, useTry: useTry);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Returns_built_in_generators_for_types_setup_for_value_generation_even_with_key_sequences(bool useTry)
     {
         AssertGenerator<TemporaryIntValueGenerator>("Id", useKeySequence: true, useTry: useTry);
@@ -174,28 +163,7 @@ public class SqlServerValueGeneratorSelectorTest
         AssertGenerator<BinaryValueGenerator>("Binary", useKeySequence: true, useTry: useTry);
     }
 
-    [ConditionalFact]
-    public void Throws_for_unsupported_combinations()
-    {
-        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(b =>
-        {
-            b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
-            b.HasKey(e => e.TimeSpan);
-        });
-        var model = builder.FinalizeModel();
-        var entityType = model.FindEntityType(typeof(AnEntity));
-
-        var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
-
-        Assert.Equal(
-            CoreStrings.NoValueGenerator("TimeSpan", "AnEntity", "TimeSpan"),
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("TimeSpan"), entityType)).Message);
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
-
-    [ConditionalFact]
+    [Fact]
     public void Returns_null_for_unsupported_combinations()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -213,7 +181,7 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.Null(valueGenerator);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Returns_generator_configured_on_model_when_property_is_identity(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();

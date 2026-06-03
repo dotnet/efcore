@@ -59,6 +59,6 @@ public abstract class ComplexPropertiesFixtureBase : AssociationsQueryFixtureBas
     // Derived fixtures ignore some complex properties that are mapped in this one
     // (e.g. complex table splitting does not support collections)
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => builder.ConfigureWarnings(b =>
-            b.Default(WarningBehavior.Ignore).Log(CoreEventId.MappedComplexPropertyIgnoredWarning));
+        => base.AddOptions(builder)
+            .ConfigureWarnings(b => b.Ignore(CoreEventId.MappedComplexPropertyIgnoredWarning));
 }

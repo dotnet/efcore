@@ -90,13 +90,97 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override UpdateExpression TranslateExecuteUpdate(ShapedQueryExpression source, IReadOnlyList<ExecuteUpdateSetter> setters)
+    {
+        var updateExpression = base.TranslateExecuteUpdate(source, setters);
+
+        // SQLite doesn't support referencing the UPDATE target table alias in JOIN ON clauses.
+        // Detect such joins and replace them with cross joins, lifting their predicates to WHERE.
+        var selectExpression = updateExpression.SelectExpression;
+        if (selectExpression.Tables.Count <= 1)
+        {
+            return updateExpression;
+        }
+
+        var targetAlias = updateExpression.Table.Alias;
+        var tables = selectExpression.Tables.ToList();
+        var predicate = selectExpression.Predicate;
+        var changed = false;
+
+        for (var i = 0; i < tables.Count; i++)
+        {
+            if (tables[i] is InnerJoinExpression innerJoin
+                && ContainsTargetReference(innerJoin.JoinPredicate, targetAlias))
+            {
+                predicate = predicate == null
+                    ? innerJoin.JoinPredicate
+                    : _sqlExpressionFactory.AndAlso(predicate, innerJoin.JoinPredicate);
+
+                tables[i] = new CrossJoinExpression(innerJoin.Table);
+                changed = true;
+            }
+        }
+
+        if (!changed)
+        {
+            return updateExpression;
+        }
+
+        var newSelect = selectExpression.Update(
+            tables,
+            predicate,
+            selectExpression.GroupBy,
+            selectExpression.Having,
+            selectExpression.Projection,
+            selectExpression.Orderings,
+            selectExpression.Offset,
+            selectExpression.Limit);
+
+        return updateExpression.Update(newSelect, updateExpression.ColumnValueSetters);
+
+        static bool ContainsTargetReference(SqlExpression expression, string targetAlias)
+        {
+            var visitor = new TargetReferenceCheckingVisitor(targetAlias);
+            visitor.Visit(expression);
+            return visitor.Found;
+        }
+    }
+
+    private sealed class TargetReferenceCheckingVisitor(string targetAlias) : ExpressionVisitor
+    {
+        public bool Found { get; private set; }
+
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+        {
+            if (Found)
+            {
+                return node;
+            }
+
+            if (node is ColumnExpression col && col.TableAlias == targetAlias)
+            {
+                Found = true;
+                return node;
+            }
+
+            return base.Visit(node);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         // Simplify x.Array.Any() => json_array_length(x.Array) > 0 instead of WHERE EXISTS (SELECT 1 FROM json_each(x.Array))
         if (predicate is null
             && source.QueryExpression is SelectExpression
             {
-                Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
+                Tables: [JsonEachExpression jsonEach],
                 Predicate: null,
                 GroupBy: [],
                 Having: null,
@@ -109,7 +193,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 _sqlExpressionFactory.GreaterThan(
                     _sqlExpressionFactory.Function(
                         "json_array_length",
-                        [array],
+                        [jsonEach.Json],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
@@ -207,7 +291,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         if (predicate is null
             && source.QueryExpression is SelectExpression
             {
-                Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
+                Tables: [JsonEachExpression jsonEach],
                 Predicate: null,
                 GroupBy: [],
                 Having: null,
@@ -218,7 +302,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         {
             var translation = _sqlExpressionFactory.Function(
                 "json_array_length",
-                [array],
+                [jsonEach.Json],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(int));
@@ -512,13 +596,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // Index on JSON array
                 case SelectExpression
                     {
-                        Tables:
-                        [
-                            TableValuedFunctionExpression
-                            {
-                                Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
-                            } jsonEachExpression
-                        ],
+                        Tables: [JsonEachExpression jsonEach],
                         Predicate: null,
                         GroupBy: [],
                         Having: null,
@@ -527,9 +605,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         Limit: null,
                         Offset: null
                     } selectExpression
-                    when orderingColumn.TableAlias == jsonEachExpression.Alias
+                    when orderingColumn.TableAlias == jsonEach.Alias
                     && TranslateExpression(index) is { } translatedIndex
-                    && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
+                    && TryTranslate(selectExpression, jsonEach.Json, translatedIndex, out var result):
                     return result;
             }
         }

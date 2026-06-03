@@ -21,11 +21,11 @@ public class NorthwindSelectQueryCosmosTest : NorthwindSelectQueryTestBase<North
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projection_with_Value_Property(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -676,11 +676,15 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 
     public override async Task Projection_in_a_subquery_should_be_liftable(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_in_a_subquery_should_be_liftable(async))).Message);
+        // Always throws for sync.
+        if (async)
+        {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_in_a_subquery_should_be_liftable(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override Task Projection_containing_DateTime_subtraction(bool async)
@@ -1048,6 +1052,14 @@ WHERE STARTSWITH(c["id"], "A")
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_1(async));
+
+        AssertSql();
+    }
+
+    public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
 
         AssertSql();
     }
@@ -1441,18 +1453,26 @@ OFFSET 0 LIMIT @p
 
     public override async Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
-            => base.Projection_skip_projection_doesnt_project_intermittent_column(async))).Message;
+        // Always throws for sync.
+        if (async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Projection_skip_projection_doesnt_project_intermittent_column(async))).Message;
 
-        Assert.Equal(CosmosStrings.OffsetRequiresLimit, message);
+            Assert.Equal(CosmosStrings.OffsetRequiresLimit, message);
+        }
     }
 
     public override async Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async));
+        // Always throws for sync.
+        if (async)
+        {
+            // Cosmos client evaluation. Issue #17246.
+            await AssertTranslationFailed(() => base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async));
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override async Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
@@ -1672,8 +1692,11 @@ ORDER BY c["OrderID"]
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task Reverse_after_orderby_thenby(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
@@ -1759,7 +1782,7 @@ ORDER BY c["EmployeeID"]
 """);
             });
 
-    [ConditionalTheory(Skip = "Always does sync evaluation.")]
+    [Theory(Skip = "Always does sync evaluation.")]
     public override async Task VisitLambda_should_not_be_visited_trivially(bool async)
     {
         // Always throws for sync.
@@ -2048,15 +2071,15 @@ WHERE STARTSWITH(c["id"], "F")
 """);
             });
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+    [Theory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result(bool async)
         => base.List_from_result_of_single_result(async);
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+    [Theory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result_2(bool async)
         => base.List_from_result_of_single_result_2(async);
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+    [Theory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result_3(bool async)
         => base.List_from_result_of_single_result_3(async);
 

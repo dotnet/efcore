@@ -120,7 +120,7 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
 
     #region Value types
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nullable_value_type_with_null()
         => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalAssociate == null));
 

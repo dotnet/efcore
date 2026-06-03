@@ -23,6 +23,11 @@
     <TargetRuntimeIdentifier Condition="'$(TargetRuntimeIdentifier)' == ''">$(TargetOsName)-$(TargetArchitecture)</TargetRuntimeIdentifier>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- Pin to 1.22.0 until efcore migrates to xunit v3; 1.27.0 crashes with xunit v2 -->
+    <XUnitAnalyzersVersion>1.22.0</XUnitAnalyzersVersion>
+  </PropertyGroup>
+
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <Import
@@ -46,6 +51,8 @@
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
     <PackageIconFullPath>$(MSBuildThisFileDirectory)logo\ef-logo.png</PackageIconFullPath>
     <PublishWindowsPdb>false</PublishWindowsPdb>
+
+    <DefaultNetCoreTargetFramework>$(NetCurrent)</DefaultNetCoreTargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">

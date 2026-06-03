@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public abstract class CompiledModelTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task SimpleModel()
         => Test(
             modelBuilder =>
@@ -75,11 +75,11 @@ namespace TestNamespace
                 Assert.NotNull(model);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task No_NativeAOT()
         => BigModel(false);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task BigModel()
         => BigModel(true);
 
@@ -268,6 +268,11 @@ namespace TestNamespace
             b.Property(e => e.TimeSpanToTicksConverterProperty).HasConversion<TimeSpanToTicksConverter>();
             b.Property(e => e.UriToStringConverterProperty).HasConversion<UriToStringConverter>();
             b.Property(e => e.NullIntToNullStringConverterProperty).HasConversion<NullIntToNullStringConverter>();
+
+            if (SupportsNonAutoLoadedProperties)
+            {
+                b.Property(e => e.NullableString).Metadata.IsAutoLoaded = false;
+            }
         });
     }
 
@@ -282,6 +287,9 @@ namespace TestNamespace
         Assert.IsType<ConstructorBinding>(manyTypesType.ConstructorBinding);
         Assert.Null(manyTypesType.FindIndexerPropertyInfo());
         Assert.Equal(ChangeTrackingStrategy.Snapshot, manyTypesType.GetChangeTrackingStrategy());
+
+        var stringProp = manyTypesType.FindProperty(nameof(ManyTypes.NullableString))!;
+        Assert.Equal(!SupportsNonAutoLoadedProperties, stringProp.IsAutoLoaded);
 
         var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection));
         if (ipAddressCollection != null)
@@ -1136,7 +1144,7 @@ namespace TestNamespace
         Assert.Equal(types.NullIntToNullStringConverterProperty, otherTypes.NullIntToNullStringConverterProperty);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task ComplexTypes()
         => Test(
             BuildComplexTypesModel,
@@ -1166,6 +1174,21 @@ namespace TestNamespace
                 await c.SaveChangesAsync();
             },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+
+    [Fact]
+    public virtual Task Throws_for_Backing_Field_Not_Found()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<EntityWithNoBackingFieldScalar>(eb =>
+                {
+                    eb.Property(e => e.Computed)
+                        .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+                });
+            },
+            options: new CompiledModelCodeGenerationOptions { ForNativeAot = true },
+            expectedExceptionMessage: CoreStrings.NoFieldOrSetter("Computed", "EntityWithNoBackingFieldScalar"),
+            skipValidation: true);
 
     protected virtual void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
@@ -1200,6 +1223,11 @@ namespace TestNamespace
                             cb.Ignore(e => e.Deriveds);
                         });
                 });
+
+            if (SupportsIndexes)
+            {
+                eb.HasIndex(e => new { e.Id, e.Owned.Number }, "IX_PrincipalBase_Id_Owned_Number");
+            }
         });
 
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
@@ -1226,7 +1254,12 @@ namespace TestNamespace
                             cb.Ignore(e => e.Deriveds);
                         });
                 });
-            eb.Ignore(p => p.Dependent);
+            eb.ComplexProperty(
+                p => p.Dependent, cb =>
+                {
+                    cb.Property<byte?>("Id");
+                    cb.Ignore(d => d.Principal);
+                });
             eb.Ignore(p => p.Principals);
         });
     }
@@ -1287,6 +1320,15 @@ namespace TestNamespace
 
         Assert.Equal(ExpectedComplexTypeProperties, nestedComplexType.GetProperties().Count());
 
+        if (SupportsIndexes)
+        {
+            var index = principalBase.GetIndexes().Single(i => i.Name == "IX_PrincipalBase_Id_Owned_Number");
+            Assert.Equal("IX_PrincipalBase_Id_Owned_Number", index.Name);
+            Assert.Equal(2, index.Properties.Count);
+            Assert.Same(principalBase.FindProperty(nameof(PrincipalBase.Id)), index.Properties[0]);
+            Assert.Same(complexType.FindProperty(nameof(OwnedType.Number)), index.Properties[1]);
+        }
+
         var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>));
         if (principalDerived == null)
         {
@@ -1295,7 +1337,7 @@ namespace TestNamespace
 
         Assert.Equal(principalBase, principalDerived.BaseType);
 
-        var complexCollection = principalDerived.GetDeclaredComplexProperties().Single();
+        var complexCollection = principalDerived.GetDeclaredComplexProperties().Single(p => p.IsCollection);
         Assert.Equal(
             ["goo"],
             complexCollection.GetAnnotations().Select(a => a.Name));
@@ -1344,6 +1386,20 @@ namespace TestNamespace
 
         Assert.Equal(ExpectedComplexTypeProperties, collectionNestedComplexType.GetProperties().Count());
 
+        var dependentComplexProperty = principalDerived.FindComplexProperty(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.False(dependentComplexProperty.IsCollection);
+        Assert.True(dependentComplexProperty.IsNullable);
+        Assert.Equal(typeof(DependentBase<byte?>), dependentComplexProperty.ClrType);
+        Assert.Same(principalDerived, dependentComplexProperty.DeclaringType);
+
+        var dependentComplexType = dependentComplexProperty.ComplexType;
+        Assert.Equal(typeof(DependentBase<byte?>), dependentComplexType.ClrType);
+        Assert.True(dependentComplexType.HasSharedClrType);
+        Assert.IsType<ConstructorBinding>(dependentComplexType.ConstructorBinding);
+        var dependentIdProperty = dependentComplexType.FindProperty("Id")!;
+        Assert.Equal(typeof(byte?), dependentIdProperty.ClrType);
+        Assert.Empty(dependentComplexType.GetComplexProperties());
+
         Assert.Equal(
             [principalBase, principalDerived],
             model.GetEntityTypes());
@@ -1351,6 +1407,12 @@ namespace TestNamespace
 
     protected virtual int ExpectedComplexTypeProperties
         => 14;
+
+    protected virtual bool SupportsNonAutoLoadedProperties
+        => true;
+
+    protected virtual bool SupportsIndexes
+        => true;
 
     public class CustomValueComparer<T>() : ValueComparer<T>(false);
 
@@ -1790,6 +1852,12 @@ namespace TestNamespace
         public byte[]? Blob { get; set; }
     }
 
+    public class EntityWithNoBackingFieldScalar
+    {
+        public int Id { get; set; }
+        public int Computed => 1;
+    }
+
     public class PrincipalBase : AbstractBase
     {
         public new long? Id { get; set; }
@@ -1968,7 +2036,7 @@ namespace TestNamespace
 
     protected abstract TestHelpers TestHelpers { get; }
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "CompiledModelTest";
 
     private string _filePath = "";
@@ -2007,6 +2075,7 @@ namespace TestNamespace
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         => Test<DbContext>(
             onModelCreating,
@@ -2019,6 +2088,7 @@ namespace TestNamespace
             additionalSourceFiles,
             assertAssembly,
             expectedExceptionMessage,
+            skipValidation,
             testName);
 
     protected virtual async Task<(TContext?, IModel?)> Test<TContext>(
@@ -2032,6 +2102,7 @@ namespace TestNamespace
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         where TContext : DbContext
     {
@@ -2044,13 +2115,15 @@ namespace TestNamespace
                 onModelCreating?.Invoke(modelBuilder);
             },
             onConfiguring,
-            addServices);
-        using var context = contextFactory.CreateContext();
+            addServices,
+            skipValidation: skipValidation);
+        using var context = contextFactory.CreateDbContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
         options ??= new CompiledModelCodeGenerationOptions { ForNativeAot = true };
         options.ModelNamespace ??= "TestNamespace";
         options.ContextType ??= context.GetType();
+        options.ProviderName ??= context.GetService<IDatabaseProvider>().Name;
 
         var generator = TestHelpers.CreateDesignServiceProvider(
                 context.GetService<IDatabaseProvider>().Name,
@@ -2092,7 +2165,7 @@ namespace TestNamespace
 
         if (useContext != null)
         {
-            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
+            await NonSharedTestStore.InitializeAsync(NonSharedServiceProvider, contextFactory.CreateDbContext);
             ListLoggerFactory.Clear();
 
             using var compiledModelContext = CreateContextFactory<TContext>(
@@ -2102,7 +2175,7 @@ namespace TestNamespace
                         options.UseModel(compiledModel);
                     },
                     addServices: addServices)
-                .CreateContext();
+                .CreateDbContext();
             await useContext(compiledModelContext);
         }
 

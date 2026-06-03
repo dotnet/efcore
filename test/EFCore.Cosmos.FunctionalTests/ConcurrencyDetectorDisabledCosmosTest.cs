@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -9,7 +9,7 @@ public class ConcurrencyDetectorDisabledCosmosTest(ConcurrencyDetectorDisabledCo
     : ConcurrencyDetectorDisabledTestBase<
         ConcurrencyDetectorDisabledCosmosTest.ConcurrencyDetectorCosmosFixture>(fixture)
 {
-    [ConditionalTheory(Skip = "Issue #17246")]
+    [Theory(Skip = "Issue #17246")]
     public override Task Any(bool async)
         => base.Any(async);
 

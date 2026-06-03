@@ -2,11 +2,28 @@
   <Import Project="..\Directory.Build.props" />
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);CA1707;1591;xUnit1000;xUnit1003;xUnit1004;xUnit1010;xUnit1013;xUnit1026;xUnit2013;xUnit1024</NoWarn>
+    <NoWarn>$(NoWarn);CA1707;1591;xUnit1000;xUnit1003;xUnit1004;xUnit1010;xUnit1013;xUnit1026;xUnit2013;xUnit1024;xUnit1051;xUnit1031</NoWarn>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.test.ruleset</CodeAnalysisRuleSet>
     <LangVersion>preview</LangVersion>
-    <DefaultNetCoreTargetFramework>net10.0</DefaultNetCoreTargetFramework>
     <NuGetAudit>false</NuGetAudit>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsTestProject)' != 'false'">
+    <OutputType>Exe</OutputType>
+    <TestRunnerName>XUnitV3</TestRunnerName>
+
+    <!--
+      Exclude tests tagged with the "failing" category. Microsoft.DotNet.XUnitV3Extensions
+      attributes such as [ConditionalClass]/[ConditionalAssembly] add `category=failing` to tests
+      whose condition evaluates to false; this filter is what actually skips them at the runner.
+      Microsoft.Testing.Platform's targets forward TestingPlatformCommandLineArguments into
+      RunArguments before ComputeRunArguments, so this single property covers both `dotnet test`
+      (InvokeTestingPlatform) and Arcade's RunTests target (test.cmd / test.sh /
+      eng/common/build.* -test). Setting TestRunnerAdditionalArguments in addition produces
+      duplicate args and breaks MTP's ignore-exit-code option (it accepts at most one value).
+    -->
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --filter-not-trait category=failing --ignore-exit-code 8</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
 </Project>

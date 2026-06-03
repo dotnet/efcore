@@ -22,7 +22,7 @@ public class PropertyAccessorCodeFragment
     /// <summary>
     ///     Gets the name of the lambda's parameter.
     /// </summary>
-    /// <value>The name of the paramenter.</value>
+    /// <value>The name of the parameter.</value>
     public virtual string Parameter { get; }
 
     /// <summary>

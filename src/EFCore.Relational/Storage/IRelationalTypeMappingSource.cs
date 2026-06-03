@@ -45,7 +45,7 @@ public interface IRelationalTypeMappingSource : ITypeMappingSource
     /// </remarks>
     /// <param name="member">The field or property.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    new RelationalTypeMapping? FindMapping(MemberInfo member);
+    RelationalTypeMapping? FindMapping(MemberInfo member);
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="Type" />.

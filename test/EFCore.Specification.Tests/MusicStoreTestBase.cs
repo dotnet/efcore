@@ -17,7 +17,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         fixture.ListLoggerFactory.Clear();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Browse_ReturnsViewWithGenre()
     {
         using var context = CreateContext();
@@ -39,7 +39,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Index_CreatesViewWithGenres()
     {
         using var context = CreateContext();
@@ -58,7 +58,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Details_ReturnsAlbumDetail()
     {
         using var context = CreateContext();
@@ -101,7 +101,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         return genres.ToArray();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Index_GetsSixTopAlbums()
     {
         using var context = CreateContext();
@@ -149,7 +149,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GenreMenuComponent_Returns_NineGenres()
     {
         using var context = CreateContext();
@@ -171,7 +171,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AddressAndPayment_RedirectToCompleteWhenSuccessful()
     {
         const string cartId = "CartId_A";
@@ -199,7 +199,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task AddressAndPayment_ReturnsOrderIfInvalidPromoCode()
     {
         const string cartId = "CartId_A";
@@ -234,7 +234,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
             Email = "mc@sample.com"
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complete_ReturnsOrderIdIfValid()
     {
         using var context = CreateContext();
@@ -254,7 +254,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complete_ReturnsErrorIfInvalidOrder()
     {
         using var context = CreateContext();
@@ -271,7 +271,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CartSummaryComponent_returns_items()
     {
         const string cartId = "CartId_A";
@@ -309,7 +309,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Music_store_project_to_mapped_entity()
     {
         using var context = CreateContext();
@@ -346,7 +346,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task RemoveFromCart_removes_items_from_cart()
     {
         const string cartId = "CartId_A";
@@ -378,7 +378,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalTheory, InlineData(null), InlineData("CartId_A")]
+    [Theory, InlineData(null), InlineData("CartId_A")]
     public virtual async Task Cart_is_empty_when_no_items_have_been_added(string cartId)
     {
         using var context = CreateContext();
@@ -395,7 +395,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Cart_has_items_once_they_have_been_added()
     {
         const string cartId = "CartId_A";
@@ -423,7 +423,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_add_items_to_cart()
     {
         const string cartId = "CartId_A";
@@ -451,7 +451,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         });
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Custom_projection_FirstOrDefault_works(bool async)
     {
         using var context = CreateContext();

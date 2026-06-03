@@ -264,7 +264,7 @@ WHERE "b"."TimeSpan" <= @timeSpan
 
     #endregion Compare
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

@@ -25,7 +25,7 @@ public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabase
 
     #region Sequences
 
-    [ConditionalFact]
+    [Fact]
     public void Create_sequences_with_facets()
         => Test(
             @"
@@ -95,7 +95,7 @@ DROP SEQUENCE DefaultFacetsSequence;
 
 DROP SEQUENCE db2.CustomFacetsSequence");
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_min_max_start_values_are_null_if_default()
         => Test(
             @"
@@ -178,7 +178,7 @@ DROP SEQUENCE [IntSequence];
 
 DROP SEQUENCE [BigIntSequence];");
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_min_max_start_values_are_not_null_if_decimal()
         => Test(
             @"
@@ -231,7 +231,7 @@ DROP SEQUENCE [DecimalSequence];
 
 DROP SEQUENCE [NumericSequence];");
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_high_min_max_start_values_are_not_null_if_decimal()
         => Test(
             @"
@@ -278,7 +278,7 @@ CREATE SEQUENCE [dbo].[HighDecimalSequence]
             @"
 DROP SEQUENCE [HighDecimalSequence];");
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_using_type_alias()
     {
         Fixture.TestStore.ExecuteNonQuery(
@@ -325,7 +325,7 @@ DROP SEQUENCE [TypeAliasSequence];
 DROP TYPE [dbo].[TestTypeAlias];");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_using_type_with_facets()
         => Test(
             @"
@@ -362,7 +362,7 @@ CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
             @"
 DROP SEQUENCE [TypeFacetSequence];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_sequences_based_on_schema()
         => Test(
             @"
@@ -407,7 +407,7 @@ DROP SEQUENCE [db2].[Sequence];");
 
     #region Model
 
-    [ConditionalFact]
+    [Fact]
     public void Set_default_schema()
         => Test(
             "SELECT 1",
@@ -424,7 +424,7 @@ DROP SEQUENCE [db2].[Sequence];");
             },
             null);
 
-    [ConditionalFact]
+    [Fact]
     public void Create_tables()
         => Test(
             @"
@@ -477,7 +477,7 @@ DROP TABLE [dbo].[Everest];
 
 DROP TABLE [dbo].[Denali];");
 
-    [ConditionalFact]
+    [Fact]
     public void Scaffold_relationships_in_order()
         => Test(
             @"
@@ -905,7 +905,7 @@ DROP TABLE [dbo].[TableAB];
 DROP TABLE [dbo].[TableB];
 DROP TABLE [dbo].[TableC];");
 
-    [ConditionalFact]
+    [Fact]
     public void Expose_join_table_when_interloper_reference()
         => Test(
             @"
@@ -1068,7 +1068,7 @@ DROP TABLE [dbo].[BBlogPPosts];
 DROP TABLE [dbo].[PPosts];
 DROP TABLE [dbo].[BBlogs];");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_database_collation_is_not_scaffolded()
         => Test(
             @"",
@@ -1081,7 +1081,7 @@ DROP TABLE [dbo].[BBlogs];");
 
     #region FilteringSchemaTable
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_schemas()
         => Test(
             @"
@@ -1108,7 +1108,7 @@ DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [db2].[K2];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables()
         => Test(
             @"
@@ -1135,7 +1135,7 @@ DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K2];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables_with_quote_in_name()
         => Test(
             @"
@@ -1162,7 +1162,7 @@ DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K2'];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables_with_qualified_name()
         => Test(
             @"
@@ -1189,7 +1189,7 @@ DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K.2];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables_with_schema_qualified_name1()
         => Test(
             @"
@@ -1220,7 +1220,7 @@ DROP TABLE [dbo].[K2];
 
 DROP TABLE [db2].[K2];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables_with_schema_qualified_name2()
         => Test(
             @"
@@ -1251,7 +1251,7 @@ DROP TABLE [dbo].[K.2];
 
 DROP TABLE [db.2].[K.2];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables_with_schema_qualified_name3()
         => Test(
             @"
@@ -1282,7 +1282,7 @@ DROP TABLE [dbo].[K.2];
 
 DROP TABLE [db2].[K.2];");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables_with_schema_qualified_name4()
         => Test(
             @"
@@ -1313,7 +1313,7 @@ DROP TABLE [dbo].[K2];
 
 DROP TABLE [db.2].[K2];");
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_filtering_validation()
     {
         Test(
@@ -1578,7 +1578,7 @@ DROP TABLE [db2].[PrincipalTable];");
 
     #region Table
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
     public void Set_memory_optimized_table_annotation()
         => Test(
             @"
@@ -1634,7 +1634,7 @@ CREATE TABLE [Blogs] (
             },
             "DROP TABLE [Blogs]");
 
-    [ConditionalFact]
+    [Fact]
     public void Class_members_can_have_same_name_as_classes_when_casing_differs() // Issue #30237
         => Test(
             @"
@@ -1673,7 +1673,7 @@ CREATE TABLE [dbo].[UIText]
             },
             "DROP TABLE [UIText]");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_columns()
         => Test(
             @"
@@ -1733,7 +1733,7 @@ On multiple lines.", c.Table.Comment);
             },
             "DROP TABLE [dbo].[Blogs]");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_view_columns()
         => Test(
             @"
@@ -1781,7 +1781,7 @@ SELECT
             },
             "DROP VIEW [dbo].[BlogsView];");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_primary_key()
         => Test(
             @"
@@ -1822,7 +1822,7 @@ CREATE TABLE PrimaryKeyTable (
             },
             "DROP TABLE PrimaryKeyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_unique_constraints()
         => Test(
             @"
@@ -1878,7 +1878,7 @@ CREATE INDEX IX_INDEX on UniqueConstraint ( IndexProperty );",
             },
             "DROP TABLE UniqueConstraint;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_indexes()
         => Test(
             @"
@@ -1939,7 +1939,7 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
             },
             "DROP TABLE IndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_multiple_indexes_on_same_column()
         => Test(
             @"
@@ -2012,7 +2012,75 @@ CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
             },
             "DROP TABLE IndexTable;");
 
-    [ConditionalFact]
+    [Fact]
+    public void Create_indexes_on_views()
+    => Test(
+        @"
+CREATE TABLE dbo.BaseTable (
+    Id int NOT NULL,
+    Name int NOT NULL
+);
+
+-- Use EXEC to ensure CREATE VIEW is the start of its own batch
+EXEC('
+    CREATE VIEW dbo.TestView
+    WITH SCHEMABINDING
+    AS
+    SELECT
+        Id,
+        Name,
+        COUNT_BIG(*) AS C
+    FROM dbo.BaseTable
+    GROUP BY Id, Name;
+');
+
+CREATE UNIQUE CLUSTERED INDEX IX_TestView_Id
+ON dbo.TestView (Id);
+",
+        [],
+        [],
+        (dbModel, scaffoldingFactory) =>
+        {
+            var view = dbModel.Tables.Single(t => t.Name == "TestView");
+
+            Assert.Single(view.Indexes);
+
+            var index = view.Indexes.Single();
+            Assert.True(index.IsUnique);
+            Assert.Collection(
+                index.Columns,
+                c => Assert.Equal("Id", c.Name));
+
+            var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+            var viewEntity = model.GetEntityTypes()
+                .Single(e => e.Name == "TestView");
+
+            var properties = viewEntity.GetProperties().ToList();
+            Assert.Contains(properties, p => p.Name == "Id");
+            Assert.Contains(properties, p => p.Name == "Name");
+
+            Assert.Empty(viewEntity.GetKeys());
+
+            Assert.Collection(
+                viewEntity.GetIndexes(),
+                i =>
+                {
+                    Assert.True(i.IsUnique);
+                    Assert.Collection(
+                        i.Properties,
+                        p => Assert.Equal("Id", p.Name));
+                });
+
+            Assert.Empty(viewEntity.GetForeignKeys());
+            Assert.Empty(viewEntity.GetNavigations());
+            Assert.Empty(viewEntity.GetSkipNavigations());
+        },
+        @"
+DROP VIEW dbo.TestView;
+DROP TABLE dbo.BaseTable;");
+
+    [Fact]
     public void Create_foreign_keys()
         => Test(
             @"
@@ -2122,7 +2190,7 @@ DROP TABLE SecondDependent;
 DROP TABLE FirstDependent;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers()
         => Test(
             [
@@ -2184,7 +2252,7 @@ END;"
             },
             "DROP TABLE SomeTable;");
 
-    [ConditionalTheory, InlineData("events", false, false, "Events", "Id", "Class", "Strings", "_", "_1"),
+    [Theory, InlineData("events", false, false, "Events", "Id", "Class", "Strings", "_", "_1"),
      InlineData("events", false, true, "Event", "Id", "Class", "Strings", "_", "_1"),
      InlineData("events", true, false, "events", "Id", "_class", "strings", "_", "_1"),
      InlineData("events", true, true, "_event", "Id", "_class", "strings", "_", "_1"),
@@ -2252,7 +2320,7 @@ CREATE TABLE [{tableName}] (
 
     #region ColumnFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Column_with_type_alias_assigns_underlying_store_type()
     {
         Fixture.TestStore.ExecuteNonQuery(
@@ -2301,7 +2369,7 @@ DROP TYPE dbo.TestTypeAlias;
 DROP TYPE db2.TestTypeAlias;");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Column_with_sysname_assigns_underlying_store_type_and_nullability()
         => Test(
             @"
@@ -2342,7 +2410,7 @@ CREATE TABLE TypeAlias (
             @"
 DROP TABLE TypeAlias;");
 
-    [ConditionalFact]
+    [Fact]
     public void Decimal_numeric_types_have_precision_scale()
         => Test(
             @"
@@ -2436,7 +2504,7 @@ CREATE TABLE NumericColumns (
             },
             "DROP TABLE NumericColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Max_length_of_negative_one_translate_to_max_in_store_type()
         => Test(
             @"
@@ -2531,7 +2599,7 @@ CREATE TABLE MaxColumns (
             },
             "DROP TABLE MaxColumns;");
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonType), ConditionalFact]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public void Handles_native_JSON_type()
         => Test(
             @"
@@ -2570,7 +2638,7 @@ CREATE TABLE JsonColumns (
             },
             "DROP TABLE JsonColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Specific_max_length_are_add_to_store_type()
         => Test(
             @"
@@ -2728,7 +2796,7 @@ CREATE TABLE LengthColumns (
             },
             "DROP TABLE LengthColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_binary_varbinary()
         => Test(
             @"
@@ -2787,7 +2855,7 @@ CREATE TABLE DefaultRequiredLengthBinaryColumns (
             },
             "DROP TABLE DefaultRequiredLengthBinaryColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_char_1()
         => Test(
             @"
@@ -2828,7 +2896,7 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
             },
             "DROP TABLE DefaultRequiredLengthCharColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_char_2()
         => Test(
             @"
@@ -2869,7 +2937,7 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
             },
             "DROP TABLE DefaultRequiredLengthCharColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_varchar()
         => Test(
             @"
@@ -2930,7 +2998,7 @@ CREATE TABLE DefaultRequiredLengthVarcharColumns (
             },
             "DROP TABLE DefaultRequiredLengthVarcharColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_nchar_1()
         => Test(
             @"
@@ -2971,7 +3039,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
             },
             "DROP TABLE DefaultRequiredLengthNcharColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_nchar_2()
         => Test(
             @"
@@ -3012,7 +3080,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
             },
             "DROP TABLE DefaultRequiredLengthNcharColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_nchar_3()
         => Test(
             @"
@@ -3053,7 +3121,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
             },
             "DROP TABLE DefaultRequiredLengthNcharColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_max_length_are_added_to_nvarchar()
         => Test(
             @"
@@ -3114,7 +3182,7 @@ CREATE TABLE DefaultRequiredLengthNvarcharColumns (
             },
             "DROP TABLE DefaultRequiredLengthNvarcharColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Datetime_types_have_precision_if_non_null_scale()
         => Test(
             @"
@@ -3172,7 +3240,7 @@ CREATE TABLE LengthColumns (
             },
             "DROP TABLE LengthColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Types_with_required_length_uses_length_of_one()
         => Test(
             @"
@@ -3315,7 +3383,7 @@ CREATE TABLE OneLengthColumns (
             },
             "DROP TABLE OneLengthColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Store_types_without_any_facets()
         => Test(
             @"
@@ -3533,7 +3601,7 @@ CREATE TABLE RowversionType (
 DROP TABLE NoFacetTypes;
 DROP TABLE RowversionType;");
 
-    [ConditionalFact]
+    [Fact]
     public void Default_and_computed_values_are_stored()
         => Test(
             @"
@@ -3629,7 +3697,7 @@ CREATE TABLE DefaultComputedValues (
             },
             "DROP TABLE DefaultComputedValues;");
 
-    [ConditionalFact]
+    [Fact]
     public void Non_literal_bool_default_values_are_passed_through()
         => Test(
             @"
@@ -3657,7 +3725,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_int_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -3725,7 +3793,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_short_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -3758,7 +3826,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_long_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -3791,7 +3859,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_byte_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -3824,7 +3892,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Non_literal_int_default_values_are_passed_through()
         => Test(
             @"
@@ -3852,7 +3920,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_double_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -3890,7 +3958,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_float_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -3928,7 +3996,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_decimal_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -3971,7 +4039,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
     {
         var currentCulture = CultureInfo.CurrentCulture;
@@ -4026,7 +4094,7 @@ CREATE TABLE MyTable (
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_bool_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4079,7 +4147,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_DateTime_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4119,7 +4187,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Non_literal_or_non_parsable_DateTime_default_values_are_passed_through()
         => Test(
             @"
@@ -4152,7 +4220,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_DateOnly_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4180,7 +4248,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_TimeOnly_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4208,7 +4276,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_DateTimeOffset_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4240,7 +4308,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4268,7 +4336,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Non_literal_Guid_default_values_are_passed_through()
         => Test(
             @"
@@ -4296,7 +4364,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_string_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4349,7 +4417,7 @@ CREATE TABLE MyTable (
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void ValueGenerated_is_set_for_identity_and_computed_column()
         => Test(
             @"
@@ -4416,7 +4484,7 @@ CREATE TABLE ValueGeneratedProperties (
             },
             "DROP TABLE ValueGeneratedProperties;");
 
-    [ConditionalFact]
+    [Fact]
     public void ConcurrencyToken_is_set_for_rowVersion()
         => Test(
             @"
@@ -4460,7 +4528,7 @@ CREATE TABLE RowVersionTable (
             },
             "DROP TABLE RowVersionTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Column_nullability_is_set()
         => Test(
             @"
@@ -4511,7 +4579,7 @@ CREATE TABLE NullableColumns (
             },
             "DROP TABLE NullableColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Column_collation_is_set()
         => Test(
             @"
@@ -4562,7 +4630,7 @@ CREATE TABLE ColumnsWithCollation (
             },
             "DROP TABLE ColumnsWithCollation;");
 
-    [ConditionalFact]
+    [Fact]
     public void Column_sparseness_is_set()
         => Test(
             @"
@@ -4613,7 +4681,7 @@ CREATE TABLE ColumnsWithSparseness (
             },
             "DROP TABLE ColumnsWithSparseness;");
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsHiddenColumnsSupported))]
     public void Hidden_period_columns_are_not_created()
         => Test(
             @"
@@ -4677,7 +4745,7 @@ DROP TABLE dbo.HiddenColumnsTableHistory;
 DROP TABLE dbo.HiddenColumnsTable;
 ");
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsHiddenColumnsSupported))]
     public void Period_columns_are_not_created()
         => Test(
             @"
@@ -4745,7 +4813,7 @@ DROP TABLE dbo.HiddenColumnsTable;
 
     #region PrimaryKeyFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_primary_key()
         => Test(
             @"
@@ -4800,7 +4868,7 @@ CREATE TABLE CompositePrimaryKeyTable (
             },
             "DROP TABLE CompositePrimaryKeyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_clustered_false_for_non_clustered_primary_key()
         => Test(
             @"
@@ -4843,7 +4911,7 @@ CREATE TABLE NonClusteredPrimaryKeyTable (
             },
             "DROP TABLE NonClusteredPrimaryKeyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_clustered_false_for_primary_key_if_different_clustered_index()
         => Test(
             @"
@@ -4870,7 +4938,7 @@ CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClustere
             },
             "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredIndex;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_clustered_false_for_primary_key_if_different_clustered_constraint()
         => Test(
             @"
@@ -4896,7 +4964,7 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
             },
             "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_primary_key_name_from_index()
         => Test(
             @"
@@ -4922,7 +4990,7 @@ CREATE TABLE PrimaryKeyName (
             },
             "DROP TABLE PrimaryKeyName;");
 
-    [ConditionalFact]
+    [Fact]
     public void Primary_key_fill_factor()
         => Test(
             @"
@@ -4953,7 +5021,7 @@ CREATE TABLE PrimaryKeyFillFactor
 
     #region UniqueConstraintFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_unique_constraint()
         => Test(
             @"
@@ -4979,7 +5047,7 @@ CREATE TABLE CompositeUniqueConstraintTable (
             },
             "DROP TABLE CompositeUniqueConstraintTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_clustered_true_for_clustered_unique_constraint()
         => Test(
             @"
@@ -5005,7 +5073,7 @@ CREATE TABLE ClusteredUniqueConstraintTable (
             },
             "DROP TABLE ClusteredUniqueConstraintTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_unique_constraint_name_from_index()
         => Test(
             @"
@@ -5031,7 +5099,7 @@ CREATE TABLE UniqueConstraintName (
             },
             "DROP TABLE UniqueConstraintName;");
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_constraint_fill_factor()
         => Test(
             @"
@@ -5063,7 +5131,7 @@ CREATE TABLE UniqueConstraintFillFactor
 
     #region IndexFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_index()
         => Test(
             @"
@@ -5111,7 +5179,7 @@ CREATE INDEX IX_COMPOSITE ON CompositeIndexTable ( Id2, Id1 );",
             },
             "DROP TABLE CompositeIndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_clustered_true_for_clustered_index()
         => Test(
             @"
@@ -5139,7 +5207,7 @@ CREATE CLUSTERED INDEX IX_CLUSTERED ON ClusteredIndexTable ( Id2 );",
             },
             "DROP TABLE ClusteredIndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_unique_true_for_unique_index()
         => Test(
             @"
@@ -5168,7 +5236,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON UniqueIndexTable ( Id2 );",
             },
             "DROP TABLE UniqueIndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_filter_for_filtered_index()
         => Test(
             @"
@@ -5196,7 +5264,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
             },
             "DROP TABLE FilteredIndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Ignore_hypothetical_index()
         => Test(
             @"
@@ -5217,7 +5285,7 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
             },
             "DROP TABLE HypotheticalIndexTable;");
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql))]
     public void Ignore_columnstore_index()
         => Test(
             @"
@@ -5238,7 +5306,7 @@ CREATE NONCLUSTERED COLUMNSTORE INDEX ixColumnStore ON ColumnStoreIndexTable ( I
             },
             "DROP TABLE ColumnStoreIndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_include_for_index()
         => Test(
             @"
@@ -5262,7 +5330,7 @@ CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProp
             },
             "DROP TABLE IncludeIndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Index_fill_factor()
         => Test(
             @"
@@ -5294,7 +5362,7 @@ WITH (FILLFACTOR = 80) ON [PRIMARY]",
 
     #region ForeignKeyFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_foreign_key()
         => Test(
             @"
@@ -5388,7 +5456,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_multiple_foreign_key_in_same_table()
         => Test(
             @"
@@ -5514,7 +5582,7 @@ DROP TABLE DependentTable;
 DROP TABLE AnotherPrincipalTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_foreign_key_referencing_unique_constraint()
         => Test(
             @"
@@ -5605,7 +5673,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_name_for_foreign_key()
         => Test(
             @"
@@ -5641,7 +5709,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_referential_action_for_foreign_key()
         => Test(
             @"
@@ -5723,7 +5791,7 @@ DROP TABLE PrincipalTable;");
 
     #region Types
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
     public void Vector_type()
         => Test(
             "CREATE TABLE [dbo].[VectorTable] (vector VECTOR(3))",
@@ -5746,9 +5814,89 @@ DROP TABLE PrincipalTable;");
 
     #endregion
 
+    #region Full-Text Search
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public void Full_text_catalog()
+        => Test(
+            [
+                "CREATE FULLTEXT CATALOG [TestCatalog] WITH ACCENT_SENSITIVITY = OFF AS DEFAULT",
+                "CREATE TABLE [dbo].[FtsTable] (Id int CONSTRAINT PK_FtsTable PRIMARY KEY, Title nvarchar(200))",
+            ],
+            tables: [],
+            schemas: [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var catalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(dbModel).ToList();
+                Assert.Single(catalogs);
+                Assert.Equal("TestCatalog", catalogs[0].Name);
+                Assert.True(catalogs[0].IsDefault);
+                Assert.False(catalogs[0].IsAccentSensitive);
+            },
+            """
+            DROP TABLE [dbo].[FtsTable];
+            DROP FULLTEXT CATALOG [TestCatalog];
+            """);
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public void Full_text_index()
+        => Test(
+            [
+                "CREATE FULLTEXT CATALOG [TestCatalog]",
+                "CREATE TABLE [dbo].[FtsTable] (Id int CONSTRAINT PK_FtsTable PRIMARY KEY, Title nvarchar(200), Body nvarchar(max))",
+                "CREATE FULLTEXT INDEX ON [dbo].[FtsTable] (Title LANGUAGE 'English', Body) KEY INDEX [PK_FtsTable] ON [TestCatalog] WITH CHANGE_TRACKING = MANUAL",
+            ],
+            tables: [],
+            schemas: [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single(t => t.Name == "FtsTable");
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("TestCatalog", index[SqlServerAnnotationNames.FullTextCatalog]);
+                Assert.Equal(FullTextChangeTracking.Manual, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+
+                var languages = (Dictionary<string, string>?)index[SqlServerAnnotationNames.FullTextLanguages];
+                Assert.NotNull(languages);
+                Assert.True(languages.ContainsKey("Title"));
+            },
+            """
+            DROP FULLTEXT INDEX ON [dbo].[FtsTable];
+            DROP TABLE [dbo].[FtsTable];
+            DROP FULLTEXT CATALOG [TestCatalog];
+            """);
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public void Full_text_index_with_defaults()
+        => Test(
+            [
+                "CREATE FULLTEXT CATALOG [DefaultCatalog] AS DEFAULT",
+                "CREATE TABLE [dbo].[FtsTable2] (Id int CONSTRAINT PK_FtsTable2 PRIMARY KEY, Title nvarchar(200))",
+                "CREATE FULLTEXT INDEX ON [dbo].[FtsTable2] (Title) KEY INDEX [PK_FtsTable2]",
+            ],
+            tables: [],
+            schemas: [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single(t => t.Name == "FtsTable2");
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                // Default change tracking is AUTO, which is omitted during scaffolding
+                Assert.Null(index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            },
+            """
+            DROP FULLTEXT INDEX ON [dbo].[FtsTable2];
+            DROP TABLE [dbo].[FtsTable2];
+            DROP FULLTEXT CATALOG [DefaultCatalog];
+            """);
+
+    #endregion
+
     #region Warnings
 
-    [ConditionalFact]
+    [Fact]
     public void Warn_missing_schema()
         => Test(
             @"
@@ -5772,7 +5920,7 @@ CREATE TABLE Blank (
             },
             "DROP TABLE Blank;");
 
-    [ConditionalFact]
+    [Fact]
     public void Warn_missing_table()
         => Test(
             @"
@@ -5796,7 +5944,7 @@ CREATE TABLE Blank (
             },
             "DROP TABLE Blank;");
 
-    [ConditionalFact]
+    [Fact]
     public void Warn_missing_principal_table_for_foreign_key()
         => Test(
             @"
@@ -5827,7 +5975,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Skip_reflexive_foreign_key()
         => Test(
             @"
@@ -5855,7 +6003,7 @@ CREATE TABLE PrincipalTable (
             @"
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Skip_duplicate_foreign_key()
         => Test(
             @"CREATE TABLE PrincipalTable (
@@ -5902,7 +6050,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;
 DROP TABLE OtherPrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void No_warning_missing_view_definition()
         => Test(
             @"CREATE TABLE TestViewDefinition (
@@ -5989,7 +6137,7 @@ DROP TABLE TestViewDefinition;");
 
         public TestOperationReporter OperationReporter { get; } = new();
 
-        public override async Task InitializeAsync()
+        public override async ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
             await TestStore.ExecuteNonQueryAsync("CREATE SCHEMA db2");

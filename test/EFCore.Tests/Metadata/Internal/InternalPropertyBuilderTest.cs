@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalPropertyBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Property_added_by_name_is_non_shadow_if_matches_Clr_property()
     {
         var model = new Model();
@@ -20,7 +20,40 @@ public class InternalPropertyBuilderTest
         Assert.False(property.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void Can_only_override_lower_or_equal_source_IsAutoLoaded()
+    {
+        var builder = CreateInternalPropertyBuilder();
+        var metadata = builder.Metadata;
+
+        Assert.NotNull(builder.IsAutoLoaded(false, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsAutoLoaded(true, ConfigurationSource.DataAnnotation));
+
+        Assert.True(metadata.IsAutoLoaded);
+
+        Assert.Null(builder.IsAutoLoaded(false, ConfigurationSource.Convention));
+        Assert.True(metadata.IsAutoLoaded);
+    }
+
+    [Fact]
+    public void Can_only_override_existing_IsAutoLoaded_value_explicitly()
+    {
+        var metadata = CreateProperty();
+        Assert.Null(metadata.GetIsAutoLoadedConfigurationSource());
+        metadata.IsAutoLoaded = false;
+        var builder = metadata.Builder;
+
+        Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsAutoLoadedConfigurationSource());
+        Assert.NotNull(builder.IsAutoLoaded(false, ConfigurationSource.DataAnnotation));
+        Assert.Null(builder.IsAutoLoaded(true, ConfigurationSource.DataAnnotation));
+
+        Assert.False(metadata.IsAutoLoaded);
+
+        Assert.NotNull(builder.IsAutoLoaded(true, ConfigurationSource.Explicit));
+        Assert.True(metadata.IsAutoLoaded);
+    }
+
+    [Fact]
     public void Can_only_override_lower_or_equal_source_ConcurrencyToken()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -35,7 +68,7 @@ public class InternalPropertyBuilderTest
         Assert.False(metadata.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_ConcurrencyToken_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -53,7 +86,7 @@ public class InternalPropertyBuilderTest
         Assert.False(metadata.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_ValueGenerated()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -68,7 +101,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_ValueGenerated_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -86,7 +119,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_MaxLength()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -101,7 +134,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(2, metadata.GetMaxLength().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_MaxLength_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -117,7 +150,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(2, metadata.GetMaxLength().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_sentinel()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -132,7 +165,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal("2", metadata.Sentinel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_sentinel_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -148,7 +181,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal("2", metadata.Sentinel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_Precision()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -163,7 +196,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(2, metadata.GetPrecision().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_Precision_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -179,7 +212,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(2, metadata.GetPrecision().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_Scale()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -194,7 +227,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(2, metadata.GetScale().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_Scale_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -210,7 +243,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(2, metadata.GetScale().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_CustomValueGenerator_factory()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -240,7 +273,7 @@ public class InternalPropertyBuilderTest
         Assert.Null(metadata[CoreAnnotationNames.ValueGeneratorFactoryType]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
     {
         ValueGenerator factory(IReadOnlyProperty p, ITypeBase t)
@@ -261,7 +294,7 @@ public class InternalPropertyBuilderTest
         Assert.True(metadata.RequiresValueGenerator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_clear_CustomValueGenerator_factory()
     {
         var metadata = CreateProperty();
@@ -290,7 +323,7 @@ public class InternalPropertyBuilderTest
         Assert.False(metadata.RequiresValueGenerator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_CustomValueGenerator_type()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -307,7 +340,7 @@ public class InternalPropertyBuilderTest
         Assert.True(metadata.RequiresValueGenerator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_clear_CustomValueGenerator_type()
     {
         var metadata = CreateProperty();
@@ -356,7 +389,7 @@ public class InternalPropertyBuilderTest
             => new CustomValueGenerator1();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_ValueConverter()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -384,7 +417,7 @@ public class InternalPropertyBuilderTest
 
     private class UTF8StringToBytesConverter() : StringToBytesConverter(Encoding.UTF8);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_ValueComparer()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -412,7 +445,7 @@ public class InternalPropertyBuilderTest
 
     private class CustomValueComparer<T>() : ValueComparer<T>(false);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_ProviderValueComparer()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -438,7 +471,7 @@ public class InternalPropertyBuilderTest
         Assert.Null(metadata[CoreAnnotationNames.ProviderValueComparerType]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_IsUnicode()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -453,7 +486,7 @@ public class InternalPropertyBuilderTest
         Assert.False(metadata.IsUnicode().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_IsUnicode_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -469,7 +502,7 @@ public class InternalPropertyBuilderTest
         Assert.False(metadata.IsUnicode().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_Required()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -484,7 +517,7 @@ public class InternalPropertyBuilderTest
         Assert.True(metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_Required_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -502,7 +535,7 @@ public class InternalPropertyBuilderTest
         Assert.True(metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_set_required_to_false_if_nonnullable()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
@@ -516,7 +549,7 @@ public class InternalPropertyBuilderTest
             Assert.Throws<InvalidOperationException>(() => builder.IsRequired(false, ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_BeforeSaveBehavior()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -531,7 +564,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(PropertySaveBehavior.Ignore, metadata.GetBeforeSaveBehavior());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_BeforeSaveBehavior_value_explicitly()
     {
         var metadata = CreateProperty();
@@ -549,7 +582,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(PropertySaveBehavior.Ignore, metadata.GetBeforeSaveBehavior());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_AfterSaveBehavior()
     {
         var builder = CreateInternalPropertyBuilder();
@@ -564,7 +597,7 @@ public class InternalPropertyBuilderTest
         Assert.Equal(PropertySaveBehavior.Ignore, metadata.GetAfterSaveBehavior());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_AfterSaveBehavior_value_explicitly()
     {
         var metadata = CreateProperty();

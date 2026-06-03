@@ -52,7 +52,7 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
     public virtual EntityType DeclaringEntityType
     {
         [DebuggerStepThrough]
-        get => (EntityType)Properties[0].DeclaringType;
+        get => Properties[0].DeclaringType.ContainingEntityType;
     }
 
     /// <summary>

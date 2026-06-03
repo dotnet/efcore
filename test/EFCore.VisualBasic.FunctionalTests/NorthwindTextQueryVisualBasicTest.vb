@@ -7,7 +7,7 @@ Imports Microsoft.EntityFrameworkCore.TestModels.Northwind
 Imports Xunit
 
 Partial Public Class NorthwindQueryVisualBasicTest
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Function CompareString_Equals_Text(async As Boolean) As Task
         Return AssertTranslationFailedWithDetails(
@@ -17,7 +17,7 @@ Partial Public Class NorthwindQueryVisualBasicTest
             CoreStrings.QueryUnableToTranslateMethod("string", "Compare"))
     End Function
 
-    <ConditionalTheory>
+    <Theory>
     <MemberData(NameOf(IsAsyncData))>
     Public Function CompareString_LessThanOrEqual_Text(async As Boolean) As Task
         Return AssertTranslationFailedWithDetails(

@@ -259,18 +259,26 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     /// <inheritdoc />
     [DebuggerStepThrough]
     IDependentKeyValueFactory<TKey> IForeignKey.GetDependentKeyValueFactory<TKey>()
-        => (IDependentKeyValueFactory<TKey>)_dependentKeyValueFactory!;
+        => (IDependentKeyValueFactory<TKey>)((IRuntimeForeignKey)this).DependentKeyValueFactory;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IDependentKeyValueFactory IForeignKey.GetDependentKeyValueFactory()
-        => _dependentKeyValueFactory!;
+        => ((IRuntimeForeignKey)this).DependentKeyValueFactory;
 
     /// <inheritdoc />
     IDependentKeyValueFactory IRuntimeForeignKey.DependentKeyValueFactory
     {
         [DebuggerStepThrough]
-        get => _dependentKeyValueFactory!;
+        get
+        {
+            if (_dependentKeyValueFactory == null)
+            {
+                // The principal key value factory creates the dependent key value factory
+                _ = ((IKey)PrincipalKey).GetPrincipalKeyValueFactory();
+            }
+            return _dependentKeyValueFactory!;
+        }
 
         [DebuggerStepThrough]
         set => _dependentKeyValueFactory = value;

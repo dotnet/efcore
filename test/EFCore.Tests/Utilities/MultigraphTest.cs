@@ -87,7 +87,7 @@ public class MultigraphTest
 
     #endregion
 
-    [ConditionalFact]
+    [Fact]
     public void AddVertex_adds_a_vertex()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -102,7 +102,7 @@ public class MultigraphTest
         Assert.Equal(2, graph.Vertices.Intersect([vertexOne, vertexTwo]).Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddVertices_add_vertices()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -118,7 +118,7 @@ public class MultigraphTest
         Assert.Equal(3, graph.Vertices.Intersect([vertexOne, vertexTwo, vertexThree]).Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddEdge_adds_an_edge()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -137,7 +137,7 @@ public class MultigraphTest
         Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect([edgeOne, edgeTwo]).Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddEdge_updates_incoming_and_outgoing_neighbors()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -161,7 +161,7 @@ public class MultigraphTest
         Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Intersect([vertexOne, vertexTwo]).Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_on_graph_with_no_edges_returns_all_vertices()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -176,7 +176,7 @@ public class MultigraphTest
         Assert.Equal(3, result.Intersect([vertexOne, vertexTwo, vertexThree]).Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_on_simple_graph_returns_all_vertices_in_order()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -199,7 +199,7 @@ public class MultigraphTest
             graph.TopologicalSort().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_on_tree_graph_returns_all_vertices_in_order()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -224,7 +224,7 @@ public class MultigraphTest
             graph.TopologicalSort().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_on_self_ref_can_break_cycle()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -245,7 +245,7 @@ public class MultigraphTest
                 && (edges.Intersect([edgeOne]).Count() == 1)).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_can_break_simple_cycle()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -274,7 +274,7 @@ public class MultigraphTest
                 && (edges.Single() == edgeThree)).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_can_break_two_cycles()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -314,7 +314,7 @@ public class MultigraphTest
             }).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_throws_with_default_message_when_cycle_cannot_be_broken()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -342,7 +342,7 @@ public class MultigraphTest
             Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_throws_with_formatted_message_when_cycle_cannot_be_broken()
     {
         const string message = "Formatted cycle";
@@ -389,7 +389,7 @@ public class MultigraphTest
         Assert.Equal([edgeThree], cycleData[vertexThree].Item3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_with_secondary_sort()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -413,7 +413,7 @@ public class MultigraphTest
             graph.TopologicalSort().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TopologicalSort_without_secondary_sort()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -437,7 +437,7 @@ public class MultigraphTest
             graph.TopologicalSort().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_throws_with_formatted_message_when_cycle_cannot_be_broken()
     {
         const string message = "Formatted cycle";
@@ -484,7 +484,7 @@ public class MultigraphTest
         Assert.Equal([edgeThree], cycleData[vertexThree].Item3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_throws_with_formatted_message_with_no_tail_when_cycle_cannot_be_broken()
     {
         const string message = "Formatted cycle";
@@ -532,7 +532,7 @@ public class MultigraphTest
         Assert.Equal([edgeThree], cycleData[vertexFour].Item3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_simple()
     {
         var model = CreateModel();
@@ -558,7 +558,7 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_reverse()
     {
         var model = CreateModel();
@@ -584,7 +584,7 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_preserves_graph()
     {
         var model = CreateModel();
@@ -626,7 +626,7 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_tree()
     {
         var model = CreateModel();
@@ -653,7 +653,7 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_no_edges()
     {
         var model = CreateModel();
@@ -676,7 +676,7 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_self_ref()
     {
         var model = CreateModel();
@@ -696,7 +696,7 @@ public class MultigraphTest
             Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_circular_direct()
     {
         var model = CreateModel();
@@ -723,7 +723,7 @@ public class MultigraphTest
             Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_circular_transitive()
     {
         var model = CreateModel();
@@ -760,7 +760,7 @@ public class MultigraphTest
             Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_two_cycles()
     {
         var model = CreateModel();
@@ -808,7 +808,7 @@ public class MultigraphTest
             Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_sorts_leafy_cycle()
     {
         var model = CreateModel();
@@ -836,7 +836,7 @@ public class MultigraphTest
             Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_with_secondary_sort()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -860,7 +860,7 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().Single().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_without_secondary_sort()
     {
         var vertexOne = new Vertex { Id = 1 };
@@ -884,7 +884,7 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().Single().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchingTopologicalSort_with_batching_boundary_edge()
     {
         var vertexOne = new Vertex { Id = 1 };

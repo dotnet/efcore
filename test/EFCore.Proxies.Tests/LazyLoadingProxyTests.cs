@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class LazyLoadingProxyTests
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_sealed_class()
     {
         using var context = new LazyContext<LazySealedEntity>();
@@ -17,7 +17,7 @@ public class LazyLoadingProxyTests
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_non_virtual_navigation_to_non_owned_type()
     {
         using var context = new LazyContext<LazyNonVirtualNavEntity>();
@@ -26,7 +26,7 @@ public class LazyLoadingProxyTests
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_non_virtual_navigation_to_non_owned_type_is_allowed()
     {
         using var context = new LazyContextIgnoreVirtuals<LazyNonVirtualNavEntity>();
@@ -34,7 +34,7 @@ public class LazyLoadingProxyTests
             context.Model.FindEntityType(typeof(LazyNonVirtualNavEntity))!.FindNavigation(nameof(LazyNonVirtualNavEntity.SelfRef)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_field_navigation_to_non_owned_type_is_allowed()
     {
         using var context = new LazyContextAllowingFieldNavigation();
@@ -42,7 +42,7 @@ public class LazyLoadingProxyTests
             context.Model.FindEntityType(typeof(LazyFieldNavEntity))!.FindNavigation(nameof(LazyFieldNavEntity.SelfRef)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_non_virtual_navigation_is_set_to_not_eager_load()
     {
         using var context = new LazyContextDisabledNavigation();
@@ -50,7 +50,7 @@ public class LazyLoadingProxyTests
             context.Model.FindEntityType(typeof(LazyNonVirtualNavEntity))!.FindNavigation(nameof(LazyNonVirtualNavEntity.SelfRef)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_field_navigation_is_set_to_not_eager_load()
     {
         using var context = new LazyContextDisabledFieldNavigation();
@@ -58,7 +58,7 @@ public class LazyLoadingProxyTests
             context.Model.FindEntityType(typeof(LazyFieldNavEntity))!.FindNavigation(nameof(LazyFieldNavEntity.SelfRef)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_non_virtual_navigation_to_owned_type()
     {
         using var context = new LazyContext<LazyNonVirtualOwnedNavEntity>();
@@ -67,7 +67,7 @@ public class LazyLoadingProxyTests
                 nameof(LazyNonVirtualOwnedNavEntity.NavigationToOwned)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_field_navigation_to_owned_type()
     {
         using var context = new LazyContextOwnedFieldNavigation();
@@ -76,7 +76,7 @@ public class LazyLoadingProxyTests
                 nameof(LazyFieldOwnedNavEntity.NavigationToOwned)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_no_field_found()
     {
         using var context = new LazyContext<LazyHiddenFieldEntity>();
@@ -85,7 +85,7 @@ public class LazyLoadingProxyTests
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_context_is_disposed()
     {
         var serviceProvider = new ServiceCollection()

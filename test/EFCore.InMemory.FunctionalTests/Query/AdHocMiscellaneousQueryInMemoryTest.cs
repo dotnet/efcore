@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocMiscellaneousQueryInMemoryTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 
     public override Task Explicitly_compiled_query_does_not_add_cache_entry()

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
@@ -16,7 +16,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
     public JsonQueryContext CreateContext()
         => Fixture.CreateContext();
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_entity_with_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -77,7 +77,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_entity_with_json_null_navigations()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -138,7 +138,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_json_reference_root()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -195,7 +195,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_json_reference_leaf()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -226,7 +226,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss3", updatedReference.SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_json_collection_root()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -278,7 +278,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_json_collection_root_null_navigations()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -323,7 +323,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(updatedCollection[2].OwnedReferenceBranch.OwnedCollectionLeaf);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_json_collection_branch()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -365,7 +365,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_json_collection_leaf()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -390,7 +390,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss1", updatedCollection[2].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_entity_with_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -411,7 +411,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(0, result);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_json_reference_root()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -430,7 +430,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(updatedEntity.OwnedReferenceRoot);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_json_reference_leaf()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -449,7 +449,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(updatedEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_json_collection_root()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -468,7 +468,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.OwnedCollectionRoot);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_json_collection_branch()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -487,7 +487,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.OwnedReferenceRoot.OwnedCollectionBranch);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_element_in_json_collection_root1()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -508,7 +508,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("Modified", resultCollection[0].Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_element_in_json_collection_root2()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -529,7 +529,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("Modified", resultCollection[1].Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_element_in_json_collection_branch()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -548,7 +548,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2111, 11, 11), result.OwnedCollectionRoot[0].OwnedCollectionBranch[0].Date);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_json_collection_on_derived()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -591,7 +591,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_element_in_json_multiple_levels_partial_update()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -622,7 +622,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     "...and another", result.OwnedCollectionRoot[0].OwnedCollectionBranch[0].OwnedCollectionLeaf[0].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -657,7 +657,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("cc", result.OwnedReferenceRoot.OwnedCollectionBranch[2].OwnedReferenceLeaf.SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_two_elements_in_the_same_json_collection()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -679,7 +679,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("edit2", result.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_two_elements_in_the_same_json_collection_at_the_root()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -701,7 +701,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("edit2", result.OwnedCollectionRoot[1].Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_collection_element_and_reference_at_once()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -723,7 +723,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("edit2", result.OwnedReferenceRoot.OwnedCollectionBranch[1].OwnedReferenceLeaf.SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_enum_property()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -745,7 +745,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(JsonEnum.Two, result.OwnedCollectionRoot[1].OwnedCollectionBranch[1].Enum);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_numeric_property()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -767,7 +767,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(1024, result.OwnedCollectionRoot[1].Number);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_bool()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -789,7 +789,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.Collection[0].TestBoolean);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_byte()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -811,7 +811,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(14, result.Collection[0].TestByte);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_char()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -833,7 +833,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal('h', result.Collection[0].TestCharacter);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_datetime()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -855,7 +855,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(DateTime.Parse("01/01/3000 12:34:56"), result.Collection[0].TestDateTime);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_datetimeoffset()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -882,7 +882,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     result.Collection[0].TestDateTimeOffset);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_decimal()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -904,7 +904,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(-13579.01M, result.Collection[0].TestDecimal);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_double()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -926,7 +926,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(-1.23579, result.Collection[0].TestDouble);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_guid()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -948,7 +948,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new Guid("12345678-1234-4321-5555-987654321000"), result.Collection[0].TestGuid);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_int16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -970,7 +970,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(-3234, result.Collection[0].TestInt16);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -992,7 +992,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(-3234, result.Collection[0].TestInt32);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_int64()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1014,7 +1014,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(-3234, result.Collection[0].TestInt64);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_signed_byte()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1036,7 +1036,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(-108, result.Collection[0].TestSignedByte);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_single()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1058,7 +1058,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(-7.234F, result.Collection[0].TestSingle);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_timespan()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1080,7 +1080,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new TimeSpan(0, 10, 1, 1, 7), result.Collection[0].TestTimeSpan);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_dateonly()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1102,7 +1102,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateOnly(2000, 2, 4), result.Collection[0].TestDateOnly);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_timeonly()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1124,7 +1124,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new TimeOnly(1, 1, 7), result.Collection[0].TestTimeOnly);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_uint16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1146,7 +1146,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(1534, result.Collection[0].TestUnsignedInt16);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_uint32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1168,7 +1168,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(1237775789U, result.Collection[0].TestUnsignedInt32);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_uint64()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1190,7 +1190,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(1234555555123456789UL, result.Collection[0].TestUnsignedInt64);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1212,7 +1212,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(122354, result.Collection[0].TestNullableInt32);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_int32_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1234,7 +1234,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.Collection[0].TestNullableInt32);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_enum()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1256,7 +1256,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(JsonEnum.Three, result.Collection[0].TestEnum);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_enum_with_int_converter()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1278,7 +1278,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(JsonEnum.Three, result.Collection[0].TestEnumWithIntConverter);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_enum()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1300,7 +1300,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(JsonEnum.Three, result.Collection[0].TestEnum);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_enum_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1322,7 +1322,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.Collection[0].TestNullableEnum);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_enum_with_int_converter()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1344,7 +1344,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(JsonEnum.One, result.Collection[0].TestNullableEnumWithIntConverter);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_enum_with_int_converter_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1366,7 +1366,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.Collection[0].TestNullableEnumWithIntConverter);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_enum_with_converter_that_handles_nulls()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1388,7 +1388,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(JsonEnum.Three, result.Collection[0].TestNullableEnumWithConverterThatHandlesNulls);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_nullable_enum_with_converter_that_handles_nulls_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1410,7 +1410,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.Collection[0].TestNullableEnumWithConverterThatHandlesNulls);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_two_properties_on_same_entity_updates_the_entire_entity()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1436,7 +1436,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(64, result.Collection[0].TestInt64);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_a_scalar_property_and_reference_navigation_on_the_same_entity()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1466,7 +1466,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("edit", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_a_scalar_property_and_collection_navigation_on_the_same_entity()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1496,7 +1496,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("edit", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[0].SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_a_scalar_property_and_another_property_behind_reference_navigation_on_the_same_entity()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1518,7 +1518,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("edit", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_with_converter_bool_to_int_zero_one()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1538,7 +1538,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Reference.BoolConvertedToIntZeroOne);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_with_converter_bool_to_string_True_False()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1558,7 +1558,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.Reference.BoolConvertedToStringTrueFalse);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_with_converter_bool_to_string_Y_N()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1578,7 +1578,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Reference.BoolConvertedToStringYN);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_with_converter_int_zero_one_to_bool()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1598,7 +1598,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(1, result.Reference.IntZeroOneConvertedToBool);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_with_converter_string_True_False_to_bool()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1618,7 +1618,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("False", result.Reference.StringTrueFalseConvertedToBool);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_with_converter_string_Y_N_to_bool()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1638,7 +1638,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal("Y", result.Reference.StringYNConvertedToBool);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_numeric()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1660,7 +1660,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new[] { 1024, 2048 }, result.OwnedCollectionRoot[1].Numbers);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_string()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1682,7 +1682,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new[] { "1024", "2048" }, result.OwnedCollectionRoot[1].Names);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_bool()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1707,7 +1707,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_byte()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1732,7 +1732,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_char()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1767,7 +1767,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_datetime()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1804,7 +1804,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_datetimeoffset()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1839,7 +1839,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_decimal()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1864,7 +1864,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_double()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1889,7 +1889,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_guid()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1914,7 +1914,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_int16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1939,7 +1939,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1964,7 +1964,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_int64()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -1989,7 +1989,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_signed_byte()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2014,7 +2014,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_single()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2039,7 +2039,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_timespan()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2066,7 +2066,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_dateonly()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2093,7 +2093,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_timeonly()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2120,7 +2120,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_uint16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2145,7 +2145,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_uint32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2170,7 +2170,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_uint64()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2195,7 +2195,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2222,7 +2222,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_int32_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2247,7 +2247,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.Collection[0].NewCollectionSet); // Set to null.
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_enum()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2272,7 +2272,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_enum_with_int_converter()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2297,7 +2297,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_enum()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2322,7 +2322,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_enum_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2347,7 +2347,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.Collection[0].NewCollectionSet); // Set to null.
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_enum_with_int_converter()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2378,7 +2378,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_enum_with_int_converter_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2403,7 +2403,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.Collection[0].NewCollectionSet); // Set to null.
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2429,7 +2429,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2454,7 +2454,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_bool()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2476,7 +2476,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_byte()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2498,7 +2498,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_char()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2530,7 +2530,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_datetime()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2558,7 +2558,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_datetimeoffset()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2585,7 +2585,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_decimal()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2607,7 +2607,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_double()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2629,7 +2629,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_guid()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2651,7 +2651,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_int16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2673,7 +2673,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2695,7 +2695,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_int64()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2717,7 +2717,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_signed_byte()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2739,7 +2739,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_single()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2761,7 +2761,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_timespan()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2784,7 +2784,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_uint16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2806,7 +2806,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_uint32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2828,7 +2828,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_uint64()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2850,7 +2850,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2874,7 +2874,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_int32_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2896,7 +2896,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.NewCollectionSet); // Set to null.
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_enum()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2918,7 +2918,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_enum_with_int_converter()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2940,7 +2940,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_enum()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2962,7 +2962,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_enum_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2984,7 +2984,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.NewCollectionSet); // Set to null.
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_int_converter()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3009,7 +3009,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3031,7 +3031,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.True(result.NewCollectionSet); // Set to null.
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3053,7 +3053,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3075,7 +3075,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_bool()
     {
         var expected1 = new[] { new[] { true, true, false }, null, Array.Empty<bool>(), new[] { true, true, false } };
@@ -3102,7 +3102,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_char()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3127,7 +3127,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal([['A', 'B', 'C'], null, ['D', 'E', 'F', '\0']], result.Collection[0].TestCharacterCollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_double()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3150,7 +3150,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal([[-1.23456789, -1.23456789], [-3.23579], [1.23456789]], result.Collection[0].TestDoubleCollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_int16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3176,7 +3176,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     result.Collection[0].TestInt16CollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3198,7 +3198,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal([[int.MinValue, 0, int.MaxValue], null, [-3234]], result.Collection[0].TestInt32CollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_int64()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3220,7 +3220,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Empty(result.Collection[0].TestInt64CollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_single()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3245,7 +3245,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_nullable_int32()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3272,7 +3272,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     result.Collection[0].TestNullableInt32CollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_nullable_int32_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3294,7 +3294,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.Collection[0].TestNullableInt32CollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_nullable_enum_set_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3316,7 +3316,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(result.Collection[0].TestNullableEnumCollectionCollection);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_collection_of_collection_of_nullable_enum_with_int_converter()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3341,7 +3341,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal([[null, [null, null]], null], result.Collection[0].TestNullableEnumWithIntConverterCollectionCollection);
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true), InlineData(null)]
+    [Theory, InlineData(false), InlineData(true), InlineData(null)]
     public virtual Task Add_and_update_top_level_optional_owned_collection_to_JSON(bool? value)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3415,7 +3415,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true), InlineData(null)]
+    [Theory, InlineData(false), InlineData(true), InlineData(null)]
     public virtual Task Add_and_update_nested_optional_owned_collection_to_JSON(bool? value)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3490,7 +3490,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true), InlineData(null)]
+    [Theory, InlineData(false), InlineData(true), InlineData(null)]
     public virtual Task Add_and_update_nested_optional_primitive_collection(bool? value)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3624,7 +3624,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Edit_single_property_with_non_ascii_characters()
        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
            CreateContext,
@@ -3670,6 +3670,103 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 1);
                Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
            });
+
+    [Fact]
+    public virtual Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+
+                // Save original leaf value
+                var originalLeaf = entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf;
+                var originalLeafValue = originalLeaf.SomethingSomething;
+
+                // Replace the owned reference with a new instance that shares nested reference navigations
+                var oldRoot = entity.OwnedReferenceRoot;
+                entity.OwnedReferenceRoot = new JsonOwnedRoot
+                {
+                    Name = "Modified",
+                    Number = oldRoot.Number,
+                    Names = oldRoot.Names,
+                    Numbers = oldRoot.Numbers,
+                    OwnedReferenceBranch = new JsonOwnedBranch
+                    {
+                        Id = oldRoot.OwnedReferenceBranch.Id,
+                        Date = oldRoot.OwnedReferenceBranch.Date,
+                        Enum = oldRoot.OwnedReferenceBranch.Enum,
+                        Fraction = oldRoot.OwnedReferenceBranch.Fraction,
+                        NullableEnum = oldRoot.OwnedReferenceBranch.NullableEnum,
+                        Enums = oldRoot.OwnedReferenceBranch.Enums,
+                        NullableEnums = oldRoot.OwnedReferenceBranch.NullableEnums,
+                        OwnedReferenceLeaf = originalLeaf,
+                        OwnedCollectionLeaf = [],
+                    },
+                    OwnedCollectionBranch = [],
+                };
+
+                // Before DetectChanges, leaf should be accessible
+                Assert.Same(originalLeaf, entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+
+                context.ChangeTracker.DetectChanges();
+
+                // After DetectChanges, leaf should still be accessible
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+
+                // After SaveChanges, nested owned entities should still be accessible in memory
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch);
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+                Assert.Equal(originalLeafValue, entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal("Modified", result.OwnedReferenceRoot.Name);
+                Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch);
+                Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+            });
+
+    [Fact]
+    public virtual Task Replace_derived_entity_with_json_to_base_entity_with_same_key()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.JsonEntitiesInheritance.OfType<JsonEntityInheritanceDerived>().SingleAsync();
+                context.Remove(entity);
+                context.Add(new JsonEntityInheritanceBase
+                {
+                    Id = entity.Id,
+                    Name = "ReplacementBase",
+                    ReferenceOnBase = new JsonOwnedBranch
+                    {
+                        Date = new DateTime(2010, 1, 1),
+                        Fraction = 1.0m,
+                        Enum = JsonEnum.One,
+                        Enums = [JsonEnum.One],
+                        NullableEnums = [null],
+                        OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "leaf" },
+                        OwnedCollectionLeaf = []
+                    },
+                    CollectionOnBase = []
+                });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var entity = await context.JsonEntitiesInheritance.SingleAsync(x => x.Id == 2);
+                Assert.IsNotType<JsonEntityInheritanceDerived>(entity);
+                Assert.Equal("ReplacementBase", entity.Name);
+            });
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
