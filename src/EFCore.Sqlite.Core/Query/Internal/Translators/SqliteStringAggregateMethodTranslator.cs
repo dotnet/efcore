@@ -52,11 +52,12 @@ public class SqliteStringAggregateMethodTranslator(ISqlExpressionFactory sqlExpr
                 return null;
         }
 
-        // group_concat supports ORDER BY only since SQLite 3.44.0, and combining ORDER BY with DISTINCT is restricted
-        // (valid only when ordering by the distinct value itself). Refuse translation - falling back to client evaluation -
-        // for cases we cannot emit safely.
-        if (source.Orderings.Count > 0
-            && (!_isOrderedAggregateSupported || source.IsDistinct))
+        // SQLite's group_concat() accepts only a single argument when DISTINCT is used, so it cannot be combined
+        // with the separator that string.Join/Concat always supply ("DISTINCT aggregates must have exactly one
+        // argument"). In-aggregate ORDER BY additionally requires SQLite 3.44.0. Fall back to client evaluation
+        // rather than emit SQL that fails at execution time.
+        if (source.IsDistinct
+            || (source.Orderings.Count > 0 && !_isOrderedAggregateSupported))
         {
             return null;
         }
