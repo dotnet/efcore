@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
@@ -154,12 +155,33 @@ public class MigrationsOperations
     {
         if (contextType == "*")
         {
-            throw new OperationException(DesignStrings.WildcardNotSupported);
+            var anyContext = false;
+            var contextsList = new List<MigrationInfo>();
+
+            foreach(var contextItem in _contextOperations.CreateAllContexts())
+            {
+                anyContext = true;
+                using (contextItem)
+                {
+                    contextsList.AddRange(GetMigrationsContext(contextItem, connectionString, noConnect));
+                }
+            }
+
+            if (!anyContext)
+            {
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+            }
         }
 
         using var context = _contextOperations.CreateContext(contextType);
+         {
+            return GetMigrationsContext(context, connectionString, noConnect);
+         }
+    }
 
-        if (connectionString != null)
+    private IEnumerable<MigrationInfo> GetMigrationsContext(DbContext context, string? connectionString, bool noConnect)
+    {
+        if (connectionString is not null)
         {
             context.Database.SetConnectionString(connectionString);
         }
@@ -209,10 +231,34 @@ public class MigrationsOperations
     {
         if (contextType == "*")
         {
-            throw new OperationException(DesignStrings.WildcardNotSupported);
+            var anyContext = false;
+            var stringBuilder = new StringBuilder();
+
+            foreach(var contextItem in _contextOperations.CreateAllContexts())
+            {
+                anyContext = true;
+                using (contextItem)
+                {
+                    stringBuilder.Append(ScriptMigrationContext(fromMigration, toMigration, options, contextItem));
+                }
+            }
+
+            if (!anyContext)
+             {
+                 throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+             }
+
+             return stringBuilder.ToString();
         }
 
         using var context = _contextOperations.CreateContext(contextType);
+         {
+            return ScriptMigrationContext(fromMigration, toMigration, options, context);
+         }
+    }
+
+    private string ScriptMigrationContext(string? fromMigration, string? toMigration, MigrationsSqlGenerationOptions options, DbContext context)
+    {
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
 
