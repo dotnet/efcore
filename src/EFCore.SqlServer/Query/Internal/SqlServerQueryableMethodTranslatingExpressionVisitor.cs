@@ -203,7 +203,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             nameof(SqlServerQueryableExtensions.FreeTextTable) => "FREETEXTTABLE",
             nameof(SqlServerQueryableExtensions.ContainsTable) => "CONTAINSTABLE",
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException($"Unexpected full-text method '{method.Name}'.")
         };
 
         var (columnsExpression, searchText, languageTerm, topN) = methodCallExpression.Arguments switch
@@ -217,7 +217,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             // Use an empty array to signal "*" (all columns)
             [_, var s, var l, var t] => ((Expression)Expression.NewArrayInit(typeof(ColumnExpression)), s, l, t),
 
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException("Unexpected argument shape for full-text table function.")
         };
 
         if (TranslateExpression(searchText) is not { } translatedSearchText
@@ -556,13 +556,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     .Where(n => n.ForeignKey.IsOwnership
                         && n.TargetEntityType.IsMappedToJson()
                         && n.ForeignKey.PrincipalToDependent == n)
-                    .Select(n => jsonQueryExpression.GetJsonElement(n).PropertyName ?? throw new UnreachableException()),
+                    .Select(n => jsonQueryExpression.GetJsonElement(n).PropertyName
+                        ?? throw new UnreachableException("JSON-mapped navigation without a JSON property name.")),
 
             IComplexType complexType
                 => complexType.GetComplexProperties()
-                    .Select(p => jsonQueryExpression.GetJsonElement(p).PropertyName ?? throw new UnreachableException()),
+                    .Select(p => jsonQueryExpression.GetJsonElement(p).PropertyName
+                        ?? throw new UnreachableException("JSON-mapped complex property without a JSON property name.")),
 
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException("Unexpected structural type when transforming JSON query to table.")
         };
 
         foreach (var jsonPropertyName in nestedJsonPropertyNames)
@@ -1014,7 +1016,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             JsonScalarExpression { TypeMapping.ElementTypeMapping: not null } j => ((ColumnExpression)j.Json, j.Path, false),
             JsonQueryExpression j => (j.JsonColumn, j.Path, false),
 
-            _ => throw new UnreachableException(),
+            _ => throw new UnreachableException("Unexpected target expression for JSON partial update setter."),
         };
 
         // SQL Server 2025 introduced the modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method),

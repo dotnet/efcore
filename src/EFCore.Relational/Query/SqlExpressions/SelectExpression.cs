@@ -371,7 +371,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                                         continue;
 
                                     default:
-                                        throw new UnreachableException();
+                                        throw new UnreachableException(
+                                            "Unexpected complex property binding when processing identifiers for Distinct.");
                                 }
                             }
                         }
@@ -1360,7 +1361,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     StructuralTypeProjectionExpression p => AddStructuralTypeProjection(p),
                     JsonQueryExpression p => AddJsonProjection(p),
                     SqlExpression p => Constant(AddToProjection(p, projectionMember.Last?.Name)),
-                    _ => throw new UnreachableException()
+                    _ => throw new UnreachableException("Unexpected expression type in projection mapping.")
                 };
             }
 
@@ -1455,7 +1456,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             break;
 
                         default:
-                            throw new UnreachableException();
+                            throw new UnreachableException(
+                                "Unexpected complex property binding when building structural type projection.");
                     }
                 }
             }
@@ -1509,7 +1511,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     break;
 
                 default:
-                    throw new UnreachableException();
+                    throw new UnreachableException("Unexpected structural type when building JSON projection.");
             }
 
             return Constant(new JsonProjectionInfo(jsonColumnIndex, keyAccessInfo, jsonQueryExpression.JsonColumn.Column));
@@ -2395,7 +2397,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             continue;
 
                         default:
-                            throw new UnreachableException();
+                            throw new UnreachableException(
+                                "Unexpected complex property binding in set operation over structural types.");
                     }
 
                     void ProcessJson(JsonQueryExpression jsonQuery1, JsonQueryExpression jsonQuery2)
@@ -3387,7 +3390,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                             ExpressionType.GreaterThan => ExpressionType.LessThan,
                             ExpressionType.GreaterThanOrEqual => ExpressionType.LessThanOrEqual,
 
-                            _ => throw new UnreachableException()
+                            _ => throw new UnreachableException($"Unexpected operator type '{sqlBinaryExpression.OperatorType}'.")
                         };
 
                         return new SqlBinaryExpression(
@@ -3946,7 +3949,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                         continue;
 
                     default:
-                        throw new UnreachableException();
+                        throw new UnreachableException(
+                            "Unexpected complex property binding when lifting structural projection from subquery.");
                 }
             }
 
@@ -4226,7 +4230,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             IEntityType entityType => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                 .SelectMany(t => t.GetDeclaredComplexProperties()),
             IComplexType complexType => complexType.GetDeclaredComplexProperties(),
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException("Unexpected structural type.")
         };
 
     private static ColumnExpression CreateColumnExpression(

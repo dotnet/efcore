@@ -296,7 +296,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             {
                                 IProperty p => table.FindColumn(p),
                                 IComplexProperty p => p.ComplexType.GetContainerColumnName() is string columnName ? table.FindColumn(columnName) : null,
-                                _ => throw new UnreachableException()
+                                _ => throw new UnreachableException("Unexpected property type when building TPC union projection.")
                             };
 
                             Debug.Assert(column is not null, "Column not found for property " + property.Name);
@@ -439,7 +439,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 }
 
                 default:
-                    throw new UnreachableException();
+                    throw new UnreachableException("Unexpected mapping strategy.");
             }
 
             static ITableBase GetTableBaseFiltered(IEntityType entityType, Dictionary<ITableBase, string> existingTables)
@@ -733,7 +733,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             // Find the containing column for the owned JSON entity type, and then the table in the table map that
             // contains that column.
             var targetEntityType = ownedJsonNavigation.TargetEntityType;
-            var containerColumnName = targetEntityType.GetContainerColumnName() ?? throw new UnreachableException();
+            var containerColumnName = targetEntityType.GetContainerColumnName()
+                ?? throw new UnreachableException(
+                    $"JSON-mapped entity type '{targetEntityType.DisplayName()}' without a container column name.");
             var (containerColumn, tableAlias) = tableMap
                 .Select(kvp => (Column: kvp.Key.FindColumn(containerColumnName), TableAlias: kvp.Value))
                 .SingleOrDefault(c => c.Column is not null);

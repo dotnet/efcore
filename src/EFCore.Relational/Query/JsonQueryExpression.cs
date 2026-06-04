@@ -201,7 +201,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             {
                 if (StructuralType is not IComplexType complexType)
                 {
-                    throw new UnreachableException("Navigation on complex JSON type");
+                    throw new UnreachableException("Non-root complex property on entity type");
                 }
 
                 Check.DebugAssert(KeyPropertyMap is null);
@@ -221,7 +221,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             }
 
             default:
-                throw new UnreachableException();
+                throw new UnreachableException("Unexpected structural property type.");
         }
     }
 
