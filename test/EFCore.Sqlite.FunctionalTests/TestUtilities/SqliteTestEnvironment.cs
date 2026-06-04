@@ -30,4 +30,10 @@ public static class SqliteTestEnvironment
     /// </summary>
     public static bool VersionAtLeast3_35
         => CurrentVersionLazy.Value is { } v && v >= new Version(3, 35, 0);
+
+    /// <summary>
+    ///     SQLite version >= 3.44.0 (required for ORDER BY inside aggregate functions, e.g. group_concat).
+    /// </summary>
+    public static bool VersionAtLeast3_44
+        => CurrentVersionLazy.Value is { } v && v >= new Version(3, 44, 0);
 }
