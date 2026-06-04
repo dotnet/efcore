@@ -829,6 +829,71 @@ EXEC(N'ALTER TABLE [People] ADD [IdPlusOne] AS [Id] + 1');
 """);
     }
 
+    [Fact]
+    public virtual async Task Alter_computed_column_clr_type_only_change_is_noop()
+    {
+        // Regression test for #33425: when only the CLR type of a property mapped to a computed
+        // column changes (the expression and IsStored are unchanged), SQL Server has nothing to
+        // alter — the column's type is derived from the expression. The migration must complete
+        // without emitting `ALTER TABLE ... ALTER COLUMN`, which would fail with
+        // "Cannot alter column ... because it is 'COMPUTED'".
+        await Test(
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<int>("Calc").HasComputedColumnSql("[Id] * 2");
+                }),
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<long>("Calc").HasComputedColumnSql("[Id] * 2");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Calc");
+                Assert.Equal("([Id]*(2))", column.ComputedColumnSql);
+            });
+
+        AssertSql();
+    }
+
+    [Fact]
+    public virtual async Task Alter_computed_column_clr_type_only_change_does_not_rebuild_indexes()
+    {
+        // Regression guard for #33425 / Copilot review: a CLR-type-only change on a computed
+        // column must be a TRUE no-op. The "narrowed" code path can otherwise treat the type
+        // change as a column-narrowing and drop+recreate every index on the column, even though
+        // no ALTER COLUMN is emitted. That's needlessly expensive on large tables. Verify no
+        // DROP/CREATE INDEX SQL appears.
+        await Test(
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<int>("Calc").HasComputedColumnSql("[Id] * 2");
+                    x.HasIndex("Calc");
+                }),
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<long>("Calc").HasComputedColumnSql("[Id] * 2");
+                    x.HasIndex("Calc");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Calc");
+                Assert.Equal("([Id]*(2))", column.ComputedColumnSql);
+                Assert.Single(table.Indexes);
+            });
+
+        AssertSql();
+    }
+
     public override async Task Add_column_with_required()
     {
         await base.Add_column_with_required();
