@@ -2423,7 +2423,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         select1._projection.Add(innerProjection);
                         select2._projection.Add(new ProjectionExpression(jsonScalar2, alias));
 
-                        var outerColumn = CreateColumnExpression(innerProjection, setOperationAlias);
+                        // The JsonColumn always represents the containing JSON column, so flow its model column through the set
+                        // operation even though the projection itself is a JsonScalarExpression (which has no model column of its own).
+                        var outerColumn = CreateColumnExpression(innerProjection, setOperationAlias, jsonQuery1.JsonColumn.Column);
                         if (jsonScalar1.IsNullable || jsonScalar2.IsNullable)
                         {
                             outerColumn = outerColumn.MakeNullable();
@@ -3993,7 +3995,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 jsonQueryExpression.JsonColumn.TypeMapping,
                 jsonQueryExpression.IsNullable);
 
-            var newJsonColumn = subquery.GenerateOuterColumn(subqueryAlias, jsonScalarExpression);
+            // The JsonColumn always represents the containing JSON column, so flow its model column through the pushdown even
+            // though the projection itself is a JsonScalarExpression (which has no model column of its own).
+            var newJsonColumn = subquery.GenerateOuterColumn(
+                subqueryAlias, jsonScalarExpression, column: jsonQueryExpression.JsonColumn.Column);
 
             Dictionary<IProperty, ColumnExpression>? newKeyPropertyMap = null;
 
@@ -4244,18 +4249,17 @@ public sealed partial class SelectExpression : TableExpressionBase
             column.PropertyMappings.First(m => m.Property == property).TypeMapping,
             nullable || column.IsNullable);
 
-    private static ColumnExpression CreateColumnExpression(ProjectionExpression subqueryProjection, string tableAlias)
+    private static ColumnExpression CreateColumnExpression(
+        ProjectionExpression subqueryProjection,
+        string tableAlias,
+        IColumnBase? column = null)
         => new(
             subqueryProjection.Alias,
             tableAlias,
-            // Preserve the underlying model column through subquery boundaries so JsonQueryExpression.FindJsonElement keeps
-            // matching after lifts (e.g. LiftJsonQueryFromSubquery wraps the json column in a JsonScalarExpression).
-            column: subqueryProjection.Expression switch
-            {
-                ColumnExpression { Column: { } column } => column,
-                JsonScalarExpression { Json: ColumnExpression { Column: { } jsonColumn } } => jsonColumn,
-                _ => null
-            },
+            // The referenced model column is the projected column's own model column, if any. JSON container columns are an
+            // exception: their JsonScalarExpression projection has no model column of its own, so callers lifting a JSON
+            // container (e.g. LiftJsonQueryFromSubquery) pass the containing column explicitly to preserve it across the subquery.
+            column: column ?? (subqueryProjection.Expression as ColumnExpression)?.Column,
             subqueryProjection.Type,
             subqueryProjection.Expression.TypeMapping!,
             nullable: subqueryProjection.Expression switch
@@ -4269,13 +4273,14 @@ public sealed partial class SelectExpression : TableExpressionBase
     private ColumnExpression GenerateOuterColumn(
         string tableAlias,
         SqlExpression projection,
-        string? columnAlias = null)
+        string? columnAlias = null,
+        IColumnBase? column = null)
     {
         // TODO: Add check if we can add projection in subquery to generate out column
         // Subquery having Distinct or GroupBy can block it.
         var index = AddToProjection(projection, columnAlias);
 
-        return CreateColumnExpression(_projection[index], tableAlias);
+        return CreateColumnExpression(_projection[index], tableAlias, column);
     }
 
     /// <inheritdoc />

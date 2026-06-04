@@ -304,8 +304,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             // Note that the projected name may differ from the column name on the entity's concrete table because of
                             // uniquification (i.e. two TPC entities in the same hierarchy have two properties mapped columns with the
                             // same name).
-                            // The per-table IColumnBase flows through the inner projection so the outer union column carries a
-                            // model-column reference.
+                            // Each union arm's column references its own concrete table's model column; the outer union column
+                            // (created separately over the union alias) references no single model column and has a null Column.
                             projections.Add(
                                 new ProjectionExpression(
                                     new ColumnExpression(
