@@ -155,31 +155,28 @@ public class MigrationsOperations
     {
         if (contextType == "*")
         {
-            var contexts = _contextOperations.CreateAllContexts();
-
-            if (!contexts.Any())
-            {
-                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
-            }
-
+            var anyContext = false;
             var contextsList = new List<MigrationInfo>();
-            foreach(var item in contexts)
+
+            foreach(var context in _contextOperations.CreateAllContexts())
             {
-                using (item)
+                anyContext = true;
+                using (context)
                 {
-                    var migrationInfo = GetMigrationsContext(item, connectionString, noConnect);
-                    contextsList.AddRange(migrationInfo);
+                    contextsList.AddRange(GetMigrationsContext(context, connectionString, noConnect));
                 }
             }
 
-            return contextsList;
+            if (!anyContext)
+            {
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+            }
         }
 
-        using (var context = _contextOperations.CreateContext(contextType))
-        {
+        using var context = _contextOperations.CreateContext(contextType);
+         {
             return GetMigrationsContext(context, connectionString, noConnect);
-        }
-        
+         }
     }
 
     private IEnumerable<MigrationInfo> GetMigrationsContext(DbContext context, string? connectionString, bool noConnect)
@@ -234,30 +231,30 @@ public class MigrationsOperations
     {
         if (contextType == "*")
         {
-            var contexts = _contextOperations.CreateAllContexts();
-
-            if (!contexts.Any())
-            {
-                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
-            }
-
+            var anyContext = false;
             var stringBuilder = new StringBuilder();
-            foreach (var item in contexts)
+
+            foreach(var context in _contextOperations.CreateAllContexts())
             {
-                using (item)
+                anyContext = true;
+                using (context)
                 {
-                    var script = ScriptMigrationContext(fromMigration, toMigration, options, item);
-                    stringBuilder.Append(script);
+                    stringBuilder.Append(ScriptMigrationContext(fromMigration, toMigration, options, context));
                 }
             }
 
-            return stringBuilder.ToString();
+            if (!anyContext)
+             {
+                 throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+             }
+
+             return stringBuilder;
         }
 
-        using (var context = _contextOperations.CreateContext(contextType))
-        {
+        using var context = _contextOperations.CreateContext(contextType);
+         {
             return ScriptMigrationContext(fromMigration, toMigration, options, context);
-        }
+         }
     }
 
     private string ScriptMigrationContext(string? fromMigration, string? toMigration, MigrationsSqlGenerationOptions options, DbContext context)

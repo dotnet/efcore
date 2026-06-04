@@ -104,28 +104,27 @@ public class DbContextOperations
     {
         if (contextType == "*")
         {
-            var contexts = CreateAllContexts();
-
-            if (!contexts.Any())
+            var anyContext = false;
+            
+            foreach(var context in CreateAllContexts())
             {
-                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+                anyContext = true;
+                using (context)
+                {
+                    DropDatabase(context, connectionString);
+                }
             }
 
-            foreach(var item in contexts)
+            if (!anyContext)
             {
-                using (item)
-                {
-                    DropDatabaseContext(item, connectionString);
-                }
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
             }
 
             return;
         }
 
-        using (var context = CreateContext(contextType))
-        {
-            DropDatabaseContext(context, connectionString);
-        }
+        using var context = CreateContext(contextType);
+         DropDatabaseContext(context, connectionString);
     }
 
     private void DropDatabaseContext(DbContext context, string? connectionString)
