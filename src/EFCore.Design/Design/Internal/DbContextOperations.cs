@@ -106,12 +106,12 @@ public class DbContextOperations
         {
             var anyContext = false;
             
-            foreach(var context in CreateAllContexts())
+            foreach(var contextItem in CreateAllContexts())
             {
                 anyContext = true;
-                using (context)
+                using (contextItem)
                 {
-                    DropDatabase(context, connectionString);
+                    DropDatabaseContext(contextItem, connectionString);
                 }
             }
 

@@ -158,12 +158,12 @@ public class MigrationsOperations
             var anyContext = false;
             var contextsList = new List<MigrationInfo>();
 
-            foreach(var context in _contextOperations.CreateAllContexts())
+            foreach(var contextItem in _contextOperations.CreateAllContexts())
             {
                 anyContext = true;
-                using (context)
+                using (contextItem)
                 {
-                    contextsList.AddRange(GetMigrationsContext(context, connectionString, noConnect));
+                    contextsList.AddRange(GetMigrationsContext(contextItem, connectionString, noConnect));
                 }
             }
 
@@ -234,12 +234,12 @@ public class MigrationsOperations
             var anyContext = false;
             var stringBuilder = new StringBuilder();
 
-            foreach(var context in _contextOperations.CreateAllContexts())
+            foreach(var contextItem in _contextOperations.CreateAllContexts())
             {
                 anyContext = true;
-                using (context)
+                using (contextItem)
                 {
-                    stringBuilder.Append(ScriptMigrationContext(fromMigration, toMigration, options, context));
+                    stringBuilder.Append(ScriptMigrationContext(fromMigration, toMigration, options, contextItem));
                 }
             }
 
@@ -248,7 +248,7 @@ public class MigrationsOperations
                  throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
              }
 
-             return stringBuilder;
+             return stringBuilder.ToString();
         }
 
         using var context = _contextOperations.CreateContext(contextType);
