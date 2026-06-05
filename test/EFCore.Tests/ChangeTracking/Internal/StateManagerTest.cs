@@ -6,6 +6,8 @@
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 
+using System.Runtime.CompilerServices;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class StateManagerTest
@@ -565,6 +567,39 @@ public class StateManagerTest
         public CompositeKeyOwned Owned { get; set; }
     }
 
+    private class DealContext : DbContext
+    {
+        public DbSet<Deal> Deals { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Flow> Flows { get; set; }
+
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(nameof(DealContext) + Guid.NewGuid())
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
+    }
+
+    private class Deal
+    {
+        public int Id { get; set; }
+        public ICollection<Transaction> Transactions { get; set; } = new HashSet<Transaction>();
+    }
+
+    private class Transaction
+    {
+        public int Id { get; set; }
+        public int DealId { get; set; }
+        public Deal Deal { get; set; }
+        public ICollection<Flow> Flows { get; set; } = new HashSet<Flow>();
+    }
+
+    private class Flow
+    {
+        public int Id { get; set; }
+        public int TransactionId { get; set; }
+        public Transaction Transaction { get; set; }
+    }
+
     [Fact]
     public void StartTracking_is_no_op_if_entity_is_already_tracked()
     {
@@ -667,6 +702,128 @@ public class StateManagerTest
 
         Assert.NotSame(entry, entry2);
         Assert.Equal(EntityState.Detached, entry.EntityState);
+    }
+
+    [Fact]
+    public void Entry_for_untracked_entity_is_cached_while_the_entity_is_referenced()
+    {
+        var stateManager = CreateStateManager(BuildModel());
+        var category = new Category { Id = 1, PrincipalId = 777 };
+
+        // GetOrCreateEntry (e.g. via ctx.Entry(category)) caches an entry for the untracked entity so
+        // that the same entry is returned and a subsequent Add/Attach acts on it. This must keep working
+        // as long as the entity is referenced.
+        var entry = stateManager.GetOrCreateEntry(category);
+        entry.SetEntityState(EntityState.Detached);
+
+        Assert.Same(entry, stateManager.TryGetEntry(category));
+    }
+
+    [Fact]
+    public void Entry_for_untracked_entity_does_not_keep_the_entity_alive()
+    {
+        var stateManager = CreateStateManager(BuildModel());
+
+        // The detached-entity cache must not prevent the entity from being collected once nothing else
+        // references it, even while the state manager (context) is still alive (issue #33557).
+        var reference = CreateDetachedEntry(stateManager);
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        Assert.False(reference.IsAlive);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static WeakReference CreateDetachedEntry(IStateManager stateManager)
+    {
+        var category = new Category { Id = 1, PrincipalId = 777 };
+        stateManager.GetOrCreateEntry(category).SetEntityState(EntityState.Detached);
+        return new WeakReference(category);
+    }
+
+    [Fact]
+    public void Detaching_a_tracked_graph_does_not_retain_references_to_detached_entities()
+    {
+        using var context = new DealContext();
+
+        // Reproduces the issue's pattern: add a graph, then detach it by iterating and setting each
+        // entity to Detached (detaching the principal cascade-detaches the dependents, so the later
+        // iterations call ctx.Entry(...) on already-detached entities, caching detached entries).
+        // The context must not retain references to those entities once they are no longer referenced.
+        var references = AddAndDetachGraph(context);
+
+        Assert.Empty(context.ChangeTracker.Entries());
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        Assert.All(references, reference => Assert.False(reference.IsAlive));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static WeakReference[] AddAndDetachGraph(DealContext context)
+    {
+        var deal = new Deal { Id = -3 };
+        var transaction = new Transaction { Id = -2, DealId = -3, Deal = deal };
+        var flow = new Flow { TransactionId = -2, Transaction = transaction };
+        transaction.Flows.Add(flow);
+        deal.Transactions.Add(transaction);
+
+        context.Add(flow);
+
+        foreach (var entity in new object[] { deal, transaction, flow })
+        {
+            context.Entry(entity).State = EntityState.Detached;
+        }
+
+        return [new WeakReference(deal), new WeakReference(transaction), new WeakReference(flow)];
+    }
+
+    [Fact]
+    public void Can_add_an_equivalent_graph_after_detaching_a_graph_with_the_same_keys()
+    {
+        using var context = new DealContext();
+
+        var first = new Flow { TransactionId = -2, Transaction = new Transaction { Id = -2, DealId = -3, Deal = new Deal { Id = -3 } } };
+        Connect(first);
+
+        // Capture the first graph's instances up front: detaching cascades through the graph and
+        // nulls the navigations, so they can't be reached from 'first' afterwards.
+        var firstGraph = new object[] { first, first.Transaction!, first.Transaction!.Deal! };
+
+        context.Add(first);
+        foreach (var entity in firstGraph)
+        {
+            context.Entry(entity).State = EntityState.Detached;
+        }
+
+        var second = new Flow { TransactionId = -2, Transaction = new Transaction { Id = -2, DealId = -3, Deal = new Deal { Id = -3 } } };
+        Connect(second);
+
+        // Must not throw an identity conflict and must not pull the detached first graph back in.
+        context.Add(second);
+
+        var entries = context.ChangeTracker.Entries().ToList();
+        Assert.Equal(3, entries.Count);
+        Assert.All(entries, e => Assert.Equal(EntityState.Added, e.State));
+        Assert.DoesNotContain(entries, e => firstGraph.Contains(e.Entity));
+
+        context.SaveChanges();
+
+        Assert.Equal(1, context.Set<Deal>().Count());
+        Assert.Equal(1, context.Set<Transaction>().Count());
+        Assert.Equal(1, context.Set<Flow>().Count());
+
+        static void Connect(Flow f)
+        {
+            f.TransactionId = f.Transaction!.Id;
+            f.Transaction.Flows.Add(f);
+            f.Transaction.DealId = f.Transaction.Deal!.Id;
+            f.Transaction.Deal.Transactions.Add(f.Transaction);
+        }
     }
 
     [Fact]
