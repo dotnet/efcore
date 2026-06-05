@@ -2083,8 +2083,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     var principalTable = (Table)principalMapping.Table;
                     var principalStoreObject = StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema);
                     var name = foreignKey.GetConstraintName(storeObject, principalStoreObject);
-                    if (name == null
-                        || !foreignKey.IsConstrained)
+                    if (name == null)
                     {
                         continue;
                     }

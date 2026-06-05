@@ -1034,6 +1034,8 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true);
 
+        public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true);
+
         public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior);
     }
 

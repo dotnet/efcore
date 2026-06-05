@@ -64,7 +64,7 @@ public interface IReadOnlyForeignKey : IReadOnlyAnnotatable
     ///     (such as a database foreign key constraint) that a matching principal key exists for every set
     ///     foreign key value. When <see langword="false" />, no database foreign key constraint is created and
     ///     queries treat the relationship as optional even when the foreign key properties are non-nullable —
-    ///     the principal is loaded with a left join and is never assumed to exist. This does not change change
+    ///     the principal is loaded with a left join and is never assumed to exist. This does not affect change
     ///     tracking: a required (<see cref="IsRequired" />) relationship still cascades or produces a conceptual
     ///     null when severed, regardless of this value.
     /// </summary>

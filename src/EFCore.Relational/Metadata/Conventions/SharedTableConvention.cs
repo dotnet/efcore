@@ -524,13 +524,6 @@ public class SharedTableConvention : IModelFinalizingConvention
     {
         foreach (var foreignKey in entityType.GetForeignKeys())
         {
-            // Unconstrained foreign keys produce no database constraint (see RelationalModel
-            // .PopulateForeignKeyConstraints), so they take no constraint-name slot here either.
-            if (!foreignKey.IsConstrained)
-            {
-                continue;
-            }
-
             if (foreignKey.DeclaringEntityType != entityType
                 && StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, StoreObjectType.Table) == storeObject)
             {

@@ -371,8 +371,10 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
         => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
 
     /// <summary>
-    ///     Configures whether the relationship is constrained. When <see langword="false" /> no database foreign
-    ///     key constraint is created and the relationship is always optional.
+    ///     Configures whether the relationship is constrained. When <see langword="false" />, no database
+    ///     foreign key constraint is created and queries treat the relationship as optional (the principal is
+    ///     not assumed to exist), even when the foreign key properties are non-nullable. This does not affect
+    ///     change tracking. See <see cref="Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey.IsConstrained" />.
     /// </summary>
     /// <param name="constrained">A value indicating whether the relationship is constrained.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
