@@ -16507,7 +16507,11 @@
           "Member": "void CascadeDelete(Microsoft.EntityFrameworkCore.Update.IUpdateEntry entry, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey>? foreignKeys = null);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry CreateEntry(System.Collections.Generic.IDictionary<string, object?> values, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+          "Member": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry CreateEntry(System.Collections.Generic.IDictionary<string, object?> values, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry CreateEntry(System.Collections.Generic.IReadOnlyDictionary<Microsoft.EntityFrameworkCore.Metadata.IProperty, object?> values, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
           "Member": "void DetectChanges();"

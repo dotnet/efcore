@@ -971,6 +971,126 @@ public class StateManagerTest
     private static IStateManager CreateStateManager(IModel model)
         => InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
+    [Fact]
+    public void CreateEntry_distinguishes_complex_properties_that_share_a_complex_type()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var note = entityType.FindProperty("Note")!;
+        var origin = entityType.FindComplexProperty(nameof(Place.Origin))!;
+        var destination = entityType.FindComplexProperty(nameof(Place.Destination))!;
+        var originLatitude = origin.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+        var originLongitude = origin.ComplexType.FindProperty(nameof(Coordinate.Longitude))!;
+        var destinationLatitude = destination.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+        var destinationLongitude = destination.ComplexType.FindProperty(nameof(Coordinate.Longitude))!;
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<IProperty, object>
+            {
+                { id, 1 },
+                { note, "Somewhere" },
+                { originLatitude, 11 },
+                { originLongitude, 12 },
+                { destinationLatitude, 21 },
+                { destinationLongitude, 22 }
+            },
+            entityType);
+
+        Assert.Equal("Somewhere", entry[note]);
+        Assert.Equal(11, entry[originLatitude]);
+        Assert.Equal(12, entry[originLongitude]);
+        Assert.Equal(21, entry[destinationLatitude]);
+        Assert.Equal(22, entry[destinationLongitude]);
+
+        var place = (Place)entry.Entity;
+        Assert.Equal(11, place.Origin.Latitude);
+        Assert.Equal(12, place.Origin.Longitude);
+        Assert.Equal(21, place.Destination.Latitude);
+        Assert.Equal(22, place.Destination.Longitude);
+    }
+
+    [Fact]
+    public void CreateEntry_uses_sentinel_for_unsupplied_value_type_properties()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var origin = entityType.FindComplexProperty(nameof(Place.Origin))!;
+        var originLatitude = origin.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+        var originLongitude = origin.ComplexType.FindProperty(nameof(Coordinate.Longitude))!;
+
+        // Supply only the key and one coordinate component. The unsupplied non-nullable value-type
+        // properties must fall back to their sentinel (default) values rather than null, which would
+        // otherwise cause an invalid cast during materialization.
+        var entry = stateManager.CreateEntry(
+            new Dictionary<IProperty, object> { { id, 1 }, { originLatitude, 11 } },
+            entityType);
+
+        Assert.Equal(1, entry[id]);
+        Assert.Equal(11, entry[originLatitude]);
+        Assert.Equal(originLongitude.Sentinel, entry[originLongitude]);
+
+        var place = (Place)entry.Entity;
+        Assert.Equal(11, place.Origin.Latitude);
+        Assert.Equal(0, place.Origin.Longitude);
+        Assert.Equal(0, place.Destination.Latitude);
+        Assert.Equal(0, place.Destination.Longitude);
+    }
+
+    [Fact]
+    public void CreateEntry_throws_for_property_from_another_entity_type()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+        var otherEntityType = model.FindEntityType(typeof(Location))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var foreignProperty = otherEntityType.FindProperty(nameof(Location.Planet))!;
+
+        Assert.Equal(
+            CoreStrings.PropertyDoesNotBelong(
+                foreignProperty.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
+            Assert.Throws<InvalidOperationException>(
+                () => stateManager.CreateEntry(
+                    new Dictionary<IProperty, object>
+                    {
+                        { id, 1 },
+                        { foreignProperty, "Mars" }
+                    },
+                    entityType)).Message);
+    }
+
+    [Fact]
+    public void CreateEntry_throws_for_complex_property_from_another_entity_type()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+        var otherEntityType = model.FindEntityType(typeof(Pin))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var otherCoordinate = otherEntityType.FindComplexProperty(nameof(Pin.At))!;
+        var foreignLatitude = otherCoordinate.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+
+        Assert.Equal(
+            CoreStrings.PropertyDoesNotBelong(
+                foreignLatitude.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
+            Assert.Throws<InvalidOperationException>(
+                () => stateManager.CreateEntry(
+                    new Dictionary<IProperty, object>
+                    {
+                        { id, 1 },
+                        { foreignLatitude, 11 }
+                    },
+                    entityType)).Message);
+    }
+
     public class Widget
     {
         public int Id { get; set; }
@@ -1009,6 +1129,25 @@ public class StateManagerTest
         public string Planet { get; set; }
     }
 
+    private class Place
+    {
+        public int Id { get; set; }
+        public Coordinate Origin { get; set; } = null!;
+        public Coordinate Destination { get; set; } = null!;
+    }
+
+    private class Pin
+    {
+        public int Id { get; set; }
+        public Coordinate At { get; set; } = null!;
+    }
+
+    private class Coordinate
+    {
+        public int Latitude { get; set; }
+        public int Longitude { get; set; }
+    }
+
     private static IModel BuildModel()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -1025,6 +1164,24 @@ public class StateManagerTest
         builder.Entity<Category>();
 
         builder.Entity<Dogegory>();
+
+        builder.Entity<Location>();
+
+        return builder.Model.FinalizeModel();
+    }
+
+    private static IModel BuildModelWithDuplicateComplexType()
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        builder.Entity<Place>(b =>
+        {
+            b.Property<string>("Note");
+            b.ComplexProperty(e => e.Origin);
+            b.ComplexProperty(e => e.Destination);
+        });
+
+        builder.Entity<Pin>(b => b.ComplexProperty(e => e.At));
 
         builder.Entity<Location>();
 
