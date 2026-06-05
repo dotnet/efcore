@@ -7323,6 +7323,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.JsonQueryExpression BindStructuralProperty(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase structuralProperty);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? FindJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
+        },
+        {
           "Member": "override bool Equals(object? obj);"
         },
         {

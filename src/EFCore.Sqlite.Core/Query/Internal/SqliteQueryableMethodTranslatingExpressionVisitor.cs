@@ -467,8 +467,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting synthetic keys
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
-            var element = jsonQueryExpression.GetJsonElement(property);
-            if (element.PropertyName is { } jsonPropertyName)
+            if (jsonQueryExpression.FindJsonElement(property) is { PropertyName: { } jsonPropertyName } element)
             {
                 // HACK: currently the only way to project multiple values from a SelectExpression is to simulate a Select out to an anonymous
                 // type; this requires the MethodInfos of the anonymous type properties, from which the projection alias gets taken.

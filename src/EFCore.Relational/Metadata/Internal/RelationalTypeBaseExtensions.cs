@@ -85,37 +85,49 @@ public static class RelationalTypeBaseExtensions
     }
 
     /// <summary>
-    ///     Returns the entity type's query mappings scoped to the tables actually being projected (when known via
-    ///     <paramref name="tableMap" />); falls back to all query mappings when no projected mapping qualifies. Used by
-    ///     query translation sites that need to pick the principal split-entity table for an entity reference.
+    ///     Returns the entity type's mappings to the tables actually being projected (as given by <paramref name="tableMap" />).
+    ///     Used by query translation sites that need to pick the principal split-entity table for an entity reference.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The mappings are read straight off the projected tables, so this naturally returns the entity's default
+    ///         mapping for FromSql / table-valued-function queries (whose <paramref name="tableMap" /> contains the
+    ///         default table) and its real table/view mapping for ordinary queries, without re-applying the
+    ///         storage-priority logic used by <see cref="GetQueryMappings" />. When <paramref name="tableMap" /> is
+    ///         <see langword="null" /> (the projection is unknown) it falls back to all of the entity's query mappings.
+    ///     </para>
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    /// </remarks>
     /// <param name="entityType">The entity type.</param>
     /// <param name="tableMap">The tables being projected from in the containing query, or <see langword="null" /> when unknown.</param>
-    /// <remarks>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
     public static List<ITableMappingBase> GetProjectedQueryMappings(
         this IEntityType entityType,
         IReadOnlyDictionary<ITableBase, string>? tableMap)
     {
-        var allMappings = entityType.GetQueryMappings();
         if (tableMap is null)
         {
-            return [.. allMappings];
+            // The projection isn't known (no table map), so we can't scope to the projected tables; fall back to all of the
+            // entity's query mappings.
+            return [.. entityType.GetQueryMappings()];
         }
 
         var projected = new List<ITableMappingBase>();
-        foreach (var mapping in allMappings)
+        foreach (var table in tableMap.Keys)
         {
-            if (tableMap.ContainsKey(mapping.Table))
+            foreach (var mapping in table.EntityTypeMappings)
             {
-                projected.Add(mapping);
+                if (mapping.TypeBase == entityType)
+                {
+                    projected.Add(mapping);
+                }
             }
         }
 
-        return projected.Count > 0 ? projected : [.. allMappings];
+        return projected;
     }
 }

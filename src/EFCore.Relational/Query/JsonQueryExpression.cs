@@ -310,16 +310,38 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             ?? throw new InvalidOperationException(
                 RelationalStrings.JsonQueryExpressionWithoutUnderlyingColumn(propertyBase.DeclaringType.DisplayName()));
 
+        return FindJsonElement(propertyBase)
+            ?? throw new InvalidOperationException(
+                RelationalStrings.JsonElementMappingNotFound(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, column.Name));
+    }
+
+    /// <summary>
+    ///     Finds the <see cref="IRelationalJsonElement" /> for the given property/navigation/complex property within the
+    ///     JSON column referenced by this expression by matching <see cref="JsonColumn" />'s underlying
+    ///     <see cref="ColumnExpression.Column" /> against <see cref="IRelationalJsonElement.ContainingColumn" />, or returns
+    ///     <see langword="null" /> if no such element exists (including when <see cref="JsonColumn" /> has no underlying
+    ///     <see cref="ColumnExpression.Column" />, e.g. for synthetic JSON expansions over OPENJSON / json_each, or for
+    ///     iterated properties such as shadow keys that have no JSON representation).
+    /// </summary>
+    /// <param name="propertyBase">The property, navigation or complex property to look up.</param>
+    /// <returns>The JSON element mapping for <paramref name="propertyBase" />, or <see langword="null" /> if not found.</returns>
+    public virtual IRelationalJsonElement? FindJsonElement(IPropertyBase propertyBase)
+    {
+        var containingColumn = JsonColumn.Column;
+        if (containingColumn is null)
+        {
+            return null;
+        }
+
         foreach (var mapping in propertyBase.GetJsonElementMappings())
         {
-            if (ReferenceEquals(mapping.Element.ContainingColumn, column))
+            if (ReferenceEquals(mapping.Element.ContainingColumn, containingColumn))
             {
                 return mapping.Element;
             }
         }
 
-        throw new InvalidOperationException(
-            RelationalStrings.JsonElementMappingNotFound(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, column.Name));
+        return null;
     }
 
     /// <summary>

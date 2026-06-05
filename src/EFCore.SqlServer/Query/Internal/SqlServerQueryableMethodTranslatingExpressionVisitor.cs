@@ -525,8 +525,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // (for owned JSON entities)
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
-            var element = jsonQueryExpression.GetJsonElement(property);
-            if (element.PropertyName is { } jsonPropertyName)
+            if (jsonQueryExpression.FindJsonElement(property) is { PropertyName: { } jsonPropertyName } element)
             {
                 var typeMapping = element.StoreTypeMapping!;
                 columnInfos.Add(
@@ -540,15 +539,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
         }
 
-        // Prefer the JsonQueryExpression's column (chosen at CreateSelect time) over re-resolving via the model,
-        // which is ambiguous under entity-splitting / TPT + JSON; fall back for synthetic JSON columns over OPENJSON.
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        var containerColumn = jsonQueryExpression.JsonColumn.Column
-            ?? structuralType.ContainingEntityType.GetQueryMappings()
-                .Select(m => m.Table.FindColumn(structuralType.GetContainerColumnName()!))
-                .First(c => c is not null)!;
-#pragma warning restore EF1001
-
         var nestedJsonPropertyNames = jsonQueryExpression.StructuralType switch
         {
             IEntityType entityType
@@ -556,13 +546,12 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     .Where(n => n.ForeignKey.IsOwnership
                         && n.TargetEntityType.IsMappedToJson()
                         && n.ForeignKey.PrincipalToDependent == n)
-                    .Select(n => jsonQueryExpression.GetJsonElement(n).PropertyName
-                        ?? throw new UnreachableException("JSON-mapped navigation without a JSON property name.")),
+                    .Select(n => n.TargetEntityType.GetJsonPropertyName()                    
+                    ?? throw new UnreachableException("JSON-mapped navigation without a JSON property name.")),
 
             IComplexType complexType
-                => complexType.GetComplexProperties()
-                    .Select(p => jsonQueryExpression.GetJsonElement(p).PropertyName
-                        ?? throw new UnreachableException("JSON-mapped complex property without a JSON property name.")),
+                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName()
+                    ?? throw new UnreachableException("JSON-mapped complex property without a JSON property name.")),
 
             _ => throw new UnreachableException("Unexpected structural type when transforming JSON query to table.")
         };
@@ -573,7 +562,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 new SqlServerOpenJsonExpression.ColumnInfo
                 {
                     Name = jsonPropertyName,
-                    TypeMapping = containerColumn.StoreTypeMapping,
+                    TypeMapping = jsonQueryExpression.JsonColumn.TypeMapping!,
                     Path = [new PathSegment(jsonPropertyName)],
                     AsJson = true
                 });
