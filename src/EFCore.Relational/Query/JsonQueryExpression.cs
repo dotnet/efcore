@@ -308,8 +308,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     {
         var column = JsonColumn.Column
             ?? throw new InvalidOperationException(
-                RelationalStrings.JsonQueryExpressionWithoutUnderlyingColumn(propertyBase.DeclaringType.DisplayName()));
-
+                RelationalStrings.JsonQueryExpressionWithoutUnderlyingColumn(StructuralType.DisplayName()));
         return FindJsonElement(propertyBase)
             ?? throw new InvalidOperationException(
                 RelationalStrings.JsonElementMappingNotFound(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, column.Name));
