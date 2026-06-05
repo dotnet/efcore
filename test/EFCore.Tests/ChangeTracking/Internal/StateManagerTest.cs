@@ -733,6 +733,11 @@ public class StateManagerTest
         GC.Collect();
 
         Assert.False(reference.IsAlive);
+
+        // Keep the state manager (which owns the detached-entity cache) alive across the collection;
+        // otherwise the cache could be collected along with it and the entity would be released even
+        // with a strong cache, making this test pass without actually exercising the weak reference.
+        GC.KeepAlive(stateManager);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -741,6 +746,52 @@ public class StateManagerTest
         var category = new Category { Id = 1, PrincipalId = 777 };
         stateManager.GetOrCreateEntry(category).SetEntityState(EntityState.Detached);
         return new WeakReference(category);
+    }
+
+    [Fact]
+    public void Entry_for_untracked_entity_survives_collection_while_the_entity_is_referenced()
+    {
+        var stateManager = CreateStateManager(BuildModel());
+        var category = new Category { Id = 1, PrincipalId = 777 };
+
+        var entry = stateManager.GetOrCreateEntry(category);
+        entry.SetEntityState(EntityState.Detached);
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        // While the entity is still referenced, the weak cache must not drop the entry: the same entry
+        // must be returned so a subsequent Add/Attach acts on it (entry-stability contract, issue #33557).
+        Assert.Same(entry, stateManager.TryGetEntry(category));
+    }
+
+    [Fact]
+    public void Entry_for_untracked_shared_type_entity_does_not_keep_the_entity_alive()
+    {
+        var model = BuildModel();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType("SharedEntityA")!;
+
+        // Shared-type entities are cached in a per-type sub-map; that sub-map's detached cache must also
+        // hold entries weakly so the entity can be collected once nothing else references it (issue #33557).
+        var reference = CreateDetachedSharedTypeEntry(stateManager, entityType);
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        Assert.False(reference.IsAlive);
+
+        GC.KeepAlive(stateManager);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static WeakReference CreateDetachedSharedTypeEntry(IStateManager stateManager, IEntityType entityType)
+    {
+        var entity = new SharedEntity { Id = 1 };
+        stateManager.GetOrCreateEntry(entity, entityType).SetEntityState(EntityState.Detached);
+        return new WeakReference(entity);
     }
 
     [Fact]
@@ -1341,6 +1392,9 @@ public class StateManagerTest
         builder.Entity<Pin>(b => b.ComplexProperty(e => e.At));
 
         builder.Entity<Location>();
+
+        builder.SharedTypeEntity<SharedEntity>("SharedEntityA");
+        builder.SharedTypeEntity<SharedEntity>("SharedEntityB");
 
         return builder.Model.FinalizeModel();
     }
