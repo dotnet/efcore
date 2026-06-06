@@ -8,7 +8,7 @@
 /global.json                            @AndriySvyryd @wtgodbe
 /NuGet.config                           @AndriySvyryd @wtgodbe
 /.config/                               @AndriySvyryd @wtgodbe
-/.github/                               @dotnet/efteam
+/.github/                               @dotnet/efteam @wtgodbe
 /eng/                                   @AndriySvyryd @wtgodbe
 /src/                                   @dotnet/efteam
 /test/                                  @dotnet/efteam
