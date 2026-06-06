@@ -19,7 +19,7 @@ public partial class InternalEntryBase
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37724", out var enabled) && enabled;
 
     internal static readonly bool UseOldBehavior38299 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38299", out var enabled38299) && enabled38299;
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38299", out var enabled) && enabled;
 
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
