@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -66,7 +67,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var nullable = false;
         var scaffoldedFiles = new List<ScaffoldedFile>();
 
-        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
+        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, options.ProviderName, nullable);
         var assemblyInfoFileName = UniquifyFileName(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
         scaffoldedFiles.Add(new ScaffoldedFile(assemblyInfoFileName, assemblyAttributesCode));
 
@@ -134,8 +135,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         => Uniquifier.Uniquify(
             name,
             options.GeneratedFileNames,
-            (options.Suffix ?? "") + FileExtension,
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            (options.Suffix ?? "") + FileExtension);
 
     private static string GenerateHeader(SortedSet<string> namespaces, string currentNamespace, bool nullable)
     {
@@ -174,6 +175,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private string CreateAssemblyAttributes(
         string @namespace,
         Type contextType,
+        string? providerName,
         bool nullable)
     {
         var mainBuilder = new IndentedStringBuilder();
@@ -183,7 +185,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder
             .Append("[assembly: DbContextModel(typeof(").Append(_code.Reference(contextType))
-            .Append("), typeof(").Append(GetModelClassName(contextType)).AppendLine("))]");
+            .Append("), typeof(").Append(GetModelClassName(contextType)).Append(")");
+
+        if (providerName != null)
+        {
+            mainBuilder
+                .Append(", ProviderName = ").Append(_code.Literal(providerName));
+        }
+
+        mainBuilder.AppendLine(")]");
 
         return GenerateHeader(namespaces, currentNamespace: "", nullable) + mainBuilder;
     }
@@ -207,9 +217,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         mainBuilder
@@ -321,12 +330,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -346,9 +349,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         var className = GetModelClassName(contextType);
@@ -404,12 +406,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -431,9 +427,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         var className = GetModelClassName(contextType);
@@ -616,12 +611,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -718,9 +707,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         AddNamespace(typeof(EntityFrameworkInternalAttribute), namespaces);
@@ -770,12 +758,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         mainBuilder.AppendLine("}");
-
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
 
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
@@ -1197,6 +1179,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("sentinel: ")
                 .Append(_code.UnknownLiteral(sentinel));
+        }
+
+        if (!property.IsAutoLoaded)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("autoLoaded: ")
+                .Append(_code.Literal(false));
         }
 
         var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
@@ -1769,7 +1758,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
         ref Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
-        var member = property.GetMemberInfo(forMaterialization, forSet);
+        if (!property.TryGetMemberInfo(forMaterialization, forSet, out var member, out var error))
+        {
+            throw new InvalidOperationException(error);
+        }
+
+        if (member == null)
+        {
+            return null;
+        }
         switch (member)
         {
             case FieldInfo field:
@@ -1799,6 +1796,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         memberAccessReplacements ??= [];
+
         var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
 
         var declaringType = member.DeclaringType!;
@@ -1811,8 +1809,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix,
-                    int.MaxValue);
+                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, int.MaxValue,
+                    UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 
@@ -1825,7 +1823,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name, unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix, int.MaxValue);
+                    declaringType.Name, unsafeAccessorClassNames.Inverse, int.MaxValue, UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 
@@ -1973,7 +1971,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private void FindProperties(
         string entityTypeVariable,
-        IEnumerable<IProperty> properties,
+        IEnumerable<IPropertyBase> properties,
         IndentedStringBuilder mainBuilder,
         bool nullable,
         IDictionary<object, string>? scopeVariables = null)
@@ -1996,11 +1994,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             {
                 mainBuilder.Append(propertyVariable);
             }
-            else
+            else if (property.DeclaringType is IEntityType)
             {
                 mainBuilder
                     .Append(entityTypeVariable)
-                    .Append(".FindProperty(")
+                    .Append(property is IComplexProperty ? ".FindComplexProperty(" : ".FindProperty(")
                     .Append(_code.Literal(property.Name))
                     .Append(')');
 
@@ -2008,6 +2006,70 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 {
                     mainBuilder
                         .Append('!');
+                }
+            }
+            else
+            {
+                // Property is declared on a complex type. Walk the chain from the entity type down to the
+                // complex type, then look up the leaf property/complex property. At each level, check
+                // whether the complex property/type already has a variable in scope and start from there.
+                var chain = new List<string>();
+                var typeBase = (IReadOnlyTypeBase)property.DeclaringType;
+                string? startVariable = null;
+                var startVariableIsComplexProperty = false;
+                while (typeBase is IReadOnlyComplexType complexType)
+                {
+                    if (scopeVariables != null
+                        && scopeVariables.TryGetValue(complexType, out startVariable))
+                    {
+                        break;
+                    }
+
+                    if (scopeVariables != null
+                        && scopeVariables.TryGetValue(complexType.ComplexProperty, out startVariable))
+                    {
+                        startVariableIsComplexProperty = true;
+                        break;
+                    }
+
+                    chain.Insert(0, complexType.ComplexProperty.Name);
+                    typeBase = complexType.ComplexProperty.DeclaringType;
+                }
+
+                mainBuilder.Append(startVariable ?? entityTypeVariable);
+                if (startVariableIsComplexProperty)
+                {
+                    if (nullable)
+                    {
+                        mainBuilder.Append('!');
+                    }
+
+                    mainBuilder.Append(".ComplexType");
+                }
+
+                foreach (var complexPropertyName in chain)
+                {
+                    mainBuilder
+                        .Append(".FindComplexProperty(")
+                        .Append(_code.Literal(complexPropertyName))
+                        .Append(')');
+
+                    if (nullable)
+                    {
+                        mainBuilder.Append('!');
+                    }
+
+                    mainBuilder.Append(".ComplexType");
+                }
+
+                mainBuilder
+                    .Append(property is IComplexProperty ? ".FindComplexProperty(" : ".FindProperty(")
+                    .Append(_code.Literal(property.Name))
+                    .Append(')');
+
+                if (nullable)
+                {
+                    mainBuilder.Append('!');
                 }
             }
         }
@@ -2081,6 +2143,43 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder.AppendLine();
     }
 
+    private static void CollectionIndicesLiteral(
+        IndentedStringBuilder mainBuilder,
+        IReadOnlyList<IReadOnlyList<int?>?> collectionIndices)
+    {
+        mainBuilder.Append("[");
+        for (var i = 0; i < collectionIndices.Count; i++)
+        {
+            if (i > 0)
+            {
+                mainBuilder.Append(", ");
+            }
+
+            var entry = collectionIndices[i];
+            if (entry is null)
+            {
+                mainBuilder.Append("null");
+                continue;
+            }
+
+            mainBuilder.Append("[");
+            for (var j = 0; j < entry.Count; j++)
+            {
+                if (j > 0)
+                {
+                    mainBuilder.Append(", ");
+                }
+
+                var value = entry[j];
+                mainBuilder.Append(value is null ? "null" : value.Value.ToString(CultureInfo.InvariantCulture));
+            }
+
+            mainBuilder.Append("]");
+        }
+
+        mainBuilder.Append("]");
+    }
+
     private void Create(
         IIndex index,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
@@ -2107,6 +2206,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("unique: ")
                 .Append(_code.Literal(true));
+        }
+
+        if (index.CollectionIndices is { } collectionIndices)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("collectionIndices: ");
+            CollectionIndicesLiteral(mainBuilder, collectionIndices);
         }
 
         mainBuilder

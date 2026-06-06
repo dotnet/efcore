@@ -294,7 +294,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         var narrowed = false;
         var oldColumnSupported = IsOldColumnSupported(model);
-        if (oldColumnSupported)
+
+        // SQL Server can't ALTER COLUMN on a computed column when the expression is unchanged; see #33425.
+        var computedColumnIsNoOp = operation.ComputedColumnSql != null
+            && operation.OldColumn.ComputedColumnSql != null
+            && operation.ComputedColumnSql == operation.OldColumn.ComputedColumnSql
+            && operation.IsStored == operation.OldColumn.IsStored;
+
+        if (oldColumnSupported && !computedColumnIsNoOp)
         {
             if (IsIdentity(operation) != IsIdentity(operation.OldColumn))
             {
@@ -356,6 +363,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || operation.IsNullable != operation.OldColumn.IsNullable
             || operation.Collation != operation.OldColumn.Collation
             || HasDifferences(newAnnotations, oldAnnotations);
+
+        if (computedColumnIsNoOp)
+        {
+            alterStatementNeeded = false;
+        }
 
         var (oldDefaultValue, oldDefaultValueSql) = (operation.OldColumn.DefaultValue, operation.OldColumn.DefaultValueSql);
 
@@ -831,6 +843,24 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationCommandListBuilder builder,
         bool terminate = true)
     {
+        if (operation[SqlServerAnnotationNames.FullTextIndex] is string keyIndex)
+        {
+            GenerateFullTextIndex(keyIndex);
+            return;
+        }
+
+        if (operation[SqlServerAnnotationNames.VectorIndexMetric] is string)
+        {
+            GenerateVectorIndex();
+            return;
+        }
+
+        if (operation[RelationalAnnotationNames.JsonIndex] is RelationalJsonIndex jsonIndex)
+        {
+            GenerateJsonIndex(jsonIndex);
+            return;
+        }
+
         var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
         var hasNullableColumns = operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
@@ -886,6 +916,120 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: memoryOptimized);
+        }
+
+        void GenerateFullTextIndex(string keyIndex)
+        {
+            builder.Append("CREATE FULLTEXT INDEX ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append("(");
+
+            var languages = (Dictionary<string, string>?)operation.FindAnnotation(SqlServerAnnotationNames.FullTextLanguages)?.Value;
+
+            for (var i = 0; i < operation.Columns.Length; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[i]));
+
+                if (languages is not null && languages.TryGetValue(operation.Columns[i], out var language))
+                {
+                    builder.Append(" LANGUAGE ").Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(language));
+                }
+            }
+
+            builder.Append(") KEY INDEX ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(keyIndex));
+
+            if (operation[SqlServerAnnotationNames.FullTextCatalog] is string catalog)
+            {
+                builder.Append(" ON ").Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(catalog));
+            }
+
+            if (operation[SqlServerAnnotationNames.FullTextChangeTracking] is FullTextChangeTracking changeTracking)
+            {
+                builder.Append(" WITH CHANGE_TRACKING = ");
+                builder.Append(changeTracking switch
+                {
+                    FullTextChangeTracking.Auto => "AUTO",
+                    FullTextChangeTracking.Manual => "MANUAL",
+                    FullTextChangeTracking.Off => "OFF",
+                    FullTextChangeTracking.OffNoPopulation => "OFF, NO POPULATION",
+
+                    _ => throw new UnreachableException(),
+                });
+            }
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
+        }
+
+        void GenerateVectorIndex()
+        {
+            builder.Append("CREATE VECTOR INDEX ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append("(");
+            GenerateIndexColumnList(operation, model, builder);
+            builder.Append(")");
+
+            IndexOptions(operation, model, builder);
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
+        }
+
+        void GenerateJsonIndex(RelationalJsonIndex jsonIndex)
+        {
+            var jsonColumn = jsonIndex.Elements[0].ContainingColumn.Name;
+            builder.Append("CREATE JSON INDEX ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append("(")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(jsonColumn))
+                .Append(") FOR (");
+
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            for (var i = 0; i < jsonIndex.Elements.Count; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                var element = jsonIndex.Elements[i];
+                // Add a trailing wildcard for the leaf JSON array
+                var segments = element is IRelationalJsonArray
+                    ? (IReadOnlyList<StructuredJsonPathSegment>)[.. element.Path, StructuredJsonPathSegment.Array]
+                    : element.Path;
+                builder.Append(stringTypeMapping.GenerateSqlLiteral(
+                    new StructuredJsonPath(segments, jsonIndex.CollectionIndices?[i])
+                    .ToString(useAsteriskForNullIndex: true)));
+            }
+
+            builder.Append(")");
+
+            IndexOptions(operation, model, builder);
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
         }
     }
 
@@ -1148,6 +1292,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .AppendLine();
         }
 
+        GenerateFullTextCatalogStatements(operation, builder);
+
         if (!IsMemoryOptimized(operation))
         {
             builder.EndCommand(suppressTransaction: true);
@@ -1233,6 +1379,79 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder.EndCommand(suppressTransaction: true);
     }
 
+    private void GenerateFullTextCatalogStatements(
+        AlterDatabaseOperation operation,
+        MigrationCommandListBuilder builder)
+    {
+        var oldCatalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(operation.OldDatabase).ToDictionary(c => c.Name, c => c);
+        var newCatalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(operation).ToDictionary(c => c.Name, c => c);
+
+        // Drop removed catalogs
+        foreach (var (name, _) in oldCatalogs)
+        {
+            if (!newCatalogs.ContainsKey(name))
+            {
+                builder
+                    .Append("DROP FULLTEXT CATALOG ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .AppendLine();
+            }
+        }
+
+        // Create added catalogs
+        foreach (var (name, catalog) in newCatalogs)
+        {
+            if (!oldCatalogs.ContainsKey(name))
+            {
+                builder.Append("CREATE FULLTEXT CATALOG ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name));
+
+                if (!catalog.IsAccentSensitive)
+                {
+                    builder.Append(" WITH ACCENT_SENSITIVITY = OFF");
+                }
+
+                if (catalog.IsDefault)
+                {
+                    builder.Append(" AS DEFAULT");
+                }
+
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .AppendLine();
+            }
+        }
+
+        // Alter changed catalogs
+        foreach (var (name, catalog) in newCatalogs)
+        {
+            if (oldCatalogs.TryGetValue(name, out var oldProps))
+            {
+                if (oldProps.IsAccentSensitive != catalog.IsAccentSensitive)
+                {
+                    builder
+                        .Append("ALTER FULLTEXT CATALOG ")
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                        .Append(" REBUILD WITH ACCENT_SENSITIVITY = ")
+                        .Append(catalog.IsAccentSensitive ? "ON" : "OFF")
+                        .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                        .AppendLine();
+                }
+
+                if (!oldProps.IsDefault && catalog.IsDefault)
+                {
+                    builder
+                        .Append("ALTER FULLTEXT CATALOG ")
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                        .Append(" AS DEFAULT")
+                        .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                        .AppendLine();
+                }
+            }
+        }
+    }
+
     /// <summary>
     ///     Builds commands for the given <see cref="AlterTableOperation" />
     ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
@@ -1311,6 +1530,22 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         if (string.IsNullOrEmpty(operation.Table))
         {
             throw new InvalidOperationException(SqlServerStrings.IndexTableRequired);
+        }
+
+        if (operation[SqlServerAnnotationNames.FullTextIndex] is string)
+        {
+            builder
+                .Append("DROP FULLTEXT INDEX ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table!, operation.Schema));
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
+
+            return;
         }
 
         var memoryOptimized = IsMemoryOptimized(operation, model, operation.Schema, operation.Table);
@@ -1406,6 +1641,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(SqlOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
+        if (Options.HasFlag(MigrationsSqlGenerationOptions.Script))
+        {
+            builder.Append(operation.Sql);
+            if (!operation.Sql.EndsWith('\n'))
+            {
+                builder.AppendLine();
+            }
+
+            EndStatement(builder, operation.SuppressTransaction);
+            return;
+        }
+
         var preBatched = operation.Sql
             .Replace("\\\n", "")
             .Replace("\\\r\n", "")
@@ -1665,6 +1912,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation.Collation != null)
         {
+            // SQL Server collation docs: https://learn.microsoft.com/sql/relational-databases/collations/collation-and-unicode-support
+
+            // The default behavior in MigrationsSqlGenerator is to quote collation names, but SQL Server does not support that.
+            // Instead, make sure the collation name only contains a restricted set of characters.
+            foreach (var c in operation.Collation)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    throw new InvalidOperationException(SqlServerStrings.InvalidCollationName(operation.Collation));
+                }
+            }
+
             builder
                 .Append(" COLLATE ")
                 .Append(operation.Collation);
@@ -1903,11 +2162,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
-        IndexWithOptions(operation, builder);
-    }
-
-    private static void IndexWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
-    {
         var options = new List<string>();
 
         if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
@@ -1927,17 +2181,27 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation[SqlServerAnnotationNames.DataCompression] is DataCompressionType dataCompressionType)
         {
-            switch (dataCompressionType)
+            options.Add("DATA_COMPRESSION = " + dataCompressionType switch
             {
-                case DataCompressionType.None:
-                    options.Add("DATA_COMPRESSION = NONE");
-                    break;
-                case DataCompressionType.Row:
-                    options.Add("DATA_COMPRESSION = ROW");
-                    break;
-                case DataCompressionType.Page:
-                    options.Add("DATA_COMPRESSION = PAGE");
-                    break;
+                DataCompressionType.None => "NONE",
+                DataCompressionType.Row => "ROW",
+                DataCompressionType.Page => "PAGE",
+
+                _ => throw new UnreachableException(),
+            });
+        }
+
+        // Vector index options.
+        // Note that the metric facet is mandatory, and used to determine if the index is a vector index.
+        if (operation[SqlServerAnnotationNames.VectorIndexMetric] is string vectorMetric)
+        {
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping("varchar(max)");
+
+            options.Add("METRIC = " + stringTypeMapping.GenerateSqlLiteral(vectorMetric));
+
+            if (operation[SqlServerAnnotationNames.VectorIndexType] is string vectorType)
+            {
+                options.Add("TYPE = " + stringTypeMapping.GenerateSqlLiteral(vectorType));
             }
         }
 
@@ -2381,6 +2645,17 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
             == SqlServerValueGenerationStrategy.IdentityColumn;
 
+    private static void RemoveIdentityAnnotations(ColumnOperation operation)
+    {
+        operation.RemoveAnnotation(SqlServerAnnotationNames.Identity);
+
+        if (operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
+            == SqlServerValueGenerationStrategy.IdentityColumn)
+        {
+            operation.RemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+        }
+    }
+
     private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out int seed, out int increment)
     {
         if (operation[SqlServerAnnotationNames.Identity] is string seedIncrement
@@ -2724,6 +2999,25 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
+        var historyTables = new HashSet<(string Name, string? Schema)>(
+            temporalTableInformationMap.Values
+                .Where(t => t.IsTemporalTable && t.HistoryTableName != null)
+                .Select(t => (t.HistoryTableName!, t.HistoryTableSchema)));
+
+        if (model != null)
+        {
+            foreach (var table in model.GetRelationalModel().Tables)
+            {
+                if (table[SqlServerAnnotationNames.IsTemporal] as bool? == true
+                    && table[SqlServerAnnotationNames.TemporalHistoryTableName] is string modelHistoryTableName)
+                {
+                    var modelHistoryTableSchema =
+                        table[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string;
+                    historyTables.Add((modelHistoryTableName, modelHistoryTableSchema));
+                }
+            }
+        }
+
         // now we do proper processing - for table operations we look at the annotations on them
         // and continuously update the stored temporal info as the table is being modified
         // for column (and other) operations we don't have annotations on them, so we look into the
@@ -2945,6 +3239,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     temporalInformation.PeriodStartColumnName = periodStartColumnName;
                     temporalInformation.PeriodEndColumnName = periodEndColumnName;
 
+                    if (isTemporalTable && historyTableName != null)
+                    {
+                        historyTables.Add((historyTableName, historyTableSchema));
+                    }
+
                     operations.Add(operation);
                     break;
                 }
@@ -3023,11 +3322,20 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 addHistoryTableColumnOperation.ComputedColumnSql = null;
                             }
 
+                            // identity columns are not allowed inside HistoryTables
+                            RemoveIdentityAnnotations(addHistoryTableColumnOperation);
+
                             operations.Add(addHistoryTableColumnOperation);
                         }
                     }
                     else
                     {
+                        // identity columns are not allowed inside HistoryTables
+                        if (historyTables.Contains((tableName, schema)))
+                        {
+                            RemoveIdentityAnnotations(addColumnOperation);
+                        }
+
                         operations.Add(addColumnOperation);
                     }
 
@@ -3174,11 +3482,22 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             alterHistoryTableColumn.OldColumn.Table = temporalInformation.HistoryTableName!;
                             alterHistoryTableColumn.OldColumn.Schema = temporalInformation.HistoryTableSchema;
 
+                            // identity columns are not allowed inside HistoryTables
+                            RemoveIdentityAnnotations(alterHistoryTableColumn);
+                            RemoveIdentityAnnotations(alterHistoryTableColumn.OldColumn);
+
                             operations.Add(alterHistoryTableColumn);
                         }
                     }
                     else
                     {
+                        // identity columns are not allowed inside HistoryTables
+                        if (historyTables.Contains((tableName, schema)))
+                        {
+                            RemoveIdentityAnnotations(alterColumnOperation);
+                            RemoveIdentityAnnotations(alterColumnOperation.OldColumn);
+                        }
+
                         operations.Add(alterColumnOperation);
                     }
 

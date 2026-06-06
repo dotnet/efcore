@@ -951,6 +951,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
             if (field == null)
             {
                 EnsureReadOnly();
+                // The principal key value factory creates the dependent key value factory
+                _ = ((IKey)PrincipalKey).GetPrincipalKeyValueFactory();
             }
 
             return field!;

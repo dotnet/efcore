@@ -366,13 +366,13 @@ public class CSharpToLinqTranslatorTest
             """ "foo"! """);
     // ReSharper restore RedundantSuppressNullableWarningExpression
 
-    [ConditionalFact]
+    [Fact]
     public void Typeof()
         => AssertExpression(
             () => typeof(string),
             "typeof(string)");
 
-    [ConditionalFact]
+    [Fact]
     public void Array_type()
         => AssertExpression(
             () => typeof(ParameterExpression[]),

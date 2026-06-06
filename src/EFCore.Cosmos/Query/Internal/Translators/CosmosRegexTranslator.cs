@@ -15,12 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
     : IMethodCallTranslator
 {
-    private static readonly MethodInfo IsMatch =
-        typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), [typeof(string), typeof(string)])!;
-
-    private static readonly MethodInfo IsMatchWithRegexOptions =
-        typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), [typeof(string), typeof(string), typeof(RegexOptions)])!;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,7 +27,13 @@ public class CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method != IsMatch && method != IsMatchWithRegexOptions)
+        if (method.DeclaringType != typeof(Regex)
+            || method.Name != nameof(Regex.IsMatch))
+        {
+            return null;
+        }
+
+        if (arguments is not ([_, _] or [_, _, _]))
         {
             return null;
         }
@@ -44,7 +44,7 @@ public class CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
             sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
             sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping));
 
-        if (method == IsMatch || arguments[2] is SqlConstantExpression { Value: RegexOptions.None })
+        if (arguments.Count == 2 || arguments[2] is SqlConstantExpression { Value: RegexOptions.None })
         {
             return sqlExpressionFactory.Function("RegexMatch", [input, pattern], typeof(bool));
         }

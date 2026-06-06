@@ -260,6 +260,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression);
         public abstract TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression, string name);
         public abstract TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames);
+        public abstract TestIndexBuilder<TEntity> HasIndex(string[] propertyNames, string name);
 
         public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
             where TRelatedEntity : class;

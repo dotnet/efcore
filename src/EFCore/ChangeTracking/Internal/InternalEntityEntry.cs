@@ -693,13 +693,20 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
             {
                 if (PropertyStateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null))
                 {
-                    if (properties.Any(p => p.IsNullable)
-                        && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
-                        && foreignKey.DeleteBehavior != DeleteBehavior.ClientCascade)
+                    var isSetDefault = foreignKey.DeleteBehavior is DeleteBehavior.SetDefault or DeleteBehavior.ClientSetDefault;
+
+                    if (isSetDefault
+                        || (properties.Any(p => p.IsNullable)
+                            && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
+                            && foreignKey.DeleteBehavior != DeleteBehavior.ClientCascade))
                     {
                         foreach (var toNull in properties)
                         {
-                            if (toNull.IsNullable)
+                            if (isSetDefault)
+                            {
+                                this[toNull] = toNull.Sentinel;
+                            }
+                            else if (toNull.IsNullable)
                             {
                                 this[toNull] = null;
                             }

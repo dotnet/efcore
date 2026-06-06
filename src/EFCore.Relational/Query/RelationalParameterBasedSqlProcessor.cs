@@ -74,31 +74,17 @@ public class RelationalParameterBasedSqlProcessor
     ///     optimize it for given parameter values.
     /// </summary>
     /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="Decorator">A decorator allowing access to parameters in a cache-safe way.</param>
+    /// <param name="decorator">A decorator allowing access to parameters in a cache-safe way.</param>
     /// <returns>A processed query expression.</returns>
-    protected virtual Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator Decorator)
-        => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, Decorator);
+    protected virtual Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator decorator)
+        => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, decorator);
 
     /// <summary>
     ///     Expands the parameters to <see cref="FromSqlExpression" /> inside the query expression for given parameter values.
     /// </summary>
     /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="Decorator">A decorator allowing access to parameters in a cache-safe way.</param>
+    /// <param name="decorator">A decorator allowing access to parameters in a cache-safe way.</param>
     /// <returns>A processed query expression.</returns>
-    protected virtual Expression ExpandFromSqlParameter(Expression queryExpression, ParametersCacheDecorator Decorator)
-        => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, Decorator);
-
-    /// <summary>
-    ///     Optimizes the query expression for given parameter values.
-    /// </summary>
-    /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="parametersValues">A dictionary of parameter values to use.</param>
-    /// <param name="canCache">A bool value indicating if the query expression can be cached.</param>
-    /// <returns>An optimized query expression.</returns>
-    [Obsolete("Override Process() instead", error: true)]
-    public virtual Expression Optimize(
-        Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parametersValues,
-        out bool canCache)
-        => throw new UnreachableException();
+    protected virtual Expression ExpandFromSqlParameter(Expression queryExpression, ParametersCacheDecorator decorator)
+        => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, decorator);
 }

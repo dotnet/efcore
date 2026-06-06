@@ -1208,6 +1208,14 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey>? foreignKeys = null)
     {
+        // When an owned entity is replaced (e.g., via record 'with' expression), the old entry is
+        // marked Deleted and a new entry with the same key is linked via SharedIdentityEntry.
+        // Skip cascade from the old entry since the replacement handles its own dependents.
+        if (entry.SharedIdentityEntry != null)
+        {
+            return;
+        }
+
         var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
         var principalIsDetached = entry.EntityState == EntityState.Detached;
 
@@ -1267,8 +1275,12 @@ public class StateManager : IStateManager
 
                         foreach (var dependentProperty in fkProperties)
                         {
+                            var valueToSet = fk.DeleteBehavior is DeleteBehavior.SetDefault or DeleteBehavior.ClientSetDefault
+                                ? dependentProperty.Sentinel
+                                : null;
+
                             dependent.SetProperty(
-                                dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
+                                dependentProperty, valueToSet, isMaterialization: false, setModified: true, isCascadeDelete: true);
                         }
 
                         if (dependent.HasConceptualNull)

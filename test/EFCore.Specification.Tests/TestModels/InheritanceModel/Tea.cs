@@ -7,4 +7,7 @@ public class Tea : Drink
 {
     public bool HasMilk { get; set; }
     public int CaffeineGrams { get; set; }
+
+    // Samep roperty name as on Coke, to test uniquification
+    public ComplexType? ChildComplexType { get; set; }
 }

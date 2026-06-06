@@ -126,7 +126,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(ValueGenerated.OnUpdate, entityType.FindProperty("Bottom")!.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Partition_key_is_added_to_the_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -148,7 +148,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Hierarchical_partition_key_is_added_to_the_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -169,7 +169,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Three_level_hierarchical_partition_key_is_added_to_the_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -196,7 +196,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Partition_key_is_added_to_the_alternate_key_if_primary_key_contains_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -222,7 +222,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Hierarchical_partition_key_is_added_to_the_alternate_key_if_primary_key_contains_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -253,7 +253,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Id_property_created_if_key_not_mapped_to_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -277,7 +277,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_id_property_created_if_another_property_mapped_to_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -298,7 +298,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_id_property_created_if_another_property_mapped_to_id_in_pk()
         {
             var modelBuilder = CreateModelBuilder();
@@ -326,7 +326,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -350,7 +350,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(1, entity.GetKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -374,7 +374,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_hierarchical_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -417,7 +417,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_hierarchical_partition_key_in_different_order()
         {
             var modelBuilder = CreateModelBuilder();
@@ -460,7 +460,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Hierarchical_partition_key_is_added_to_the_alternate_key_if_primary_key_contains_part_of_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -496,7 +496,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_id_is_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -518,7 +518,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void No_alternate_key_is_created_if_id_is_hierarchical_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -550,7 +550,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Single_string_primary_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -577,7 +577,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34511
+        [Fact] // Issue #34511
         public virtual void Single_string_primary_key_with_single_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -604,7 +604,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34511
+        [Fact] // Issue #34511
         public virtual void Single_string_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -645,7 +645,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             public string P3 { get; set; } = null!;
         }
 
-        [ConditionalFact] // Issue #34554
+        [Fact] // Issue #34554
         public virtual void Single_GUID_primary_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -672,7 +672,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34554
+        [Fact] // Issue #34554
         public virtual void Single_GUID_primary_key_with_single_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -699,7 +699,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
         }
 
-        [ConditionalFact] // Issue #34554
+        [Fact] // Issue #34554
         public virtual void Single_GUID_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -757,7 +757,31 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => Properties_can_have_provider_type_set<string>();
 
         public override void Complex_properties_can_be_configured_by_type()
-            => Assert.Throws<InvalidOperationException>(() => base.Complex_properties_can_be_configured_by_type());
+            => base.Complex_properties_can_be_configured_by_type();
+
+        public override void Can_define_index_on_complex_property_via_lambda()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Can_define_index_on_complex_property_via_lambda).Message);
+
+        public override void Can_define_composite_index_mixing_entity_and_complex_property_via_lambda()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Id,Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Can_define_composite_index_mixing_entity_and_complex_property_via_lambda).Message);
+
+        public override void Can_define_index_on_complex_property_via_string_dotted_path()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Can_define_index_on_complex_property_via_string_dotted_path).Message);
+
+        public override void Index_on_complex_property_marks_chain_as_required()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Index_on_complex_property_marks_chain_as_required).Message);
 
         public override void Can_set_complex_property_annotation()
         {
@@ -798,19 +822,15 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
     public class CosmosGenericComplexCollection(CosmosModelBuilderFixture fixture)
         : ComplexCollectionTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_custom_type_value_converter_type_set()
             => Properties_can_have_custom_type_value_converter_type_set<string>();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_non_generic_value_converter_set()
             => Properties_can_have_non_generic_value_converter_set<string>();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_provider_type_set()
             => Properties_can_have_provider_type_set<string>();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_complex_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -843,150 +863,92 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
       Notes (List<string>) Element type: string Required", complexCollection.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Access_mode_can_be_overridden_at_entity_and_property_levels()
-        {
-        }
+            => base.Access_mode_can_be_overridden_at_entity_and_property_levels();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_unicode_for_properties()
-        {
-        }
+            => base.Can_set_unicode_for_properties();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_property_annotation()
-        {
-        }
+            => base.Can_set_property_annotation();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_property_annotation_by_type()
-        {
-        }
+            => base.Can_set_property_annotation_by_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_be_ignored()
-        {
-        }
+            => base.Properties_can_be_ignored();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Value_converter_configured_on_non_nullable_type_is_applied()
-        {
-        }
+            => base.Value_converter_configured_on_non_nullable_type_is_applied();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_be_ignored_by_type()
-        {
-        }
+            => base.Properties_can_be_ignored_by_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Non_nullable_properties_cannot_be_made_optional()
-        {
-        }
+            => base.Non_nullable_properties_cannot_be_made_optional();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_add_shadow_properties_when_they_have_been_ignored()
-        {
-        }
+            => base.Can_add_shadow_properties_when_they_have_been_ignored();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_field_set()
-        {
-        }
+            => base.Properties_can_have_field_set();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_unicode_for_property_type()
-        {
-        }
+            => base.Can_set_unicode_for_property_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_custom_value_generator_for_properties()
-        {
-        }
+            => base.Can_set_custom_value_generator_for_properties();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_be_made_optional()
-        {
-        }
+            => base.Properties_can_be_made_optional();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_value_converter_set_inline()
-        {
-        }
+            => base.Properties_can_have_value_converter_set_inline();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_are_required_by_default_only_if_CLR_type_is_nullable()
-        {
-        }
+            => base.Properties_are_required_by_default_only_if_CLR_type_is_nullable();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_precision_and_scale_for_property_type()
-        {
-        }
+            => base.Can_set_precision_and_scale_for_property_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_be_made_required()
-        {
-        }
+            => base.Properties_can_be_made_required();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_sentinel_for_property_type()
-        {
-        }
+            => base.Can_set_sentinel_for_property_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_property_annotation_when_no_clr_property()
-        {
-        }
+            => base.Can_set_property_annotation_when_no_clr_property();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
-        {
-        }
+            => base.Can_ignore_shadow_properties_when_they_have_been_added_explicitly();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
-        {
-        }
+            => base.Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_sentinel_for_properties()
-        {
-        }
+            => base.Can_set_sentinel_for_properties();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_max_length_for_property_type()
-        {
-        }
+            => base.Can_set_max_length_for_property_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_provider_type_set_for_type()
-        {
-        }
+            => base.Properties_can_have_provider_type_set_for_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_value_converter_set()
-        {
-        }
+            => base.Properties_can_have_value_converter_set();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Value_converter_type_is_checked()
-        {
-        }
+            => base.Value_converter_type_is_checked();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Value_converter_configured_on_nullable_type_overrides_non_nullable()
-        {
-        }
+            => base.Value_converter_configured_on_nullable_type_overrides_non_nullable();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_unbounded_max_length_for_property_type()
-        {
-        }
+            => base.Can_set_unbounded_max_length_for_property_type();
 
-        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_access_mode_set()
-        {
-        }
+            => base.Properties_can_have_access_mode_set();
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
@@ -1079,7 +1041,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 owned.DisplayName());
         }
 
-        [ConditionalFact] // Issue #34329
+        [Fact] // Issue #34329
         public virtual void Navigation_cycle_can_be_broken()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1126,7 +1088,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
     public class CosmosGenericManyToMany(CosmosModelBuilderFixture fixture)
         : ManyToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_shared_type_as_join_entity_with_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1176,13 +1138,9 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_shared_type_as_join_entity_with_hierarchical_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1242,7 +1200,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 joinType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_join_entity_with_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1277,13 +1235,9 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_join_entity_with_hierarchical_partition_keys()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1331,7 +1285,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_join_entity_with_partition_keys_changed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1373,10 +1327,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["Partition2Id"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("Partition2Id", joinType.FindPrimaryKey()!.Properties.Last().Name);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("Partition2Id", joinType.GetPartitionKeyPropertyName());
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void Join_type_is_automatically_configured_by_convention()
@@ -1457,7 +1407,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(
                     base.Shared_type_entity_types_with_FK_to_another_entity_works).Message);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Reference_type_is_discovered_as_owned()
         {
             var modelBuilder = CreateModelBuilder();

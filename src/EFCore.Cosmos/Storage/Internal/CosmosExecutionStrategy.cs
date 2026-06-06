@@ -3,6 +3,7 @@
 
 using System.Globalization;
 using System.Net;
+using Azure;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -98,13 +99,17 @@ public class CosmosExecutionStrategy : ExecutionStrategy
         {
             CosmosException cosmosException => IsTransient(cosmosException.StatusCode),
             HttpException httpException => IsTransient(httpException.Response.StatusCode),
-            WebException webException => IsTransient(((HttpWebResponse)webException.Response!).StatusCode),
+            WebException webException => IsTransient((webException.Response as HttpWebResponse)?.StatusCode),
+            RequestFailedException requestFailed => IsTransient((HttpStatusCode)requestFailed.Status),
             _ => false
         };
 
-        static bool IsTransient(HttpStatusCode statusCode)
-            => statusCode is HttpStatusCode.ServiceUnavailable or HttpStatusCode.TooManyRequests or HttpStatusCode.RequestTimeout
-                or HttpStatusCode.Gone;
+        static bool IsTransient(HttpStatusCode? statusCode)
+            => statusCode is null
+            or HttpStatusCode.ServiceUnavailable
+            or HttpStatusCode.TooManyRequests
+            or HttpStatusCode.RequestTimeout
+            or HttpStatusCode.Gone;
     }
 
     /// <summary>

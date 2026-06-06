@@ -385,7 +385,7 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
             {
                 converter = (ValueConverter?)Activator.CreateInstance(converterType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueConverter(
@@ -546,7 +546,7 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
             {
                 comparer = (ValueComparer?)Activator.CreateInstance(comparerType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueComparer(

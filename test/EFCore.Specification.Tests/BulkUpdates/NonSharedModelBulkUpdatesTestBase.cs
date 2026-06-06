@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
@@ -8,46 +8,46 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "NonSharedModelBulkUpdatesTests";
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_eager_loaded_owned_collection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
+        var contextFactory = await InitializeNonSharedTest<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
         await AssertDelete(
-            async, contextFactory.CreateContext,
+            async, contextFactory.CreateDbContext,
             context => context.Set<Owner>(), rowsAffectedCount: 0);
     }
 
     // Composing the OrderBy().Skip() operators causes the query to not be natively translatable as a simple DELETE (in most databases),
     // causing a subquery pushdown (WHERE Id IN (...)).
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_with_owned_collection_and_non_natively_translatable_query(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
+        var contextFactory = await InitializeNonSharedTest<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
         await AssertDelete(
-            async, contextFactory.CreateContext,
+            async, contextFactory.CreateDbContext,
             context => context.Set<Owner>().OrderBy(o => o.Title).Skip(1), rowsAffectedCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_table_sharing_with_owned(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>();
+        var contextFactory = await InitializeNonSharedTest<Context28671>();
         await AssertDelete(
-            async, contextFactory.CreateContext,
+            async, contextFactory.CreateDbContext,
             context => context.Set<Owner>(), rowsAffectedCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #33937, #33946
+    [Theory, MemberData(nameof(IsAsyncData))] // #33937, #33946
     public virtual async Task Replace_ColumnExpression_in_column_setter(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>();
+        var contextFactory = await InitializeNonSharedTest<Context28671>();
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Set<Owner>().SelectMany(e => e.OwnedCollections),
             s => s.SetProperty(o => o.Value, "SomeValue"),
             rowsAffectedCount: 0);
@@ -90,10 +90,10 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
         public string Title { get; set; }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_non_owned_property_on_entity_with_owned(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>(
+        var contextFactory = await InitializeNonSharedTest<Context28671>(
             onModelCreating: mb =>
             {
                 mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
@@ -101,16 +101,16 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Set<Owner>(),
             s => s.SetProperty(o => o.Title, "SomeValue"),
             rowsAffectedCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_non_owned_property_on_entity_with_owned2(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>(
+        var contextFactory = await InitializeNonSharedTest<Context28671>(
             onModelCreating: mb =>
             {
                 mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
@@ -118,16 +118,16 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Set<Owner>(),
             s => s.SetProperty(o => o.Title, o => o.Title + "_Suffix"),
             rowsAffectedCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_non_owned_property_on_entity_with_owned_in_join(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>(
+        var contextFactory = await InitializeNonSharedTest<Context28671>(
             onModelCreating: mb =>
             {
                 mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
@@ -135,16 +135,16 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Set<Owner>().Join(ss.Set<Owner>(), o => o.Id, i => i.Id, (o, i) => new { Outer = o, Inner = i }),
             s => s.SetProperty(t => t.Outer.Title, "NewValue"),
             rowsAffectedCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>(
+        var contextFactory = await InitializeNonSharedTest<Context28671>(
             onModelCreating: mb =>
             {
                 mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
@@ -152,7 +152,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Set<Owner>(),
             s => s
                 .SetProperty(o => o.Title, o => o.OwnedReference.Number.ToString())
@@ -160,11 +160,11 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
             rowsAffectedCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_entity_with_auto_include(bool async)
     {
-        var contextFactory = await InitializeAsync<Context30572>();
-        await AssertDelete(async, contextFactory.CreateContext, ss => ss.Set<Context30572_Principal>(), rowsAffectedCount: 0);
+        var contextFactory = await InitializeNonSharedTest<Context30572>();
+        await AssertDelete(async, contextFactory.CreateDbContext, ss => ss.Set<Context30572_Principal>(), rowsAffectedCount: 0);
     }
 
     protected class Context30572(DbContextOptions options) : DbContext(options)
@@ -188,12 +188,12 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
         public int Number { get; set; }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28745>();
+        var contextFactory = await InitializeNonSharedTest<Context28745>();
         await AssertDelete(
-            async, contextFactory.CreateContext,
+            async, contextFactory.CreateDbContext,
             context => context.Posts.Where(p => p.Blog!.Title!.StartsWith("Arthur")), rowsAffectedCount: 1);
     }
 
@@ -218,13 +218,13 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_with_alias_uniquification_in_setter_subquery(bool async)
     {
-        var contextFactory = await InitializeAsync<Context31078>();
+        var contextFactory = await InitializeNonSharedTest<Context31078>();
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Orders.Where(o => o.Id == 1)
                 .Select(o => new { Order = o, Total = o.OrderProducts.Sum(op => op.Amount) }),
             s => s.SetProperty(x => x.Order.Total, x => x.Total),

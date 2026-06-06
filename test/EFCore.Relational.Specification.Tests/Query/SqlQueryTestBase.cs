@@ -21,7 +21,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast_key(bool async)
     {
         using var context = CreateContext();
@@ -37,7 +37,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast(bool async)
     {
         using var context = CreateContext();
@@ -53,7 +53,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast_projection(bool async)
     {
         using var context = CreateContext();
@@ -70,7 +70,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast_no_tracking(bool async)
     {
         using var context = CreateContext();
@@ -86,7 +86,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_null(bool async)
     {
         using var context = CreateContext();
@@ -102,7 +102,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_null_projection(bool async)
     {
         using var context = CreateContext();
@@ -119,7 +119,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_null_no_tracking(bool async)
     {
         using var context = CreateContext();
@@ -135,7 +135,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple(bool async)
         => AssertQuery(
             async,
@@ -145,7 +145,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple_mapped_type(bool async)
         => AssertQuery(
             async,
@@ -153,7 +153,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 (NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'")),
             ss => ss.Set<CustomerQuery>().Where(x => x.ContactName.Contains("z")));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple_columns_out_of_order(bool async)
         => AssertQuery(
             async,
@@ -164,7 +164,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple_columns_out_of_order_and_extra_columns(bool async)
         => AssertQuery(
             async,
@@ -175,7 +175,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_simple_columns_out_of_order_and_not_enough_columns_throws(bool async)
     {
         using var context = CreateContext();
@@ -190,7 +190,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_simple_different_cased_columns_and_not_enough_columns_throws(bool async)
     {
         using var context = CreateContext();
@@ -205,7 +205,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_composed(bool async)
         => AssertQuery(
             async,
@@ -216,7 +216,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_composed_after_removing_whitespaces(bool async)
         => AssertQuery(
             async,
@@ -228,7 +228,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_composed_compiled(bool async)
     {
         if (async)
@@ -259,7 +259,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_composed_compiled_with_parameter(bool async)
     {
         if (async)
@@ -290,7 +290,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_composed_compiled_with_DbParameter(bool async)
     {
         if (async)
@@ -323,7 +323,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_composed_compiled_with_nameless_DbParameter(bool async)
     {
         if (async)
@@ -356,7 +356,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_composed_contains(bool async)
     {
         var context = Fixture.CreateContext();
@@ -376,7 +376,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_multiple_composed(bool async)
     {
         var context = Fixture.CreateContext();
@@ -401,7 +401,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_multiple_composed_with_closure_parameters(bool async)
     {
         var startDate = new DateTime(1997, 1, 1);
@@ -429,7 +429,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_multiple_composed_with_parameters_and_closure_parameters(bool async)
     {
         var city = "London";
@@ -484,7 +484,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_multiple_line_query(bool async)
         => AssertQuery(
             async,
@@ -497,7 +497,7 @@ WHERE [City] = 'London'")),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_composed_multiple_line_query(bool async)
         => AssertQuery(
             async,
@@ -510,7 +510,7 @@ FROM [Customers]"))
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_with_parameters(bool async)
     {
         var city = "London";
@@ -527,7 +527,7 @@ FROM [Customers]"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_with_parameters_inline(bool async)
         => AssertQuery(
             async,
@@ -539,7 +539,7 @@ FROM [Customers]"))
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQuery_queryable_with_parameters_interpolated(bool async)
     {
         var city = "London";
@@ -556,7 +556,7 @@ FROM [Customers]"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQuery_queryable_with_parameters_inline_interpolated(bool async)
         => AssertQuery(
             async,
@@ -568,7 +568,7 @@ FROM [Customers]"))
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(
         bool async)
     {
@@ -622,7 +622,7 @@ FROM [Customers]"))
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_with_null_parameter(bool async)
     {
         uint? reportsTo = null;
@@ -638,7 +638,7 @@ FROM [Customers]"))
             elementAsserter: AssertUnmappedEmployees);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task<string> SqlQueryRaw_queryable_with_parameters_and_closure(bool async)
     {
         var city = "London";
@@ -661,7 +661,7 @@ FROM [Customers]"))
         return queryString;
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_simple_cache_key_includes_query_string(bool async)
     {
         await AssertQuery(
@@ -681,7 +681,7 @@ FROM [Customers]"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_with_parameters_cache_key_includes_parameters(bool async)
     {
         var city = "London";
@@ -708,7 +708,7 @@ FROM [Customers]"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple_as_no_tracking_not_composed(bool async)
         => AssertQuery(
             async,
@@ -719,7 +719,7 @@ FROM [Customers]"))
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_queryable_simple_projection_composed(bool async)
     {
         using var context = CreateContext();
@@ -742,7 +742,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 .Select(x => x.ProductName));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_annotations_do_not_affect_successive_calls(bool async)
     {
         using var context = CreateContext();
@@ -763,7 +763,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         Assert.Equal(91, actual.Length);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_composed_with_predicate(bool async)
         => AssertQuery(
             async,
@@ -775,7 +775,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_composed_with_empty_predicate(bool async)
         => AssertQuery(
             async,
@@ -785,7 +785,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(c => c.ContactName == c.CompanyName).Select(e => UnmappedCustomer.FromCustomer(e)),
             assertEmpty: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_with_dbParameter(bool async)
     {
         var parameter = CreateDbParameter("@city", "London");
@@ -799,7 +799,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_with_dbParameter_without_name_prefix(bool async)
     {
         var parameter = CreateDbParameter("city", "London");
@@ -813,7 +813,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_with_dbParameter_mixed(bool async)
     {
         var city = "London";
@@ -842,7 +842,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_with_db_parameters_called_multiple_times(bool async)
     {
         using var context = CreateContext();
@@ -866,7 +866,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         Assert.Single(result2);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_with_inlined_db_parameter(bool async)
     {
         var parameter = CreateDbParameter("@somename", "ALFKI");
@@ -880,7 +880,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_with_inlined_db_parameter_without_name_prefix(bool async)
     {
         var parameter = CreateDbParameter("somename", "ALFKI");
@@ -894,7 +894,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_parameterization_issue_12213(bool async)
     {
         using var context = CreateContext();
@@ -930,7 +930,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             : query3.ToArray();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_does_not_parameterize_interpolated_string(bool async)
     {
         var tableName = "Orders";
@@ -945,7 +945,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedOrders);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_with_set_operation(bool async)
     {
         var context = Fixture.CreateContext();
@@ -963,7 +963,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedCustomers);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Line_endings_after_Select(bool async)
         => AssertQuery(
             async,
@@ -974,7 +974,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple_projection_not_composed(bool async)
         => AssertQuery(
             async,
@@ -990,7 +990,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 Assert.Equal(e.City, a.City);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_in_subquery_with_dbParameter(bool async)
     {
         var context = Fixture.CreateContext();
@@ -1012,7 +1012,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedOrders);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_in_subquery_with_positional_dbParameter_without_name(bool async)
     {
         var context = Fixture.CreateContext();
@@ -1034,7 +1034,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedOrders);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_in_subquery_with_positional_dbParameter_with_name(bool async)
     {
         var context = Fixture.CreateContext();
@@ -1056,7 +1056,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedOrders);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_with_dbParameter_mixed_in_subquery(bool async)
     {
         const string city = "London";
@@ -1098,7 +1098,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             elementAsserter: AssertUnmappedOrders);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_composed_with_common_table_expression(bool async)
         => AssertQuery(
             async,
@@ -1115,7 +1115,7 @@ SELECT * FROM [Customers2]
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_occurrences_of_SqlQuery_with_db_parameter_adds_two_parameters(bool async)
     {
         using var context = CreateContext();
@@ -1142,7 +1142,7 @@ SELECT * FROM [Customers2]
         Assert.Empty(actual);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Ad_hoc_type_with_reference_navigation_throws()
     {
         using var context = CreateContext();
@@ -1153,7 +1153,7 @@ SELECT * FROM [Customers2]
                 => context.Database.SqlQueryRaw<Post>(NormalizeDelimitersInRawString(@"SELECT * FROM [Posts]"))).Message);
     }
 
-    [ConditionalFact] // Issue #30056
+    [Fact] // Issue #30056
     public virtual void Ad_hoc_type_with_collection_navigation_throws()
     {
         using var context = CreateContext();
@@ -1164,7 +1164,7 @@ SELECT * FROM [Customers2]
                 => context.Database.SqlQueryRaw<Blog>(NormalizeDelimitersInRawString(@"SELECT * FROM [Blogs]"))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Ad_hoc_type_with_unmapped_property_throws()
     {
         using var context = CreateContext();
@@ -1175,7 +1175,7 @@ SELECT * FROM [Customers2]
                 => context.Database.SqlQueryRaw<Person>(NormalizeDelimitersInRawString(@"SELECT * FROM [People]"))).Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_then_String_Length(bool async)
     {
         using var context = CreateContext();
@@ -1192,7 +1192,7 @@ SELECT * FROM [Customers2]
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
     {
         using var context = CreateContext();

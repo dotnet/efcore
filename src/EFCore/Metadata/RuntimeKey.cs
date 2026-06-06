@@ -42,7 +42,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     public virtual RuntimeEntityType DeclaringEntityType
     {
         [DebuggerStepThrough]
-        get => (RuntimeEntityType)Properties[0].DeclaringType;
+        get => (RuntimeEntityType)((IReadOnlyTypeBase)Properties[0].DeclaringType).ContainingEntityType;
     }
 
     /// <summary>

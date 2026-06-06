@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class MigrationCommandExecutorTest
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Executes_migration_commands_in_same_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -48,7 +48,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Executes_migration_commands_in_user_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -96,7 +96,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbTransactions[0]);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Executes_transaction_suppressed_migration_commands_in_user_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -144,7 +144,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbTransactions[0]);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Executes_migration_commands_with_transaction_suppressed_outside_of_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -178,7 +178,7 @@ public class MigrationCommandExecutorTest
         Assert.Null(fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Ends_transaction_when_transaction_is_suppressed(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -216,7 +216,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Begins_new_transaction_when_transaction_nolonger_suppressed(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -254,7 +254,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Executes_commands_in_order_regardless_of_transaction_suppression(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -316,7 +316,7 @@ public class MigrationCommandExecutorTest
             command.CommandText);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Disposes_transaction_on_exception(bool async)
     {
         var fakeDbConnection =

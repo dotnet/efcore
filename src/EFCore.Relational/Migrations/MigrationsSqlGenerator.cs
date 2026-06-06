@@ -1367,7 +1367,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         {
             builder
                 .Append(" COLLATE ")
-                .Append(operation.Collation);
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Collation));
         }
 
         builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");

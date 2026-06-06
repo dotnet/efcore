@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : OverzealousInitializationTestBase<TFixture>.OverzealousInitializationFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Fixup_ignores_eagerly_initialized_reference_navs()
     {
         using var context = CreateContext();

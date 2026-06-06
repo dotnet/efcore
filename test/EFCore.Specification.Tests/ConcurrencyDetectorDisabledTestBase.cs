@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class ConcurrencyDetectorDisabledTestBase<TFixture>(TFixture fixture) : ConcurrencyDetectorTestBase<TFixture>(fixture)
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SaveChanges(bool async)
     {
         await ConcurrencyDetectorTest(async c =>

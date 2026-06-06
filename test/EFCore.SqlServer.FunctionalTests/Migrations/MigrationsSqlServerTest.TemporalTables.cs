@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public partial class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_default_column_mappings_and_default_history_table()
     {
         await Test(
@@ -60,7 +60,7 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_custom_column_mappings_and_default_history_table()
     {
         await Test(
@@ -112,7 +112,7 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_default_column_mappings_and_custom_history_table()
     {
         await Test(
@@ -165,7 +165,7 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_explicitly_defined_schema()
     {
         await Test(
@@ -222,7 +222,7 @@ CREATE TABLE [mySchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_model_changed_and_no_explicit_table_schema_provided()
     {
         await Test(
@@ -283,7 +283,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_model_changed_and_explicit_table_schema_provided()
     {
         await Test(
@@ -344,7 +344,7 @@ CREATE TABLE [mySchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_model_schema()
     {
         await Test(
@@ -406,7 +406,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_model_schema_specified_after_entity_definition()
     {
         await Test(
@@ -471,7 +471,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Create_temporal_table_with_default_model_schema_specified_after_entity_definition_and_history_table_schema_specified_explicitly()
     {
@@ -542,7 +542,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_model_schema_changed_after_entity_definition()
     {
         await Test(
@@ -606,7 +606,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Create_temporal_table_with_default_schema_for_model_changed_and_explicit_history_table_schema_not_provided()
     {
@@ -669,7 +669,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_model_changed_and_explicit_history_table_schema_provided()
     {
         await Test(
@@ -735,7 +735,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_table_and_explicit_history_table_schema_provided()
     {
         await Test(
@@ -796,7 +796,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Drop_temporal_table_default_history_table()
     {
         await Test(
@@ -835,7 +835,7 @@ DROP TABLE [CustomerHistory];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Drop_temporal_table_custom_history_table()
     {
         await Test(
@@ -875,7 +875,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Drop_temporal_table_custom_history_table_and_history_table_schema()
     {
         await Test(
@@ -915,7 +915,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table()
     {
         await Test(
@@ -986,7 +986,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_rename_and_modify_column_in_same_migration()
     {
         await Test(
@@ -1086,7 +1086,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_with_custom_history_table_schema()
     {
         await Test(
@@ -1224,7 +1224,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_schema_when_history_table_has_its_schema_specified()
     {
         await Test(
@@ -1289,7 +1289,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_schema_and_history_table_name_when_history_table_doesnt_have_its_schema_specified()
     {
         await Test(
@@ -1367,7 +1367,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Rename_temporal_table_schema_and_history_table_name_when_history_table_doesnt_have_its_schema_specified_convention_with_default_global_schema22()
     {
@@ -1448,7 +1448,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Rename_temporal_table_schema_and_history_table_name_when_history_table_doesnt_have_its_schema_specified_convention_with_default_global_schema_and_table_schema_corrected()
     {
@@ -1531,7 +1531,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Rename_temporal_table_schema_when_history_table_doesnt_have_its_schema_specified_convention_with_default_global_schema_and_table_name_corrected()
     {
@@ -1611,7 +1611,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_history_table()
     {
         await Test(
@@ -1670,7 +1670,7 @@ EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Change_history_table_schema()
     {
         await Test(
@@ -1734,7 +1734,7 @@ ALTER SCHEMA [modifiedHistorySchema] TRANSFER [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_history_table_and_their_schemas()
     {
         await Test(
@@ -1827,7 +1827,7 @@ ALTER TABLE [newSchema].[RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table()
     {
         await Test(
@@ -1924,7 +1924,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_history_table_schema()
     {
         await Test(
@@ -2020,7 +2020,7 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myHistoryS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_table_schema()
     {
         await Test(
@@ -2116,7 +2116,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_default_schema()
     {
         await Test(
@@ -2216,7 +2216,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_different_schemas_on_each_level()
     {
         await Test(
@@ -2316,7 +2316,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_columns_to_temporal_table()
     {
         await Test(
@@ -2372,7 +2372,7 @@ ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_keep_period_columns()
     {
@@ -2434,7 +2434,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_with_default_column_mappings_and_default_history_table_to_normal_table()
     {
         await Test(
@@ -2510,7 +2510,7 @@ DROP TABLE [CustomerHistory];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_remove_period_columns()
     {
@@ -2587,7 +2587,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_with_explicit_history_table_schema_to_normal_table()
     {
         await Test(
@@ -2648,7 +2648,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_with_explicit_schemas_same_schema_for_table_and_history_to_normal_table()
     {
         await Test(
@@ -2711,7 +2711,7 @@ DROP TABLE [mySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_using_custom_default_schema_to_normal_table()
     {
         await Test(
@@ -2775,7 +2775,7 @@ DROP TABLE [myDefaultSchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_using_custom_default_schema_and_explicit_history_schema_to_normal_table()
     {
         await Test(
@@ -2839,7 +2839,7 @@ DROP TABLE [mySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_table_with_minimal_configuration()
     {
         await Test(
@@ -2906,7 +2906,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_generates_exec_when_idempotent()
     {
         await Test(
@@ -2974,7 +2974,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_default_history_table()
     {
@@ -3038,7 +3038,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
     {
@@ -3105,7 +3105,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_table_default_column_mappings_and_default_history_table()
     {
         await Test(
@@ -3176,7 +3176,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_normal_table_without_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
     {
@@ -3249,7 +3249,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_period_properties_of_temporal_table()
     {
         await Test(
@@ -3313,7 +3313,7 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_period_columns_of_temporal_table()
     {
         await Test(
@@ -3374,7 +3374,7 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_period_column_of_temporal_table()
     {
         await Test(
@@ -3424,7 +3424,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_regular_columns_of_temporal_table()
     {
         await Test(
@@ -3477,7 +3477,7 @@ EXEC sp_rename N'[Customer].[Name]', N'FullName', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_column_of_temporal_table_from_nullable_to_non_nullable()
     {
         await Test(
@@ -3565,7 +3565,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_table_to_temporal_and_regular_column_from_nullable_to_non_nullable()
     {
         await Test(
@@ -3663,7 +3663,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_table_to_temporal_and_regular_column_to_sparse()
     {
         await Test(
@@ -3754,7 +3754,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_computed_column()
     {
         await Test(
@@ -3810,7 +3810,7 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_nullable_computed_column_to_temporal_table()
     {
         await Test(
@@ -3872,7 +3872,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_non_nullable_computed_column_to_temporal_table()
     {
         await Test(
@@ -3934,7 +3934,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_computed_column_from_temporal_table()
     {
         await Test(
@@ -4007,7 +4007,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_computed_column_sql_on_temporal_table()
     {
         var message = (await Assert.ThrowsAsync<NotSupportedException>(() => Test(
@@ -4059,7 +4059,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
             message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_on_temporal_table_with_computed_column()
     {
         await Test(
@@ -4113,7 +4113,7 @@ ALTER TABLE [Customer] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_column_on_temporal_table_with_computed_column()
     {
         await Test(
@@ -4191,7 +4191,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_column_on_temporal_table_with_computed_column()
     {
         await Test(
@@ -4246,7 +4246,7 @@ EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_sparse_column_to_temporal_table()
     {
         await Test(
@@ -4313,7 +4313,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_sparse_column_to_temporal_table_with_custom_schemas()
     {
         await Test(
@@ -4383,7 +4383,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_column_of_temporal_table_to_sparse()
     {
         await Test(
@@ -4471,7 +4471,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_sparse_column_of_temporal_table_to_regular()
     {
         await Test(
@@ -4535,7 +4535,7 @@ ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_table_with_sparse_column_to_temporal()
     {
         await Test(
@@ -4615,7 +4615,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_comments()
     {
         await Test(
@@ -4675,7 +4675,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_while_also_adding_comments_and_index()
     {
         await Test(
@@ -4767,7 +4767,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Alter_comments_for_temporal_table()
     {
         await Test(
@@ -4836,7 +4836,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description3, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_index_to_temporal_table()
     {
         await Test(
@@ -4905,7 +4905,7 @@ CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_index_on_period_column_to_temporal_table()
     {
         await Test(
@@ -4976,7 +4976,7 @@ CREATE INDEX [IX_Customers_Start] ON [Customers] ([Start]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_created_when_necessary()
     {
         await Test(
@@ -5029,7 +5029,7 @@ CREATE TABLE [mySchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_not_created_if_we_know_it_already_exists1()
     {
         await Test(
@@ -5105,7 +5105,7 @@ CREATE TABLE [mySchema].[Orders] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_not_created_if_we_know_it_already_exists2()
     {
         await Test(
@@ -5187,7 +5187,7 @@ CREATE TABLE [mySchema].[Orders] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_renamed_to_one_exisiting_in_the_model()
     {
         await Test(
@@ -5290,7 +5290,7 @@ ALTER SCHEMA [mySchema] TRANSFER [mySchema2].[OrdersHistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_with_default_global_schema_noop_migtation_doesnt_generate_unnecessary_steps()
     {
         await Test(
@@ -5324,7 +5324,7 @@ ALTER SCHEMA [mySchema] TRANSFER [mySchema2].[OrdersHistoryTable];
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_with_default_global_schema_changing_global_schema()
     {
         await Test(
@@ -5378,7 +5378,7 @@ ALTER TABLE [myModifiedDefaultSchema].[Customers] SET (SYSTEM_VERSIONING = ON (H
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_delete_columns_in_one_migration()
     {
         await Test(
@@ -5477,7 +5477,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_delete_columns_and_also_rename_table_in_one_migration()
     {
         await Test(
@@ -5587,7 +5587,7 @@ EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABL
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_delete_columns_and_also_rename_history_table_in_one_migration()
     {
         await Test(
@@ -5689,7 +5689,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_delete_column_and_add_another_column_in_one_migration()
     {
         await Test(
@@ -5779,7 +5779,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_delete_column_and_alter_another_column_in_one_migration()
     {
         await Test(
@@ -5878,7 +5878,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_alter_period_column_in_one_migration()
     {
         await Test(
@@ -5946,7 +5946,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_delete_column_rename_and_alter_period_column_in_one_migration()
     {
         await Test(
@@ -6056,7 +6056,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_from_temporal_table_with_minimal_configuration_to_explicit_one_noop()
     {
         await Test(
@@ -6107,7 +6107,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_from_temporal_table_with_explicit_configuration_to_minimal_one_noop()
     {
         await Test(
@@ -6158,7 +6158,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_from_temporal_table_with_minimal_configuration_to_explicit_one()
     {
         await Test(
@@ -6220,7 +6220,7 @@ EXEC sp_rename N'[CustomersHistory]', N'HistoryTable', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Change_names_of_period_columns_in_temporal_table()
     {
         await Test(
@@ -6284,7 +6284,7 @@ EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_and_add_new_column()
     {
         await Test(
@@ -6363,7 +6363,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_and_remove_existing_column()
     {
         await Test(
@@ -6447,7 +6447,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_and_rename_column()
     {
         await Test(
@@ -6527,7 +6527,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_and_add_new_column()
     {
         await Test(
@@ -6609,7 +6609,7 @@ ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_and_remove_existing_column()
     {
         await Test(
@@ -6706,7 +6706,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_and_rename_column()
     {
         await Test(
@@ -6789,7 +6789,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_rename_table_and_add_new_column()
     {
         await Test(
@@ -6880,7 +6880,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_rename_table_and_remove_existing_column()
     {
         await Test(
@@ -6976,7 +6976,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_rename_table_and_rename_column()
     {
         await Test(
@@ -7068,7 +7068,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_rename_table_and_add_new_column()
     {
         await Test(
@@ -7162,7 +7162,7 @@ ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_table_rename_history_table_and_add_new_column()
     {
         await Test(
@@ -7251,7 +7251,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_create_another_table_with_same_name_as_history_table()
     {
         await Test(
@@ -7361,7 +7361,7 @@ CREATE TABLE [HistoryTable] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_regular_table_to_temporal_and_add_rowversion_column()
     {
         await Test(
@@ -7443,7 +7443,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_create_temporal_table_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7523,7 +7523,7 @@ EXEC(N'CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_regular_table_to_temporal_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7645,7 +7645,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_regular_table_with_rowversion_to_temporal_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7782,7 +7782,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_rename_temporal_table_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7958,7 +7958,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_temporal_table_to_regular_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8103,7 +8103,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Id] int NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_add_column_to_temporal_table_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8160,7 +8160,7 @@ ALTER TABLE [Customers] ADD [MyRowVersion] rowversion NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_remove_temporal_table_column_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8219,7 +8219,7 @@ ALTER TABLE [Customers] DROP COLUMN [IsVip];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_rename_temporal_table_column_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8272,7 +8272,7 @@ EXEC sp_rename N'[Customers].[Name]', N'FullName', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_rename_temporal_table_period_columns_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8426,7 +8426,7 @@ EXEC sp_rename N'[Customers].[PeriodEnd]', N'NewPeriodEnd', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_drop_temporal_table_and_add_the_same_table_in_one_migration()
     {
         await TestComposite(
@@ -8497,7 +8497,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_period_column_twice()
     {
         await TestComposite(
@@ -8569,7 +8569,7 @@ EXEC sp_rename N'[Customers].[NewSystemTimeStart]', N'FinalSystemTimeStart', 'CO
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_create_regular_convert_to_temporal_rename_table_drop_column()
     {
         await TestComposite(
@@ -8694,7 +8694,7 @@ ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [his
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_drop_temporal_table_and_add_slightly_different_table_with_the_same_name_in_one_migration()
     {
         await TestComposite(
@@ -8810,7 +8810,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task
         Temporal_multiop_drop_temporal_create_normal_add_column_rename_convert_to_temporal_drop_create_again_as_temporal_convert_to_normal_edit_drop()
     {
@@ -9049,7 +9049,7 @@ DROP TABLE [BrandNewCustomers];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_many_renames()
     {
         await TestComposite(
@@ -9228,7 +9228,7 @@ ALTER TABLE [CustomersSix] ADD CONSTRAINT [PK_CustomersSix] PRIMARY KEY ([Id]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_temporal_to_regular_and_back()
     {
         await TestComposite(
@@ -9336,7 +9336,7 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [historySch
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_convert_regular_to_temporal_and_back()
     {
         await TestComposite(
@@ -9408,7 +9408,7 @@ ALTER TABLE [Customers] DROP COLUMN [SystemTimeStart];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_add_sparse_column_to_temporal_table_then_remove_it()
     {
         await TestComposite(
@@ -9510,7 +9510,7 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [historySch
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_change_column_nullability_rename_table_drop_table()
     {
         await TestComposite(
@@ -9622,7 +9622,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_add_sparse_column_to_temporal_then_convert_to_regular()
     {
         await TestComposite(
@@ -9740,7 +9740,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_add_column_to_temporal_table_with_default_schemas_change_default_schema_add_another_column()
     {
         await TestComposite(
@@ -9812,7 +9812,7 @@ DROP TABLE [historySchema].[HistoryTable];
         AssertSql("");
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_convert_regular_table_to_temporal_change_default_schema_convert_back_to_regular()
     {
         await TestComposite(
@@ -9900,7 +9900,7 @@ ALTER TABLE [modifiedDefaultSchema].[Customers] DROP COLUMN [SystemTimeStart];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_create_temporal_and_drop()
     {
         await TestComposite(
@@ -9955,7 +9955,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_temporal_and_drop()
     {
         await TestComposite(
@@ -10023,7 +10023,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_period_drop_table_create_as_regular()
     {
         await TestComposite(
@@ -10100,7 +10100,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_column_drop_table_create_as_regular()
     {
         await TestComposite(
@@ -10177,7 +10177,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_with_default_constraint_can_alter_column()
     {
         await Test(
@@ -10254,7 +10254,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_add_default_constraint_to_column()
     {
         await Test(
@@ -10312,7 +10312,7 @@ ALTER TABLE [Customer] ADD DEFAULT N'DefaultName' FOR [Name];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_change_default_constraint_value()
     {
         await Test(
@@ -10370,7 +10370,7 @@ ALTER TABLE [Customer] ADD DEFAULT N'NewDefault' FOR [Name];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_remove_default_value_sql_from_column()
     {
         await Test(
@@ -10442,6 +10442,93 @@ IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [CustomerHistory] DROP CONSTRAINT ' + @v
             """
 DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[CustomerHistory]))')
+""");
+    }
+
+    [Fact]
+    public virtual async Task Add_identity_column_to_temporal_table_when_versioning_is_disabled()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedNever();
+                    e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable");
+                            ttb.HasPeriodStart("Start");
+                            ttb.HasPeriodEnd("End");
+                        }));
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<string>("Name");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Number").UseIdentityColumn();
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customers", table.Name);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+                Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Number", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
+""",
+            //
+            """
+DECLARE @var2 nvarchar(max);
+SELECT @var2 = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
+ALTER TABLE [Customers] DROP COLUMN [Name];
+""",
+            //
+            """
+DECLARE @var3 nvarchar(max);
+SELECT @var3 = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Name');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
+ALTER TABLE [HistoryTable] DROP COLUMN [Name];
+""",
+            //
+            """
+ALTER TABLE [Customers] ADD [Number] int NOT NULL IDENTITY;
+""",
+            //
+            """
+ALTER TABLE [HistoryTable] ADD [Number] int NOT NULL DEFAULT 0;
+""",
+            //
+            """
+DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 }

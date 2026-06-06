@@ -175,9 +175,17 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
 
-                if (_sqlTranslator.TranslateProjection(expression) is SqlExpression sqlExpression)
+                switch (_sqlTranslator.TranslateProjection(expression))
                 {
-                    return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
+                    case SqlExpression sqlExpression:
+                        return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
+
+                    // This handles the case of a complex type being projected out of a Select.
+                    case RelationalStructuralTypeShaperExpression { StructuralType: IComplexType } shaper:
+                        return base.Visit(shaper);
+
+                    case CollectionResultExpression collectionResult:
+                        return base.Visit(collectionResult);
                 }
 
                 if (expression is MethodCallExpression methodCallExpression)

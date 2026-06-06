@@ -58,11 +58,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<string, object?> _parameters = new();
 
-    private static readonly bool UseOldBehavior37247 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37247", out var enabled) && enabled;
-
-    private static readonly bool UseOldBehavior37771 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37771", out var enabled) && enabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -526,6 +521,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         goto default;
                     }
 
+                    case nameof(Queryable.FullJoin)
+                        when genericMethod == QueryableMethods.FullJoin
+                        && methodCallExpression.Arguments[5] is ConstantExpression { Value: null }:
+                    {
+                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        secondArgument = UnwrapCollectionMaterialization(secondArgument);
+                        if (secondArgument is NavigationExpansionExpression innerSource)
+                        {
+                            return ProcessJoin(
+                                source,
+                                innerSource,
+                                methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                QueryableMethods.FullJoin);
+                        }
+
+                        goto default;
+                    }
+
                     case nameof(Queryable.SelectMany)
                         when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector:
                         return ProcessSelectMany(
@@ -836,7 +851,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 return ConvertToEnumerable(method, visitedArguments);
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+            return ProcessUnknownMethod(methodCallExpression);
         }
 
         // Remove MaterializeCollectionNavigationExpression when applying ToList/ToArray
@@ -846,6 +861,22 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         {
             return methodCallExpression.Update(
                 null, [UnwrapCollectionMaterialization(Visit(methodCallExpression.Arguments[0]))]);
+        }
+
+        // HACK: Nav expansion isn't properly extensible for new queryable operators; so we need to do the following to support
+        // SQL Server TVFs. Should be fixed by fully removing nav expansion (#32957).
+        if (methodCallExpression is
+            {
+                Method.Name: "FreeTextTable" or "ContainsTable" or "VectorSearch",
+                Method.DeclaringType.Name: "SqlServerQueryableExtensions",
+                Method.DeclaringType.Namespace: "Microsoft.EntityFrameworkCore"
+            })
+        {
+            var visited = ProcessUnknownMethod(methodCallExpression);
+            var currentTree = new NavigationTreeExpression(Expression.Default(methodCallExpression.Method.ReturnType.GetSequenceType()));
+            var parameterName = GetParameterName(methodCallExpression.Method.Name[0].ToString().ToLowerInvariant());
+
+            return new NavigationExpansionExpression(visited, currentTree, currentTree, parameterName);
         }
 
         return ProcessUnknownMethod(methodCallExpression);
@@ -1070,22 +1101,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
 
-        if (!UseOldBehavior37247)
+        // Apply any pending selector before processing the ExecuteUpdate setters; this adds a Select() (if necessary) before
+        // ExecuteUpdate, to avoid the pending selector flowing into each setter lambda and making it more complicated.
+        // However, only do this when the pending selector produces entity/structural type references (i.e. the snapshot is not just
+        // a DefaultExpression). When the pending selector projects only scalar values (e.g. select new { p.Used, n.Qty }),
+        // applying it would lose the connection between the projected scalar and the original entity property, breaking
+        // ExecuteUpdate's property selector recognition (#37771).
+        var newStructure = SnapshotExpression(source.PendingSelector);
+        if (newStructure is not DefaultExpression)
         {
-            // Apply any pending selector before processing the ExecuteUpdate setters; this adds a Select() (if necessary) before
-            // ExecuteUpdate, to avoid the pending selector flowing into each setter lambda and making it more complicated.
-            // However, only do this when the pending selector produces entity/structural type references (i.e. the snapshot is not just
-            // a DefaultExpression). When the pending selector projects only scalar values (e.g. select new { p.Used, n.Qty }),
-            // applying it would lose the connection between the projected scalar and the original entity property, breaking
-            // ExecuteUpdate's property selector recognition (#37771).
-            var newStructure = SnapshotExpression(source.PendingSelector);
-            if (newStructure is not DefaultExpression || UseOldBehavior37771)
-            {
-                var queryable = Reduce(source);
-                var navigationTree = new NavigationTreeExpression(newStructure);
-                var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
-                source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
-            }
+            var queryable = Reduce(source);
+            var navigationTree = new NavigationTreeExpression(newStructure);
+            var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
+            source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
         }
 
         NewArrayExpression settersArray;
@@ -1333,7 +1361,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         MethodInfo joinMethod)
     {
         Check.DebugAssert(
-            joinMethod == QueryableMethods.Join || joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.RightJoin,
+            joinMethod == QueryableMethods.Join || joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.RightJoin
+            || joinMethod == QueryableMethods.FullJoin,
             "Join method required");
 
         if (innerSource.PendingOrderings.Any())
@@ -1358,24 +1387,37 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             outerSource.CurrentParameter,
             innerSource.CurrentParameter);
 
-        var source = Expression.Call(
-            joinMethod.MakeGenericMethod(
-                outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType,
-                newResultSelector.ReturnType),
-            outerSource.Source,
-            innerSource.Source,
-            Expression.Quote(outerKeySelector),
-            Expression.Quote(innerKeySelector),
-            Expression.Quote(newResultSelector));
+        var genericJoinMethod = joinMethod.MakeGenericMethod(
+            outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType,
+            newResultSelector.ReturnType);
+
+        // Unlike Join/LeftJoin/RightJoin, Queryable.FullJoin only exposes a single overload taking an
+        // (optional) IEqualityComparer<TKey>, so the rebuilt call must supply that trailing argument.
+        var source = joinMethod == QueryableMethods.FullJoin
+            ? Expression.Call(
+                genericJoinMethod,
+                outerSource.Source,
+                innerSource.Source,
+                Expression.Quote(outerKeySelector),
+                Expression.Quote(innerKeySelector),
+                Expression.Quote(newResultSelector),
+                Expression.Constant(null, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)))
+            : Expression.Call(
+                genericJoinMethod,
+                outerSource.Source,
+                innerSource.Source,
+                Expression.Quote(outerKeySelector),
+                Expression.Quote(innerKeySelector),
+                Expression.Quote(newResultSelector));
 
         var outerPendingSelector = outerSource.PendingSelector;
-        if (joinMethod == QueryableMethods.RightJoin)
+        if (joinMethod == QueryableMethods.RightJoin || joinMethod == QueryableMethods.FullJoin)
         {
             outerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(outerPendingSelector);
         }
 
         var innerPendingSelector = innerSource.PendingSelector;
-        if (joinMethod == QueryableMethods.LeftJoin)
+        if (joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.FullJoin)
         {
             innerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(innerPendingSelector);
         }

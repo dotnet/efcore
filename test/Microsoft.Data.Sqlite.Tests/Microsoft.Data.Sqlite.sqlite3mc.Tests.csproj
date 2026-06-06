@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <DefineConstants>$(DefineConstants);SQLITE3MC</DefineConstants>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\Xunit\ConditionalAssemblyAttribute.cs" Link="TestUtilities\Xunit\ConditionalAssemblyAttribute.cs" />
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\Xunit\UseCultureAttribute.cs" Link="TestUtilities\Xunit\UseCultureAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
+  </ItemGroup>
+
+</Project>

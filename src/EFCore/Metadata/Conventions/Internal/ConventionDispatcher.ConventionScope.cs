@@ -242,6 +242,9 @@ public partial class ConventionDispatcher
         public abstract bool? OnPropertyNullabilityChanged(
             IConventionPropertyBuilder propertyBuilder);
 
+        public abstract bool? OnPropertyAutoLoadChanged(
+            IConventionPropertyBuilder propertyBuilder);
+
         public abstract IConventionProperty? OnPropertyRemoved(
             IConventionTypeBaseBuilder typeBaseBuilder,
             IConventionProperty property);

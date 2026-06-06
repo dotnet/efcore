@@ -232,6 +232,9 @@ public abstract partial class ModelBuilderTest
         public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
             => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));
 
+        public override TestIndexBuilder<TEntity> HasIndex(string[] propertyNames, string name)
+            => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames, name));
+
         public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
             => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                 EntityTypeBuilder.OwnsOne<TRelatedEntity>(navigationName));

@@ -22,18 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </remarks>
 public class ExpressionTreeFuncletizer : ExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37152 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37152", out var enabled) && enabled;
-
-    private static readonly bool UseOldBehavior37465 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37465", out var enabled37465) && enabled37465;
-
-    private static readonly bool UseOldBehavior37974 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37974", out var enabled37974) && enabled37974;
-
-    private static readonly bool UseOldBehavior38132 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38132", out var enabled38132) && enabled38132;
-
     // The general algorithm here is the following.
     // 1. First, for each node type, visit that node's children and get their states (evaluatable, contains evaluatable, no evaluatable).
     // 2. Calculate the parent node's aggregate state from its children; a container node whose children are all evaluatable is itself
@@ -888,11 +876,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         if (_state.IsEvaluatable)
         {
             // If the query contains a captured variable that's a nested IQueryable, inline it into the main query.
-            // Otherwise, evaluation of a terminating operator up the call chain will cause us to execute the query and do another
-            // roundtrip.
+            // Note that we do this only for IQueryable; evaluation of a terminating operator up the call chain would cause us to execute
+            // the query and do another roundtrip.
             // Note that we only do this when the MemberExpression is typed as IQueryable/IOrderedQueryable; this notably excludes
             // DbSet captured variables integrated directly into the query, as that also evaluates e.g. context.Order in
-            // context.Order.FromSqlInterpolated(), which fails.
+            // context.Order.FromSql(), which fails.
             if (member.Type.IsConstructedGenericType
                 && member.Type.GetGenericTypeDefinition() is var genericTypeDefinition
                 && (genericTypeDefinition == typeof(IQueryable<>) || genericTypeDefinition == typeof(IOrderedQueryable<>))
@@ -944,6 +932,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     if (_calculatingPath)
                     {
                         throw new InvalidOperationException(CoreStrings.EFConstantNotSupportedInPrecompiledQueries);
+                    }
+
+                    if (!_parameterize)
+                    {
+                        throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"));
                     }
 
                     var argument = Visit(methodCall.Arguments[0], out var argumentState);
@@ -1130,6 +1123,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         Expression HandleParameter(MethodCallExpression methodCall, string methodName)
         {
+            if (!_parameterize)
+            {
+                throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries(methodName));
+            }
+
             var argument = Visit(methodCall.Arguments[0], out var argumentState);
 
             if (!argumentState.IsEvaluatable)
@@ -1290,11 +1288,25 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     /// </summary>
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
     {
-        // ParameterExpressions are lambda parameters, which we cannot evaluate.
-        // However, _allowedParameters is a mechanism to allow evaluating Select(), see VisitMethodCall.
-        _state = _evaluatableParameters.Contains(parameterExpression)
-            ? State.CreateEvaluatable(typeof(ParameterExpression), containsCapturedVariable: false)
-            : State.NoEvaluatability;
+        // ParameterExpressions are lambda parameters, which are not evaluatable unless they are part of an evaluatable lambda;
+        // see the Enumerable.Select handling in VisitMethodCall. Even then, a parameter can only be evaluated as part of that
+        // larger lambda fragment, and never as an evaluatable root - see TryHandleNonEvaluatableAsRoot below.
+        if (_evaluatableParameters.Contains(parameterExpression))
+        {
+            var capturedParameterExpression = parameterExpression;
+            _state = State.CreateEvaluatable(
+                typeof(ParameterExpression),
+                containsCapturedVariable: false,
+                notEvaluatableAsRootHandler: () =>
+                {
+                    _state = State.NoEvaluatability;
+                    return capturedParameterExpression;
+                });
+        }
+        else
+        {
+            _state = State.NoEvaluatability;
+        }
 
         return parameterExpression;
     }
@@ -1934,9 +1946,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // different SQLs for each value.
                 || !_inLambda);
 
-        // We have some cases where a node is evaluatable, but only as part of a larger subtree, and should not be evaluated as a tree root.
-        // For these cases, the node's state has a notEvaluatableAsRootHandler lambda, which we can invoke to make evaluate the node's
-        // children (as needed), but not itself.
+        // Some nodes are evaluatable only as part of a larger subtree, and must not be evaluated as roots by themselves.
+        // For example, new[] { x, y } should generally be preserved as an inline list, and a ParameterExpression made
+        // evaluatable for an Enumerable.Select lambda is only bound inside that lambda. For these cases, the node's state
+        // has a notEvaluatableAsRootHandler lambda, which evaluates children as needed or otherwise preserves the node
+        // while setting the appropriate state, but does not evaluate the root itself.
         if (!forceEvaluation && TryHandleNonEvaluatableAsRoot(evaluatableRoot, state, evaluateAsParameter, out var result))
         {
             return result;
@@ -2023,10 +2037,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             evaluatableRoot.Type);
 
         // ConvertIfNeeded calls Visit which may have modified _state; reset it since we've already evaluated this root as a constant.
-        if (!UseOldBehavior37974)
-        {
-            state = State.NoEvaluatability;
-        }
+        state = State.NoEvaluatability;
 
         return constantExpression;
 
@@ -2044,6 +2055,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // There are some cases of Convert nodes which we shouldn't evaluate when they're at the top of an evaluatable root (but can
                 // evaluate when they're part of a larger fragment).
                 case UnaryExpression unary when PreserveConvertNode(unary):
+                // Parameters made evaluatable for an Enumerable.Select lambda are only evaluatable inside that lambda, and attempting to
+                // evaluate them as roots produces an unbound parameter.
+                case ParameterExpression:
                     result = state.NotEvaluatableAsRootHandler!();
                     return true;
 
@@ -2098,73 +2112,48 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         var value = EvaluateCore(expression, ref evaluateAsParameter, out var tempParameterName, out isContextAccessor);
 
-        if (evaluateAsParameter)
+        if (!evaluateAsParameter)
         {
-            if (UseOldBehavior37465)
-            {
-                parameterName = tempParameterName ?? "p";
+            parameterName = string.Empty;
+            return value;
+        }
 
-                var compilerPrefixIndex = parameterName.LastIndexOf('>');
-                if (compilerPrefixIndex != -1)
-                {
-                    parameterName = parameterName[(compilerPrefixIndex + 1)..];
-                }
-            }
-            else
-            {
-                parameterName = string.IsNullOrWhiteSpace(tempParameterName) ? "p" : tempParameterName;
-            }
+        if (tempParameterName is null)
+        {
+            parameterName = "p";
+        }
+        else
+        {
+            parameterName = tempParameterName;
 
             // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
             if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
             {
-                parameterName = parameterName.Substring("$VB$Local_".Length);
+                parameterName = parameterName["$VB$Local_".Length..];
             }
 
-            if (!UseOldBehavior37465)
+            // In many databases, parameter names must start with a letter or underscore.
+            // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
+            // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
+            if (parameterName.Length > 0 && !char.IsLetter(parameterName[0]) && parameterName[0] != '_')
             {
-                // In many databases, parameter names must start with a letter or underscore.
-                // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
-                // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
-                if (parameterName.Length > 0 && !char.IsLetter(parameterName[0]) && parameterName[0] != '_')
+                parameterName = "_" + parameterName;
+            }
+
+            // Just as a safety guard, if there's any problematic character in the name for any reason, fall back to "p".
+            foreach (var c in parameterName)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
                 {
-                    parameterName = "_" + parameterName;
+                    parameterName = "p";
+                    break;
                 }
             }
-
-            if (!UseOldBehavior38132)
-            {
-                // As a safety guard, if there's any problematic character in the name for any reason, fall back to "p".
-                foreach (var c in parameterName)
-                {
-                    if (!char.IsLetterOrDigit(c) && c != '_')
-                    {
-                        parameterName = "p";
-                        break;
-                    }
-                }
-            }
-
-            if (UseOldBehavior37152)
-            {
-                // Uniquify the parameter name
-                var originalParameterName = parameterName;
-                for (var i = 0; _parameterNames.Contains(parameterName); i++)
-                {
-                    parameterName = originalParameterName + i;
-                }
-            }
-            else
-            {
-                parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
-            }
-
-            _parameterNames.Add(parameterName);
         }
-        else
-        {
-            parameterName = string.Empty;
-        }
+
+        parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+
+        _parameterNames.Add(parameterName);
 
         return value;
 
@@ -2186,7 +2175,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     parameterName = QueryFilterPrefix
                         + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName }
-                            ? "__" + (UseOldBehavior38132 ? memberName : SanitizeCompilerGeneratedName(memberName))
+                            ? "__" + SanitizeCompilerGeneratedName(memberName)
                             : "__p");
                     isContextAccessor = true;
 
@@ -2212,18 +2201,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         switch (memberExpression.Member)
                         {
                             case FieldInfo fieldInfo:
-                            {
-                                var name = UseOldBehavior37465 ? fieldInfo.Name : SanitizeCompilerGeneratedName(fieldInfo.Name);
+                                var name = SanitizeCompilerGeneratedName(fieldInfo.Name);
                                 parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return fieldInfo.GetValue(instanceValue);
-                            }
 
                             case PropertyInfo propertyInfo:
-                            {
-                                var name = UseOldBehavior37465 ? propertyInfo.Name : SanitizeCompilerGeneratedName(propertyInfo.Name);
+                                name = SanitizeCompilerGeneratedName(propertyInfo.Name);
                                 parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return propertyInfo.GetValue(instanceValue);
-                            }
                         }
                     }
                     catch
@@ -2237,9 +2222,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return constantExpression.Value;
 
                 case MethodCallExpression methodCallExpression:
-                    parameterName = UseOldBehavior37465
-                        ? methodCallExpression.Method.Name
-                        : SanitizeCompilerGeneratedName(methodCallExpression.Method.Name);
+                    parameterName = SanitizeCompilerGeneratedName(methodCallExpression.Method.Name);
                     break;
 
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
@@ -2295,7 +2278,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
     private bool IsParameterParameterizable(MethodInfo method, ParameterInfo parameter)
         => parameter.GetCustomAttribute<NotParameterizedAttribute>() is null
-            && !_model.IsIndexerMethod(method);
+            && !_model.IsIndexerMethod(method)
+            // An equality comparer is structural rather than a value: it affects the query's translatability, so it must never be
+            // parameterized (we always evaluate it as a constant, like a [NotParameterized]-annotated argument). This matters for operators
+            // with a single overload taking an optional comparer (e.g. Queryable.FullJoin), where the compiler-supplied default null would
+            // otherwise be parameterized, hiding from the translator whether a (non-translatable) custom comparer was supplied.
+            && !(parameter.ParameterType.IsGenericType && parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEqualityComparer<>));
 
     private enum StateType
     {

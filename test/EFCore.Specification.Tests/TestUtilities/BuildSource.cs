@@ -197,6 +197,9 @@ All diagnostics:
                 { "CS1705", ReportDiagnostic.Suppress },
 
                 // Unnecessary using directive.
-                { "CS8019", ReportDiagnostic.Suppress }
+                { "CS8019", ReportDiagnostic.Suppress },
+
+                // Owned JSON entities are obsolete
+                { "EF8001", ReportDiagnostic.Suppress }
             });
 }

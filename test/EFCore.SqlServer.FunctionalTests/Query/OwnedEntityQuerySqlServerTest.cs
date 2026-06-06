@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -11,16 +11,16 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     #region 22054
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_dependent_is_null_when_sharing_required_column_with_principal()
     {
-        var contextFactory = await InitializeAsync<Context22054>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22054>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context22054.User22054>().OrderByDescending(e => e.Id).ToList();
         Assert.Equal(3, query.Count);
         Assert.Null(query[0].Contact);
@@ -139,11 +139,11 @@ ORDER BY [u].[Id] DESC
 
     #region 22340
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_entity_mapped_to_separate_table()
     {
-        var contextFactory = await InitializeAsync<Context22340>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22340>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault();
 
         Assert.NotNull(masterTrunk);
@@ -235,11 +235,11 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
 
     #region 23211
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Collection_include_on_owner_with_owned_type_mapped_to_different_table()
     {
-        var contextFactory = await InitializeAsync<Context23211>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context23211>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var owner = context.Set<Context23211.Owner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
             Assert.NotNull(owner.Dependents);
@@ -272,7 +272,7 @@ ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
 """);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             ClearLog();
             var owner = context.Set<Context23211.SecondOwner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id)
@@ -484,7 +484,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
+SELECT [p].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
 FROM [Parents] AS [p]
 LEFT JOIN [Reference] AS [r] ON [p].[Id] = [r].[ParentId]
 LEFT JOIN [Collection] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -493,7 +493,7 @@ LEFT JOIN (
     FROM [JoinEntity] AS [j]
     INNER JOIN [OtherSide] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[ParentId]
-ORDER BY [p].[Id], [r].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
+ORDER BY [p].[Id], [c].[Id], [s].[ParentId]
 """,
             //
             """

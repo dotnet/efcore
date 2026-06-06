@@ -28,10 +28,11 @@ public class View : TableBase, IView
             .FirstOrDefault(d => d != null);
 
     /// <inheritdoc />
-    public override IColumnBase? FindColumn(IProperty property)
+    protected override IColumnBase? FindColumn(IProperty property)
         => property.GetViewColumnMappings()
-            .FirstOrDefault(cm => cm.TableMapping.Table == this)
-            ?.Column;
+                .FirstOrDefault(cm => cm.TableMapping.Table == this)?.Column
+            ?? property.GetJsonElementMappings()
+                .FirstOrDefault(m => m.TableMapping.Table == this)?.Element.ContainingColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,6 +73,6 @@ public class View : TableBase, IView
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IViewColumn? IView.FindColumn(IProperty property)
-        => (IViewColumn?)FindColumn(property);
+    IViewColumn? IView.FindColumn(IPropertyBase propertyBase)
+        => (IViewColumn?)FindColumn(propertyBase);
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
 public class VectorSearchTranslationsCosmosTest : IClassFixture<VectorSearchTranslationsCosmosTest.VectorSearchFixture>
 {
     public VectorSearchTranslationsCosmosTest(VectorSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -19,7 +20,7 @@ public class VectorSearchTranslationsCosmosTest : IClassFixture<VectorSearchTran
 
     private readonly ITestOutputHelper _testOutputHelper;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderBy_VectorDistance_singles_memory()
     {
         await using var context = CreateContext();
@@ -41,7 +42,7 @@ ORDER BY VectorDistance(c["SinglesArray"], @p)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderBy_VectorDistance_singles_array()
     {
         await using var context = CreateContext();
@@ -66,7 +67,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderBy_VectorDistance_bytes_memory()
     {
         await using var context = CreateContext();
@@ -88,7 +89,7 @@ ORDER BY VectorDistance(c["Bytes"], @p)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderBy_VectorDistance_bytes_array()
     {
         await using var context = CreateContext();
@@ -110,7 +111,7 @@ ORDER BY VectorDistance(c["BytesArray"], @p)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderBy_VectorDistance_sbyte()
     {
         await using var context = CreateContext();
@@ -135,7 +136,7 @@ ORDER BY VectorDistance(c["SBytes"], @p)
 
     #region Brute force and options
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task VectorDistance_with_brute_force_true()
     {
         await using var context = CreateContext();
@@ -157,7 +158,7 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, true)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task VectorDistance_with_brute_force_and_distance_function()
     {
         await using var context = CreateContext();
@@ -181,7 +182,7 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, true, { 'distanceFunction': 'dotp
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task VectorDistance_with_distance_function_and_brute_force_null()
     {
         await using var context = CreateContext();
@@ -205,7 +206,7 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dot
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task VectorDistance_with_data_type_and_distance_function()
     {
         await using var context = CreateContext();
@@ -231,7 +232,7 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dot
 
     #endregion Brute force and options
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_VectorDistance()
     {
         await using var context = CreateContext();
@@ -254,7 +255,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task RRF_with_two_Vector_distance_functions_in_OrderBy()
     {
         await using var context = CreateContext();
@@ -281,7 +282,7 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task VectorDistance_throws_when_used_on_non_vector()
     {
         await using var context = CreateContext();
@@ -302,7 +303,7 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                 .ToListAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task VectorDistance_throws_when_used_with_non_const_args()
     {
         await using var context = CreateContext();

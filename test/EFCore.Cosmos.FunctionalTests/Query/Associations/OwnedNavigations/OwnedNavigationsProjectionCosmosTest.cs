@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
@@ -101,6 +101,12 @@ FROM root c
 """);
         }
     }
+
+    [Fact]
+    public Task Select_distinct_associate()
+        => AssertTranslationFailed(() => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking));
 
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -320,6 +326,15 @@ FROM root c
 """);
     }
 
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            await Assert.ThrowsAsync<Xunit.Sdk.EqualException>(
+                () => base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior));
+        }
+    }
+
     #endregion Multiple
 
     #region Subquery
@@ -350,7 +365,7 @@ FROM root c
 
     #endregion Subquery
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

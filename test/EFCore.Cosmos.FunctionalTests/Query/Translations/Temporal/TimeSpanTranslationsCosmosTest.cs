@@ -30,7 +30,7 @@ public class TimeSpanTranslationsCosmosTest : TimeSpanTranslationsTestBase<Basic
     public override Task Nanoseconds()
         => AssertTranslationFailed(() => base.Nanoseconds());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

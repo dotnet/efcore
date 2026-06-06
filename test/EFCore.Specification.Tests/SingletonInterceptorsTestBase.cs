@@ -66,13 +66,13 @@ public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture f
 
     public async Task<TContext> CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject, bool usePooling)
     {
-        var contextFactory = await base.InitializeAsync<TContext>(
+        var contextFactory = await base.InitializeNonSharedTest<TContext>(
             onConfiguring: inject ? null : o => o.AddInterceptors(interceptors),
             addServices: inject ? s => InjectInterceptors(s, interceptors) : null,
             usePooling: usePooling,
             useServiceProvider: inject);
 
-        return contextFactory.CreateContext();
+        return contextFactory.CreateDbContext();
     }
 
     protected virtual IServiceCollection InjectInterceptors(

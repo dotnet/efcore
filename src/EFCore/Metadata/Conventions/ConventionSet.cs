@@ -263,6 +263,11 @@ public class ConventionSet
     public virtual List<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; } = [];
 
     /// <summary>
+    ///     Conventions to run when the auto-load value of a property is changed.
+    /// </summary>
+    public virtual List<IPropertyAutoLoadChangedConvention> PropertyAutoLoadChangedConventions { get; } = [];
+
+    /// <summary>
     ///     Conventions to run when the field of a property is changed.
     /// </summary>
     public virtual List<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } = [];
@@ -603,6 +608,12 @@ public class ConventionSet
             PropertyNullabilityChangedConventions.Add(propertyNullabilityChangedConvention);
         }
 
+        if (newConvention is IPropertyAutoLoadChangedConvention propertyAutoLoadChangedConvention
+            && !Replace(PropertyAutoLoadChangedConventions, propertyAutoLoadChangedConvention, oldConventionType))
+        {
+            PropertyAutoLoadChangedConventions.Add(propertyAutoLoadChangedConvention);
+        }
+
         if (newConvention is IPropertyFieldChangedConvention propertyFieldChangedConvention
             && !Replace(PropertyFieldChangedConventions, propertyFieldChangedConvention, oldConventionType))
         {
@@ -935,6 +946,11 @@ public class ConventionSet
         if (convention is IPropertyNullabilityChangedConvention propertyNullabilityChangedConvention)
         {
             PropertyNullabilityChangedConventions.Add(propertyNullabilityChangedConvention);
+        }
+
+        if (convention is IPropertyAutoLoadChangedConvention propertyAutoLoadChangedConvention)
+        {
+            PropertyAutoLoadChangedConventions.Add(propertyAutoLoadChangedConvention);
         }
 
         if (convention is IPropertyFieldChangedConvention propertyFieldChangedConvention)
@@ -1278,6 +1294,11 @@ public class ConventionSet
         if (typeof(IPropertyNullabilityChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(PropertyNullabilityChangedConventions, conventionType);
+        }
+
+        if (typeof(IPropertyAutoLoadChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(PropertyAutoLoadChangedConventions, conventionType);
         }
 
         if (typeof(IPropertyFieldChangedConvention).IsAssignableFrom(conventionType))

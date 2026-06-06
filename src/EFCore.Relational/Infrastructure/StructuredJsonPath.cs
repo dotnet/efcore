@@ -1,0 +1,122 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Text;
+
+namespace Microsoft.EntityFrameworkCore.Infrastructure;
+
+/// <summary>
+///     Represents a structured JSON path consisting of property name segments and array index placeholders,
+///     along with runtime index values for array positions.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+/// </remarks>
+public class StructuredJsonPath
+{
+    /// <summary>
+    ///     A <see cref="StructuredJsonPath" /> representing the root of a JSON document (<c>$</c>).
+    /// </summary>
+    public static StructuredJsonPath Root { get; } = new([], []);
+
+    /// <summary>
+    ///     Creates a new <see cref="StructuredJsonPath" /> instance.
+    /// </summary>
+    /// <param name="segments">The path segments.</param>
+    /// <param name="indices">
+    ///     The index values for array index placeholders. Must have one entry for each segment
+    ///     where <see cref="StructuredJsonPathSegment.IsArray" /> is <see langword="true" />. A
+    ///     <see langword="null" /> entry means the indexer is unspecified (all elements) and is
+    ///     rendered as <c>[*]</c> by default, or as <c>[]</c>.
+    /// </param>
+    public StructuredJsonPath(IReadOnlyList<StructuredJsonPathSegment> segments, IReadOnlyList<int?>? indices)
+    {
+        var arraySegmentCount = segments.Count(s => s.IsArray);
+        if (indices is null
+            ? arraySegmentCount != 0
+            : indices.Count != arraySegmentCount)
+        {
+            throw new ArgumentException(
+                CoreStrings.InvalidStructuredJsonPathIndexCount(indices?.Count ?? 0, arraySegmentCount),
+                nameof(indices));
+        }
+
+        Segments = segments;
+        Indices = indices;
+    }
+
+    /// <summary>
+    ///     Gets the path segments.
+    /// </summary>
+    public virtual IReadOnlyList<StructuredJsonPathSegment> Segments { get; }
+
+    /// <summary>
+    ///     Gets the index values for array index placeholders. The indices are applied in order
+    ///     to the segments where <see cref="StructuredJsonPathSegment.IsArray" /> is <see langword="true" />.
+    ///     A <see langword="null" /> entry means the indexer is unspecified (all elements).
+    /// </summary>
+    public virtual IReadOnlyList<int?>? Indices { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether this path represents the root of a JSON document (<c>$</c>).
+    /// </summary>
+    public virtual bool IsRoot
+        => Segments.Count == 0;
+
+    /// <summary>
+    ///     Appends the JSON path string representation to the given <see cref="StringBuilder" />.
+    /// </summary>
+    /// <param name="builder">The string builder.</param>
+    /// <param name="useAsteriskForNullIndex">
+    ///     When <see langword="true" /> (the default), unspecified array indices are rendered as <c>[*]</c>;
+    ///     when <see langword="false" />, the indices are rendered as <c>[]</c>.
+    /// </param>
+    /// <returns>The same <see cref="StringBuilder" /> for chaining.</returns>
+    public virtual StringBuilder AppendTo(StringBuilder builder, bool useAsteriskForNullIndex = true)
+    {
+        builder.Append('$');
+
+        var indexPosition = 0;
+        foreach (var segment in Segments)
+        {
+            if (segment.IsArray)
+            {
+                Check.DebugAssert(Indices is not null, "Indices must be non-null when a segment is an array (enforced by the constructor).");
+
+                if (Indices[indexPosition] is { } index)
+                {
+                    builder.Append('[').Append(index).Append(']');
+                }
+                else if (useAsteriskForNullIndex)
+                {
+                    builder.Append("[*]");
+                }
+                else
+                {
+                    builder.Append("[]");
+                }
+
+                indexPosition++;
+            }
+            else
+            {
+                builder.Append('.');
+                builder.Append(segment.PropertyName);
+            }
+        }
+
+        return builder;
+    }
+
+    /// <summary>
+    ///     Returns the JSON path string representation.
+    /// </summary>
+    /// <param name="useAsteriskForNullIndex">Indicates whether to use an asterisk for unspecified array indices.</param>
+    /// <returns>The JSON path string representation.</returns>
+    public virtual string ToString(bool useAsteriskForNullIndex = true)
+        => AppendTo(new StringBuilder(), useAsteriskForNullIndex).ToString();
+
+    /// <inheritdoc />
+    public override string ToString()
+        => AppendTo(new StringBuilder()).ToString();
+}

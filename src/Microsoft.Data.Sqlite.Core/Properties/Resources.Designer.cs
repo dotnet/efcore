@@ -160,6 +160,12 @@ namespace Microsoft.Data.Sqlite.Properties
             => GetString("NoData");
 
         /// <summary>
+        ///     Values representing Julian dates must be finite double values.
+        /// </summary>
+        public static string NonFiniteDoubleJulianDateValue
+            => GetString("NonFiniteDoubleJulianDateValue");
+
+        /// <summary>
         ///     SqliteConnection does not support nested transactions.
         /// </summary>
         public static string ParallelTransactionsNotSupported
