@@ -1985,6 +1985,17 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Anonymous_Type_With_Entire_Entity(bool async) // #31209
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Item = g.OrderByDescending(x => x.OrderDate).FirstOrDefault(),
+                }).Where(x => x.Item != null));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_join_with_group_result(bool async)
         => AssertQuery(
             async,
