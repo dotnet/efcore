@@ -566,9 +566,20 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
         if (recurse)
         {
+            var newElementState = isModified ? EntityState.Modified : EntityState.Unchanged;
             foreach (var complexEntry in GetFlattenedComplexEntries())
             {
-                complexEntry.SetEntityState(isModified ? EntityState.Modified : EntityState.Unchanged, modifyProperties: true);
+                // Added elements represent pending additions with no original ordinal, so forcing them to
+                // Modified/Unchanged is incorrect and would fail the original ordinal validation. Leave their
+                // state (computed by change detection) untouched, mirroring the bulk state-change logic in
+                // InternalComplexCollectionEntry.SetEntityState.
+                if (!UseOldBehavior38299
+                    && complexEntry.EntityState is EntityState.Added)
+                {
+                    continue;
+                }
+
+                complexEntry.SetEntityState(newElementState, modifyProperties: true);
             }
         }
     }
