@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -79,6 +77,7 @@ public interface IConstructorBindingFactory
     /// <param name="binding">The binding, or <see langword="null" /> if <see langword="null" /> could be created.</param>
     /// <param name="unboundParameters">The parameters that could not be bound.</param>
     /// <returns><see langword="true" /> if a binding was created; <see langword="false" /> otherwise.</returns>
+    [Obsolete("Use GetBindings")]
     bool TryBindConstructor(
         IConventionEntityType entityType,
         ConstructorInfo constructor,
@@ -94,6 +93,7 @@ public interface IConstructorBindingFactory
     /// <param name="binding">The binding, or <see langword="null" /> if <see langword="null" /> could be created.</param>
     /// <param name="unboundParameters">The parameters that could not be bound.</param>
     /// <returns><see langword="true" /> if a binding was created; <see langword="false" /> otherwise.</returns>
+    [Obsolete("Use GetBindings")]
     bool TryBindConstructor(
         IMutableEntityType entityType,
         ConstructorInfo constructor,

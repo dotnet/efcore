@@ -108,7 +108,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
             output = Expression.Condition(
                 Expression.Property(
                     param,
-                    typeof(TNumber).GetProperty(nameof(Nullable<int>.HasValue))!),
+                    typeof(TNumber).GetProperty(nameof(Nullable<>.HasValue))!),
                 output,
                 Expression.Constant(null, typeof(byte[])));
         }

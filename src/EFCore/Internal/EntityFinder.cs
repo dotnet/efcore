@@ -148,8 +148,8 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         if (TryFindByKey(property, propertyValue, out var entry))
         {
             return entry != null
-                ? new[] { entry }
-                : Enumerable.Empty<InternalEntityEntry>();
+                ? [entry]
+                : [];
         }
 
         if (TryGetByForeignKey(property, propertyValue, out var entries))
@@ -216,8 +216,8 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         if (TryFindByKey(propertiesList, valuesList, out var entry))
         {
             return entry != null
-                ? new[] { entry }
-                : Enumerable.Empty<InternalEntityEntry>();
+                ? [entry]
+                : [];
         }
 
         if (TryGetByForeignKey(propertiesList, valuesList, out var entries))
@@ -802,7 +802,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     }
 
     private IQueryable BuildQueryRoot(IEntityType entityType)
-        => entityType.FindOwnership() is IForeignKey ownership
+        => entityType.FindOwnership() is { } ownership
             ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent!.Name)
             : entityType.HasSharedClrType
                 ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.Name, entityType.ClrType)

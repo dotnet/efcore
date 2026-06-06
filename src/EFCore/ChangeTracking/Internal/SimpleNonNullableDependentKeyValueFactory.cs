@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -47,29 +46,9 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : DependentKeyValue
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete]
-    public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key)
-    {
-        var value = _propertyAccessors.ValueBufferGetter!(valueBuffer);
-        if (value == null)
-        {
-            key = default;
-            return false;
-        }
-
-        key = (TKey)value;
-        return true;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public override bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = ((Func<InternalEntityEntry, TKey>)_propertyAccessors.CurrentValueGetter)((InternalEntityEntry)entry)!;
+        key = ((Func<IInternalEntry, TKey>)_propertyAccessors.CurrentValueGetter)((IInternalEntry)entry)!;
         return true;
     }
 
@@ -81,7 +60,7 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : DependentKeyValue
     /// </summary>
     public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = ((Func<InternalEntityEntry, TKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)((InternalEntityEntry)entry)!;
+        key = ((Func<IInternalEntry, TKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)((IInternalEntry)entry)!;
         return true;
     }
 
@@ -93,7 +72,7 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : DependentKeyValue
     /// </summary>
     public override bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = ((Func<InternalEntityEntry, TKey>)_propertyAccessors.OriginalValueGetter!)((InternalEntityEntry)entry)!;
+        key = ((Func<IInternalEntry, TKey>)_propertyAccessors.OriginalValueGetter!)((IInternalEntry)entry)!;
         return true;
     }
 
@@ -105,7 +84,7 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : DependentKeyValue
     /// </summary>
     public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = ((Func<InternalEntityEntry, TKey>)_propertyAccessors.RelationshipSnapshotGetter)((InternalEntityEntry)entry)!;
+        key = ((Func<IInternalEntry, TKey>)_propertyAccessors.RelationshipSnapshotGetter)((IInternalEntry)entry)!;
         return true;
     }
 }

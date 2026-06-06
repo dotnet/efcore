@@ -24,7 +24,7 @@ public class SqlServerSqlTreePruner : SqlTreePruner
     {
         switch (node)
         {
-            case SqlServerOpenJsonExpression { ColumnInfos: IReadOnlyList<ColumnInfo> columnInfos } openJson:
+            case SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos } openJson:
                 var visitedJson = (SqlExpression)Visit(openJson.JsonExpression);
 
                 if (ReferencedColumnMap.TryGetValue(openJson.Alias, out var referencedAliases))

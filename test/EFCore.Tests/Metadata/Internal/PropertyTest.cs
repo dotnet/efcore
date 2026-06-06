@@ -151,8 +151,7 @@ public class PropertyTest
 
         Assert.Equal(
             CoreStrings.NullableKey(typeof(object).DisplayName(), stringProperty.Name),
-            Assert.Throws<InvalidOperationException>(
-                () => entityType.AddKey(stringProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddKey(stringProperty)).Message);
     }
 
     [ConditionalFact]
@@ -250,33 +249,28 @@ public class PropertyTest
 
         Assert.Equal(
             CoreStrings.BadValueGeneratorType(nameof(NonDerivedValueGeneratorFactory), nameof(ValueGeneratorFactory)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueGeneratorFactory(typeof(NonDerivedValueGeneratorFactory))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueGeneratorFactory(typeof(NonDerivedValueGeneratorFactory))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueGenerator(nameof(AbstractValueGeneratorFactory), "SetValueGeneratorFactory"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueGeneratorFactory(typeof(AbstractValueGeneratorFactory))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueGeneratorFactory(typeof(AbstractValueGeneratorFactory))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueGenerator(nameof(StaticValueGeneratorFactory), "SetValueGeneratorFactory"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueGeneratorFactory(typeof(StaticValueGeneratorFactory))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueGeneratorFactory(typeof(StaticValueGeneratorFactory))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueGenerator(nameof(PrivateValueGeneratorFactory), "SetValueGeneratorFactory"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueGeneratorFactory(typeof(PrivateValueGeneratorFactory))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueGeneratorFactory(typeof(PrivateValueGeneratorFactory))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueGenerator(nameof(NonParameterlessValueGeneratorFactory), "SetValueGeneratorFactory"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueGeneratorFactory(typeof(NonParameterlessValueGeneratorFactory))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueGeneratorFactory(typeof(NonParameterlessValueGeneratorFactory))).Message);
     }
 
     private class NonDerivedValueGeneratorFactory
@@ -329,33 +323,28 @@ public class PropertyTest
 
         Assert.Equal(
             CoreStrings.BadValueConverterType(nameof(NonDerivedValueConverter), nameof(ValueConverter)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueConverter(typeof(NonDerivedValueConverter))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueConverter(typeof(NonDerivedValueConverter))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueConverter(nameof(AbstractValueConverter), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueConverter(typeof(AbstractValueConverter))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueConverter(typeof(AbstractValueConverter))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueConverter(nameof(StaticValueConverter), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueConverter(typeof(StaticValueConverter))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueConverter(typeof(StaticValueConverter))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueConverter(nameof(PrivateValueConverter), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueConverter(typeof(PrivateValueConverter))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueConverter(typeof(PrivateValueConverter))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueConverter(nameof(NonParameterlessValueConverter), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueConverter(typeof(NonParameterlessValueConverter))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueConverter(typeof(NonParameterlessValueConverter))).Message);
     }
 
     private class NonDerivedValueConverter;
@@ -388,33 +377,28 @@ public class PropertyTest
 
         Assert.Equal(
             CoreStrings.BadValueComparerType(nameof(NonDerivedValueComparer), nameof(ValueComparer)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueComparer(typeof(NonDerivedValueComparer))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueComparer(typeof(NonDerivedValueComparer))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueComparer(nameof(AbstractValueComparer), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueComparer(typeof(AbstractValueComparer))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueComparer(typeof(AbstractValueComparer))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueComparer(nameof(StaticValueComparer), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueComparer(typeof(StaticValueComparer))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueComparer(typeof(StaticValueComparer))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueComparer(nameof(PrivateValueComparer), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueComparer(typeof(PrivateValueComparer))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueComparer(typeof(PrivateValueComparer))).Message);
 
         Assert.Equal(
             CoreStrings.CannotCreateValueComparer(nameof(NonParameterlessValueComparer), "HasConversion"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetValueComparer(typeof(NonParameterlessValueComparer))).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetValueComparer(typeof(NonParameterlessValueComparer))).Message);
     }
 
     private class NonDerivedValueComparer;
@@ -439,10 +423,8 @@ public class PropertyTest
 
     private class NonParameterlessValueComparer(bool favorStructuralComparison) : ValueComparer<string>(favorStructuralComparison);
 
-    [ConditionalTheory]
-    [InlineData(typeof(SimpleJasonValueReaderWriter))]
-    [InlineData(typeof(JasonValueReaderWriterWithPrivateInstance))]
-    [InlineData(typeof(JasonValueReaderWriterWithBadInstance))]
+    [ConditionalTheory, InlineData(typeof(SimpleJasonValueReaderWriter)), InlineData(typeof(JasonValueReaderWriterWithPrivateInstance)),
+     InlineData(typeof(JasonValueReaderWriterWithBadInstance))]
     public void Creates_instance_of_JsonValueReaderWriter_using_constructor(Type type)
     {
         var model = CreateModel();
@@ -456,9 +438,8 @@ public class PropertyTest
         Assert.NotEqual(instance1, instance2);
     }
 
-    [ConditionalTheory]
-    [InlineData(typeof(SimpleJasonValueReaderWriterWithInstance))]
-    [InlineData(typeof(SimpleJasonValueReaderWriterWithInstanceAndPrivateConstructor))]
+    [ConditionalTheory, InlineData(typeof(SimpleJasonValueReaderWriterWithInstance)),
+     InlineData(typeof(SimpleJasonValueReaderWriterWithInstanceAndPrivateConstructor))]
     public void Creates_instance_of_JsonValueReaderWriter_using_instance(Type type)
     {
         var model = CreateModel();
@@ -472,9 +453,7 @@ public class PropertyTest
         Assert.Same(instance1, instance2);
     }
 
-    [ConditionalTheory]
-    [InlineData(typeof(NonDerivedJsonValueReaderWriter))]
-    [InlineData(typeof(NonGenericJsonValueReaderWriter))]
+    [ConditionalTheory, InlineData(typeof(NonDerivedJsonValueReaderWriter)), InlineData(typeof(NonGenericJsonValueReaderWriter))]
     public void Throws_when_JsonValueReaderWriter_type_is_invalid(Type type)
     {
         var model = CreateModel();
@@ -483,15 +462,12 @@ public class PropertyTest
 
         Assert.Equal(
             CoreStrings.BadJsonValueReaderWriterType(type.ShortDisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    property.SetJsonValueReaderWriterType(type)).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                property.SetJsonValueReaderWriterType(type)).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(typeof(AbstractJasonValueReaderWriter))]
-    [InlineData(typeof(NonParameterlessJsonValueReaderWriter))]
-    [InlineData(typeof(PrivateJasonValueReaderWriter))]
+    [ConditionalTheory, InlineData(typeof(AbstractJasonValueReaderWriter)), InlineData(typeof(NonParameterlessJsonValueReaderWriter)),
+     InlineData(typeof(PrivateJasonValueReaderWriter))]
     public void Throws_when_JsonValueReaderWriter_instance_cannot_be_created(Type type)
     {
         var model = CreateModel();
@@ -501,8 +477,7 @@ public class PropertyTest
 
         Assert.Equal(
             CoreStrings.CannotCreateJsonValueReaderWriter(type.ShortDisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => property.GetJsonValueReaderWriter()).Message);
+            Assert.Throws<InvalidOperationException>(() => property.GetJsonValueReaderWriter()).Message);
     }
 
     [ConditionalFact]

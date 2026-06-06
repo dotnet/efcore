@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A relational-specific convention inheriting from <see cref="KeyDiscoveryConvention"/>.
+///     A relational-specific convention inheriting from <see cref="KeyDiscoveryConvention" />.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -31,9 +31,7 @@ public class RelationalKeyDiscoveryConvention : KeyDiscoveryConvention, IEntityT
         ProviderConventionSetBuilderDependencies dependencies,
         RelationalConventionSetBuilderDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

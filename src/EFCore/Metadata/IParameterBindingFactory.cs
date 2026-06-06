@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IParameterBindingFactory
 {
     /// <summary>
-    ///     Checks whether or not this factory can bind a parameter with the given type and name.
+    ///     Checks whether this factory can bind a parameter with the given type and name.
     /// </summary>
     /// <param name="parameterType">The parameter type.</param>
     /// <param name="parameterName">The parameter name.</param>

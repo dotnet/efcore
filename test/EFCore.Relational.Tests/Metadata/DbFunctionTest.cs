@@ -630,10 +630,9 @@ public class DbFunctionTest
     {
         var modelBuilder = GetModelBuilder();
 
-        var expectedMessage = AbstractionsStrings.ArgumentIsEmpty("name");
-
         Assert.Equal(
-            expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
+            $"{AbstractionsStrings.ArgumentIsEmpty} (Parameter 'name')",
+            Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
     }
 
     [ConditionalFact]
@@ -818,26 +817,24 @@ public class DbFunctionTest
 
         Assert.Equal(
             RelationalStrings.DbFunctionNonScalarCustomTranslation(methodInfo.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => dbFunctionBuilder.HasTranslation(args => new SqlFragmentExpression("Empty"))).Message);
+            Assert.Throws<InvalidOperationException>(() => dbFunctionBuilder.HasTranslation(args => new SqlFragmentExpression("Empty")))
+                .Message);
 
         var dbFunction = dbFunctionBuilder.Metadata;
 
         Assert.Equal(
             RelationalStrings.DbFunctionNonScalarCustomTranslation(methodInfo.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => ((IConventionDbFunction)dbFunction).SetTranslation(args => new SqlFragmentExpression("Empty"))).Message);
+            Assert.Throws<InvalidOperationException>(()
+                => ((IConventionDbFunction)dbFunction).SetTranslation(args => new SqlFragmentExpression("Empty"))).Message);
 
         Assert.Equal(
             RelationalStrings.DbFunctionNonScalarCustomTranslation(methodInfo.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => ((IConventionDbFunction)dbFunction)
-                    .SetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true)).Message);
+            Assert.Throws<InvalidOperationException>(() => ((IConventionDbFunction)dbFunction)
+                .SetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true)).Message);
 
         Assert.Equal(
             RelationalStrings.DbFunctionNonScalarCustomTranslation(methodInfo.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => dbFunction.Translation = args => new SqlFragmentExpression("Empty")).Message);
+            Assert.Throws<InvalidOperationException>(() => dbFunction.Translation = args => new SqlFragmentExpression("Empty")).Message);
     }
 
     private TestHelpers.TestModelBuilder GetModelBuilder()

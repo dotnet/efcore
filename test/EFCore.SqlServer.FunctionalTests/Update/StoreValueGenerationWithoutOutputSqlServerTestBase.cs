@@ -11,8 +11,7 @@ public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixtur
     : StoreValueGenerationTestBase<TFixture>(fixture)
     where TFixture : StoreValueGenerationWithoutOutputSqlServerFixture
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Three_Add_use_batched_inserts(bool async)
     {
         await using var context = CreateContext();
@@ -47,8 +46,7 @@ public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixtur
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Four_Add_use_merge_output_into(bool async)
     {
         await using var context = CreateContext();

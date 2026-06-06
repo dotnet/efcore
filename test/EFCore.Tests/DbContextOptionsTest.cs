@@ -48,8 +48,7 @@ public class DbContextOptionsTest
 
         Assert.Equal(
             CoreStrings.OptionsExtensionNotFound(nameof(FakeDbContextOptionsExtension1)),
-            Assert.Throws<InvalidOperationException>(
-                () => optionsBuilder.Options.GetExtension<FakeDbContextOptionsExtension1>()).Message);
+            Assert.Throws<InvalidOperationException>(() => optionsBuilder.Options.GetExtension<FakeDbContextOptionsExtension1>()).Message);
 
         var extension = new FakeDbContextOptionsExtension1();
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);

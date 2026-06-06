@@ -196,8 +196,7 @@ public class ProxyTests
         {
             Assert.Equal(
                 ProxiesStrings.ProxyServicesMissing,
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Model).Message);
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
     }
 
@@ -235,8 +234,7 @@ public class ProxyTests
         using var context = new NeweyContextN();
         Assert.Equal(
             CoreStrings.EntityTypeNotFound(nameof(RedBullRb3)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.CreateProxy<RedBullRb3>()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.CreateProxy<RedBullRb3>()).Message);
     }
 
     [ConditionalFact]
@@ -245,8 +243,7 @@ public class ProxyTests
         using var context = new NeweyContextN6();
         Assert.Equal(
             ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.CreateProxy<RedBullRb3>()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.CreateProxy<RedBullRb3>()).Message);
     }
 
     [ConditionalFact]
@@ -255,8 +252,7 @@ public class ProxyTests
         using var context = new NeweyContextN7();
         Assert.Equal(
             ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.CreateProxy<RedBullRb3>()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.CreateProxy<RedBullRb3>()).Message);
     }
 
     [ConditionalFact]
@@ -268,8 +264,8 @@ public class ProxyTests
 
         Assert.Equal(
             CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
-            Assert.Throws<ArgumentException>(
-                () => new EntityType(proxy.GetType(), model, owned: false, ConfigurationSource.Explicit)).Message);
+            Assert.Throws<ArgumentException>(() => new EntityType(proxy.GetType(), model, owned: false, ConfigurationSource.Explicit))
+                .Message);
     }
 
     // tests scenario in https://github.com/dotnet/efcore/issues/15958
@@ -277,12 +273,11 @@ public class ProxyTests
     public void Throws_if_attempt_to_add_proxy_type_to_model_builder()
         => Assert.Equal(
             CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
-            Assert.Throws<ArgumentException>(
-                () =>
-                {
-                    var context = new CannotAddProxyTypeToModel();
-                    context.Set<ClassToBeProxied>().Add(new ClassToBeProxied { Id = 0 });
-                }).Message);
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var context = new CannotAddProxyTypeToModel();
+                context.Set<ClassToBeProxied>().Add(new ClassToBeProxied { Id = 0 });
+            }).Message);
 
     public class March82GGtp
     {
@@ -378,19 +373,17 @@ public class ProxyTests
         {
             modelBuilder.Entity<March82GGtp>();
 
-            modelBuilder.Entity<March881>(
-                b =>
-                {
-                    b.Property(e => e.Id);
-                    b.Property(e => e.Sponsor);
-                });
+            modelBuilder.Entity<March881>(b =>
+            {
+                b.Property(e => e.Id);
+                b.Property(e => e.Sponsor);
+            });
 
-            modelBuilder.Entity<WilliamsFw14>(
-                b =>
-                {
-                    b.Property(e => e.Id);
-                    b.Property(e => e.Sponsor);
-                });
+            modelBuilder.Entity<WilliamsFw14>(b =>
+            {
+                b.Property(e => e.Id);
+                b.Property(e => e.Sponsor);
+            });
 
             modelBuilder.SharedTypeEntity<SharedTypeEntityType>("STET1");
             modelBuilder.SharedTypeEntity<SharedTypeEntityType>("STET2");

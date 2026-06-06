@@ -63,6 +63,28 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
+    public class InMemoryGenericComplexCollection(InMemoryModelBuilderFixture fixture) : InMemoryComplexCollection(fixture)
+    {
+        [ConditionalFact]
+        public virtual void Changing_propertyInfo_updates_Property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Entity<ComplexProperties>().ComplexProperty(e => e.DoubleProperty).Property(e => ((IReplaceable?)e)!.Property);
+
+            modelBuilder.FinalizeModel();
+
+            var property = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!.FindComplexProperty(nameof(DoubleProperty))!
+                .ComplexType.FindProperty("Property")!;
+            Assert.EndsWith(typeof(IReplaceable).Name + "." + nameof(IReplaceable.Property), property.GetIdentifyingMemberInfo()!.Name);
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
     public class InMemoryGenericInheritance(InMemoryModelBuilderFixture fixture) : InMemoryInheritance(fixture)
     {
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
@@ -77,14 +99,12 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<ModifierGroupHeader>()
-                .HasKey(
-                    x => new { x.GroupHeaderId, x.AccountId });
+                .HasKey(x => new { x.GroupHeaderId, x.AccountId });
 
             modelBuilder.Entity<ModifierGroupHeader>()
                 .HasOne(x => x.ModifierGroupHeader2)
                 .WithMany(x => x.ModifierGroupHeader1)
-                .HasForeignKey(
-                    x => new { x.LinkedGroupHeaderId, x.AccountId });
+                .HasForeignKey(x => new { x.LinkedGroupHeaderId, x.AccountId });
 
             var contextOptions = new DbContextOptionsBuilder()
                 .UseModel(modelBuilder.Model.FinalizeModel())
@@ -141,13 +161,10 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 
         private class ModifierGroupHeader
         {
-            [Key]
-            [Column(Order = 0)]
+            [Key, Column(Order = 0)]
             public int GroupHeaderId { get; set; }
 
-            [Key]
-            [Column(Order = 1)]
-            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            [Key, Column(Order = 1), DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int AccountId { get; set; }
 
             [StringLength(50)]
@@ -203,16 +220,13 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Node>(
-                b =>
-                {
-                    b.HasKey(
-                        e => new { e.ListId, e.PreviousNodeId });
-                    b.HasOne(e => e.NextNode)
-                        .WithOne(e => e.PreviousNode)
-                        .HasForeignKey<Node>(
-                            e => new { e.ListId, e.NextNodeId });
-                });
+            modelBuilder.Entity<Node>(b =>
+            {
+                b.HasKey(e => new { e.ListId, e.PreviousNodeId });
+                b.HasOne(e => e.NextNode)
+                    .WithOne(e => e.PreviousNode)
+                    .HasForeignKey<Node>(e => new { e.ListId, e.NextNodeId });
+            });
 
             var contextOptions = new DbContextOptionsBuilder()
                 .UseModel(modelBuilder.Model.FinalizeModel())

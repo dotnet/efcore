@@ -29,8 +29,7 @@ public class MigrationsAssemblyTest
     public void GetMigrationId_throws_when_no_match()
         => Assert.Equal(
             RelationalStrings.MigrationNotFound("Spike"),
-            Assert.Throws<InvalidOperationException>(
-                    () => CreateMigrationsAssembly().GetMigrationId("Spike"))
+            Assert.Throws<InvalidOperationException>(() => CreateMigrationsAssembly().GetMigrationId("Spike"))
                 .Message);
 
     [ConditionalFact]
@@ -41,7 +40,7 @@ public class MigrationsAssemblyTest
 
         var result = assembly.Migrations;
 
-        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Count);
         Assert.DoesNotContain(result, t => t.GetType() == typeof(MigrationWithoutAttribute));
         Assert.Equal(
             RelationalResources.LogMigrationAttributeMissingWarning(logger).GenerateMessage(nameof(MigrationWithoutAttribute)),
@@ -62,8 +61,7 @@ public class MigrationsAssemblyTest
 
     private class Context : DbContext;
 
-    [DbContext(typeof(Context))]
-    [Migration("20150302103100_Flutter")]
+    [DbContext(typeof(Context)), Migration("20150302103100_Flutter")]
     private class Migration1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -71,8 +69,7 @@ public class MigrationsAssemblyTest
         }
     }
 
-    [DbContext(typeof(Context))]
-    [Migration("20150302103100_FLUTTER")]
+    [DbContext(typeof(Context)), Migration("20150302103100_FLUTTER")]
     private class Migration2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -82,6 +79,88 @@ public class MigrationsAssemblyTest
 
     [DbContext(typeof(Context))]
     private class MigrationWithoutAttribute : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    [ConditionalFact]
+    public void Migrations_handles_inherited_DbContextAttribute()
+    {
+        var assembly = CreateInheritedMigrationsAssembly();
+
+        // This should not throw AmbiguousMatchException
+        var result = assembly.Migrations;
+
+        Assert.Single(result);
+        Assert.Contains(result, t => t.Key == "20150302103200_InheritedMigration");
+    }
+
+    [ConditionalFact]
+    public void Migrations_finds_attribute_on_base_class_only()
+    {
+        var assembly = CreateMigrationsAssemblyWithAttributeOnBaseOnly();
+
+        // This should find the migration even though the attribute is only on the base class
+        var result = assembly.Migrations;
+
+        Assert.Single(result);
+        Assert.Contains(result, t => t.Key == "20150302103300_DerivedMigrationWithBaseAttribute");
+    }
+
+    private IMigrationsAssembly CreateMigrationsAssemblyWithAttributeOnBaseOnly()
+        => new MigrationsAssembly(
+            new CurrentDbContext(new AttributeOnBaseContext()),
+            new DbContextOptions<DbContext>(
+                new Dictionary<Type, IDbContextOptionsExtension>
+                {
+                    { typeof(FakeRelationalOptionsExtension), new FakeRelationalOptionsExtension() }
+                }),
+            new MigrationsIdGenerator(),
+            new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
+
+    private class AttributeOnBaseContext : DbContext;
+
+    [DbContext(typeof(AttributeOnBaseContext))]
+    private class BaseMigrationWithAttribute : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    [Migration("20150302103300_DerivedMigrationWithBaseAttribute")]
+    private class DerivedMigrationWithBaseAttribute : BaseMigrationWithAttribute
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    private IMigrationsAssembly CreateInheritedMigrationsAssembly()
+        => new MigrationsAssembly(
+            new CurrentDbContext(new DerivedContext()),
+            new DbContextOptions<DbContext>(
+                new Dictionary<Type, IDbContextOptionsExtension>
+                {
+                    { typeof(FakeRelationalOptionsExtension), new FakeRelationalOptionsExtension() }
+                }),
+            new MigrationsIdGenerator(),
+            new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
+
+    private class DerivedContext : Context;
+
+    [DbContext(typeof(Context)), Migration("20150302103200_BaseMigration")]
+    private class BaseMigration : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    [DbContext(typeof(DerivedContext)), Migration("20150302103200_InheritedMigration")]
+    private class InheritedMigration : BaseMigration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

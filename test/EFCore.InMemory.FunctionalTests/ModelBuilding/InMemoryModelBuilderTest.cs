@@ -14,6 +14,9 @@ public class InMemoryModelBuilderTest : ModelBuilderTest
     public abstract class InMemoryComplexType(InMemoryModelBuilderFixture fixture)
         : ComplexTypeTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
+    public abstract class InMemoryComplexCollection(InMemoryModelBuilderFixture fixture)
+        : ComplexCollectionTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
+
     public abstract class InMemoryInheritance(InMemoryModelBuilderFixture fixture)
         : InheritanceTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 

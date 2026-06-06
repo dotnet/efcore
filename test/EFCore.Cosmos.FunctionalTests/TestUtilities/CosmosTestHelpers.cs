@@ -3,8 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-// ReSharper disable once CheckNamespace
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class CosmosTestHelpers : TestHelpers

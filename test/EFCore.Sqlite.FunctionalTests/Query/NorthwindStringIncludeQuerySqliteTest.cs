@@ -13,24 +13,23 @@ public class NorthwindStringIncludeQuerySqliteTest(NorthwindQuerySqliteFixture<N
     public override async Task Include_collection_with_cross_apply_with_filter(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Include_collection_with_cross_apply_with_filter(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_collection_with_cross_apply_with_filter(async)))
+            .Message);
 
     public override async Task Include_collection_with_outer_apply_with_filter(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Include_collection_with_outer_apply_with_filter(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_collection_with_outer_apply_with_filter(async)))
+            .Message);
 
     public override async Task Include_collection_with_outer_apply_with_filter_non_equality(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Include_collection_with_outer_apply_with_filter_non_equality(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Include_collection_with_outer_apply_with_filter_non_equality(async))).Message);
 
     public override async Task Include_collection_with_last_no_orderby(bool async)
         => Assert.Equal(
             RelationalStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Include_collection_with_last_no_orderby(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_collection_with_last_no_orderby(async))).Message);
 }

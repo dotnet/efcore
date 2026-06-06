@@ -11,17 +11,17 @@ public class IndexTest
         var model = CreateModel();
         var entityType = model.AddEntityType("E");
         var property = entityType.AddProperty("P", typeof(int));
-        var index = entityType.AddIndex(new[] { property });
+        var index = entityType.AddIndex([property]);
 
         model.FinalizeModel();
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { property })).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex([property])).Message);
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { property }, "Name")).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex([property], "Name")).Message);
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
@@ -39,7 +39,7 @@ public class IndexTest
         var property1 = entityType.AddProperty(Customer.IdProperty);
         var property2 = entityType.AddProperty(Customer.NameProperty);
 
-        var index = entityType.AddIndex(new[] { property1, property2 });
+        var index = entityType.AddIndex([property1, property2]);
 
         Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
         Assert.False(index.IsUnique);
@@ -53,7 +53,7 @@ public class IndexTest
         var property1 = entityType.AddProperty(Customer.IdProperty);
         var property2 = entityType.AddProperty(Customer.NameProperty);
 
-        var index = entityType.AddIndex(new[] { property1, property2 });
+        var index = entityType.AddIndex([property1, property2]);
         index.IsUnique = true;
 
         Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
@@ -67,8 +67,8 @@ public class IndexTest
         var property1 = entityType.AddProperty(Customer.IdProperty);
         var property2 = entityType.AddProperty(Customer.NameProperty);
 
-        var index = entityType.AddIndex(new[] { property1, property2 });
-        index.IsDescending = new[] { false, false };
+        var index = entityType.AddIndex([property1, property2]);
+        index.IsDescending = [false, false];
 
         Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
         Assert.Null(index.IsDescending);
@@ -81,8 +81,8 @@ public class IndexTest
         var property1 = entityType.AddProperty(Customer.IdProperty);
         var property2 = entityType.AddProperty(Customer.NameProperty);
 
-        var index = entityType.AddIndex(new[] { property1, property2 });
-        index.IsDescending = new[] { true, true };
+        var index = entityType.AddIndex([property1, property2]);
+        index.IsDescending = [true, true];
 
         Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
         Assert.Equal([], index.IsDescending);
@@ -95,8 +95,8 @@ public class IndexTest
         var property1 = entityType.AddProperty(Customer.IdProperty);
         var property2 = entityType.AddProperty(Customer.NameProperty);
 
-        var index = entityType.AddIndex(new[] { property1, property2 });
-        var exception = Assert.Throws<ArgumentException>(() => index.IsDescending = new[] { true });
+        var index = entityType.AddIndex([property1, property2]);
+        var exception = Assert.Throws<ArgumentException>(() => index.IsDescending = [true]);
         Assert.Equal(
             CoreStrings.InvalidNumberOfIndexSortOrderValues("{'Id', 'Name'}", 1, 2) + " (Parameter 'descending')",
             exception.Message);

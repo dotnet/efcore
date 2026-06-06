@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class ProductPhoto
 {
     public ProductPhoto()
-    {
-        ProductProductPhoto = new HashSet<ProductProductPhoto>();
-    }
+        => ProductProductPhoto = new HashSet<ProductProductPhoto>();
 
     public int ProductPhotoID { get; set; }
 #pragma warning disable CA1819 // Properties should not return arrays

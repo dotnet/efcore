@@ -34,77 +34,77 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITable table, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IView view, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IViewColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ISqlQuery sqlQuery, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ISqlQueryColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreFunction function, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreFunctionParameter parameter, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IFunctionColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedure storedProcedure, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedureParameter parameter, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedureResultColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IForeignKeyConstraint foreignKey, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IUniqueConstraint constraint, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ISequence sequence, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITrigger trigger, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 }
