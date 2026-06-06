@@ -1348,7 +1348,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             case { Subquery: { } subquery }:
             {
                 var entityShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
-                var subSelectExpression = (SelectExpression)subquery.QueryExpression;
+                var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
 
                 var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
                 var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
