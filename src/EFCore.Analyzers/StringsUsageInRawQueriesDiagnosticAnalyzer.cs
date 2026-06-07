@@ -208,6 +208,15 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
     {
         foreach (var argument in invocation.Arguments)
         {
+            // The IFormatProvider argument of the string.Format(IFormatProvider, ...) overloads
+            // (e.g. CultureInfo.InvariantCulture) never contributes to the SQL text and is never a
+            // compile-time constant — skip it so a fully-constant format call isn't flagged. See #37915.
+            if (argument.Parameter?.Type is
+                { Name: "IFormatProvider", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } })
+            {
+                continue;
+            }
+
             var value = Unwrap(argument.Value);
 
             // Implicit params arrays — inspect each element rather than the array itself.

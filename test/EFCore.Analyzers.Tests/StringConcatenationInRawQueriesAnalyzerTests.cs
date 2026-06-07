@@ -182,6 +182,39 @@ class C
 """);
 
     [Theory]
+    [MemberData(nameof(DoNotReportData))]
+    public Task Constant_string_format_with_format_provider_do_not_report(string call)
+        => Verify.VerifyAnalyzerAsync(
+            $$"""
+{{MyDbContext}}
+
+class C
+{
+    void M(MyDbContext db)
+    {
+        db.{{call}}(string.Format(System.Globalization.CultureInfo.InvariantCulture, "FooBar WHERE Id = {0}", "1"));
+    }
+}
+""");
+
+    [Theory]
+    [MemberData(nameof(ShouldReportData))]
+    public Task String_format_with_format_provider_and_argument_should_report(string call)
+        => Verify.VerifyAnalyzerAsync(
+            $$"""
+{{MyDbContext}}
+
+class C
+{
+    void M(MyDbContext db, string id)
+    {
+        db.{{call}}(string.Format(System.Globalization.CultureInfo.InvariantCulture, "FooBar WHERE Id = {0}", id));
+    }
+}
+""",
+            DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
+
+    [Theory]
     [MemberData(nameof(ShouldReportData))]
     public Task String_format_with_argument_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
