@@ -88,12 +88,12 @@ public abstract class DateTimeTranslationsTestBase<TFixture>(TFixture fixture) :
 
     [Fact]
     public virtual Task Parse_with_constant()
-        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == DateTime.Parse("5/4/1998 15:30:10 PM")));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == DateTime.Parse("1998-05-04T15:30:10")));
 
     [Fact]
     public virtual Task Parse_with_parameter()
     {
-        var date = "5/4/1998 15:30:10 PM";
+        var date = "1998-05-04T15:30:10";
 
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == DateTime.Parse(date)));
     }
