@@ -1942,33 +1942,31 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Exists(bool async)
-        // Translate List.Exists. Issue #17762.
-        => AssertTranslationFailed(() => AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                .Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate == new DateTime(2008, 10, 24)))));
+                .Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate == new DateTime(2008, 10, 24))),
+            assertEmpty: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Exists_Inequality(bool async)
-        // Translate List.Exists. Issue #17762.
-        => AssertTranslationFailed(() => AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                .Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate != new DateTime(2008, 10, 24)))));
+                .Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate != new DateTime(2008, 10, 24))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Exists_Constant(bool async)
-        // Translate List.Exists. Issue #17762.
-        => AssertTranslationFailed(() => AssertQuery(
+        => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => false))));
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => false)),
+            assertEmpty: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Not_Exists(bool async)
-        // Translate List.Exists. Issue #17762.
-        => AssertTranslationFailed(() => AssertQuery(
+        => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && !c.Orders.Exists(o => false))));
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && !c.Orders.Exists(o => false)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_joins_Where_Order_Any(bool async)

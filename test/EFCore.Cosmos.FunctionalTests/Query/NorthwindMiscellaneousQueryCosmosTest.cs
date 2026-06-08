@@ -1094,28 +1094,32 @@ OFFSET 0 LIMIT 1
 
     public override async Task Where_Join_Exists(bool async)
     {
-        await base.Where_Join_Exists(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Exists(async));
 
         AssertSql();
     }
 
     public override async Task Where_Join_Exists_Inequality(bool async)
     {
-        await base.Where_Join_Exists_Inequality(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Exists_Inequality(async));
 
         AssertSql();
     }
 
     public override async Task Where_Join_Exists_Constant(bool async)
     {
-        await base.Where_Join_Exists_Constant(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Exists_Constant(async));
 
         AssertSql();
     }
 
     public override async Task Where_Join_Not_Exists(bool async)
     {
-        await base.Where_Join_Not_Exists(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Not_Exists(async));
 
         AssertSql();
     }

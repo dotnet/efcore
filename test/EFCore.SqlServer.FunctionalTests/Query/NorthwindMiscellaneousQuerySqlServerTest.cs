@@ -1964,28 +1964,54 @@ WHERE [c].[CustomerID] LIKE N'A%' AND EXISTS (
     {
         await base.Where_Join_Exists(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderDate] = '2008-10-24T00:00:00.000')
+""");
     }
 
     public override async Task Where_Join_Exists_Inequality(bool async)
     {
         await base.Where_Join_Exists_Inequality(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[OrderDate] <> '2008-10-24T00:00:00.000' OR [o].[OrderDate] IS NULL))
+""");
     }
 
     public override async Task Where_Join_Exists_Constant(bool async)
     {
         await base.Where_Join_Exists_Constant(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1
+""");
     }
 
     public override async Task Where_Join_Not_Exists(bool async)
     {
         await base.Where_Join_Not_Exists(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
     }
 
     public override async Task Join_OrderBy_Count(bool async)
