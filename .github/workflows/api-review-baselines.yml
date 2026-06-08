@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Detect changed baseline files and add label
         id: detect
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
           script: |
             const owner = context.repo.owner;
@@ -113,7 +113,7 @@ jobs:
 
       - name: Check out selected commit
         if: steps.detect.outputs.has_baselines == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
           ref: ${{ steps.detect.outputs.target_sha }}
           fetch-depth: 1
@@ -269,7 +269,7 @@ jobs:
 
       - name: Create PR comment with diffs
         if: steps.detect.outputs.has_baselines == 'true'
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         env:
           COMMENTS_DIR: ${{ steps.delta.outputs.comments_dir }}
           PR_NUMBER: ${{ steps.detect.outputs.pr_number }}
