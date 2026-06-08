@@ -572,7 +572,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
                 // Added elements represent pending additions with no original ordinal, so forcing them to
                 // Modified/Unchanged is incorrect and would fail the original ordinal validation. Leave their
                 // state (computed by change detection) untouched, mirroring the bulk state-change logic in
-                // InternalComplexCollectionEntry.SetEntityState.
+                // InternalComplexCollectionEntry.SetState.
                 if (!UseOldBehavior38299
                     && complexEntry.EntityState is EntityState.Added)
                 {
