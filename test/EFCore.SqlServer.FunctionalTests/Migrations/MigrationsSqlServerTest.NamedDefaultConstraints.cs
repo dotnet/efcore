@@ -194,10 +194,9 @@ ALTER TABLE [Entity] ADD CONSTRAINT [RenamedConstraintSql] DEFAULT (NEWID()) FOR
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Number');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Number';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Entity] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [MyConstraint] DEFAULT 7 FOR [Number];
@@ -205,10 +204,9 @@ ALTER TABLE [Entity] ADD CONSTRAINT [MyConstraint] DEFAULT 7 FOR [Number];
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Guid');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Guid';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Entity] ALTER COLUMN [Guid] uniqueidentifier NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [MyConstraintSql] DEFAULT (NEWID()) FOR [Guid];
@@ -620,10 +618,9 @@ ALTER TABLE [RenamedEntities] ADD CONSTRAINT [PK_RenamedEntities] PRIMARY KEY ([
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Number');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Number';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Entity] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_Number] DEFAULT 7 FOR [Number];
@@ -631,10 +628,9 @@ ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_Number] DEFAULT 7 FOR [Number];
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Guid');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Guid';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Entity] ALTER COLUMN [Guid] uniqueidentifier NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_Guid] DEFAULT (NEWID()) FOR [Guid];
