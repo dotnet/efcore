@@ -585,6 +585,7 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
+            modelBuilder.Ignore<Product>();
             modelBuilder.Entity<Customer>();
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Customer).WithMany(c => c.Orders)
