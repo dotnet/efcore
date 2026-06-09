@@ -56,6 +56,29 @@ public class OwnedNavigationTemporalPeriodPropertyBuilder
         return this;
     }
 
+    /// <summary>
+    ///     Configures whether the period column is defined with the SQL Server <c>HIDDEN</c> flag,
+    ///     which excludes it from <c>SELECT *</c> results.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The default is <see langword="true" /> for period columns, matching the behavior of EF Core releases
+    ///         prior to this option being introduced. Set to <see langword="false" /> to make the column visible.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///         for more information.
+    ///     </para>
+    /// </remarks>
+    /// <param name="hidden">A value indicating whether the column should be hidden.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual OwnedNavigationTemporalPeriodPropertyBuilder IsHidden(bool hidden = true)
+    {
+        ((IMutableProperty)_propertyBuilder.Metadata).SetIsHidden(hidden);
+
+        return this;
+    }
+
     #region Hidden System.Object members
 
     /// <summary>
