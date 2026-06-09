@@ -120,9 +120,10 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             // see #26007
             var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
             var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
+            IReadOnlyProperty? periodStartProperty = null;
             if (periodStartPropertyName != null)
             {
-                var periodStartProperty = entityType.FindProperty(periodStartPropertyName);
+                periodStartProperty = entityType.FindProperty(periodStartPropertyName);
                 var periodStartColumnName = periodStartProperty != null
                     ? periodStartProperty.GetColumnName(storeObjectIdentifier)
                     : periodStartPropertyName;
@@ -131,14 +132,28 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             }
 
             var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
+            IReadOnlyProperty? periodEndProperty = null;
             if (periodEndPropertyName != null)
             {
-                var periodEndProperty = entityType.FindProperty(periodEndPropertyName);
+                periodEndProperty = entityType.FindProperty(periodEndPropertyName);
                 var periodEndColumnName = periodEndProperty != null
                     ? periodEndProperty.GetColumnName(storeObjectIdentifier)
                     : periodEndPropertyName;
 
                 yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
+            }
+
+            // Emit the per-period-column hidden flags on the table operation so the migrations generator
+            // can read them in BuildTemporalInformationFromMigrationOperation. Only emit when the user
+            // explicitly configured the column visible (default is HIDDEN, omitted to keep table ops clean).
+            if (periodStartProperty?.IsHidden() == false)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartHidden, false);
+            }
+
+            if (periodEndProperty?.IsHidden() == false)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndHidden, false);
             }
         }
     }
@@ -378,10 +393,21 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             if (column.Name == periodStartColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
+
+                // Period columns default to HIDDEN; only emit the annotation when explicitly visible.
+                if (periodStartProperty?.IsHidden() == false)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.IsHidden, false);
+                }
             }
             else if (column.Name == periodEndColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
+
+                if (periodEndProperty?.IsHidden() == false)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.IsHidden, false);
+                }
             }
         }
     }

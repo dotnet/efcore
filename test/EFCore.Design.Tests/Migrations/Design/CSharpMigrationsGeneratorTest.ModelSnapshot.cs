@@ -3684,6 +3684,67 @@ partial class Snapshot : ModelSnapshot
                     a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "PeriodEnd");
             });
 
+    [Fact]
+    public virtual void Temporal_table_with_visible_period_columns_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.UseHistoryTable("HistoryTable");
+                ttb.HasPeriodStart("Start").HasColumnName("PeriodStart").IsHidden(false);
+                ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd").IsHidden(false);
+            })),
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.Property<DateTime>("End")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasColumnName("PeriodEnd");
+
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<DateTime>("Start")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("datetime2")
+                    .HasColumnName("PeriodStart");
+
+                b.HasKey("Id");
+
+                b.ToTable("EntityWithStringProperty", "DefaultSchema");
+
+                b.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable");
+                            ttb
+                                .HasPeriodStart("Start")
+                                .HasColumnName("PeriodStart")
+                                .IsHidden(false);
+                            ttb
+                                .HasPeriodEnd("End")
+                                .HasColumnName("PeriodEnd")
+                                .IsHidden(false);
+                        }));
+            });
+""", usingSystem: true),
+            o =>
+            {
+                var temporalEntity = o.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty");
+
+                Assert.True(temporalEntity.IsTemporal());
+                Assert.False(temporalEntity.GetProperty("Start").IsHidden());
+                Assert.False(temporalEntity.GetProperty("End").IsHidden());
+            });
+
     #endregion
 
     #region Owned types

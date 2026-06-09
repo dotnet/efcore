@@ -1368,6 +1368,58 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
 
         [Fact]
+        public virtual void Temporal_table_period_columns_hidden_by_default()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal());
+            modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+            Assert.True(entity.IsTemporal());
+            Assert.True(entity.GetProperty(entity.GetPeriodStartPropertyName()!).IsHidden());
+            Assert.True(entity.GetProperty(entity.GetPeriodEndPropertyName()!).IsHidden());
+        }
+
+        [Fact]
+        public virtual void Temporal_table_period_columns_can_be_made_visible_per_column()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").IsHidden(false);
+                ttb.HasPeriodEnd("PeriodEnd").IsHidden(false);
+            }));
+            modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+            Assert.True(entity.IsTemporal());
+            Assert.False(entity.GetProperty("PeriodStart").IsHidden());
+            Assert.False(entity.GetProperty("PeriodEnd").IsHidden());
+        }
+
+        [Fact]
+        public virtual void Temporal_table_period_column_can_be_made_visible_per_column()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").IsHidden(false);
+                ttb.HasPeriodEnd("PeriodEnd");
+            }));
+            modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+            Assert.False(entity.GetProperty("PeriodStart").IsHidden());
+            Assert.True(entity.GetProperty("PeriodEnd").IsHidden());
+        }
+
+        [Fact]
         public virtual void Temporal_table_default_settings()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2424,6 +2476,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public TestTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
+
+        public TestTemporalPeriodPropertyBuilder IsHidden(bool hidden = true)
+            => new(TemporalPeriodPropertyBuilder.IsHidden(hidden));
     }
 
     public class TestOwnedNavigationTemporalPeriodPropertyBuilder(
@@ -2433,6 +2488,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public TestOwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
+
+        public TestOwnedNavigationTemporalPeriodPropertyBuilder IsHidden(bool hidden = true)
+            => new(TemporalPeriodPropertyBuilder.IsHidden(hidden));
     }
 
 #pragma warning disable EF9105 // Vector indexes are experimental
