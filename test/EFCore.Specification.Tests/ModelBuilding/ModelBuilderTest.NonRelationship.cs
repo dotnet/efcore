@@ -581,6 +581,24 @@ public abstract partial class ModelBuilderTest
         }
 
         [Fact]
+        public virtual void Foreign_key_can_be_configured_as_unconstrained()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<Customer>();
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer).WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerId)
+                .IsConstrained(false);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var foreignKey = model.FindEntityType(typeof(Order))!.GetForeignKeys().Single();
+            Assert.False(foreignKey.IsConstrained);
+        }
+
+        [Fact]
         public virtual void Properties_can_be_made_required()
         {
             var modelBuilder = CreateModelBuilder();

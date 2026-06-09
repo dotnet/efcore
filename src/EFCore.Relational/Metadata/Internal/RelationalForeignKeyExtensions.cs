@@ -193,6 +193,11 @@ public static class RelationalForeignKeyExtensions
         in StoreObjectIdentifier principalStoreObject,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? logger)
     {
+        if (!foreignKey.IsConstrained)
+        {
+            return null;
+        }
+
         if (storeObject.StoreObjectType != StoreObjectType.Table
             || principalStoreObject.StoreObjectType != StoreObjectType.Table)
         {

@@ -2694,6 +2694,9 @@
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyAnnotationChangedConvention> ForeignKeyAnnotationChangedConventions { get; }"
         },
         {
+          "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyConstrainednessChangedConvention> ForeignKeyConstrainednessChangedConventions { get; }"
+        },
+        {
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyDependentRequirednessChangedConvention> ForeignKeyDependentRequirednessChangedConventions { get; }"
         },
         {
@@ -10701,6 +10704,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetDependentToPrincipalConfigurationSource();"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsConstrainedConfigurationSource();"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsOwnershipConfigurationSource();"
         },
         {
@@ -10741,6 +10747,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionNavigation? SetDependentToPrincipal(System.Reflection.MemberInfo? property, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "bool? SetIsConstrained(bool? constrained, bool fromDataAnnotation = false);"
         },
         {
           "Member": "bool? SetIsOwnership(bool? ownership, bool fromDataAnnotation = false);"
@@ -10802,6 +10811,9 @@
         },
         {
           "Member": "bool CanSetForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty>? properties, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "bool CanSetIsConstrained(bool? constrained, bool fromDataAnnotation = false);"
         },
         {
           "Member": "bool CanSetIsOwnership(bool? ownership, bool fromDataAnnotation = false);"
@@ -10871,6 +10883,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasPrincipalKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty>? properties, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? IsConstrained(bool? constrained, bool fromDataAnnotation = false);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? IsOwnership(bool? ownership, bool fromDataAnnotation = false);"
@@ -13099,6 +13114,14 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyConstrainednessChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "void ProcessForeignKeyConstrainednessChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyDependentRequirednessChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
       "Methods": [
         {
@@ -13974,6 +13997,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation? DependentToPrincipal { get; }"
+        },
+        {
+          "Member": "bool IsConstrained { get; set; }"
         },
         {
           "Member": "bool IsOwnership { get; set; }"
@@ -15608,6 +15634,9 @@
           "Member": "bool IsBaseLinking();"
         },
         {
+          "Member": "bool IsEffectivelyRequired();"
+        },
+        {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
         }
       ],
@@ -15620,6 +15649,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyNavigation? DependentToPrincipal { get; }"
+        },
+        {
+          "Member": "bool IsConstrained { get; }"
         },
         {
           "Member": "bool IsOwnership { get; }"
@@ -21883,6 +21915,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder HasPrincipalKey(params string[] keyPropertyNames);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder IsConstrained(bool constrained = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder IsRequired(bool required = true);"
         },
         {
@@ -21907,6 +21942,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(System.Linq.Expressions.Expression<System.Func<TPrincipalEntity, object?>> keyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsConstrained(bool constrained = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsRequired(bool required = true);"
@@ -22019,6 +22057,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder HasPrincipalKey(System.Type principalEntityType, params string[] keyPropertyNames);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder IsConstrained(bool constrained = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder IsRequired(bool required = true);"
         },
         {
@@ -22055,6 +22096,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(System.Linq.Expressions.Expression<System.Func<TPrincipalEntity, object?>> keyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool required = true);"
@@ -22411,7 +22455,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType : Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTypeBase, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.ITypeBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeTypeBase",
       "Methods": [
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties, Microsoft.EntityFrameworkCore.Metadata.RuntimeKey principalKey, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType principalEntityType, Microsoft.EntityFrameworkCore.DeleteBehavior deleteBehavior = Microsoft.EntityFrameworkCore.DeleteBehavior.ClientSetNull, bool unique = false, bool required = false, bool requiredDependent = false, bool ownership = false);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties, Microsoft.EntityFrameworkCore.Metadata.RuntimeKey principalKey, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType principalEntityType, Microsoft.EntityFrameworkCore.DeleteBehavior deleteBehavior = Microsoft.EntityFrameworkCore.DeleteBehavior.ClientSetNull, bool unique = false, bool required = false, bool requiredDependent = false, bool ownership = false, bool constrained = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> properties, string? name = null, bool unique = false, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices = null);"

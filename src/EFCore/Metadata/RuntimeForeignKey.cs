@@ -20,6 +20,7 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     private readonly bool _isRequired;
     private readonly bool _isRequiredDependent;
     private readonly bool _isOwnership;
+    private readonly bool _isConstrained;
 
     // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     private IDependentKeyValueFactory? _dependentKeyValueFactory;
@@ -40,7 +41,8 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
         bool unique,
         bool required,
         bool requiredDependent,
-        bool ownership)
+        bool ownership,
+        bool constrained = true)
     {
         Properties = dependentProperties;
         PrincipalKey = principalKey;
@@ -51,6 +53,7 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
         _deleteBehavior = deleteBehavior;
         _isUnique = unique;
         _isOwnership = ownership;
+        _isConstrained = constrained;
     }
 
     /// <summary>
@@ -228,6 +231,13 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     {
         [DebuggerStepThrough]
         get => _isRequired;
+    }
+
+    /// <inheritdoc />
+    bool IReadOnlyForeignKey.IsConstrained
+    {
+        [DebuggerStepThrough]
+        get => _isConstrained;
     }
 
     /// <inheritdoc />

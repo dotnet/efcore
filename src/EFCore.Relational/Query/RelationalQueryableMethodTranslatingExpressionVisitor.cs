@@ -943,6 +943,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 {
                     if (fk.PrincipalEntityType == principalEntityType
                         && (checkIsRequired ? fk.IsRequired : fk.IsRequiredDependent)
+                        && fk.IsConstrained
                         && fk.Properties.Count == dependentKeyProperties.Count)
                     {
                         for (var i = 0; i < fk.Properties.Count; i++)

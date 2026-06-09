@@ -718,7 +718,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             foreignKey.IsUnique,
             foreignKey.IsRequired,
             foreignKey.IsRequiredDependent,
-            foreignKey.IsOwnership);
+            foreignKey.IsOwnership,
+            foreignKey.IsConstrained);
     }
 
     private static RuntimeTrigger Create(ITrigger trigger, RuntimeEntityType runtimeEntityType)

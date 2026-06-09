@@ -2433,7 +2433,8 @@ public partial class PrincipalBaseEntityType
     {
         var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("PrincipalBaseId") },
             principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
-            principalEntityType);
+            principalEntityType,
+            constrained: false);
 
         var deriveds = principalEntityType.AddNavigation("Deriveds",
             runtimeForeignKey,

@@ -369,6 +369,13 @@ public partial class ConventionDispatcher
             return relationshipBuilder.Metadata.IsRequired;
         }
 
+        public override bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
+        {
+            Add(new OnForeignKeyConstrainednessChangedNode(relationshipBuilder));
+            return relationshipBuilder.Metadata.IsConstrained;
+        }
+
         public override bool? OnForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder)
         {
@@ -717,6 +724,14 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnForeignKeyRequirednessChanged(RelationshipBuilder);
+    }
+
+    private sealed class OnForeignKeyConstrainednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder) : ConventionNode
+    {
+        public IConventionForeignKeyBuilder RelationshipBuilder { get; } = relationshipBuilder;
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnForeignKeyConstrainednessChanged(RelationshipBuilder);
     }
 
     private sealed class OnForeignKeyDependentRequirednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder) : ConventionNode

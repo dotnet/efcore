@@ -1647,6 +1647,9 @@ public abstract partial class ModelBuilderTest
         public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
             => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.IsRequired(isRequired));
 
+        public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true)
+            => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.IsConstrained(constrained));
+
         public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 ReferenceCollectionBuilder.OnDelete(deleteBehavior));

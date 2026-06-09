@@ -202,6 +202,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <param name="required">A value indicating whether the principal entity is required.</param>
     /// <param name="requiredDependent">A value indicating whether the dependent entity is required.</param>
     /// <param name="ownership">A value indicating whether this relationship defines an ownership.</param>
+    /// <param name="constrained">A value indicating whether the foreign key is constrained.</param>
     /// <returns>The newly created foreign key.</returns>
     public virtual RuntimeForeignKey AddForeignKey(
         IReadOnlyList<RuntimeProperty> properties,
@@ -211,10 +212,11 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         bool unique = false,
         bool required = false,
         bool requiredDependent = false,
-        bool ownership = false)
+        bool ownership = false,
+        bool constrained = true)
     {
         var foreignKey = new RuntimeForeignKey(
-            properties, principalKey, this, principalEntityType, deleteBehavior, unique, required, requiredDependent, ownership);
+            properties, principalKey, this, principalEntityType, deleteBehavior, unique, required, requiredDependent, ownership, constrained);
 
         _foreignKeys.Add(foreignKey);
 
