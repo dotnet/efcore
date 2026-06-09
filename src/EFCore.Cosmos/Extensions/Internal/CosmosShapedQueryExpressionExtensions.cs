@@ -167,9 +167,9 @@ public static class CosmosShapedQueryExpressionExtensions
             projectedStructuralTypeShaper = shaper;
             projection = shaper.ValueBufferExpression;
             if (projection is ProjectionBindingExpression { ProjectionMember: { } projectionMember }
-                && select.GetMappedProjection(projectionMember) is EntityProjectionExpression entityProjection)
+                && select.GetMappedProjection(projectionMember) is StructuralTypeProjectionExpression structuralTypeProjection)
             {
-                projection = entityProjection.Object;
+                projection = structuralTypeProjection.Object;
             }
         }
         else

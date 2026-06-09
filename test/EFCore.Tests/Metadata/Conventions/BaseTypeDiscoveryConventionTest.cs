@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class BaseTypeDiscoveryConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Discovers_parent_type()
     {
         var entityBuilderA = CreateInternalEntityTypeBuilder<A>();
@@ -21,7 +21,7 @@ public class BaseTypeDiscoveryConventionTest
         Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Discovers_grandparent_type()
     {
         var entityBuilderA = CreateInternalEntityTypeBuilder<A>();
@@ -33,7 +33,7 @@ public class BaseTypeDiscoveryConventionTest
         Assert.Same(entityBuilderA.Metadata, entityBuilderC.Metadata.BaseType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Discovers_parent_type_if_base_type_set()
     {
         var entityBuilderA = CreateInternalEntityTypeBuilder<A>();

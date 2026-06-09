@@ -3,6 +3,7 @@
 
 // ReSharper disable once CheckNamespace
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -93,6 +94,33 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
     #endregion Full-text search
+
+    #region JSON functions
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>JSON_CONTAINS</c> function.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="json">The JSON value to search.</param>
+    /// <param name="searchValue">The JSON value to search for.</param>
+    /// <param name="path">The JSON path to search within.</param>
+    /// <param name="searchMode">The search mode.</param>
+    /// <returns>1 if the JSON value contains the given value; otherwise 0.</returns>
+    [Experimental(EFDiagnostics.JsonContainsExperimental)]
+    public static int JsonContains(
+        this DbFunctions _,
+        object json,
+        object searchValue,
+        string? path = null,
+        int? searchMode = null)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonContains)));
+
+    #endregion JSON functions
 
     #region DateDiffYear
 
@@ -2139,6 +2167,202 @@ public static class SqlServerDbFunctionsExtensions
         string timeZone)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
 
+    #region DateTrunc
+
+    /// <summary>
+    ///     Truncates the <paramref name="date" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="date">The value to truncate.</param>
+    /// <returns>The truncated <see cref="DateTime" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static DateTime DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        DateTime date)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    /// <summary>
+    ///     Truncates the <paramref name="date" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="date">The value to truncate.</param>
+    /// <returns>The truncated <see cref="DateTime" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static DateTime? DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        DateTime? date)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    /// <summary>
+    ///     Truncates the <paramref name="dateTimeOffset" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="dateTimeOffset">The value to truncate.</param>
+    /// <returns>The truncated <see cref="DateTimeOffset" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static DateTimeOffset DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        DateTimeOffset dateTimeOffset)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    /// <summary>
+    ///     Truncates the <paramref name="dateTimeOffset" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="dateTimeOffset">The value to truncate.</param>
+    /// <returns>The truncated <see cref="DateTimeOffset" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static DateTimeOffset? DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        DateTimeOffset? dateTimeOffset)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    /// <summary>
+    ///     Truncates the <paramref name="date" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="date">The value to truncate.</param>
+    /// <returns>The truncated <see cref="DateOnly" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static DateOnly DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        DateOnly date)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    /// <summary>
+    ///     Truncates the <paramref name="date" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="date">The value to truncate.</param>
+    /// <returns>The truncated <see cref="DateOnly" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static DateOnly? DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        DateOnly? date)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    /// <summary>
+    ///     Truncates the <paramref name="time" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="time">The value to truncate.</param>
+    /// <returns>The truncated <see cref="TimeOnly" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static TimeOnly DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        TimeOnly time)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    /// <summary>
+    ///     Truncates the <paramref name="time" /> to the specified <paramref name="datepart" /> precision.
+    ///     Corresponds to SQL Server's <c>DATETRUNC(datepart, date)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="datepart">
+    ///     The datepart to truncate to. Can be one of: <c>year</c>, <c>quarter</c>, <c>month</c>, <c>dayofyear</c>,
+    ///     <c>day</c>, <c>week</c>, <c>iso_week</c>, <c>hour</c>, <c>minute</c>, <c>second</c>, <c>millisecond</c>,
+    ///     <c>microsecond</c>.
+    /// </param>
+    /// <param name="time">The value to truncate.</param>
+    /// <returns>The truncated <see cref="TimeOnly" /> value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/datetrunc-transact-sql">SQL Server documentation for <c>DATETRUNC</c>.</seealso>
+    public static TimeOnly? DateTrunc(
+        this DbFunctions _,
+        [NotParameterized] string datepart,
+        TimeOnly? time)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTrunc)));
+
+    #endregion DateTrunc
+
     /// <summary>
     ///     Returns the starting position of the first occurrence of a pattern in a specified expression, or zero if the pattern is not found, on
     ///     all valid text and character data types.
@@ -2471,8 +2695,7 @@ public static class SqlServerDbFunctionsExtensions
     ///     Vector distance is always exact and doesn't use any vector index, even if available.
     /// </remarks>
     /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql">
-    ///     SQL Server documentation for
-    ///     <c>VECTOR_DISTANCE</c>.
+    ///     SQL Server documentation for <c>VECTOR_DISTANCE()</c>.
     /// </seealso>
     /// <seealso href="https://learn.microsoft.com/sql/relational-databases/vectors/vectors-sql-server">Vectors in the SQL Database Engine.</seealso>
     public static double VectorDistance<T>(

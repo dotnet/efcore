@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class ChangeTrackerTest
 {
-    [ConditionalTheory,
+    [Theory,
      InlineData(0, 0),
      InlineData(1, 0),
      InlineData(0, 1),
@@ -45,7 +45,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(0, 0),
      InlineData(1, 0),
      InlineData(0, 1),
@@ -77,7 +77,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_dependent_first()
     {
         using var context = new EarlyLearningCenter();
@@ -101,7 +101,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_dependent_first_with_principal_keys_set()
     {
         using var context = new EarlyLearningCenter();
@@ -125,7 +125,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_dependent_first_with_dependent_keys_set()
     {
         using var context = new EarlyLearningCenter();
@@ -149,7 +149,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_dependent_first_with_all_keys_set()
     {
         using var context = new EarlyLearningCenter();
@@ -173,7 +173,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_principal_first()
     {
         using var context = new EarlyLearningCenter();
@@ -197,7 +197,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_principal_first_with_principal_keys_set()
     {
         using var context = new EarlyLearningCenter();
@@ -221,7 +221,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_principal_first_with_dependent_keys_set()
     {
         using var context = new EarlyLearningCenter();
@@ -245,7 +245,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_Attach_with_identifying_relationships_principal_first_with_all_keys_set()
     {
         using var context = new EarlyLearningCenter();
@@ -269,7 +269,7 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Change_tracker_can_be_cleared()
     {
         Seed();
@@ -304,7 +304,7 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Detached, context.Entry(hats[0]).State);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public async Task Keys_generated_on_behalf_of_a_principal_are_not_saved(bool async)
@@ -331,7 +331,7 @@ public class ChangeTrackerTest
             .Message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public async Task Attached_owned_entity_without_owner_not_saved(bool async)
@@ -356,7 +356,7 @@ public class ChangeTrackerTest
             .Message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public async Task Attached_owned_collection_entity_without_owner_not_saved(bool async)
@@ -427,7 +427,7 @@ public class ChangeTrackerTest
             => optionsBuilder.UseInMemoryDatabase(nameof(WeakHerosContext));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_is_logged()
     {
         Seed();
@@ -450,7 +450,7 @@ public class ChangeTrackerTest
                 .GenerateMessage(nameof(LikeAZooContext)), message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -497,7 +497,7 @@ public class ChangeTrackerTest
         Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -551,7 +551,7 @@ public class ChangeTrackerTest
         Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -592,7 +592,7 @@ public class ChangeTrackerTest
         Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -648,7 +648,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -704,7 +704,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -760,7 +760,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -816,7 +816,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Start_tracking_is_logged_from_query(bool sensitive)
@@ -838,7 +838,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Start_tracking_is_logged_from_attach(bool sensitive)
@@ -858,7 +858,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void State_change_is_logged(bool sensitive)
@@ -883,7 +883,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false, false),
      InlineData(true, false, false),
      InlineData(false, true, false),
@@ -966,7 +966,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -1085,7 +1085,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -1206,7 +1206,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public async Task SaveChanges_is_logged(bool async)
@@ -1242,7 +1242,7 @@ public class ChangeTrackerTest
                 .GenerateMessage(nameof(LikeAZooContext), 1), message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Context_Dispose_is_logged()
     {
         using (var context = new LikeAZooContext())
@@ -1259,7 +1259,7 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void State_change_events_fire_from_query()
     {
         var tracking = new List<EntityTrackingEventArgs>();
@@ -1297,7 +1297,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void State_change_events_fire_from_Attach()
     {
         var tracking = new List<EntityTrackingEventArgs>();
@@ -1329,7 +1329,7 @@ public class ChangeTrackerTest
         AssertTrackedEvent(context, 2, EntityState.Unchanged, tracking[1], tracked[1], fromQuery: false);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void State_change_events_fire_from_Add()
     {
         var tracking = new List<EntityTrackingEventArgs>();
@@ -1361,7 +1361,7 @@ public class ChangeTrackerTest
         AssertTrackedEvent(context, 2, EntityState.Added, tracking[1], tracked[1], fromQuery: false);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void State_change_events_fire_from_Update()
     {
         var tracking = new List<EntityTrackingEventArgs>();
@@ -1393,7 +1393,7 @@ public class ChangeTrackerTest
         AssertTrackedEvent(context, 2, EntityState.Modified, tracking[1], tracked[1], fromQuery: false);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void State_change_events_fire_for_tracked_state_changes()
     {
         var tracking = new List<EntityTrackingEventArgs>();
@@ -1469,7 +1469,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void State_change_events_fire_when_saving_changes(bool callDetectChangesTwice)
@@ -1524,7 +1524,7 @@ public class ChangeTrackerTest
         context.Database.EnsureDeleted();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void State_change_events_fire_when_property_modified_flags_cause_state_change()
     {
         var tracking = new List<EntityTrackingEventArgs>();
@@ -1566,7 +1566,7 @@ public class ChangeTrackerTest
         AssertChangedEvent(context, 3, EntityState.Modified, EntityState.Unchanged, changing[1], changed[1]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void State_change_events_are_limited_to_the_current_context()
     {
         var tracking1 = new List<EntityTrackingEventArgs>();
@@ -1621,7 +1621,7 @@ public class ChangeTrackerTest
         context.Database.EnsureDeleted();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_events_fire_for_no_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1653,7 +1653,7 @@ public class ChangeTrackerTest
         Assert.False(detectedEntity[1].ChangesFound);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_events_fire_for_property_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1687,7 +1687,7 @@ public class ChangeTrackerTest
         Assert.False(detectedEntity[1].ChangesFound);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_events_fire_for_fk_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1721,7 +1721,7 @@ public class ChangeTrackerTest
         Assert.False(detectedEntity[1].ChangesFound);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_events_fire_for_reference_navigation_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1755,7 +1755,7 @@ public class ChangeTrackerTest
         Assert.False(detectedEntity[1].ChangesFound);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_events_fire_for_collection_navigation_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1789,7 +1789,7 @@ public class ChangeTrackerTest
         Assert.True(detectedEntity[1].ChangesFound);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_events_fire_for_skip_navigation_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1823,7 +1823,7 @@ public class ChangeTrackerTest
         Assert.False(detectedEntity[1].ChangesFound);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_DetectChanges_events_fire_for_no_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1854,7 +1854,7 @@ public class ChangeTrackerTest
         AssertLocalDetectChangesEvent(changesFound: false, detectingEntity[0], detectedEntity[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_DetectChanges_events_fire_for_property_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1886,7 +1886,7 @@ public class ChangeTrackerTest
         AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_DetectChanges_events_fire_for_fk_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1918,7 +1918,7 @@ public class ChangeTrackerTest
         AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_DetectChanges_events_fire_for_reference_navigation_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1951,7 +1951,7 @@ public class ChangeTrackerTest
         AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[1], detectedEntity[1]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_DetectChanges_events_fire_for_collection_navigation_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -1983,7 +1983,7 @@ public class ChangeTrackerTest
         AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_DetectChanges_events_fire_for_skip_navigation_change()
     {
         var detectingAll = new List<DetectChangesEventArgs>();
@@ -2015,7 +2015,7 @@ public class ChangeTrackerTest
         AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
     }
 
-    [ConditionalFact] // Issue #26506
+    [Fact] // Issue #26506
     public void DetectChanges_event_can_be_used_to_know_when_all_properties_have_changed()
     {
         using var scope = _poolProvider.CreateScope();
@@ -2339,7 +2339,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Can_remove_dependent_identifying_one_to_many(bool saveEntities)
@@ -2383,7 +2383,7 @@ public class ChangeTrackerTest
         Assert.Empty(order.OrderDetails);
     }
 
-    [ConditionalFact] // Issue #26827
+    [Fact] // Issue #26827
     public void Setting_dependent_to_null_for_client_cascaded_optional_is_not_overwritten_by_DetectChanges()
     {
         using var context = new EarlyLearningCenter();
@@ -2405,7 +2405,7 @@ public class ChangeTrackerTest
         Assert.Null(bobby.Buggy);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Keyless_type_negative_cases()
     {
         using var context = new EarlyLearningCenter();
@@ -2440,7 +2440,7 @@ public class ChangeTrackerTest
             Assert.Throws<InvalidOperationException>(() => context.Entry(whoAmI)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_entries()
     {
         using var context = new EarlyLearningCenter();
@@ -2452,7 +2452,7 @@ public class ChangeTrackerTest
             context.ChangeTracker.Entries().Select(e => e.Entity).OrderBy(e => e.GetType().Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_entities_for_an_entity_of_a_given_type()
     {
         using var context = new EarlyLearningCenter();
@@ -2472,14 +2472,14 @@ public class ChangeTrackerTest
             context.ChangeTracker.Entries<object>().Select(e => e.Entity).OrderBy(e => e.GetType().Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_Context()
     {
         using var context = new EarlyLearningCenter();
         Assert.Same(context, context.ChangeTracker.Context);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(true, false),
      InlineData(false, true),
@@ -2523,7 +2523,7 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Modified, context.Entry(child).State);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, false),
      InlineData(false, true),
      InlineData(true, false),
@@ -2608,7 +2608,7 @@ public class ChangeTrackerTest
         Assert.Equal(newCategory.Id, product2Entry.Property("CategoryId").CurrentValue);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(null, false, false, true, false, false),
      InlineData(null, true, false, true, false, false),
      InlineData(null, false, true, true, false, false),
@@ -2771,7 +2771,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(null, false, false, true, false, false),
      InlineData(null, true, false, true, false, false),
      InlineData(null, false, true, true, false, false),
@@ -3009,7 +3009,7 @@ public class ChangeTrackerTest
                 .UseInMemoryDatabase(nameof(KontainerContext));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Adding_derived_owned_throws(bool useAdd)
@@ -3040,7 +3040,7 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Moving_derived_owned_to_non_derived_reference_throws()
     {
         using var context = new EarlyLearningCenter();
@@ -3057,7 +3057,7 @@ public class ChangeTrackerTest
             Assert.Throws<InvalidOperationException>(() => context.Entry(dreams)).Message);
     }
 
-    [ConditionalFact] // Issue #1207
+    [Fact] // Issue #1207
     public void Can_add_principal_and_then_identifying_dependents_with_key_generation()
     {
         using var context = new EarlyLearningCenter();
@@ -3082,7 +3082,7 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
     }
 
-    [ConditionalFact] // Issue #1207
+    [Fact] // Issue #1207
     public void Can_add_identifying_dependents_and_then_principal_with_key_generation()
     {
         using var context = new EarlyLearningCenter();
@@ -3108,7 +3108,7 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, tagDetails1, tagDetails2);
     }
 
-    [ConditionalFact] // Issue #1207
+    [Fact] // Issue #1207
     public void Can_add_identifying_dependents_and_then_principal_interleaved_with_key_generation()
     {
         using var context = new EarlyLearningCenter();
@@ -3134,7 +3134,7 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, tagDetails1, tagDetails2);
     }
 
-    [ConditionalFact] // Issue #1207
+    [Fact] // Issue #1207
     public void Can_add_identifying_dependents_and_principal_starting_in_the_middle_with_key_generation()
     {
         using var context = new EarlyLearningCenter();
@@ -3160,7 +3160,7 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, tagDetails1, tagDetails2);
     }
 
-    [ConditionalFact] // Issue #1207
+    [Fact] // Issue #1207
     public void Can_add_principal_and_identifying_dependents_starting_in_the_middle_with_key_generation()
     {
         using var context = new EarlyLearningCenter();
@@ -3185,7 +3185,7 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)] // Issue #1207
     public void Can_add_identifying_dependents_and_principal_with_post_nav_fixup_with_key_generation(bool callDetectChangesTwice)
@@ -3228,7 +3228,7 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)] // Issue #1207
     public void Can_add_identifying_dependents_and_principal_with_reverse_post_nav_fixup_with_key_generation(
@@ -3318,7 +3318,7 @@ public class ChangeTrackerTest
         Assert.Same(product2.Details.Tag, product2.Details.Tag.TagDetails.Tag);
     }
 
-    [ConditionalFact] // Issue #1207
+    [Fact] // Issue #1207
     public void Can_add_identifying_one_to_many_via_principal_with_key_generation()
     {
         using var context = new EarlyLearningCenter();
@@ -3345,7 +3345,7 @@ public class ChangeTrackerTest
         AssertOrderAndDetailsFixedUp(context, orderDetails1a, orderDetails1b, orderDetails2a, orderDetails2b);
     }
 
-    [ConditionalFact] // Issue #1207
+    [Fact] // Issue #1207
     public void Can_add_identifying_one_to_many_via_dependents_with_key_generation()
     {
         using var context = new EarlyLearningCenter();
@@ -3432,7 +3432,7 @@ public class ChangeTrackerTest
         Assert.Contains(orderDetails2b, orderDetails1b.Product.OrderDetails);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Entries_calls_DetectChanges_by_default(bool useGenericOverload)
@@ -3457,7 +3457,7 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Auto_DetectChanges_for_Entries_can_be_switched_off(bool useGenericOverload)
@@ -3484,7 +3484,81 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalTheory,
+    [Theory,
+     InlineData(false),
+     InlineData(true)]
+    public void GetEntriesForState_does_not_call_DetectChanges(bool useGenericOverload)
+    {
+        using var context = new EarlyLearningCenter();
+        var entry = context.Attach(
+            new Product { Id = 1, CategoryId = 66 });
+
+        entry.Entity.CategoryId = 77;
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        if (useGenericOverload)
+        {
+            _ = context.ChangeTracker.GetEntriesForState<Product>(unchanged: true).ToList();
+        }
+        else
+        {
+            _ = context.ChangeTracker.GetEntriesForState(unchanged: true).ToList();
+        }
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+    }
+
+    [Theory,
+     InlineData(false),
+     InlineData(true)]
+    public void GetEntriesForState_returns_only_entries_with_matching_state(bool useGenericOverload)
+    {
+        using var context = new EarlyLearningCenter();
+
+        context.Add(new Product { Id = 1, CategoryId = 1 });
+        context.Attach(new Product { Id = 2, CategoryId = 2 });
+        var modifiedEntry = context.Attach(new Product { Id = 3, CategoryId = 3 });
+        modifiedEntry.State = EntityState.Modified;
+        var deletedEntry = context.Attach(new Product { Id = 4, CategoryId = 4 });
+        deletedEntry.State = EntityState.Deleted;
+
+        if (useGenericOverload)
+        {
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(added: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(unchanged: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(modified: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(deleted: true));
+            Assert.Equal(2, context.ChangeTracker.GetEntriesForState<Product>(added: true, modified: true).Count());
+            Assert.Equal(4, context.ChangeTracker.GetEntriesForState<Product>(added: true, modified: true, deleted: true, unchanged: true).Count());
+            Assert.Empty(context.ChangeTracker.GetEntriesForState<Product>());
+        }
+        else
+        {
+            Assert.Single(context.ChangeTracker.GetEntriesForState(added: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState(unchanged: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState(modified: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState(deleted: true));
+            Assert.Equal(2, context.ChangeTracker.GetEntriesForState(added: true, modified: true).Count());
+            Assert.Equal(4, context.ChangeTracker.GetEntriesForState(added: true, modified: true, deleted: true, unchanged: true).Count());
+            Assert.Empty(context.ChangeTracker.GetEntriesForState());
+        }
+    }
+
+    [Fact]
+    public void GetEntriesForState_generic_filters_by_type()
+    {
+        using var context = new EarlyLearningCenter();
+
+        context.Add(new Product { Id = 1, CategoryId = 1 });
+        context.Add(new Category { Id = 1 });
+
+        Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(added: true));
+        Assert.Single(context.ChangeTracker.GetEntriesForState<Category>(added: true));
+        Assert.Equal(2, context.ChangeTracker.GetEntriesForState(added: true).Count());
+    }
+
+    [Theory,
      InlineData(false),
      InlineData(true)]
     public void Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off(bool callDetectChangesTwice)
@@ -3509,7 +3583,7 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_when_instance_of_unmapped_derived_type_is_used()
     {
         using var context = new EarlyLearningCenter();
@@ -3518,7 +3592,7 @@ public class ChangeTrackerTest
             context.Add(new SpecialProduct()).Metadata);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Shadow_properties_are_not_included_in_update_unless_value_explicitly_set()
     {
         int id;
@@ -3577,7 +3651,7 @@ public class ChangeTrackerTest
         AssertValuesSaved(id, 0, null);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Clearing_change_tracker_resets_local_view_count()
     {
         using var context = new LikeAZooContext();
@@ -3590,7 +3664,7 @@ public class ChangeTrackerTest
         Assert.Equal(originalCount, context.Cats.Local.Count);
     }
 
-    [ConditionalFact] // Issue #26448
+    [Fact] // Issue #26448
     public void Stable_generated_values_do_not_force_Added_state()
     {
         using var context = new EarlyLearningCenter();

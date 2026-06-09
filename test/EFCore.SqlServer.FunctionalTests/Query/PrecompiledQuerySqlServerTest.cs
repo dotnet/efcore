@@ -1841,7 +1841,7 @@ ORDER BY [m].[Id]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task SqlServerAggregateFunctionExpression()
     {
         await Test(
@@ -1862,7 +1862,7 @@ GROUP BY [b].[Id]
 
     // SqlServerOpenJsonExpression is covered by PrecompiledQueryRelationalTestBase.Contains_with_parameterized_collection
 
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task TableValuedFunctionExpression_toplevel()
 //         => Test(
 //             "_ = context.GetBlogsWithAtLeast(9).ToList();",
@@ -1900,7 +1900,7 @@ GROUP BY [b].[Id]
 // """,
 //             cleanupSql: "DROP FUNCTION dbo.GetBlogsWithAtLeast;");
 //
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task TableValuedFunctionExpression_non_toplevel()
 //         => Test(
 //             "_ = context.Blogs.Where(b => context.GetPosts(b.Id).Count() == 2).ToList();",
@@ -2170,7 +2170,7 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

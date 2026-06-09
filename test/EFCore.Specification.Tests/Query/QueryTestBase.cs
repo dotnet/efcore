@@ -5,12 +5,13 @@ using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFixture<TFixture>
     where TFixture : class, IQueryFixtureBase, new()
 {
     private readonly Lazy<QueryAsserter> _queryAsserterCache;
 
     protected QueryTestBase(TFixture fixture)
+        : base(new QueryNonSharedFixtureAdapter(fixture))
     {
         Fixture = fixture;
 
@@ -26,22 +27,13 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         => CreateQueryAsserter(Fixture);
 
     protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new(
-            fixture,
-            RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression,
-            IgnoreEntryCount);
-
-    protected virtual bool IgnoreEntryCount
-        => false;
+        => new(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 
     protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         => serverQueryExpression;
 
     protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
-
-    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     public static readonly IEnumerable<object[]> TrackingData =
     [
@@ -567,6 +559,38 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Action<TSelector?, TSelector?>? asserter = null)
         => TestOutputWrapper(() => QueryAsserter.AssertMax(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
+    protected Task AssertMinBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> query,
+        Expression<Func<TResult, TSelector>> selector,
+        Action<TResult?, TResult?>? asserter = null)
+        => AssertMinBy(async, query, query, selector, selector, asserter);
+
+    protected Task AssertMinBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null)
+        => TestOutputWrapper(() => QueryAsserter.AssertMinBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+
+    protected Task AssertMaxBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> query,
+        Expression<Func<TResult, TSelector>> selector,
+        Action<TResult?, TResult?>? asserter = null)
+        => AssertMaxBy(async, query, query, selector, selector, asserter);
+
+    protected Task AssertMaxBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null)
+        => TestOutputWrapper(() => QueryAsserter.AssertMaxBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+
     protected Task AssertSum(
         bool async,
         Func<ISetSource, IQueryable<int>> query,
@@ -1156,6 +1180,44 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Action<double?, double?>? asserter = null)
         => TestOutputWrapper(() => QueryAsserter.AssertAverage(
             actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+
+    #endregion
+
+    #region Non-shared test support
+
+    protected override string NonSharedStoreName
+        => Fixture.StoreName + "_NonShared";
+
+    protected override ITestStoreFactory NonSharedTestStoreFactory
+        => Fixture.GetTestStoreFactory();
+
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => Fixture.AddOptions(base.AddNonSharedOptions(builder));
+
+    protected override ILoggerFactory CreateNonSharedLoggerFactory(Func<string, bool> shouldLogCategory)
+        => new NonDisposingLoggerFactoryWrapper(Fixture.ListLoggerFactory);
+
+    protected override ListLoggerFactory ListLoggerFactory
+        => Fixture.ListLoggerFactory;
+
+    private sealed class QueryNonSharedFixtureAdapter(IQueryFixtureBase fixture) : NonSharedFixture
+    {
+        public override TestStore GetOrCreateTestStore(Func<TestStore> createTestStore)
+            => fixture.GetOrCreateNonSharedTestStore(createTestStore);
+    }
+
+    private sealed class NonDisposingLoggerFactoryWrapper(ILoggerFactory inner) : ILoggerFactory
+    {
+        public ILogger CreateLogger(string categoryName)
+            => inner.CreateLogger(categoryName);
+
+        public void AddProvider(ILoggerProvider provider)
+            => inner.AddProvider(provider);
+
+        public void Dispose()
+        {
+        }
+    }
 
     #endregion
 

@@ -6,28 +6,27 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class DbContextModel
 {
-    public partial class DbContextModel
+    private DbContextModel()
+        : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 2)
     {
-        private DbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 2)
-        {
-        }
+    }
 
-        partial void Initialize()
-        {
-            var lazyProxiesEntity1 = LazyProxiesEntity1EntityType.Create(this);
-            var lazyProxiesEntity2 = LazyProxiesEntity2EntityType.Create(this);
+    partial void Initialize()
+    {
+        var lazyProxiesEntity1 = LazyProxiesEntity1EntityType.Create(this);
+        var lazyProxiesEntity2 = LazyProxiesEntity2EntityType.Create(this);
 
-            LazyProxiesEntity1EntityType.CreateForeignKey1(lazyProxiesEntity1, lazyProxiesEntity2);
+        LazyProxiesEntity1EntityType.CreateForeignKey1(lazyProxiesEntity1, lazyProxiesEntity2);
 
-            LazyProxiesEntity1EntityType.CreateAnnotations(lazyProxiesEntity1);
-            LazyProxiesEntity2EntityType.CreateAnnotations(lazyProxiesEntity2);
+        LazyProxiesEntity1EntityType.CreateAnnotations(lazyProxiesEntity1);
+        LazyProxiesEntity2EntityType.CreateAnnotations(lazyProxiesEntity2);
 
-            AddAnnotation("Proxies:ChangeTracking", false);
-            AddAnnotation("Proxies:CheckEquality", false);
-            AddAnnotation("Proxies:LazyLoading", true);
-        }
+        AddAnnotation("Proxies:ChangeTracking", false);
+        AddAnnotation("Proxies:CheckEquality", false);
+        AddAnnotation("Proxies:LazyLoading", true);
     }
 }

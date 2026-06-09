@@ -13,7 +13,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
 {
     protected virtual TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Values_are_copied_into_change_tracker()
     {
         using var db = Fixture.CreateContext();
@@ -25,7 +25,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
         Assert.Equal(0, db.Entry(entity).Property(e => e.Point).OriginalValue.X);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Values_arent_compared_by_reference()
     {
         using var db = Fixture.CreateContext();
@@ -37,7 +37,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
         Assert.False(db.Entry(entity).Property(e => e.Point).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         Point CreatePoint(double y = 2.2)
@@ -87,7 +87,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Translators_handle_static_members()
     {
         using var db = Fixture.CreateContext();
@@ -103,7 +103,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
          }).FirstOrDefault();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_roundtrip_Z_and_M()
     {
         using var db = Fixture.CreateContext();

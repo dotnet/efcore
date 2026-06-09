@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 public class TableValuedDbFunctionConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Does_not_configure_return_entity_as_not_mapped()
     {
         var modelBuilder = CreateModelBuilder();
@@ -26,7 +26,7 @@ public class TableValuedDbFunctionConventionTest
         Assert.Equal("KeylessEntity", entityType.GetViewOrTableMappings().Single().Table.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Finds_existing_entity_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -44,7 +44,7 @@ public class TableValuedDbFunctionConventionTest
         Assert.Equal("TestTable", entityType.GetViewOrTableMappings().Single().Table.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_adding_a_function_returning_an_owned_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -61,7 +61,7 @@ public class TableValuedDbFunctionConventionTest
             Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_adding_a_function_returning_an_existing_owned_type()
     {
         var modelBuilder = CreateModelBuilder();
@@ -78,7 +78,7 @@ public class TableValuedDbFunctionConventionTest
             Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_adding_a_function_returning_a_scalar()
     {
         var modelBuilder = CreateModelBuilder();

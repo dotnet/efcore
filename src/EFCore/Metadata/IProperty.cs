@@ -14,13 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IProperty : IReadOnlyProperty, IPropertyBase
 {
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IEntityType or IComplexType")]
-    new IEntityType DeclaringEntityType
-        => (IEntityType)DeclaringType;
-
-    /// <summary>
     ///     Creates an <see cref="IEqualityComparer{T}" /> for values of the given property type.
     /// </summary>
     /// <typeparam name="TProperty">The property type.</typeparam>

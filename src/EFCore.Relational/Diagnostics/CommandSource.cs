@@ -63,20 +63,12 @@ public enum CommandSource
     Scaffolding,
 
     /// <summary>
-    ///     The command was generated as part of a bulk update.
+    ///     The command was generated as part of an 'ExecuteUpdate' operation.
     /// </summary>
-    [Obsolete("Use ExecuteDelete or ExecuteUpdate instead.")]
-    BulkUpdate,
+    ExecuteUpdate,
 
     /// <summary>
     ///     The command was generated as part of an 'ExecuteDelete' operation.
     /// </summary>
-    ExecuteDelete = 9,
-
-    /// <summary>
-    ///     The command was generated as part of an 'ExecuteUpdate' operation.
-    /// </summary>
-#pragma warning disable CS0618 // Type or member is obsolete
-    ExecuteUpdate = BulkUpdate,
-#pragma warning restore CS0618 // Type or member is obsolete
+    ExecuteDelete,
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class TypeMappingTests
 {
-    [ConditionalFact]
+    [Fact]
     public void Maps_int_column()
     {
         var mapping = CreateMapper().FindMapping(
@@ -29,7 +29,7 @@ public class TypeMappingTests
         Assert.Null(mapping);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Maps_hierarchyid_column()
     {
         var mapping = CreateMapper().FindMapping(
@@ -46,14 +46,14 @@ public class TypeMappingTests
         Assert.Same(SqlServerJsonHierarchyIdReaderWriter.Instance, mapping!.JsonValueReaderWriter);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Convert_HierarchyId_to_and_from_JSON()
         => Convert_to_and_from_JSON(
             SqlServerJsonHierarchyIdReaderWriter.Instance,
             HierarchyId.GetRoot(), new HierarchyId("/1/"), new HierarchyId("/1/3/"),
             """{"Prop1":"/","Prop2":"/1/","Prop3":"/1/3/"}""");
 
-    [ConditionalFact]
+    [Fact]
     public void Convert_SqlHierarchyId_to_and_from_JSON()
         => Convert_to_and_from_JSON(
             SqlServerJsonSqlHierarchyIdReaderWriter.Instance,

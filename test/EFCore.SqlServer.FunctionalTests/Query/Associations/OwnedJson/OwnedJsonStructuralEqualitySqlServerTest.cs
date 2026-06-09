@@ -156,7 +156,7 @@ WHERE 0 = 1
 
     #endregion Contains
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

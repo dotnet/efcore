@@ -8,7 +8,7 @@ public class BoolToStringConverterTest
     private static readonly BoolToStringConverter _boolToTrueFalse
         = new("False", "True");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bools_to_true_false_strings()
     {
         var converter = _boolToTrueFalse.ConvertToProviderExpression.Compile();
@@ -17,7 +17,7 @@ public class BoolToStringConverterTest
         Assert.Equal("False", converter(false));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_true_false_strings_to_bool()
     {
         var converter = _boolToTrueFalse.ConvertFromProviderExpression.Compile();
@@ -36,7 +36,7 @@ public class BoolToStringConverterTest
     private static readonly BoolToStringConverter _boolToYn
         = new("N", "Y");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bools_to_Y_N_strings()
     {
         var converter = _boolToYn.ConvertToProviderExpression.Compile();
@@ -45,7 +45,7 @@ public class BoolToStringConverterTest
         Assert.Equal("N", converter(false));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_Y_N_strings_to_bool()
     {
         var converter = _boolToYn.ConvertFromProviderExpression.Compile();
@@ -59,7 +59,7 @@ public class BoolToStringConverterTest
         Assert.False(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bools_to_empty_strings_or_whitespace()
     {
         var converter = new BoolToStringConverter("", " ").ConvertToProviderExpression.Compile();
@@ -68,7 +68,7 @@ public class BoolToStringConverterTest
         Assert.Equal("", converter(false));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_empty_strings_or_whitespace_to_bool()
     {
         var converter = new BoolToStringConverter("", " ").ConvertFromProviderExpression.Compile();

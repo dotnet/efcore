@@ -22,7 +22,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact(Skip = "Issue #17670")]
+    [Fact(Skip = "Issue #17670")]
     public virtual async Task Can_update_dependents()
     {
         var options = await Fixture.CreateOptions();
@@ -50,7 +50,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_update_owner_with_dependents()
     {
         var options = await Fixture.CreateOptions();
@@ -70,7 +70,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_attach_owner_with_dependents()
     {
         var options = await Fixture.CreateOptions();
@@ -99,7 +99,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -163,8 +163,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
             await context.SaveChangesAsync();
-
-            var people = await context.Set<Person>().ToListAsync();
+            var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
 
             Assert.Empty(people[0].Addresses);
 
@@ -191,7 +190,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
         using (var context = new EmbeddedTransportationContext(options))
         {
-            var people = await context.Set<Person>().ToListAsync();
+            var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
             addedAddress1 = new Address
             {
                 Street = "First",
@@ -239,12 +238,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());
 
-            var addressJson = existingFirstAddressEntry.Property<JObject>("__jObject").CurrentValue;
-
-            Assert.Equal("First", addressJson[nameof(Address.Street)]);
-            addressJson["unmappedId"] = 2;
-
-            existingFirstAddressEntry.Property<JObject>("__jObject").IsModified = true;
+            Assert.Equal("First", people[2].Addresses.First().Street);
 
             existingAddress1Person3 = people[2].Addresses.First();
             existingAddress2Person3 = people[2].Addresses.Last();
@@ -269,7 +263,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 existingAddress2Person3.Notes.Add(new Note { Content = "City note" });
             }
-
             await context.SaveChangesAsync();
 
             await AssertState(context, useIds);
@@ -348,11 +341,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             var existingAddressEntry = context.Entry(addresses[0]);
 
-            var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
-
-            Assert.Equal("First", addressJson[nameof(Address.Street)]);
-            Assert.Equal(6, addressJson.Count);
-            Assert.Equal(2, addressJson["unmappedId"]);
+            Assert.Equal("First", addresses[0].Street);
 
             Assert.Equal("Another", addresses[1].Street);
             Assert.Equal("City", addresses[1].City);
@@ -386,7 +375,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Old_still_works()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -450,7 +439,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
     public record struct CosmosPage<T>(List<T> Results, string ContinuationToken);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Properties_on_owned_types_can_be_client_generated()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -474,7 +463,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_non_int_keys_for_embedded_entities()
     {
         var options = await Fixture.CreateOptions(
@@ -518,7 +507,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_modify_nested_embedded_types()
     {
         var options = await Fixture.CreateOptions();
@@ -548,7 +537,7 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_just_embedded_reference()
     {
         var options = await Fixture.CreateOptions();
@@ -560,7 +549,7 @@ OFFSET 0 LIMIT 1
         Assert.Null(firstOperator.Vehicle);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_just_embedded_collection()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -588,7 +577,7 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inserting_dependent_without_principal_throws()
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -607,7 +596,7 @@ OFFSET 0 LIMIT 1
             (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_change_nested_instance_non_derived()
     {
         var options = await Fixture.CreateOptions();
@@ -632,7 +621,7 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_change_principal_instance_non_derived()
     {
         var options = await Fixture.CreateOptions();
@@ -663,6 +652,110 @@ OFFSET 0 LIMIT 1
         }
     }
 
+    [Fact]
+    public virtual async Task Can_use_non_persisted_properties_owned()
+    {
+        var options = await Fixture.CreateOptions(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Vehicle>(eb => eb.OwnsOne(
+                    v => v.Operator, b =>
+                    {
+                        b.Property(x => x.Name).ToJsonProperty("");
+                    }));
+            },
+            seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = new Vehicle
+            {
+                Name = "Test Vehicle",
+                Operator = new Operator { Name = "Test Operator" }
+            };
+            await context.AddAsync(vehicle);
+            await context.SaveChangesAsync();
+
+            Assert.Equal("Test Operator", vehicle.Operator.Name);
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync();
+            Assert.Null(vehicle.Operator.Name);
+
+            vehicle.Operator.Name = "Theon Greyjoy";
+            // Assert.Equal(0, await context.SaveChangesAsync()); // @TODO: #37929 non-persisted property changes should not cause SaveChanges to update the document
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync();
+            Assert.Null(vehicle.Operator.Name);
+        }
+    }
+
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    public virtual async Task Can_use_non_persisted_properties_complex()
+    {
+        var options = await Fixture.CreateOptions(
+
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Vehicle>(eb =>
+                {
+                    eb.Ignore(x => x.Operator);
+                    eb.ComplexProperty(
+                        v => v.Operator, b =>
+                        {
+                            b.Property(x => x.Name).ToJsonProperty("");
+                        });
+                });
+            },
+            seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = new Vehicle
+            {
+                Name = "Test Vehicle",
+                Operator = new Operator { Name = "Test Operator" }
+            };
+            await context.AddAsync(vehicle);
+            await context.SaveChangesAsync();
+
+            Assert.Equal("Test Operator", vehicle.Operator.Name);
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync(x => x.Operator == new Operator());
+
+            AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] IN ("Vehicle", "PoweredVehicle") AND (c["Operator"] = {"VehicleName":null,"Details":null}))
+OFFSET 0 LIMIT 2
+""");
+
+            Assert.Null(vehicle.Operator.Name);
+
+            vehicle.Operator.Name = "Theon Greyjoy";
+            // Assert.Equal(0, await context.SaveChangesAsync()); // @TODO: #37929 non-persisted property changes should not cause SaveChanges to update the document
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync(x => x.Operator == new Operator());
+            Assert.Null(vehicle.Operator.Name);
+        }
+    }
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)Fixture.ListLoggerFactory;
 
@@ -683,10 +776,13 @@ OFFSET 0 LIMIT 1
             Action<ModelBuilder> onModelCreating = null,
             bool seed = true)
         {
-            var options = CreateOptions(TestStore);
-            var embeddedOptions = new EmbeddedTransportationContextOptions(options, onModelCreating);
+            EmbeddedTransportationContextOptions embeddedOptions = null;
+
             await TestStore.InitializeAsync(
-                ServiceProvider, () => new EmbeddedTransportationContext(embeddedOptions), async c =>
+                ServiceProvider,
+                () => new EmbeddedTransportationContext(
+                    embeddedOptions ??= new EmbeddedTransportationContextOptions(CreateOptions(TestStore), onModelCreating)),
+                async c =>
                 {
                     if (seed)
                     {
@@ -702,7 +798,7 @@ OFFSET 0 LIMIT 1
             => ((EmbeddedTransportationContext)context).Options.OnModelCreating?.Invoke(modelBuilder);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined).Ignore(CoreEventId.MappedNavigationIgnoredWarning));
 
         protected override object GetAdditionalModelCacheKey(DbContext context)
         {
@@ -712,10 +808,10 @@ OFFSET 0 LIMIT 1
                 : options;
         }
 
-        public Task InitializeAsync()
-            => Task.CompletedTask;
+        public ValueTask InitializeAsync()
+            => ValueTask.CompletedTask;
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
             => await TestStore.DisposeAsync();
     }
 

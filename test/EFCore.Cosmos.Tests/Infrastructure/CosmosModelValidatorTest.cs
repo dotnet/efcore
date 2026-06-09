@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class CosmosModelValidatorTest : ModelValidatorTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_valid_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -19,7 +19,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_valid_keyless_entity_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -30,7 +30,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         Assert.Empty(model.FindEntityType(typeof(Customer)).GetKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_id_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -47,7 +47,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.NoIdProperty(nameof(Order)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_non_string_id_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -66,7 +66,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.IdNonStringStoreType("id", nameof(Order), "int"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_valid_partition_keys()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -80,7 +80,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_PK_partition_key()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -95,7 +95,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_partition_key_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -105,7 +105,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.PartitionKeyMissingProperty(nameof(Order), "PartitionKey"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_partition_key_on_first_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -115,7 +115,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "", nameof(Order), "PartitionId", "Orders"), modelBuilder);
     }
 
-    [ConditionalFact] // Issue #34176
+    [Fact] // Issue #34176
     public virtual void Partition_keys_do_not_need_to_be_explicitly_configured_on_non_root_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -129,7 +129,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact] // Issue #34176
+    [Fact] // Issue #34176
     public virtual void Partition_keys_can_only_be_defined_on_the_root_of_a_hierarchy()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -149,7 +149,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.PartitionKeyNotOnRoot(nameof(D), nameof(A)), modelBuilder);
     }
 
-    [ConditionalFact] // Issue #34176
+    [Fact] // Issue #34176
     public virtual void Container_does_not_need_to_be_explicitly_configured_on_non_root_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -163,7 +163,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    [ConditionalFact] // Issue #34176
+    [Fact] // Issue #34176
     public virtual void Container_can_only_be_defined_on_the_root_of_a_hierarchy()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -177,7 +177,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.ContainerNotOnRoot(nameof(D), nameof(A)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_partition_keys_one_last_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -187,7 +187,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId", nameof(Order), "", "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_partition_key_properties_composite_less_first()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -203,7 +203,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id,Name", nameof(Order), "PartitionId,Id", "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_partition_key_properties_composite_less_last()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -213,7 +213,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId", nameof(Order), "PartitionId,Id", "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_partition_key_properties_composite_three()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -229,7 +229,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id", nameof(OrderProduct), "OrderId", "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_partition_keys_mapped_to_different_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -243,7 +243,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 nameof(Order.PartitionId)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_partition_key_of_different_type()
     {
         var modelBuilder = TestHelpers.CreateConventionBuilder(
@@ -266,7 +266,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.PartitionKeyBadStoreType("foo", nameof(Customer), "JObject"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_IsDiscriminatorMappingCompleteMismatch()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -279,7 +279,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             CosmosStrings.IsDiscriminatorMappingCompleteMismatch(true, nameof(Customer), nameof(Order), false, "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_analytical_ttl()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -291,7 +291,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.AnalyticalTTLMismatch(-1, nameof(Customer), nameof(Order), 60, "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_default_ttl()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -303,7 +303,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.DefaultTTLMismatch(100, nameof(Customer), nameof(Order), 60, "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_throughput()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -315,7 +315,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.ThroughputMismatch(200, nameof(Customer), nameof(Order), 60, "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_throughput_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -327,7 +327,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.ThroughputTypeMismatch(nameof(Customer), nameof(Order), "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_properties_mapped_to_same_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -343,7 +343,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 nameof(Order.PartitionId), nameof(Order.Id), nameof(Order), "Details"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_property_and_embedded_type_mapped_to_same_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -359,7 +359,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 nameof(Order.OrderDetails), nameof(Order.PartitionId), nameof(Order), "Details"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_owned_type_mapped_to_a_container()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -381,7 +381,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 nameof(OrderDetails), nameof(Order), "Details"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_conflicting_containing_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -391,7 +391,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.ContainerContainingPropertyConflict(nameof(Order), "Orders", "Prop"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_index()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -403,7 +403,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.IndexesExist(nameof(Customer), "Name,OtherName"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_discriminator()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -413,7 +413,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.NoDiscriminatorProperty(nameof(Customer), "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_missing_discriminator_value()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -423,7 +423,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CoreStrings.NoDiscriminatorValue(nameof(Customer)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -434,7 +434,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             CosmosStrings.DuplicateDiscriminatorValue(nameof(Order), "type", nameof(Customer), "Orders"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_valid_concurrency_token()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -444,7 +444,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .IsConcurrencyToken();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_invalid_concurrency_token()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -456,7 +456,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.NonETagConcurrencyToken(nameof(Customer), "_not_etag"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_nonString_concurrency_token()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -468,7 +468,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", nameof(Customer), "int"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_full_text_index_without_full_text_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -485,7 +485,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_vector_index_on_non_vector_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -497,7 +497,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.VectorIndexOnNonVector(nameof(Customer), "Name"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_vector_property_with_unknown_data_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -515,7 +515,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         public double[] Vector { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_unmappable_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -528,7 +528,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 typeof(Memory<float>).ShortDisplayName()), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_unmappable_list_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -541,7 +541,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 typeof(Memory<float>[]).ShortDisplayName()), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_complex_type_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -550,10 +550,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             b.ComplexCollection(e => e.ComplexTypes);
         });
 
-        VerifyError(
-            CosmosStrings.ComplexTypeCollectionsNotSupported(
-                nameof(ComplexTypeInCollection),
-                nameof(EntityWithComplexTypeCollection.ComplexTypes)), modelBuilder);
+        Validate(modelBuilder);
     }
 
     private class EntityWithComplexTypeCollection
@@ -567,7 +564,40 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         public string Value { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual void Passes_on_vector_index_on_complex_type_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithVectorInComplexType>(b =>
+        {
+            b.ComplexProperty(e => e.Details, cb =>
+            {
+                cb.Property(d => d.Embedding);
+            });
+            b.HasIndex("Details.Embedding").IsVectorIndex(VectorIndexType.Flat);
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(EntityWithVectorInComplexType))!;
+        var complexType = entityType.FindComplexProperty(nameof(EntityWithVectorInComplexType.Details))!.ComplexType;
+        var embeddingProperty = complexType.FindProperty(nameof(EmbeddingDetails.Embedding))!;
+        embeddingProperty.SetVectorDistanceFunction(DistanceFunction.Cosine);
+        embeddingProperty.SetVectorDimensions(128);
+
+        Validate(modelBuilder);
+    }
+
+    private class EntityWithVectorInComplexType
+    {
+        public string Id { get; set; }
+        public EmbeddingDetails Details { get; set; }
+    }
+
+    private class EmbeddingDetails
+    {
+        public ReadOnlyMemory<float> Embedding { get; set; }
+    }
+
+    [Fact]
     public virtual void Detects_trigger_on_derived_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -579,7 +609,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_trigger_without_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -592,7 +622,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_trigger_missing_operation()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -606,7 +636,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_with_valid_triggers()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -616,6 +646,27 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .HasTrigger("PostTrigger", TriggerType.Post, TriggerOperation.Replace);
 
         Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_cosmos_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Customer>(
+            eb =>
+            {
+                eb.Property(e => e.Name);
+                eb.Property(e => e.PartitionId);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer))!.FindProperty(nameof(Customer.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CosmosStrings.AutoLoadedCosmosProperty(nameof(Customer.Name), nameof(Customer)),
+            modelBuilder);
     }
 
     protected class SpecialCustomer : Customer

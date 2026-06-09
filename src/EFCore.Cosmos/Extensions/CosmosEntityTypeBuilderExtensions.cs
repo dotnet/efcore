@@ -274,46 +274,6 @@ public static class CosmosEntityTypeBuilderExtensions
     }
 
     /// <summary>
-    ///     Configures the property that is used to store the partition key.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the partition key property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    [Obsolete("Use HasPartitionKey(IReadOnlyList<string>, bool)")]
-    public static IConventionEntityTypeBuilder? HasPartitionKey(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-        => entityTypeBuilder.HasPartitionKey(name == null ? null : [name], fromDataAnnotation);
-
-    /// <summary>
-    ///     Returns a value indicating whether the property that is used to store the partition key can be set
-    ///     from the current configuration source
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the partition key property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    [Obsolete("Use HasPartitionKey(IReadOnlyList<string>, bool)")]
-    public static bool CanSetPartitionKey(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-        => entityTypeBuilder.CanSetPartitionKey(name == null ? null : [name], fromDataAnnotation);
-
-    /// <summary>
     ///     Configures the properties that are used to store the parts of a
     ///     <see href="https://aka.ms/efcore-cosmos-hpkdocs">hierarchical partition key</see>.
     /// </summary>

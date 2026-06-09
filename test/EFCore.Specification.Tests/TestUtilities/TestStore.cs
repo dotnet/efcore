@@ -74,7 +74,7 @@ public abstract class TestStore(string name, bool shared) : IAsyncDisposable
 
     public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
 
-    public virtual Task CleanAsync(DbContext context)
+    public virtual Task CleanAsync(DbContext context, bool createTables = true)
         => Task.CompletedTask;
 
     protected virtual DbContext CreateDefaultContext()
