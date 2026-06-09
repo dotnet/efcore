@@ -84,6 +84,139 @@ public class IdValueGeneratorTest
                 [model.FindEntityType(typeof(Post)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
     }
 
+    [Fact]
+    public void Generated_ids_for_complex_type_key_do_not_clash()
+    {
+        var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<ComplexKeyEntity>(b =>
+        {
+            b.ComplexProperty(e => e.Id);
+            b.HasKey(e => e.Id.Value);
+            b.Property(e => e.Id.Value).ValueGeneratedNever();
+        });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var id1 = Create(new ComplexKeyEntity { Id = new ComplexKey { Value = 1 } });
+        var id2 = Create(new ComplexKeyEntity { Id = new ComplexKey { Value = 2 } });
+
+        Assert.NotEqual(id1, id2);
+
+        string Create(ComplexKeyEntity entity)
+            => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
+                [model.FindEntityType(typeof(ComplexKeyEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+    }
+
+    [Fact]
+    public void Generated_ids_for_complex_type_key_with_discriminator_do_not_clash()
+    {
+        var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<ComplexKeyEntity>(b =>
+        {
+            b.ComplexProperty(e => e.Id);
+            b.HasKey(e => e.Id.Value);
+            b.Property(e => e.Id.Value).ValueGeneratedNever();
+            b.HasDiscriminatorInJsonId();
+        });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var id1 = Create(new ComplexKeyEntity { Id = new ComplexKey { Value = 1 } });
+        var id2 = Create(new ComplexKeyEntity { Id = new ComplexKey { Value = 2 } });
+
+        Assert.NotEqual(id1, id2);
+
+        string Create(ComplexKeyEntity entity)
+            => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
+                [model.FindEntityType(typeof(ComplexKeyEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+    }
+
+    [Fact]
+    public void Generated_ids_for_record_struct_complex_type_key_with_discriminator_do_not_clash()
+    {
+        var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ComplexProperty(e => e.Id);
+            b.HasKey(e => e.Id.Value);
+            b.Property(e => e.Id.Value).ValueGeneratedNever();
+            b.HasDiscriminatorInJsonId();
+        });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var id1 = Create(new Customer { Id = new CustomerId(1), Name = "Alice" });
+        var id2 = Create(new Customer { Id = new CustomerId(2), Name = "Bob" });
+
+        Assert.NotEqual(id1, id2);
+
+        string Create(Customer entity)
+            => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
+                [model.FindEntityType(typeof(Customer)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+    }
+
+    [Fact]
+    public void Generated_ids_for_nested_complex_type_key_with_discriminator_do_not_clash()
+    {
+        var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.ComplexProperty(e => e.Key, kb => kb.ComplexProperty(k => k.Inner));
+            b.HasKey(e => e.Key.Inner.Value);
+            b.Property(e => e.Key.Inner.Value).ValueGeneratedNever();
+            b.HasDiscriminatorInJsonId();
+        });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var id1 = Create(new Order { Key = new OrderKey { Inner = new InnerKey { Value = 1 } }, Description = "First" });
+        var id2 = Create(new Order { Key = new OrderKey { Inner = new InnerKey { Value = 2 } }, Description = "Second" });
+
+        Assert.NotEqual(id1, id2);
+
+        string Create(Order entity)
+            => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
+                [model.FindEntityType(typeof(Order)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+    }
+
+    private class ComplexKeyEntity
+    {
+        public ComplexKey Id { get; set; }
+    }
+
+    private struct ComplexKey
+    {
+        public int Value { get; set; }
+    }
+
+    private readonly record struct CustomerId(int Value);
+
+    private class Customer
+    {
+        public CustomerId Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private class Order
+    {
+        public OrderKey Key { get; set; }
+        public string Description { get; set; }
+    }
+
+    private class OrderKey
+    {
+        public InnerKey Inner { get; set; }
+    }
+
+    private class InnerKey
+    {
+        public int Value { get; set; }
+    }
+
     private class Blog
     {
         public int Id { get; set; }

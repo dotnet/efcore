@@ -392,15 +392,265 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
-    public virtual void Detects_index()
+    public virtual void Passes_on_composite_index_with_descending()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>(b =>
         {
+            b.HasIndex(e => new { e.Name, e.OtherName }).IsDescending(false, true);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_single_property_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasIndex(e => e.Name);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_global_indexing_with_exceptions()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasAutomaticIndexing()
+                .Except("/Notes/?")
+                .Except("/OtherName/?");
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_automatic_indexing_with_explicit_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasAutomaticIndexing();
+            b.HasIndex(e => e.Name);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_global_indexing_with_vector_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithVectorInComplexType>(b =>
+        {
+            b.HasAutomaticIndexing();
+            b.ComplexProperty(e => e.Details, cb => cb.Property(d => d.Embedding));
+            b.HasIndex("Details.Embedding").IsVectorIndex(VectorIndexType.Flat);
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(EntityWithVectorInComplexType))!;
+        var complexType = entityType.FindComplexProperty(nameof(EntityWithVectorInComplexType.Details))!.ComplexType;
+        var embeddingProperty = complexType.FindProperty(nameof(EmbeddingDetails.Embedding))!;
+        embeddingProperty.SetVectorDistanceFunction(DistanceFunction.Cosine);
+        embeddingProperty.SetVectorDimensions(8);
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_inconsistent_global_indexing_across_container()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing();
+        });
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing(false);
+        });
+
+        VerifyError(
+            CosmosStrings.InconsistentAutomaticIndexingEnabled("Shared", nameof(Customer), nameof(Order)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_inconsistent_global_indexing_excludes_across_container()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing().Except("/Notes/?");
+        });
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing().Except("/Other/?");
+        });
+
+        VerifyError(
+            CosmosStrings.InconsistentAutomaticIndexing("Shared", nameof(Customer), nameof(Order)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_different_exceptions_when_automatic_indexing_disabled_across_container()
+    {
+        // Exceptions only affect the indexing policy when automatic indexing is enabled, so differing exception lists
+        // are not a conflict when it is disabled for the container.
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing(enabled: false);
+            b.Metadata.SetAutomaticIndexingExceptions(["/Notes/?"]);
+        });
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing(enabled: false);
+            b.Metadata.SetAutomaticIndexingExceptions(["/Other/?"]);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_index_on_owned_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithOwnedIndexed>(b =>
+        {
+            b.OwnsOne(e => e.Owned, ob =>
+            {
+                ob.HasIndex(o => o.Note);
+            });
+        });
+
+        VerifyError(
+            CosmosStrings.IndexOnOwnedType(
+                "Note",
+                nameof(OwnedNoteHolder),
+                nameof(EntityWithOwnedIndexed)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_composite_index_with_automatic_indexing()
+    {
+        // Composite indexes are additive and should not conflict with HasAutomaticIndexing().
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasAutomaticIndexing();
             b.HasIndex(e => new { e.Name, e.OtherName });
         });
 
-        VerifyError(CosmosStrings.IndexesExist(nameof(Customer), "Name,OtherName"), modelBuilder);
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_automatic_indexing_disabled()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b => b.HasAutomaticIndexing(enabled: false));
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_automatic_indexing_disabled_with_explicit_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasAutomaticIndexing(enabled: false);
+            b.HasIndex(e => e.Name);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_inconsistent_automatic_indexing_enabled_across_container()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing();
+        });
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.ToContainer("Shared");
+            b.HasAutomaticIndexing(enabled: false);
+        });
+
+        VerifyError(
+            CosmosStrings.InconsistentAutomaticIndexingEnabled("Shared", nameof(Customer), nameof(Order)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Set_automatic_indexing_throws_on_derived_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>();
+        modelBuilder.Entity<SpecialCustomer>(b => b.HasBaseType<Customer>());
+
+        var derived = (IMutableEntityType)modelBuilder.Model.FindEntityType(typeof(SpecialCustomer))!;
+        var rootName = derived.GetRootType().DisplayName();
+
+        derived.SetAutomaticIndexingEnabled(false);
+
+        VerifyError(
+            CosmosStrings.AutomaticIndexingNotOnRoot(derived.DisplayName(), rootName),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_vector_index_on_owned_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithOwnedVector>(b =>
+            b.OwnsOne(e => e.Owned, ob =>
+            {
+                ob.HasIndex(o => o.Vector).IsVectorIndex(VectorIndexType.Flat);
+                ob.Property(o => o.Vector).IsVectorProperty(DistanceFunction.Cosine, 8);
+            }));
+
+        Validate(modelBuilder);
+    }
+
+    private class EntityWithOwnedVector
+    {
+        public string Id { get; set; } = null!;
+        public OwnedVectorHolder Owned { get; set; } = null!;
+    }
+
+    private class OwnedVectorHolder
+    {
+        public ReadOnlyMemory<float> Vector { get; set; }
+    }
+
+    private class EntityWithOwnedIndexed
+    {
+        public string Id { get; set; } = null!;
+        public OwnedNoteHolder Owned { get; set; } = null!;
+    }
+
+    private class OwnedNoteHolder
+    {
+        public string Note { get; set; } = null!;
     }
 
     [Fact]
@@ -595,6 +845,120 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     private class EmbeddingDetails
     {
         public ReadOnlyMemory<float> Embedding { get; set; }
+    }
+
+    [Fact]
+    public virtual void Passes_on_vector_index_through_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithVectorsInComplexCollection>(b =>
+        {
+            b.ComplexCollection(e => e.Items, cb =>
+            {
+                cb.Property(d => d.Embedding);
+            });
+            b.HasIndex("Items[].Embedding").IsVectorIndex(VectorIndexType.Flat);
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(EntityWithVectorsInComplexCollection))!;
+        var complexType = entityType.FindComplexProperty(nameof(EntityWithVectorsInComplexCollection.Items))!.ComplexType;
+        var embeddingProperty = complexType.FindProperty(nameof(EmbeddingDetails.Embedding))!;
+        embeddingProperty.SetVectorDistanceFunction(DistanceFunction.Cosine);
+        embeddingProperty.SetVectorDimensions(128);
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_full_text_index_through_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
+        {
+            b.ComplexCollection(e => e.Items, cb =>
+            {
+                cb.Property(d => d.Description);
+            });
+            b.HasIndex("Items[].Description").IsFullTextIndex();
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(EntityWithStringsInComplexCollection))!;
+        var complexType = entityType.FindComplexProperty(nameof(EntityWithStringsInComplexCollection.Items))!.ComplexType;
+        complexType.FindProperty(nameof(DescriptionItem.Description))!.SetIsFullTextSearchEnabled(true);
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_on_composite_index_through_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
+        {
+            b.ComplexCollection(e => e.Items, cb =>
+            {
+                cb.Property(d => d.Description);
+            });
+            b.HasIndex("Items[].Description", "Id");
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_vector_index_on_non_vector_property_in_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
+        {
+            b.ComplexCollection(e => e.Items, cb =>
+            {
+                cb.Property(d => d.Description);
+            });
+            b.HasIndex("Items[].Description").IsVectorIndex(VectorIndexType.Flat);
+        });
+
+        VerifyError(
+            CosmosStrings.VectorIndexOnNonVector(nameof(EntityWithStringsInComplexCollection), "Description"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_full_text_index_on_non_enabled_property_in_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
+        {
+            b.ComplexCollection(e => e.Items, cb =>
+            {
+                cb.Property(d => d.Description);
+            });
+            b.HasIndex("Items[].Description").IsFullTextIndex();
+        });
+
+        VerifyError(
+            CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                nameof(EntityWithStringsInComplexCollection),
+                "Description",
+                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)),
+            modelBuilder);
+    }
+
+    private class EntityWithVectorsInComplexCollection
+    {
+        public string Id { get; set; }
+        public List<EmbeddingDetails> Items { get; set; }
+    }
+
+    private class EntityWithStringsInComplexCollection
+    {
+        public string Id { get; set; }
+        public List<DescriptionItem> Items { get; set; }
+    }
+
+    private class DescriptionItem
+    {
+        public string Description { get; set; }
     }
 
     [Fact]

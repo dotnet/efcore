@@ -37,42 +37,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 CosmosStrings.ElementWithValueConverter("List<int>", "CollectionQuarks", "Charm", "int"),
                 Assert.Throws<InvalidOperationException>(base.Primitive_collections_can_have_value_converter_set).Message);
 
-        public override void Can_add_contained_indexes()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Customer), "Id"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_add_contained_indexes).Message);
-
-        public override void Can_add_index()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Customer), "Name"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_add_index).Message);
-
-        public override void Can_add_index_when_no_clr_property()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Customer), "Index"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_add_index_when_no_clr_property).Message);
-
-        public override void Can_add_multiple_indexes()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Customer), "Id"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_add_multiple_indexes).Message);
-
-        public override void Can_set_composite_index_on_an_entity_with_fields()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(EntityWithFields), "TenantId,CompanyId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_composite_index_on_an_entity_with_fields).Message);
-
-        public override void Can_set_index_on_an_entity_with_fields()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(EntityWithFields), "CompanyId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_index_on_an_entity_with_fields).Message);
-
         public override void Properties_can_set_row_version()
             => Assert.Equal(
                 CosmosStrings.NonETagConcurrencyToken(nameof(Quarks), "Charm"),
@@ -759,30 +723,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         public override void Complex_properties_can_be_configured_by_type()
             => base.Complex_properties_can_be_configured_by_type();
 
-        public override void Can_define_index_on_complex_property_via_lambda()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_define_index_on_complex_property_via_lambda).Message);
-
-        public override void Can_define_composite_index_mixing_entity_and_complex_property_via_lambda()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Id,Up"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_define_composite_index_mixing_entity_and_complex_property_via_lambda).Message);
-
-        public override void Can_define_index_on_complex_property_via_string_dotted_path()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_define_index_on_complex_property_via_string_dotted_path).Message);
-
-        public override void Index_on_complex_property_marks_chain_as_required()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Index_on_complex_property_marks_chain_as_required).Message);
-
         public override void Can_set_complex_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -987,12 +927,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
     public class CosmosGenericOneToMany(CosmosModelBuilderFixture fixture)
         : OneToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
-        public override void Creates_overlapping_foreign_keys_with_different_nullability()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Product), "Id,OrderId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Creates_overlapping_foreign_keys_with_different_nullability).Message);
-
         public override void Navigation_to_shared_type_is_not_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1364,48 +1298,43 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 "No exception was thrown",
                 Assert.Throws<ThrowsException>(base.Deriving_from_owned_type_throws).Message);
 
-        public override void Can_configure_one_to_many_owned_type_with_fields()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(OneToManyOwnedWithField), "OneToManyOwnerId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_configure_one_to_many_owned_type_with_fields).Message);
-
-        public override void Can_configure_one_to_one_owned_type_with_fields()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(OneToOneOwnedWithField), "OneToOneOwnerId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_configure_one_to_one_owned_type_with_fields).Message);
-
+        // These tests build a model that declares HasIndex on properties on an owned type. Cosmos
+        // stores owned types in the owner's document and emits indexing policy at container scope, so
+        // indexes traversing owned types are not supported and model validation throws.
         public override void Can_configure_owned_type()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(CustomerDetails), "CustomerId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_configure_owned_type).Message);
+            => Assert.Contains(
+                "Indexes that traverse owned types are not currently supported",
+                Assert.Throws<InvalidOperationException>(base.Can_configure_owned_type).Message);
 
         public override void Can_configure_owned_type_collection()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Order), "CustomerId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_configure_owned_type_collection).Message);
+            => Assert.Contains(
+                "Indexes that traverse owned types are not currently supported",
+                Assert.Throws<InvalidOperationException>(base.Can_configure_owned_type_collection).Message);
 
         public override void Can_configure_owned_type_collection_using_nested_closure()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Order), "AnotherCustomerId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_configure_owned_type_collection_using_nested_closure).Message);
+            => Assert.Contains(
+                "Indexes that traverse owned types are not currently supported",
+                Assert.Throws<InvalidOperationException>(base.Can_configure_owned_type_collection_using_nested_closure).Message);
+
+        public override void Can_configure_one_to_one_owned_type_with_fields()
+            => Assert.Contains(
+                "Indexes that traverse owned types are not currently supported",
+                Assert.Throws<InvalidOperationException>(base.Can_configure_one_to_one_owned_type_with_fields).Message);
+
+        public override void Can_configure_one_to_many_owned_type_with_fields()
+            => Assert.Contains(
+                "Indexes that traverse owned types are not currently supported",
+                Assert.Throws<InvalidOperationException>(base.Can_configure_one_to_many_owned_type_with_fields).Message);
 
         public override void Can_configure_chained_ownerships()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist(
-                    "Book.Label#BookLabel.AnotherBookLabel#AnotherBookLabel.SpecialBookLabel#SpecialBookLabel", "BookId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_configure_chained_ownerships).Message);
+            => Assert.Contains(
+                "Indexes that traverse owned types are not currently supported",
+                Assert.Throws<InvalidOperationException>(base.Can_configure_chained_ownerships).Message);
 
         public override void Shared_type_entity_types_with_FK_to_another_entity_works()
-            => Assert.Equal(
-                CosmosStrings.IndexesExist("BillingOwner.Bill1#BillingDetail", "Country"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Shared_type_entity_types_with_FK_to_another_entity_works).Message);
+            => Assert.Contains(
+                "Indexes that traverse owned types are not currently supported",
+                Assert.Throws<InvalidOperationException>(base.Shared_type_entity_types_with_FK_to_another_entity_works).Message);
 
         [Fact]
         public virtual void Reference_type_is_discovered_as_owned()

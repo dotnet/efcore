@@ -269,17 +269,22 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         await context.SaveChangesAsync();
 
         // Order between the two containers within a single SaveChanges is not guaranteed; look up by name.
-        var initialDefaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Take(2).Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var initialOtherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Take(2).Single(c => c.containerName == OtherContainerName);
+        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
+        var initialDefaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
+        var initialOtherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+
+        // Separate the create phase from the delete phase so the assertions below don't depend on
+        // the relative ordering or count of the two phases' tracked calls.
+        _sessionTokenStorage.TrackSessionTokenCalls.Clear();
 
         context.Customers.Remove(customer);
         context.OtherContainerCustomers.Remove(otherContainerCustomer);
 
         await context.SaveChangesAsync();
 
-        Assert.Equal(4, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Skip(2).Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Skip(2).Single(c => c.containerName == OtherContainerName);
+        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
 
         Assert.NotEmpty(defaultContainerCall.sessionToken);
         Assert.NotEmpty(otherContainerCall.sessionToken);
@@ -579,7 +584,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
-        protected override string NonSharedStoreName => nameof(CosmosSessionTokensTest);
+        protected override string NonSharedStoreName => nameof(CosmosNonSharedSessionTokenTests);
 
         protected override TestStore CreateTestStore() => CosmosTestStore.Create(NonSharedStoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
 
