@@ -1177,7 +1177,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual void Throws_for_vector_property_inside_JSON_owned_entity()
     {
@@ -1196,7 +1195,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             SqlServerStrings.VectorPropertiesNotSupportedInJson(nameof(VectorContainer), nameof(VectorContainer.Vector)),
             modelBuilder);
     }
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     [Experimental("EF9105")]

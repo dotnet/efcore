@@ -132,7 +132,6 @@ public abstract class OptionalDependentQueryFixtureBase : QueryFixtureBase<Optio
     protected override Task SeedAsync(OptionalDependentContext context)
         => OptionalDependentContext.SeedAsync(context);
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.Entity<OptionalDependentEntityAllOptional>().Property(x => x.Id).ValueGeneratedNever();
@@ -161,5 +160,4 @@ public abstract class OptionalDependentQueryFixtureBase : QueryFixtureBase<Optio
                 b.Navigation(x => x.ReqNav2).IsRequired();
             });
     }
-#pragma warning restore EF8001
 }

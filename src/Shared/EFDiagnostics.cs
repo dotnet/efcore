@@ -14,10 +14,6 @@ internal static class EFDiagnostics
     internal const string ToAsyncEnumerableOnQueryable = "EF1004";
     internal const string SuppressUninitializedDbSetRule = "EFSPR1001";
 
-    // Diagnostics for [Obsolete]
-    internal const string OwnedJsonObsolete = "EF8001";
-    internal const string OwnedJsonObsoleteMessage = "ToJson() on owned entities has been obsoleted, please switch to using complex types instead for mapping to JSON. See https://aka.ms/efcore-docs-json-owned-entities for more information, and provide feedback on https://github.com/dotnet/efcore/issues/37290 if the transition causes problems for you.";
-
     // Diagnostics for [Experimental]
     internal const string ExperimentalApi = "EF9001";
     internal const string ProviderExperimentalApi = "EF9002";

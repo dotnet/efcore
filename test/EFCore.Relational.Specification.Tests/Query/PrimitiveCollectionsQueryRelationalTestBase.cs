@@ -211,7 +211,6 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
@@ -233,7 +232,6 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         result = await context.Set<TestOwner>().SingleAsync(o => o.Owned.Strings[1] == "bar");
         Assert.Equivalent(new[] { "foo", "bar" }, result.Owned.Strings);
     }
-#pragma warning restore EF8001
 
     public override Task Column_collection_Concat_parameter_collection_equality_inline_collection()
         => AssertTranslationFailed(base.Column_collection_Concat_parameter_collection_equality_inline_collection);

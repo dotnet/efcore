@@ -7,7 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
 
 public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryContext>
 {

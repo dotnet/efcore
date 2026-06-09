@@ -4,7 +4,6 @@
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
 
 public abstract class PropertyValuesRelationalTestBase<TFixture>(TFixture fixture)
     : PropertyValuesTestBase<TFixture>(fixture)

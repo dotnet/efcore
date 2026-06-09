@@ -44,9 +44,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
                     if (jsonColumns)
                     {
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
-#pragma warning restore EF8001
                     }
                     else
                     {
@@ -71,9 +69,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 {
                     if (jsonColumns)
                     {
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
-#pragma warning restore EF8001
                     }
                     else
                     {

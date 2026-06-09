@@ -68,9 +68,7 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
             modelBuilder.Entity<JsonTranslationsEntity>(b =>
             {
                 b.ComplexProperty(j => j.JsonComplexType, j => j.ToJson());
-#pragma warning disable EF8001 // ToJson() on owned entities is obsolete
                 b.OwnsOne(j => j.JsonOwnedType, j => j.ToJson());
-#pragma warning restore EF8001
             });
         }
     }

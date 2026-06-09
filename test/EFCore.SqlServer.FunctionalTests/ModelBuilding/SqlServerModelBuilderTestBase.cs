@@ -1789,7 +1789,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
         [Fact]
         public virtual void Json_entity_and_normal_owned_can_exist_side_by_side_on_same_entity()
         {
@@ -2132,7 +2131,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             }
         }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
         [Fact]
         public virtual void Json_entity_mapped_to_view()
         {
@@ -2307,9 +2305,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("InnerEnum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
             }
         }
-#pragma warning restore EF8001
     }
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     public class SqlServerModelBuilderFixture : RelationalModelBuilderFixture
     {
