@@ -2749,14 +2749,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         // also limited to non-special indexes (no memory-optimized, full-text or vector index,
         // since those use different syntax/restrictions).
 
-        // Short-circuit when no DropIndex+CreateIndex pair is possible.
-        if (migrationOperations.Count < 2
-            || !migrationOperations.OfType<DropIndexOperation>().Any()
-            || !migrationOperations.OfType<CreateIndexOperation>().Any())
-        {
-            return migrationOperations;
-        }
-
         // Scan for adjacent (DropIndex, CreateIndex) pairs with matching identity.
         var dropsToRemove = new HashSet<DropIndexOperation>();
         for (var i = 0; i < migrationOperations.Count - 1; i++)
@@ -2771,6 +2763,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 continue;
             }
+
+            // operations[i + 1] is the matching create, so the next operation cannot be a
+            // DropIndexOperation and can't start another pair; advance past it.
+            i++;
 
             // Skip special index types that don't support DROP_EXISTING.
             if (createOperation[SqlServerAnnotationNames.FullTextIndex] is not null
