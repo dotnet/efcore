@@ -424,13 +424,13 @@ public abstract class InternalEntityEntryTestBase<
         var stateManager = context.GetService<IStateManager>();
         var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
 
-        var entry = stateManager.CreateEntry(
-            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
-            entityType
-        );
-
         var keyProperty = entityType.FindProperty("Id");
         var property = entityType.FindProperty("Name");
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<IProperty, object> { { keyProperty, 1 }, { property, "Kool" } },
+            entityType
+        );
 
         Assert.Equal(1, entry[keyProperty]);
         Assert.Equal("Kool", entry[property]);
@@ -443,12 +443,54 @@ public abstract class InternalEntityEntryTestBase<
         var stateManager = context.GetService<IStateManager>();
         var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
 
+        var keyProperty = entityType.FindProperty("Id");
+        var nameProperty = entityType.FindProperty("Name");
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<IProperty, object> { { keyProperty, 1 }, { nameProperty, "Kool" } },
+            entityType
+        );
+
+        entry[nameProperty] = "Mule";
+
+        Assert.Equal("Mule", entry[nameProperty]);
+    }
+
+    [Fact]
+    [Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
+    public virtual void Can_get_property_value_after_creation_from_value_buffer_using_property_names()
+    {
+        using var context = new TKContext();
+        var stateManager = context.GetService<IStateManager>();
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+
+        var keyProperty = entityType.FindProperty("Id");
+        var property = entityType.FindProperty("Name");
+
         var entry = stateManager.CreateEntry(
             new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
             entityType
         );
 
+        Assert.Equal(1, entry[keyProperty]);
+        Assert.Equal("Kool", entry[property]);
+    }
+
+    [Fact]
+    [Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
+    public virtual void Can_set_property_value_after_creation_from_value_buffer_using_property_names()
+    {
+        using var context = new TKContext();
+        var stateManager = context.GetService<IStateManager>();
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+
         var nameProperty = entityType.FindProperty("Name");
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
+            entityType
+        );
+
         entry[nameProperty] = "Mule";
 
         Assert.Equal("Mule", entry[nameProperty]);
