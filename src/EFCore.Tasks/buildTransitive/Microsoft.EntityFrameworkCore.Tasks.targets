@@ -41,7 +41,7 @@ For Publish:
   -->
 
   <Target Name="_EFGenerateFilesAfterBuild"
-          Condition="'$(_EFGenerationStage)'=='' And '$(EFOptimizeContext)'=='true' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')">
+          Condition="'$(_EFGenerationStage)'=='' And '$(DesignTimeBuild)' != 'True' And '$(EFOptimizeContext)'=='true' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
@@ -52,7 +52,7 @@ For Publish:
   <Target Name="_EFGenerateFilesBeforePublish"
           AfterTargets="GetCopyToPublishDirectoryItems"
           BeforeTargets="GeneratePublishDependencyFile"
-          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish') And ('$(EFOptimizeContext)'=='true' Or ('$(EFOptimizeContext)'=='' And ('$(_EFPublishAOT)'=='true' Or '$(PublishAOT)'=='true')))">
+          Condition="'$(_EFGenerationStage)'=='' And '$(DesignTimeBuild)' != 'True' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish') And ('$(EFOptimizeContext)'=='true' Or ('$(EFOptimizeContext)'=='' And ('$(_EFPublishAOT)'=='true' Or '$(PublishAOT)'=='true')))">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
