@@ -2111,7 +2111,7 @@ CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]) WITH (DROP_EXIST
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_index_fill_factor_uses_drop_existing()
     {
         // Regression test for #35067: when only an index facet (fill factor here) changes, the
@@ -2146,7 +2146,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) WITH (FILLFACTOR = 90, DROP_E
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_index_filter_uses_drop_existing()
     {
         // Changing the index filter must also collapse to CREATE INDEX ... WITH (DROP_EXISTING = ON).
@@ -2178,7 +2178,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_index_with_non_adjacent_drop_and_create_keeps_separate()
     {
         // Regression guard for #38271 review: when an indexed column also needs to be altered, the
@@ -3100,11 +3100,7 @@ EXEC sp_rename N'[JsonIndexEntities].[IX_OldName]', N'IX_NewName', 'INDEX';
 
         AssertSql(
             """
-DROP INDEX [IX_Items] ON [JsonIndexEntities];
-""",
-            //
-            """
-CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[1].Other');
+CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[1].Other') WITH (DROP_EXISTING = ON);
 """);
     }
 
@@ -3137,11 +3133,7 @@ CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[1].Oth
 
         AssertSql(
             """
-DROP INDEX [IX_Items] ON [JsonIndexEntities];
-""",
-            //
-            """
-CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Other');
+CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Other') WITH (DROP_EXISTING = ON);
 """);
     }
 
