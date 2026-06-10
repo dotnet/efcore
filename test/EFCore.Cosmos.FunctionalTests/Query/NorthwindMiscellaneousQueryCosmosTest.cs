@@ -5025,9 +5025,9 @@ WHERE (c["id"] = "ALFKI")
 
                 AssertSql(
                     """
-SELECT VALUE ((c["OrderID"] != null) ? (ToString(c["OrderID"]) || "") : null)
+SELECT VALUE (true ? (ToString(c["OrderID"]) || "") : null)
 FROM root c
-WHERE ((c["$type"] = "Order") AND CONTAINS(((c["OrderID"] != null) ? (ToString(c["OrderID"]) || "") : null), "1"))
+WHERE ((c["$type"] = "Order") AND CONTAINS((true ? (ToString(c["OrderID"]) || "") : null), "1"))
 ORDER BY c["OrderID"]
 OFFSET 0 LIMIT 1
 """);
@@ -5041,9 +5041,9 @@ OFFSET 0 LIMIT 1
 
                 AssertSql(
                     """
-SELECT VALUE ((c["OrderID"] != null) ? (("" || ToString(c["OrderID"])) || "") : null)
+SELECT VALUE (true ? (("" || ToString(c["OrderID"])) || "") : null)
 FROM root c
-WHERE ((c["$type"] = "Order") AND ENDSWITH(((c["OrderID"] != null) ? (("" || ToString(c["OrderID"])) || "") : null), "1"))
+WHERE ((c["$type"] = "Order") AND ENDSWITH((true ? (("" || ToString(c["OrderID"])) || "") : null), "1"))
 ORDER BY c["OrderID"]
 OFFSET 0 LIMIT 1
 """);
@@ -5057,9 +5057,9 @@ OFFSET 0 LIMIT 1
 
                 AssertSql(
                     """
-SELECT VALUE ((c["OrderID"] = null) ? null : (("" || ToString(c["OrderID"])) || ""))
+SELECT VALUE (false ? null : (("" || ToString(c["OrderID"])) || ""))
 FROM root c
-WHERE ((c["$type"] = "Order") AND (((c["OrderID"] = null) ? null : (("" || ToString(c["OrderID"])) || "")) = "1"))
+WHERE ((c["$type"] = "Order") AND ((false ? null : (("" || ToString(c["OrderID"])) || "")) = "1"))
 ORDER BY c["OrderID"]
 OFFSET 0 LIMIT 1
 """);
@@ -5073,9 +5073,9 @@ OFFSET 0 LIMIT 1
 
                 AssertSql(
                     """
-SELECT VALUE ((c["OrderID"] = null) ? null : (ToString(c["OrderID"]) || ""))
+SELECT VALUE (false ? null : (ToString(c["OrderID"]) || ""))
 FROM root c
-WHERE ((c["$type"] = "Order") AND STARTSWITH(((c["OrderID"] = null) ? null : (ToString(c["OrderID"]) || "")), "1"))
+WHERE ((c["$type"] = "Order") AND STARTSWITH((false ? null : (ToString(c["OrderID"]) || "")), "1"))
 ORDER BY c["OrderID"]
 OFFSET 0 LIMIT 1
 """);

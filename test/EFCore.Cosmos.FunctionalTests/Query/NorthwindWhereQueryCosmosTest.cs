@@ -1631,12 +1631,12 @@ WHERE (((ToString(@i) || c["id"]) || ToString(@i)) = "10ALFKI10")
 
                 AssertSql(
                     """
-@p='11'
-@p0='12'
+@customerId='ANATR'
+@customerId1='ALFKI'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] || ToString(@p)) || (c["id"] || ToString(@p0))) = "ALFKI11ALFKI12")
+WHERE ((c["id"] = @customerId) OR (c["id"] = @customerId1))
 """);
             });
 

@@ -64,7 +64,7 @@ WHERE (ABS(c["Float"]) = 9.5)
 
     public override async Task Ceiling()
     {
-        await base.Ceiling_float();
+        await base.Ceiling();
 
         AssertSql(
             """

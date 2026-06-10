@@ -509,9 +509,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
-        //Strip convert to object. Other converts should be fine as they will have a type mapping found but object won't
+        // Strip convert to object. Other converts should be fine as they will have a type mapping found but object won't
 
-        if (item is UnaryExpression { NodeType:ExpressionType.Convert} unaryExpression && unaryExpression.Type == typeof(object))
+        if (item is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression && unaryExpression.Type == typeof(object))
         {
             item = unaryExpression.Operand;
         }

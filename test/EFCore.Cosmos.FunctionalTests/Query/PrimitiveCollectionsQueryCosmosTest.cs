@@ -1978,7 +1978,9 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
     {
         // Array indexer over a parameter array ([1,2,3][0]) isn't supported by Cosmos.
         // TODO: general OFFSET/LIMIT support
-        AssertTranslationFailed(() => base.Parameter_collection_in_subquery_and_Convert_as_compiled_query());
+        AssertTranslationFailed(base.Parameter_collection_in_subquery_and_Convert_as_compiled_query);
+
+        AssertSql();
     }
 
     public override async Task Parameter_collection_in_subquery_Count_as_compiled_query()

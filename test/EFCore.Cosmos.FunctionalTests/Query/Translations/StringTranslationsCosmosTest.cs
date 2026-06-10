@@ -1019,7 +1019,7 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
         AssertSql(
             """
-@i=?
+@i='10'
 
 SELECT VALUE c
 FROM root c
@@ -1033,7 +1033,7 @@ WHERE ((c["String"] || ToString(@i)) = "Seattle10")
 
         AssertSql(
             """
-@i=?
+@i='10'
 
 SELECT VALUE c
 FROM root c
@@ -1047,8 +1047,8 @@ WHERE ((ToString(@i) || c["String"]) = "10Seattle")
 
         AssertSql(
             """
-@p=?
-@j=?
+@p='30'
+@j='21'
 
 SELECT VALUE c
 FROM root c
