@@ -65,11 +65,6 @@ WHERE (ABS(c["Float"]) = 9.5)
     public override async Task Ceiling()
     {
         await base.Ceiling_float();
-    public override Task Ceiling(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Ceiling(a);
 
         AssertSql(
             """
@@ -151,19 +146,17 @@ WHERE (EXP(c["Float"]) > 1.0)
 """);
     }
 
-    public override Task Power(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Power(a);
+    public override async Task Power()
+    {
+        await base.Power();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (POWER(c["Int"], 2.0) = 64.0)
 """);
-            });
+    }
 
     public override async Task Power_float()
     {

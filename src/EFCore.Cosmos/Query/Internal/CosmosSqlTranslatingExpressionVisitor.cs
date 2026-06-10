@@ -836,10 +836,10 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
         switch (unaryExpression.NodeType)
         {
-            ExpressionType.Not when operand is SqlConstantExpression { Value: bool boolValue }
-                => sqlExpressionFactory.Constant(!boolValue),
-            ExpressionType.Not
-                => sqlExpressionFactory.Not(sqlOperand!),
+            case ExpressionType.Not when operand is SqlConstantExpression { Value: bool boolValue }:
+               return sqlExpressionFactory.Constant(!boolValue);
+            case ExpressionType.Not:
+                return sqlExpressionFactory.Not(sqlOperand!);
 
             case ExpressionType.Negate:
             case ExpressionType.NegateChecked:

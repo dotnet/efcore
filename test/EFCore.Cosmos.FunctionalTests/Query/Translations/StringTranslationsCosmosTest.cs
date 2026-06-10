@@ -1013,46 +1013,40 @@ WHERE ((@i || c["String"]) = "ASeattle")
 """);
     }
 
-    public override Task Concat_string_int_comparison1(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_string_int_comparison1(a);
+    public override async Task Concat_string_int_comparison1()
+    {
+        await base.Concat_string_int_comparison1();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((c["String"] || ToString(@i)) = "Seattle10")
 """);
-            });
+    }
 
-    public override Task Concat_string_int_comparison2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_string_int_comparison2(a);
+    public override async Task Concat_string_int_comparison2()
+    {
+        await base.Concat_string_int_comparison2();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((ToString(@i) || c["String"]) = "10Seattle")
 """);
-            });
+    }
 
-    public override Task Concat_string_int_comparison3(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_string_int_comparison3(a);
+    public override async Task Concat_string_int_comparison3()
+    {
+        await base.Concat_string_int_comparison3();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @p=?
 @j=?
 
@@ -1060,21 +1054,19 @@ SELECT VALUE c
 FROM root c
 WHERE ((((ToString(@p) || c["String"]) || ToString(@j)) || ToString(42)) = "30Seattle2142")
 """);
-            });
+    }
 
-    public override Task Concat_string_int_comparison4(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_string_int_comparison4(a);
+    public override async Task Concat_string_int_comparison4()
+    {
+        await base.Concat_string_int_comparison4();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((ToString(c["Int"]) || c["String"]) = "8Seattle")
 """);
-            });
+    }
 
     public override async Task Concat_method_comparison()
     {

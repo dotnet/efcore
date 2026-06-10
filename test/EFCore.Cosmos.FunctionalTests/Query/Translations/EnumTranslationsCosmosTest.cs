@@ -126,12 +126,9 @@ WHERE ((c["FlagsEnum"] & 1) = 1)
 """);
     }
 
-    public override async Task Bitwise_and_integral_constant(bool async)
+    public override async Task Bitwise_and_integral_constant()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.Bitwise_and_integral_constant(async);
+        await base.Bitwise_and_integral_constant();
 
         AssertSql(
             """
@@ -139,14 +136,14 @@ SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & 8) = 8)
 """,
-                //
-                """
+            //
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & 8) = 8)
 """,
-                //
-                """
+            //
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & 8) = 8)
