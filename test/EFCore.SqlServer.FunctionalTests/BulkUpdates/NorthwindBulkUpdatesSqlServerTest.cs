@@ -1732,7 +1732,7 @@ INNER JOIN (
     }
 
     [ConditionalFact]
-    public virtual async Task ExecuteUpdate_after_empty_insert_on_open_connection_returns_correct_rows_affected_Final()
+    public virtual async Task ExecuteUpdate_returns_correct_rows_affected_when_nocount_on_on_open_connection()
     {
         var connectionString = Fixture.TestStore.ConnectionString;
         await using var sqlConnection = new SqlConnection(connectionString);
