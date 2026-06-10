@@ -5,17 +5,11 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindIncludeNoTrackingQuerySqliteTest : NorthwindIncludeNoTrackingQueryTestBase<
-    NorthwindQuerySqliteFixture<NoopModelCustomizer>>
-{
-    public NorthwindIncludeNoTrackingQuerySqliteTest(
-        NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
-    }
+#nullable disable
 
+public class NorthwindIncludeNoTrackingQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
+    : NorthwindIncludeNoTrackingQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>(fixture)
+{
     public override async Task Include_collection_with_cross_apply_with_filter(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

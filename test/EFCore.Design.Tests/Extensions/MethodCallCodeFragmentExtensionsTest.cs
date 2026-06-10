@@ -16,14 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Extensions
                 typeof(TestExtensions1)
                     .GetRuntimeMethod(
                         nameof(TestExtensions1.Extension1),
-                        new[] { typeof(MethodCallCodeFragmentExtensionsTest), typeof(Action<MethodCallCodeFragmentExtensionsTest>) }),
+                        [typeof(MethodCallCodeFragmentExtensionsTest), typeof(Action<MethodCallCodeFragmentExtensionsTest>)]),
                 new NestedClosureCodeFragment(
                     "x",
                     new MethodCallCodeFragment(
                         typeof(TestExtensions2)
                             .GetRuntimeMethod(
                                 nameof(TestExtensions2.Extension2),
-                                new[] { typeof(MethodCallCodeFragmentExtensionsTest), typeof(TestArgument) }),
+                                [typeof(MethodCallCodeFragmentExtensionsTest), typeof(TestArgument)]),
                         new TestArgument())));
 
             var usings = methodCall.GetRequiredUsings();
@@ -63,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Extensions
 
     namespace Namespace3
     {
-        internal class TestArgument
-        {
-        }
+        internal class TestArgument;
     }
 }

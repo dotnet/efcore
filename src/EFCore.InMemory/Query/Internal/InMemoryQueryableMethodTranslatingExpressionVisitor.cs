@@ -1129,20 +1129,13 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     private Expression ExpandSharedTypeEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
         => _weakEntityExpandingExpressionVisitor.Expand(queryExpression, lambdaBody);
 
-    private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
+    private sealed class SharedTypeEntityExpandingExpressionVisitor(InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
+        : ExpressionVisitor
     {
-        private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
-
-        private InMemoryQueryExpression _queryExpression;
-
-        public SharedTypeEntityExpandingExpressionVisitor(InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
-        {
-            _expressionTranslator = expressionTranslator;
-            _queryExpression = null!;
-        }
+        private InMemoryQueryExpression _queryExpression = null!;
 
         public string? TranslationErrorDetails
-            => _expressionTranslator.TranslationErrorDetails;
+            => expressionTranslator.TranslationErrorDetails;
 
         public Expression Expand(InMemoryQueryExpression queryExpression, Expression lambdaBody)
         {
@@ -1259,7 +1252,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                         keyComparison)
                     : keyComparison;
 
-                var correlationPredicate = _expressionTranslator.Translate(predicate)!;
+                var correlationPredicate = expressionTranslator.Translate(predicate)!;
                 innerQueryExpression.UpdateServerQueryExpression(
                     Expression.Call(
                         EnumerableMethods.Where.MakeGenericMethod(innerQueryExpression.CurrentParameter.Type),
@@ -1301,9 +1294,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                     innerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, innerKey);
                 }
 
-                var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey)!, _queryExpression.CurrentParameter);
+                var outerKeySelector = Expression.Lambda(expressionTranslator.Translate(outerKey)!, _queryExpression.CurrentParameter);
                 var innerKeySelector = Expression.Lambda(
-                    _expressionTranslator.Translate(innerKey)!, innerQueryExpression.CurrentParameter);
+                    expressionTranslator.Translate(innerKey)!, innerQueryExpression.CurrentParameter);
                 (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
                 innerShaper = _queryExpression.AddNavigationToWeakEntityType(
                     entityProjectionExpression, navigation, innerQueryExpression, outerKeySelector, innerKeySelector);

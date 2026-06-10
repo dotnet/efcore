@@ -10,8 +10,8 @@ public class RelationalGeometryTypeMappingTest
     [ConditionalFact]
     public void Comparer_uses_exact_comparison()
     {
-        var geometry1 = new GeometryCollection(new[] { new Point(1, 2), new Point(3, 4) });
-        var geometry2 = new GeometryCollection(new[] { new Point(3, 4), new Point(1, 2) });
+        var geometry1 = new GeometryCollection([new Point(1, 2), new Point(3, 4)]);
+        var geometry2 = new GeometryCollection([new Point(3, 4), new Point(1, 2)]);
 
         var comparer = new FakeRelationalGeometryTypeMapping<GeometryCollection>().Comparer;
         Assert.False(comparer.Equals(geometry1, geometry2));
@@ -40,12 +40,6 @@ public class RelationalGeometryTypeMappingTest
         protected override int GetSrid(object value)
             => throw new NotImplementedException();
 
-        private class NullValueConverter : ValueConverter<TGeometry, TGeometry>
-        {
-            public NullValueConverter()
-                : base(t => t, t => t)
-            {
-            }
-        }
+        private class NullValueConverter() : ValueConverter<TGeometry, TGeometry>(t => t, t => t);
     }
 }

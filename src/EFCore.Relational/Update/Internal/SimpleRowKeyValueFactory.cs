@@ -117,7 +117,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
             EqualityComparer);
 
     object[] IRowKeyValueFactory.CreateKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues)
-        => new object[] { CreateKeyValue(command, fromOriginalValues)! };
+        => [CreateKeyValue(command, fromOriginalValues)!];
 
     private sealed class NoNullsStructuralEqualityComparer : IEqualityComparer<TKey>
     {

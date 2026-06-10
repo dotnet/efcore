@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslationPostprocessor
 {
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor;
+    private readonly SqlServerAggregateOverSubqueryPostprocessor _aggregatePostprocessor;
     private readonly SkipWithoutOrderByInSplitQueryVerifier _skipWithoutOrderByInSplitQueryVerifier = new();
+    private readonly SqlServerSqlTreePruner _pruner = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,11 +29,12 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     public SqlServerQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        QueryCompilationContext queryCompilationContext,
-        IRelationalTypeMappingSource typeMappingSource)
+        SqlServerQueryCompilationContext queryCompilationContext)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
-        _jsonPostprocessor = new SqlServerJsonPostprocessor(typeMappingSource, relationalDependencies.SqlExpressionFactory);
+        _jsonPostprocessor = new SqlServerJsonPostprocessor(
+            relationalDependencies.TypeMappingSource, relationalDependencies.SqlExpressionFactory, queryCompilationContext.SqlAliasManager);
+        _aggregatePostprocessor = new SqlServerAggregateOverSubqueryPostprocessor(queryCompilationContext.SqlAliasManager);
     }
 
     /// <summary>
@@ -42,17 +45,37 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     /// </summary>
     public override Expression Process(Expression query)
     {
-        query = base.Process(query);
+        var query1 = base.Process(query);
 
-        query = _jsonPostprocessor.Process(query);
-        _skipWithoutOrderByInSplitQueryVerifier.Visit(query);
+        var query2 = _jsonPostprocessor.Process(query1);
+        var query3 = _aggregatePostprocessor.Visit(query2);
+        _skipWithoutOrderByInSplitQueryVerifier.Visit(query3);
 
-        return query;
+        return query3;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression ProcessTypeMappings(Expression expression)
+        => new SqlServerTypeMappingPostprocessor(Dependencies, RelationalDependencies, RelationalQueryCompilationContext).Process(
+            expression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression Prune(Expression query)
+        => _pruner.Prune(query);
 
     private sealed class SkipWithoutOrderByInSplitQueryVerifier : ExpressionVisitor
     {
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             switch (expression)

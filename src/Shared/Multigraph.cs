@@ -9,7 +9,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     where TVertex : notnull
 {
     private readonly IComparer<TVertex>? _secondarySortComparer;
-    private readonly HashSet<TVertex> _vertices = new();
+    private readonly HashSet<TVertex> _vertices = [];
     private readonly Dictionary<TVertex, Dictionary<TVertex, object?>> _successorMap = new();
     private readonly Dictionary<TVertex, Dictionary<TVertex, object?>> _predecessorMap = new();
 
@@ -72,7 +72,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (edges is not List<Edge> edgeList)
             {
-                edgeList = new List<Edge> { (Edge)edges! };
+                edgeList = [(Edge)edges!];
                 successorEdges[to] = edgeList;
             }
 
@@ -93,7 +93,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (edges is not List<Edge> edgeList)
             {
-                edgeList = new List<Edge> { (Edge)edges! };
+                edgeList = [(Edge)edges!];
                 predecessorEdges[from] = edgeList;
             }
 
@@ -134,7 +134,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
         return batches.Count == 1
             ? batches[0]
-            : Array.Empty<TVertex>();
+            : [];
     }
 
     protected virtual string? ToString(TVertex vertex)
@@ -197,7 +197,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                 // If we detected in the last roots pass that a batch boundary is required, close the current batch and start a new one.
                 if (batchBoundaryRequired)
                 {
-                    currentBatch = new List<TVertex>();
+                    currentBatch = [];
                     result.Add(currentBatch);
                     currentBatchSet.Clear();
 

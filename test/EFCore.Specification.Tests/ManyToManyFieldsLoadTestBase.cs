@@ -1,18 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ManyToManyFieldsLoadTestBase<TFixture>.ManyToManyFieldsLoadFixtureBase
 {
-    protected ManyToManyFieldsLoadTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
@@ -990,7 +987,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFi
     {
     }
 
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     public abstract class ManyToManyFieldsLoadFixtureBase : ManyToManyFieldsQueryFixtureBase
     {

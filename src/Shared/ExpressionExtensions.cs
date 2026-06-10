@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions;
@@ -19,7 +20,7 @@ internal static class ExpressionExtensions
             ? unary.Operand
             : expression);
 
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public static Expression? UnwrapTypeConversion(this Expression? expression, out Type? convertedType)
     {
         convertedType = null;
@@ -45,7 +46,30 @@ internal static class ExpressionExtensions
             : expression;
 
     public static T GetConstantValue<T>(this Expression expression)
-        => expression is ConstantExpression constantExpression
-            ? (T)constantExpression.Value!
-            : throw new InvalidOperationException();
+        => RemoveConvert(expression) switch
+        {
+            ConstantExpression constantExpression => (T)constantExpression.Value!,
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            LiftableConstantExpression liftableConstantExpression => (T)liftableConstantExpression.OriginalExpression.Value!,
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            _ => throw new InvalidOperationException()
+        };
+
+    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true)][MaybeNullWhen(false)]out T value)
+    {
+        switch (expression)
+        {
+            case ConstantExpression constant when constant.Value is T typedValue:
+                value = typedValue;
+                return true;
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            case LiftableConstantExpression liftableConstant when liftableConstant.OriginalExpression.Value is T typedValue:
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+                value = typedValue;
+                return true;
+            default:
+                value = default;
+                return false;
+        }
+    }
 }

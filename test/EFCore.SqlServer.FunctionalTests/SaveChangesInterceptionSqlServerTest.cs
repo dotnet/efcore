@@ -5,13 +5,12 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInterceptionTestBase
-{
-    protected SaveChangesInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public abstract class SaveChangesInterceptionSqlServerTestBase(
+    SaveChangesInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : SaveChangesInterceptionTestBase(fixture)
+{
     [ConditionalTheory]
     [InlineData(false, false, false)]
     [InlineData(true, false, false)]
@@ -26,7 +25,7 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         var saveChangesInterceptor = new RelationalConcurrencySaveChangesInterceptor();
         var commandInterceptor = new TestCommandInterceptor();
 
-        var context = CreateContext(saveChangesInterceptor, commandInterceptor);
+        var context = await CreateContextAsync(saveChangesInterceptor, commandInterceptor);
 
         using var _ = context;
 
@@ -168,14 +167,10 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         }
     }
 
-    public class SaveChangesInterceptionSqlServerTest
-        : SaveChangesInterceptionSqlServerTestBase, IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
+    public class SaveChangesInterceptionSqlServerTest(SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
+        : SaveChangesInterceptionSqlServerTestBase(fixture),
+            IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
-        public SaveChangesInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
             protected override string StoreName
@@ -186,15 +181,11 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsSqlServerTest
-        : SaveChangesInterceptionSqlServerTestBase,
+    public class SaveChangesInterceptionWithDiagnosticsSqlServerTest(
+        SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+        : SaveChangesInterceptionSqlServerTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {
-        public SaveChangesInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
             protected override string StoreName

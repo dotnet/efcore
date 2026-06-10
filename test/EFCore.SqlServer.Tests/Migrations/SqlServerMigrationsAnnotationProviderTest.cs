@@ -7,12 +7,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 
 public class SqlServerMigrationsAnnotationProviderTest
 {
-    private readonly SqlServerAnnotationProvider _annotations;
-
-    public SqlServerMigrationsAnnotationProviderTest()
-    {
-        _annotations = new SqlServerAnnotationProvider(new RelationalAnnotationProviderDependencies());
-    }
+    private readonly SqlServerAnnotationProvider _annotations = new(new RelationalAnnotationProviderDependencies());
 
     [ConditionalFact]
     public void For_property_handles_identity_annotations()

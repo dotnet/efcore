@@ -23,9 +23,7 @@ public class KeyPropagator : IKeyPropagator
     /// </summary>
     public KeyPropagator(
         IValueGeneratorSelector valueGeneratorSelector)
-    {
-        _valueGeneratorSelector = valueGeneratorSelector;
-    }
+        => _valueGeneratorSelector = valueGeneratorSelector;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -167,7 +165,20 @@ public class KeyPropagator : IKeyPropagator
     }
 
     private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty, ITypeBase? typeBase)
-        => generationProperty != null
-            ? _valueGeneratorSelector.Select(generationProperty, typeBase!)
-            : null;
+    {
+        if (generationProperty == null)
+        {
+            return null;
+        }
+
+        if (!_valueGeneratorSelector.TrySelect(generationProperty, typeBase!, out var valueGenerator))
+        {
+            throw new NotSupportedException(
+                CoreStrings.NoValueGenerator(
+                    generationProperty.Name, generationProperty.DeclaringType.DisplayName(),
+                    generationProperty.ClrType.ShortDisplayName()));
+        }
+
+        return valueGenerator!;
+    }
 }

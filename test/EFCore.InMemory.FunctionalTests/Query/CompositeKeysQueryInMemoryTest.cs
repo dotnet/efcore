@@ -3,11 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class CompositeKeysQueryInMemoryTest : CompositeKeysQueryTestBase<CompositeKeysQueryInMemoryFixture>
-{
-    public CompositeKeysQueryInMemoryTest(CompositeKeysQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-}
+public class CompositeKeysQueryInMemoryTest(CompositeKeysQueryInMemoryFixture fixture)
+    : CompositeKeysQueryTestBase<CompositeKeysQueryInMemoryFixture>(fixture);

@@ -3,31 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class OptimisticConcurrencyULongInMemoryTest : OptimisticConcurrencyInMemoryTestBase<F1ULongInMemoryFixture, ulong>
-{
-    public OptimisticConcurrencyULongInMemoryTest(F1ULongInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class OptimisticConcurrencyULongInMemoryTest(F1ULongInMemoryFixture fixture)
+    : OptimisticConcurrencyInMemoryTestBase<F1ULongInMemoryFixture, ulong>(fixture);
 
-public class OptimisticConcurrencyInMemoryTest : OptimisticConcurrencyInMemoryTestBase<F1InMemoryFixture, byte[]>
-{
-    public OptimisticConcurrencyInMemoryTest(F1InMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class OptimisticConcurrencyInMemoryTest(F1InMemoryFixture fixture)
+    : OptimisticConcurrencyInMemoryTestBase<F1InMemoryFixture, byte[]>(fixture);
 
-public abstract class OptimisticConcurrencyInMemoryTestBase<TFixture, TRowVersion>
-    : OptimisticConcurrencyTestBase<TFixture, TRowVersion>
+public abstract class OptimisticConcurrencyInMemoryTestBase<TFixture, TRowVersion>(TFixture fixture)
+    : OptimisticConcurrencyTestBase<TFixture, TRowVersion>(fixture)
     where TFixture : F1FixtureBase<TRowVersion>, new()
 {
-    protected OptimisticConcurrencyInMemoryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Simple_concurrency_exception_can_be_resolved_with_store_values()
         => Task.CompletedTask;

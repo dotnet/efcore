@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlreadyConfiguredEngineType" xml:space="preserve">
+    <value>Cannot configure engine type '{newEngineType}', because engine type was already configured as '{oldEngineType}'.</value>
+  </data>
   <data name="AlterIdentityColumn" xml:space="preserve">
     <value>To change the IDENTITY property of a column, the column needs to be dropped and recreated.</value>
   </data>
@@ -147,6 +150,9 @@
   <data name="DuplicateIndexClusteredMismatch" xml:space="preserve">
     <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.</value>
   </data>
+  <data name="DuplicateIndexDataCompressionMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different data compression configurations.</value>
+  </data>
   <data name="DuplicateIndexFillFactorMismatch" xml:space="preserve">
     <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.</value>
   </data>
@@ -158,9 +164,6 @@
   </data>
   <data name="DuplicateIndexSortInTempDbMismatch" xml:space="preserve">
     <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different sort in tempdb configurations.</value>
-  </data>
-  <data name="DuplicateIndexDataCompressionMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different data compression configurations.</value>
   </data>
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.</value>
@@ -189,11 +192,17 @@
   <data name="InvalidColumnNameForFreeText" xml:space="preserve">
     <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
   </data>
+  <data name="InvalidEngineType" xml:space="preserve">
+    <value>Engine type was not configured. Use one of {methods} to configure it.</value>
+  </data>
   <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
     <value>The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.</value>
   </data>
   <data name="JsonValuePathExpressionsNotSupported" xml:space="preserve">
     <value>A non-constant array index or property name was used when navigating inside a JSON document, but EF Core's SQL Server compatibility level is set to {compatibilityLevel}; this is only supported with compatibility level 140 (SQL Server 2017) or higher.</value>
+  </data>
+  <data name="LeastGreatestCompatibilityLevelTooLow" xml:space="preserve">
+    <value>This usage of Math.Min or Math.Max requires SQL Server functions LEAST and GREATEST, which require compatibility level 160.</value>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column; this requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.</value>
@@ -254,6 +263,10 @@
   <data name="LogFoundUniqueConstraint" xml:space="preserve">
     <value>Found unique constraint on table '{tableName}' with name '{uniqueConstraintName}'.</value>
     <comment>Debug SqlServerEventId.UniqueConstraintFound string string</comment>
+  </data>
+  <data name="LogJsonTypeExperimental" xml:space="preserve">
+    <value>The entity type '{entityType}' makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is experimental and may change in future releases.</value>
+    <comment>Warning SqlServerEventId.JsonTypeExperimental string</comment>
   </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema '{schema}'.</value>
@@ -316,6 +329,9 @@
   </data>
   <data name="TemporalExpectedPeriodPropertyNotFound" xml:space="preserve">
     <value>Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.</value>
+  </data>
+  <data name="TemporalMigrationModifyingComputedColumnNotSupported" xml:space="preserve">
+    <value>Modifying SQL of a computed column '{columnName}' on a temporal table '{tableName}' is not supported by migrations.</value>
   </data>
   <data name="TemporalMustDefinePeriodProperties" xml:space="preserve">
     <value>Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.</value>

@@ -112,7 +112,7 @@ public sealed record ProviderConventionSetBuilderDependencies
     public IDbSetFinder SetFinder { get; init; }
 
     /// <summary>
-    ///     The current context instance.
+    ///     The type of the current context instance.
     /// </summary>
     public Type ContextType
         => _currentContext.Context.GetType();

@@ -24,6 +24,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerStrings).Assembly);
 
         /// <summary>
+        ///     Cannot configure engine type '{newEngineType}', because engine type was already configured as '{oldEngineType}'.
+        /// </summary>
+        public static string AlreadyConfiguredEngineType(object? newEngineType, object? oldEngineType)
+            => string.Format(
+                GetString("AlreadyConfiguredEngineType", nameof(newEngineType), nameof(oldEngineType)),
+                newEngineType, oldEngineType);
+
+        /// <summary>
         ///     To change the IDENTITY property of a column, the column needs to be dropped and recreated.
         /// </summary>
         public static string AlterIdentityColumn
@@ -208,6 +216,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("InvalidColumnNameForFreeText");
 
         /// <summary>
+        ///     Engine type was not configured. Use one of {methods} to configure it.
+        /// </summary>
+        public static string InvalidEngineType(object? methods)
+            => string.Format(
+                GetString("InvalidEngineType", nameof(methods)),
+                methods);
+
+        /// <summary>
         ///     The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.
         /// </summary>
         public static string InvalidTableToIncludeInScaffolding(object? table)
@@ -222,6 +238,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("JsonValuePathExpressionsNotSupported", nameof(compatibilityLevel)),
                 compatibilityLevel);
+
+        /// <summary>
+        ///     This usage of Math.Min or Math.Max requires SQL Server functions LEAST and GREATEST, which require compatibility level 160.
+        /// </summary>
+        public static string LeastGreatestCompatibilityLevelTooLow
+            => GetString("LeastGreatestCompatibilityLevelTooLow");
 
         /// <summary>
         ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.
@@ -290,6 +312,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("TemporalExpectedPeriodPropertyNotFound", nameof(entityType), nameof(propertyName)),
                 entityType, propertyName);
+
+        /// <summary>
+        ///     Modifying SQL of a computed column '{columnName}' on a temporal table '{tableName}' is not supported by migrations.
+        /// </summary>
+        public static string TemporalMigrationModifyingComputedColumnNotSupported(object? columnName, object? tableName)
+            => string.Format(
+                GetString("TemporalMigrationModifyingComputedColumnNotSupported", nameof(columnName), nameof(tableName)),
+                columnName, tableName);
 
         /// <summary>
         ///     Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.
@@ -786,6 +816,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The entity type '{entityType}' makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is experimental and may change in future releases.
+        /// </summary>
+        public static EventDefinition<string> LogJsonTypeExperimental(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogJsonTypeExperimental;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogJsonTypeExperimental,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        SqlServerEventId.JsonTypeExperimental,
+                        LogLevel.Warning,
+                        "SqlServerEventId.JsonTypeExperimental",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqlServerEventId.JsonTypeExperimental,
+                            _resourceManager.GetString("LogJsonTypeExperimental")!)));
+            }
+
+            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

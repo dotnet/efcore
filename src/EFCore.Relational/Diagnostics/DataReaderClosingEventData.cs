@@ -39,9 +39,7 @@ public class DataReaderClosingEventData : DataReaderEventData
         DateTimeOffset startTime)
         : base(
             eventDefinition, messageGenerator, command, dataReader, context, commandId, connectionId, recordsAffected, readCount, startTime)
-    {
-        IsAsync = async;
-    }
+        => IsAsync = async;
 
     /// <summary>
     ///     Indicates whether or not the operation is being executed asynchronously.

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IFilteredQueryFixtureBase
 {
     private readonly Dictionary<bool, ISetSource> _expectedDataCache = new();
@@ -437,6 +439,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         }
     }
 
-    protected override void Seed(InheritanceContext context)
-        => InheritanceContext.Seed(context, UseGeneratedKeys);
+    protected override Task SeedAsync(InheritanceContext context)
+        => InheritanceContext.SeedAsync(context, UseGeneratedKeys);
 }

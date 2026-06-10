@@ -1,7 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TrimmingTestDir>$([MSBuild]::NormalizeDirectory('$(ArtifactsBinDir)', 'trimmingTests'))</TrimmingTestDir>
-    <TrimmingTestProjectsDir>$([MSBuild]::NormalizeDirectory('$(TrimmingTestDir)', 'projects'))</TrimmingTestProjectsDir>
+    <TrimmingTestProjectsDir>$([MSBuild]::NormalizeDirectory('$(ArtifactsBinDir)'))</TrimmingTestProjectsDir>
     <ProjectTemplate>$(MSBuildThisFileDirectory)project.csproj.template</ProjectTemplate>	
     <Nullable>enable</Nullable>
   </PropertyGroup>

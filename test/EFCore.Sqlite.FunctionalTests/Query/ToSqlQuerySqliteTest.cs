@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class ToSqlQuerySqliteTest : ToSqlQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

@@ -1190,14 +1190,9 @@ public class RelationshipDiscoveryConventionTest
         return entityBuilder;
     }
 
-    private class TestModelChangeListener : IEntityTypeAddedConvention
+    private class TestModelChangeListener(Action<IConventionEntityTypeBuilder>[] onEntityAdded) : IEntityTypeAddedConvention
     {
-        private readonly Action<IConventionEntityTypeBuilder>[] _onEntityAdded;
-
-        public TestModelChangeListener(Action<IConventionEntityTypeBuilder>[] onEntityAdded)
-        {
-            _onEntityAdded = onEntityAdded;
-        }
+        private readonly Action<IConventionEntityTypeBuilder>[] _onEntityAdded = onEntityAdded;
 
         public void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,

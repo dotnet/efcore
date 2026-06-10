@@ -21,9 +21,7 @@ public class OwnedNavigationTemporalTableBuilder
     /// </summary>
     [EntityFrameworkInternal]
     public OwnedNavigationTemporalTableBuilder(OwnedNavigationBuilder referenceOwnershipBuilder)
-    {
-        _referenceOwnershipBuilder = referenceOwnershipBuilder;
-    }
+        => _referenceOwnershipBuilder = referenceOwnershipBuilder;
 
     /// <summary>
     ///     Configures a history table for the entity mapped to a temporal table.

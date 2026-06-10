@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<CompositeKeysContext>, IQueryFixtureBase
 {
     protected override string StoreName
@@ -361,8 +363,8 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
             .IsRequired(false);
     }
 
-    protected override void Seed(CompositeKeysContext context)
-        => CompositeKeysData.Seed(context);
+    protected override Task SeedAsync(CompositeKeysContext context)
+        => CompositeKeysData.SeedAsync(context);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(

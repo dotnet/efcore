@@ -3,11 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ManyToManyQueryInMemoryTest : ManyToManyQueryTestBase<ManyToManyQueryInMemoryFixture>
-{
-    public ManyToManyQueryInMemoryTest(ManyToManyQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-}
+public class ManyToManyQueryInMemoryTest(ManyToManyQueryInMemoryFixture fixture)
+    : ManyToManyQueryTestBase<ManyToManyQueryInMemoryFixture>(fixture);

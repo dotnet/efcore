@@ -7,6 +7,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
@@ -25,7 +27,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
     [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
     [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
-    public virtual void Save_optional_many_to_one_dependents_with_alternate_key(
+    public virtual Task Save_optional_many_to_one_dependents_with_alternate_key(
         ChangeMechanism changeMechanism,
         bool useExistingEntities)
     {
@@ -39,7 +41,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         OptionalAk2Derived new2d = null;
         OptionalAk2MoreDerived new2dd = null;
 
-        ExecuteWithStrategyInTransaction(
+        return ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 new1 = context.CreateProxy<OptionalAk1>(e => e.AlternateId = Guid.NewGuid());
@@ -57,10 +59,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b, new2ca, new2cb);
                     context.SaveChanges();
                 }
-            },
-            context =>
+
+                return Task.CompletedTask;
+            }, async context =>
             {
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -182,7 +185,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
     [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
     [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
-    public virtual void Save_required_many_to_one_dependents_with_alternate_key(
+    public virtual Task Save_required_many_to_one_dependents_with_alternate_key(
         ChangeMechanism changeMechanism,
         bool useExistingEntities)
     {
@@ -197,7 +200,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         RequiredAk2Derived new2d = null;
         RequiredAk2MoreDerived new2dd = null;
 
-        ExecuteWithStrategyInTransaction(
+        return ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 newRoot = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
@@ -251,10 +254,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.AddRange(newRoot, new1, new1d, new1dd, new2a, new2d, new2dd, new2b, new2ca, new2cb);
                     context.SaveChanges();
                 }
-            },
-            context =>
+
+                return Task.CompletedTask;
+            }, async context =>
             {
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -373,13 +377,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
     [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
     [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
-    public virtual void Save_removed_optional_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
+    public virtual Task Save_removed_optional_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
     {
         Root root;
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                root = LoadRoot(context);
+                root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -432,12 +436,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 Assert.Null(removed1.ParentId);
                 Assert.Null(removed2.ParentId);
                 Assert.Null(removed2c.ParentId);
-            },
-            context =>
+            }, async context =>
             {
                 if ((changeMechanism & ChangeMechanism.Fk) == 0)
                 {
-                    var loadedRoot = LoadRoot(context);
+                    var loadedRoot = await LoadRootAsync(context);
 
                     if (!DoesLazyLoading)
                     {
@@ -455,17 +458,17 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData((int)ChangeMechanism.Principal)]
     [InlineData((int)ChangeMechanism.Dependent)]
     [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
-    public virtual void Save_removed_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
+    public virtual Task Save_removed_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
     {
         Root root = null;
         RequiredAk2 removed2 = null;
         RequiredComposite2 removed2c = null;
         RequiredAk1 removed1 = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                root = LoadRoot(context);
+                root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -512,10 +515,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 Assert.Null(removed1.Parent);
                 Assert.Null(removed2.Parent);
                 Assert.Null(removed2c.Parent);
-            },
-            context =>
+            }, async context =>
             {
-                var loadedRoot = LoadRoot(context);
+                var loadedRoot = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -544,20 +546,20 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned(
+    public virtual Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
     {
         var removedId = 0;
         List<int> orphanedIds = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -599,10 +601,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Same(root, removed.Parent);
                 Assert.Equal(2, removed.Children.Count());
-            },
-            context =>
+            }, async context =>
             {
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -627,7 +628,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted(
+    public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
     {
@@ -635,13 +636,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         List<int> orphanedIds = null;
         List<int> orphanedIdCs = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -694,12 +695,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     Assert.Same(root, removed.Parent);
                     Assert.Equal(2, removed.Children.Count());
                 }
-            },
-            context =>
+            }, async context =>
             {
                 if (cascadeDeleteTiming != CascadeTiming.Never)
                 {
-                    var root = LoadRoot(context);
+                    var root = await LoadRootAsync(context);
 
                     if (!DoesLazyLoading)
                     {
@@ -726,7 +726,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+    public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
     {
@@ -734,10 +734,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         List<int> orphanedIds = null;
         List<int> orphanedIdCs = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -787,10 +787,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Same(root, removed.Parent);
                 Assert.Empty(removed.Children); // Never loaded
-            },
-            context =>
+                return Task.CompletedTask;
+            }, async context =>
             {
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -816,7 +816,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
+    public virtual Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
     {
@@ -824,10 +824,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         List<int> orphanedIds = null;
         List<int> orphanedIdCs = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -888,10 +888,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Same(root, removed.Parent);
                 Assert.Empty(removed.Children); // Never loaded
-            },
-            context =>
+                return Task.CompletedTask;
+            }, async context =>
             {
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -923,7 +923,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_starting_detached(
+    public virtual Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned_starting_detached(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
     {
@@ -935,10 +935,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         List<OptionalAk2> orphaned = null;
         List<OptionalComposite2> orphanedC = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                root = LoadRoot(context);
+                root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -993,10 +993,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Same(root, removed.Parent);
                 Assert.Equal(2, removed.Children.Count());
-            },
-            context =>
+                return Task.CompletedTask;
+            }, async context =>
             {
-                root = LoadRoot(context);
+                root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -1022,7 +1022,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
+    public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
     {
@@ -1034,10 +1034,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         List<RequiredAk2> cascadeRemoved = null;
         List<RequiredComposite2> cascadeRemovedC = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                root = LoadRoot(context);
+                root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -1098,12 +1098,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     Assert.Same(root, removed.Parent);
                     Assert.Equal(2, removed.Children.Count());
                 }
-            },
-            context =>
+
+                return Task.CompletedTask;
+            }, async context =>
             {
                 if (cascadeDeleteTiming != CascadeTiming.Never)
                 {
-                    root = LoadRoot(context);
+                    root = await LoadRootAsync(context);
 
                     if (!DoesLazyLoading)
                     {
@@ -1130,7 +1131,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
     [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_detached_when_Added(
+    public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_detached_when_Added(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
     {
@@ -1138,13 +1139,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         List<int> orphanedIds = null;
         List<int> orphanedIdCs = null;
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                var root = LoadRoot(context);
+                var root = await LoadRootAsync(context);
 
                 if (!DoesLazyLoading)
                 {
@@ -1227,12 +1228,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     Assert.Same(root, removed.Parent);
                     Assert.Equal(3, removed.Children.Count());
                 }
-            },
-            context =>
+            }, async context =>
             {
                 if (cascadeDeleteTiming != CascadeTiming.Never)
                 {
-                    var root = LoadRoot(context);
+                    var root = await LoadRootAsync(context);
 
                     if (!DoesLazyLoading)
                     {

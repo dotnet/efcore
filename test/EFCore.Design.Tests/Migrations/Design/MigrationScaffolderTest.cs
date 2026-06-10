@@ -85,25 +85,26 @@ public class MigrationsScaffolderTest
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                     new MigrationsAnnotationProvider(
                         new MigrationsAnnotationProviderDependencies()),
+                    new RelationalAnnotationProvider(
+                        new RelationalAnnotationProviderDependencies()),
                     services.GetRequiredService<IRowIdentityMapFactory>(),
                     services.GetRequiredService<CommandBatchPreparerDependencies>()),
                 idGenerator,
                 new MigrationsCodeGeneratorSelector(
-                    new[]
-                    {
-                        new CSharpMigrationsGenerator(
-                            new MigrationsCodeGeneratorDependencies(
-                                sqlServerTypeMappingSource,
-                                sqlServerAnnotationCodeGenerator),
-                            new CSharpMigrationsGeneratorDependencies(
-                                code,
-                                new CSharpMigrationOperationGenerator(
-                                    new CSharpMigrationOperationGeneratorDependencies(
-                                        code)),
-                                new CSharpSnapshotGenerator(
-                                    new CSharpSnapshotGeneratorDependencies(
-                                        code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
-                    }),
+                [
+                    new CSharpMigrationsGenerator(
+                        new MigrationsCodeGeneratorDependencies(
+                            sqlServerTypeMappingSource,
+                            sqlServerAnnotationCodeGenerator),
+                        new CSharpMigrationsGeneratorDependencies(
+                            code,
+                            new CSharpMigrationOperationGenerator(
+                                new CSharpMigrationOperationGeneratorDependencies(
+                                    code)),
+                            new CSharpSnapshotGenerator(
+                                new CSharpSnapshotGeneratorDependencies(
+                                    code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
+                ]),
                 historyRepository,
                 reporter,
                 new MockProvider(),
@@ -121,17 +122,17 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<IModelRuntimeInitializer>(),
                     services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
                     services.GetRequiredService<IRelationalCommandDiagnosticsLogger>(),
-                    services.GetRequiredService<IDatabaseProvider>())));
+                    services.GetRequiredService<IDatabaseProvider>(),
+                    services.GetRequiredService<IMigrationsModelDiffer>(),
+                    services.GetRequiredService<IDesignTimeModel>(),
+                    services.GetRequiredService<IDbContextOptions>(),
+                    services.GetRequiredService<IExecutionStrategy>())));
     }
 
     // ReSharper disable once UnusedTypeParameter
-    private class GenericContext<T> : DbContext
-    {
-    }
+    private class GenericContext<T> : DbContext;
 
-    private class ContextWithSnapshot : DbContext
-    {
-    }
+    private class ContextWithSnapshot : DbContext;
 
     [DbContext(typeof(ContextWithSnapshot))]
     private class ContextWithSnapshotModelSnapshot : ModelSnapshot
@@ -143,6 +144,8 @@ public class MigrationsScaffolderTest
 
     private class MockHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public string GetBeginIfExistsScript(string migrationId)
             => null;
 
@@ -175,6 +178,18 @@ public class MigrationsScaffolderTest
 
         public string GetInsertScript(HistoryRow row)
             => null;
+
+        public void Create()
+            => throw new NotImplementedException();
+
+        public Task CreateAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
+            => throw new NotImplementedException();
+
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
     }
 
     private class MockProvider : IDatabaseProvider

@@ -185,9 +185,14 @@ public static class RelationalAnnotationNames
     public const string TptMappingStrategy = "TPT";
 
     /// <summary>
-    ///     The name for database model annotation.
+    ///     The name for relational model annotation.
     /// </summary>
     public const string RelationalModel = Prefix + "RelationalModel";
+
+    /// <summary>
+    ///     The name for relational model factory annotation.
+    /// </summary>
+    public const string RelationalModelFactory = Prefix + "RelationalModelFactory";
 
     /// <summary>
     ///     The name for default mappings annotations.
@@ -320,6 +325,11 @@ public static class RelationalAnnotationNames
     public const string ContainerColumnName = Prefix + "ContainerColumnName";
 
     /// <summary>
+    ///     The column type for the container column to which the object is mapped.
+    /// </summary>
+    public const string ContainerColumnType = Prefix + nameof(ContainerColumnType);
+
+    /// <summary>
     ///     The name for the annotation specifying container column type mapping.
     /// </summary>
     [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
@@ -334,4 +344,80 @@ public static class RelationalAnnotationNames
     ///     The name for store (database) type annotations.
     /// </summary>
     public const string StoreType = Prefix + "StoreType";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly ISet<string> AllNames = new HashSet<string>
+    {
+        ColumnName,
+        ColumnOrder,
+        ColumnType,
+        DefaultValueSql,
+        ComputedColumnSql,
+        IsStored,
+        DefaultValue,
+        TableName,
+        Schema,
+        ViewName,
+        ViewSchema,
+        FunctionName,
+        DeleteStoredProcedure,
+        InsertStoredProcedure,
+        UpdateStoredProcedure,
+        SqlQuery,
+        Comment,
+        Collation,
+        DefaultSchema,
+        Name,
+#pragma warning disable CS0618 // Type or member is obsolete
+        SequencePrefix,
+#pragma warning restore CS0618 // Type or member is obsolete
+        Sequences,
+        CheckConstraints,
+        Filter,
+        DbFunctions,
+        MaxIdentifierLength,
+        IsFixedLength,
+        ViewDefinitionSql,
+        IsTableExcludedFromMigrations,
+        MappingStrategy,
+        RelationalModel,
+        RelationalModelFactory,
+        DefaultMappings,
+        DefaultColumnMappings,
+        TableMappings,
+        TableColumnMappings,
+        ViewMappings,
+        ViewColumnMappings,
+        FunctionMappings,
+        FunctionColumnMappings,
+        InsertStoredProcedureMappings,
+        InsertStoredProcedureResultColumnMappings,
+        InsertStoredProcedureParameterMappings,
+        DeleteStoredProcedureMappings,
+        DeleteStoredProcedureParameterMappings,
+        UpdateStoredProcedureMappings,
+        UpdateStoredProcedureResultColumnMappings,
+        UpdateStoredProcedureParameterMappings,
+        SqlQueryMappings,
+        SqlQueryColumnMappings,
+        ForeignKeyMappings,
+        TableIndexMappings,
+        UniqueConstraintMappings,
+        MappingFragments,
+        RelationalOverrides,
+        ModelDependencies,
+        FieldValueGetter,
+        ContainerColumnName,
+        ContainerColumnType,
+#pragma warning disable CS0618 // Type or member is obsolete
+        ContainerColumnTypeMapping,
+#pragma warning restore CS0618 // Type or member is obsolete
+        JsonPropertyName,
+        StoreType
+    };
 }

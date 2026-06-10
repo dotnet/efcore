@@ -3,18 +3,43 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindFunctionsQueryRelationalTestBase<TFixture> : NorthwindFunctionsQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindFunctionsQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : NorthwindFunctionsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindFunctionsQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
+    // StartsWith with StringComparison not supported in relational databases, where the column collation is used to control comparison
+    // semantics.
+    public override Task String_StartsWith_with_StringComparison_Ordinal(bool async)
+        => AssertTranslationFailed(() => base.String_StartsWith_with_StringComparison_Ordinal(async));
 
-    protected virtual bool CanExecuteQueryString
-        => false;
+    // StartsWith with StringComparison not supported in relational databases, where the column collation is used to control comparison
+    // semantics.
+    public override Task String_StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertTranslationFailed(() => base.String_StartsWith_with_StringComparison_OrdinalIgnoreCase(async));
+
+    // EndsWith with StringComparison not supported in relational databases, where the column collation is used to control comparison
+    // semantics.
+    public override Task String_EndsWith_with_StringComparison_Ordinal(bool async)
+        => AssertTranslationFailed(() => base.String_EndsWith_with_StringComparison_Ordinal(async));
+
+    // EndsWith with StringComparison not supported in relational databases, where the column collation is used to control comparison
+    // semantics.
+    public override Task String_EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertTranslationFailed(() => base.String_EndsWith_with_StringComparison_OrdinalIgnoreCase(async));
+
+    // Contains with StringComparison not supported in relational databases, where the column collation is used to control comparison
+    // semantics.
+    public override Task String_Contains_with_StringComparison_Ordinal(bool async)
+        => AssertTranslationFailed(() => base.String_Contains_with_StringComparison_Ordinal(async));
+
+    // Contains with StringComparison not supported in relational databases, where the column collation is used to control comparison
+    // semantics.
+    public override Task String_Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertTranslationFailed(() => base.String_Contains_with_StringComparison_OrdinalIgnoreCase(async));
 
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

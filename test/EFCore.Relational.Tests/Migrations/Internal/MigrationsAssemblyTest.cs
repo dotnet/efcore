@@ -60,9 +60,7 @@ public class MigrationsAssemblyTest
             new MigrationsIdGenerator(),
             logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
 
-    private class Context : DbContext
-    {
-    }
+    private class Context : DbContext;
 
     [DbContext(typeof(Context))]
     [Migration("20150302103100_Flutter")]

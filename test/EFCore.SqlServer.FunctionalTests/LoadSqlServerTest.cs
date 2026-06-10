@@ -3,13 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class LoadSqlServerTest : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
 {
     public LoadSqlServerTest(LoadSqlServerFixture fixture)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public override async Task Lazy_load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
     {
@@ -1809,7 +1809,7 @@ WHERE 0 = 1
         catch
         {
             var methodCallLine = Environment.StackTrace.Split(
-                new[] { Environment.NewLine },
+                [Environment.NewLine],
                 StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;

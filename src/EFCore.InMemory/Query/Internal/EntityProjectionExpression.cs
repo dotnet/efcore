@@ -143,9 +143,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
                 InMemoryStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
         }
 
-        return _navigationExpressionsCache.TryGetValue(navigation, out var expression)
-            ? expression
-            : null;
+        return _navigationExpressionsCache.GetValueOrDefault(navigation);
     }
 
     /// <summary>

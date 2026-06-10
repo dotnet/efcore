@@ -22,9 +22,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
     /// </summary>
     public EntityGraphAttacher(
         IEntityEntryGraphIterator graphIterator)
-    {
-        _graphIterator = graphIterator;
-    }
+        => _graphIterator = graphIterator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,7 +153,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                 internalEntityEntry,
                 node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
         {
-            (_visited ??= new HashSet<object>()).Add(internalEntityEntry.Entity);
+            (_visited ??= []).Add(internalEntityEntry.Entity);
         }
         else
         {

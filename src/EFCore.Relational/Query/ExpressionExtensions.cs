@@ -34,4 +34,23 @@ public static class ExpressionExtensions
 
         return null;
     }
+
+    /// <summary>
+    ///     Infers type mapping from given <see cref="SqlExpression" />s.
+    /// </summary>
+    /// <param name="expressions">Expressions to search for to find the type mapping.</param>
+    /// <returns>A relational type mapping inferred from the expressions.</returns>
+    public static RelationalTypeMapping? InferTypeMapping(IReadOnlyList<SqlExpression> expressions)
+    {
+        for (var i = 0; i < expressions.Count; i++)
+        {
+            var sql = expressions[i];
+            if (sql.TypeMapping != null)
+            {
+                return sql.TypeMapping;
+            }
+        }
+
+        return null;
+    }
 }

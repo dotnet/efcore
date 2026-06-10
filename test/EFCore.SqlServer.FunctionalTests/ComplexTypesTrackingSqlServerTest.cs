@@ -3,9 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ComplexTypesTrackingSqlServerTest(
-        ComplexTypesTrackingSqlServerTest.SqlServerFixture fixture,
-        ITestOutputHelper testOutputHelper)
+    ComplexTypesTrackingSqlServerTest.SqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : ComplexTypesTrackingSqlServerTestBase<ComplexTypesTrackingSqlServerTest.SqlServerFixture>(fixture, testOutputHelper)
 {
     public class SqlServerFixture : SqlServerFixtureBase
@@ -16,8 +18,8 @@ public class ComplexTypesTrackingSqlServerTest(
 }
 
 public class ComplexTypesTrackingProxiesSqlServerTest(
-        ComplexTypesTrackingProxiesSqlServerTest.SqlServerFixture fixture,
-        ITestOutputHelper testOutputHelper)
+    ComplexTypesTrackingProxiesSqlServerTest.SqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : ComplexTypesTrackingSqlServerTestBase<ComplexTypesTrackingProxiesSqlServerTest.SqlServerFixture>(fixture, testOutputHelper)
 {
     // Fields can't be proxied

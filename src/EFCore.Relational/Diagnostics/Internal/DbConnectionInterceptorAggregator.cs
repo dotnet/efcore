@@ -20,14 +20,9 @@ public class DbConnectionInterceptorAggregator : InterceptorAggregator<IDbConnec
     protected override IDbConnectionInterceptor CreateChain(IEnumerable<IDbConnectionInterceptor> interceptors)
         => new CompositeDbConnectionInterceptor(interceptors);
 
-    private sealed class CompositeDbConnectionInterceptor : IDbConnectionInterceptor
+    private sealed class CompositeDbConnectionInterceptor(IEnumerable<IDbConnectionInterceptor> interceptors) : IDbConnectionInterceptor
     {
-        private readonly IDbConnectionInterceptor[] _interceptors;
-
-        public CompositeDbConnectionInterceptor(IEnumerable<IDbConnectionInterceptor> interceptors)
-        {
-            _interceptors = interceptors.ToArray();
-        }
+        private readonly IDbConnectionInterceptor[] _interceptors = interceptors.ToArray();
 
         public InterceptionResult<DbConnection> ConnectionCreating(
             ConnectionCreatingEventData eventData,

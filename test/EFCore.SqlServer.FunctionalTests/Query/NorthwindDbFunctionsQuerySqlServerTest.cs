@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -117,6 +119,44 @@ SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] = N'maria anders' COLLATE Latin1_General_CS_AS
 """);
+    }
+
+    public override async Task Collate_is_null(bool async)
+    {
+        await base.Collate_is_null(async);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL
+""");
+    }
+
+    public override Task Least(bool async)
+        => AssertTranslationFailed(() => base.Least(async));
+
+    public override Task Greatest(bool async)
+        => AssertTranslationFailed(() => base.Greatest(async));
+
+    public override Task Least_with_nullable_value_type(bool async)
+        => AssertTranslationFailed(() => base.Least_with_nullable_value_type(async));
+
+    public override Task Greatest_with_nullable_value_type(bool async)
+        => AssertTranslationFailed(() => base.Greatest_with_nullable_value_type(async));
+
+    public override async Task Least_with_parameter_array_is_not_supported(bool async)
+    {
+        await base.Least_with_parameter_array_is_not_supported(async);
+
+        AssertSql();
+    }
+
+    public override async Task Greatest_with_parameter_array_is_not_supported(bool async)
+    {
+        await base.Greatest_with_parameter_array_is_not_supported(async);
+
+        AssertSql();
     }
 
     protected override string CaseInsensitiveCollation
@@ -515,6 +555,24 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
 """);
     }
 
+    [ConditionalFact]
+    public async Task PatIndex_literal()
+    {
+        using var context = CreateContext();
+        var result = await context.Employees
+            .Where(c => EF.Functions.PatIndex("%Nancy%", c.FirstName) == 1)
+            .ToListAsync();
+
+        Assert.Equal(1u, result.First().EmployeeID);
+
+        AssertSql(
+            """
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
+""");
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Year(bool async)
@@ -780,9 +838,9 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)
 
         AssertSql(
             """
-SELECT CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
+SELECT CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)
+WHERE CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit) = CAST(1 AS bit)
 """);
     }
 
@@ -828,12 +886,9 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarch
 
         AssertSql(
             """
-SELECT CASE
-    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) = 1 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT ~CAST(ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) ^ 1 AS bit)
 FROM [Orders] AS [o]
-WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
+WHERE ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) <> 1
 """);
     }
 
@@ -850,10 +905,7 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
 
         AssertSql(
             """
-SELECT CASE
-    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT ~CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) ^ 1 AS bit)
 FROM [Order Details] AS [o]
 WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
 """);
@@ -946,17 +998,17 @@ WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 1
 
         AssertSql(
             """
-@__dateTime_0='1919-12-12T10:20:15.0000000' (DbType = DateTime)
-@__dateTime_Month_2='12'
-@__dateTime_Day_3='12'
-@__dateTime_Hour_4='10'
-@__dateTime_Minute_5='20'
-@__dateTime_Second_6='15'
-@__dateTime_Millisecond_7='0'
+@__dateTime_7='1919-12-12T10:20:15.0000000' (DbType = DateTime)
+@__dateTime_Month_1='12'
+@__dateTime_Day_2='12'
+@__dateTime_Hour_3='10'
+@__dateTime_Minute_4='20'
+@__dateTime_Second_5='15'
+@__dateTime_Millisecond_6='0'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__dateTime_Millisecond_7)
+WHERE @__dateTime_7 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_1, @__dateTime_Day_2, @__dateTime_Hour_3, @__dateTime_Minute_4, @__dateTime_Second_5, @__dateTime_Millisecond_6)
 """);
     }
 
@@ -1012,13 +1064,13 @@ WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)
 
         AssertSql(
             """
-@__date_0='1919-12-12T00:00:00.0000000' (DbType = Date)
-@__date_Month_2='12'
-@__date_Day_3='12'
+@__date_3='1919-12-12T00:00:00.0000000' (DbType = Date)
+@__date_Month_1='12'
+@__date_Day_2='12'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__date_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__date_Month_2, @__date_Day_3)
+WHERE @__date_3 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__date_Month_1, @__date_Day_2)
 """);
     }
 
@@ -1080,17 +1132,17 @@ WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE(
 
             AssertSql(
                 """
-@__dateTime_0='1919-12-12T10:20:15.0000000'
-@__dateTime_Month_2='12'
-@__dateTime_Day_3='12'
-@__dateTime_Hour_4='10'
-@__dateTime_Minute_5='20'
-@__dateTime_Second_6='15'
-@__fractions_7='9999999'
+@__dateTime_7='1919-12-12T10:20:15.0000000'
+@__dateTime_Month_1='12'
+@__dateTime_Day_2='12'
+@__dateTime_Hour_3='10'
+@__dateTime_Minute_4='20'
+@__dateTime_Second_5='15'
+@__fractions_6='9999999'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__fractions_7, 7)
+WHERE @__dateTime_7 > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_1, @__dateTime_Day_2, @__dateTime_Hour_3, @__dateTime_Minute_4, @__dateTime_Second_5, @__fractions_6, 7)
 """);
         }
     }
@@ -1155,19 +1207,19 @@ WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(yea
 
             AssertSql(
                 """
-@__dateTimeOffset_0='1919-12-12T10:20:15.0000000+01:30'
-@__dateTimeOffset_Month_2='12'
-@__dateTimeOffset_Day_3='12'
-@__dateTimeOffset_Hour_4='10'
-@__dateTimeOffset_Minute_5='20'
-@__dateTimeOffset_Second_6='15'
-@__fractions_7='5'
-@__hourOffset_8='1'
-@__minuteOffset_9='30'
+@__dateTimeOffset_9='1919-12-12T10:20:15.0000000+01:30'
+@__dateTimeOffset_Month_1='12'
+@__dateTimeOffset_Day_2='12'
+@__dateTimeOffset_Hour_3='10'
+@__dateTimeOffset_Minute_4='20'
+@__dateTimeOffset_Second_5='15'
+@__fractions_6='5'
+@__hourOffset_7='1'
+@__minuteOffset_8='30'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTimeOffset_0 > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @__dateTimeOffset_Month_2, @__dateTimeOffset_Day_3, @__dateTimeOffset_Hour_4, @__dateTimeOffset_Minute_5, @__dateTimeOffset_Second_6, @__fractions_7, @__hourOffset_8, @__minuteOffset_9, 7)
+WHERE @__dateTimeOffset_9 > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @__dateTimeOffset_Month_1, @__dateTimeOffset_Day_2, @__dateTimeOffset_Hour_3, @__dateTimeOffset_Minute_4, @__dateTimeOffset_Second_5, @__fractions_6, @__hourOffset_7, @__minuteOffset_8, 7)
 """);
         }
     }
@@ -1225,15 +1277,15 @@ WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 
 
         AssertSql(
             """
-@__dateTime_0='1919-12-12T23:20:00.0000000' (DbType = DateTime)
-@__dateTime_Month_2='12'
-@__dateTime_Day_3='12'
-@__dateTime_Hour_4='23'
-@__dateTime_Minute_5='20'
+@__dateTime_5='1919-12-12T23:20:00.0000000' (DbType = DateTime)
+@__dateTime_Month_1='12'
+@__dateTime_Day_2='12'
+@__dateTime_Hour_3='23'
+@__dateTime_Minute_4='20'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5)
+WHERE @__dateTime_5 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_1, @__dateTime_Day_2, @__dateTime_Hour_3, @__dateTime_Minute_4)
 """);
     }
 
@@ -1314,21 +1366,21 @@ WHERE 100 < DATALENGTH([o].[OrderDate])
     [ConditionalFact]
     public virtual void DataLength_compare_with_local_variable()
     {
-        int? lenght = 100;
+        int? length = 100;
         using (var context = CreateContext())
         {
             var count = context.Orders
-                .Count(c => lenght < EF.Functions.DataLength(c.OrderDate));
+                .Count(c => length < EF.Functions.DataLength(c.OrderDate));
 
             Assert.Equal(0, count);
 
             AssertSql(
                 """
-@__lenght_0='100' (Nullable = true)
+@__length_1='100' (Nullable = true)
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__lenght_0 < DATALENGTH([o].[OrderDate])
+WHERE @__length_1 < DATALENGTH([o].[OrderDate])
 """);
         }
     }

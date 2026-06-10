@@ -681,7 +681,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     [ConditionalFact]
     public void Add_dbfunction_ignore()
     {
-        var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), Array.Empty<Type>());
+        var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), []);
 
         Execute(
             _ => { },
@@ -1251,6 +1251,56 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
         => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?;
 
     [ConditionalFact]
+    public void Dont_rebuild_key_index_with_unchanged_fillfactor_option()
+        => Execute(
+            source => source
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasFillFactor(90);
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                    }),
+            target => target
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasFillFactor(90);
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                    }),
+            operations => Assert.Equal(0, operations.Count));
+
+    [ConditionalFact]
+    public void Dont_rebuild_composite_key_index_with_unchanged_fillfactor_option()
+        => Execute(
+            source => source
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.HasAlternateKey("Zip", "City").HasFillFactor(90);
+                    }),
+            target => target
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.HasAlternateKey("Zip", "City").HasFillFactor(90);
+                    }),
+            operations => Assert.Equal(0, operations.Count));
+
+    [ConditionalFact]
     public void Dont_rebuild_index_with_unchanged_fillfactor_option()
         => Execute(
             source => source
@@ -1276,6 +1326,230 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                             .HasFillFactor(90);
                     }),
             operations => Assert.Equal(0, operations.Count));
+
+    [ConditionalFact]
+    public void Rebuild_key_index_when_adding_fillfactor_option()
+        => Execute(
+            _ => { },
+            source => source
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                        x.HasIndex("Zip");
+                    }),
+            target => target
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasFillFactor(90);
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                        x.HasIndex("Zip");
+                    }),
+            upOps =>
+            {
+                Assert.Equal(2, upOps.Count);
+
+                var operation1 = Assert.IsType<DropPrimaryKeyOperation>(upOps[0]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("PK_Address", operation1.Name);
+
+                Assert.Empty(operation1.GetAnnotations());
+
+                var operation2 = Assert.IsType<AddPrimaryKeyOperation>(upOps[1]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("PK_Address", operation1.Name);
+
+                var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
+                Assert.NotNull(annotation);
+
+                var annotationValue = Assert.IsType<int>(annotation.Value);
+                Assert.Equal(90, annotationValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(2, downOps.Count);
+
+                var operation1 = Assert.IsType<DropPrimaryKeyOperation>(downOps[0]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("PK_Address", operation1.Name);
+
+                Assert.Empty(operation1.GetAnnotations());
+
+                var operation2 = Assert.IsType<AddPrimaryKeyOperation>(downOps[1]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("PK_Address", operation1.Name);
+
+                Assert.Empty(operation2.GetAnnotations());
+            });
+
+    [ConditionalFact]
+    public void Rebuild_key_index_with_different_fillfactor_value()
+        => Execute(
+            source => source
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasFillFactor(50);
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                    }),
+            target => target
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").HasFillFactor(90);
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                    }),
+            operations =>
+            {
+                Assert.Equal(2, operations.Count);
+
+                var operation1 = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("PK_Address", operation1.Name);
+
+                Assert.Empty(operation1.GetAnnotations());
+
+                var operation2 = Assert.IsType<AddPrimaryKeyOperation>(operations[1]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("PK_Address", operation1.Name);
+
+                var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
+                Assert.NotNull(annotation);
+
+                var annotationValue = Assert.IsType<int>(annotation.Value);
+
+                Assert.Equal(90, annotationValue);
+            });
+
+    [ConditionalFact]
+    public void Rebuild_composite_key_index_when_adding_fillfactor_option()
+        => Execute(
+            _ => { },
+            source => source
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                        x.HasAlternateKey("Zip", "City");
+                    }),
+            target => target
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                        x.HasAlternateKey("Zip", "City").HasFillFactor(90);
+                    }),
+            upOps =>
+            {
+                Assert.Equal(2, upOps.Count);
+
+                var operation1 = Assert.IsType<DropUniqueConstraintOperation>(upOps[0]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("AK_Address_Zip_City", operation1.Name);
+
+                Assert.Empty(operation1.GetAnnotations());
+
+                var operation2 = Assert.IsType<AddUniqueConstraintOperation>(upOps[1]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("AK_Address_Zip_City", operation1.Name);
+
+                var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
+                Assert.NotNull(annotation);
+
+                var annotationValue = Assert.IsType<int>(annotation.Value);
+                Assert.Equal(90, annotationValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(2, downOps.Count);
+
+                var operation1 = Assert.IsType<DropUniqueConstraintOperation>(downOps[0]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("AK_Address_Zip_City", operation1.Name);
+
+                Assert.Empty(operation1.GetAnnotations());
+
+                var operation2 = Assert.IsType<AddUniqueConstraintOperation>(downOps[1]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("AK_Address_Zip_City", operation1.Name);
+
+                Assert.Empty(operation2.GetAnnotations());
+            });
+
+    [ConditionalFact]
+    public void Rebuild_composite_key_index_with_different_fillfactor_value()
+        => Execute(
+            source => source
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                        x.HasIndex("Zip");
+                        x.HasAlternateKey("Zip", "City").HasFillFactor(50);
+                    }),
+            target => target
+                .Entity(
+                    "Address",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Zip");
+                        x.Property<string>("City");
+                        x.Property<string>("Street");
+                        x.HasIndex("Zip");
+                        x.HasAlternateKey("Zip", "City").HasFillFactor(90);
+                    }),
+            operations =>
+            {
+                Assert.Equal(2, operations.Count);
+
+                var operation1 = Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("AK_Address_Zip_City", operation1.Name);
+
+                Assert.Empty(operation1.GetAnnotations());
+
+                var operation2 = Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
+                Assert.Equal("Address", operation1.Table);
+                Assert.Equal("AK_Address_Zip_City", operation1.Name);
+
+                var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
+                Assert.NotNull(annotation);
+
+                var annotationValue = Assert.IsType<int>(annotation.Value);
+
+                Assert.Equal(90, annotationValue);
+            });
 
     [ConditionalFact]
     public void Rebuild_index_when_adding_fillfactor_option()
@@ -1625,5 +1899,58 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 var annotationValue = Assert.IsType<DataCompressionType>(annotation.Value);
 
                 Assert.Equal(DataCompressionType.Page, annotationValue);
+            });
+
+    [ConditionalFact]
+    public void Alter_column_from_nvarchar_max_to_json_for_owned_type()
+        => Execute(
+            _ => { },
+            source => source.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.OwnsOne(
+                        "Details", "Details", d =>
+                        {
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
+                            d.ToJson();
+                        });
+                }),
+            target => target.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.OwnsOne(
+                        "Details", "Details", d =>
+                        {
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
+                            d.ToJson().HasColumnType("json");
+                        });
+                }),
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(upOps[0]);
+                Assert.Equal("Blog", operation.Table);
+                Assert.Equal("Details", operation.Name);
+                Assert.Equal("json", operation.ColumnType);
+                Assert.Equal("nvarchar(max)", operation.OldColumn.ColumnType);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(downOps[0]);
+                Assert.Equal("Blog", operation.Table);
+                Assert.Equal("Details", operation.Name);
+                Assert.Equal("nvarchar(max)", operation.ColumnType);
+                Assert.Equal("json", operation.OldColumn.ColumnType);
             });
 }

@@ -5,17 +5,13 @@ using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class MockMethodInfo : MethodInfo
+#nullable disable
+
+public class MockMethodInfo(Type declaringType, Action<object[]> invoke = null) : MethodInfo
 {
-    private readonly Action<object[]> _invoke;
+    private readonly Action<object[]> _invoke = invoke;
 
-    public MockMethodInfo(Type declaringType, Action<object[]> invoke = null)
-    {
-        _invoke = invoke;
-        DeclaringType = declaringType;
-    }
-
-    public override Type DeclaringType { get; }
+    public override Type DeclaringType { get; } = declaringType;
 
     public override ICustomAttributeProvider ReturnTypeCustomAttributes
         => throw new NotImplementedException();

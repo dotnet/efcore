@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class AppendCorrelatedCollectionExpressionMutator : ExpressionMutator
+public class AppendCorrelatedCollectionExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    public AppendCorrelatedCollectionExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
-
     private bool ContainsCollectionNavigation(Type type)
         => Context.Model.FindEntityType(type)?.GetNavigations().Any(n => n.IsCollection) ?? false;
 
@@ -21,7 +16,7 @@ public class AppendCorrelatedCollectionExpressionMutator : ExpressionMutator
     public override Expression Apply(Expression expression, Random random)
     {
         var typeArgument = expression.Type.GetGenericArguments()[0];
-        var navigations = Context.Model.FindEntityType(typeArgument).GetNavigations().Where(n => n.IsCollection).ToList();
+        var navigations = Context.Model.FindEntityType(typeArgument)!.GetNavigations().Where(n => n.IsCollection).ToList();
 
         var i = random.Next(navigations.Count);
         var navigation = navigations[i];
@@ -40,7 +35,7 @@ public class AppendCorrelatedCollectionExpressionMutator : ExpressionMutator
             toList,
             Expression.Call(
                 where,
-                Expression.Property(outerPrm, navigation.PropertyInfo),
+                Expression.Property(outerPrm, navigation.PropertyInfo!),
                 Expression.Lambda(Expression.Constant(true), innerPrm)));
 
         var resultExpression = Expression.Call(

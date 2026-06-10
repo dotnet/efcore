@@ -3,20 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class ModelBuilding101RelationalTestBase : ModelBuilding101TestBase
 {
     protected override ModelMetadata GetModelMetadata(Context101 context)
         => new RelationalModelMetadata(context.Model, context.Database.GenerateCreateScript());
 
-    protected class RelationalModelMetadata : ModelMetadata
+    protected class RelationalModelMetadata(IModel model, string schema) : ModelMetadata(model)
     {
-        public RelationalModelMetadata(IModel model, string schema)
-            : base(model)
-        {
-            Schema = schema;
-        }
-
-        public virtual string Schema { get; }
+        public virtual string Schema { get; } = schema;
 
         protected bool Equals(RelationalModelMetadata other)
             => base.Equals(other)

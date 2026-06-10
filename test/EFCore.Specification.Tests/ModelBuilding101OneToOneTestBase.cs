@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
+
+#nullable disable
 
 public abstract partial class ModelBuilding101TestBase
 {
@@ -1277,7 +1279,7 @@ public abstract partial class ModelBuilding101TestBase
 
     [ConditionalFact]
     public virtual void OneToOneRequiredWithAlternateKeyTest()
-        => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
+        => Model101Test();
 
     protected class OneToOneRequiredWithAlternateKey
     {

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -15,12 +16,6 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class CosmosPropertyExtensions
 {
-    private static readonly bool _useOldBehavior31664 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;
-
-    private static readonly bool _useOldBehavior32363 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32363", out var enabled32363) && enabled32363;
-
     /// <summary>
     ///     Returns the property name that the property is mapped to when targeting Cosmos.
     /// </summary>
@@ -40,10 +35,8 @@ public static class CosmosPropertyExtensions
         {
             var pk = property.FindContainingPrimaryKey();
             if (pk != null
-                && ((property.ClrType == typeof(int)
-                    && (property.IsShadowProperty() || _useOldBehavior32363 || _useOldBehavior31664))
+                && ((property.ClrType == typeof(int) && property.IsShadowProperty())
                     || ownership.Properties.Contains(property))
-                && (property.IsShadowProperty() || !_useOldBehavior32363 || _useOldBehavior31664)
                 && pk.Properties.Count == ownership.Properties.Count + (ownership.IsUnique ? 0 : 1)
                 && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
             {
@@ -81,12 +74,58 @@ public static class CosmosPropertyExtensions
             fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.
+    ///     Gets the <see cref="ConfigurationSource" /> for the property name that the property is mapped to when targeting Cosmos.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>
-    ///     The <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.
+    ///     The <see cref="ConfigurationSource" /> for the property name that the property is mapped to when targeting Cosmos.
     /// </returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(CosmosAnnotationNames.PropertyName)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the definition of the vector stored in this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>Returns the definition of the vector stored in this property.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static CosmosVectorType? GetVectorType(this IReadOnlyProperty property)
+        => (CosmosVectorType?)property[CosmosAnnotationNames.VectorType];
+
+    /// <summary>
+    ///     Sets the definition of the vector stored in this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="vectorType">The type of vector stored in the property.</param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static void SetVectorType(this IMutableProperty property, CosmosVectorType? vectorType)
+        => property.SetOrRemoveAnnotation(CosmosAnnotationNames.VectorType, vectorType);
+
+    /// <summary>
+    ///     Sets the definition of the vector stored in this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="vectorType">The type of vector stored in the property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static CosmosVectorType? SetVectorType(
+        this IConventionProperty property,
+        CosmosVectorType? vectorType,
+        bool fromDataAnnotation = false)
+        => (CosmosVectorType?)property.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.VectorType,
+            vectorType,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the definition of the vector stored in this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>
+    ///     The <see cref="ConfigurationSource" /> for the definition of the vector stored in this property.
+    /// </returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static ConfigurationSource? GetVectorTypeConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(CosmosAnnotationNames.VectorType)?.GetConfigurationSource();
 }

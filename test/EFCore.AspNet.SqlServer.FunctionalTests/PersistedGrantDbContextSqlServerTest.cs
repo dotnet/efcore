@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class PersistedGrantDbContextSqlServerTest
-    : PersistedGrantDbContextTestBase<PersistedGrantDbContextSqlServerTest.PersistedGrantDbContextSqlServerFixture>
+public class PersistedGrantDbContextSqlServerTest(PersistedGrantDbContextSqlServerTest.PersistedGrantDbContextSqlServerFixture fixture)
+    : PersistedGrantDbContextTestBase<PersistedGrantDbContextSqlServerTest.PersistedGrantDbContextSqlServerFixture>(fixture)
 {
-    public PersistedGrantDbContextSqlServerTest(PersistedGrantDbContextSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class PersistedGrantDbContextSqlServerFixture : PersistedGrantDbContextFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

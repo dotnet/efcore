@@ -20,8 +20,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
-    private static readonly List<MethodInfo> SingleResultMethodInfos = new()
-    {
+    private static readonly List<MethodInfo> SingleResultMethodInfos =
+    [
         QueryableMethods.FirstWithPredicate,
         QueryableMethods.FirstWithoutPredicate,
         QueryableMethods.FirstOrDefaultWithPredicate,
@@ -34,9 +34,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         QueryableMethods.LastWithoutPredicate,
         QueryableMethods.LastOrDefaultWithPredicate,
         QueryableMethods.LastOrDefaultWithoutPredicate
-        //QueryableMethodProvider.ElementAtMethodInfo,
-        //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
-    };
+    ];
 
     private static readonly MemberInfo ValueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
 
@@ -50,13 +48,13 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
 
     private static readonly MethodInfo LikeMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-        nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
+        nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo LikeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-        nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) })!;
+        nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo RandomMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-        nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) })!;
+        nameof(DbFunctionsExtensions.Random), [typeof(DbFunctions)])!;
 
     private static readonly MethodInfo RandomNextDoubleMethodInfo = typeof(Random).GetRuntimeMethod(
         nameof(Random.NextDouble), Type.EmptyTypes)!;
@@ -69,7 +67,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     // Regex special chars defined here:
     // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
     private static readonly char[] RegexSpecialChars
-        = { '.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '\\' };
+        = ['.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '\\'];
 
     private static readonly string DefaultEscapeRegexCharsPattern = BuildEscapeRegexCharsPattern(RegexSpecialChars);
 
@@ -762,7 +760,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
 
             @object = left;
-            arguments = new[] { right };
+            arguments = [right];
         }
         else if (method.Name == nameof(object.Equals)
                  && methodCallExpression.Object == null
@@ -800,7 +798,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            arguments = new[] { left, right };
+            arguments = [left, right];
         }
         else if (method.IsGenericMethod
                  && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
@@ -822,7 +820,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            arguments = new[] { enumerable, item };
+            arguments = [enumerable, item];
         }
         else if (methodCallExpression.Arguments.Count == 1
                  && method.IsContainsMethod())
@@ -845,7 +843,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
 
             @object = enumerable;
-            arguments = new[] { item };
+            arguments = [item];
         }
         else
         {
@@ -884,10 +882,13 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         // if object is nullable, add null safeguard before calling the function
-        // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard
+        // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard,
+        // and Nullable<>.ToString when the object is a nullable value type.
         if (methodCallExpression.Object != null
             && @object!.Type.IsNullableType()
-            && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault))
+            && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault)
+            && (!@object!.Type.IsNullableValueType()
+                || methodCallExpression.Method.Name != nameof(Nullable<int>.ToString)))
         {
             var result = (Expression)methodCallExpression.Update(
                 Expression.Convert(@object, methodCallExpression.Object.Type),
@@ -1659,7 +1660,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return _found;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (_found)

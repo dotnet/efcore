@@ -16,7 +16,10 @@ public enum SqlServerCondition
     SupportsOnlineIndexes = 1 << 7,
     SupportsTemporalTablesCascadeDelete = 1 << 8,
     SupportsUtf8 = 1 << 9,
-    SupportsFunctions2019 = 1 << 10,
-    SupportsFunctions2017 = 1 << 11,
-    SupportsJsonPathExpressions = 1 << 12,
+    SupportsJsonPathExpressions = 1 << 10,
+    SupportsSqlClr = 1 << 11,
+    SupportsFunctions2017 = 1 << 12,
+    SupportsFunctions2019 = 1 << 13,
+    SupportsFunctions2022 = 1 << 14,
+    SupportsJsonType = 1 << 15,
 }

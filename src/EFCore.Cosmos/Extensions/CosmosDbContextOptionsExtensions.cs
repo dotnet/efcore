@@ -17,6 +17,49 @@ namespace Microsoft.EntityFrameworkCore;
 public static class CosmosDbContextOptionsExtensions
 {
     /// <summary>
+    ///     Configures the context to connect to an Azure Cosmos database. The connection details need to be specified in a separate call.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TContext">The type of context to be configured.</typeparam>
+    /// <param name="optionsBuilder">The builder being used to configure the context.</param>
+    /// <param name="cosmosOptionsAction">An action to allow Cosmos-specific configuration.</param>
+    /// <returns>The options builder so that further configuration can be chained.</returns>
+    public static DbContextOptionsBuilder<TContext> UseCosmos<TContext>(
+        this DbContextOptionsBuilder<TContext> optionsBuilder,
+        Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction)
+        where TContext : DbContext
+        => (DbContextOptionsBuilder<TContext>)UseCosmos(
+            (DbContextOptionsBuilder)optionsBuilder,
+            cosmosOptionsAction);
+
+    /// <summary>
+    ///     Configures the context to connect to an Azure Cosmos database. The connection details need to be specified in a separate call.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="optionsBuilder">The builder being used to configure the context.</param>
+    /// <param name="cosmosOptionsAction">An action to allow Cosmos-specific configuration.</param>
+    /// <returns>The options builder so that further configuration can be chained.</returns>
+    public static DbContextOptionsBuilder UseCosmos(
+        this DbContextOptionsBuilder optionsBuilder,
+        Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction)
+    {
+        Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+        Check.NotNull(cosmosOptionsAction, nameof(cosmosOptionsAction));
+
+        ConfigureWarnings(optionsBuilder);
+
+        cosmosOptionsAction.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
+
+        return optionsBuilder;
+    }
+
+    /// <summary>
     ///     Configures the context to connect to an Azure Cosmos database.
     /// </summary>
     /// <remarks>
@@ -76,6 +119,8 @@ public static class CosmosDbContextOptionsExtensions
             .WithAccountEndpoint(accountEndpoint)
             .WithAccountKey(accountKey)
             .WithDatabaseName(databaseName);
+
+        ConfigureWarnings(optionsBuilder);
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -145,6 +190,8 @@ public static class CosmosDbContextOptionsExtensions
             .WithTokenCredential(tokenCredential)
             .WithDatabaseName(databaseName);
 
+        ConfigureWarnings(optionsBuilder);
+
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
         cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
@@ -206,10 +253,25 @@ public static class CosmosDbContextOptionsExtensions
             .WithConnectionString(connectionString)
             .WithDatabaseName(databaseName);
 
+        ConfigureWarnings(optionsBuilder);
+
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
         cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
+    }
+
+    private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
+    {
+        var coreOptionsExtension
+            = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
+            coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
+                CosmosEventId.SyncNotSupported, WarningBehavior.Throw));
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
     }
 }

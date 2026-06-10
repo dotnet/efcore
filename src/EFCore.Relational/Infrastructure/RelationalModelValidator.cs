@@ -3,7 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -33,9 +32,7 @@ public class RelationalModelValidator : ModelValidator
         ModelValidatorDependencies dependencies,
         RelationalModelValidatorDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -62,6 +59,42 @@ public class RelationalModelValidator : ModelValidator
         ValidateBoolsWithDefaults(model, logger);
         ValidateIndexProperties(model, logger);
         ValidateJsonEntities(model, logger);
+    }
+
+    /// <summary>
+    ///     Validates the mapping of primitive collection properties the model.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidatePrimitiveCollections(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidatePrimitiveCollections(model, logger);
+
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            ValidateType(entityType);
+        }
+
+        static void ValidateType(ITypeBase typeBase)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
+            {
+                if (property is { IsPrimitiveCollection: true }
+                    && property.GetTypeMapping().ElementTypeMapping?.ElementTypeMapping != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.NestedCollectionsNotSupported(
+                            property.ClrType.ShortDisplayName(), typeBase.DisplayName(), property.Name));
+                }
+            }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                ValidateType(complexProperty.ComplexType);
+            }
+        }
     }
 
     /// <summary>
@@ -280,7 +313,7 @@ public class RelationalModelValidator : ModelValidator
 
             if (!storedProcedures.TryGetValue(sprocId.Value, out var mappedTypes))
             {
-                mappedTypes = new List<IEntityType>();
+                mappedTypes = [];
                 storedProcedures[sprocId.Value] = mappedTypes;
             }
 
@@ -879,7 +912,7 @@ public class RelationalModelValidator : ModelValidator
             var table = tableId.Value;
             if (!result.TryGetValue(table, out var mappedTypes))
             {
-                mappedTypes = new List<IEntityType>();
+                mappedTypes = [];
                 result[table] = mappedTypes;
             }
 
@@ -1057,7 +1090,7 @@ public class RelationalModelValidator : ModelValidator
             var view = StoreObjectIdentifier.View(viewsName, entityType.GetViewSchema());
             if (!views.TryGetValue(view, out var mappedTypes))
             {
-                mappedTypes = new List<IEntityType>();
+                mappedTypes = [];
                 views[view] = mappedTypes;
             }
 
@@ -1197,7 +1230,7 @@ public class RelationalModelValidator : ModelValidator
         if (concurrencyColumns != null
             && storeObject.StoreObjectType == StoreObjectType.Table)
         {
-            missingConcurrencyTokens = new HashSet<string>();
+            missingConcurrencyTokens = [];
         }
 
         var propertyMappings = new Dictionary<string, IProperty>();
@@ -1940,8 +1973,8 @@ public class RelationalModelValidator : ModelValidator
         IKey key,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        if (entityType.GetTableName() != null
-            && (string?)entityType[RelationalAnnotationNames.MappingStrategy] == RelationalAnnotationNames.TpcMappingStrategy)
+        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && entityType.BaseType == null)
         {
             foreach (var storeGeneratedProperty in key.Properties.Where(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0))
             {
@@ -1982,9 +2015,10 @@ public class RelationalModelValidator : ModelValidator
                 var unmappedOwnedType = entityType.GetReferencingForeignKeys()
                     .Where(fk => fk.IsOwnership)
                     .Select(fk => fk.DeclaringEntityType)
-                    .FirstOrDefault(owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
-                        && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
-                        && !owned.IsMappedToJson());
+                    .FirstOrDefault(
+                        owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
+                            && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
+                            && !owned.IsMappedToJson());
                 if (unmappedOwnedType != null
                     && entityType.GetDerivedTypes().Any(derived => StoreObjectIdentifier.Create(derived, storeObjectType) != null))
                 {
@@ -2486,8 +2520,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ValidateData(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         foreach (var entityType in model.GetEntityTypes())
@@ -2497,11 +2530,13 @@ public class RelationalModelValidator : ModelValidator
                 throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
             }
 
-            foreach (var navigation in entityType.GetNavigations().Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
+            foreach (var navigation in entityType.GetNavigations()
+                         .Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
             {
                 if (entityType.GetSeedData().Any(x => x.TryGetValue(navigation.Name, out var _)))
                 {
-                    throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
                 }
             }
         }
@@ -2557,6 +2592,23 @@ public class RelationalModelValidator : ModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (entityType[RelationalAnnotationNames.ContainerColumnType] != null)
+            {
+                if (entityType.FindOwnership()?.PrincipalEntityType.IsOwned() == true)
+                {
+                    throw new InvalidOperationException(RelationalStrings.ContainerTypeOnNestedOwnedEntityType(entityType.DisplayName()));
+                }
+
+                if (!entityType.IsOwned()
+                    || entityType.GetContainerColumnName() == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.ContainerTypeOnNonContainer(entityType.DisplayName()));
+                }
+            }
+        }
+
         var tables = BuildSharedTableEntityMap(model.GetEntityTypes());
         foreach (var (table, mappedTypes) in tables)
         {
@@ -2736,23 +2788,24 @@ public class RelationalModelValidator : ModelValidator
         {
             if (primaryKeyProperty.GetJsonPropertyName() != null)
             {
-                // issue #28594
+                // Issue #28594
                 throw new InvalidOperationException(
                     RelationalStrings.JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey(
                         primaryKeyProperty.Name, jsonEntityType.DisplayName()));
             }
-        }
 
-        if (!ownership.IsUnique)
-        {
-            // for collection entities, make sure that ordinal key is not explicitly defined
-            var ordinalKeyProperty = primaryKeyProperties.Last();
-            if (!ordinalKeyProperty.IsOrdinalKeyProperty())
+            if (!ownership.IsUnique)
             {
-                // issue #28594
-                throw new InvalidOperationException(
-                    RelationalStrings.JsonEntityWithExplicitlyConfiguredOrdinalKey(
-                        jsonEntityType.DisplayName()));
+                // For collection entities, no key properties other than the generated ones are allowed because they
+                // will not be persisted.
+                if (!primaryKeyProperty.IsOrdinalKeyProperty()
+                    && !primaryKeyProperty.IsForeignKey())
+                {
+                    // issue #28594
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityWithExplicitlyConfiguredKey(
+                            jsonEntityType.DisplayName(), primaryKeyProperty.Name));
+                }
             }
         }
 
@@ -2780,8 +2833,13 @@ public class RelationalModelValidator : ModelValidator
         IEntityType jsonEntityType)
     {
         var jsonPropertyNames = new List<string>();
-        foreach (var property in jsonEntityType.GetDeclaredProperties().Where(p => !string.IsNullOrEmpty(p.GetJsonPropertyName())))
+        foreach (var property in jsonEntityType.GetDeclaredProperties())
         {
+            if (string.IsNullOrEmpty(property.GetJsonPropertyName()))
+            {
+                continue;
+            }
+
             if (property.TryGetDefaultValue(out var _))
             {
                 throw new InvalidOperationException(
@@ -2804,6 +2862,12 @@ public class RelationalModelValidator : ModelValidator
 
         foreach (var navigation in jsonEntityType.GetDeclaredNavigations())
         {
+            if (!navigation.TargetEntityType.IsMappedToJson()
+                || navigation.IsOnDependent)
+            {
+                continue;
+            }
+
             var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
             if (!jsonPropertyNames.Contains(jsonPropertyName))
             {

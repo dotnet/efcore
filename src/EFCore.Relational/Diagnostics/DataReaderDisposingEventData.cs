@@ -42,9 +42,7 @@ public class DataReaderDisposingEventData : DataReaderEventData
         TimeSpan duration)
         : base(
             eventDefinition, messageGenerator, command, dataReader, context, commandId, connectionId, recordsAffected, readCount, startTime)
-    {
-        Duration = duration;
-    }
+        => Duration = duration;
 
     /// <summary>
     ///     The duration from the time the data reader is created until it is disposed. This corresponds to the time reading

@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using Azure.Core;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 
@@ -102,14 +101,13 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual CosmosOptionsExtension WithAccountEndpoint(string? accountEndpoint)
     {
-        if (_connectionString != null)
-        {
-            throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
-        }
-
         var clone = Clone();
 
         clone._accountEndpoint = accountEndpoint;
+        if (accountEndpoint is not null)
+        {
+            clone._connectionString = null;
+        }
 
         return clone;
     }
@@ -131,14 +129,14 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual CosmosOptionsExtension WithAccountKey(string? accountKey)
     {
-        if (accountKey is not null && _connectionString is not null)
-        {
-            throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
-        }
-
         var clone = Clone();
 
         clone._accountKey = accountKey;
+        if (accountKey is not null)
+        {
+            clone._connectionString = null;
+            clone._tokenCredential = null;
+        }
 
         return clone;
     }
@@ -160,14 +158,14 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual CosmosOptionsExtension WithTokenCredential(TokenCredential? tokenCredential)
     {
-        if (tokenCredential is not null && _connectionString is not null)
-        {
-            throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
-        }
-
         var clone = Clone();
 
         clone._tokenCredential = tokenCredential;
+        if (tokenCredential is not null)
+        {
+            clone._connectionString = null;
+            clone._accountKey = null;
+        }
 
         return clone;
     }
@@ -189,14 +187,15 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual CosmosOptionsExtension WithConnectionString(string? connectionString)
     {
-        if (connectionString is not null && (_accountEndpoint != null || _accountKey != null || _tokenCredential != null))
-        {
-            throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
-        }
-
         var clone = Clone();
 
         clone._connectionString = connectionString;
+        if (connectionString is not null)
+        {
+            clone._accountEndpoint = null;
+            clone._accountKey = null;
+            clone._tokenCredential = null;
+        }
 
         return clone;
     }
@@ -593,15 +592,10 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     {
     }
 
-    private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
+    private sealed class ExtensionInfo(IDbContextOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
     {
         private string? _logFragment;
         private int? _serviceProviderHash;
-
-        public ExtensionInfo(IDbContextOptionsExtension extension)
-            : base(extension)
-        {
-        }
 
         private new CosmosOptionsExtension Extension
             => (CosmosOptionsExtension)base.Extension;

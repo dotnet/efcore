@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -33,9 +34,7 @@ public class ForeignKeyAttributeConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ForeignKeyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -52,7 +51,7 @@ public class ForeignKeyAttributeConvention :
         var foreignKeyNavigations = new List<PropertyInfo>();
         var unconfiguredNavigations = new List<PropertyInfo>();
         var inverses = new List<string>();
-        foreach (var candidatePair in Dependencies.MemberClassifier.GetNavigationCandidates(entityType))
+        foreach (var candidatePair in Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true))
         {
             var (targetType, shouldBeOwned) = candidatePair.Value;
             if (targetType != entityType.ClrType)
@@ -442,7 +441,7 @@ public class ForeignKeyAttributeConvention :
     }
 
     private bool IsNavigationCandidate(PropertyInfo propertyInfo, IConventionEntityType entityType)
-        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType).TryGetValue(propertyInfo, out _);
+        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true).TryGetValue(propertyInfo, out _);
 
     private static IReadOnlyList<string>? FindCandidateDependentPropertiesThroughNavigation(
         IConventionForeignKeyBuilder relationshipBuilder,

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
+#nullable disable
+
 public class OptionalDependentEntityAllOptional
 {
     public int Id { get; set; }

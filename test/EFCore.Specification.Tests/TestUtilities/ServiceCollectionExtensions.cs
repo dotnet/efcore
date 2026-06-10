@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
         ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
         ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         => (IServiceCollection)_addDbContext.MakeGenericMethod(contextType)
-            .Invoke(null, new object[] { serviceCollection, optionsAction, contextLifetime, optionsLifetime });
+            .Invoke(null, [serviceCollection, optionsAction, contextLifetime, optionsLifetime])!;
 
     private static readonly MethodInfo _addDbContextPool
         = typeof(EntityFrameworkServiceCollectionExtensions)
@@ -30,10 +30,10 @@ public static class ServiceCollectionExtensions
                     && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
                     && mi.GetGenericArguments().Length == 1);
 
-    public static IServiceCollection AddDbContextPool(
+    public static IServiceCollection AddPooledDbContextFactory(
         this IServiceCollection serviceCollection,
         Type contextType,
         Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
         => (IServiceCollection)_addDbContextPool.MakeGenericMethod(contextType)
-            .Invoke(null, new object[] { serviceCollection, optionsAction, 128 });
+            .Invoke(null, [serviceCollection, optionsAction, 128])!;
 }

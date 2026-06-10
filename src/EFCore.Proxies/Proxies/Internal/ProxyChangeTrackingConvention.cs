@@ -23,9 +23,7 @@ public class ProxyChangeTrackingConvention : IModelInitializedConvention
     /// </summary>
     public ProxyChangeTrackingConvention(
         ProxiesOptionsExtension? options)
-    {
-        _options = options;
-    }
+        => _options = options;
 
     /// <summary>
     ///     Called after a model is finalized.

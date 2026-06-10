@@ -27,22 +27,22 @@ public class ValueConverterSelector : IValueConverterSelector
 {
     private readonly ConcurrentDictionary<(Type ModelClrType, Type ProviderClrType), ValueConverterInfo> _converters = new();
 
-    private static readonly Type[] SignedPreferred = { typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal) };
+    private static readonly Type[] SignedPreferred = [typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal)];
 
     private static readonly Type[] UnsignedPreferred =
-    {
+    [
         typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
-    };
+    ];
 
-    private static readonly Type[] FloatingPreferred = { typeof(float), typeof(double), typeof(decimal) };
+    private static readonly Type[] FloatingPreferred = [typeof(float), typeof(double), typeof(decimal)];
 
     private static readonly Type[] CharPreferred =
-    {
+    [
         typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
-    };
+    ];
 
     private static readonly Type[] Numerics =
-    {
+    [
         typeof(int),
         typeof(long),
         typeof(short),
@@ -54,7 +54,7 @@ public class ValueConverterSelector : IValueConverterSelector
         typeof(decimal),
         typeof(double),
         typeof(float)
-    };
+    ];
 
     // ReSharper disable once InconsistentNaming
     private static readonly Type? _readOnlyIPAddressType = IPAddress.Loopback.GetType();
@@ -64,9 +64,7 @@ public class ValueConverterSelector : IValueConverterSelector
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ValueConverterSelector(ValueConverterSelectorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -484,7 +482,7 @@ public class ValueConverterSelector : IValueConverterSelector
         if (modelType.IsEnum)
         {
             foreach (var converterInfo in FindPreferredConversions(
-                         new[] { underlyingModelType }, modelType, providerType, converterType))
+                         [underlyingModelType], modelType, providerType, converterType))
             {
                 yield return converterInfo;
 

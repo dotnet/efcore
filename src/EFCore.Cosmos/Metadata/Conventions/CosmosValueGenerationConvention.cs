@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -26,9 +27,6 @@ public class CosmosValueGenerationConvention :
         : base(dependencies)
     {
     }
-
-    private static readonly bool _useOldBehavior31664 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;
 
     /// <summary>
     ///     Called after an annotation is changed on an entity type.
@@ -83,7 +81,7 @@ public class CosmosValueGenerationConvention :
                 if (pk != null
                     && !property.IsForeignKey()
                     && pk.Properties.Count == ownership.Properties.Count + 1
-                    && (property.IsShadowProperty() || _useOldBehavior31664)
+                    && property.IsShadowProperty()
                     && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
                 {
                     return ValueGenerated.OnAddOrUpdate;

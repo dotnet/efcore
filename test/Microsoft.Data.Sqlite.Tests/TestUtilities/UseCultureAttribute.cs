@@ -9,7 +9,7 @@ using Xunit.Sdk;
 namespace Microsoft.Data.Sqlite.TestUtilities;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public sealed class UseCultureAttribute : BeforeAfterTestAttribute
+public sealed class UseCultureAttribute(string culture, string uiCulture) : BeforeAfterTestAttribute
 {
     private CultureInfo? _originalCulture;
     private CultureInfo? _originalUICulture;
@@ -19,15 +19,8 @@ public sealed class UseCultureAttribute : BeforeAfterTestAttribute
     {
     }
 
-    public UseCultureAttribute(string culture, string uiCulture)
-    {
-        Culture = new CultureInfo(culture);
-        UICulture = new CultureInfo(uiCulture);
-    }
-
-    public CultureInfo Culture { get; }
-
-    public CultureInfo UICulture { get; }
+    public CultureInfo Culture { get; } = new(culture);
+    public CultureInfo UICulture { get; } = new(uiCulture);
 
     public override void Before(MethodInfo methodUnderTest)
     {

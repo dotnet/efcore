@@ -24,7 +24,7 @@ public class StoreFunctionParameter : Annotatable, IStoreFunctionParameter
         Function = function;
         Name = parameter.Name;
         StoreType = parameter.StoreType;
-        DbFunctionParameters = new List<IDbFunctionParameter> { parameter };
+        DbFunctionParameters = [parameter];
         parameter.StoreFunctionParameter = this;
     }
 

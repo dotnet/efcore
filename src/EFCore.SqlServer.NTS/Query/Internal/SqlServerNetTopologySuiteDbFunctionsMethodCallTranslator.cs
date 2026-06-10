@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerNetTopologySuiteDbFunctionsMethodCallTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo CurveToLineMethodInfo = typeof(SqlServerNetTopologySuiteDbFunctionsExtensions)
-        .GetMethod(nameof(SqlServerNetTopologySuiteDbFunctionsExtensions.CurveToLine), new[] { typeof(DbFunctions), typeof(Geometry) })!;
+        .GetMethod(nameof(SqlServerNetTopologySuiteDbFunctionsExtensions.CurveToLine), [typeof(DbFunctions), typeof(Geometry)])!;
 
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

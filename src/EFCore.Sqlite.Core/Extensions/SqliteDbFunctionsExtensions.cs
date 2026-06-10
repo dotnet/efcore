@@ -52,8 +52,8 @@ public static class SqliteDbFunctionsExtensions
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="value">The hexadecimal string.</param>
-    /// <returns>Decoded hexadecimal string as binary value.</returns>
-    public static byte[] Unhex(this DbFunctions _, string value)
+    /// <returns>Decoded hexadecimal string as binary value or <see langword="null" /> if <paramref name="value" /> is not an hexadecimal string.</returns>
+    public static byte[]? Unhex(this DbFunctions _, string value)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
 
     /// <summary>
@@ -66,8 +66,11 @@ public static class SqliteDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="value">The hexadecimal string.</param>
     /// <param name="ignoreChars">Characters that are ignored in <paramref name="value" />.</param>
-    /// <returns>Decoded hexadecimal string as binary value.</returns>
-    public static byte[] Unhex(this DbFunctions _, string value, string ignoreChars)
+    /// <returns>
+    ///     Decoded hexadecimal string as binary value or <see langword="null" /> if ignoring the characters from
+    ///     <paramref name="ignoreChars" /> in <paramref name="value" /> does not result in an hexadecimal string.
+    /// </returns>
+    public static byte[]? Unhex(this DbFunctions _, string value, string ignoreChars)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
 
     /// <summary>

@@ -68,7 +68,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     public new virtual InternalComplexTypeBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>
