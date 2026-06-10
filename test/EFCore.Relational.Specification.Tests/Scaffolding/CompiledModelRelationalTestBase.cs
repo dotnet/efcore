@@ -1541,5 +1541,8 @@ public partial class DbContextModel
 
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder)
-            .ConfigureWarnings(w => w.Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+            .ConfigureWarnings(
+                w => w.Ignore(
+                    RelationalEventId.ForeignKeyTpcPrincipalWarning,
+                    RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 }
