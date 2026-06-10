@@ -1752,6 +1752,9 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlServerKeyBuilderExtensions",
       "Methods": [
         {
+          "Member": "static bool CanSetDataCompression(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, Microsoft.EntityFrameworkCore.DataCompressionType? dataCompressionType, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "static bool CanSetFillFactor(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, int? fillFactor, bool fromDataAnnotation = false);"
         },
         {
@@ -1774,12 +1777,30 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder? IsClustered(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, bool? clustered, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder UseDataCompression(this Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder keyBuilder, Microsoft.EntityFrameworkCore.DataCompressionType dataCompressionType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder<TEntity> UseDataCompression<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder<TEntity> keyBuilder, Microsoft.EntityFrameworkCore.DataCompressionType dataCompressionType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder? UseDataCompression(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, Microsoft.EntityFrameworkCore.DataCompressionType? dataCompressionType, bool fromDataAnnotation = false);"
         }
       ]
     },
     {
       "Type": "static class Microsoft.EntityFrameworkCore.SqlServerKeyExtensions",
       "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DataCompressionType? GetDataCompression(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey key);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DataCompressionType? GetDataCompression(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey key, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetDataCompressionConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key);"
+        },
         {
           "Member": "static int? GetFillFactor(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey key);"
         },
@@ -1797,6 +1818,12 @@
         },
         {
           "Member": "static bool? IsClustered(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey key, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
+          "Member": "static void SetDataCompression(this Microsoft.EntityFrameworkCore.Metadata.IMutableKey key, Microsoft.EntityFrameworkCore.DataCompressionType? dataCompression);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DataCompressionType? SetDataCompression(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, Microsoft.EntityFrameworkCore.DataCompressionType? dataCompression, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static void SetFillFactor(this Microsoft.EntityFrameworkCore.Metadata.IMutableKey key, int? fillFactor);"

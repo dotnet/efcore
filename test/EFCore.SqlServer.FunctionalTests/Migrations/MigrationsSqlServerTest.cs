@@ -390,6 +390,44 @@ CREATE TABLE [People] (
 """);
     }
 
+    [Fact]
+    public virtual async Task Create_table_with_data_compression()
+    {
+        await Test(
+            _ => { },
+            builder =>
+            {
+                builder.Entity("People").Property<int>("TheKey");
+                builder.Entity("People").Property<Guid>("TheAlternateKey");
+                builder.Entity("People").HasKey("TheKey").UseDataCompression(DataCompressionType.Page);
+                builder.Entity("People").HasAlternateKey("TheAlternateKey").UseDataCompression(DataCompressionType.Row);
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+
+                // DATA_COMPRESSION is not currently reverse-engineered, so it round-trips as null on the
+                // scaffolded model (same as the index case); the generated SQL below is the real assertion.
+                var primaryKey = table.PrimaryKey;
+                Assert.NotNull(primaryKey);
+                Assert.Null(primaryKey[SqlServerAnnotationNames.DataCompression]);
+
+                var uniqueConstraint = table.UniqueConstraints.FirstOrDefault();
+                Assert.NotNull(uniqueConstraint);
+                Assert.Null(uniqueConstraint[SqlServerAnnotationNames.DataCompression]);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE [People] (
+    [TheKey] int NOT NULL IDENTITY,
+    [TheAlternateKey] uniqueidentifier NOT NULL,
+    CONSTRAINT [PK_People] PRIMARY KEY ([TheKey]) WITH (DATA_COMPRESSION = PAGE),
+    CONSTRAINT [AK_People_TheAlternateKey] UNIQUE ([TheAlternateKey]) WITH (DATA_COMPRESSION = ROW)
+);
+""");
+    }
+
     public override async Task Drop_table()
     {
         await base.Drop_table();

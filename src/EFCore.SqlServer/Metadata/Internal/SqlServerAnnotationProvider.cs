@@ -175,6 +175,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
         {
             yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
         }
+
+        if (key.GetDataCompression() is { } dataCompression)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.DataCompression, dataCompression);
+        }
     }
 
     /// <summary>

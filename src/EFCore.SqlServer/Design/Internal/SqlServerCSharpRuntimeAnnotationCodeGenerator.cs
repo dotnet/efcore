@@ -143,6 +143,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             var annotations = parameters.Annotations;
             annotations.Remove(SqlServerAnnotationNames.Clustered);
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
+            annotations.Remove(SqlServerAnnotationNames.DataCompression);
         }
 
         base.Generate(key, parameters);
@@ -156,6 +157,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             var annotations = parameters.Annotations;
             annotations.Remove(SqlServerAnnotationNames.Clustered);
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
+            annotations.Remove(SqlServerAnnotationNames.DataCompression);
         }
 
         base.Generate(uniqueConstraint, parameters);
