@@ -246,23 +246,34 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void ApplyProjection()
+    public void ApplyProjection(bool clientProjection = false)
     {
-        if (Projection.Any())
+        if (!Projection.Any())
         {
-            return;
+            var result = new Dictionary<ProjectionMember, Expression>();
+            foreach (var (projectionMember, expression) in _projectionMapping)
+            {
+                result[projectionMember] = Constant(
+                    AddToProjection(
+                        expression,
+                        projectionMember.Last?.Name));
+            }
+
+            _projectionMapping = result;
         }
 
-        var result = new Dictionary<ProjectionMember, Expression>();
-        foreach (var (projectionMember, expression) in _projectionMapping)
+        // A single projection is emitted as a Cosmos VALUE projection (SELECT VALUE c["a"]). When the projected value
+        // is a scalar nested inside an embedded object (e.g. an owned navigation or complex property), accessing it can
+        // produce undefined in Cosmos, and a VALUE projection silently filters those documents out. To keep this
+        // consistent with the multi-projection case (which projects a JSON object and surfaces undefined values - either
+        // throwing for non-nullable types or yielding null), demote such a projection to an object projection so the
+        // document is retained. Queries that explicitly guard against undefined (e.g. via a Where predicate) already
+        // filter those documents out before projection, so they are unaffected.
+        if (clientProjection
+            && _projection is [{ IsValueProjection: true, Expression: ScalarAccessExpression { Object: ObjectAccessExpression } } valueProjection])
         {
-            result[projectionMember] = Constant(
-                AddToProjection(
-                    expression,
-                    projectionMember.Last?.Name));
+            _projection[0] = new ProjectionExpression(valueProjection.Expression, valueProjection.Alias, isValueProjection: false);
         }
-
-        _projectionMapping = result;
     }
 
     /// <summary>

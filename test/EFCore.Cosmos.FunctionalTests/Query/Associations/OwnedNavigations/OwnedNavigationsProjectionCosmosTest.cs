@@ -31,55 +31,47 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c["RequiredAssociate"]["String"]
+SELECT c["RequiredAssociate"]["String"]
 FROM root c
 """);
     }
 
     public override async Task Select_property_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
-        // result to be filtered out entirely.
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.String),
-            ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.String),
-            queryTrackingBehavior: queryTrackingBehavior);
+        // A single property projection is emitted as an object projection (without VALUE) so that documents where the
+        // property access evaluates to undefined (e.g. OptionalAssociate is null) are retained rather than filtered out.
+        await base.Select_property_on_optional_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT VALUE c["OptionalAssociate"]["String"]
+SELECT c["OptionalAssociate"]["String"]
 FROM root c
 """);
     }
 
     public override async Task Select_value_type_property_on_null_associate_throws(QueryTrackingBehavior queryTrackingBehavior)
     {
-        // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
-        // result to be filtered out entirely.
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.Int),
-            ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.Int),
-            queryTrackingBehavior: queryTrackingBehavior);
+        // A single property projection is emitted as an object projection (without VALUE), so a value type property
+        // accessed on a null OptionalAssociate surfaces as undefined and throws in the shaper, just like the
+        // multi-property case.
+        await base.Select_value_type_property_on_null_associate_throws(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT VALUE c["OptionalAssociate"]["Int"]
+SELECT c["OptionalAssociate"]["Int"]
 FROM root c
 """);
     }
 
     public override async Task Select_nullable_value_type_property_on_null_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
-        // result to be filtered out entirely.
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => (int?)x.OptionalAssociate!.Int),
-            ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => (int?)x.OptionalAssociate!.Int),
-            queryTrackingBehavior: queryTrackingBehavior);
+        // A single property projection is emitted as an object projection (without VALUE) so that documents where the
+        // property access evaluates to undefined (e.g. OptionalAssociate is null) are retained rather than filtered out.
+        await base.Select_nullable_value_type_property_on_null_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT VALUE c["OptionalAssociate"]["Int"]
+SELECT c["OptionalAssociate"]["Int"]
 FROM root c
 """);
     }
@@ -220,7 +212,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c["RequiredAssociate"]["Int"]
+SELECT c["RequiredAssociate"]["Int"]
 FROM root c
 """);
     }
