@@ -238,6 +238,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, index, entityType);
 
         /// <summary>
+        ///     The include property '{property}' specified on the index {index} on entity type '{entityType}' traverses the complex collection '{complexCollection}'. Properties nested inside a complex collection are stored in a JSON document and cannot be included in an index.
+        /// </summary>
+        public static string IncludePropertyTraversesComplexCollection(object? property, object? index, object? entityType, object? complexCollection)
+            => string.Format(
+                GetString("IncludePropertyTraversesComplexCollection", nameof(property), nameof(index), nameof(entityType), nameof(complexCollection)),
+                property, index, entityType, complexCollection);
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.
         /// </summary>
         public static string IncompatibleSqlOutputClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlOutputClause, object? entityTypeWithoutSqlOutputClause)

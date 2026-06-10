@@ -602,10 +602,38 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    [Fact]
+    public void IncludeProperties_traversing_complex_collection_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Addresses, cb =>
+            {
+                cb.ToJson();
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Addresses.City");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyTraversesComplexCollection(
+                "Addresses.City", "{'Id'}", nameof(EntityWithIncludedComplexCollection), "Addresses"),
+            modelBuilder);
+    }
+
     protected class EntityWithIncludedComplex
     {
         public int Id { get; set; }
         public required EntityWithIncludedComplexAddress Address { get; set; }
+    }
+
+    protected class EntityWithIncludedComplexCollection
+    {
+        public int Id { get; set; }
+        public required List<EntityWithIncludedComplexAddress> Addresses { get; set; }
     }
 
     protected class EntityWithIncludedComplexAddress

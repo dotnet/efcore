@@ -259,6 +259,20 @@ public class SqlServerModelValidator(
                         index.DeclaringEntityType.DisplayName()));
             }
 
+            foreach (var includeProperty in includeProperties)
+            {
+                var traversedComplexCollection = FindTraversedComplexCollection(index.DeclaringEntityType, includeProperty);
+                if (traversedComplexCollection != null)
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.IncludePropertyTraversesComplexCollection(
+                            includeProperty,
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName(),
+                            traversedComplexCollection));
+                }
+            }
+
             var duplicateProperty = includeProperties
                 .GroupBy(i => i)
                 .Where(g => g.Count() > 1)
@@ -285,6 +299,32 @@ public class SqlServerModelValidator(
                         coveredProperty,
                         index.DisplayName()));
             }
+        }
+
+        // Returns the name of the first complex collection traversed by the given dotted include-property path, or
+        // <see langword="null" /> if the path does not traverse any complex collection. Properties nested inside a complex
+        // collection live in a JSON document and so cannot be included in a covering index.
+        static string? FindTraversedComplexCollection(IReadOnlyEntityType entityType, string propertyPath)
+        {
+            var segments = propertyPath.Split('.');
+            IReadOnlyTypeBase currentType = entityType;
+            for (var i = 0; i < segments.Length - 1; i++)
+            {
+                var complexProperty = currentType.FindComplexProperty(segments[i]);
+                if (complexProperty == null)
+                {
+                    return null;
+                }
+
+                if (complexProperty.IsCollection)
+                {
+                    return complexProperty.Name;
+                }
+
+                currentType = complexProperty.ComplexType;
+            }
+
+            return null;
         }
     }
 
