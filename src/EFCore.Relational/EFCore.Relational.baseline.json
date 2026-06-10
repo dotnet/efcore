@@ -7352,10 +7352,16 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.JsonQueryExpression BindStructuralProperty(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase structuralProperty);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? FindJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
+        },
+        {
           "Member": "override bool Equals(object? obj);"
         },
         {
           "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement GetJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.JsonQueryExpression MakeNullable();"
@@ -16600,6 +16606,9 @@
           "Member": "static string JsonCantNavigateToParentEntity(object? jsonEntity, object? parentEntity, object? navigation);"
         },
         {
+          "Member": "static string JsonElementMappingNotFound(object? structuralType, object? name, object? columnName);"
+        },
+        {
           "Member": "static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn);"
         },
         {
@@ -16658,6 +16667,9 @@
         },
         {
           "Member": "static string JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(object? asNoTrackingWithIdentityResolution);"
+        },
+        {
+          "Member": "static string JsonQueryExpressionWithoutUnderlyingColumn(object? structuralType);"
         },
         {
           "Member": "static string JsonRequiredEntityWithNullJson(object? entity);"

@@ -574,6 +574,9 @@
   <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
     <value>Navigation from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}' is not supported. Entities mapped to JSON can only navigate to their children.</value>
   </data>
+  <data name="JsonElementMappingNotFound" xml:space="preserve">
+    <value>No JSON element mapping was found for '{structuralType}.{name}' on column '{columnName}'.</value>
+  </data>
   <data name="JsonEmptyString" xml:space="preserve">
     <value>The database returned the empty string when a JSON object was expected.</value>
   </data>
@@ -651,6 +654,9 @@
   </data>
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
     <value>The JSON property name should only be configured on nested owned navigations.</value>
+  </data>
+  <data name="JsonQueryExpressionWithoutUnderlyingColumn" xml:space="preserve">
+    <value>The JSON query expression for '{structuralType}' has no underlying column.</value>
   </data>
   <data name="JsonQueryLinqOperatorsNotSupported" xml:space="preserve">
     <value>Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.</value>

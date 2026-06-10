@@ -203,7 +203,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             nameof(SqlServerQueryableExtensions.FreeTextTable) => "FREETEXTTABLE",
             nameof(SqlServerQueryableExtensions.ContainsTable) => "CONTAINSTABLE",
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException($"Unexpected full-text method '{method.Name}'.")
         };
 
         var (columnsExpression, searchText, languageTerm, topN) = methodCallExpression.Arguments switch
@@ -217,7 +217,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             // Use an empty array to signal "*" (all columns)
             [_, var s, var l, var t] => ((Expression)Expression.NewArrayInit(typeof(ColumnExpression)), s, l, t),
 
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException("Unexpected argument shape for full-text table function.")
         };
 
         if (TranslateExpression(searchText) is not { } translatedSearchText
@@ -525,28 +525,19 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // (for owned JSON entities)
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
-            if (property.GetJsonPropertyName() is { } jsonPropertyName)
+            if (jsonQueryExpression.FindJsonElement(property) is { PropertyName: { } jsonPropertyName } element)
             {
+                var typeMapping = element.StoreTypeMapping!;
                 columnInfos.Add(
                     new SqlServerOpenJsonExpression.ColumnInfo
                     {
                         Name = jsonPropertyName,
-                        TypeMapping = property.GetRelationalTypeMapping(),
+                        TypeMapping = typeMapping,
                         Path = [new PathSegment(jsonPropertyName)],
-                        AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
+                        AsJson = typeMapping.ElementTypeMapping is not null
                     });
             }
         }
-
-        // Find the container column in the relational model to get its type mapping.
-        // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
-        // See #38060 about improving this.
-        var containerColumnName = structuralType.GetContainerColumnName()!;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        var containerColumn = structuralType.ContainingEntityType.GetViewOrTableMappings()
-            .Select(m => m.Table.FindColumn(containerColumnName))
-            .First(c => c is not null)!;
-#pragma warning restore EF1001
 
         var nestedJsonPropertyNames = jsonQueryExpression.StructuralType switch
         {
@@ -555,12 +546,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     .Where(n => n.ForeignKey.IsOwnership
                         && n.TargetEntityType.IsMappedToJson()
                         && n.ForeignKey.PrincipalToDependent == n)
-                    .Select(n => n.TargetEntityType.GetJsonPropertyName() ?? throw new UnreachableException()),
+                    .Select(n => n.TargetEntityType.GetJsonPropertyName()                    
+                    ?? throw new UnreachableException("JSON-mapped navigation without a JSON property name.")),
 
             IComplexType complexType
-                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName() ?? throw new UnreachableException()),
+                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName()
+                    ?? throw new UnreachableException("JSON-mapped complex property without a JSON property name.")),
 
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException("Unexpected structural type when transforming JSON query to table.")
         };
 
         foreach (var jsonPropertyName in nestedJsonPropertyNames)
@@ -569,7 +562,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 new SqlServerOpenJsonExpression.ColumnInfo
                 {
                     Name = jsonPropertyName,
-                    TypeMapping = containerColumn.StoreTypeMapping,
+                    TypeMapping = jsonQueryExpression.JsonColumn.TypeMapping!,
                     Path = [new PathSegment(jsonPropertyName)],
                     AsJson = true
                 });
@@ -1012,7 +1005,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             JsonScalarExpression { TypeMapping.ElementTypeMapping: not null } j => ((ColumnExpression)j.Json, j.Path, false),
             JsonQueryExpression j => (j.JsonColumn, j.Path, false),
 
-            _ => throw new UnreachableException(),
+            _ => throw new UnreachableException("Unexpected target expression for JSON partial update setter."),
         };
 
         // SQL Server 2025 introduced the modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method),

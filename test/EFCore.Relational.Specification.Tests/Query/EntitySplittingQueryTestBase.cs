@@ -2255,7 +2255,53 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_split_entity_with_renamed_columns_uses_default_mappings(bool async)
+    {
+        await InitializeContextFactoryAsync(mb =>
+        {
+            mb.Entity<EntityOne>().SplitToTable(
+                "SplitEntityOnePart",
+                tb =>
+                {
+                    // Configure column names on the split table that differ from the default (logical) column names.
+                    // This makes the table mappings diverge from the default mappings, which is what FromSql must use.
+                    tb.Property(e => e.IntValue3).HasColumnName("CustomIntValue3");
+                    tb.Property(e => e.StringValue3).HasColumnName("CustomStringValue3");
+                    tb.Property(e => e.IntValue4);
+                    tb.Property(e => e.StringValue4);
+                });
+        });
+
+        using var context = CreateContext();
+
+        // The raw SQL exposes the split-table columns under their default (logical) names. If FromSql incorrectly used
+        // the table mappings (CustomIntValue3/CustomStringValue3) rather than the default mappings, the composed query
+        // would reference columns that don't exist in the raw SQL's result.
+        var sql = NormalizeDelimitersInRawString(
+            @"SELECT [m].*, [s].[CustomStringValue3] AS [StringValue3], [s].[StringValue4], [s].[CustomIntValue3] AS [IntValue3], [s].[IntValue4]
+              FROM [EntityOne] AS [m]
+              INNER JOIN [SplitEntityOnePart] AS [s] ON [m].[Id] = [s].[Id]");
+
+        var query = context.Set<EntityOne>().FromSqlRaw(sql).OrderBy(e => e.Id);
+
+        var actual = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var expected = GetExpectedData().Set<EntityOne>().OrderBy(e => e.Id).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            AssertEqual(expected[i], actual[i]);
+        }
+    }
+
     #region TestHelpers
+
+    protected string NormalizeDelimitersInRawString(string sql)
+        => ((RelationalTestStore)NonSharedTestStore).NormalizeDelimitersInRawString(sql);
 
     protected async Task AssertQuery<TResult>(
         bool async,

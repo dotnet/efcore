@@ -1210,6 +1210,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, parentEntity, navigation);
 
         /// <summary>
+        ///     No JSON element mapping was found for '{structuralType}.{name}' on column '{columnName}'.
+        /// </summary>
+        public static string JsonElementMappingNotFound(object? structuralType, object? name, object? columnName)
+            => string.Format(
+                GetString("JsonElementMappingNotFound", nameof(structuralType), nameof(name), nameof(columnName)),
+                structuralType, name, columnName);
+
+        /// <summary>
         ///     The database returned the empty string when a JSON object was expected.
         /// </summary>
         public static string JsonEmptyString
@@ -1404,6 +1412,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string JsonPropertyNameShouldBeConfiguredOnNestedNavigation
             => GetString("JsonPropertyNameShouldBeConfiguredOnNestedNavigation");
+
+        /// <summary>
+        ///     The JSON query expression for '{structuralType}' has no underlying column.
+        /// </summary>
+        public static string JsonQueryExpressionWithoutUnderlyingColumn(object? structuralType)
+            => string.Format(
+                GetString("JsonQueryExpressionWithoutUnderlyingColumn", nameof(structuralType)),
+                structuralType);
 
         /// <summary>
         ///     Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.
