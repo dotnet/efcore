@@ -603,6 +603,26 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [Fact]
+    public void IncludeProperties_on_non_json_complex_property_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(e => e.Address, cb =>
+            {
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Address");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyNotFound("Address", "{'Id'}", nameof(EntityWithIncludedComplex)),
+            modelBuilder);
+    }
+
+    [Fact]
     public void IncludeProperties_inside_json_complex_collection_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();

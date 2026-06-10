@@ -247,7 +247,13 @@ public class SqlServerModelValidator(
         {
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var notFound = includeProperties
-                .FirstOrDefault(i => RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, i) == null);
+                .FirstOrDefault(i =>
+                {
+                    var propertyBase = RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, i);
+                    return propertyBase == null
+                        || (propertyBase is IComplexProperty complexProperty
+                            && !complexProperty.ComplexType.IsMappedToJson());
+                });
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
             if (notFound != null)
