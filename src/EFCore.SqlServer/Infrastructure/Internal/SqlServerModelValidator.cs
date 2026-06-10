@@ -301,9 +301,9 @@ public class SqlServerModelValidator(
             }
         }
 
-        // Returns the name of the first complex collection traversed by the given dotted include-property path, or
-        // <see langword="null" /> if the path does not traverse any complex collection. Properties nested inside a complex
-        // collection live in a JSON document and so cannot be included in a covering index.
+        // Returns the name of the first complex collection traversed by the given dotted include-property path, or null if
+        // the path does not traverse any complex collection. Properties nested inside a complex collection live in a JSON
+        // document and so cannot be included in a covering index.
         static string? FindTraversedComplexCollection(IReadOnlyEntityType entityType, string propertyPath)
         {
             var segments = propertyPath.Split('.');
