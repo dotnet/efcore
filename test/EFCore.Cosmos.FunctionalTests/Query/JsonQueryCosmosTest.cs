@@ -877,22 +877,7 @@ ORDER BY c["Id"]
         => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(async);
 
     public override Task Json_collection_leaf_filter_in_projection(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_collection_leaf_filter_in_projection(a);
-
-                AssertSql(
-                    """
-SELECT VALUE ARRAY(
-    SELECT VALUE o
-    FROM o IN c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
-    WHERE (o["SomethingSomething"] != "Baz"))
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-ORDER BY c["Id"]
-""");
-            });
+        => AssertTranslationFailed(() => base.Json_collection_leaf_filter_in_projection(async));
 
     public override Task Json_collection_of_primitives_contains_in_predicate(bool async)
         => Fixture.NoSyncTest(
