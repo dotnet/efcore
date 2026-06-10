@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class ScrapReason
 {
     public ScrapReason()
-    {
-        WorkOrder = new HashSet<WorkOrder>();
-    }
+        => WorkOrder = new HashSet<WorkOrder>();
 
     public short ScrapReasonID { get; set; }
     public DateTime ModifiedDate { get; set; }

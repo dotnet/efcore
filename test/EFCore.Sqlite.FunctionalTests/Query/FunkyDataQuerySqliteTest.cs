@@ -20,12 +20,12 @@ public class FunkyDataQuerySqliteTest : FunkyDataQueryTestBase<FunkyDataQuerySql
 
         AssertSql(
             """
-@__s_0='B' (Size = 1)
-@__s_0_startswith='B%' (Size = 2)
+@s='B' (Size = 1)
+@s_startswith='B%' (Size = 2)
 
 SELECT "f"."Id", "f"."FirstName", "f"."LastName", "f"."NullableBool"
 FROM "FunkyCustomers" AS "f"
-WHERE instr("f"."FirstName", @__s_0) > 0 OR "f"."LastName" LIKE @__s_0_startswith ESCAPE '\'
+WHERE instr("f"."FirstName", @s) > 0 OR "f"."LastName" LIKE @s_startswith ESCAPE '\'
 """);
     }
 

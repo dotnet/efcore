@@ -14,32 +14,31 @@ internal sealed class TypedArraySeedContext : MigrationContext<Patriarch, Conver
             new Patriarch { Id = HierarchyId.Parse("/1/"), Name = "Robb Stark" },
             new Patriarch { Id = HierarchyId.Parse("/2/"), Name = "Jon Snow" });
 
-        modelBuilder.Entity<ConvertedPatriarch>(
-            b =>
-            {
-                b.Property(e => e.HierarchyId)
-                    .HasConversion(v => HierarchyId.Parse(v), v => v.ToString());
+        modelBuilder.Entity<ConvertedPatriarch>(b =>
+        {
+            b.Property(e => e.HierarchyId)
+                .HasConversion(v => HierarchyId.Parse(v), v => v.ToString());
 
-                b.HasData(
-                    new ConvertedPatriarch
-                    {
-                        Id = 1,
-                        HierarchyId = HierarchyId.GetRoot().ToString(),
-                        Name = "Eddard Stark"
-                    },
-                    new ConvertedPatriarch
-                    {
-                        Id = 2,
-                        HierarchyId = HierarchyId.Parse("/1/").ToString(),
-                        Name = "Robb Stark"
-                    },
-                    new ConvertedPatriarch
-                    {
-                        Id = 3,
-                        HierarchyId = HierarchyId.Parse("/2/").ToString(),
-                        Name = "Jon Snow"
-                    });
-            });
+            b.HasData(
+                new ConvertedPatriarch
+                {
+                    Id = 1,
+                    HierarchyId = HierarchyId.GetRoot().ToString(),
+                    Name = "Eddard Stark"
+                },
+                new ConvertedPatriarch
+                {
+                    Id = 2,
+                    HierarchyId = HierarchyId.Parse("/1/").ToString(),
+                    Name = "Robb Stark"
+                },
+                new ConvertedPatriarch
+                {
+                    Id = 3,
+                    HierarchyId = HierarchyId.Parse("/2/").ToString(),
+                    Name = "Jon Snow"
+                });
+        });
     }
 
     public override string GetExpectedMigrationCode(string migrationName, string rootNamespace)

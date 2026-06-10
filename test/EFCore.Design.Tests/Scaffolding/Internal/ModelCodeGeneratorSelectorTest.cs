@@ -12,7 +12,7 @@ public class ModelCodeGeneratorSelectorTest
     {
         var expected = new TestModelCodeGenerator("C#");
         var selector = new ModelCodeGeneratorSelector(
-            new[] { new TestModelCodeGenerator("C#"), expected });
+            [new TestModelCodeGenerator("C#"), expected]);
 
         var result = selector.Select(
             new ModelCodeGenerationOptions { Language = "C#" });
@@ -24,11 +24,10 @@ public class ModelCodeGeneratorSelectorTest
     public void Select_throws_when_no_service_for_language()
     {
         var selector = new ModelCodeGeneratorSelector(
-            new[] { new TestModelCodeGenerator("C#") });
+            [new TestModelCodeGenerator("C#")]);
         var options = new ModelCodeGenerationOptions { Language = "VB" };
 
-        var ex = Assert.Throws<OperationException>(
-            () => selector.Select(options));
+        var ex = Assert.Throws<OperationException>(() => selector.Select(options));
 
         Assert.Equal(DesignStrings.NoLanguageService("VB", nameof(IModelCodeGenerator)), ex.Message);
     }
@@ -38,13 +37,12 @@ public class ModelCodeGeneratorSelectorTest
     {
         var expected = new TestTemplatedModelGenerator(hasTemplates: true);
         var selector = new ModelCodeGeneratorSelector(
-            new IModelCodeGenerator[]
-            {
-                new TestTemplatedModelGenerator(hasTemplates: true),
+        [
+            new TestTemplatedModelGenerator(hasTemplates: true),
                 expected,
                 new TestTemplatedModelGenerator(hasTemplates: false),
                 new TestModelCodeGenerator("C#")
-            });
+        ]);
 
         var result = selector.Select(
             new ModelCodeGenerationOptions { Language = "C#", ProjectDir = Directory.GetCurrentDirectory() });
@@ -57,7 +55,7 @@ public class ModelCodeGeneratorSelectorTest
     {
         var expected = new TestModelCodeGenerator("C#");
         var selector = new ModelCodeGeneratorSelector(
-            new IModelCodeGenerator[] { new TestTemplatedModelGenerator(hasTemplates: false), new TestModelCodeGenerator("C#"), expected });
+            [new TestTemplatedModelGenerator(hasTemplates: false), new TestModelCodeGenerator("C#"), expected]);
 
         var result = selector.Select(
             new ModelCodeGenerationOptions { Language = "C#" });

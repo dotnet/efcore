@@ -42,9 +42,9 @@ public class SqliteGeometryCollectionMemberTranslator : IMemberTranslator
         => Equals(member, Count)
             ? _sqlExpressionFactory.Function(
                 "NumGeometries",
-                new[] { instance! },
+                [instance!],
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 returnType)
             : null;
 }

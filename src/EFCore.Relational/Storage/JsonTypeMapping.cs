@@ -2,13 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
 ///     <para>
-///         Represents the mapping between a <see cref="JsonElement" /> type and a database type.
+///         Represents the mapping between a JSON object and a database type.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally

@@ -107,7 +107,7 @@ public interface IMigrationsAnnotationProvider
     /// <param name="table">The table.</param>
     /// <returns>The annotations.</returns>
     IEnumerable<IAnnotation> ForRename(ITable table)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <summary>
     ///     Gets provider-specific Migrations annotations for the given <see cref="IColumn" />
@@ -116,7 +116,7 @@ public interface IMigrationsAnnotationProvider
     /// <param name="column">The column.</param>
     /// <returns>The annotations.</returns>
     IEnumerable<IAnnotation> ForRename(IColumn column)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <summary>
     ///     Gets provider-specific Migrations annotations for the given <see cref="ITableIndex" />
@@ -125,7 +125,7 @@ public interface IMigrationsAnnotationProvider
     /// <param name="index">The index.</param>
     /// <returns>The annotations.</returns>
     IEnumerable<IAnnotation> ForRename(ITableIndex index)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <summary>
     ///     Gets provider-specific Migrations annotations for the given <see cref="ISequence" />
@@ -134,5 +134,5 @@ public interface IMigrationsAnnotationProvider
     /// <param name="sequence">The sequence.</param>
     /// <returns>The annotations.</returns>
     IEnumerable<IAnnotation> ForRename(ISequence sequence)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 }

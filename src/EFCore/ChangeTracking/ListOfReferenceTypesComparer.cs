@@ -23,9 +23,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : ValueComparer<object>, IInfrastructure<ValueComparer>
     where TElement : class
 {
-    private static readonly bool UseOldBehavior35239 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35239", out var enabled35239) && enabled35239;
-
     private static readonly bool IsArray = typeof(TConcreteList).IsArray;
 
     private static readonly bool IsReadOnly = IsArray
@@ -33,22 +30,14 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             && typeof(TConcreteList).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
     private static readonly MethodInfo CompareMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
-
-    private static readonly MethodInfo LegacyCompareMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(ValueComparer)])!;
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic,
+        [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(Func<TElement, int>)])!;
 
-    private static readonly MethodInfo LegacyGetHashCodeMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(ValueComparer)])!;
-
     private static readonly MethodInfo SnapshotMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(Func<TElement, TElement>)])!;
-
-    private static readonly MethodInfo LegacySnapshotMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(ValueComparer)])!;
 
     /// <summary>
     ///     Creates a new instance of the list comparer.
@@ -74,26 +63,12 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
         var prm1 = Expression.Parameter(typeof(object), "a");
         var prm2 = Expression.Parameter(typeof(object), "b");
 
-        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
-        {
-            // (a, b) => Compare(a, b, elementComparer.Equals, elementComparer.Type)
-            return Expression.Lambda<Func<object?, object?, bool>>(
-                Expression.Call(
-                    CompareMethod,
-                    prm1,
-                    prm2,
-                    elementComparer.EqualsExpression),
-                prm1,
-                prm2);
-        }
-
-        // (a, b) => Compare(a, b, new Comparer(...))
         return Expression.Lambda<Func<object?, object?, bool>>(
             Expression.Call(
-                LegacyCompareMethod,
+                CompareMethod,
                 prm1,
                 prm2,
-                elementComparer.ConstructorExpression),
+                elementComparer.EqualsExpression),
             prm1,
             prm2);
     }
@@ -102,27 +77,13 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
     {
         var prm = Expression.Parameter(typeof(object), "o");
 
-        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
-        {
-            // o => GetHashCode((IEnumerable)o, elementComparer.GetHashCode)
-            return Expression.Lambda<Func<object, int>>(
-                Expression.Call(
-                    GetHashCodeMethod,
-                    Expression.Convert(
-                        prm,
-                        typeof(IEnumerable)),
-                        elementComparer.HashCodeExpression),
-                prm);
-        }
-
-        // o => GetHashCode((IEnumerable)o, new Comparer(...))
         return Expression.Lambda<Func<object, int>>(
             Expression.Call(
-                LegacyGetHashCodeMethod,
+                GetHashCodeMethod,
                 Expression.Convert(
                     prm,
                     typeof(IEnumerable)),
-                elementComparer.ConstructorExpression),
+                elementComparer.HashCodeExpression),
             prm);
     }
 
@@ -130,23 +91,11 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
     {
         var prm = Expression.Parameter(typeof(object), "source");
 
-        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
-        {
-            // source => Snapshot(source, elementComparer.Snapshot, elementComparer.Type)
-            return Expression.Lambda<Func<object, object>>(
-                Expression.Call(
-                    SnapshotMethod,
-                    prm,
-                    elementComparer.SnapshotExpression),
-                prm);
-        }
-
-        // source => Snapshot(source, new Comparer(..))
         return Expression.Lambda<Func<object, object>>(
             Expression.Call(
-                LegacySnapshotMethod,
+                SnapshotMethod,
                 prm,
-                elementComparer.ConstructorExpression),
+                elementComparer.SnapshotExpression),
             prm);
     }
 
@@ -207,82 +156,13 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
                 typeof(IList<>).MakeGenericType(typeof(TElement)).ShortDisplayName()));
     }
 
-    private static bool Compare(object? a, object? b, ValueComparer elementComparer)
-    {
-        if (ReferenceEquals(a, b))
-        {
-            return true;
-        }
-
-        if (a is null)
-        {
-            return b is null;
-        }
-
-        if (b is null)
-        {
-            return false;
-        }
-
-        if (a is IList<TElement?> aList && b is IList<TElement?> bList)
-        {
-            if (aList.Count != bList.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < aList.Count; i++)
-            {
-                var (el1, el2) = (aList[i], bList[i]);
-                if (el1 is null)
-                {
-                    if (el2 is null)
-                    {
-                        continue;
-                    }
-
-                    return false;
-                }
-
-                if (el2 is null)
-                {
-                    return false;
-                }
-
-                if (!elementComparer.Equals(el1, el2))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        throw new InvalidOperationException(
-            CoreStrings.BadListType(
-                (a is IList<TElement?> ? b : a).GetType().ShortDisplayName(),
-                typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
-    }
-
     private static int GetHashCode(IEnumerable source, Func<TElement?, int> elementGetHashCode)
     {
         var hash = new HashCode();
 
         foreach (var el in source)
         {
-            hash.Add(el == null ? 0 : elementGetHashCode((TElement)el));
-        }
-
-        return hash.ToHashCode();
-    }
-
-    private static int GetHashCode(IEnumerable source, ValueComparer elementComparer)
-    {
-        var hash = new HashCode();
-
-        foreach (var el in source)
-        {
-            hash.Add(el == null ? 0 : elementComparer.GetHashCode(el));
+            hash.Add(el == null ? 0 : elementGetHashCode((TElement?)el));
         }
 
         return hash.ToHashCode();
@@ -315,41 +195,6 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             foreach (var e in sourceList)
             {
                 snapshot.Add(e == null ? null : elementSnapshot(e));
-            }
-
-            return IsReadOnly
-                ? (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteList), snapshot)!
-                : snapshot;
-        }
-    }
-
-    private static IList<TElement?> Snapshot(object source, ValueComparer elementComparer)
-    {
-        if (source is not IList<TElement?> sourceList)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.BadListType(
-                    source.GetType().ShortDisplayName(),
-                    typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
-        }
-
-        if (IsArray)
-        {
-            var snapshot = new TElement?[sourceList.Count];
-            for (var i = 0; i < sourceList.Count; i++)
-            {
-                var instance = sourceList[i];
-                snapshot[i] = instance == null ? null : (TElement?)elementComparer.Snapshot(instance);
-            }
-
-            return snapshot;
-        }
-        else
-        {
-            var snapshot = IsReadOnly ? new List<TElement?>() : (IList<TElement?>)Activator.CreateInstance<TConcreteList>()!;
-            foreach (var e in sourceList)
-            {
-                snapshot.Add(e == null ? null : (TElement?)elementComparer.Snapshot(e));
             }
 
             return IsReadOnly

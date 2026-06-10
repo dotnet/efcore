@@ -166,7 +166,7 @@ public class WarningsConfiguration
     public virtual WarningsConfiguration TryWithExplicit(EventId eventId, WarningBehavior warningBehavior)
         => _explicitBehaviors.ContainsKey(eventId.Id)
             ? this
-            : WithExplicit(new[] { eventId }, warningBehavior);
+            : WithExplicit([eventId], warningBehavior);
 
     /// <summary>
     ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode" />
