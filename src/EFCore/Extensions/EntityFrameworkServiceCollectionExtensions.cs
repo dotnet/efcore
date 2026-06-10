@@ -1163,6 +1163,66 @@ public static class EntityFrameworkServiceCollectionExtensions
         return serviceCollection;
     }
 
+    /// <summary>
+    ///     Removes services for the given context type from the <see cref="IServiceCollection" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method can be used to remove the context registration in integration testing scenarios
+    ///         where a different database provider is used for tests.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TContext">The type of context to be removed.</typeparam>
+    /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to remove services from.</param>
+    /// <param name="removeConfigurationOnly">
+    ///     If <see langword="true" />, only the <see cref="IDbContextOptionsConfiguration{TContext}" /> registrations will be removed;
+    ///     the context itself will remain registered. If <see langword="false" /> (the default), all services related to the context
+    ///     will be removed.
+    /// </param>
+    /// <returns>The same service collection so that multiple calls can be chained.</returns>
+    public static IServiceCollection RemoveDbContext
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            bool removeConfigurationOnly = false)
+        where TContext : DbContext
+    {
+        Check.NotNull(serviceCollection);
+
+        if (removeConfigurationOnly)
+        {
+            var configurations = serviceCollection
+                .Where(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>))
+                .ToList();
+
+            foreach (var descriptor in configurations)
+            {
+                serviceCollection.Remove(descriptor);
+            }
+        }
+        else
+        {
+            var descriptorsToRemove = serviceCollection
+                .Where(d => d.ServiceType == typeof(TContext)
+                    || d.ServiceType == typeof(DbContextOptions<TContext>)
+                    || d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)
+                    || d.ServiceType == typeof(IDbContextFactorySource<TContext>)
+                    || d.ServiceType == typeof(IDbContextFactory<TContext>)
+                    || d.ServiceType == typeof(IDbContextPool<TContext>)
+                    || d.ServiceType == typeof(IScopedDbContextLease<TContext>))
+                .ToList();
+
+            foreach (var descriptor in descriptorsToRemove)
+            {
+                serviceCollection.Remove(descriptor);
+            }
+        }
+
+        return serviceCollection;
+    }
+
     private static void AddCoreServices<TContextImplementation>(
         IServiceCollection serviceCollection,
         Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,

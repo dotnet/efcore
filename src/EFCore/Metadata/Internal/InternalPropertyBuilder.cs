@@ -458,7 +458,7 @@ public class InternalPropertyBuilder
                 {
                     return (ValueGenerator)Activator.CreateInstance(valueGeneratorType)!;
                 }
-                catch (Exception e)
+                catch (Exception e) when (!e.IsCritical())
                 {
                     throw new InvalidOperationException(
                         CoreStrings.CannotCreateValueGenerator(

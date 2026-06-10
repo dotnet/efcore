@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -16,7 +16,7 @@ public class NorthwindJoinQuerySqlServerTest : NorthwindJoinQueryRelationalTestB
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -257,6 +257,61 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 RIGHT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 """);
+    }
+
+    public override async Task RightJoin_with_filtered_outer(bool async)
+    {
+        await base.RightJoin_with_filtered_outer(async);
+
+        AssertSql(
+            """
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+) AS [c0]
+RIGHT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task FullJoin(bool async)
+    {
+        await base.FullJoin(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+FULL JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task FullJoin_with_unmatched_rows_on_both_sides(bool async)
+    {
+        await base.FullJoin_with_unmatched_rows_on_both_sides(async);
+
+        AssertSql(
+            """
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+) AS [c0]
+FULL JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE N'B%'
+) AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
+""");
+    }
+
+    public override async Task FullJoin_with_custom_comparer_does_not_translate(bool async)
+    {
+        await base.FullJoin_with_custom_comparer_does_not_translate(async);
+
+        AssertSql();
     }
 
     public override async Task GroupJoin_simple(bool async)

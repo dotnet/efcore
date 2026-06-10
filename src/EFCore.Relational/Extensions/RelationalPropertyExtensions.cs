@@ -29,15 +29,6 @@ public static class RelationalPropertyExtensions
         = typeof(RelationalPropertyExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
     /// <summary>
-    ///     Returns the base name of the column to which the property would be mapped.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <returns>The base name of the column to which the property would be mapped.</returns>
-    [Obsolete("Use GetColumnName")]
-    public static string GetColumnBaseName(this IReadOnlyProperty property)
-        => property.GetColumnName();
-
-    /// <summary>
     ///     Returns the name of the column to which the property would be mapped.
     /// </summary>
     /// <param name="property">The property.</param>
@@ -87,6 +78,18 @@ public static class RelationalPropertyExtensions
                 else if (property.DeclaringType is IReadOnlyEntityType declaringEntityType)
                 {
                     foreach (var containingType in declaringEntityType.GetDerivedTypesInclusive())
+                    {
+                        if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    var containingEntityType = property.DeclaringType.ContainingEntityType;
+                    foreach (var containingType in containingEntityType.GetDerivedTypesInclusive())
                     {
                         if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
                         {
@@ -161,15 +164,6 @@ public static class RelationalPropertyExtensions
             return true;
         }
     }
-
-    /// <summary>
-    ///     Returns the default base name of the column to which the property would be mapped
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <returns>The default base column name to which the property would be mapped.</returns>
-    [Obsolete("Use GetDefaultColumnName")]
-    public static string GetDefaultColumnBaseName(this IReadOnlyProperty property)
-        => property.GetDefaultColumnName();
 
     /// <summary>
     ///     Returns the default base name of the column to which the property would be mapped
@@ -551,12 +545,12 @@ public static class RelationalPropertyExtensions
     /// <summary>
     ///     Returns the default columns to which the property would be mapped.
     /// </summary>
-    /// <param name="property">The property.</param>
+    /// <param name="propertyBase">The property.</param>
     /// <returns>The default columns to which the property would be mapped.</returns>
-    public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings(this IProperty property)
+    public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings(this IPropertyBase propertyBase)
     {
-        property.DeclaringType.Model.EnsureRelationalModel();
-        return (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IColumnMappingBase>?)propertyBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DefaultColumnMappings)
             ?? [];
     }
@@ -564,12 +558,12 @@ public static class RelationalPropertyExtensions
     /// <summary>
     ///     Returns the table columns to which the property is mapped.
     /// </summary>
-    /// <param name="property">The property.</param>
+    /// <param name="propertyBase">The property.</param>
     /// <returns>The table columns to which the property is mapped.</returns>
-    public static IEnumerable<IColumnMapping> GetTableColumnMappings(this IProperty property)
+    public static IEnumerable<IColumnMapping> GetTableColumnMappings(this IPropertyBase propertyBase)
     {
-        property.DeclaringType.Model.EnsureRelationalModel();
-        return (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IColumnMapping>?)propertyBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableColumnMappings)
             ?? [];
     }
@@ -577,13 +571,26 @@ public static class RelationalPropertyExtensions
     /// <summary>
     ///     Returns the view columns to which the property is mapped.
     /// </summary>
-    /// <param name="property">The property.</param>
+    /// <param name="propertyBase">The property.</param>
     /// <returns>The view columns to which the property is mapped.</returns>
-    public static IEnumerable<IViewColumnMapping> GetViewColumnMappings(this IProperty property)
+    public static IEnumerable<IViewColumnMapping> GetViewColumnMappings(this IPropertyBase propertyBase)
     {
-        property.DeclaringType.Model.EnsureRelationalModel();
-        return (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IViewColumnMapping>?)propertyBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ViewColumnMappings)
+            ?? [];
+    }
+
+    /// <summary>
+    ///     Returns the JSON element mappings for this property.
+    /// </summary>
+    /// <param name="propertyBase">The property.</param>
+    /// <returns>The JSON element mappings for this property.</returns>
+    public static IEnumerable<IJsonElementMapping> GetJsonElementMappings(this IPropertyBase propertyBase)
+    {
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IJsonElementMapping>?)propertyBase.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.JsonElementMappings)
             ?? [];
     }
 

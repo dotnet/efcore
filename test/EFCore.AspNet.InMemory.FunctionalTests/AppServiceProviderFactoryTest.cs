@@ -1,15 +1,13 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore;
 
 public class AppServiceProviderFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Create_services_from_template_method()
     {
         TestCreateServices(typeof(ProgramWithBuildWebHost));
@@ -57,8 +55,7 @@ public class AppServiceProviderFactoryTest
         }
     }
 
-    [ConditionalFact]
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Mac)]
+    [Fact, SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public void Create_with_no_builder_method()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -95,7 +92,7 @@ public class AppServiceProviderFactoryTest
 
     private class TestService;
 
-    [ConditionalFact]
+    [Fact]
     public void Create_works_when_no_BuildWebHost()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -108,7 +105,7 @@ public class AppServiceProviderFactoryTest
 
     private class ProgramWithoutBuildWebHost;
 
-    [ConditionalFact]
+    [Fact]
     public void Create_works_when_BuildWebHost_throws()
     {
         var reporter = new TestOperationReporter();

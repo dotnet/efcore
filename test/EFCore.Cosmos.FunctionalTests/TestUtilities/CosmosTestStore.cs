@@ -1,8 +1,10 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -11,8 +13,6 @@ using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using ContainerProperties = Microsoft.Azure.Cosmos.ContainerProperties;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
@@ -20,12 +20,46 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class CosmosTestStore : TestStore
 {
     private readonly TestStoreContext _storeContext;
-    private readonly string? _dataFilePath;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
     private bool _initialized;
 
     private static readonly Guid _runId = Guid.NewGuid();
     private static bool? _connectionAvailable;
+
+    // The Northwind database is shared across multiple test fixtures and is deleted at process exit
+    // to avoid one fixture's disposal racing with another fixture's queries.
+    private const string DeferredDeletionStoreName = "Northwind";
+    private static readonly ConcurrentDictionary<string, CosmosTestStore> _deferredStores = new();
+
+    static CosmosTestStore()
+    {
+        AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            try
+            {
+                Task.WhenAll(_deferredStores.Select(
+                    async entry =>
+                    {
+                        var store = entry.Value;
+                        try
+                        {
+                            store.GetTestStoreIndex(store.ServiceProvider)
+                                .RemoveShared(store.GetType().Name + store.Name);
+                            await store.EnsureDeletedAsync(store._storeContext, cts.Token).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                        }
+
+                        store._storeContext.Dispose();
+                    })).GetAwaiter().GetResult();
+            }
+            catch
+            {
+            }
+        };
+    }
 
     public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
@@ -42,20 +76,16 @@ public class CosmosTestStore : TestStore
     public static CosmosTestStore GetOrCreate(string name)
         => new(name);
 
-    public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
-        => new(name, dataFilePath: dataFilePath);
-
     private CosmosTestStore(
         string name,
         bool shared = true,
-        string? dataFilePath = null,
         Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         : base(CreateName(name), shared)
     {
-        ConnectionUri = TestEnvironment.DefaultConnection;
-        AuthToken = TestEnvironment.AuthToken;
-        ConnectionString = TestEnvironment.ConnectionString;
-        TokenCredential = TestEnvironment.TokenCredential;
+        ConnectionUri = CosmosTestEnvironment.DefaultConnection;
+        AuthToken = CosmosTestEnvironment.AuthToken;
+        ConnectionString = CosmosTestEnvironment.ConnectionString;
+        TokenCredential = CosmosTestEnvironment.TokenCredential;
         _configureCosmos = extensionConfiguration == null
             ? b => b.ApplyConfiguration()
             : b =>
@@ -66,36 +96,59 @@ public class CosmosTestStore : TestStore
 
         _storeContext = new TestStoreContext(this);
 
-        if (dataFilePath != null)
+        if (shared && name == DeferredDeletionStoreName)
         {
-            _dataFilePath = Path.Combine(
-                Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location)!,
-                dataFilePath);
+            _deferredStores.TryAdd(Name, this);
+        }
+        else if (shared)
+        {
+            Check.DebugAssert(
+                !_deferredStores.ContainsKey(Name) && !_deferredStores.Values.Any(s => s.Name == Name),
+                $"Cosmos database '{name}' is shared across multiple fixture types. "
+                + "Add it to the deferred deletion list or give each fixture a unique StoreName.");
         }
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2" || name == "Northwind3"
+        => CosmosTestEnvironment.IsEmulator
             ? name
             : name + _runId;
 
-    public string ConnectionUri { get; }
+    public string ConnectionUri { get; private set; }
     public string AuthToken { get; }
     public TokenCredential TokenCredential { get; }
-    public string ConnectionString { get; }
+    public string ConnectionString { get; private set; }
 
     private static readonly SemaphoreSlim _connectionSemaphore = new(1, 1);
 
     protected override DbContext CreateDefaultContext()
         => new TestStoreContext(this);
 
+    // Cosmos has no multi-document transactions, so a partially-completed seed must be cleaned before retrying.
+    public override bool SupportsTransactions
+        => false;
+
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-        => TestEnvironment.UseTokenCredential
+    {
+        var result = CosmosTestEnvironment.UseTokenCredential
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
+        if (CosmosTestEnvironment.IsLinuxEmulator)
+        {
+            result.AddInterceptors(LinuxEmulatorSaveChangesInterceptor.Instance);
+        }
+
+        return result;
+    }
+
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
+        if (CosmosTestEnvironment.SkipConnectionCheck)
+        {
+            return true;
+        }
+
         if (_connectionAvailable == null)
         {
             await _connectionSemaphore.WaitAsync();
@@ -161,6 +214,12 @@ public class CosmosTestStore : TestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
+        await CosmosTestEnvironment.InitializeAsync().ConfigureAwait(false);
+
+        // Update connection details in case InitializeAsync changed them (e.g., testcontainer started).
+        ConnectionUri = CosmosTestEnvironment.DefaultConnection;
+        ConnectionString = CosmosTestEnvironment.ConnectionString;
+
         _initialized = true;
 
         if (_connectionAvailable == false)
@@ -168,103 +227,14 @@ public class CosmosTestStore : TestStore
             return;
         }
 
-        if (_dataFilePath == null)
-        {
-            await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
-        }
-        else
-        {
-            using var context = createContext();
-            await CreateFromFile(context).ConfigureAwait(false);
-        }
+        await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
     }
 
-    private async Task CreateFromFile(DbContext context)
-    {
-        if (await EnsureCreatedAsync(context).ConfigureAwait(false))
-        {
-            if (!TestEnvironment.UseTokenCredential)
-            {
-                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                await CreateContainersAsync(context).ConfigureAwait(false);
-            }
-
-            var cosmosClient = context.GetService<ICosmosClientWrapper>();
-            var serializer = CosmosClientWrapper.Serializer;
-            using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
-            using var sr = new StreamReader(fs);
-            using var reader = new JsonTextReader(sr);
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonToken.StartArray)
-                {
-                    NextEntityType:
-                    while (reader.Read())
-                    {
-                        if (reader.TokenType == JsonToken.StartObject)
-                        {
-                            string? entityName = null;
-                            string? containerName = null;
-                            bool? discriminatorInId = null;
-                            while (reader.Read())
-                            {
-                                if (reader.TokenType == JsonToken.PropertyName)
-                                {
-                                    switch (reader.Value)
-                                    {
-                                        case "Name":
-                                            reader.Read();
-                                            entityName = (string)reader.Value;
-                                            break;
-                                        case "Container":
-                                            reader.Read();
-                                            containerName = (string)reader.Value;
-                                            break;
-                                        case "DiscriminatorInId":
-                                            reader.Read();
-                                            discriminatorInId = (bool)reader.Value;
-                                            break;
-                                        case "Data":
-                                            while (reader.Read())
-                                            {
-                                                if (reader.TokenType == JsonToken.StartObject)
-                                                {
-                                                    var document = serializer.Deserialize<JObject>(reader)!;
-
-                                                    document["id"] = discriminatorInId == true
-                                                        ? $"{entityName}|{document["id"]}"
-                                                        : $"{document["id"]}";
-
-                                                    document["$type"] = entityName;
-
-                                                    await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
-                                                }
-                                                else if (reader.TokenType == JsonToken.EndObject)
-                                                {
-                                                    goto NextEntityType;
-                                                }
-                                            }
-
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private static readonly ArmClient _armClient = new(TestEnvironment.TokenCredential);
+    private static readonly ArmClient _armClient = new(CosmosTestEnvironment.TokenCredential);
 
     public async Task<bool> EnsureCreatedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
             return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
@@ -273,7 +243,7 @@ public class CosmosTestStore : TestStore
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
         var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
-            TestEnvironment.AzureLocation,
+            CosmosTestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
         if (await collection.ExistsAsync(Name, cancellationToken))
         {
@@ -305,7 +275,7 @@ public class CosmosTestStore : TestStore
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             return await context.Database.EnsureDeletedAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -328,11 +298,28 @@ public class CosmosTestStore : TestStore
     {
         var accountName = new Uri(ConnectionUri).Host.Split('.').First();
         var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
-            TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
+            CosmosTestEnvironment.SubscriptionId, CosmosTestEnvironment.ResourceGroup, accountName);
         return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
-    public override async Task CleanAsync(DbContext context, bool createTables = true)
+    public override Task CleanAsync(DbContext context, bool createTables = true)
+    {
+        context.ChangeTracker.Clear();
+        return new TestCosmosExecutionStrategy().ExecuteAsync(
+            (context, createTables, Retrying: new StrongBox<bool>(false)), async (_, state, ct) =>
+            {
+                if (state.Retrying.Value)
+                {
+                    state.context.ChangeTracker.Clear();
+                }
+
+                state.Retrying.Value = true;
+                await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
+                return true;
+            }, null, default);
+    }
+
+    private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
         try
@@ -347,7 +334,7 @@ public class CosmosTestStore : TestStore
                 return;
             }
 
-            if (!TestEnvironment.UseTokenCredential)
+            if (!CosmosTestEnvironment.UseTokenCredential)
             {
                 created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
                 if (!created)
@@ -401,7 +388,7 @@ public class CosmosTestStore : TestStore
                 resource.PartitionKey.Paths.Add("/" + partitionKey);
             }
 
-            var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
+            var content = new CosmosDBSqlContainerCreateOrUpdateContent(CosmosTestEnvironment.AzureLocation, resource);
             if (container.Throughput != null)
             {
                 content.Options = new CosmosDBCreateUpdateConfig
@@ -472,7 +459,9 @@ public class CosmosTestStore : TestStore
                 indexes,
                 vectors,
                 fullTextDefaultLanguage ?? "en-US",
-                fullTextProperties);
+                fullTextProperties,
+                AutomaticIndexingExceptions: mappedTypes.Select(et => et.GetAutomaticIndexingExceptions()).FirstOrDefault(e => e is not null),
+                AutomaticIndexingEnabled: mappedTypes.Select(et => et.GetAutomaticIndexingEnabled()).FirstOrDefault(e => e is not null));
         }
 
         static void ProcessEntityType(
@@ -515,7 +504,7 @@ public class CosmosTestStore : TestStore
 
     private async Task DeleteContainersAsync(DbContext context)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             var cosmosClient = context.Database.GetCosmosClient();
             var database = cosmosClient.GetDatabase(Name);
@@ -556,22 +545,27 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (_initialized
-            && _dataFilePath == null)
+        if (!_initialized || _connectionAvailable == false)
         {
-            if (_connectionAvailable == false)
-            {
-                return;
-            }
-
-            if (Shared)
-            {
-                GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
-            }
-
-            await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
+            return;
         }
 
+        if (_deferredStores.TryGetValue(Name, out var canonical))
+        {
+            if (!ReferenceEquals(this, canonical))
+            {
+                _storeContext.Dispose();
+            }
+
+            return;
+        }
+
+        if (Shared)
+        {
+            GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
+        }
+
+        await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
         _storeContext.Dispose();
     }
 
@@ -581,7 +575,7 @@ public class CosmosTestStore : TestStore
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (TestEnvironment.UseTokenCredential)
+            if (CosmosTestEnvironment.UseTokenCredential)
             {
                 optionsBuilder.UseCosmos(
                     _testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
@@ -591,466 +585,5 @@ public class CosmosTestStore : TestStore
                 optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
             }
         }
-    }
-
-    private class FakeUpdateEntry : IUpdateEntry
-    {
-        public IEntityType EntityType
-            => new FakeEntityType();
-
-        public EntityState EntityState { get => EntityState.Added; set => throw new NotImplementedException(); }
-
-        public IUpdateEntry SharedIdentityEntry
-            => throw new NotImplementedException();
-
-        public object GetCurrentValue(IPropertyBase propertyBase)
-            => throw new NotImplementedException();
-
-        public bool CanHaveOriginalValue(IPropertyBase propertyBase)
-            => throw new NotImplementedException();
-
-        public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
-            => throw new NotImplementedException();
-
-        public object GetOriginalValue(IPropertyBase propertyBase)
-            => throw new NotImplementedException();
-
-        public TProperty GetOriginalValue<TProperty>(IProperty property)
-            => throw new NotImplementedException();
-
-        public bool HasTemporaryValue(IProperty property)
-            => throw new NotImplementedException();
-
-        public bool HasExplicitValue(IProperty property)
-            => throw new NotImplementedException();
-
-        public bool HasStoreGeneratedValue(IProperty property)
-            => throw new NotImplementedException();
-
-        public bool IsModified(IProperty property)
-            => throw new NotImplementedException();
-
-        public bool IsLoaded(IProperty property)
-            => throw new NotImplementedException();
-
-        public bool IsStoreGenerated(IProperty property)
-            => throw new NotImplementedException();
-
-        public DbContext Context
-            => throw new NotImplementedException();
-
-        public void SetOriginalValue(IProperty property, object? value)
-            => throw new NotImplementedException();
-
-        public void SetPropertyModified(IProperty property)
-            => throw new NotImplementedException();
-
-        public void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true)
-            => throw new NotImplementedException();
-
-        public EntityEntry ToEntityEntry()
-            => throw new NotImplementedException();
-
-        public object GetRelationshipSnapshotValue(IPropertyBase propertyBase)
-            => throw new NotImplementedException();
-
-        public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase)
-            => throw new NotImplementedException();
-
-        public bool IsConceptualNull(IProperty property)
-            => throw new NotImplementedException();
-
-        public bool IsModified(IComplexProperty property)
-            => throw new NotImplementedException();
-    }
-
-    public class FakeEntityType : Annotatable, IEntityType
-    {
-        public IEntityType? BaseType
-            => null;
-
-        public string DefiningNavigationName
-            => throw new NotImplementedException();
-
-        public IEntityType DefiningEntityType
-            => throw new NotImplementedException();
-
-        public IModel Model
-            => throw new NotImplementedException();
-
-        public string Name
-            => throw new NotImplementedException();
-
-        public Type ClrType
-            => throw new NotImplementedException();
-
-        public bool HasSharedClrType
-            => throw new NotImplementedException();
-
-        public bool IsPropertyBag
-            => throw new NotImplementedException();
-
-        public InstantiationBinding ConstructorBinding
-            => throw new NotImplementedException();
-
-        public InstantiationBinding ServiceOnlyConstructorBinding
-            => throw new NotImplementedException();
-
-        IReadOnlyEntityType IReadOnlyEntityType.BaseType
-            => null!;
-
-        ITypeBase? ITypeBase.BaseType
-            => BaseType;
-
-        IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType
-            => BaseType;
-
-        IReadOnlyModel IReadOnlyTypeBase.Model
-            => throw new NotImplementedException();
-
-        public IEnumerable<IForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        public INavigation FindDeclaredNavigation(string name)
-            => throw new NotImplementedException();
-
-        public IProperty FindDeclaredProperty(string name)
-            => throw new NotImplementedException();
-
-        public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
-            => throw new NotImplementedException();
-
-        public IForeignKey FindForeignKey(
-            IReadOnlyList<IReadOnlyProperty> properties,
-            IReadOnlyKey principalKey,
-            IReadOnlyEntityType principalEntityType)
-            => throw new NotImplementedException();
-
-        public IEnumerable<IForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        public IIndex FindIndex(IReadOnlyList<IProperty> properties)
-            => throw new NotImplementedException();
-
-        public IIndex FindIndex(string name)
-            => throw new NotImplementedException();
-
-        public IIndex FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        public string GetEmbeddedDiscriminatorName()
-            => throw new NotImplementedException();
-
-        public PropertyInfo FindIndexerPropertyInfo()
-            => throw new NotImplementedException();
-
-        public IKey FindKey(IReadOnlyList<IProperty> properties)
-            => throw new NotImplementedException();
-
-        public IKey FindKey(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        public IKey FindPrimaryKey()
-            => throw new NotImplementedException();
-
-        public IReadOnlyList<IReadOnlyProperty> FindProperties(IReadOnlyList<string> propertyNames)
-            => throw new NotImplementedException();
-
-        public IProperty? FindProperty(string name)
-            => null;
-
-        public IServiceProperty FindServiceProperty(string name)
-            => throw new NotImplementedException();
-
-        public ISkipNavigation FindSkipNavigation(string name)
-            => throw new NotImplementedException();
-
-        public ChangeTrackingStrategy GetChangeTrackingStrategy()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IForeignKey> GetDeclaredForeignKeys()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IIndex> GetDeclaredIndexes()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IKey> GetDeclaredKeys()
-            => throw new NotImplementedException();
-
-        public IEnumerable<INavigation> GetDeclaredNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetDeclaredProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IForeignKey> GetDeclaredReferencingForeignKeys()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IServiceProperty> GetDeclaredServiceProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IReadOnlySkipNavigation> GetDeclaredSkipNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IForeignKey> GetDerivedForeignKeys()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IIndex> GetDerivedIndexes()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IReadOnlyNavigation> GetDerivedNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IReadOnlyProperty> GetDerivedProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IReadOnlyServiceProperty> GetDerivedServiceProperties()
-            => throw new NotImplementedException();
-
-        public bool HasServiceProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IReadOnlySkipNavigation> GetDerivedSkipNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IReadOnlyEntityType> GetDerivedTypes()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IEntityType> GetDirectlyDerivedTypes()
-            => throw new NotImplementedException();
-
-        public string GetDiscriminatorPropertyName()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetForeignKeyProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IForeignKey> GetForeignKeys()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IIndex> GetIndexes()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IKey> GetKeys()
-            => throw new NotImplementedException();
-
-        public PropertyAccessMode GetNavigationAccessMode()
-            => throw new NotImplementedException();
-
-        public IEnumerable<INavigation> GetNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetFlattenedValueGeneratingProperties()
-            => throw new NotImplementedException();
-
-        public PropertyAccessMode GetPropertyAccessMode()
-            => throw new NotImplementedException();
-
-        public IReadOnlyDictionary<string, LambdaExpression> GetDeclaredQueryFilters()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IForeignKey> GetReferencingForeignKeys()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IDictionary<string, object?>> GetSeedData(bool providerValues = false)
-            => throw new NotImplementedException();
-
-        public IEnumerable<IServiceProperty> GetServiceProperties()
-            => throw new NotImplementedException();
-
-        public Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source)
-            => throw new NotImplementedException();
-
-        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source)
-            => throw new NotImplementedException();
-
-        public IEnumerable<ISkipNavigation> GetSkipNavigations()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        IReadOnlyNavigation IReadOnlyEntityType.FindDeclaredNavigation(string name)
-            => throw new NotImplementedException();
-
-        IReadOnlyProperty IReadOnlyTypeBase.FindDeclaredProperty(string name)
-            => throw new NotImplementedException();
-
-        IReadOnlyForeignKey IReadOnlyEntityType.FindForeignKey(
-            IReadOnlyList<IReadOnlyProperty> properties,
-            IReadOnlyKey principalKey,
-            IReadOnlyEntityType principalEntityType)
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        IReadOnlyIndex IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        IReadOnlyIndex IReadOnlyEntityType.FindIndex(string name)
-            => throw new NotImplementedException();
-
-        IReadOnlyKey IReadOnlyEntityType.FindKey(IReadOnlyList<IReadOnlyProperty> properties)
-            => throw new NotImplementedException();
-
-        IReadOnlyKey IReadOnlyEntityType.FindPrimaryKey()
-            => throw new NotImplementedException();
-
-        IReadOnlyProperty IReadOnlyTypeBase.FindProperty(string name)
-            => throw new NotImplementedException();
-
-        IReadOnlyServiceProperty IReadOnlyEntityType.FindServiceProperty(string name)
-            => throw new NotImplementedException();
-
-        IReadOnlySkipNavigation IReadOnlyEntityType.FindSkipNavigation(string name)
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetDeclaredForeignKeys()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyIndex> IReadOnlyEntityType.GetDeclaredIndexes()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyKey> IReadOnlyEntityType.GetDeclaredKeys()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyNavigation> IReadOnlyEntityType.GetDeclaredNavigations()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyProperty> IReadOnlyTypeBase.GetDeclaredProperties()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetDeclaredReferencingForeignKeys()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyServiceProperty> IReadOnlyEntityType.GetDeclaredServiceProperties()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetDerivedForeignKeys()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyIndex> IReadOnlyEntityType.GetDerivedIndexes()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyEntityType> IReadOnlyEntityType.GetDirectlyDerivedTypes()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetForeignKeys()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyIndex> IReadOnlyEntityType.GetIndexes()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyKey> IReadOnlyEntityType.GetKeys()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyNavigation> IReadOnlyEntityType.GetNavigations()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyProperty> IReadOnlyTypeBase.GetProperties()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetReferencingForeignKeys()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyServiceProperty> IReadOnlyEntityType.GetServiceProperties()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlySkipNavigation> IReadOnlyEntityType.GetSkipNavigations()
-            => throw new NotImplementedException();
-
-        IReadOnlyTrigger IReadOnlyEntityType.FindDeclaredTrigger(string name)
-            => throw new NotImplementedException();
-
-        ITrigger IEntityType.FindDeclaredTrigger(string name)
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
-            => [];
-
-        IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
-            => [];
-
-        public IComplexProperty FindComplexProperty(string name)
-            => throw new NotImplementedException();
-
-        public IEnumerable<IComplexProperty> GetComplexProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IComplexProperty> GetDeclaredComplexProperties()
-            => throw new NotImplementedException();
-
-        IReadOnlyComplexProperty IReadOnlyTypeBase.FindComplexProperty(string name)
-            => throw new NotImplementedException();
-
-        public IReadOnlyComplexProperty FindDeclaredComplexProperty(string name)
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyComplexProperty> IReadOnlyTypeBase.GetComplexProperties()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyComplexProperty> IReadOnlyTypeBase.GetDeclaredComplexProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IReadOnlyComplexProperty> GetDerivedComplexProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IPropertyBase> GetMembers()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IPropertyBase> GetDeclaredMembers()
-            => throw new NotImplementedException();
-
-        public IPropertyBase FindMember(string name)
-            => throw new NotImplementedException();
-
-        public IEnumerable<IPropertyBase> FindMembersInHierarchy(string name)
-            => throw new NotImplementedException();
-
-        public IEnumerable<IPropertyBase> GetSnapshottableMembers()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetFlattenedProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IComplexProperty> GetFlattenedComplexProperties()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetFlattenedDeclaredProperties()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.GetMembers()
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.GetDeclaredMembers()
-            => throw new NotImplementedException();
-
-        IReadOnlyPropertyBase IReadOnlyTypeBase.FindMember(string name)
-            => throw new NotImplementedException();
-
-        IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.FindMembersInHierarchy(string name)
-            => throw new NotImplementedException();
-
-        IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes()
-            => GetDirectlyDerivedTypes();
-
-        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes()
-            => GetDerivedTypes();
-
-        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
-            => GetDirectlyDerivedTypes();
-
-        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters()
-            => throw new NotImplementedException();
-
-        public LambdaExpression? GetQueryFilter()
-            => throw new NotImplementedException();
-
-        public IQueryFilter? FindDeclaredQueryFilter(string? filterKey)
-            => throw new NotImplementedException();
     }
 }

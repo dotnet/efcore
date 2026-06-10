@@ -1147,7 +1147,7 @@ WHERE RegexMatch("Seattle", c["String"])
 """);
     }
 
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_None()
     //         => Fixture.NoSyncTest(
@@ -1165,7 +1165,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase()
     //         => Fixture.NoSyncTest(
@@ -1183,7 +1183,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_Multiline()
     //         => Fixture.NoSyncTest(
@@ -1201,7 +1201,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_Singleline()
     //         => Fixture.NoSyncTest(
@@ -1219,7 +1219,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnorePatternWhitespace()
     //         => Fixture.NoSyncTest(
@@ -1237,7 +1237,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_IgnorePatternWhitespace()
     //         => Fixture.NoSyncTest(
@@ -1256,7 +1256,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_RightToLeft()
     //         => AssertTranslationFailed(
@@ -1264,7 +1264,7 @@ WHERE RegexMatch("Seattle", c["String"])
     //                 async,
     //                 ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_RightToLeft()
     //         => AssertTranslationFailed(
@@ -1275,7 +1275,7 @@ WHERE RegexMatch("Seattle", c["String"])
 
     #endregion Regex
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

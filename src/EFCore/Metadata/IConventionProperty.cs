@@ -26,13 +26,6 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     new IConventionPropertyBuilder Builder { get; }
 
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IConventionEntityType or IConventionComplexType")]
-    new IConventionEntityType DeclaringEntityType
-        => (IConventionEntityType)DeclaringType;
-
-    /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.</returns>

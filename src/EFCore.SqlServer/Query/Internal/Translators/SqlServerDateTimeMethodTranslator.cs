@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -140,6 +141,27 @@ public class SqlServerDateTimeMethodTranslator(
                 sqlExpressionFactory.ApplyTypeMapping(timeZone, typeMappingSource.FindMapping("varchar")),
                 typeof(DateTimeOffset),
                 resultTypeMapping);
+        }
+
+        if (declaringType == typeof(SqlServerDbFunctionsExtensions)
+            && method.Name == nameof(SqlServerDbFunctionsExtensions.DateTrunc)
+            && arguments is [_, SqlConstantExpression { Value: string datePartValue }, var dateValue])
+        {
+            foreach (var c in datePartValue)
+            {
+                if (!char.IsLetter(c) && c != '_')
+                {
+                    throw new InvalidOperationException(SqlServerStrings.InvalidDatePart(datePartValue, "DATETRUNC"));
+                }
+            }
+
+            return sqlExpressionFactory.Function(
+                "DATETRUNC",
+                [sqlExpressionFactory.Fragment(datePartValue), dateValue],
+                nullable: true,
+                argumentsPropagateNullability: [false, true],
+                method.ReturnType.UnwrapNullableType(),
+                dateValue.TypeMapping);
         }
 
         return null;

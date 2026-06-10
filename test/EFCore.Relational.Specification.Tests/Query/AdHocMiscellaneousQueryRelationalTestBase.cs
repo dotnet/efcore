@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 2951
 
-        [ConditionalFact]
+        [Fact]
         public async Task Query_when_null_key_in_database_should_throw()
         {
             var contextFactory = await InitializeNonSharedTest<Context2951>(
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 11818
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination()
         {
             var contextFactory = await InitializeNonSharedTest<Context11818>(
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 23981
 
-        [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+        [Theory, MemberData(nameof(IsAsyncData))]
         public virtual async Task Multiple_different_entity_type_from_different_namespaces(bool async)
         {
             var contextFactory = await InitializeNonSharedTest<Context23981>();
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 27954
 
-        [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+        [Theory, MemberData(nameof(IsAsyncData))]
         public virtual async Task StoreType_for_UDF_used(bool async)
         {
             var contextFactory = await InitializeNonSharedTest<Context27954>();
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 34752
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<Context34752>())).Message;
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Inlined redacting
 
-        [ConditionalTheory, MemberData(nameof(InlinedRedactingData))]
+        [Theory, MemberData(nameof(InlinedRedactingData))]
         public virtual async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
         {
             var contextFactory = await InitializeNonSharedTest<InlinedRedactingContext>(
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 36311
 
-        [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+        [Theory, MemberData(nameof(IsAsyncData))]
         public async Task Entity_equality_with_Contains_and_Parameter(bool async)
         {
             var contextFactory = await InitializeNonSharedTest<Context36311>(
@@ -345,6 +345,53 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 public int Id { get; set; }
                 public string Name { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 36247
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context36247>(
+                seed: async ctx =>
+                {
+                    ctx.Users.AddRange(
+                        new Context36247.User { Name = new Context36247.FullName("Name1") },
+                        new Context36247.User { Name = new Context36247.FullName("Name2") });
+                    await ctx.SaveChangesAsync();
+                });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Users.Where(x => EF.Functions.Like(x.Name, "Name%"));
+
+            var result = async
+                ? await query.ToListAsync()
+                : [.. query];
+
+            Assert.Equal(2, result.Count);
+        }
+
+        protected class Context36247(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<User> Users { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<User>().Property(e => e.Name)
+                    .HasConversion(v => v.Value, v => new FullName(v));
+
+            public class User
+            {
+                public int Id { get; set; }
+                public FullName Name { get; set; }
+            }
+
+            public readonly record struct FullName(string Value)
+            {
+                public static implicit operator string(FullName fullName)
+                    => fullName.Value;
             }
         }
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
@@ -18,7 +18,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 3409
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ThenInclude_with_interface_navigations()
     {
         var contextFactory = await InitializeNonSharedTest<Context3409>(seed: c => c.SeedAsync());
@@ -155,7 +155,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 3758
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Customer_collections_materialize_properly()
     {
         var contextFactory = await InitializeNonSharedTest<Context3758>(seed: c => c.SeedAsync());
@@ -297,7 +297,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 7312
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Reference_include_on_derived_type_with_sibling_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context7312>(seed: c => c.SeedAsync());
@@ -354,7 +354,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 9038
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_collection_optional_reference_collection()
     {
         var contextFactory = await InitializeNonSharedTest<Context9038>(seed: c => c.SeedAsync());
@@ -476,7 +476,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 10635
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_with_order_by_on_interface_key()
     {
         var contextFactory = await InitializeNonSharedTest<Context10635>(seed: c => c.SeedAsync());
@@ -535,7 +535,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 11923
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Collection_without_setter_materialized_correctly()
     {
         var contextFactory = await InitializeNonSharedTest<Context11923>(seed: c => c.SeedAsync());
@@ -651,7 +651,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 11944
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_collection_works_when_defined_on_intermediate_type()
     {
         var contextFactory = await InitializeNonSharedTest<Context11944>(seed: c => c.SeedAsync());
@@ -721,7 +721,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 12456
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Let_multiple_references_with_reference_to_outer()
     {
         var contextFactory = await InitializeNonSharedTest<Context12456>();
@@ -805,7 +805,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 12582
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_collection_with_OfType_base()
     {
         var contextFactory = await InitializeNonSharedTest<Context12582>(seed: c => c.SeedAsync());
@@ -882,7 +882,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 12748
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Correlated_collection_correctly_associates_entities_with_byte_array_keys()
     {
         var contextFactory = await InitializeNonSharedTest<Context12748>(seed: c => c.SeedAsync());
@@ -926,7 +926,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 20609
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_ignore_invalid_include_path_error()
     {
         var contextFactory = await InitializeNonSharedTest<Context20609>(
@@ -978,7 +978,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 20813
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SelectMany_and_collection_in_projection_in_FirstOrDefault()
     {
         var contextFactory = await InitializeNonSharedTest<Context20813>();
@@ -1056,7 +1056,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 21768
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Using_explicit_interface_implementation_as_navigation_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context21768>();
@@ -1179,7 +1179,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 22568
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Cycles_in_auto_include()
     {
         var contextFactory = await InitializeNonSharedTest<Context22568>(seed: c => c.SeedAsync());
@@ -1341,7 +1341,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 23674
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_1()
     {
         var contextFactory = await InitializeNonSharedTest<Context23674>();
@@ -1362,7 +1362,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_2()
     {
         var contextFactory = await InitializeNonSharedTest<Context23674>();
@@ -1381,7 +1381,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_3()
     {
         var contextFactory = await InitializeNonSharedTest<Context23674>();
@@ -1396,7 +1396,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_4()
     {
         var contextFactory = await InitializeNonSharedTest<Context23674>();
@@ -1449,7 +1449,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 23676
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projection_with_multiple_includes_and_subquery_with_set_operation()
     {
         var contextFactory = await InitializeNonSharedTest<Context23676>();
@@ -1589,7 +1589,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     #region 26433
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Count_member_over_IReadOnlyCollection_works(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context26433>(seed: c => c.SeedAsync());

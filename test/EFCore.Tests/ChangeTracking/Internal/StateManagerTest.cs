@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable MemberCanBePrivate.Local
@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class StateManagerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_existing_entry_if_entity_is_already_tracked_otherwise_new_entry()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -26,7 +26,7 @@ public class StateManagerTest
         Assert.Equal(EntityState.Detached, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_primary_key()
     {
         using var context = new IdentityConflictContext();
@@ -39,7 +39,7 @@ public class StateManagerTest
                 new SingleKey { Id = 77, AlternateId = 67 })).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Identity_conflict_can_be_resolved(bool copy)
     {
         using var context = new IdentityConflictContext(
@@ -67,7 +67,7 @@ public class StateManagerTest
         Assert.Equal(copy ? "New" : "Existing", entity.Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Resolving_identity_conflict_for_primary_key_cannot_change_alternate_key()
     {
         using var context = new IdentityConflictContext(new NaiveCopyingIdentityResolutionInterceptor());
@@ -80,7 +80,7 @@ public class StateManagerTest
                 new SingleKey { Id = 77, AlternateId = 67 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Resolving_identity_conflict_for_primary_key_throws_if_alternate_key_changes()
     {
         using var context = new IdentityConflictContext(new IgnoringIdentityResolutionInterceptor());
@@ -93,7 +93,7 @@ public class StateManagerTest
                 new SingleKey { Id = 77, AlternateId = 67 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_alternate_key()
     {
         using var context = new IdentityConflictContext();
@@ -106,7 +106,7 @@ public class StateManagerTest
                 new SingleKey { Id = 78, AlternateId = 66 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Resolving_identity_conflict_for_alternate_key_cannot_change_primary_key()
     {
         using var context = new IdentityConflictContext(new NaiveCopyingIdentityResolutionInterceptor());
@@ -124,7 +124,7 @@ public class StateManagerTest
             => existingEntry.CurrentValues.SetValues(newEntity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Resolving_identity_conflict_for_alternate_key_throws_if_primary_key_changes()
     {
         using var context = new IdentityConflictContext(new IgnoringIdentityResolutionInterceptor());
@@ -136,7 +136,7 @@ public class StateManagerTest
                 new SingleKey { Id = 78, AlternateId = 66 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_owned_primary_key()
     {
         using var context = new IdentityConflictContext();
@@ -162,7 +162,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Identity_conflict_can_be_resolved_for_owned(bool copy)
     {
         using var context = new IdentityConflictContext(
@@ -195,7 +195,7 @@ public class StateManagerTest
         Assert.Equal(copy ? "New" : "Existing", owned.Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_composite_primary_key()
     {
         using var context = new IdentityConflictContext();
@@ -220,7 +220,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Identity_conflict_can_be_resolved_for_composite_primary_key(bool copy)
     {
         using var context = new IdentityConflictContext(
@@ -252,7 +252,7 @@ public class StateManagerTest
         Assert.Equal(copy ? "New" : "Existing", entity.Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_composite_alternate_key()
     {
         using var context = new IdentityConflictContext();
@@ -277,7 +277,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_owned_composite_primary_key()
     {
         using var context = new IdentityConflictContext();
@@ -308,7 +308,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_primary_key_values_logged()
     {
         using var context = new SensitiveIdentityConflictContext();
@@ -321,7 +321,7 @@ public class StateManagerTest
                 new SingleKey { Id = 77, AlternateId = 67 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_alternate_key_values_logged()
     {
         using var context = new SensitiveIdentityConflictContext();
@@ -334,7 +334,7 @@ public class StateManagerTest
                 new SingleKey { Id = 78, AlternateId = 66 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_owned_primary_keylogged()
     {
         using var context = new SensitiveIdentityConflictContext();
@@ -360,7 +360,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_composite_primary_key_values_logged()
     {
         using var context = new SensitiveIdentityConflictContext();
@@ -385,7 +385,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_composite_alternate_key_values_logged()
     {
         using var context = new SensitiveIdentityConflictContext();
@@ -410,7 +410,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_conflict_throws_for_owned_composite_primary_key_logged()
     {
         using var context = new SensitiveIdentityConflictContext();
@@ -441,7 +441,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_null_throws_for_primary_key()
     {
         using var context = new IdentityConflictContext();
@@ -451,7 +451,7 @@ public class StateManagerTest
                 new SingleKey { Id = null, AlternateId = 67 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_null_throws_for_alternate_key()
     {
         using var context = new IdentityConflictContext();
@@ -461,7 +461,7 @@ public class StateManagerTest
                 new SingleKey { Id = 77, AlternateId = null })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_null_throws_for_composite_primary_key()
     {
         using var context = new IdentityConflictContext();
@@ -477,7 +477,7 @@ public class StateManagerTest
                 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_null_throws_for_composite_alternate_key()
     {
         using var context = new IdentityConflictContext();
@@ -565,7 +565,7 @@ public class StateManagerTest
         public CompositeKeyOwned Owned { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StartTracking_is_no_op_if_entity_is_already_tracked()
     {
         var model = BuildModel();
@@ -580,7 +580,7 @@ public class StateManagerTest
         Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, snapshot));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StartTracking_throws_for_invalid_entity_key()
     {
         var model = BuildModel();
@@ -594,7 +594,7 @@ public class StateManagerTest
             Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StartTracking_throws_for_invalid_alternate_key()
     {
         var model = BuildModel();
@@ -608,7 +608,7 @@ public class StateManagerTest
             Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_existing_entry_even_if_state_not_yet_set()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -621,7 +621,7 @@ public class StateManagerTest
         Assert.Equal(EntityState.Detached, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_stop_tracking_and_then_start_tracking_again()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -636,7 +636,7 @@ public class StateManagerTest
         Assert.Same(entry, entry2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_stop_tracking_and_then_start_tracking_using_a_new_state_entry()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -652,7 +652,7 @@ public class StateManagerTest
         entry2.SetEntityState(EntityState.Added);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StopTracking_releases_reference_to_entry()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -669,7 +669,7 @@ public class StateManagerTest
         Assert.Equal(EntityState.Detached, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_attempt_to_start_tracking_entity_with_null_key()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -682,7 +682,7 @@ public class StateManagerTest
             Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_attempt_to_start_tracking_with_wrong_manager()
     {
         var model = BuildModel();
@@ -696,7 +696,7 @@ public class StateManagerTest
             Assert.Throws<InvalidOperationException>(() => stateManager2.StartTracking(entry)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Will_get_new_entry_if_another_entity_with_the_same_key_is_already_tracked()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -708,7 +708,7 @@ public class StateManagerTest
                 new Category { Id = 77 }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_entities()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -824,7 +824,7 @@ public class StateManagerTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -870,7 +870,7 @@ public class StateManagerTest
         Assert.Equal(EntityState.Modified, entry3.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AcceptAllChanges_processes_all_tracked_entities()
     {
         var stateManager = CreateStateManager(BuildModel());
@@ -905,7 +905,7 @@ public class StateManagerTest
         Assert.Equal(EntityState.Detached, entry4.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_dependent_entries()
     {
         var model = BuildModel();
@@ -955,7 +955,7 @@ public class StateManagerTest
         Assert.Empty(stateManager.GetDependents(categoryEntry4, fk).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throws_when_instance_of_unmapped_derived_type_is_used()
     {
         var model = BuildModel();
@@ -970,6 +970,126 @@ public class StateManagerTest
 
     private static IStateManager CreateStateManager(IModel model)
         => InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
+
+    [Fact]
+    public void CreateEntry_distinguishes_complex_properties_that_share_a_complex_type()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var note = entityType.FindProperty("Note")!;
+        var origin = entityType.FindComplexProperty(nameof(Place.Origin))!;
+        var destination = entityType.FindComplexProperty(nameof(Place.Destination))!;
+        var originLatitude = origin.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+        var originLongitude = origin.ComplexType.FindProperty(nameof(Coordinate.Longitude))!;
+        var destinationLatitude = destination.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+        var destinationLongitude = destination.ComplexType.FindProperty(nameof(Coordinate.Longitude))!;
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<IProperty, object>
+            {
+                { id, 1 },
+                { note, "Somewhere" },
+                { originLatitude, 11 },
+                { originLongitude, 12 },
+                { destinationLatitude, 21 },
+                { destinationLongitude, 22 }
+            },
+            entityType);
+
+        Assert.Equal("Somewhere", entry[note]);
+        Assert.Equal(11, entry[originLatitude]);
+        Assert.Equal(12, entry[originLongitude]);
+        Assert.Equal(21, entry[destinationLatitude]);
+        Assert.Equal(22, entry[destinationLongitude]);
+
+        var place = (Place)entry.Entity;
+        Assert.Equal(11, place.Origin.Latitude);
+        Assert.Equal(12, place.Origin.Longitude);
+        Assert.Equal(21, place.Destination.Latitude);
+        Assert.Equal(22, place.Destination.Longitude);
+    }
+
+    [Fact]
+    public void CreateEntry_uses_sentinel_for_unsupplied_value_type_properties()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var origin = entityType.FindComplexProperty(nameof(Place.Origin))!;
+        var originLatitude = origin.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+        var originLongitude = origin.ComplexType.FindProperty(nameof(Coordinate.Longitude))!;
+
+        // Supply only the key and one coordinate component. The unsupplied non-nullable value-type
+        // properties must fall back to their sentinel (default) values rather than null, which would
+        // otherwise cause an invalid cast during materialization.
+        var entry = stateManager.CreateEntry(
+            new Dictionary<IProperty, object> { { id, 1 }, { originLatitude, 11 } },
+            entityType);
+
+        Assert.Equal(1, entry[id]);
+        Assert.Equal(11, entry[originLatitude]);
+        Assert.Equal(originLongitude.Sentinel, entry[originLongitude]);
+
+        var place = (Place)entry.Entity;
+        Assert.Equal(11, place.Origin.Latitude);
+        Assert.Equal(0, place.Origin.Longitude);
+        Assert.Equal(0, place.Destination.Latitude);
+        Assert.Equal(0, place.Destination.Longitude);
+    }
+
+    [Fact]
+    public void CreateEntry_throws_for_property_from_another_entity_type()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+        var otherEntityType = model.FindEntityType(typeof(Location))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var foreignProperty = otherEntityType.FindProperty(nameof(Location.Planet))!;
+
+        Assert.Equal(
+            CoreStrings.PropertyDoesNotBelong(
+                foreignProperty.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
+            Assert.Throws<InvalidOperationException>(
+                () => stateManager.CreateEntry(
+                    new Dictionary<IProperty, object>
+                    {
+                        { id, 1 },
+                        { foreignProperty, "Mars" }
+                    },
+                    entityType)).Message);
+    }
+
+    [Fact]
+    public void CreateEntry_throws_for_complex_property_from_another_entity_type()
+    {
+        var model = BuildModelWithDuplicateComplexType();
+        var stateManager = CreateStateManager(model);
+        var entityType = model.FindEntityType(typeof(Place))!;
+        var otherEntityType = model.FindEntityType(typeof(Pin))!;
+
+        var id = entityType.FindProperty(nameof(Place.Id))!;
+        var otherCoordinate = otherEntityType.FindComplexProperty(nameof(Pin.At))!;
+        var foreignLatitude = otherCoordinate.ComplexType.FindProperty(nameof(Coordinate.Latitude))!;
+
+        Assert.Equal(
+            CoreStrings.PropertyDoesNotBelong(
+                foreignLatitude.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
+            Assert.Throws<InvalidOperationException>(
+                () => stateManager.CreateEntry(
+                    new Dictionary<IProperty, object>
+                    {
+                        { id, 1 },
+                        { foreignLatitude, 11 }
+                    },
+                    entityType)).Message);
+    }
 
     public class Widget
     {
@@ -1009,6 +1129,25 @@ public class StateManagerTest
         public string Planet { get; set; }
     }
 
+    private class Place
+    {
+        public int Id { get; set; }
+        public Coordinate Origin { get; set; } = null!;
+        public Coordinate Destination { get; set; } = null!;
+    }
+
+    private class Pin
+    {
+        public int Id { get; set; }
+        public Coordinate At { get; set; } = null!;
+    }
+
+    private class Coordinate
+    {
+        public int Latitude { get; set; }
+        public int Longitude { get; set; }
+    }
+
     private static IModel BuildModel()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -1025,6 +1164,24 @@ public class StateManagerTest
         builder.Entity<Category>();
 
         builder.Entity<Dogegory>();
+
+        builder.Entity<Location>();
+
+        return builder.Model.FinalizeModel();
+    }
+
+    private static IModel BuildModelWithDuplicateComplexType()
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        builder.Entity<Place>(b =>
+        {
+            b.Property<string>("Note");
+            b.ComplexProperty(e => e.Origin);
+            b.ComplexProperty(e => e.Destination);
+        });
+
+        builder.Entity<Pin>(b => b.ComplexProperty(e => e.At));
 
         builder.Entity<Location>();
 

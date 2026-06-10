@@ -1,12 +1,10 @@
 ---
 name: testing
 description: 'Implementation details for EF Core test infrastructure. Use when changing test fixtures, SQL baseline assertions, test helpers, the test class hierarchy, or when adding new tests.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Testing
-
-EF Core test infrastructure, patterns, and workflows for unit, specification, and functional tests.
 
 ## Test Categories
 
@@ -67,13 +65,30 @@ Each test gets a fresh model/store. Call `InitializeAsync<TContext>(onModelCreat
 ## Workflow: Adding New Tests
 
 1. **Specification test**: Add to `EFCore.Specification.Tests` (core) or `EFCore.Relational.Specification.Tests` (relational)
-2. **Provider override**: Override in `EFCore.{Provider}.FunctionalTests` with `AssertSql()`
+2. **Provider overrides**: Override in **every** provider functional test class (`EFCore.{Provider}.FunctionalTests`) that inherits the base with provider-appropriate assertions.
 3. **Unit test**: Add to `EFCore.{Provider}.Tests`
 4. Run with `EF_TEST_REWRITE_BASELINES=1` to capture initial baselines
+5. Run tests with project rebuilding enabled (don't use `--no-build`) to ensure code changes are picked up
+6. When testing cross-platform code (e.g., file paths, path separators), verify the fix works on both Windows and Linux/macOS
 
 ## Common Pitfalls
 
 | Pitfall | Solution |
 |---------|----------|
-| SQL or Compiled model baseline mismatch | Set `EF_TEST_REWRITE_BASELINES=1` and re-run |
-| `Check_all_tests_overridden` fails | Override new base test in provider test class |
+| Baseline mismatch (SQL or compiled model) | Re-run with `EF_TEST_REWRITE_BASELINES=1` |
+| `Check_all_tests_overridden` fails | Override the new test in every inheriting provider class |
+| SQL Server feature missing at lower compat level | Gate with `[SqlServerCondition(...)]`|
+
+## Running Tests Directly Against the Built Assembly
+
+When invoking the test DLL via `dotnet exec` (e.g. to isolate a single test method without rebuilding through `dotnet test`), always append `--filter-not-trait category=failing --ignore-exit-code 8`:
+
+```pwsh
+dotnet exec ./Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll `
+    --filter-method '*MigrationsSqlServerTest.Create_json_index_over_whole_complex_collection' `
+    --filter-not-trait category=failing --ignore-exit-code 8
+```
+
+These flags mirror what `test/Directory.Build.props` passes via `TestingPlatformCommandLineArguments`.
+
+Don't add `--no-build` unless the test assembly was built in the immediate previous step.

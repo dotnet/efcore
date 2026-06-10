@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using static SQLitePCL.raw;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
@@ -259,7 +260,7 @@ WHERE "name" = 'geometry_columns' AND "type" = 'table'
 SELECT "name", "type"
 FROM "sqlite_master"
 WHERE "type" IN ('table', 'view') AND instr("name", 'sqlite_') <> 1 AND "name" NOT IN (
-'{HistoryRepository.DefaultTableName}',
+'{HistoryRepository.DefaultTableName}', '{SqliteHistoryRepository.DefaultLockTableName}',
 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth',
 'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time',
 'spatial_ref_sys', 'spatial_ref_sys_aux', 'SpatialIndex', 'spatialite_history',

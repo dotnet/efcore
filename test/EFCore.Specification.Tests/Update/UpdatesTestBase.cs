@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 # nullable enable
@@ -16,7 +16,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #25905
+    [Theory, InlineData(false), InlineData(true)] // Issue #25905
     public virtual async Task Can_delete_and_add_for_same_key(bool async)
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -51,7 +51,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             Assert.Equal(EntityState.Detached, context.Entry(rodney1).State);
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #29789
+    [Theory, InlineData(false), InlineData(true)] // Issue #29789
     public virtual async Task Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -76,7 +76,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Single(context.Set<GiftObscurer>());
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_change_type_of__dependent_by_replacing_with_new_dependent(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -101,7 +101,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Single(context.Set<LiftObscurer>());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         var id1 = Guid.NewGuid();
@@ -144,7 +144,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Save_partial_update()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -172,7 +172,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Save_partial_update_on_missing_record_throws()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -186,7 +186,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync())).Message);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -209,7 +209,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_on_bytes_concurrency_token_original_value_mismatch_throws()
     {
         var productId = Guid.NewGuid();
@@ -244,7 +244,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             async context => Assert.Equal("MegaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
     {
         var productId = Guid.NewGuid();
@@ -279,7 +279,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             async context => Assert.Equal("GigaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
     {
         var productId = Guid.NewGuid();
@@ -314,7 +314,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             async context => Assert.Equal("MegaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
     {
         var productId = Guid.NewGuid();
@@ -349,7 +349,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             async context => Assert.Null(await context.ProductWithBytes.FindAsync(productId)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_add_and_remove_self_refs()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -407,7 +407,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal("1", people.Single(p => p.Parent == null).Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_change_enums_with_conversion()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -446,7 +446,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal("42100", person.ZipCode);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_remove_partial()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -467,7 +467,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Remove_partial_on_missing_record_throws()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -479,7 +479,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync())).Message);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Remove_partial_on_concurrency_token_original_value_mismatch_throws()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -498,7 +498,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Save_replaced_principal()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -528,7 +528,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal(2, products.Count);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public Task SaveChanges_processes_all_tracked_entities(bool async)
     {
         var categoryId = 0;
@@ -582,7 +582,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public Task SaveChanges_false_processes_all_tracked_entities_without_calling_AcceptAllChanges(bool async)
     {
         var categoryId = 0;
@@ -639,7 +639,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public Task Ignore_before_save_property_is_still_generated(bool async)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -677,7 +677,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal("CC2", ((CupCake)bakedGoods[0]).CupCakeName);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public Task Ignore_before_save_property_is_still_generated_graph(bool async)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>

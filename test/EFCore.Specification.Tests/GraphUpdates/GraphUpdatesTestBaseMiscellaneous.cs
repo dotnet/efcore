@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class GraphUpdatesTestBase<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #27299
+    [Theory, InlineData(false), InlineData(true)] // Issue #27299
     public virtual async Task Can_insert_when_composite_FK_has_default_value_for_one_part(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -53,7 +53,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal("B", something.SomethingOfCategoryB.Name);
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #23974
+    [Theory, InlineData(false), InlineData(true)] // Issue #23974
     public virtual async Task Can_insert_when_FK_has_default_value(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -76,7 +76,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateId);
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_when_FK_has_sentinel_value(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -99,7 +99,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateWithSentinelId);
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task ClientSetDefault_with_sentinel_value_sets_FK_to_sentinel_on_delete(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -156,16 +156,16 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(667, child.ParentId); // Verify FK was persisted with sentinel value
             });
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)
         => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);
 
-    [ConditionalTheory, InlineData(false, 0), InlineData(true, 0), InlineData(false, 1), InlineData(true, 1), InlineData(false, 2),
+    [Theory, InlineData(false, 0), InlineData(true, 0), InlineData(false, 1), InlineData(true, 1), InlineData(false, 2),
      InlineData(true, 2)]
     public virtual Task Can_insert_when_int_PK_in_composite_key_has_sentinel_value(bool async, int initialValue)
         => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Can_insert_when_nullable_bool_PK_in_composite_key_has_sentinel_value(bool async, bool? initialValue)
         => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);
 
@@ -203,11 +203,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Throws_for_single_property_bool_key_with_default_value_generation(bool async, bool initialValue)
         => Throws_for_single_property_key_with_default_value_generation(async, initialValue);
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Throws_for_single_property_nullable_bool_key_with_default_value_generation(bool async, bool? initialValue)
         => Throws_for_single_property_key_with_default_value_generation(async, initialValue);
 
@@ -226,7 +226,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #23043
+    [Theory, InlineData(false), InlineData(true)] // Issue #23043
     public virtual async Task Saving_multiple_modified_entities_with_the_same_key_does_not_overflow(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -265,7 +265,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #22465
+    [Theory, InlineData(false), InlineData(true)] // Issue #22465
     public virtual async Task Reset_unknown_original_value_when_current_value_is_set(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -319,7 +319,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #19856
+    [Theory, InlineData(false), InlineData(true)] // Issue #19856
     public virtual async Task Update_principal_with_shadow_key_owned_collection_throws(bool async)
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -347,7 +347,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #19856
+    [Theory, InlineData(false), InlineData(true)] // Issue #19856
     public virtual async Task Delete_principal_with_shadow_key_owned_collection_throws(bool async)
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -390,7 +390,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             }
         });
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
      InlineData(false, true, true), InlineData(true, false, false), InlineData(true, false, true), InlineData(true, true, false),
      InlineData(true, true, true)] // Issue #19856
     public virtual async Task Clearing_shadow_key_owned_collection_throws(bool async, bool useUpdate, bool addNew)
@@ -431,7 +431,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #26330
+    [Theory, InlineData(false), InlineData(true)] // Issue #26330
     public virtual async Task Saving_unknown_key_value_marks_it_as_unmodified(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -479,7 +479,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #19856
+    [Theory, InlineData(false), InlineData(true)] // Issue #19856
     public virtual async Task Update_principal_with_CLR_key_owned_collection(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -534,7 +534,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(1, owner.OwnedCollectionPrivateKey.Count(e => e.Bar == "OfGold"));
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #19856
+    [Theory, InlineData(false), InlineData(true)] // Issue #19856
     public virtual async Task Delete_principal_with_CLR_key_owned_collection(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -597,7 +597,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
      InlineData(false, true, true), InlineData(true, false, false), InlineData(true, false, true), InlineData(true, true, false),
      InlineData(true, true, true)] // Issue #19856
     public virtual async Task Clearing_CLR_key_owned_collection(bool async, bool useUpdate, bool addNew)
@@ -672,7 +672,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #19856
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #19856
     public virtual async Task Update_principal_with_non_generated_shadow_key_owned_collection_throws(bool async, bool delete)
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -721,7 +721,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #21206
+    [Theory, InlineData(false), InlineData(true)] // Issue #21206
     public virtual async Task Discriminator_values_are_not_marked_as_unknown(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -767,7 +767,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(1, contracts.Count(e => e is ProviderContract2));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Avoid_nulling_shared_FK_property_when_deleting()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -864,7 +864,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual Task Avoid_nulling_shared_FK_property_when_nulling_navigation(bool nullPrincipal)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -950,7 +950,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Null(parent.DependantId);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Mutating_discriminator_value_throws_by_convention()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -967,7 +967,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Mutating_discriminator_value_can_be_configured_to_allow_mutation()
     {
         var id = 0;
@@ -994,7 +994,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, InlineData((int)ChangeMechanism.Fk), InlineData((int)ChangeMechanism.Dependent),
+    [Theory, InlineData((int)ChangeMechanism.Fk), InlineData((int)ChangeMechanism.Dependent),
      InlineData((int)(ChangeMechanism.Dependent | ChangeMechanism.Fk))]
     public virtual Task Changes_to_Added_relationships_are_picked_up(ChangeMechanism changeMechanism)
     {
@@ -1048,7 +1048,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(false, CascadeTiming.OnSaveChanges),
      InlineData(false, CascadeTiming.Immediate),
      InlineData(false, CascadeTiming.Never),
@@ -1136,7 +1136,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.Never),
+    [Theory, InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.Never),
      InlineData(null)]
     public virtual async Task No_fixup_to_Deleted_entities(
         CascadeTiming? deleteOrphansTiming)
@@ -1168,7 +1168,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         Assert.Contains(existing, queried);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Notification_entities_can_have_indexes()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1201,7 +1201,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             Assert.Equal(EntityState.Detached, context.Entry(produce).State);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Resetting_a_deleted_reference_fixes_up_again()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1274,7 +1274,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             }
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Detaching_principal_entity_will_remove_references_to_it()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1364,7 +1364,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             Assert.True(root.RequiredCompositeChildren.All(e => e.Parent != null));
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Detaching_dependent_entity_will_not_remove_references_to_it()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1497,7 +1497,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             Assert.Contains(requiredCompositeChild, root.RequiredCompositeChildren);
         });
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -1561,7 +1561,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sometimes_not_calling_DetectChanges_when_required_does_not_throw_for_null_ref()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1597,7 +1597,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Empty(principal.BadOrders);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_add_valid_first_dependent_when_multiple_possible_principal_sides()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1623,7 +1623,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Empty(context.Set<HiddenAreaTask>().Include(e => e.Choices));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_add_valid_second_dependent_when_multiple_possible_principal_sides()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1649,7 +1649,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Empty(context.Set<QuizTask>().Include(e => e.Choices));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_add_multiple_dependents_when_multiple_possible_principal_sides()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1697,7 +1697,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30122
+    [Theory, InlineData(false), InlineData(true)] // Issue #30122
     public virtual Task Sever_relationship_that_will_later_be_deleted(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1723,7 +1723,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             Assert.Contains(entries, e => e.Entity.GetType() == typeof(Swede));
         });
 
-    [ConditionalFact] // Issue #32168
+    [Fact] // Issue #32168
     public virtual Task Save_changed_owned_one_to_one()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1764,7 +1764,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal("RS2`", root.RequiredSingle.Single.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Save_changed_owned_one_to_many()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -1847,7 +1847,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30135
+    [Theory, InlineData(false), InlineData(true)] // Issue #30135
     public virtual Task Update_root_by_collection_replacement_of_inserted_first_level(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1864,7 +1864,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             }
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30135
+    [Theory, InlineData(false), InlineData(true)] // Issue #30135
     public virtual Task Update_root_by_collection_replacement_of_deleted_first_level(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1879,7 +1879,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             }
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30135
+    [Theory, InlineData(false), InlineData(true)] // Issue #30135
     public virtual Task Update_root_by_collection_replacement_of_inserted_second_level(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1904,7 +1904,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             }
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30135
+    [Theory, InlineData(false), InlineData(true)] // Issue #30135
     public virtual Task Update_root_by_collection_replacement_of_deleted_second_level(
         bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
@@ -1922,7 +1922,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             }
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30135
+    [Theory, InlineData(false), InlineData(true)] // Issue #30135
     public virtual Task Update_root_by_collection_replacement_of_inserted_first_level_level(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1951,7 +1951,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             }
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30135
+    [Theory, InlineData(false), InlineData(true)] // Issue #30135
     public virtual Task Update_root_by_collection_replacement_of_deleted_third_level(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2124,7 +2124,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         return secondLevel;
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #28961 and Issue #32385
+    [Theory, InlineData(false), InlineData(true)] // Issue #28961 and Issue #32385
     public virtual Task Alternate_key_over_foreign_key_doesnt_bypass_delete_behavior(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2145,7 +2145,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             Assert.Equal(1, context.ChangeTracker.Entries().Count());
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #30764
+    [Theory, InlineData(false), InlineData(true)] // Issue #30764
     public virtual Task Shadow_skip_navigation_in_base_class_is_handled(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2157,7 +2157,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             Assert.Equal(nameof(Lettuce2), context.Entry(entities[0]).Property<string>("Discriminator").CurrentValue);
         });
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #32084
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #32084
     public virtual Task Mark_explicitly_set_dependent_appropriately_with_any_inheritance_and_stable_generator(bool async, bool useAdd)
     {
         var parentId = Guid.NewGuid();
@@ -2217,7 +2217,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #32084
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #32084
     public virtual Task Mark_explicitly_set_stable_dependent_appropriately(bool async, bool useAdd)
     {
         var parentId = Guid.NewGuid();
@@ -2266,7 +2266,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #32084
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #32084
     public virtual Task Mark_explicitly_set_stable_dependent_appropriately_when_deep_in_graph(bool async, bool useAdd)
     {
         var parentId = Guid.NewGuid();
@@ -2317,7 +2317,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
     }
 
     #region Issue37310
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_update_many_to_many_and_reference_with_composite_key(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>

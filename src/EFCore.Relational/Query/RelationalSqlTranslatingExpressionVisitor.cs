@@ -348,7 +348,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             if (discriminatorProperty == null)
             {
                 // TPT or TPC
-                var discriminatorValue = derivedType.ShortName();
+                var discriminatorValue = (string)derivedType.GetDiscriminatorValue()!;
                 if (typeReference.Subquery != null)
                 {
                     var shaper = (StructuralTypeShaperExpression)typeReference.Subquery.ShaperExpression;
@@ -382,7 +382,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         // TPT case
                         // Most root type doesn't have matching case
                         // All derived types needs to be excluded
-                        var derivedTypeValues = derivedType.GetDerivedTypes().Where(e => !e.IsAbstract()).Select(e => e.ShortName())
+                        var derivedTypeValues = derivedType.GetDerivedTypes().Where(e => !e.IsAbstract()).Select(e => (string)e.GetDiscriminatorValue()!)
                             .ToList();
                         var predicates = new List<SqlExpression>();
                         foreach (var caseWhenClause in caseExpression.WhenClauses)
@@ -1056,7 +1056,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         if (typeReference.StructuralType is not IEntityType entityType)
         {
-            return Expression.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+            return _sqlExpressionFactory.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
         }
 
         if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
@@ -1348,7 +1348,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             case { Subquery: { } subquery }:
             {
                 var entityShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
-                var subSelectExpression = (SelectExpression)subquery.QueryExpression;
+                var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
 
                 var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
                 var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);

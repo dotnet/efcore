@@ -21,13 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
 {
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IMutableEntityType or IMutableComplexType")]
-    new IMutableEntityType DeclaringEntityType
-        => (IMutableEntityType)DeclaringType;
-
-    /// <summary>
     ///     Gets or sets a value indicating whether this property can contain <see langword="null" />.
     /// </summary>
     new bool IsNullable { get; set; }

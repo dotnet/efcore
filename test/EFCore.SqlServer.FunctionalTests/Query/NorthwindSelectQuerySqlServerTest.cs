@@ -17,7 +17,7 @@ public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalT
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -856,8 +856,24 @@ WHERE [c].[CustomerID] = N'ALFKI'
     {
         await base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='1'
+
+SELECT (
+    SELECT TOP(LEAST(@i, 1)) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='1'
 
 SELECT (
@@ -871,6 +887,7 @@ SELECT (
     ORDER BY [o0].[OrderID])
 FROM [Customers] AS [c]
 """);
+        }
     }
 
     public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(bool async)
@@ -1213,6 +1230,19 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
+    public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+    {
+        await base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async);
+
+        AssertSql(
+            """
+SELECT [v].[Value] AS [k], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS APPLY (VALUES (CAST(N'a' AS nvarchar(max))), (N'b')) AS [v]([Value])
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
+    }
+
     public override async Task SelectMany_correlated_with_outer_1(bool async)
     {
         await base.SelectMany_correlated_with_outer_1(async);
@@ -1369,8 +1399,22 @@ INNER JOIN (
     {
         await base.Select_with_multiple_Take(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='5'
+@p1='3'
+
+SELECT TOP(LEAST(@p, @p1)) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p1='3'
 @p='5'
 
@@ -1382,6 +1426,7 @@ FROM (
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
 """);
+        }
     }
 
     public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)

@@ -192,7 +192,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             model.GetEntityTypes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Vector_index()
         => Test(
             modelBuilder =>
@@ -202,8 +202,8 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 {
                     b.Property(e => e.Vector).HasColumnType("vector(3)");
                     b.HasVectorIndex(e => e.Vector)
-                        .UseMetric("cosine")
-                        .UseType("DiskANN");
+                        .HasMetric("cosine")
+                        .HasType("DiskANN");
                 });
 #pragma warning restore EF9105
             },
@@ -214,14 +214,13 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.False(vectorProperty.IsAutoLoaded);
 
                 var index = entityType.GetIndexes().Single();
-                // Vector index annotations are not used at runtime, so they are not included in the compiled model
-                Assert.Null(index[SqlServerAnnotationNames.VectorIndexMetric]);
-                Assert.Null(index[SqlServerAnnotationNames.VectorIndexType]);
+                Assert.Equal("cosine", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
             },
             useContext: null,
             additionalSourceFiles: []);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Full_text_index()
         => Test(
             modelBuilder =>
@@ -231,10 +230,10 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 modelBuilder.Entity<FullTextEntity>(b =>
                 {
                     b.HasFullTextIndex(e => e.Title)
-                        .HasKeyIndex("PK_FullTextEntity")
-                        .OnCatalog("MyCatalog")
-                        .WithChangeTracking(FullTextChangeTracking.Manual)
-                        .HasLanguage("Title", "English");
+                        .UseKeyIndex("PK_FullTextEntity")
+                        .UseCatalog("MyCatalog")
+                        .HasChangeTracking(FullTextChangeTracking.Manual)
+                        .UseLanguage("Title", "English");
                 });
             },
             model =>
@@ -339,6 +338,20 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         Assert.Equal([alternateIndex], principalBaseId.GetContainingIndexes());
     }
 
+    // ConditionalFact does not work on overridden test methods (xunit discovers the override via
+    // the base method's [Fact] and the conditional attribute is ignored). Use [Fact] + a runtime
+    // skip so the condition is honored when the override actually runs.
+    [Fact]
+    public override Task ComplexTypes()
+    {
+        if (!SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            throw Xunit.Sdk.SkipException.ForSkip("Requires IsJsonTypeSupported");
+        }
+
+        return base.ComplexTypes();
+    }
+
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         base.BuildComplexTypesModel(modelBuilder);
@@ -354,6 +367,12 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                         .IsSparse()
                         .UseCollation("Latin1_General_CI_AI");
                 });
+        });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.ComplexProperty(p => p.Dependent, cb => cb.HasColumnType("json"));
+            eb.ComplexCollection<IList<OwnedType>, OwnedType>("ManyOwned", cb => cb.HasColumnType("json"));
         });
     }
 
@@ -393,7 +412,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             Assert.Throws<InvalidOperationException>(() => detailsProperty.IsSparse()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_HiLo_sequence()
         => Test(
             modelBuilder =>
@@ -424,7 +443,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.Same(hiLo, dataEntity.FindPrimaryKey()!.Properties.Single().FindHiLoSequence());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_sequence()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -452,7 +471,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.Same(keySequence, dataEntity!.FindPrimaryKey()!.Properties.Single().FindSequence());
             });
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public virtual Task SpatialTypesTest()
         => Test(
             modelBuilder => modelBuilder.Entity<SpatialTypes>(eb =>

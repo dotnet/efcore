@@ -476,7 +476,7 @@ VALUES(
 
     #region EnumLegacyValues
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Read_enum_property_with_legacy_values(bool async);
 
     protected virtual async Task Read_enum_property_with_legacy_values_core(bool async)
@@ -506,7 +506,7 @@ VALUES(
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_json_entity_with_enum_properties_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -546,7 +546,7 @@ VALUES(
             l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues)));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_json_entity_collection_with_enum_properties_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -680,6 +680,20 @@ N'e1')
 SELECT TOP(2) [m].[Id], [m].[PropertyInMainTable], [o].[PropertyInOtherTable], [m].[Json]
 FROM [MyEntity] AS [m]
 INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
+""");
+    }
+
+    public override async Task Value_converter_equality_null_scalar()
+    {
+        await base.Value_converter_equality_null_scalar();
+
+        AssertSql(
+            """
+@entity_equality_complexType='{"IntToString":"\u003Cnull\u003E"}' (Size = 34)
+
+SELECT COUNT(*)
+FROM [Entities] AS [e]
+WHERE [e].[Json] = @entity_equality_complexType
 """);
     }
 }

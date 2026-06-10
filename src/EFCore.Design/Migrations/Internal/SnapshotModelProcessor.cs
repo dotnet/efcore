@@ -129,9 +129,8 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
 
     private static void UpdateComplexPropertyNullability(IMutableComplexProperty complexProperty, string version)
     {
-        if ((version.StartsWith("8.", StringComparison.Ordinal)
-                || version.StartsWith("9.", StringComparison.Ordinal))
-            && !complexProperty.ClrType.IsNullableType())
+        if (version.StartsWith("8.", StringComparison.Ordinal)
+            || version.StartsWith("9.", StringComparison.Ordinal))
         {
             complexProperty.IsNullable = false;
         }

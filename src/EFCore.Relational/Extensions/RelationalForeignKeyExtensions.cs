@@ -23,6 +23,11 @@ public static class RelationalForeignKeyExtensions
     /// <returns>The foreign key constraint name.</returns>
     public static string? GetConstraintName(this IReadOnlyForeignKey foreignKey)
     {
+        if (!foreignKey.IsConstrained)
+        {
+            return null;
+        }
+
         var tableName = foreignKey.DeclaringEntityType.GetTableName();
         if (tableName == null)
         {

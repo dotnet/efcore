@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -22,17 +23,6 @@ public static class InternalUpdateEntryExtensions
     public static object? GetCurrentProviderValue(this IInternalEntry updateEntry, IProperty property)
     {
         var value = updateEntry.GetCurrentValue(property);
-        var typeMapping = property.GetTypeMapping();
-        value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
-            ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
-            : value;
-
-        var converter = typeMapping.Converter;
-        if (converter != null)
-        {
-            value = converter.ConvertToProvider(value);
-        }
-
-        return value;
+        return property.ConvertToProviderValue(value);
     }
 }

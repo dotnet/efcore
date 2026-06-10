@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -6,14 +6,14 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
 public class JsonUpdateJsonTypeSqlServerTest : JsonUpdateTestBase<JsonUpdateJsonTypeSqlServerFixture>
 {
     public JsonUpdateJsonTypeSqlServerTest(JsonUpdateJsonTypeSqlServerFixture fixture)
         : base(fixture)
         => ClearLog();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1463,7 +1463,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Edit_single_property_with_converter_string_True_False_to_bool()
     {
         await base.Edit_single_property_with_converter_string_True_False_to_bool();
@@ -1487,7 +1487,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Edit_single_property_with_converter_string_Y_N_to_bool()
     {
         await base.Edit_single_property_with_converter_string_Y_N_to_bool();
@@ -1582,7 +1582,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact(Skip = "TODO:SQLJSON Hangs (See InsertsHang.cs")]
+    [Fact(Skip = "TODO:SQLJSON Hangs (See InsertsHang.cs")]
     public override async Task Edit_single_property_collection_of_char()
     {
         await base.Edit_single_property_collection_of_char();
@@ -2497,9 +2497,9 @@ WHERE [j].[Id] = 2
 
         var parameterSize = value switch
         {
-            true => "1558",
-            false => "1555",
-            _ => "1557"
+            true => "1560",
+            false => "1557",
+            _ => "1559"
         };
 
         var updateParameter = value switch
@@ -2531,7 +2531,7 @@ WHERE [j].[Id] = 2
         AssertSql(
             @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
             + characterCollection
-            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
+            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":""Null"",""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
             + parameterSize
             + @")
 @p1='7624'
@@ -2702,7 +2702,7 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact(Skip = "TODO:SQLJSON Investigate")]
+    [Fact(Skip = "TODO:SQLJSON Investigate")]
     public override async Task Edit_single_property_relational_collection_of_char()
     {
         await base.Edit_single_property_relational_collection_of_char();

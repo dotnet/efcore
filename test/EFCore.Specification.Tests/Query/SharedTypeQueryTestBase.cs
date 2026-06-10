@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -10,7 +10,7 @@ public abstract class SharedTypeQueryTestBase(NonSharedFixture fixture) : NonSha
     protected override string NonSharedStoreName
         => "SharedTypeQueryTests";
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_use_shared_type_entity_type_in_query_filter(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContext24601>(

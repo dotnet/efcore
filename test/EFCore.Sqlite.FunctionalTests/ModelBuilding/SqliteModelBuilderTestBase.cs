@@ -10,7 +10,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqliteNonRelationship(SqliteModelBuilderFixture fixture)
         : RelationalNonRelationshipTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>
     {
-        [ConditionalFact]
+        [Fact]
         public void UseAutoincrement_sets_value_generation_strategy()
         {
             var modelBuilder = CreateModelBuilder();
@@ -24,7 +24,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, propertyBuilder.Metadata.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Generic_UseAutoincrement_sets_value_generation_strategy()
         {
             var modelBuilder = CreateModelBuilder();
@@ -38,7 +38,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, propertyBuilder.Metadata.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Default_value_generation_strategy_for_integer_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -54,7 +54,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, property.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void No_autoincrement_for_non_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -69,7 +69,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void No_autoincrement_for_non_integer_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -84,7 +84,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void No_autoincrement_for_composite_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -104,7 +104,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.None, property2.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void No_autoincrement_when_default_value_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -120,7 +120,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void No_autoincrement_when_default_value_sql_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -136,7 +136,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void No_autoincrement_when_computed_column_sql_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -152,7 +152,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void No_autoincrement_when_property_is_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();

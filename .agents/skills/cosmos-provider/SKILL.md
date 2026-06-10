@@ -1,17 +1,12 @@
 ---
 name: cosmos-provider
 description: 'Implementation details for the EF Core Azure Cosmos DB provider. Use when changing Cosmos-specific code.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Cosmos DB Provider
 
 Non-relational provider with its own parallel query pipeline. Uses JSON for document materialization.
-
-## When to Use
-
-- Working on Cosmos SQL generation
-- Working on document storage, partition key configuration, or `CosmosClientWrapper`
 
 ## Key Differences from Relational
 
@@ -20,3 +15,8 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - Partition key configuration required for performance
 - `ETag` for optimistic concurrency
 - No cross-container joins
+
+## Azure Cosmos DB Emulator for Tests
+
+- `TestEnvironment.InitializeAsync()` auto-starts a `Testcontainers.CosmosDb` container when `Test__Cosmos__DefaultConnection` is not set. Set the env var to use an existing emulator instead.
+- Skip tests requiring unsupported features on the Linux emulator with ` [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]`.

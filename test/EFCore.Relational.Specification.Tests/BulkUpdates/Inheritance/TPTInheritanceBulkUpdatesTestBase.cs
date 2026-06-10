@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
@@ -39,11 +39,11 @@ public abstract class TPTInheritanceBulkUpdatesTestBase<TFixture> : InheritanceB
             RelationalStrings.ExecuteOperationOnTPT("ExecuteDelete", "Animal"),
             () => base.Delete_GroupBy_Where_Select_First_3(async));
 
-    [ConditionalTheory(Skip = "FK constraint issue")]
+    [Theory(Skip = "FK constraint issue")]
     public override Task Delete_where_using_hierarchy(bool async)
         => base.Delete_where_using_hierarchy(async);
 
-    [ConditionalTheory(Skip = "FK constraint issue")]
+    [Theory(Skip = "FK constraint issue")]
     public override Task Delete_where_using_hierarchy_derived(bool async)
         => base.Delete_where_using_hierarchy_derived(async);
 

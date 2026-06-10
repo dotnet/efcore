@@ -15,7 +15,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         // TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_roundtrip()
     {
         await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
@@ -42,7 +42,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task ExecuteDelete_throws_for_entity_splitting(bool async)
     {
         await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
@@ -119,7 +119,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
     protected virtual EntitySplittingContext CreateContext()
         => ContextFactory.CreateDbContext();
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
 

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -17,7 +18,7 @@ public static class SqlServerQueryableExtensions
     #region VectorSearch
 
     /// <summary>
-    ///     Search for vectors similar to a given query vector using an approximate nearest neighbors vector search algorithm.
+    ///     Search for vectors similar to a given query vector using the SQL Server <c>VECTOR_SEARCH()</c> function.
     /// </summary>
     /// <param name="source">The <see cref="DbSet{T}" /> representing the table containing the vector column to query.</param>
     /// <param name="vectorPropertySelector">A selector for the vector property on the entity.</param>
@@ -27,7 +28,13 @@ public static class SqlServerQueryableExtensions
     ///     An ANN (Approximate Nearest Neighbor) index is used only if a matching ANN index, with the same metric and on the same column,
     ///     is found. If there are no compatible ANN indexes, a warning is raised and the KNN (k-Nearest Neighbor) algorithm is used.
     /// </param>
-    /// <param name="topN">The maximum number of similar vectors that must be returned. It must be a positive integer.</param>
+    /// <remarks>
+    ///     <para>
+    ///         Use <see cref="WithApproximate{T}" /> after <c>Take(...)</c> to enable approximate nearest neighbor (ANN)
+    ///         search, which uses the vector index for better performance. Without <c>WithApproximate</c>, an exact k-nearest
+    ///         neighbor (kNN) search is performed. Add an explicit <c>OrderBy</c> to control result ordering.
+    ///     </para>
+    /// </remarks>
     /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql">
     ///     SQL Server documentation for <c>VECTOR_SEARCH()</c>.
     /// </seealso>
@@ -37,8 +44,7 @@ public static class SqlServerQueryableExtensions
         this DbSet<T> source,
         Expression<Func<T, TVector>> vectorPropertySelector,
         TVector similarTo,
-        [NotParameterized] string metric,
-        int topN)
+        [NotParameterized] string metric)
         where T : class
         where TVector : unmanaged
     {
@@ -49,12 +55,11 @@ public static class SqlServerQueryableExtensions
             ? queryableSource.Provider.CreateQuery<VectorSearchResult<T>>(
                 Expression.Call(
                     // Note that the method used is the one below, accepting IQueryable<T>, not DbSet<T>
-                    method: new Func<IQueryable<T>, Expression<Func<T, TVector>>, TVector, string, int, IQueryable<VectorSearchResult<T>>>(VectorSearch).Method,
+                    method: new Func<IQueryable<T>, Expression<Func<T, TVector>>, TVector, string, IQueryable<VectorSearchResult<T>>>(VectorSearch).Method,
                     root,
                     Expression.Quote(vectorPropertySelector),
                     Expression.Constant(similarTo),
-                    Expression.Constant(metric),
-                    Expression.Constant(topN)))
+                    Expression.Constant(metric)))
             : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(VectorSearch)));
     }
 
@@ -66,73 +71,53 @@ public static class SqlServerQueryableExtensions
         this IQueryable<T> source,
         Expression<Func<T, TVector>> vectorPropertySelector,
         TVector similarTo,
-        [NotParameterized] string metric,
-        int topN)
+        [NotParameterized] string metric)
         where T : class
         where TVector : unmanaged
         => throw new UnreachableException();
+
+    /// <summary>
+    ///     Enables approximate nearest neighbor (ANN) search for a vector search query. This causes <c>WITH APPROXIMATE</c> to
+    ///     be added to the SQL <c>TOP</c> clause, instructing SQL Server to use the vector index for better performance.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method must be called after <c>Take(...)</c> to specify the number of results. Without <c>WithApproximate</c>,
+    ///         vector search performs an exact k-nearest neighbor (kNN) search without using the vector index.
+    ///     </para>
+    /// </remarks>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql">
+    ///     SQL Server documentation for <c>VECTOR_SEARCH()</c>.
+    /// </seealso>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static IQueryable<T> WithApproximate<T>(this IQueryable<T> source)
+    {
+        var queryableSource = (IQueryable)source;
+
+        return queryableSource.Provider is EntityQueryProvider
+            ? queryableSource.Provider.CreateQuery<T>(
+                Expression.Call(
+                    method: new Func<IQueryable<T>, IQueryable<T>>(WithApproximate).Method,
+                    queryableSource.Expression))
+            : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(WithApproximate)));
+    }
 
     #endregion VectorSearch
 
     #region Full-text search TVFs
 
     /// <summary>
-    ///     Queries a full-text index using the SQL Server <c>FREETEXTTABLE</c> function with a property selector.
+    ///     Queries a full-text index using the SQL Server <c>FREETEXTTABLE</c> function.
     /// </summary>
     /// <typeparam name="T">The entity type being queried.</typeparam>
     /// <typeparam name="TKey">The type of the full-text key column.</typeparam>
     /// <param name="source">The <see cref="DbSet{T}" /> representing the table with the full-text index.</param>
+    /// <param name="freeText">The text to search for.</param>
     /// <param name="columnSelector">
-    ///     A selector for the column(s) to search. Can be a single property (e.g., <c>e =&gt; e.Title</c>)
+    ///     An optional selector for the column(s) to search. Can be a single property (e.g., <c>e =&gt; e.Title</c>)
     ///     or multiple properties via an anonymous type (e.g., <c>e =&gt; new { e.Title, e.Body }</c>).
+    ///     When omitted, all full-text indexed columns are searched.
     /// </param>
-    /// <param name="freeText">The text to search for.</param>
-    /// <param name="languageTerm">Optional language term from <c>sys.syslanguages</c> for word-breaking.</param>
-    /// <param name="topN">Optional maximum number of results to return.</param>
-    /// <returns>An <see cref="IQueryable{T}" /> of <see cref="FullTextSearchResult{TKey}" /> containing the key and rank of matching rows.</returns>
-    /// <remarks>
-    ///     <para>
-    ///         Use the <see cref="FullTextSearchResult{TKey}.Key" /> property to join back to the original table
-    ///         to retrieve the full entity data.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://learn.microsoft.com/sql/relational-databases/system-functions/freetexttable-transact-sql">
-    ///         SQL Server documentation for <c>FREETEXTTABLE</c></see> for more information.
-    ///     </para>
-    /// </remarks>
-    public static IQueryable<FullTextSearchResult<TKey>> FreeTextTable<T, TKey>(
-        this DbSet<T> source,
-        Expression<Func<T, object>> columnSelector,
-        string freeText,
-        [NotParameterized] string? languageTerm = null,
-        int? topN = null)
-        where T : class
-    {
-        var queryableSource = (IQueryable)source;
-        var root = (EntityQueryRootExpression)queryableSource.Expression;
-
-        return queryableSource.Provider is EntityQueryProvider
-            ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
-                Expression.Call(
-                    method: new Func<
-                        IQueryable<T>,
-                        Expression<Func<T, object>>, string, string?, int?,
-                        IQueryable<FullTextSearchResult<TKey>>>(FreeTextTable<T, TKey>).Method,
-                    root,
-                    Expression.Quote(columnSelector),
-                    Expression.Constant(freeText),
-                    Expression.Constant(languageTerm, typeof(string)),
-                    Expression.Constant(topN, typeof(int?))))
-            : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(FreeTextTable)));
-    }
-
-    /// <summary>
-    ///     Queries a full-text index using the SQL Server <c>FREETEXTTABLE</c> function, searching all full-text indexed columns.
-    /// </summary>
-    /// <typeparam name="T">The entity type being queried.</typeparam>
-    /// <typeparam name="TKey">The type of the full-text key column.</typeparam>
-    /// <param name="source">The <see cref="DbSet{T}" /> representing the table with the full-text index.</param>
-    /// <param name="freeText">The text to search for.</param>
     /// <param name="languageTerm">Optional language term from <c>sys.syslanguages</c> for word-breaking.</param>
     /// <param name="topN">Optional maximum number of results to return.</param>
     /// <returns>An <see cref="IQueryable{T}" /> of <see cref="FullTextSearchResult{TKey}" /> containing the key and rank of matching rows.</returns>
@@ -149,6 +134,7 @@ public static class SqlServerQueryableExtensions
     public static IQueryable<FullTextSearchResult<TKey>> FreeTextTable<T, TKey>(
         this DbSet<T> source,
         string freeText,
+        Expression<Func<T, object>>? columnSelector = null,
         [NotParameterized] string? languageTerm = null,
         int? topN = null)
         where T : class
@@ -156,7 +142,12 @@ public static class SqlServerQueryableExtensions
         var queryableSource = (IQueryable)source;
         var root = (EntityQueryRootExpression)queryableSource.Expression;
 
-        return queryableSource.Provider is EntityQueryProvider
+        if (queryableSource.Provider is not EntityQueryProvider)
+        {
+            throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(FreeTextTable)));
+        }
+
+        return columnSelector is null
             ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
                 Expression.Call(
                     method: new Func<
@@ -169,7 +160,17 @@ public static class SqlServerQueryableExtensions
                     Expression.Constant(freeText),
                     Expression.Constant(languageTerm, typeof(string)),
                     Expression.Constant(topN, typeof(int?))))
-            : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(FreeTextTable)));
+            : queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
+                Expression.Call(
+                    method: new Func<
+                        IQueryable<T>,
+                        Expression<Func<T, object>>, string, string?, int?,
+                        IQueryable<FullTextSearchResult<TKey>>>(FreeTextTable<T, TKey>).Method,
+                    root,
+                    Expression.Quote(columnSelector),
+                    Expression.Constant(freeText),
+                    Expression.Constant(languageTerm, typeof(string)),
+                    Expression.Constant(topN, typeof(int?))));
     }
 
     // A separate method stub is required since the public method accepts DbSet (to limit to direct usage on DbSets),
@@ -193,59 +194,17 @@ public static class SqlServerQueryableExtensions
         => throw new UnreachableException();
 
     /// <summary>
-    ///     Queries a full-text index using the SQL Server <c>CONTAINSTABLE</c> function with a property selector.
+    ///     Queries a full-text index using the SQL Server <c>CONTAINSTABLE</c> function.
     /// </summary>
     /// <typeparam name="T">The entity type being queried.</typeparam>
     /// <typeparam name="TKey">The type of the full-text key column.</typeparam>
     /// <param name="source">The <see cref="DbSet{T}" /> representing the table with the full-text index.</param>
+    /// <param name="searchCondition">The search condition, supporting full-text predicates like <c>AND</c>, <c>OR</c>, <c>NEAR</c>, etc.</param>
     /// <param name="columnSelector">
-    ///     A selector for the column(s) to search. Can be a single property (e.g., <c>e =&gt; e.Title</c>)
+    ///     An optional selector for the column(s) to search. Can be a single property (e.g., <c>e =&gt; e.Title</c>)
     ///     or multiple properties via an anonymous type (e.g., <c>e =&gt; new { e.Title, e.Body }</c>).
+    ///     When omitted, all full-text indexed columns are searched.
     /// </param>
-    /// <param name="searchCondition">The search condition, supporting full-text predicates like <c>AND</c>, <c>OR</c>, <c>NEAR</c>, etc.</param>
-    /// <param name="languageTerm">Optional language term from <c>sys.syslanguages</c> for word-breaking.</param>
-    /// <param name="topN">Optional maximum number of results to return.</param>
-    /// <returns>An <see cref="IQueryable{T}" /> of <see cref="FullTextSearchResult{TKey}" /> containing the key and rank of matching rows.</returns>
-    /// <remarks>
-    ///     <para>
-    ///         Use the <see cref="FullTextSearchResult{TKey}.Key" /> property to join back to the original table
-    ///         to retrieve the full entity data.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://learn.microsoft.com/sql/relational-databases/system-functions/containstable-transact-sql">
-    ///         SQL Server documentation for <c>CONTAINSTABLE</c></see> for more information.
-    ///     </para>
-    /// </remarks>
-    public static IQueryable<FullTextSearchResult<TKey>> ContainsTable<T, TKey>(
-        this DbSet<T> source,
-        Expression<Func<T, object>> columnSelector,
-        string searchCondition,
-        [NotParameterized] string? languageTerm = null,
-        int? topN = null)
-        where T : class
-    {
-        var queryableSource = (IQueryable)source;
-        var root = (EntityQueryRootExpression)queryableSource.Expression;
-
-        return queryableSource.Provider is EntityQueryProvider
-            ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
-                Expression.Call(
-                    method: new Func<IQueryable<T>, Expression<Func<T, object>>, string, string?, int?, IQueryable<FullTextSearchResult<TKey>>>(ContainsTable<T, TKey>).Method,
-                    root,
-                    Expression.Quote(columnSelector),
-                    Expression.Constant(searchCondition),
-                    Expression.Constant(languageTerm, typeof(string)),
-                    Expression.Constant(topN, typeof(int?))))
-            : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(ContainsTable)));
-    }
-
-    /// <summary>
-    ///     Queries a full-text index using the SQL Server <c>CONTAINSTABLE</c> function, searching all full-text indexed columns.
-    /// </summary>
-    /// <typeparam name="T">The entity type being queried.</typeparam>
-    /// <typeparam name="TKey">The type of the full-text key column.</typeparam>
-    /// <param name="source">The <see cref="DbSet{T}" /> representing the table with the full-text index.</param>
-    /// <param name="searchCondition">The search condition, supporting full-text predicates like <c>AND</c>, <c>OR</c>, <c>NEAR</c>, etc.</param>
     /// <param name="languageTerm">Optional language term from <c>sys.syslanguages</c> for word-breaking.</param>
     /// <param name="topN">Optional maximum number of results to return.</param>
     /// <returns>An <see cref="IQueryable{T}" /> of <see cref="FullTextSearchResult{TKey}" /> containing the key and rank of matching rows.</returns>
@@ -262,6 +221,7 @@ public static class SqlServerQueryableExtensions
     public static IQueryable<FullTextSearchResult<TKey>> ContainsTable<T, TKey>(
         this DbSet<T> source,
         string searchCondition,
+        Expression<Func<T, object>>? columnSelector = null,
         [NotParameterized] string? languageTerm = null,
         int? topN = null)
         where T : class
@@ -269,7 +229,12 @@ public static class SqlServerQueryableExtensions
         var queryableSource = (IQueryable)source;
         var root = (EntityQueryRootExpression)queryableSource.Expression;
 
-        return queryableSource.Provider is EntityQueryProvider
+        if (queryableSource.Provider is not EntityQueryProvider)
+        {
+            throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(ContainsTable)));
+        }
+
+        return columnSelector is null
             ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
                 Expression.Call(
                     method: new Func<IQueryable<T>, string, string?, int?, IQueryable<FullTextSearchResult<TKey>>>(ContainsTable<T, TKey>).Method,
@@ -277,7 +242,14 @@ public static class SqlServerQueryableExtensions
                     Expression.Constant(searchCondition),
                     Expression.Constant(languageTerm, typeof(string)),
                     Expression.Constant(topN, typeof(int?))))
-            : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(ContainsTable)));
+            : queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
+                Expression.Call(
+                    method: new Func<IQueryable<T>, Expression<Func<T, object>>, string, string?, int?, IQueryable<FullTextSearchResult<TKey>>>(ContainsTable<T, TKey>).Method,
+                    root,
+                    Expression.Quote(columnSelector),
+                    Expression.Constant(searchCondition),
+                    Expression.Constant(languageTerm, typeof(string)),
+                    Expression.Constant(topN, typeof(int?))));
     }
 
     private static IQueryable<FullTextSearchResult<TKey>> ContainsTable<T, TKey>(

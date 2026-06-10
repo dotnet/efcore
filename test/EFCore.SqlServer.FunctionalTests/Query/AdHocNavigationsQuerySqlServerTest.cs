@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -12,7 +12,7 @@ public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHo
 
     #region 10447
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_include_queries_do_not_populate_navigation_twice()
     {
         var contextFactory = await InitializeNonSharedTest<Context10447>(seed: c => c.SeedAsync());

@@ -43,7 +43,7 @@ public interface ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool CreateItem(string id, Stream stream, IUpdateEntry updateEntry);
+    bool CreateItem(string id, ReadOnlyMemory<byte> document, IUpdateEntry updateEntry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +59,7 @@ public interface ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool ReplaceItem(string documentId, Stream stream, IUpdateEntry updateEntry);
+    bool ReplaceItem(string documentId, ReadOnlyMemory<byte> document, IUpdateEntry updateEntry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

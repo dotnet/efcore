@@ -1,17 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "CI time out")]
+[SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS")]
 public class TextTemplatingModelGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void HasTemplates_works_when_templates()
     {
         using var projectDir = new TempDirectory();
@@ -27,7 +25,7 @@ public class TextTemplatingModelGeneratorTest
         Assert.True(result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasTemplates_throws_when_configuration_but_no_context()
     {
         using var projectDir = new TempDirectory();
@@ -43,7 +41,7 @@ public class TextTemplatingModelGeneratorTest
         Assert.Equal(DesignStrings.NoContextTemplateButConfiguration, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasTemplates_works_when_no_templates()
     {
         using var projectDir = new TempDirectory();
@@ -55,7 +53,7 @@ public class TextTemplatingModelGeneratorTest
         Assert.False(result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_uses_templates()
     {
         using var projectDir = new TempDirectory();
@@ -100,7 +98,7 @@ public class TextTemplatingModelGeneratorTest
         Assert.Equal("My entity type configuration template", entityTypeConfiguration.Code);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_works_when_no_entity_type_template()
     {
         using var projectDir = new TempDirectory();
@@ -131,7 +129,7 @@ public class TextTemplatingModelGeneratorTest
         Assert.Empty(result.AdditionalFiles);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_works_when_no_context_template_and_csharp()
     {
         using var projectDir = new TempDirectory();
@@ -163,7 +161,7 @@ public class TextTemplatingModelGeneratorTest
         Assert.Equal("My entity type template", entityType.Code);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_throws_when_no_context_template_and_not_csharp()
     {
         using var projectDir = new TempDirectory();
@@ -190,7 +188,7 @@ public class TextTemplatingModelGeneratorTest
         Assert.Equal(DesignStrings.NoContextTemplate, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_sets_session_variables()
     {
         using var projectDir = new TempDirectory();
@@ -273,7 +271,7 @@ ProjectDefaultNamespace: RootNamespace
             entityTypeConfiguration.Code);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_defaults_to_model_namespace_when_no_context_namespace()
     {
         using var projectDir = new TempDirectory();
@@ -313,7 +311,7 @@ ProjectDefaultNamespace: RootNamespace
             entityTypeConfiguration.Code);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_uses_output_extension()
     {
         using var projectDir = new TempDirectory();
@@ -362,7 +360,7 @@ My entity type configuration template
         Assert.Single(result.AdditionalFiles, f => f.Path == "Entity2Configuration.py");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_warns_when_output_encoding()
     {
         using var projectDir = new TempDirectory();
@@ -396,7 +394,7 @@ My entity type configuration template
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_reports_errors()
     {
         using var projectDir = new TempDirectory();
@@ -432,7 +430,7 @@ My entity type configuration template
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_reports_warnings()
     {
         using var projectDir = new TempDirectory();
@@ -486,7 +484,7 @@ My entity type configuration template
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateModel_reports_compiler_errors()
     {
         using var projectDir = new TempDirectory();

@@ -1518,7 +1518,13 @@ public static class RelationalEntityTypeExtensions
     ///     Gets the mapping strategy for the derived types.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <returns>The mapping strategy for the derived types.</returns>
+    /// <returns>
+    ///     The mapping strategy for the derived types, or <see langword="null" /> if no strategy is configured
+    ///     and the entity type has no derived types. Well-known values include
+    ///     <see cref="RelationalAnnotationNames.TphMappingStrategy" />,
+    ///     <see cref="RelationalAnnotationNames.TptMappingStrategy" />, and
+    ///     <see cref="RelationalAnnotationNames.TpcMappingStrategy" />, but other values may be returned if configured.
+    /// </returns>
     public static string? GetMappingStrategy(this IReadOnlyEntityType entityType)
         => (string?)entityType[RelationalAnnotationNames.MappingStrategy]
             ?? (entityType.BaseType != null
@@ -1573,51 +1579,6 @@ public static class RelationalEntityTypeExtensions
     /// <returns>A value indicating whether the associated entity type is mapped to a JSON column.</returns>
     public static bool IsMappedToJson(this IReadOnlyEntityType entityType)
         => !string.IsNullOrEmpty(entityType.GetContainerColumnName());
-
-    /// <summary>
-    ///     Sets the type mapping for the container column to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
-    /// <param name="typeMapping">The type mapping to set.</param>
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public static void SetContainerColumnTypeMapping(this IMutableEntityType entityType, RelationalTypeMapping typeMapping)
-        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping);
-
-    /// <summary>
-    ///     Sets the type mapping for the container column to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
-    /// <param name="typeMapping">The type mapping to set.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The configured value.</returns>
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public static RelationalTypeMapping? SetContainerColumnTypeMapping(
-        this IConventionEntityType entityType,
-        RelationalTypeMapping? typeMapping,
-        bool fromDataAnnotation = false)
-        => (RelationalTypeMapping?)entityType.SetAnnotation(
-            RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping, fromDataAnnotation)?.Value;
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the container column type mapping.
-    /// </summary>
-    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for the container column type mapping.</returns>
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public static ConfigurationSource? GetContainerColumnTypeMappingConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping)
-            ?.GetConfigurationSource();
-
-    /// <summary>
-    ///     Gets the container column type mapping to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the container column type mapping for.</param>
-    /// <returns>The container column type mapping to which the entity type is mapped.</returns>
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public static RelationalTypeMapping? GetContainerColumnTypeMapping(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping)?.Value is RelationalTypeMapping typeMapping
-            ? typeMapping
-            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnTypeMapping());
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given entity mapped to a JSON column.

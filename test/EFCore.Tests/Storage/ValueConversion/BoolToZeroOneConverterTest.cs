@@ -7,7 +7,7 @@ public class BoolToZeroOneConverterTest
 {
     private static readonly BoolToZeroOneConverter<decimal> _boolToZeroOne = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bools_to_zero_one()
     {
         var converter = _boolToZeroOne.ConvertToProviderExpression.Compile();
@@ -16,7 +16,7 @@ public class BoolToZeroOneConverterTest
         Assert.Equal(0, converter(false));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bools_to_zero_one_object()
     {
         var converter = _boolToZeroOne.ConvertToProvider;
@@ -28,7 +28,7 @@ public class BoolToZeroOneConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_zero_one_to_bool()
     {
         var converter = _boolToZeroOne.ConvertFromProviderExpression.Compile();
@@ -38,7 +38,7 @@ public class BoolToZeroOneConverterTest
         Assert.False(converter(77));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_zero_one_to_bool_object()
     {
         var converter = _boolToZeroOne.ConvertFromProvider;
@@ -51,11 +51,11 @@ public class BoolToZeroOneConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ordering_preserved_for_bools_to_zero_one()
         => ValueConverterTest.OrderingTest(_boolToZeroOne, false, true);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bools_to_zero_one_for_all_numerics()
     {
         GenericConvertTest(0, 1);

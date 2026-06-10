@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class PropertyTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_model_is_readonly()
     {
         var model = CreateModel();
@@ -101,7 +101,7 @@ public class PropertyTest
             Assert.Throws<InvalidOperationException>(() => property.SetValueGeneratorFactory((Type)null)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_ClrType()
     {
         var entityType = CreateModel().AddEntityType(typeof(object));
@@ -110,7 +110,7 @@ public class PropertyTest
         Assert.Equal(typeof(string), property.ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type()
     {
         var entityType = CreateModel().AddEntityType(typeof(object));
@@ -123,7 +123,7 @@ public class PropertyTest
         Assert.False(intProperty.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_nullability_can_be_mutated()
     {
         var entityType = CreateModel().AddEntityType(typeof(object));
@@ -140,7 +140,7 @@ public class PropertyTest
         Assert.False(intProperty.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_a_nullable_property_to_a_key_throws()
     {
         var entityType = CreateModel().AddEntityType(typeof(object));
@@ -154,7 +154,7 @@ public class PropertyTest
             Assert.Throws<InvalidOperationException>(() => entityType.AddKey(stringProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_with_non_nullable_types_cannot_be_made_nullable()
     {
         var entityType = CreateModel().AddEntityType(typeof(object));
@@ -165,7 +165,7 @@ public class PropertyTest
             Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_which_are_part_of_primary_key_cannot_be_made_nullable()
     {
         var entityType = CreateModel().AddEntityType(typeof(object));
@@ -178,7 +178,7 @@ public class PropertyTest
             Assert.Throws<InvalidOperationException>(() => stringProperty.IsNullable = true).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UnderlyingType_returns_correct_underlying_type()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -186,7 +186,7 @@ public class PropertyTest
         Assert.Equal(typeof(int), property1.ClrType.UnwrapNullableType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsShadowProperty_is_set()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -195,7 +195,7 @@ public class PropertyTest
         Assert.False(property.IsShadowProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_does_not_use_ValueGenerated_by_default()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -204,7 +204,7 @@ public class PropertyTest
         Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_mark_property_as_using_ValueGenerated()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -217,7 +217,7 @@ public class PropertyTest
         Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_is_auto_loaded_by_default()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -226,7 +226,7 @@ public class PropertyTest
         Assert.True(property.IsAutoLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_mark_property_as_not_auto_loaded()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -239,7 +239,7 @@ public class PropertyTest
         Assert.True(property.IsAutoLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_is_not_concurrency_token_by_default()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -248,7 +248,7 @@ public class PropertyTest
         Assert.False(property.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_mark_property_as_concurrency_token()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -261,7 +261,7 @@ public class PropertyTest
         Assert.False(property.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_ValueGeneratorFactory_is_invalid()
     {
         var model = CreateModel();
@@ -335,7 +335,7 @@ public class PropertyTest
             => null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_ValueConverter_type_is_invalid()
     {
         var model = CreateModel();
@@ -389,7 +389,7 @@ public class PropertyTest
 
     private class NonParameterlessValueConverter(ConverterMappingHints mappingHints = null) : StringToBoolConverter(mappingHints);
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_ValueComparer_type_is_invalid()
     {
         var model = CreateModel();
@@ -445,7 +445,7 @@ public class PropertyTest
 
     private class NonParameterlessValueComparer(bool favorStructuralComparison) : ValueComparer<string>(favorStructuralComparison);
 
-    [ConditionalTheory, InlineData(typeof(SimpleJasonValueReaderWriter)), InlineData(typeof(JasonValueReaderWriterWithPrivateInstance)),
+    [Theory, InlineData(typeof(SimpleJasonValueReaderWriter)), InlineData(typeof(JasonValueReaderWriterWithPrivateInstance)),
      InlineData(typeof(JasonValueReaderWriterWithBadInstance))]
     public void Creates_instance_of_JsonValueReaderWriter_using_constructor(Type type)
     {
@@ -460,7 +460,7 @@ public class PropertyTest
         Assert.NotEqual(instance1, instance2);
     }
 
-    [ConditionalTheory, InlineData(typeof(SimpleJasonValueReaderWriterWithInstance)),
+    [Theory, InlineData(typeof(SimpleJasonValueReaderWriterWithInstance)),
      InlineData(typeof(SimpleJasonValueReaderWriterWithInstanceAndPrivateConstructor))]
     public void Creates_instance_of_JsonValueReaderWriter_using_instance(Type type)
     {
@@ -475,7 +475,7 @@ public class PropertyTest
         Assert.Same(instance1, instance2);
     }
 
-    [ConditionalTheory, InlineData(typeof(NonDerivedJsonValueReaderWriter)), InlineData(typeof(NonGenericJsonValueReaderWriter))]
+    [Theory, InlineData(typeof(NonDerivedJsonValueReaderWriter)), InlineData(typeof(NonGenericJsonValueReaderWriter))]
     public void Throws_when_JsonValueReaderWriter_type_is_invalid(Type type)
     {
         var model = CreateModel();
@@ -488,7 +488,7 @@ public class PropertyTest
                 property.SetJsonValueReaderWriterType(type)).Message);
     }
 
-    [ConditionalTheory, InlineData(typeof(AbstractJasonValueReaderWriter)), InlineData(typeof(NonParameterlessJsonValueReaderWriter)),
+    [Theory, InlineData(typeof(AbstractJasonValueReaderWriter)), InlineData(typeof(NonParameterlessJsonValueReaderWriter)),
      InlineData(typeof(PrivateJasonValueReaderWriter))]
     public void Throws_when_JsonValueReaderWriter_instance_cannot_be_created(Type type)
     {
@@ -502,7 +502,7 @@ public class PropertyTest
             Assert.Throws<InvalidOperationException>(() => property.GetJsonValueReaderWriter()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_element_type_for_primitive_collection()
     {
         var model = CreateModel();
@@ -514,7 +514,7 @@ public class PropertyTest
         Assert.True(property.IsPrimitiveCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_derived_element_type_for_primitive_collection()
     {
         var model = CreateModel();
@@ -526,7 +526,7 @@ public class PropertyTest
         Assert.True(property.IsPrimitiveCollection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_element_type_for_non_primitive_collection()
     {
         var model = CreateModel();

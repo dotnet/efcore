@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
@@ -9,9 +11,17 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Index_no_evaluatability()
+        public override async Task Index_no_evaluatability()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Index_no_evaluatability();
 
         AssertSql(
@@ -22,9 +32,17 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Index_with_captured_variable()
+        public override async Task Index_with_captured_variable()
     {
+
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+
+        }
+
         await base.Index_with_captured_variable();
 
         AssertSql(
@@ -101,7 +119,7 @@ FROM [Books] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

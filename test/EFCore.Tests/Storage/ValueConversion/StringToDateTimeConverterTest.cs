@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class StringToDateTimeConverterTest
 {
     private static readonly StringToDateTimeConverter _stringToDateTime = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateTime()
     {
         var converter = _stringToDateTime.ConvertToProviderExpression.Compile();
@@ -22,7 +22,7 @@ public class StringToDateTimeConverterTest
         Assert.Throws<ArgumentNullException>(() => converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_string()
     {
         var converter = _stringToDateTime.ConvertFromProviderExpression.Compile();
@@ -32,7 +32,7 @@ public class StringToDateTimeConverterTest
         Assert.Equal("0001-01-01 00:00:00", converter(new DateTime()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateTime_object()
     {
         var converter = _stringToDateTime.ConvertToProvider;
@@ -47,7 +47,7 @@ public class StringToDateTimeConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_string_object()
     {
         var converter = _stringToDateTime.ConvertFromProvider;

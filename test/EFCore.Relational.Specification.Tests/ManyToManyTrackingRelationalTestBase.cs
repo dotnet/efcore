@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fixture) : ManyToManyTrackingTestBase<TFixture>(fixture)
     where TFixture : ManyToManyTrackingRelationalTestBase<TFixture>.ManyToManyTrackingRelationalFixture
 {
-    [ConditionalFact]
+    [Fact]
     public void Many_to_many_delete_behaviors_are_set()
     {
         using var context = CreateContext();

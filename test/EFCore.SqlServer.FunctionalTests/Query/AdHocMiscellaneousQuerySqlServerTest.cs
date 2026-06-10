@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -37,7 +37,7 @@ INSERT ZeroKey VALUES (NULL)
 
     #region 5456
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_group_join_is_per_query_context()
     {
         var contextFactory = await InitializeNonSharedTest<Context5456>(
@@ -72,7 +72,7 @@ INSERT ZeroKey VALUES (NULL)
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_group_join_is_per_query_context_async()
     {
         var contextFactory = await InitializeNonSharedTest<Context5456>(
@@ -159,7 +159,7 @@ INSERT ZeroKey VALUES (NULL)
 
     #region 8864
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_nested_projection()
     {
         var contextFactory = await InitializeNonSharedTest<Context8864>(seed: c => c.SeedAsync());
@@ -229,7 +229,7 @@ WHERE [c].[Id] = @id
 
     #region 9214
 
-    [ConditionalFact]
+    [Fact]
     public async Task Default_schema_applied_when_no_function_schema()
     {
         var contextFactory = await InitializeNonSharedTest<Context9214>(seed: c => c.SeedAsync());
@@ -328,7 +328,7 @@ END
 
     #region 9277
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task From_sql_gets_value_of_out_parameter_in_stored_procedure()
     {
         var contextFactory = await InitializeNonSharedTest<Context9277>(seed: c => c.SeedAsync());
@@ -400,7 +400,7 @@ BEGIN
 
     #region 12482
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Batch_insert_with_sqlvariant_different_types()
     {
         var contextFactory = await InitializeNonSharedTest<Context12482>();
@@ -458,7 +458,7 @@ OUTPUT INSERTED.[Id], i._Position;
 
     #region 12518
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_entity_with_value_converter_and_include_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context12518>(seed: c => c.SeedAsync());
@@ -474,7 +474,7 @@ ORDER BY [p].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_column_with_value_converter_of_ulong_byte_array()
     {
         var contextFactory = await InitializeNonSharedTest<Context12518>(seed: c => c.SeedAsync());
@@ -536,7 +536,7 @@ ORDER BY [p].[Id]
 
     #region 13118
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task DateTime_Contains_with_smalldatetime_generates_correct_literal()
     {
         var contextFactory = await InitializeNonSharedTest<Context13118>(seed: c => c.SeedAsync());
@@ -586,7 +586,7 @@ WHERE [r].[MyTime] = @testDateList1
 
     #region 14095
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_equals_DateTime_Now(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context14095>(seed: c => c.SeedAsync());
@@ -611,7 +611,7 @@ WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[Dat
 """);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_not_equals_DateTime_Now(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context14095>(seed: c => c.SeedAsync());
@@ -636,7 +636,7 @@ WHERE [d].[DateTime2_2] <> GETDATE() AND [d].[DateTime2_7] <> GETDATE() AND [d].
 """);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_equals_new_DateTime(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context14095>(seed: c => c.SeedAsync());
@@ -668,7 +668,7 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
 """);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_contains_DateTime_literals(bool async)
     {
         var dateTimes = new[]
@@ -1003,7 +1003,7 @@ WHERE [d].[SmallDateTime] IN (@dateTimes1, @dateTimes2, @dateTimes3, @dateTimes4
 
     #region 15518
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Nested_queries_does_not_cause_concurrency_exception_sync(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<Context15518>(seed: c => c.SeedAsync());
@@ -1103,7 +1103,7 @@ ORDER BY [r].[Id]
 
     #region 19206
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task From_sql_expression_compares_correctly()
     {
         var contextFactory = await InitializeNonSharedTest<Context19206>(seed: c => c.SeedAsync());
@@ -1171,7 +1171,7 @@ CROSS JOIN (
 
     #region 21666
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Thread_safety_in_relational_command_cache()
     {
         var contextFactory = await InitializeNonSharedTest<Context21666>(
@@ -1211,7 +1211,7 @@ CROSS JOIN (
 
     #region 23282
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public virtual async Task Can_query_point_with_buffered_data_reader()
     {
         var contextFactory = await InitializeNonSharedTest<Context23282>(
@@ -1282,7 +1282,7 @@ WHERE [l].[Name] = N'My Location'
 
     #region 24216
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Subquery_take_SelectMany_with_TVF()
     {
         var contextFactory = await InitializeNonSharedTest<Context24216>();
@@ -1390,7 +1390,7 @@ ORDER BY [m0].[Id]
 
     #region 27427
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context27427>();
@@ -1443,7 +1443,7 @@ GROUP BY [d].[Id]
 
     #region 30478
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_with_json_basic_query(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -1465,7 +1465,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAll_with_json_basic_query(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -1487,7 +1487,7 @@ FROM [Entities] FOR SYSTEM_TIME ALL AS [e]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_project_json_entity_reference(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -1508,7 +1508,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_project_json_entity_collection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -2211,7 +2211,7 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)
 
         AssertSql(
             """
-SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
+SELECT [f].[Taste] AS [Bar]
 FROM [Foods] AS [f]
 """);
     }
@@ -2625,7 +2625,7 @@ WHERE 1 = [t].[Id]
 
     #region 37327
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SqlFragment_within_GroupBy_subquery_pushdown()
     {
         var contextFactory = await InitializeNonSharedTest<Context37327>();
@@ -2668,6 +2668,18 @@ SELECT [d].[Id], CASE
 END AS [Foo]
 FROM [Data] AS [d]
 ORDER BY [d].[Id]
+""");
+    }
+
+    public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
+    {
+        await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Name]
+FROM [Users] AS [u]
+WHERE [u].[Name] LIKE N'Name%'
 """);
     }
 }

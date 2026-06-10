@@ -790,6 +790,39 @@ public partial class ConventionDispatcher
             return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
+        public override bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
+        {
+#if DEBUG
+            var initialValue = relationshipBuilder.Metadata.IsConstrained;
+#endif
+            using (dispatcher.DelayConventions())
+            {
+                _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsConstrained);
+                foreach (var foreignKeyConvention in conventionSet.ForeignKeyConstrainednessChangedConventions)
+                {
+                    if (!relationshipBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    foreignKeyConvention.ProcessForeignKeyConstrainednessChanged(relationshipBuilder, _boolConventionContext);
+
+                    if (_boolConventionContext.ShouldStopProcessing())
+                    {
+                        return _boolConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == relationshipBuilder.Metadata.IsConstrained,
+                        $"Convention {foreignKeyConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
+        }
+
         public override bool? OnForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder)
         {

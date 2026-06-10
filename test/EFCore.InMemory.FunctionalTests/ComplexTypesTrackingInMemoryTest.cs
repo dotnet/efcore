@@ -27,6 +27,11 @@ public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.I
         // See https://github.com/dotnet/efcore/issues/31464
         => Task.CompletedTask;
 
+    public override Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
+        // InMemory provider has issues with complex type query compilation and materialization
+        // See https://github.com/dotnet/efcore/issues/31464
+        => Task.CompletedTask;
+
     // Complex type collections are not supported in InMemory provider
     // See https://github.com/dotnet/efcore/issues/31464
     public override Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)

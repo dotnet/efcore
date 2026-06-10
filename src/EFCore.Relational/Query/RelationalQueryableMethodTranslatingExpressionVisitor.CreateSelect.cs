@@ -97,7 +97,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             caseWhenClauses.Add(
                                 new CaseWhenClause(
                                     _sqlExpressionFactory.IsNotNull(keyColumns[0]),
-                                    _sqlExpressionFactory.Constant(derivedType.ShortName())));
+                                    _sqlExpressionFactory.Constant((string)derivedType.GetDiscriminatorValue()!)));
                         }
 
                         var joinPredicate = joinColumns
@@ -319,9 +319,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         projections.Add(
                             new ProjectionExpression(
                                 _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                                    _sqlExpressionFactory.Constant(concreteEntityType.ShortName())),
+                                    _sqlExpressionFactory.Constant((string)concreteEntityType.GetDiscriminatorValue()!)),
                                 discriminatorColumnName));
-                        discriminatorValues.Add(concreteEntityType.ShortName());
+                        discriminatorValues.Add((string)concreteEntityType.GetDiscriminatorValue()!);
 
                         subSelectExpressions.Add(
                             SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections, _sqlAliasManager));
@@ -463,7 +463,30 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             foreach (var property in primaryKey.Properties)
             {
-                identifier.Add((propertyMap[property], property.GetKeyValueComparer()));
+                if (!propertyMap.TryGetValue(property, out var columnExpression))
+                {
+                    // The key property is declared on a complex type; navigate the complex-property chain
+                    // from the entity to its declaring complex type and bind the property there.
+                    var chain = new Stack<IComplexProperty>();
+                    for (var current = property.DeclaringType as IComplexType;
+                         current != null;
+                         current = current.ComplexProperty.DeclaringType as IComplexType)
+                    {
+                        chain.Push(current.ComplexProperty);
+                    }
+
+                    var shaper = (RelationalStructuralTypeShaperExpression)complexPropertyMap[chain.Pop()];
+                    var complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
+                    while (chain.Count > 0)
+                    {
+                        shaper = (RelationalStructuralTypeShaperExpression)complexProjection.BindComplexProperty(chain.Pop());
+                        complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
+                    }
+
+                    columnExpression = complexProjection.BindProperty(property);
+                }
+
+                identifier.Add((columnExpression, property.GetKeyValueComparer()));
             }
         }
 

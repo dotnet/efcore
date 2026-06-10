@@ -245,7 +245,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
@@ -304,7 +304,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosTransactionalBatchExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
@@ -364,7 +364,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
@@ -424,7 +424,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
@@ -484,7 +484,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,

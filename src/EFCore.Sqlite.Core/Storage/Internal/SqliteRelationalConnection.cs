@@ -100,16 +100,11 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
 
             sqliteConnection.CreateFunction<string, string, bool?>(
                 "regexp",
-                (pattern, input) =>
-                {
-                    if (input == null
-                        || pattern == null)
-                    {
-                        return null;
-                    }
-
-                    return Regex.IsMatch(input, pattern);
-                },
+                (pattern, input)
+                    => input == null
+                        || pattern == null
+                        ? null
+                        : Regex.IsMatch(input, pattern, RegexOptions.NonBacktracking, TimeSpan.FromMilliseconds(1000)),
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(

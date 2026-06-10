@@ -5,7 +5,6 @@ using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -22,7 +21,7 @@ public class NorthwindAggregateOperatorsQueryCosmosTest
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1449,7 +1448,8 @@ FROM root c
 """);
             });
 
-    [ConditionalTheory(Skip = "Fails on CI #27688")]
+    // Tracked in #27688
+    [Theory, SkipOnCI("Test does not run on CI")]
     public override Task Distinct_Scalar(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1458,13 +1458,12 @@ FROM root c
 
                 AssertSql(
                     """
-SELECT DISTINCT c[""City""]
+SELECT DISTINCT VALUE c["City"]
 FROM root c
-WHERE (c[""$type""] = ""Customer"")
 """);
             });
 
-    [ConditionalTheory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
+    [Theory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
     public override Task OrderBy_Distinct(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2267,27 +2266,22 @@ WHERE NOT(false)
 """);
             });
 
-    public override async Task Contains_top_level(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Contains_top_level(async));
+    public override Task Contains_top_level(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_top_level(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
+                AssertSql(
+                    """
 @p='ALFKI'
 
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE (c["id"] = @p))
+SELECT VALUE true
+FROM root c
+WHERE (c["id"] = @p)
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Contains_with_local_tuple_array_closure(bool async)
     {
@@ -2519,28 +2513,22 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
-    public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception =
-                await Assert.ThrowsAsync<CosmosException>(() => base.Contains_over_entityType_with_null_should_rewrite_to_false(async));
+    public override Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_over_entityType_with_null_should_rewrite_to_false(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
+                AssertSql(
+                    """
 @entity_equality_p_OrderID=null
 
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @entity_equality_p_OrderID)))
+SELECT VALUE true
+FROM root c
+WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @entity_equality_p_OrderID))
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Contains_over_entityType_with_null_in_projection(bool async)
     {
@@ -2622,10 +2610,13 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
     public override Task Where_subquery_where_any(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_any(a);
 
                 AssertSql(
@@ -2692,10 +2683,13 @@ WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
     public override Task Where_subquery_where_all(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_all(a);
 
                 AssertSql(
@@ -3078,7 +3072,7 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    [ConditionalTheory(Skip = "Issue #20677")]
+    [Theory(Skip = "Issue #20677")]
     public override async Task Type_casting_inside_sum(bool async)
     {
         await base.Type_casting_inside_sum(async);

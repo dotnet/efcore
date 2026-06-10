@@ -7,14 +7,14 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql))]
 public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConvertersSqlServerTest.CustomConvertersSqlServerFixture>
 {
     public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Value_conversion_is_appropriately_used_for_join_condition()
     {
         await base.Value_conversion_is_appropriately_used_for_join_condition();
@@ -30,7 +30,7 @@ WHERE [b].[IsVisible] = N'Y'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Value_conversion_is_appropriately_used_for_left_join_condition()
     {
         await base.Value_conversion_is_appropriately_used_for_left_join_condition();
@@ -46,7 +46,7 @@ WHERE [b].[IsVisible] = N'Y'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -59,7 +59,7 @@ WHERE [b].[IsVisible] = N'Y'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         await base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -117,7 +117,7 @@ WHERE [b].[Id] = 1
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
-    [ConditionalTheory(Skip = "Issue #30730: TODO need to find the default type mapping."), InlineData(true), InlineData(false)]
+    [Theory(Skip = "Issue #30730: TODO need to find the default type mapping."), InlineData(true), InlineData(false)]
     public virtual async Task SqlQuery_with_converted_type_using_model_configuration_builder_works(bool async)
     {
         using var context = CreateContext();

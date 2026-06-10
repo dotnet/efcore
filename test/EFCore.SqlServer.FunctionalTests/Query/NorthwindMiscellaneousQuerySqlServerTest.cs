@@ -22,7 +22,7 @@ public class NorthwindMiscellaneousQuerySqlServerTest : NorthwindMiscellaneousQu
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1964,28 +1964,54 @@ WHERE [c].[CustomerID] LIKE N'A%' AND EXISTS (
     {
         await base.Where_Join_Exists(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderDate] = '2008-10-24T00:00:00.000')
+""");
     }
 
     public override async Task Where_Join_Exists_Inequality(bool async)
     {
         await base.Where_Join_Exists_Inequality(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[OrderDate] <> '2008-10-24T00:00:00.000' OR [o].[OrderDate] IS NULL))
+""");
     }
 
     public override async Task Where_Join_Exists_Constant(bool async)
     {
         await base.Where_Join_Exists_Constant(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1
+""");
     }
 
     public override async Task Where_Join_Not_Exists(bool async)
     {
         await base.Where_Join_Not_Exists(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
     }
 
     public override async Task Join_OrderBy_Count(bool async)
@@ -2167,8 +2193,21 @@ INNER JOIN (
     {
         await base.Take_with_single(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='1'
+
+SELECT TOP(LEAST(@p, 2)) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='1'
 
 SELECT TOP(2) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -2179,14 +2218,29 @@ FROM (
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
 """);
+        }
     }
 
     public override async Task Take_with_single_select_many(bool async)
     {
         await base.Take_with_single_select_many(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='1'
+
+SELECT TOP(LEAST(@p, 2)) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+ORDER BY [c].[CustomerID], [o].[OrderID]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='1'
 
 SELECT TOP(2) [s].[CustomerID], [s].[Address], [s].[City], [s].[CompanyName], [s].[ContactName], [s].[ContactTitle], [s].[Country], [s].[Fax], [s].[Phone], [s].[PostalCode], [s].[Region], [s].[OrderID], [s].[CustomerID0], [s].[EmployeeID], [s].[OrderDate]
@@ -2198,6 +2252,7 @@ FROM (
 ) AS [s]
 ORDER BY [s].[CustomerID], [s].[OrderID]
 """);
+        }
     }
 
     public override async Task Distinct_Skip(bool async)
@@ -3639,8 +3694,24 @@ OFFSET @p1 ROWS FETCH NEXT @p2 ROWS ONLY
     {
         await base.OrderBy_skip_take_take(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='5'
+@p1='8'
+@p2='3'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[ContactTitle], [c].[ContactName]
+OFFSET @p ROWS FETCH NEXT LEAST(@p1, @p2) ROWS ONLY
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p2='3'
 @p='5'
 @p1='8'
@@ -3654,14 +3725,32 @@ FROM (
 ) AS [c0]
 ORDER BY [c0].[ContactTitle], [c0].[ContactName]
 """);
+        }
     }
 
     public override async Task OrderBy_skip_take_take_take_take(bool async)
     {
         await base.OrderBy_skip_take_take_take_take(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='5'
+@p1='15'
+@p2='10'
+@p3='8'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[ContactTitle], [c].[ContactName]
+OFFSET @p ROWS FETCH NEXT LEAST(LEAST(LEAST(@p1, @p2), @p3), @p) ROWS ONLY
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='5'
 @p3='8'
 @p2='10'
@@ -3684,6 +3773,7 @@ FROM (
 ) AS [c2]
 ORDER BY [c2].[ContactTitle], [c2].[ContactName]
 """);
+        }
     }
 
     public override async Task OrderBy_skip_take_skip_take_skip(bool async)
@@ -5838,12 +5928,12 @@ ORDER BY [c].[CustomerID]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_Predicate_Cancellation()
         => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
             await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_compiler_concurrency()
     {
         const int threadCount = 50;
@@ -5876,7 +5966,7 @@ ORDER BY [c].[CustomerID]
         return Task.WhenAll(tasks);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Race_when_context_disposed_before_query_termination()
     {
         DbSet<Customer> task;
@@ -5889,7 +5979,7 @@ ORDER BY [c].[CustomerID]
         return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Concurrent_async_queries_are_serialized2()
     {
         using var context = CreateContext();
@@ -5903,7 +5993,7 @@ ORDER BY [c].[CustomerID]
                     .Where(od => od.OrderID > 0)).ToListAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Concurrent_async_queries_when_raw_query()
     {
         using var context = CreateContext();

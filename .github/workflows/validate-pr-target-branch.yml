@@ -16,10 +16,10 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Check PR target branch and author permissions
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -34,10 +34,11 @@ jobs:
             
             // Helper function to check if a user is a bot
             const isBot = (username) => {
-              return username === 'copilot' || 
-                     username === 'dotnet-bot' || 
-                     username.startsWith('app/') || 
-                     username.includes('[bot]');
+              const lower = username.toLowerCase();
+              return lower === 'copilot' || 
+                     lower === 'dotnet-bot' || 
+                     lower.startsWith('app/') || 
+                     lower.includes('[bot]');
             };
             
             // If action is 'edited', check if the base branch was actually changed
@@ -49,6 +50,12 @@ jobs:
             // Skip if triggered by a bot or PR is authored by a bot
             if (isBot(triggeredBy) || isBot(prAuthor)) {
               console.log('Bot detected - skipping');
+              return;
+            }
+            
+            // If the PR is from a branch (not a fork), it must be from an internal contributor
+            if (pr.head.repo && pr.head.repo.id === pr.base.repo.id) {
+              console.log('PR is from a branch in the same repo - skipping validation');
               return;
             }
             
@@ -64,8 +71,14 @@ jobs:
               hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
               console.log(`User ${triggeredBy} has permission level: ${permissions.permission}`);
             } catch (error) {
+              // If the user cannot be found (e.g. non-user accounts like Copilot), skip
+              if (error.status === 404) {
+                console.log(`User ${triggeredBy} not found - skipping`);
+                return;
+              }
               console.error('Error checking permissions:', error);
-              // If we can't determine permissions, assume external contributor
+              // If we can't determine permissions for other reasons, skip to avoid false positives
+              return;
             }
             
             // Check if target branch is a release branch

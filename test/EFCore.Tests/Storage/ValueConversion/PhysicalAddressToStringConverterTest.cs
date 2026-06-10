@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net.NetworkInformation;
@@ -10,7 +10,7 @@ public class PhysicalAddressToStringConverterTest
 {
     private static readonly PhysicalAddressToStringConverter _physicalAddressToString = new();
 
-    [ConditionalTheory, MemberData(nameof(Data))]
+    [Theory, MemberData(nameof(Data))]
     public void Can_convert_physical_address_to_String(string physicalAddress)
     {
         var converter = _physicalAddressToString.ConvertToProviderExpression.Compile();
@@ -22,7 +22,7 @@ public class PhysicalAddressToStringConverterTest
             converter(PhysicalAddress.Parse(physicalAddress)));
     }
 
-    [ConditionalTheory, MemberData(nameof(Data))]
+    [Theory, MemberData(nameof(Data))]
     public void Can_convert_String_to_physical_address(string physicalAddress)
     {
         var converter = _physicalAddressToString.ConvertFromProviderExpression.Compile();
@@ -32,7 +32,7 @@ public class PhysicalAddressToStringConverterTest
             converter(physicalAddress));
     }
 
-    [ConditionalTheory, InlineData(new byte[] { 74, 74, 45, 72, 72, 45, 89, 89, 45, 68, 54, 45, 57, 50, 45, 55, 51 }),
+    [Theory, InlineData(new byte[] { 74, 74, 45, 72, 72, 45, 89, 89, 45, 68, 54, 45, 57, 50, 45, 55, 51 }),
      InlineData(new byte[] { 72, 72, 45, 77, 77, 45, 53, 53, 45, 68, 54, 45, 57, 50, 45, 55, 51 }),
      InlineData(new byte[] { 86, 86, 45, 56, 48, 45, 66, 55, 45, 51, 56, 45, 52, 65, 45, 54, 56 }),
      InlineData(new byte[] { 75, 75, 75, 45, 53, 57, 45, 68, 48, 45, 57, 57, 45, 69, 49, 45, 56, 53 })]

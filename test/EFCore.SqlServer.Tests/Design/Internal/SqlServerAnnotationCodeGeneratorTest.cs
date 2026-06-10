@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class SqlServerAnnotationCodeGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_when_clustered()
     {
         var generator = CreateGenerator();
@@ -35,7 +35,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(0, result.Arguments.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_when_nonclustered()
     {
         var generator = CreateGenerator();
@@ -58,7 +58,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -80,7 +80,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(80, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IUniqueConstraint_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -103,7 +103,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(80, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_when_clustered()
     {
         var generator = CreateGenerator();
@@ -126,7 +126,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(0, result.Arguments.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_when_nonclustered()
     {
         var generator = CreateGenerator();
@@ -150,7 +150,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -173,7 +173,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(90, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_with_includes()
     {
         var generator = CreateGenerator();
@@ -199,104 +199,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(["FirstName"], properties.AsEnumerable());
     }
 
-    [ConditionalFact]
-    public void GenerateFluentApi_IIndex_works_with_full_text_key_index()
-    {
-        var generator = CreateGenerator();
-        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
-        modelBuilder.Entity(
-            "Post",
-            x =>
-            {
-                x.Property<int>("Id");
-                x.Property<string>("Title");
-                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post");
-            });
-
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
-        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
-        var results = generator.GenerateFluentApiCalls(index, annotations);
-
-        var keyIndexResult = results.Single(r => r.Method == "HasFullTextKeyIndex");
-        Assert.Equal(1, keyIndexResult.Arguments.Count);
-        Assert.Equal("PK_Post", keyIndexResult.Arguments[0]);
-    }
-
-    [ConditionalFact]
-    public void GenerateFluentApi_IIndex_works_with_full_text_catalog()
-    {
-        var generator = CreateGenerator();
-        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
-        modelBuilder.Entity(
-            "Post",
-            x =>
-            {
-                x.Property<int>("Id");
-                x.Property<string>("Title");
-                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post").OnCatalog("MyCatalog");
-            });
-
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
-        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
-        var results = generator.GenerateFluentApiCalls(index, annotations);
-
-        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
-        Assert.Equal(1, catalogResult.Arguments.Count);
-        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
-    }
-
-    [ConditionalFact]
-    public void GenerateFluentApi_IIndex_works_with_full_text_change_tracking()
-    {
-        var generator = CreateGenerator();
-        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
-        modelBuilder.Entity(
-            "Post",
-            x =>
-            {
-                x.Property<int>("Id");
-                x.Property<string>("Title");
-                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post").WithChangeTracking(FullTextChangeTracking.Manual);
-            });
-
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
-        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
-        var results = generator.GenerateFluentApiCalls(index, annotations);
-
-        var changeTrackingResult = results.Single(r => r.Method == "HasFullTextChangeTracking");
-        Assert.Equal(1, changeTrackingResult.Arguments.Count);
-        Assert.Equal(FullTextChangeTracking.Manual, changeTrackingResult.Arguments[0]);
-    }
-
-    [ConditionalFact]
-    public void GenerateFluentApi_IIndex_works_with_full_text_languages()
-    {
-        var generator = CreateGenerator();
-        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
-        modelBuilder.Entity(
-            "Post",
-            x =>
-            {
-                x.Property<int>("Id");
-                x.Property<string>("Title");
-                x.Property<string>("Body");
-                x.HasFullTextIndex("Title", "Body")
-                    .HasKeyIndex("PK_Post")
-                    .HasLanguage("Title", "English")
-                    .HasLanguage("Body", "French");
-            });
-
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
-        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
-        var results = generator.GenerateFluentApiCalls(index, annotations);
-
-        var languageResults = results.Where(r => r.Method == "HasFullTextLanguage").ToList();
-        Assert.Equal(2, languageResults.Count);
-        Assert.Contains(languageResults, r => r.Arguments[0] is "Body" && r.Arguments[1] is "French");
-        Assert.Contains(languageResults, r => r.Arguments[0] is "Title" && r.Arguments[1] is "English");
-    }
-
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_full_text_catalog()
     {
         var generator = CreateGenerator();
@@ -322,7 +225,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, accentChain.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_full_text_catalog_defaults()
     {
         var generator = CreateGenerator();
@@ -340,7 +243,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Null(catalogResult.ChainedCall);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_identity()
     {
         var generator = CreateGenerator();
@@ -359,7 +262,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             increment => Assert.Equal(10, increment));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_identity()
     {
         var generator = CreateGenerator();
@@ -379,7 +282,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             increment => Assert.Equal(10, increment));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_identity_default_seed_increment()
     {
         var generator = CreateGenerator();
@@ -396,7 +299,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Empty(result.Arguments);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_HiLo()
     {
         var generator = CreateGenerator();
@@ -415,7 +318,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("HiLoIndexSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_HiLo()
     {
         var generator = CreateGenerator();
@@ -435,7 +338,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("HiLoIndexSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_KeySequence()
     {
         var generator = CreateGenerator();
@@ -454,7 +357,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("KeySequenceSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_KeySequence()
     {
         var generator = CreateGenerator();
@@ -474,7 +377,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("KeySequenceSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_IsSparse()
     {
         var generator = CreateGenerator();
@@ -505,7 +408,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_with_DefaultConstraintName_and_no_DefaultValue_does_not_throw()
     {
         // Reproduces https://github.com/dotnet/efcore/issues/37175
@@ -532,7 +435,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Empty(result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_DatabaseMaxSize()
     {
         var generator = CreateGenerator();
@@ -546,7 +449,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("100", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_ServiceTier()
     {
         var generator = CreateGenerator();
@@ -560,7 +463,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("'foo'", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_PerformanceLevel()
     {
         var generator = CreateGenerator();
@@ -574,7 +477,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("'foo'", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IEntityType_works_when_IsMemoryOptimized()
     {
         var generator = CreateGenerator();
@@ -592,9 +495,13 @@ public class SqlServerAnnotationCodeGeneratorTest
         var result = generator.GenerateFluentApiCalls(entityType, entityType.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
 
-        Assert.Equal(nameof(SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized), result.Method);
-
-        Assert.Equal(0, result.Arguments.Count);
+        Assert.Equal(nameof(RelationalEntityTypeBuilderExtensions.ToTable), result.Method);
+        Assert.Single(result.Arguments);
+        var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(result.Arguments[0]);
+        Assert.Equal("tb", nestedClosure.Parameter);
+        var memoryOptimizedCall = Assert.Single(nestedClosure.MethodCalls);
+        Assert.Equal(nameof(SqlServerTableBuilderExtensions.IsMemoryOptimized), memoryOptimizedCall.Method);
+        Assert.Equal(0, memoryOptimizedCall.Arguments.Count);
     }
 
     private SqlServerAnnotationCodeGenerator CreateGenerator()

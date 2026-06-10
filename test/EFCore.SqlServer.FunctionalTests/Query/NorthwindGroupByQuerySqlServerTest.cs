@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -17,7 +17,7 @@ public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationa
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -3056,6 +3056,76 @@ INNER JOIN [Customers] AS [c] ON [o0].[Key] = [c].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_Select_Entire_Entity_Where(bool async)
+    {
+        await base.GroupBy_Select_Entire_Entity_Where(async);
+
+        AssertSql(
+"""
+SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING (
+        SELECT TOP(1) [o1].[EmployeeID]
+        FROM [Orders] AS [o1]
+        WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) = 6
+) AS [o2]
+LEFT JOIN (
+    SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID]) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [o3]
+    WHERE [o3].[row] <= 1
+) AS [o4] ON [o2].[CustomerID] = [o4].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Select_Entire_Entity_Where_Select(bool async)
+    {
+        await base.GroupBy_Select_Entire_Entity_Where_Select(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_Select_Entire_Entity_Select(bool async)
+    {
+        await base.GroupBy_Select_Entire_Entity_Select(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_Select_Entire_Entity_Order(bool async)
+    {
+        await base.GroupBy_Select_Entire_Entity_Order(async);
+
+        AssertSql(
+"""
+SELECT [o5].[OrderID], [o5].[CustomerID], [o5].[EmployeeID], [o5].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID], (
+        SELECT TOP(1) [o1].[EmployeeID]
+        FROM [Orders] AS [o1]
+        WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) AS [c], (
+        SELECT TOP(1) [o2].[OrderID]
+        FROM [Orders] AS [o2]
+        WHERE [o].[CustomerID] = [o2].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) AS [c0]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [o3]
+LEFT JOIN (
+    SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID]) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [o4]
+    WHERE [o4].[row] <= 1
+) AS [o5] ON [o3].[CustomerID] = [o5].[CustomerID]
+ORDER BY [o3].[c], [o3].[c0]
+""");
+    }
     public override async Task GroupBy_aggregate_join_with_group_result(bool async)
     {
         await base.GroupBy_aggregate_join_with_group_result(async);

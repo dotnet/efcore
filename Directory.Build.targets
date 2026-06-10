@@ -36,4 +36,15 @@
       </AssemblyAttribute>
     </ItemGroup>
   </Target>
+
+  <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions
+          Update="@(ProjectReference)"
+          Condition="'%(ProjectReference.Identity)' != '' And '%(ProjectReference.PackageVersion)' != ''">
+        <ProjectVersion>%(ProjectReference.PackageVersion)</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+
 </Project>

@@ -2898,6 +2898,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         InnerJoin,
         LeftJoin,
         RightJoin,
+        FullJoin,
         CrossJoin,
         CrossApply,
         OuterApply
@@ -2919,8 +2920,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
         var outerClientEval = _clientProjections.Count > 0;
         var innerClientEval = innerSelect._clientProjections.Count > 0;
-        var outerNullable = joinType is JoinType.RightJoin;
-        var innerNullable = joinType is JoinType.LeftJoin or JoinType.OuterApply;
+        var outerNullable = joinType is JoinType.RightJoin or JoinType.FullJoin;
+        var innerNullable = joinType is JoinType.LeftJoin or JoinType.OuterApply or JoinType.FullJoin;
 
         if (outerClientEval)
         {
@@ -3150,7 +3151,10 @@ public sealed partial class SelectExpression : TableExpressionBase
         if (Limit != null
             || Offset != null
             || IsDistinct
-            || GroupBy.Count > 0)
+            || GroupBy.Count > 0
+            // When the outer becomes nullable (RIGHT/FULL JOIN), an outer predicate must be applied before the join; otherwise it
+            // would be rendered as a post-join WHERE that incorrectly filters out the unmatched inner rows (where the outer is null).
+            || (joinType is JoinType.RightJoin or JoinType.FullJoin && Predicate != null))
         {
             var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
             innerSelect = sqlRemappingVisitor.Remap(innerSelect);
@@ -3176,10 +3180,10 @@ public sealed partial class SelectExpression : TableExpressionBase
             _identifier.Clear();
             innerSelect._identifier.Clear();
         }
-        else if (!isToOneJoin || joinType is JoinType.RightJoin)
+        else if (!isToOneJoin || joinType is JoinType.RightJoin or JoinType.FullJoin)
         {
             // This is cardinality-increasing join - add identifiers from the inner.
-            // Note that we do the same for right joins, since these make the outer identifiers nullable; that could mean that
+            // Note that we do the same for right/full joins, since these make the outer identifiers nullable; that could mean that
             // multiple inner rows get the same NULL identifier.
             switch (joinType)
             {
@@ -3198,9 +3202,23 @@ public sealed partial class SelectExpression : TableExpressionBase
                     _identifier.AddRange(innerSelect._identifier);
                     break;
 
-                default:
+                case JoinType.FullJoin:
+                    // Both sides may be unmatched, so make the outer identifiers nullable and add the inner identifiers made nullable.
+                    for (var i = 0; i < _identifier.Count; i++)
+                    {
+                        var identifier = _identifier[i];
+                        _identifier[i] = (identifier.Column.MakeNullable(), identifier.Comparer);
+                    }
+
+                    _identifier.AddRange(innerSelect._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+                    break;
+
+                case JoinType.InnerJoin or JoinType.CrossJoin or JoinType.CrossApply:
                     _identifier.AddRange(innerSelect._identifier);
                     break;
+
+                default:
+                    throw new UnreachableException();
             }
         }
 
@@ -3210,6 +3228,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!, isPrunableJoin),
             JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!, isPrunableJoin),
             JoinType.RightJoin => new RightJoinExpression(innerTable, joinPredicate!),
+            JoinType.FullJoin => new FullJoinExpression(innerTable, joinPredicate!),
             JoinType.CrossJoin => new CrossJoinExpression(innerTable),
             JoinType.CrossApply => new CrossApplyExpression(innerTable),
             JoinType.OuterApply => (TableExpressionBase)new OuterApplyExpression(innerTable),
@@ -3545,6 +3564,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         => AddJoin(JoinType.LeftJoin, ref innerSelectExpression, out _, joinPredicate);
 
     /// <summary>
+    ///     Adds the given <see cref="SelectExpression" /> to table sources using FULL JOIN.
+    /// </summary>
+    /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    public void AddFullJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate)
+        => AddJoin(JoinType.FullJoin, ref innerSelectExpression, out _, joinPredicate);
+
+    /// <summary>
     ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS JOIN.
     /// </summary>
     /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
@@ -3658,6 +3685,20 @@ public sealed partial class SelectExpression : TableExpressionBase
         Expression outerShaper)
         => AddJoin(
             JoinType.RightJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
+
+    /// <summary>
+    ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using FULL JOIN and combine shapers.
+    /// </summary>
+    /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <returns>An expression which shapes the result of this join.</returns>
+    public Expression AddFullJoin(
+        ShapedQueryExpression innerSource,
+        SqlExpression joinPredicate,
+        Expression outerShaper)
+        => AddJoin(
+            JoinType.FullJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS JOIN and combine shapers.

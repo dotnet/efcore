@@ -449,7 +449,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (CAST(@i AS int))) AS [v]([Value])
+    FROM (VALUES (@i)) AS [v]([Value])
     WHERE [v].[Value] > [p].[Id]) = 1
 """);
     }
@@ -475,6 +475,18 @@ WHERE (
     SELECT COUNT(*)
     FROM (VALUES (CAST(1 AS int)), (2), (3)) AS [v]([Value])
     WHERE [v].[Value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+    {
+        await base.Inline_collection_SelectMany_with_unreferenced_collection_value();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+CROSS APPLY (VALUES (CAST(N'a' AS nvarchar(max))), (N'b')) AS [v]([Value])
 """);
     }
 
@@ -1231,6 +1243,54 @@ WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
 """);
     }
 
+    public override async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
+    {
+        switch (mode)
+        {
+            case ParameterTranslationMode.Constant:
+            {
+                await base.Parameter_collection_of_enum_Cast_from_different_enum_type(mode);
+                AssertSql(
+                    """
+SELECT [t].[Id]
+FROM [TestEntity38008] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (CAST(2 AS int))) AS [f]([Value])
+    WHERE [f].[Value] = [t].[Status])
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.Parameter:
+            {
+                await AssertCompatibilityLevelTooLow(
+                    () => base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode));
+                break;
+            }
+
+            case ParameterTranslationMode.MultipleParameters:
+            {
+                await base.Parameter_collection_of_enum_Cast_from_different_enum_type(mode);
+                AssertSql(
+                    """
+@filter1='2'
+
+SELECT [t].[Id]
+FROM [TestEntity38008] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (@filter1)) AS [f]([Value])
+    WHERE [f].[Value] = [t].[Status])
+""");
+                break;
+            }
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
     public override async Task Static_readonly_collection_List_of_ints_Contains_int()
     {
         await base.Static_readonly_collection_List_of_ints_Contains_int();
@@ -1306,7 +1366,7 @@ WHERE [p].[Int] NOT IN (10, 999)
     public override Task Column_collection_of_bools_Contains()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains());
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Json_representation_of_bool_array()
     {
         await using var context = CreateContext();
@@ -1356,7 +1416,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task Multidimensional_array_is_not_supported()
         => base.Multidimensional_array_is_not_supported();
 
@@ -2089,7 +2149,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact] // #37605
+    [Fact] // #37605
     public virtual async Task Parameter_collection_with_null_value_Contains_null_2201_values()
     {
         using var context = Fixture.CreateContext();
@@ -2111,7 +2171,7 @@ WHERE (
         return optionsBuilder;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

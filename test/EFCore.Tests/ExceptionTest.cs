@@ -10,15 +10,15 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ExceptionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void RetryLimitExceededException_exposes_public_empty_constructor()
         => new RetryLimitExceededException();
 
-    [ConditionalFact]
+    [Fact]
     public void RetryLimitExceededException_exposes_public_string_constructor()
         => Assert.Equal("Foo", new RetryLimitExceededException("Foo").Message);
 
-    [ConditionalFact]
+    [Fact]
     public void RetryLimitExceededException_exposes_public_string_and_inner_exception_constructor()
     {
         var inner = new Exception();
@@ -29,15 +29,15 @@ public class ExceptionTest
         Assert.Same(inner, ex.InnerException);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateException_exposes_public_empty_constructor()
         => new DbUpdateException();
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateException_exposes_public_string_constructor()
         => Assert.Equal("Foo", new DbUpdateException("Foo").Message);
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateException_exposes_public_string_and_inner_exception_constructor()
     {
         var inner = new Exception();
@@ -48,15 +48,15 @@ public class ExceptionTest
         Assert.Same(inner, ex.InnerException);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateConcurrencyException_exposes_public_empty_constructor()
         => new DbUpdateConcurrencyException();
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateConcurrencyException_exposes_public_string_constructor()
         => Assert.Equal("Foo", new DbUpdateConcurrencyException("Foo").Message);
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateConcurrencyException_exposes_public_string_and_inner_exception_constructor()
     {
         var inner = new Exception();
@@ -67,7 +67,7 @@ public class ExceptionTest
         Assert.Same(inner, ex.InnerException);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateException_exposes_public_string_and_entries_constructor()
     {
         var entries = new List<EntityEntry>
@@ -81,7 +81,7 @@ public class ExceptionTest
         Assert.Same(entries, exception.Entries);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbUpdateException_exposes_public_string_and_inner_exception_and_entries_constructor()
     {
         var inner = new Exception();

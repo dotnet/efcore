@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase, IRuntimeTypeBase
 {
     private readonly SortedDictionary<string, Property> _properties;
-    private readonly SortedDictionary<string, ComplexProperty> _complexProperties = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, ComplexProperty> _complexProperties;
     private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new(StringComparer.Ordinal);
 
     private TypeBase? _baseType;
@@ -59,6 +59,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         HasSharedClrType = false;
         IsPropertyBag = type.IsPropertyBagType();
         _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+        _complexProperties = new SortedDictionary<string, ComplexProperty>(new ComplexPropertyNameComparer(this));
     }
 
     /// <summary>
@@ -80,6 +81,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         HasSharedClrType = true;
         IsPropertyBag = type.IsPropertyBagType();
         _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+        _complexProperties = new SortedDictionary<string, ComplexProperty>(new ComplexPropertyNameComparer(this));
     }
 
     /// <summary>
@@ -287,6 +289,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     [DebuggerStepThrough]
     public virtual TypeBase GetRootType()
         => (TypeBase)((IReadOnlyTypeBase)this).GetRootType();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract EntityType ContainingEntityType { [DebuggerStepThrough] get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -634,9 +644,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         if (conflictingMember != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(),
-                    ((IReadOnlyTypeBase)conflictingMember.DeclaringType).DisplayName()));
+                conflictingMember.FormatConflictingMemberMessage(name, this));
         }
 
         if (memberInfo != null)
@@ -903,8 +911,17 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SortedDictionary<string, Property> Properties
+    protected internal virtual SortedDictionary<string, Property> Properties
         => _properties;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected internal virtual SortedDictionary<string, ComplexProperty> ComplexProperties
+        => _complexProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1082,9 +1099,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         if (conflictingMember != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(),
-                    conflictingMember.DeclaringType.DisplayName()));
+                conflictingMember.FormatConflictingMemberMessage(name, this));
         }
 
         if (memberInfo != null)

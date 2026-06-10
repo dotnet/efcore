@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -13,7 +13,7 @@ public class NorthwindBulkUpdatesSqlServerTest(
     ITestOutputHelper testOutputHelper)
     : NorthwindBulkUpdatesRelationalTestBase<NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -653,14 +653,21 @@ WHERE [o].[OrderID] < 10276
 SET NOCOUNT OFF;
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-RIGHT JOIN (
-    SELECT [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] < 10300
-    ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
-) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
-WHERE [o].[OrderID] < 10276
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT [o1].[OrderID], [o1].[ProductID]
+        FROM [Order Details] AS [o1]
+        WHERE [o1].[OrderID] < 10276
+    ) AS [o0]
+    RIGHT JOIN (
+        SELECT [o3].[OrderID]
+        FROM [Orders] AS [o3]
+        WHERE [o3].[OrderID] < 10300
+        ORDER BY [o3].[OrderID]
+        OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+    ) AS [o2] ON [o0].[OrderID] = [o2].[OrderID]
+    WHERE [o0].[OrderID] = [o].[OrderID] AND [o0].[ProductID] = [o].[ProductID])
 """);
     }
 
@@ -724,6 +731,19 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Update_Where_set_nullable_int_constant_via_discard_lambda(bool async)
+    {
+        await base.Update_Where_set_nullable_int_constant_via_discard_lambda(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [p]
+SET [p].[SupplierID] = 1
+FROM [Products] AS [p]
+WHERE [p].[ProductID] < 5
 """);
     }
 
@@ -1445,15 +1465,22 @@ WHERE [c].[CustomerID] LIKE N'F%'
 @p='2020-01-01T00:00:00.0000000Z' (Nullable = true) (DbType = DateTime)
 
 SET NOCOUNT OFF;
-UPDATE [o]
-SET [o].[OrderDate] = @p
-FROM [Orders] AS [o]
-RIGHT JOIN (
-    SELECT [c].[CustomerID]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'F%'
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-WHERE [o].[OrderID] < 10300
+UPDATE [o1]
+SET [o1].[OrderDate] = @p
+FROM [Orders] AS [o1]
+INNER JOIN (
+    SELECT [o0].[OrderID]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID]
+        FROM [Orders] AS [o]
+        WHERE [o].[OrderID] < 10300
+    ) AS [o0]
+    RIGHT JOIN (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'F%'
+    ) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+) AS [s] ON [o1].[OrderID] = [s].[OrderID]
 """);
     }
 
@@ -1683,7 +1710,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Update_with_two_inner_joins(bool async)
     {
         await base.Update_with_two_inner_joins(async);
@@ -1702,7 +1729,7 @@ WHERE [p].[Discontinued] = CAST(1 AS bit) AND [o0].[OrderDate] > '1990-01-01T00:
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
     {
         await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);

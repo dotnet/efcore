@@ -426,7 +426,7 @@ SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
-    FROM (SELECT CAST(@i AS INTEGER) AS "Value") AS "v"
+    FROM (SELECT @i AS "Value") AS "v"
     WHERE "v"."Value" > "p"."Id") = 1
 """);
     }
@@ -1251,6 +1251,63 @@ WHERE "t"."Id" IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
 """);
     }
 
+    public override async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
+    {
+        await base.Parameter_collection_of_enum_Cast_from_different_enum_type(mode);
+
+        switch (mode)
+        {
+            case ParameterTranslationMode.Constant:
+            {
+                AssertSql(
+                    """
+SELECT "t"."Id"
+FROM "TestEntity38008" AS "t"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT CAST(2 AS INTEGER) AS "Value") AS "f"
+    WHERE "f"."Value" = "t"."Status")
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.Parameter:
+            {
+                AssertSql(
+                    """
+@filter='[2]' (Size = 3)
+
+SELECT "t"."Id"
+FROM "TestEntity38008" AS "t"
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each(@filter) AS "f"
+    WHERE "f"."value" = "t"."Status")
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.MultipleParameters:
+            {
+                AssertSql(
+                    """
+@filter1='2'
+
+SELECT "t"."Id"
+FROM "TestEntity38008" AS "t"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT @filter1 AS "Value") AS "f"
+    WHERE "f"."Value" = "t"."Status")
+""");
+                break;
+            }
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
     public override async Task Static_readonly_collection_List_of_ints_Contains_int()
     {
         await base.Static_readonly_collection_List_of_ints_Contains_int();
@@ -1465,7 +1522,7 @@ LIMIT 2
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task Multidimensional_array_is_not_supported()
         => base.Multidimensional_array_is_not_supported();
 
@@ -1996,6 +2053,12 @@ WHERE (
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Column_collection_SelectMany())).Message);
 
+    public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Inline_collection_SelectMany_with_unreferenced_collection_value())).Message);
+
     public override async Task Column_collection_SelectMany_with_filter()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -2052,7 +2115,7 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Parameter_collection_Concat_column_collection()
     {
         // Issue #32561
@@ -2562,7 +2625,7 @@ WHERE json_array_length("b"."Ints") > 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Empty_string_used_for_primitive_collection_throws()
     {
         await using var connection = new SqliteConnection("DataSource=:memory:");
@@ -2757,7 +2820,7 @@ WHERE (
         return optionsBuilder;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

@@ -11,7 +11,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomerEntityConfiguration2),
         typeof(AbstractCustomerEntityConfiguration), typeof(AbstractCustomerEntityConfigurationImpl));
 
-    [ConditionalFact]
+    [Fact]
     public void Should_scan_assemblies_for_entity_type_configurations()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -32,7 +32,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         Assert.Empty(loggerFactory.Log);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Scan_reports_load_errors()
     {
         var types = new[]
@@ -74,7 +74,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
             new NullDbContextLogger());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_support_filtering_for_entity_type_configurations()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -96,7 +96,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         Assert.Empty(loggerFactory.Log);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_skip_abstract_classes_for_entity_type_configurations()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -115,7 +115,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         Assert.Equal(expectedMessage, loggerFactory.Log[0].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_log_when_no_entity_type_configurations_found()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -131,7 +131,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         Assert.Equal(expectedMessage, loggerFactory.Log[0].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_log_when_entity_type_configuration_has_no_parameterless_constructor()
     {
         var types = new[]

@@ -274,9 +274,22 @@ public abstract partial class InternalEntryBase : IInternalEntry
             // Hot path; do not use LINQ
             foreach (var property in structuralType.GetFlattenedProperties())
             {
-                if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
+                var afterSaveBehavior = property.GetAfterSaveBehavior();
+                if (afterSaveBehavior != PropertySaveBehavior.Save)
                 {
                     _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
+
+                    // Properties with AfterSaveBehavior.Throw were unflagged above, but DetectChanges could
+                    // re-mark them if the original values snapshot doesn't match the current values (e.g. for
+                    // shadow properties on complex types whose snapshot stores default values).
+                    // Set the original values of Throw properties to match current values so that
+                    // DetectChanges won't find a false mismatch and re-mark them as modified.
+                    if (afterSaveBehavior == PropertySaveBehavior.Throw
+                        && property.GetOriginalValueIndex() >= 0
+                        && !IsConceptualNull(property))
+                    {
+                        SetOriginalValue(property, this[property], skipChangeDetection: true);
+                    }
                 }
 
                 // Properties that are not loaded (IsAutoLoaded = false and not yet loaded) should

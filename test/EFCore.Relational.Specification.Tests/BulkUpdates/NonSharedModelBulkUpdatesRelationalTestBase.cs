@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,7 +12,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
     protected override string NonSharedStoreName
         => "NonSharedModelBulkUpdatesTests";
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_table_sharing_with_non_owned_throws(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28671>(
@@ -29,7 +29,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
                 context => context.Set<Owner>(), rowsAffectedCount: 0));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_main_table_in_entity_with_entity_splitting(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -55,7 +55,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             rowsAffectedCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -83,7 +83,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             rowsAffectedCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
+    [Theory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Delete_with_view_mapping(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());
@@ -95,7 +95,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             rowsAffectedCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
+    [Theory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Update_with_view_mapping(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());
@@ -108,7 +108,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             rowsAffectedCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
+    [Theory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Update_complex_type_with_view_mapping(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());
@@ -121,7 +121,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             rowsAffectedCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
+    [Theory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Update_complex_type_property_with_view_mapping(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());

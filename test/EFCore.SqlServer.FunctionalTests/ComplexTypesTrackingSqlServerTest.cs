@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ public class ComplexTypesTrackingSqlServerTest(
     ITestOutputHelper testOutputHelper)
     : ComplexTypesTrackingSqlServerTestBase<ComplexTypesTrackingSqlServerTest.SqlServerFixture>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_read_original_values_with_TPH_shared_complex_property_column_null()
     {
         await using var context = CreateContext();
@@ -32,7 +32,7 @@ public class ComplexTypesTrackingSqlServerTest(
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_read_original_values_with_TPH_shared_complex_property_column_with_value()
     {
         await using var context = CreateContext();
@@ -439,6 +439,10 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
 
     // Issue #36175: Complex types with notification change tracking are not supported
     public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+        => Task.CompletedTask;
+
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
         => Task.CompletedTask;
 
     // Fields can't be proxied

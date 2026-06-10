@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -13,7 +13,7 @@ public class NorthwindSqlQuerySqlServerTest : NorthwindSqlQueryTestBase<Northwin
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -50,11 +50,11 @@ WHERE [o].[OrderID] IN (
 
         AssertSql(
             """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CAST([s].[Value] AS int) AS [p]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [s].[Value] AS [p]
 FROM [Orders] AS [o]
 INNER JOIN (
     SELECT "ProductID" AS "Value" FROM "Products"
-) AS [s] ON [o].[OrderID] = CAST([s].[Value] AS int)
+) AS [s] ON [o].[OrderID] = [s].[Value]
 """);
     }
 

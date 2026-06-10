@@ -268,7 +268,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
             if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
+                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model, resetVersion: true).GetRelationalModel()))
             {
                 var applied = false;
                 
@@ -392,7 +392,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
             if (!dryRun)
             {
-                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
+                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
         }
 
@@ -422,12 +422,13 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         if (!dryRun)
         {
             Directory.CreateDirectory(migrationDirectory);
-            File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
-            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
+            Directory.CreateDirectory(modelSnapshotDirectory);
+
+            File.WriteAllText(migrationFile, migration.MigrationCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
-            Directory.CreateDirectory(modelSnapshotDirectory);
-            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
+            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
         }
 
         return new MigrationFiles

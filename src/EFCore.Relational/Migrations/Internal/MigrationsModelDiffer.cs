@@ -1279,10 +1279,22 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.ClrType = typeof(string);
         columnOperation.DefaultValue = inline || isNullable
             ? null
-            : "{}";
+            : IsJsonCollectionColumn(jsonColumn) ? "[]" : "{}";
 
         columnOperation.AddAnnotations(migrationsAnnotations);
     }
+
+    private static bool IsJsonCollectionColumn(JsonColumn jsonColumn)
+        => jsonColumn.Table.ComplexTypeMappings.Any(
+               m => m.TypeBase is IComplexType ct
+                   && ct.GetContainerColumnName() == jsonColumn.Name
+                   && ct.ComplexProperty.IsCollection
+                   && !ct.ComplexProperty.DeclaringType.IsMappedToJson())
+           || jsonColumn.Table.EntityTypeMappings.Any(
+               m => m.TypeBase is IEntityType et
+                   && et.GetContainerColumnName() == jsonColumn.Name
+                   && et.FindOwnership() is { IsUnique: false, PrincipalEntityType: var principal }
+                   && !principal.IsMappedToJson());
 
     #endregion
 
@@ -1513,7 +1525,28 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             && MultilineEquals(source.Filter, target.Filter)
             && !HasDifferences(source.GetAnnotations(), target.GetAnnotations())
             && source.Columns.Select(p => p.Name).SequenceEqual(
-                target.Columns.Select(p => diffContext.FindSource(p)?.Name));
+                target.Columns.Select(p => diffContext.FindSource(p)?.Name))
+            && JsonIndexEqual(source, target);
+
+    private static bool JsonIndexEqual(ITableIndex source, ITableIndex target)
+    {
+        // The JsonIndex annotation captures both the mapped JSON elements and the complex-collection
+        // indices traversed to reach each indexed property. RelationalJsonIndex.Equals compares both
+        // element identity (column + path) and the parallel collection-indices list.
+        var sourceJson = source[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        var targetJson = target[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        if (sourceJson is null && targetJson is null)
+        {
+            return true;
+        }
+
+        if (sourceJson is null || targetJson is null)
+        {
+            return false;
+        }
+
+        return sourceJson.Equals(targetJson);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

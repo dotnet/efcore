@@ -760,9 +760,39 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 var jsonProperty = finalUpdatePathElement.Property;
                 var propertyValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(jsonProperty);
 
-                // TODO: Change JSON path to be structured, issue #32185
-                var jsonPathString = string.Join(
-                    ".", updateInfo.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
+                var ordinals = new List<int?>();
+                foreach (var entry in updateInfo)
+                {
+                    if (entry.Ordinal != null)
+                    {
+                        ordinals.Add(entry.Ordinal.Value);
+                    }
+                }
+
+                var element = jsonProperty.GetJsonElementMappings()
+                    .Single(jm => ReferenceEquals(jm.TableMapping.Table, jsonColumn.Table))
+                    .Element;
+
+                // When the final property maps to an array and we're updating a specific element
+                // (i.e., the last entry in updateInfo has an ordinal), use the array element type's
+                // path which includes the [] placeholder for the ordinal.
+                if (element is IRelationalJsonArray jsonArray
+                    && finalUpdatePathElement.Ordinal != null)
+                {
+                    element = jsonArray.ElementType;
+                }
+
+                var pathSegments = element.Path;
+
+                // Truncate ordinals to match the number of array segments in the path.
+                // FindCommonJsonPartialUpdateInfo may have reduced the update to a common ancestor
+                // that has fewer array levels than the originally collected ordinals.
+                var arraySegmentCount = pathSegments.Count(s => s.IsArray);
+                var indicesArray = ordinals.Count > arraySegmentCount
+                    ? ordinals.GetRange(0, arraySegmentCount)
+                    : ordinals;
+
+                var jsonPath = new StructuredJsonPath(pathSegments, indicesArray);
                 if (jsonProperty is IProperty property)
                 {
                     var columnModificationParameters = new ColumnModificationParameters(
@@ -771,7 +801,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         property: property,
                         columnType: jsonColumnTypeMapping.StoreType,
                         jsonColumnTypeMapping,
-                        jsonPath: jsonPathString,
+                        jsonPath: jsonPath,
                         read: false,
                         write: true,
                         key: false,
@@ -834,7 +864,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                                 property: null,
                                 columnType: jsonColumnTypeMapping.StoreType,
                                 jsonColumnTypeMapping,
-                                jsonPath: jsonPathString,
+                                jsonPath: jsonPath,
                                 read: false,
                                 write: true,
                                 key: false,
@@ -969,9 +999,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 #pragma warning disable EF1001 // Internal EF Core API usage.
             writer.WritePropertyName(jsonPropertyName);
 
-            if (propertyValue is not null)
+            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+            if (propertyValue is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
             {
-                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
                 Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
                 jsonValueReaderWriter.ToJson(writer, propertyValue);
             }

@@ -102,9 +102,34 @@ public class DbContextOperations
     /// </summary>
     public virtual void DropDatabase(string? contextType, string? connectionString)
     {
-        using var context = CreateContext(contextType);
+        if (contextType == "*")
+        {
+            var anyContext = false;
+            
+            foreach(var contextItem in CreateAllContexts())
+            {
+                anyContext = true;
+                using (contextItem)
+                {
+                    DropDatabaseContext(contextItem, connectionString);
+                }
+            }
 
-        if (connectionString != null)
+            if (!anyContext)
+            {
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+            }
+
+            return;
+        }
+
+        using var context = CreateContext(contextType);
+         DropDatabaseContext(context, connectionString);
+    }
+
+    private void DropDatabaseContext(DbContext context, string? connectionString)
+    {
+        if (connectionString is not null)
         {
             context.Database.SetConnectionString(connectionString);
         }
@@ -425,6 +450,11 @@ public class DbContextOperations
     /// </summary>
     public virtual ContextInfo GetContextInfo(string? contextType, string? connectionString = null)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = CreateContext(contextType);
         
         if (connectionString != null)

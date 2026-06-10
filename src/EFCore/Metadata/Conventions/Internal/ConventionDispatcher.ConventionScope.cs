@@ -139,6 +139,9 @@ public partial class ConventionDispatcher
         public abstract bool? OnForeignKeyRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder);
 
+        public abstract bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder);
+
         public abstract bool? OnForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder);
 

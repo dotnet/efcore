@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : BuiltInDataTypesTestBase<TFixture>(fixture)
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_nullable_converter_on_unique_index()
     {
         using (var context = CreateContext())
@@ -102,7 +102,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public SocialSecurityNumber? SSN { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_nullable_converter_on_primary_key()
     {
         using (var context = CreateContext())
@@ -154,7 +154,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public NullablePrincipal Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_conversion_for_custom_type()
     {
         Guid id;
@@ -206,7 +206,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => email._value;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_conversion_for_custom_struct()
     {
         using (var context = CreateContext())
@@ -238,7 +238,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public double Volume { get; } = volume;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_case_insensitive_string_key()
     {
         using (var context = CreateContext())
@@ -279,7 +279,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_string_list()
     {
         using (var context = CreateContext())
@@ -305,7 +305,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public IList<string> Strings { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_query_struct_to_string_converter_for_pk()
     {
         using (var context = CreateContext())
@@ -352,7 +352,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => orderId.StringValue;
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
     {
         using (var context = CreateContext())
@@ -383,7 +383,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public IDictionary<string, string> Discriminator { get; set; } = new Dictionary<string, string>();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Field_on_derived_type_retrieved_via_cast_applies_value_converter()
     {
         using var context = CreateContext();
@@ -400,7 +400,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://rssblog.com/rss", result.RssUrl);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Value_conversion_is_appropriately_used_for_join_condition()
     {
         using var context = CreateContext();
@@ -426,7 +426,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Value_conversion_is_appropriately_used_for_left_join_condition()
     {
         using var context = CreateContext();
@@ -455,7 +455,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -465,7 +465,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -475,7 +475,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://rssblog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
     {
         using var context = CreateContext();
@@ -489,7 +489,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://rssblog.com", result2.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -500,7 +500,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Contains(false, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_conditional_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -510,7 +510,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_conditional_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -521,7 +521,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Contains("Bar", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
         using var context = CreateContext();
@@ -531,7 +531,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
         using var context = CreateContext();
@@ -541,7 +541,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_conversion_with_property_named_value()
     {
         using var context = CreateContext();
@@ -549,7 +549,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_conversion_on_enum_collection_contains()
     {
         using var context = CreateContext();
@@ -630,7 +630,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public string Value { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Collection_property_as_scalar_Any()
     {
         using var context = CreateContext();
@@ -640,7 +640,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                 .Message.Replace("\r", "").Replace("\n", ""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Collection_property_as_scalar_Count_member()
     {
         using var context = CreateContext();
@@ -657,7 +657,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public List<string> Tags { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Collection_enum_as_string_Contains()
     {
         using var context = CreateContext();
@@ -683,7 +683,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     public override Task Object_to_string_conversion()
         => Task.CompletedTask;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Optional_owned_with_converter_reading_non_nullable_column()
     {
         using var context = CreateContext();
@@ -704,7 +704,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public int Value { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Id_object_as_entity_key()
     {
         using var context = CreateContext();
@@ -731,7 +731,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => Id.GetHashCode();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Composition_over_collection_of_complex_mapped_as_scalar()
     {
         using var context = CreateContext();
@@ -772,7 +772,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Value2
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void GroupBy_converted_enum()
     {
         using var context = CreateContext();
@@ -804,7 +804,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         No
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Infer_type_mapping_from_in_subquery_to_item()
     {
         using var context = CreateContext();
