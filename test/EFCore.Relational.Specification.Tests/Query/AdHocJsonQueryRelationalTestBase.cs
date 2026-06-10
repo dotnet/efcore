@@ -10,6 +10,13 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture) : AdHocJsonQueryTestBase(fixture)
 {
+    protected override void ConfigureWarnings(WarningsConfigurationBuilder builder)
+    {
+        base.ConfigureWarnings(builder);
+
+        builder.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning);
+    }
+
     #region 21006
 
     public override async Task Project_missing_required_navigation(bool async)

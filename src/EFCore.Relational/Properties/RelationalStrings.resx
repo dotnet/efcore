@@ -926,6 +926,10 @@
     <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared column that could be used to identify whether the entity exists. If all nullable properties contain a 'null' value in database then an object instance won't be created in the query. Add a required property to create instances with 'null' values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
   </data>
+  <data name="LogOwnedEntityMappedToJsonCollection" xml:space="preserve">
+    <value>The entity type '{entityType}' is an owned entity type mapped to JSON as a collection, which uses a synthesized ordinal key. Mapping owned entity collections to JSON is obsolete; map it as a complex type collection instead. See https://aka.ms/efcore-docs-json-owned-entities for more information.</value>
+    <comment>Warning RelationalEventId.OwnedEntityMappedToJsonCollectionWarning string</comment>
+  </data>
   <data name="LogPendingModelChanges" xml:space="preserve">
     <value>The model for context '{contextType}' has pending changes. Add a new migration before updating the database. See https://aka.ms/efcore-docs-pending-changes.</value>
     <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
