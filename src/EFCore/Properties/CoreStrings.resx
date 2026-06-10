@@ -1840,6 +1840,9 @@
   <data name="UnhandledNavigationBase" xml:space="preserve">
     <value>Unhandled 'INavigationBase' of type '{type}'.</value>
   </data>
+  <data name="UnionTypeNotSupported" xml:space="preserve">
+    <value>The type '{type}' cannot be mapped because union types are not supported. See https://github.com/dotnet/efcore/issues/36375 for more information.</value>
+  </data>
   <data name="UnknownEntity" xml:space="preserve">
     <value>Unhandled {entity} encountered.</value>
   </data>
