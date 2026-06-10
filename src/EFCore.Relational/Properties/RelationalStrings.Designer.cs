@@ -4095,7 +4095,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The entity type '{entityType}' is an owned entity type mapped to JSON as a collection, which uses a synthesized ordinal key. Mapping owned entity collections to JSON is obsolete; map it as a complex type collection instead. See https://aka.ms/efcore-docs-json-owned-entities for more information.
+        ///     The entity type '{entityType}' is an owned entity type mapped to JSON as a collection, which uses a synthesized ordinal key. Mapping owned entity collections to JSON is obsolete; map it as a complex type collection or configure a non-shadow key instead. See https://aka.ms/efcore-docs-json-owned-entities for more information.
         /// </summary>
         public static EventDefinition<string> LogOwnedEntityMappedToJsonCollection(IDiagnosticsLogger logger)
         {
