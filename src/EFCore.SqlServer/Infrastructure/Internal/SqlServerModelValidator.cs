@@ -247,7 +247,7 @@ public class SqlServerModelValidator(
         {
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var notFound = includeProperties
-                .FirstOrDefault(i => RelationalModel.FindPropertyByPath(index.DeclaringEntityType, i) == null);
+                .FirstOrDefault(i => RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, i) == null);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
             if (notFound != null)
@@ -261,15 +261,16 @@ public class SqlServerModelValidator(
 
             foreach (var includeProperty in includeProperties)
             {
-                var traversedComplexCollection = FindTraversedComplexCollection(index.DeclaringEntityType, includeProperty);
-                if (traversedComplexCollection != null)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var propertyBase = RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, includeProperty)!;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                if (propertyBase.DeclaringType.IsMappedToJson())
                 {
                     throw new InvalidOperationException(
-                        SqlServerStrings.IncludePropertyTraversesComplexCollection(
+                        SqlServerStrings.IncludePropertyInJsonMappedType(
                             includeProperty,
                             index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName(),
-                            traversedComplexCollection));
+                            index.DeclaringEntityType.DisplayName()));
                 }
             }
 
@@ -299,32 +300,6 @@ public class SqlServerModelValidator(
                         coveredProperty,
                         index.DisplayName()));
             }
-        }
-
-        // Returns the name of the first complex collection traversed by the given dotted include-property path, or null if
-        // the path does not traverse any complex collection. Properties nested inside a complex collection live in a JSON
-        // document and so cannot be included in a covering index.
-        static string? FindTraversedComplexCollection(IReadOnlyEntityType entityType, string propertyPath)
-        {
-            var segments = propertyPath.Split('.');
-            IReadOnlyTypeBase currentType = entityType;
-            for (var i = 0; i < segments.Length - 1; i++)
-            {
-                var complexProperty = currentType.FindComplexProperty(segments[i]);
-                if (complexProperty == null)
-                {
-                    return null;
-                }
-
-                if (complexProperty.IsCollection)
-                {
-                    return complexProperty.Name;
-                }
-
-                currentType = complexProperty.ComplexType;
-            }
-
-            return null;
         }
     }
 

@@ -201,8 +201,8 @@
   <data name="IncludePropertyNotFound" xml:space="preserve">
     <value>The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.</value>
   </data>
-  <data name="IncludePropertyTraversesComplexCollection" xml:space="preserve">
-    <value>The include property '{property}' specified on the index {index} on entity type '{entityType}' traverses the complex collection '{complexCollection}'. Properties nested inside a complex collection are stored in a JSON document and cannot be included in an index.</value>
+  <data name="IncludePropertyInJsonMappedType" xml:space="preserve">
+    <value>The include property '{property}' specified on the index {index} on entity type '{entityType}' is contained within a JSON-mapped type. Properties contained within JSON-mapped types cannot be included in an index.</value>
   </data>
   <data name="IncompatibleSqlOutputClauseMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.</value>
