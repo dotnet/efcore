@@ -269,6 +269,10 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         // throwing for non-nullable types or yielding null), demote such a projection to an object projection so the
         // document is retained. Queries that explicitly guard against undefined (e.g. via a Where predicate) already
         // filter those documents out before projection, so they are unaffected.
+        // This is intentionally limited to a scalar whose Object is an ObjectAccessExpression (the scalar lives inside a
+        // nested embedded object). A scalar accessed directly off the root (Object is an ObjectReferenceExpression, e.g.
+        // x.Name) cannot be undefined-by-nesting and is left as a VALUE projection. It is also only applied to the
+        // top-level client projection: subqueries and collection projections rely on VALUE semantics for their shaping.
         if (clientProjection
             && _projection is [{ IsValueProjection: true, Expression: ScalarAccessExpression { Object: ObjectAccessExpression } } valueProjection])
         {
