@@ -26,7 +26,7 @@ public class SqlServerConnectionTest
     {
         using var connection = new SqlServerConnection(CreateDependencies());
         using var master = connection.CreateMasterConnection();
-        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString));
+        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
         Assert.Equal(60, master.CommandTimeout);
     }
 
@@ -41,7 +41,7 @@ public class SqlServerConnectionTest
 
         using var connection = new SqlServerConnection(CreateDependencies(options));
         using var master = connection.CreateMasterConnection();
-        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString));
+        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
     }
 
     [Fact]
@@ -60,65 +60,22 @@ public class SqlServerConnectionTest
 
     #endregion Master connection
 
-    #region Application Name
+    #region Connection string not modified
 
     [Fact]
-    public void ApplicationName_is_injected_when_not_defined_with_connection_string()
+    public void Connection_string_is_not_modified()
     {
         var options = new DbContextOptionsBuilder()
             .UseSqlServer("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest""")
             .Options;
 
         using var connection = new SqlServerConnection(CreateDependencies(options));
-        Assert.StartsWith(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name="EFCore/""",
-            connection.ConnectionString);
-
-        connection.ConnectionString = """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase""";
-        Assert.StartsWith(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name="EFCore/""",
-            connection.ConnectionString);
-    }
-
-    [Fact]
-    public void ApplicationName_is_not_injected_when_user_defined_with_connection_string()
-    {
-        var options = new DbContextOptionsBuilder()
-            .UseSqlServer("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name=foo""")
-            .Options;
-
-        using var connection = new SqlServerConnection(CreateDependencies(options));
         Assert.Equal(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name=foo""",
+            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest""",
             connection.ConnectionString);
-
-        connection.ConnectionString = """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""";
-        Assert.Equal(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""", connection.ConnectionString);
     }
 
-    [Fact]
-    public void ApplicationName_is_not_injected_with_connection()
-    {
-        var dbConnection1 = new SqlConnection("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest""");
-        var options = new DbContextOptionsBuilder().UseSqlServer(dbConnection1).Options;
-
-        using var connection = new SqlServerConnection(CreateDependencies(options));
-        Assert.Equal("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest""", connection.ConnectionString);
-
-        var dbConnection2 = new SqlConnection("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase""");
-        connection.DbConnection = dbConnection2;
-        Assert.Equal("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase""", connection.ConnectionString);
-    }
-
-    #endregion Application Name
-
-    private static string StripApplicationName(string connectionString)
-    {
-        var builder = new SqlConnectionStringBuilder(connectionString);
-        builder.Remove("Application Name");
-        return builder.ToString();
-    }
+    #endregion Connection string not modified
 
     public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
     {
