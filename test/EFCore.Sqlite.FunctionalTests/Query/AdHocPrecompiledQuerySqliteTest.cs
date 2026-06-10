@@ -3,13 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocPrecompiledQuerySqliteTest(ITestOutputHelper testOutputHelper)
-    : AdHocPrecompiledQueryRelationalTestBase(testOutputHelper)
+public class AdHocPrecompiledQuerySqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : AdHocPrecompiledQueryRelationalTestBase(fixture, testOutputHelper)
 {
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     protected override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers

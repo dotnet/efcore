@@ -24,7 +24,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_key_string_column_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -41,49 +41,46 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_key_which_is_also_an_fk_column_does_not_throw()
     {
         var modelBuilder = CreateModelBuilder();
 
         modelBuilder.Entity<PrincipalA>();
-        modelBuilder.Entity<DependantA>(
-            b =>
-            {
-                b.HasKey(e => new { e.Id, e.PrincipalId });
-                b.Property(e => e.PrincipalId).HasDefaultValue(77);
-            });
+        modelBuilder.Entity<DependantA>(b =>
+        {
+            b.HasKey(e => new { e.Id, e.PrincipalId });
+            b.Property(e => e.PrincipalId).HasDefaultValue(77);
+        });
 
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_part_of_composite_key_does_not_throw()
     {
         var modelBuilder = CreateModelBuilder();
 
-        modelBuilder.Entity<PrincipalB>(
-            b =>
-            {
-                b.HasKey(e => new { e.Id1, e.Id2 });
-                b.Property(e => e.Id1).HasDefaultValue(77);
-            });
+        modelBuilder.Entity<PrincipalB>(b =>
+        {
+            b.HasKey(e => new { e.Id1, e.Id2 });
+            b.Property(e => e.Id1).HasDefaultValue(77);
+        });
 
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_all_parts_of_composite_key_throws()
     {
         var modelBuilder = CreateModelBuilder();
 
-        modelBuilder.Entity<PrincipalB>(
-            b =>
-            {
-                b.HasKey(e => new { e.Id1, e.Id2 });
-                b.Property(e => e.Id1).HasDefaultValue(77);
-                b.Property(e => e.Id2).HasDefaultValue(78);
-            });
+        modelBuilder.Entity<PrincipalB>(b =>
+        {
+            b.HasKey(e => new { e.Id1, e.Id2 });
+            b.Property(e => e.Id1).HasDefaultValue(77);
+            b.Property(e => e.Id2).HasDefaultValue(78);
+        });
 
         Assert.Equal(
             CoreStrings.WarningAsErrorTemplate(
@@ -172,7 +169,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         return model;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ColumnAttribute_configures_the_property_correctly()
     {
         var modelBuilder = CreateModelBuilder();

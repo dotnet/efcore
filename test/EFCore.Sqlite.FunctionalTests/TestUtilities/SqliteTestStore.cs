@@ -72,7 +72,9 @@ public class SqliteTestStore : RelationalTestStore
         }
 
         using var context = createContext();
-        if (!await context.Database.EnsureCreatedResilientlyAsync())
+
+        var databaseCreator = context.GetService<IRelationalDatabaseCreator>();
+        if (await databaseCreator.ExistsAsync())
         {
             if (clean != null)
             {
@@ -80,10 +82,10 @@ public class SqliteTestStore : RelationalTestStore
             }
 
             await CleanAsync(context);
-
-            // Run context seeding
-            await context.Database.EnsureCreatedResilientlyAsync();
         }
+
+        // Run context seeding
+        await context.Database.EnsureCreatedResilientlyAsync();
 
         if (seed != null)
         {
@@ -91,9 +93,9 @@ public class SqliteTestStore : RelationalTestStore
         }
     }
 
-    public override Task CleanAsync(DbContext context)
+    public override Task CleanAsync(DbContext context, bool createTables = true)
     {
-        context.Database.EnsureClean();
+        context.Database.EnsureClean(createTables);
         return Task.CompletedTask;
     }
 

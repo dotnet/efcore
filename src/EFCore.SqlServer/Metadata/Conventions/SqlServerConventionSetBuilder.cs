@@ -63,6 +63,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
         conventionSet.Replace<RuntimeModelConvention>(new SqlServerRuntimeModelConvention(Dependencies, RelationalDependencies));
         conventionSet.Replace<SharedTableConvention>(
             new SqlServerSharedTableConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<AutoLoadConvention>(new SqlServerAutoLoadConvention(Dependencies));
 
         var sqlServerTemporalConvention = new SqlServerTemporalConvention(Dependencies, RelationalDependencies);
         ConventionSet.AddBefore(
@@ -108,10 +109,9 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlServer()
-            .AddDbContext<DbContext>(
-                (p, o) =>
-                    o.UseSqlServer("Server=.")
-                        .UseInternalServiceProvider(p))
+            .AddDbContext<DbContext>((p, o) =>
+                o.UseSqlServer("Server=.")
+                    .UseInternalServiceProvider(p))
             .BuildServiceProvider();
 
         return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();

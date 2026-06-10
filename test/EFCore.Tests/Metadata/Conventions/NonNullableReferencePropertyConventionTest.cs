@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class NonNullableReferencePropertyConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -26,7 +26,7 @@ public class NonNullableReferencePropertyConventionTest
         Assert.True(propertyBuilder.Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_does_not_override_configuration_from_data_annotation_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -40,7 +40,7 @@ public class NonNullableReferencePropertyConventionTest
         Assert.True(propertyBuilder.Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_sets_is_nullable_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -49,7 +49,7 @@ public class NonNullableReferencePropertyConventionTest
         Assert.False(entityTypeBuilder.Property(e => e.NonNullable).Metadata.IsNullable);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(typeof(A), nameof(A.NonNullable), false)]
     [InlineData(typeof(A), nameof(A.Nullable), true)]
     [InlineData(typeof(A), nameof(A.NonNullablePropertyMaybeNull), true)]
@@ -70,6 +70,12 @@ public class NonNullableReferencePropertyConventionTest
     [InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false)]
     [InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true)]
     [InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
+    [InlineData(typeof(GenericClass<string>), nameof(GenericClass<>.Defaultable), true)]
+    // The following should be detected as non-nullable; see #35669,
+    // https://github.com/dotnet/runtime/issues/117068#issuecomment-3364824243
+    [InlineData(typeof(GenericClass<string>), nameof(GenericClass<>.NonDefaultable), true)]
+    [InlineData(typeof(GenericClass<int>), nameof(GenericClass<>.Defaultable), false)]
+    [InlineData(typeof(GenericClass<int>), nameof(GenericClass<>.NonDefaultable), false)]
     public void Reference_nullability_sets_is_nullable_correctly(Type type, string propertyName, bool expectedNullable)
     {
         var modelBuilder = CreateModelBuilder();
@@ -78,7 +84,7 @@ public class NonNullableReferencePropertyConventionTest
         Assert.Equal(expectedNullable, entityTypeBuilder.Property(propertyName).Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Dictionary_indexer_is_not_configured_as_non_nullable()
     {
         var modelBuilder = CreateModelBuilder();
@@ -87,7 +93,7 @@ public class NonNullableReferencePropertyConventionTest
         Assert.True(entityTypeBuilder.Property("b").Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Primitive_collection_with_non_nullable_element()
     {
         var modelBuilder = CreateModelBuilder();
@@ -97,7 +103,7 @@ public class NonNullableReferencePropertyConventionTest
             entityTypeBuilder.PrimitiveCollection(a => a.PrimitiveCollectionWithNonNullableElement).ElementType().Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Primitive_collection_with_nullable_element()
     {
         var modelBuilder = CreateModelBuilder();
@@ -194,6 +200,12 @@ public class NonNullableReferencePropertyConventionTest
     public class BaseClass
     {
         public string? Nullable { get; set; }
+    }
+
+    public class GenericClass<T>
+    {
+        public required T NonDefaultable { get; set; }
+        public required T? Defaultable { get; set; }
     }
     // ReSharper restore PropertyCanBeMadeInitOnly.Local
 

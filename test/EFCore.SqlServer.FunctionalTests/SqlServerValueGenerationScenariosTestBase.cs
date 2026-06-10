@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -31,7 +31,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     // Positive cases
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -55,7 +55,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     public class BlogContextIdentity(string databaseName, Action<ModelBuilder> modelBuilder) : ContextBase(databaseName, modelBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_sequence_HiLo()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -87,17 +87,15 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             modelBuilder.UseHiLo();
 
-            modelBuilder.Entity<Blog>(
-                eb =>
-                {
-                    eb.HasAlternateKey(
-                        b => new { b.OtherId });
-                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
-                });
+            modelBuilder.Entity<Blog>(eb =>
+            {
+                eb.HasAlternateKey(b => new { b.OtherId });
+                eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_key_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -129,17 +127,15 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             modelBuilder.UseKeySequences();
 
-            modelBuilder.Entity<Blog>(
-                eb =>
-                {
-                    eb.HasAlternateKey(
-                        b => new { b.OtherId });
-                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
-                });
+            modelBuilder.Entity<Blog>(eb =>
+            {
+                eb.HasAlternateKey(b => new { b.OtherId });
+                eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -169,16 +165,15 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(
-                eb =>
-                {
-                    eb.Property(b => b.OtherId).UseSequence();
-                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
-                });
+            modelBuilder.Entity<Blog>(eb =>
+            {
+                eb.Property(b => b.OtherId).UseSequence();
+                eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_default_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -248,7 +243,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_default_string_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -301,7 +296,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_key_default_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -342,7 +337,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_uint_to_Identity_column_using_value_converter()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -391,7 +386,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_int_enum_to_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -447,7 +442,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         SixSixSeven,
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_ulong_enum_to_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -502,7 +497,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         Sentinel
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_string_to_Identity_column_using_value_converter()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -552,7 +547,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_non_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -589,7 +584,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_with_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -630,7 +625,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_default_value()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -699,8 +694,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public async Task Insert_with_non_key_default_spatial_value()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -776,20 +770,19 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()");
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()");
 
-                    b.HasData(
-                        new Blog
-                        {
-                            Id = 9979,
-                            Name = "W Unicorns",
-                            CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
-                            NeedsConverter = new NeedsConverter(111),
-                        });
-                });
+                b.HasData(
+                    new Blog
+                    {
+                        Id = 9979,
+                        Name = "W Unicorns",
+                        CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
+                        NeedsConverter = new NeedsConverter(111),
+                    });
+            });
         }
     }
 
@@ -800,28 +793,28 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<BlogWithSpatial>(
-                b =>
-                {
-                    b.Property(e => e.GeometryCollection).HasDefaultValue(GeometryFactory.CreateGeometryCollection());
+            modelBuilder.Entity<BlogWithSpatial>(b =>
+            {
+                b.Property(e => e.GeometryCollection).HasDefaultValue(GeometryFactory.CreateGeometryCollection());
 
-                    b.HasData(
-                        new BlogWithSpatial
-                        {
-                            Id = 9979,
-                            Name = "W Unicorns",
-                            GeometryCollection = GeometryFactory.CreateGeometryCollection(
-                                [GeometryFactory.CreatePoint(new Coordinate(1, 2))])
-                        });
-                });
+                b.HasData(
+                    new BlogWithSpatial
+                    {
+                        Id = 9979,
+                        Name = "W Unicorns",
+                        GeometryCollection = GeometryFactory.CreateGeometryCollection(
+                            [GeometryFactory.CreatePoint(new Coordinate(1, 2))])
+                    });
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_default_value_readonly()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
+        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(
+                         testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -846,7 +839,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
         DateTime dateTime0;
 
-        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
+        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(
+                         testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -861,7 +855,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
+        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(
+                         testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -883,18 +878,17 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
 
-                    var property = b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()").HasSentinel(_dateTimeSentinel);
-                    property.Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
-                });
+                var property = b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()").HasSentinel(_dateTimeSentinel);
+                property.Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -940,19 +934,18 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FullNameBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
+            modelBuilder.Entity<FullNameBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
 
-                    var property = b.Property(e => e.FullName)
-                        .HasComputedColumnSql("FirstName + ' ' + LastName")
-                        .HasSentinel(_stringSentinel)
-                        .Metadata;
+                var property = b.Property(e => e.FullName)
+                    .HasComputedColumnSql("FirstName + ' ' + LastName")
+                    .HasSentinel(_stringSentinel)
+                    .Metadata;
 
-                    property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
-                    property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-                });
+                property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+                property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+            });
         }
     }
 
@@ -971,7 +964,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     }
 
     // #6044
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column_with_function()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1029,24 +1022,23 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FullNameBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
+            modelBuilder.Entity<FullNameBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
 
-                    var property = modelBuilder.Entity<FullNameBlog>()
-                        .Property(e => e.FullName)
-                        .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
-                        .HasSentinel(_stringSentinel)
-                        .Metadata;
+                var property = modelBuilder.Entity<FullNameBlog>()
+                    .Property(e => e.FullName)
+                    .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
+                    .HasSentinel(_stringSentinel)
+                    .Metadata;
 
-                    property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-                });
+                property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+            });
         }
     }
 
     // #6044
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column_with_querying_function()
     {
         SqlServerTestStore testStore = null;
@@ -1143,8 +1135,7 @@ END");
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_computed_column_with_function_without_metadata_configuration(bool async)
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1191,8 +1182,7 @@ END");
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_trigger_without_metadata_configuration(bool async)
     {
         // Execute an insert against a table which has a trigger, but which haven't identified as such in our metadata.
@@ -1235,7 +1225,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_client_generated_GUID_key()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1282,18 +1272,16 @@ END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<GuidBlog>(
-                eb =>
-                {
-                    eb.HasAlternateKey(e => e.NotId);
-                    eb.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
-                    eb.Property(e => e.Id).HasSentinel(_sentinel);
-                });
+            modelBuilder.Entity<GuidBlog>(eb =>
+            {
+                eb.HasAlternateKey(e => e.NotId);
+                eb.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
+                eb.Property(e => e.Id).HasSentinel(_sentinel);
+            });
         }
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql))]
     public async Task Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1324,16 +1312,15 @@ END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<GuidBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_sentinel);
-                    b.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
-                });
+            modelBuilder.Entity<GuidBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_sentinel);
+                b.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_server_generated_GUID_key()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1383,17 +1370,16 @@ END");
             base.OnModelCreating(modelBuilder);
 
             modelBuilder
-                .Entity<GuidBlog>(
-                    eb =>
-                    {
-                        eb.Property(e => e.Id).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
-                        eb.Property(e => e.NotId).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
-                    });
+                .Entity<GuidBlog>(eb =>
+                {
+                    eb.Property(e => e.Id).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
+                    eb.Property(e => e.NotId).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
+                });
         }
     }
 
     // Negative cases
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_non_default_keys_by_default()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1410,7 +1396,7 @@ END");
         context.Database.CreateExecutionStrategy().Execute(context, c => Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1430,7 +1416,7 @@ END");
 
     public class BlogContext(string databaseName, Action<ModelBuilder> modelBuilder) : ContextBase(databaseName, modelBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_implicit_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1470,7 +1456,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_throws_when_readonly_sequence_before_save()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1508,7 +1494,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_throws_when_readonly_before_save()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1536,7 +1522,7 @@ END");
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_into_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1559,7 +1545,7 @@ END");
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Update_explicit_value_in_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1594,7 +1580,7 @@ END");
     }
 
     // Concurrency
-    [ConditionalFact]
+    [Fact]
     public async Task Resolve_concurrency()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1611,7 +1597,8 @@ END");
 
         context.SaveChanges();
 
-        await using var innerContext = new BlogContextConcurrencyWithRowversion(testStore.Name, OnModelCreating, IntSentinel, TimestampSentinel);
+        await using var innerContext = new BlogContextConcurrencyWithRowversion(
+            testStore.Name, OnModelCreating, IntSentinel, TimestampSentinel);
         var updatedBlog = innerContext.ConcurrentBlogs.Single();
         updatedBlog.Name = "One Pegasus";
         innerContext.SaveChanges();
@@ -1649,15 +1636,14 @@ END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ConcurrentBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
-                    b.Property(e => e.Timestamp)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken()
-                        .HasSentinel(_timestampSentinel);
-                });
+            modelBuilder.Entity<ConcurrentBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
+                b.Property(e => e.Timestamp)
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken()
+                    .HasSentinel(_timestampSentinel);
+            });
         }
     }
 
@@ -1767,5 +1753,5 @@ END");
                     b => b.UseNetTopologySuite().ApplyConfiguration());
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

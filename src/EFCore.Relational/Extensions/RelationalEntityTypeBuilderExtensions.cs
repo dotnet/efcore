@@ -205,7 +205,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         string query)
     {
-        Check.NotNull(query, nameof(query));
+        Check.NotNull(query);
 
         entityTypeBuilder.Metadata.SetSqlQuery(query);
 
@@ -271,7 +271,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.SqlQuery, name, fromDataAnnotation);
     }
@@ -289,7 +289,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         ToFunction(name, entityTypeBuilder.Metadata);
 
@@ -329,8 +329,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         Action<TableValuedFunctionBuilder> configureFunction)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NotNull(name);
+        Check.NotNull(configureFunction);
 
         configureFunction(new TableValuedFunctionBuilder(ToFunction(name, entityTypeBuilder.Metadata), entityTypeBuilder));
 
@@ -352,8 +352,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         MethodInfo function,
         Action<TableValuedFunctionBuilder> configureFunction)
     {
-        Check.NotNull(function, nameof(function));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NotNull(function);
+        Check.NotNull(configureFunction);
 
         configureFunction(new TableValuedFunctionBuilder(ToFunction(function, entityTypeBuilder.Metadata), entityTypeBuilder));
 
@@ -409,8 +409,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<TableValuedFunctionBuilder<TEntity>> configureFunction)
         where TEntity : class
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NotNull(name);
+        Check.NotNull(configureFunction);
 
         configureFunction(new TableValuedFunctionBuilder<TEntity>(ToFunction(name, entityTypeBuilder.Metadata), entityTypeBuilder));
 
@@ -434,8 +434,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<TableValuedFunctionBuilder<TEntity>> configureFunction)
         where TEntity : class
     {
-        Check.NotNull(function, nameof(function));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NotNull(function);
+        Check.NotNull(configureFunction);
 
         configureFunction(new TableValuedFunctionBuilder<TEntity>(ToFunction(function, entityTypeBuilder.Metadata), entityTypeBuilder));
 
@@ -455,7 +455,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this OwnedNavigationBuilder ownedNavigationBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         ToFunction(name, ownedNavigationBuilder.OwnedEntityType);
 
@@ -495,8 +495,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         Action<OwnedNavigationTableValuedFunctionBuilder> configureFunction)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NullButNotEmpty(name);
+        Check.NotNull(configureFunction);
 
         configureFunction(
             new OwnedNavigationTableValuedFunctionBuilder(
@@ -520,8 +520,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         MethodInfo function,
         Action<OwnedNavigationTableValuedFunctionBuilder> configureFunction)
     {
-        Check.NotNull(function, nameof(function));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NotNull(function);
+        Check.NotNull(configureFunction);
 
         configureFunction(
             new OwnedNavigationTableValuedFunctionBuilder(
@@ -587,8 +587,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NullButNotEmpty(name);
+        Check.NotNull(configureFunction);
 
         configureFunction(
             new OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>(
@@ -616,8 +616,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        Check.NotNull(function, nameof(function));
-        Check.NotNull(configureFunction, nameof(configureFunction));
+        Check.NotNull(function);
+        Check.NotNull(configureFunction);
 
         configureFunction(
             new OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>(
@@ -760,7 +760,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.FunctionName, name, fromDataAnnotation);
     }
@@ -825,8 +825,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string sql,
         Action<CheckConstraintBuilder> buildAction)
     {
-        Check.NotEmpty(sql, nameof(sql));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(sql);
+        Check.NotNull(buildAction);
 
         entityTypeBuilder.HasCheckConstraint(name, sql);
 
@@ -940,8 +940,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string sql,
         Action<CheckConstraintBuilder> buildAction)
     {
-        Check.NotEmpty(sql, nameof(sql));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(sql);
+        Check.NotNull(buildAction);
 
         ownedNavigationBuilder.HasCheckConstraint(name, sql);
 

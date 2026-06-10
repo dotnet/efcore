@@ -42,6 +42,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         {
             annotations.Remove(CoreAnnotationNames.ModelDependencies);
             annotations.Remove(CoreAnnotationNames.ReadOnlyModel);
+            annotations.Remove(CoreAnnotationNames.DetailedErrorsEnabled);
         }
 
         GenerateSimpleAnnotations(parameters);
@@ -124,6 +125,24 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
 
     /// <inheritdoc />
     public virtual void Generate(IServiceProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key))
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
+
+        GenerateSimpleAnnotations(parameters);
+    }
+
+    /// <inheritdoc />
+    public virtual void Generate(IElementType elementType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (!parameters.IsRuntime)
         {
@@ -356,7 +375,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
     {
         var mainBuilder = parameters.MainBuilder;
         var constructor = converter.GetType().GetDeclaredConstructor([typeof(JsonValueReaderWriter)]);
-        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<object>.JsonReaderWriter));
+        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<>.JsonReaderWriter));
         if (constructor == null
             || jsonReaderWriterProperty == null)
         {
@@ -437,7 +456,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             .Any(t => t == typeof(ValueComparer) || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ValueComparer<>)));
 
         if (!containsNestedComparerCtor
-            || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
+            || comparer is not IInfrastructure<ValueComparer> { Instance: { } underlyingValueComparer })
         {
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);

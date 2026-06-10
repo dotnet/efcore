@@ -13,7 +13,7 @@ public class SqlServerValueGenerationStrategyThrowTest(
     SqlServerValueGenerationStrategyFixture<SqlServerValueGenerationStrategyThrowTest.ThrowContext> fixture) :
     SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyThrowTest.ThrowContext>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_ValueGeneration_strategy_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -32,7 +32,7 @@ public class SqlServerValueGenerationStrategyThrowTest(
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_default_value_strategy_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -66,7 +66,7 @@ public class SqlServerValueGenerationStrategyNoThrowTest(
     SqlServerValueGenerationStrategyFixture<SqlServerValueGenerationStrategyNoThrowTest.NoThrowContext> fixture) :
     SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyNoThrowTest.NoThrowContext>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_ValueGeneration_strategy_warns()
     {
         var modelBuilder = CreateModelBuilder();
@@ -78,8 +78,8 @@ public class SqlServerValueGenerationStrategyNoThrowTest(
         // Assert - this does not throw
         Validate(modelBuilder);
 
-        var logEntry = Fixture.ListLoggerFactory.Log.Single(
-            l => l.Level == LogLevel.Warning && l.Id == SqlServerEventId.ConflictingValueGenerationStrategiesWarning);
+        var logEntry = Fixture.ListLoggerFactory.Log.Single(l
+            => l.Level == LogLevel.Warning && l.Id == SqlServerEventId.ConflictingValueGenerationStrategiesWarning);
         Assert.Equal(
             SqlServerResources.LogConflictingValueGenerationStrategies(
                     new TestLogger<SqlServerLoggingDefinitions>())
@@ -95,8 +95,7 @@ public class SqlServerValueGenerationStrategyNoThrowTest(
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseSqlServer()
-                .ConfigureWarnings(
-                    b => b.Log(SqlServerEventId.ConflictingValueGenerationStrategiesWarning));
+                .ConfigureWarnings(b => b.Log(SqlServerEventId.ConflictingValueGenerationStrategiesWarning));
     }
 }
 

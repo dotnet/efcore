@@ -117,7 +117,7 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
 
         return selectExpression == SelectExpression && table == Table && columnValueSetters is null
             ? this
-            : new UpdateExpression(table, selectExpression, columnValueSetters ?? ColumnValueSetters);
+            : new UpdateExpression(table, selectExpression, columnValueSetters ?? ColumnValueSetters, Tags);
     }
 
     /// <summary>
@@ -144,12 +144,11 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
             NewArrayInit(
                 typeof(ColumnValueSetter),
                 ColumnValueSetters
-                    .Select(
-                        s => New(
-                            _columnValueSetterQuotingConstructor ??=
-                                typeof(ColumnValueSetter).GetConstructor([typeof(ColumnExpression), typeof(SqlExpression)])!,
-                            s.Column.Quote(),
-                            s.Value.Quote()))),
+                    .Select(s => New(
+                        _columnValueSetterQuotingConstructor ??=
+                            typeof(ColumnValueSetter).GetConstructor([typeof(ColumnExpression), typeof(SqlExpression)])!,
+                        s.Column.Quote(),
+                        s.Value.Quote()))),
             RelationalExpressionQuotingUtilities.QuoteTags(Tags));
 
     /// <inheritdoc />

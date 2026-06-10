@@ -1,13 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RawSqlCommandBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Builds_RelationalCommand_without_optional_parameters()
     {
         var builder = CreateBuilder();
@@ -25,7 +26,8 @@ public class RawSqlCommandBuilderTest
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new ExceptionDetector())),
+                    new ExceptionDetector(),
+                    new LoggingOptions())),
             new RelationalSqlGenerationHelper(
                 new RelationalSqlGenerationHelperDependencies()),
             new ParameterNameGeneratorFactory(
@@ -34,7 +36,7 @@ public class RawSqlCommandBuilderTest
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Builds_RelationalCommand_with_empty_parameter_list()
     {
         var builder = CreateBuilder();
@@ -46,12 +48,12 @@ public class RawSqlCommandBuilderTest
         Assert.Equal(0, rawSqlCommand.ParameterValues.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Builds_RelationalCommand_with_parameters()
     {
         var builder = CreateBuilder();
 
-        var rawSqlCommand = builder.Build("SQL COMMAND TEXT {0} {1} {2}", new object[] { 1, 2L, "three" });
+        var rawSqlCommand = builder.Build("SQL COMMAND TEXT {0} {1} {2}", [1, 2L, "three"]);
 
         Assert.Equal("SQL COMMAND TEXT @p0 @p1 @p2", rawSqlCommand.RelationalCommand.CommandText);
         Assert.Equal(3, rawSqlCommand.RelationalCommand.Parameters.Count);

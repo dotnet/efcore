@@ -13,17 +13,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerAnnotationProvider : RelationalAnnotationProvider
+public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+    : RelationalAnnotationProvider(dependencies)
 {
-    /// <summary>
-    ///     Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    public SqlServerAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -32,6 +24,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
     {
+        foreach (var baseAnnotation in base.For(model, designTime))
+        {
+            yield return baseAnnotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -76,6 +73,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         {
             yield return new Annotation(SqlServerAnnotationNames.MemoryOptimized, true);
         }
+
+        if (model.Model.FindAnnotation(SqlServerAnnotationNames.FullTextCatalogs) is IAnnotation annotation)
+        {
+            yield return annotation;
+        }
     }
 
     /// <summary>
@@ -86,6 +88,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
     {
+        foreach (var annotation in base.For(table, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -113,9 +120,10 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             // see #26007
             var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
             var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
+            IReadOnlyProperty? periodStartProperty = null;
             if (periodStartPropertyName != null)
             {
-                var periodStartProperty = entityType.FindProperty(periodStartPropertyName);
+                periodStartProperty = entityType.FindProperty(periodStartPropertyName);
                 var periodStartColumnName = periodStartProperty != null
                     ? periodStartProperty.GetColumnName(storeObjectIdentifier)
                     : periodStartPropertyName;
@@ -124,14 +132,28 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             }
 
             var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
+            IReadOnlyProperty? periodEndProperty = null;
             if (periodEndPropertyName != null)
             {
-                var periodEndProperty = entityType.FindProperty(periodEndPropertyName);
+                periodEndProperty = entityType.FindProperty(periodEndPropertyName);
                 var periodEndColumnName = periodEndProperty != null
                     ? periodEndProperty.GetColumnName(storeObjectIdentifier)
                     : periodEndPropertyName;
 
                 yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
+            }
+
+            // Emit the per-period-column hidden flags on the table operation so the migrations generator
+            // can read them in BuildTemporalInformationFromMigrationOperation. Only emit when the user
+            // explicitly configured the column visible (default is HIDDEN, omitted to keep table ops clean).
+            if (periodStartProperty?.IsHidden() == false)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartHidden, false);
+            }
+
+            if (periodEndProperty?.IsHidden() == false)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndHidden, false);
             }
         }
     }
@@ -144,6 +166,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IUniqueConstraint constraint, bool designTime)
     {
+        foreach (var annotation in base.For(constraint, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -154,12 +181,12 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
 
         var table = constraint.Table;
 
-        if (key.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema)) is bool isClustered)
+        if (key.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema)) is { } isClustered)
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
         }
 
-        if (key.GetFillFactor() is int fillFactor)
+        if (key.GetFillFactor() is { } fillFactor)
         {
             yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
         }
@@ -173,6 +200,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
+        foreach (var annotation in base.For(index, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -181,40 +213,89 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         // Model validation ensures that these facets are the same on all mapped indexes
         var modelIndex = index.MappedIndexes.First();
         var table = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
-        if (modelIndex.IsClustered(table) is bool isClustered)
+
+#pragma warning disable EF9105 // Vector indexes are experimental
+        if (modelIndex.GetVectorMetric(table) is { } vectorMetric)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.VectorIndexMetric, vectorMetric);
+
+            if (modelIndex.GetVectorIndexType(table) is { } vectorType)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.VectorIndexType, vectorType);
+            }
+        }
+#pragma warning restore EF9105
+
+        if (modelIndex.GetFullTextKeyIndex(table) is { } keyIndex)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.FullTextIndex, keyIndex);
+
+            if (modelIndex.GetFullTextCatalog(table) is { } catalog)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextCatalog, catalog);
+            }
+
+            if (modelIndex.GetFullTextChangeTracking(table) is { } changeTracking)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextChangeTracking, changeTracking);
+            }
+
+            if (modelIndex.GetFullTextLanguages() is { } languages)
+            {
+                // Resolve property names to column names for SQL generation
+                var resolvedLanguages = new Dictionary<string, string>();
+                foreach (var (propertyName, language) in languages)
+                {
+                    var columnName = modelIndex.DeclaringEntityType.FindProperty(propertyName)!
+                        .GetColumnName(table);
+                    if (columnName != null)
+                    {
+                        resolvedLanguages[columnName] = language;
+                    }
+                }
+
+                if (resolvedLanguages.Count > 0)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.FullTextLanguages, resolvedLanguages);
+                }
+            }
+        }
+
+        if (modelIndex.IsClustered(table) is { } isClustered)
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
         }
 
-        if (modelIndex.GetIncludeProperties(table) is IReadOnlyList<string> includeProperties)
+        if (modelIndex.GetIncludeProperties(table) is { } includeProperties)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var includeColumns = includeProperties
-                .Select(
-                    p => modelIndex.DeclaringEntityType.FindProperty(p)!
-                        .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
+                .Select(p => RelationalModel.FindPropertyByPath(modelIndex.DeclaringEntityType, p)!
+                    .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
                 .ToArray();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             yield return new Annotation(
                 SqlServerAnnotationNames.Include,
                 includeColumns);
         }
 
-        if (modelIndex.IsCreatedOnline(table) is bool isOnline)
+        if (modelIndex.IsCreatedOnline(table) is { } isOnline)
         {
             yield return new Annotation(SqlServerAnnotationNames.CreatedOnline, isOnline);
         }
 
-        if (modelIndex.GetFillFactor(table) is int fillFactor)
+        if (modelIndex.GetFillFactor(table) is { } fillFactor)
         {
             yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
         }
 
-        if (modelIndex.GetSortInTempDb(table) is bool sortInTempDb)
+        if (modelIndex.GetSortInTempDb(table) is { } sortInTempDb)
         {
             yield return new Annotation(SqlServerAnnotationNames.SortInTempDb, sortInTempDb);
         }
 
-        if (modelIndex.GetDataCompression(table) is DataCompressionType dataCompressionType)
+        if (modelIndex.GetDataCompression(table) is { } dataCompressionType)
         {
             yield return new Annotation(SqlServerAnnotationNames.DataCompression, dataCompressionType);
         }
@@ -228,6 +309,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
+        foreach (var annotation in base.For(column, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -236,9 +322,8 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
         var identityProperty = column.PropertyMappings
             .Select(m => m.Property)
-            .FirstOrDefault(
-                p => p.GetValueGenerationStrategy(table)
-                    == SqlServerValueGenerationStrategy.IdentityColumn);
+            .FirstOrDefault(p => p.GetValueGenerationStrategy(table)
+                == SqlServerValueGenerationStrategy.IdentityColumn);
         if (identityProperty != null)
         {
             var seed = identityProperty.GetIdentitySeed(table);
@@ -250,11 +335,36 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         }
 
         // JSON columns have no property mappings so all annotations that rely on property mappings should be skipped for them
-        if (column is not JsonColumn
-            && column.PropertyMappings.FirstOrDefault()?.Property.IsSparse() is bool isSparse)
+        if (column is not JsonColumn)
         {
-            // Model validation ensures that these facets are the same on all mapped properties
-            yield return new Annotation(SqlServerAnnotationNames.Sparse, isSparse);
+            if (column.PropertyMappings.FirstOrDefault()?.Property.IsSparse() is { } isSparse)
+            {
+                // Model validation ensures that these facets are the same on all mapped properties
+                yield return new Annotation(SqlServerAnnotationNames.Sparse, isSparse);
+            }
+
+            var mappedProperty = column.PropertyMappings.FirstOrDefault()?.Property;
+            if (mappedProperty != null)
+            {
+                if (mappedProperty.GetDefaultConstraintName(table) is { } defaultConstraintName)
+                {
+                    // named constraint stored as annotation are either explicitly configured by user
+                    // or generated by EF because of naming duplicates (SqlServerDefaultValueConvention)
+                    yield return new Annotation(RelationalAnnotationNames.DefaultConstraintName, defaultConstraintName);
+                }
+                else if (mappedProperty.DeclaringType.Model.AreNamedDefaultConstraintsUsed()
+                         && (mappedProperty.FindAnnotation(RelationalAnnotationNames.DefaultValue) != null
+                             || mappedProperty.FindAnnotation(RelationalAnnotationNames.DefaultValueSql) != null))
+                {
+                    // named default constraints opt-in + default value (sql) was specified
+                    // generate the default constraint name (based on table and column name)
+                    // it's not stored as annotation, meaning it won't be clashing with other names
+                    // (we already checked that in the finalize model convention step)
+                    yield return new Annotation(
+                        RelationalAnnotationNames.DefaultConstraintName,
+                        mappedProperty.GetDefaultDefaultConstraintName(table));
+                }
+            }
         }
 
         var entityType = (IEntityType)column.Table.EntityTypeMappings.First().TypeBase;
@@ -283,10 +393,21 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             if (column.Name == periodStartColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
+
+                // Period columns default to HIDDEN; only emit the annotation when explicitly visible.
+                if (periodStartProperty?.IsHidden() == false)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.IsHidden, false);
+                }
             }
             else if (column.Name == periodEndColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
+
+                if (periodEndProperty?.IsHidden() == false)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.IsHidden, false);
+                }
             }
         }
     }

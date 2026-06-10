@@ -32,24 +32,15 @@ public abstract class RelationalTypeMappingTest
         => (ValueComparer)Activator.CreateInstance(
             typeof(FakeValueComparer<>).MakeGenericType(type));
 
-    [ConditionalTheory]
-    [InlineData(typeof(BoolTypeMapping), typeof(bool))]
-    [InlineData(typeof(ByteTypeMapping), typeof(byte))]
-    [InlineData(typeof(CharTypeMapping), typeof(char))]
-    [InlineData(typeof(DateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
-    [InlineData(typeof(DateTimeTypeMapping), typeof(DateTime))]
-    [InlineData(typeof(DecimalTypeMapping), typeof(decimal))]
-    [InlineData(typeof(DoubleTypeMapping), typeof(double))]
-    [InlineData(typeof(FloatTypeMapping), typeof(float))]
-    [InlineData(typeof(GuidTypeMapping), typeof(Guid))]
-    [InlineData(typeof(IntTypeMapping), typeof(int))]
-    [InlineData(typeof(LongTypeMapping), typeof(long))]
-    [InlineData(typeof(SByteTypeMapping), typeof(sbyte))]
-    [InlineData(typeof(ShortTypeMapping), typeof(short))]
-    [InlineData(typeof(TimeSpanTypeMapping), typeof(TimeSpan))]
-    [InlineData(typeof(UIntTypeMapping), typeof(uint))]
-    [InlineData(typeof(ULongTypeMapping), typeof(ulong))]
-    [InlineData(typeof(UShortTypeMapping), typeof(ushort))]
+    [Theory, InlineData(typeof(BoolTypeMapping), typeof(bool)), InlineData(typeof(ByteTypeMapping), typeof(byte)),
+     InlineData(typeof(CharTypeMapping), typeof(char)), InlineData(typeof(DateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
+     InlineData(typeof(DateTimeTypeMapping), typeof(DateTime)), InlineData(typeof(DecimalTypeMapping), typeof(decimal)),
+     InlineData(typeof(DoubleTypeMapping), typeof(double)), InlineData(typeof(FloatTypeMapping), typeof(float)),
+     InlineData(typeof(GuidTypeMapping), typeof(Guid)), InlineData(typeof(IntTypeMapping), typeof(int)),
+     InlineData(typeof(LongTypeMapping), typeof(long)), InlineData(typeof(SByteTypeMapping), typeof(sbyte)),
+     InlineData(typeof(ShortTypeMapping), typeof(short)), InlineData(typeof(TimeSpanTypeMapping), typeof(TimeSpan)),
+     InlineData(typeof(UIntTypeMapping), typeof(uint)), InlineData(typeof(ULongTypeMapping), typeof(ulong)),
+     InlineData(typeof(UShortTypeMapping), typeof(ushort))]
     public virtual void Create_and_clone_with_converter(Type mappingType, Type type)
     {
         var mapping = (RelationalTypeMapping)Activator.CreateInstance(
@@ -97,7 +88,7 @@ public abstract class RelationalTypeMappingTest
         return clone;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_sized_mappings_with_converter()
         => ConversionCloneTest(typeof(ByteArrayTypeMapping), typeof(byte[]));
 
@@ -160,7 +151,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_unicode_sized_mappings_with_converter()
         => UnicodeConversionCloneTest(typeof(StringTypeMapping), typeof(string));
 
@@ -264,7 +255,7 @@ public abstract class RelationalTypeMappingTest
             => new FakeTypeMapping(parameters);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_simple_parameter()
     {
         using var command = CreateTestCommand();
@@ -278,7 +269,7 @@ public abstract class RelationalTypeMappingTest
         Assert.False(parameter.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_simple_nullable_parameter()
     {
         using var command = CreateTestCommand();
@@ -292,7 +283,7 @@ public abstract class RelationalTypeMappingTest
         Assert.True(parameter.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_simple_parameter_with_DbType()
     {
         using var command = CreateTestCommand();
@@ -306,7 +297,7 @@ public abstract class RelationalTypeMappingTest
         Assert.False(parameter.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_simple_nullable_parameter_with_DbType()
     {
         using var command = CreateTestCommand();
@@ -322,7 +313,7 @@ public abstract class RelationalTypeMappingTest
 
     // TODO: Add tests for parameter directions
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_required_string_parameter()
     {
         using var command = CreateTestCommand();
@@ -337,7 +328,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(5, parameter.Size);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_string_parameter()
     {
         using var command = CreateTestCommand();
@@ -358,7 +349,7 @@ public abstract class RelationalTypeMappingTest
         string literalValue)
         => Assert.Equal(literalValue, typeMapping.GenerateSqlLiteral(value));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Bool_literal_generated_correctly()
     {
         var typeMapping = new BoolTypeMapping("bool");
@@ -367,11 +358,11 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, false, "0");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ByteArray_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(new ByteArrayTypeMapping("byte[]"), new byte[] { 0xDA, 0x7A }, "X'DA7A'");
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Byte_literal_generated_correctly()
     {
         var typeMapping = new ByteTypeMapping("byte");
@@ -380,35 +371,35 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, byte.MaxValue, "255");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Char_literal_generated_correctly()
     {
         Test_GenerateSqlLiteral_helper(new CharTypeMapping("char"), 'A', "'A'");
         Test_GenerateSqlLiteral_helper(new CharTypeMapping("char"), '\'', "''''");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTimeOffset_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(
             new DateTimeOffsetTypeMapping("DateTimeOffset"),
             new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
             "TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'");
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTime_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(
             new DateTimeTypeMapping("DateTime"),
             new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
             "TIMESTAMP '2015-03-12 13:36:37.3710000'");
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateOnly_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(
             new DateOnlyTypeMapping("DateOnly"),
             new DateOnly(2015, 3, 12),
             "DATE '2015-03-12'");
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TimeOnly_literal_generated_correctly()
     {
         var typeMapping = new TimeOnlyTypeMapping("TimeOnly");
@@ -418,7 +409,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120, 20), "TIME '13:10:15.12002'");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Decimal_literal_generated_correctly()
     {
         var typeMapping = new DecimalTypeMapping("decimal");
@@ -427,7 +418,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, decimal.MaxValue, "79228162514264337593543950335.0");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Double_literal_generated_correctly()
     {
         var typeMapping = new DoubleTypeMapping("double");
@@ -439,7 +430,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, double.MaxValue, "1.7976931348623157E+308");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Float_literal_generated_correctly()
     {
         var typeMapping = new FloatTypeMapping("float");
@@ -451,14 +442,14 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "3.4028235E+38");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Guid_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(
             new GuidTypeMapping("guid"),
             new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292"),
             "'c6f43a9e-91e1-45ef-a320-832ea23b7292'");
 
-    [ConditionalFact]
+    [Fact]
     public virtual void NullableInt_literal_generated_correctly()
     {
         var typeMapping = new IntTypeMapping("int?");
@@ -467,7 +458,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, (int?)123, "123");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Int_literal_generated_correctly()
     {
         var typeMapping = new IntTypeMapping("int");
@@ -476,7 +467,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, int.MaxValue, "2147483647");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Long_literal_generated_correctly()
     {
         var typeMapping = new LongTypeMapping("long");
@@ -485,7 +476,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue, "9223372036854775807");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SByte_literal_generated_correctly()
     {
         var typeMapping = new SByteTypeMapping("sbyte");
@@ -494,7 +485,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, sbyte.MaxValue, "127");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Short_literal_generated_correctly()
     {
         var typeMapping = new ShortTypeMapping("short");
@@ -503,15 +494,15 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "32767");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void String_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(new StringTypeMapping("string", DbType.String), "Text", "'Text'");
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Timespan_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(new TimeSpanTypeMapping("time"), new TimeSpan(0, 7, 14, 30, 123), "'07:14:30.1230000'");
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UInt_literal_generated_correctly()
     {
         var typeMapping = new UIntTypeMapping("uint");
@@ -520,7 +511,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, uint.MaxValue, "4294967295");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ULong_literal_generated_correctly()
     {
         var typeMapping = new ULongTypeMapping("ulong");
@@ -529,7 +520,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "18446744073709551615");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UShort_literal_generated_correctly()
     {
         var typeMapping = new UShortTypeMapping("ushort");
@@ -538,7 +529,7 @@ public abstract class RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, ushort.MaxValue, "65535");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Double_value_comparer_handles_NaN()
     {
         var typeMapping = new DoubleTypeMapping("double precision");
@@ -548,7 +539,7 @@ public abstract class RelationalTypeMappingTest
         Assert.False(typeMapping.Comparer.Equals(3.0, double.NaN));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Float_value_comparer_handles_NaN()
     {
         var typeMapping = new FloatTypeMapping("float");
@@ -558,7 +549,7 @@ public abstract class RelationalTypeMappingTest
         Assert.False(typeMapping.Comparer.Equals(3.0f, float.NaN));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTimeOffset_value_comparer_behaves_correctly()
     {
         var typeMapping = new DateTimeOffsetTypeMapping("datetimeoffset");
@@ -579,7 +570,7 @@ public abstract class RelationalTypeMappingTest
         Assert.True(equalsComparer(same1, same2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
     {
         using var context = new FruityContext(ContextOptions);
@@ -594,7 +585,7 @@ public abstract class RelationalTypeMappingTest
         public DbSet<Kiwi> Kiwi { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Primary_key_type_mapping_can_differ_from_FK()
     {
         using var context = new MismatchedFruityContext(ContextOptions);

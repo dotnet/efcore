@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class RelationalIndexExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void IndexAttribute_database_name_can_be_overriden_using_fluent_api()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -53,8 +53,7 @@ public class RelationalIndexExtensionsTest
     protected virtual ModelBuilder CreateConventionModelBuilder()
         => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
-    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true)]
-    [Index(nameof(B), nameof(C), Name = "IndexOnBAndC")]
+    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true), Index(nameof(B), nameof(C), Name = "IndexOnBAndC")]
     private class EntityWithIndexes
     {
         public int Id { get; set; }

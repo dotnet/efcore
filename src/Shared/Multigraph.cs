@@ -18,9 +18,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     }
 
     public Multigraph(IComparer<TVertex> secondarySortComparer)
-    {
-        _secondarySortComparer = secondarySortComparer;
-    }
+        => _secondarySortComparer = secondarySortComparer;
 
     public Multigraph(Comparison<TVertex> secondarySortComparer)
         : this(Comparer<TVertex>.Create(secondarySortComparer))
@@ -33,11 +31,11 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (successorSet.TryGetValue(to, out var edges))
             {
-                return edges is IEnumerable<Edge> edgeList ? edgeList.Select(e => e.Payload) : (new[] { ((Edge)edges!).Payload });
+                return edges is IEnumerable<Edge> edgeList ? edgeList.Select(e => e.Payload) : ( [((Edge)edges!).Payload]);
             }
         }
 
-        return Enumerable.Empty<TEdge>();
+        return [];
     }
 
     public void AddVertex(TVertex vertex)
@@ -249,9 +247,8 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
                     // Find a vertex in the unsorted portion of the graph that has edges to the candidate
                     var incomingNeighbor = GetIncomingNeighbors(candidateVertex)
-                        .First(
-                            neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
-                                && neighborPredecessors > 0);
+                        .First(neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
+                            && neighborPredecessors > 0);
 
                     if (canBreakEdges(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                     {
@@ -279,8 +276,8 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                     continue;
                 }
 
-                var currentCycleVertex = _vertices.First(
-                    v => predecessorCounts.TryGetValue(v, out var predecessorCount) && predecessorCount != 0);
+                var currentCycleVertex =
+                    _vertices.First(v => predecessorCounts.TryGetValue(v, out var predecessorCount) && predecessorCount != 0);
                 var cycle = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)
@@ -330,11 +327,10 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         void CheckBatchingBoundary(TVertex vertex)
         {
             if (withBatching
-                && _predecessorMap[vertex].Any(
-                    kv =>
-                        (kv.Value is Edge { RequiresBatchingBoundary: true }
-                            || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))
-                        && currentBatchSet.Contains(kv.Key)))
+                && _predecessorMap[vertex].Any(kv =>
+                    (kv.Value is Edge { RequiresBatchingBoundary: true }
+                        || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))
+                    && currentBatchSet.Contains(kv.Key)))
             {
                 batchBoundaryRequired = true;
             }

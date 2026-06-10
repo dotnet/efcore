@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class KeyDiscoveryConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Primary_key_is_not_set_when_zero_key_properties()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
@@ -25,7 +25,7 @@ public class KeyDiscoveryConventionTest
         Assert.Null(key);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
@@ -35,10 +35,10 @@ public class KeyDiscoveryConventionTest
 
         var key = entityBuilder.Metadata.FindPrimaryKey();
         Assert.NotNull(key);
-        Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
+        Assert.Equal(["Id"], key.Properties.Select(p => p.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Primary_key_is_not_set_when_shadow_property_defined_by_convention_matches()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
@@ -55,7 +55,7 @@ public class KeyDiscoveryConventionTest
         public int Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_discovers_id()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithId>();
@@ -64,7 +64,7 @@ public class KeyDiscoveryConventionTest
 
         var key = entityBuilder.Metadata.FindPrimaryKey();
         Assert.NotNull(key);
-        Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
+        Assert.Equal(["Id"], key.Properties.Select(p => p.Name));
     }
 
     private class EntityWithTypeId
@@ -72,7 +72,7 @@ public class KeyDiscoveryConventionTest
         public int EntityWithTypeIdId { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_discovers_type_id()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithTypeId>();
@@ -81,7 +81,7 @@ public class KeyDiscoveryConventionTest
 
         var key = entityBuilder.Metadata.FindPrimaryKey();
         Assert.NotNull(key);
-        Assert.Equal(new[] { "EntityWithTypeIdId" }, key.Properties.Select(p => p.Name));
+        Assert.Equal(["EntityWithTypeIdId"], key.Properties.Select(p => p.Name));
     }
 
     private class EntityWithIdAndTypeId
@@ -90,7 +90,7 @@ public class KeyDiscoveryConventionTest
         public int EntityWithIdAndTypeIdId { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_prefers_id_over_type_id()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithIdAndTypeId>();
@@ -99,7 +99,7 @@ public class KeyDiscoveryConventionTest
 
         var key = entityBuilder.Metadata.FindPrimaryKey();
         Assert.NotNull(key);
-        Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
+        Assert.Equal(["Id"], key.Properties.Select(p => p.Name));
     }
 
     private class EntityWithMultipleIds
@@ -108,7 +108,7 @@ public class KeyDiscoveryConventionTest
         public int Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_does_not_discover_key_when_multiple_ids()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithMultipleIds>();

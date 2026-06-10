@@ -230,7 +230,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                                 ? leftTypeMapping
                                 : rightTypeMapping?.Size == inferredSize
                                 && rightTypeMapping?.IsFixedLength == inferredFixedLength
-                                && rightTypeMapping?.IsUnicode == inferredUnicode
+                                && rightTypeMapping.IsUnicode == inferredUnicode
                                     ? rightTypeMapping
                                     : _typeMappingSource.FindMapping(
                                         baseTypeMapping.ClrType,
@@ -288,15 +288,15 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         RelationalTypeMapping? valuesTypeMapping = null;
         switch (inExpression)
         {
-            case { Subquery: SelectExpression subquery }:
+            case { Subquery: { } subquery }:
                 valuesTypeMapping = subquery.Projection[0].Expression.TypeMapping;
                 break;
 
-            case { ValuesParameter: SqlParameterExpression parameter }:
-                valuesTypeMapping = parameter.TypeMapping;
+            case { ValuesParameter: { } parameter }:
+                valuesTypeMapping = (RelationalTypeMapping?)parameter.TypeMapping?.ElementTypeMapping;
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 // Note: there could be conflicting type mappings inside the values; we take the first.
                 foreach (var value in values)
                 {
@@ -322,15 +322,17 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
         switch (inExpression)
         {
-            case { Subquery: SelectExpression subquery }:
+            case { Subquery: { } subquery }:
                 inExpression = inExpression.Update(item, subquery);
                 break;
 
-            case { ValuesParameter: SqlParameterExpression parameter }:
-                inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, item.TypeMapping));
+            case { ValuesParameter: { } parameter }:
+                var collectionTypeMapping =
+                    Dependencies.TypeMappingSource.FindMapping(parameter.Type, Dependencies.Model, item.TypeMapping);
+                inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, collectionTypeMapping));
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 SqlExpression[]? newValues = null;
 
                 if (missingTypeMappingInValues)
@@ -381,7 +383,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
 
         // Resolve the array type mapping for the given element mapping.
-        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not RelationalTypeMapping arrayMapping)
+        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not { } arrayMapping)
         {
             throw new UnreachableException($"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}");
         }
@@ -660,20 +662,30 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binary
                 => AndAlso(Not(binary.Left), Not(binary.Right)),
 
-            // use equality where possible
-            // !(a == true) -> a == false
-            // !(a == false) -> a == true
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal, Right: SqlConstantExpression { Value: bool } } binary
+            SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.Equal,
+                    Right: SqlConstantExpression { Value: bool },
+                    Left: SqlConstantExpression { Value: bool }
+                    or SqlParameterExpression { IsNullable: false }
+                    or ColumnExpression { IsNullable: false }
+                } binary
                 => Equal(binary.Left, Not(binary.Right)),
 
-            // !(true == a) -> false == a
-            // !(false == a) -> true == a
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: SqlConstantExpression { Value: bool } } binary
+            SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.Equal,
+                    Left: SqlConstantExpression { Value: bool },
+                    Right: SqlConstantExpression { Value: bool }
+                    or SqlParameterExpression { IsNullable: false }
+                    or ColumnExpression { IsNullable: false }
+                } binary
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b
             SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),
+
             // !(a != b) -> a == b
             SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),
@@ -966,4 +978,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
         => new SqlConstantExpression(value, type, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object value, bool sensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, sensitive, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object? value, Type type, bool sensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, type, sensitive, typeMapping);
 }

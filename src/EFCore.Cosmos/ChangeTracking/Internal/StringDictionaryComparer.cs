@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueComparer<object>, IInfrastructure<ValueComparer>
 {
     private static readonly MethodInfo CompareMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
-        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic,
+        [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
         nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(Func<TElement, int>)])!;
@@ -72,7 +73,7 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
                 Expression.Convert(
                     prm,
                     typeof(IEnumerable)),
-                    elementComparer.HashCodeExpression),
+                elementComparer.HashCodeExpression),
             prm);
     }
 

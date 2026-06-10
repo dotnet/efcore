@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertyGetterFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Property_is_returned_if_it_implements_IClrPropertyGetter()
     {
         var property = new FakeProperty();
@@ -22,13 +22,13 @@ public class ClrPropertyGetterFactoryTest
         public object GetClrValueUsingContainingEntity(object entity)
             => throw new NotImplementedException();
 
-        public bool HasSentinelUsingContainingEntity(object entity)
+        public bool HasSentinelValueUsingContainingEntity(object entity)
             => throw new NotImplementedException();
 
         public object GetClrValue(object structuralObject)
             => throw new NotImplementedException();
 
-        public bool HasSentinel(object structuralObject)
+        public bool HasSentinelValue(object structuralObject)
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
@@ -120,6 +120,12 @@ public class ClrPropertyGetterFactoryTest
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
+        public object GetClrValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
+            => throw new NotImplementedException();
+
+        public bool HasSentinelValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
+            => throw new NotImplementedException();
+
         public string Name { get; }
         public ITypeBase DeclaringType { get; }
         public Type ClrType { get; }
@@ -130,14 +136,14 @@ public class ClrPropertyGetterFactoryTest
         public PropertyInfo PropertyInfo { get; }
         public FieldInfo FieldInfo { get; }
 
-        IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType
+        IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
             => throw new NotImplementedException();
 
-        IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
+        public bool IsCollection
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -151,13 +157,13 @@ public class ClrPropertyGetterFactoryTest
                 new Customer { Id = 7 }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_property_info()
         => Assert.Equal(
             7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_struct_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -171,14 +177,14 @@ public class ClrPropertyGetterFactoryTest
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_struct_property_info()
         => Assert.Equal(
             new Fuel(1.0),
             ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_index_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -197,16 +203,15 @@ public class ClrPropertyGetterFactoryTest
                 .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_complex_property()
     {
         var modelBuilder = CreateModelBuilder();
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.Property(e => e.Id);
-                b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.Property(e => e.Id);
+            b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
+        });
 
         var model = modelBuilder.FinalizeModel();
 

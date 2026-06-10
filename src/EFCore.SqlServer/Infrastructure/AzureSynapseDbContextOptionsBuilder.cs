@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
@@ -13,8 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSynapse" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
-public class AzureSynapseDbContextOptionsBuilder
-    : RelationalDbContextOptionsBuilder<AzureSynapseDbContextOptionsBuilder, SqlServerOptionsExtension>
+public class AzureSynapseDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilderBase<AzureSynapseDbContextOptionsBuilder>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="AzureSynapseDbContextOptionsBuilder" /> class.
@@ -116,7 +113,7 @@ public class AzureSynapseDbContextOptionsBuilder
     ///     </see>
     ///     for more information and examples.
     /// </remarks>
-    /// <param name="compatibilityLevel"><see langword="false" /> to have null resource</param>
+    /// <param name="compatibilityLevel">The compatibility level to use for the database.</param>
     public virtual AzureSynapseDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)
         => WithOption(e => e.WithAzureSynapseCompatibilityLevel(compatibilityLevel));
 }

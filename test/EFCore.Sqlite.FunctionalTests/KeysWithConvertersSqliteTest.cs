@@ -14,6 +14,7 @@ public class KeysWithConvertersSqliteTest(KeysWithConvertersSqliteTest.KeysWithC
             => SqliteTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlite(b => b.MinBatchSize(1));
+            => base.AddOptions(builder)
+                .UseSqlite(b => b.MinBatchSize(1));
     }
 }

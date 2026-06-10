@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
@@ -31,7 +30,7 @@ public abstract class RelationalDatabaseCleaner
     protected virtual void OpenConnection(IRelationalConnection connection)
         => connection.Open();
 
-    public virtual void Clean(DatabaseFacade facade)
+    public virtual void Clean(DatabaseFacade facade, bool createTables = true)
     {
         var creator = facade.GetService<IRelationalDatabaseCreator>();
         var sqlGenerator = facade.GetService<IMigrationsSqlGenerator>();
@@ -103,7 +102,10 @@ public abstract class RelationalDatabaseCleaner
             }
         }
 
-        creator.CreateTables();
+        if (createTables)
+        {
+            creator.CreateTables();
+        }
     }
 
     private static void ExecuteScript(IRelationalConnection connection, IRawSqlCommandBuilder sqlBuilder, string customSql)
@@ -164,8 +166,10 @@ public abstract class RelationalDatabaseCleaner
                                 {
                                     goto LineEnd;
                                 }
+
                                 commentStart = true;
                             }
+
                             break;
                         default:
                             commentStart = false;

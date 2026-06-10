@@ -148,8 +148,8 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         if (TryFindByKey(property, propertyValue, out var entry))
         {
             return entry != null
-                ? new[] { entry }
-                : Enumerable.Empty<InternalEntityEntry>();
+                ? [entry]
+                : [];
         }
 
         if (TryGetByForeignKey(property, propertyValue, out var entries))
@@ -216,8 +216,8 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         if (TryFindByKey(propertiesList, valuesList, out var entry))
         {
             return entry != null
-                ? new[] { entry }
-                : Enumerable.Empty<InternalEntityEntry>();
+                ? [entry]
+                : [];
         }
 
         if (TryGetByForeignKey(propertiesList, valuesList, out var entries))
@@ -802,7 +802,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     }
 
     private IQueryable BuildQueryRoot(IEntityType entityType)
-        => entityType.FindOwnership() is IForeignKey ownership
+        => entityType.FindOwnership() is { } ownership
             ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent!.Name)
             : entityType.HasSharedClrType
                 ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.Name, entityType.ClrType)
@@ -858,16 +858,32 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         foreach (var property in entityType.GetFlattenedProperties())
         {
             var path = new List<IPropertyBase> { property };
+            var isInNullableComplexProperty = false;
             while (path[^1].DeclaringType is IComplexType complexType)
             {
-                path.Add(complexType.ComplexProperty);
+                var complexProperty = complexType.ComplexProperty;
+                path.Add(complexProperty);
+
+                if (!complexProperty.IsCollection && complexProperty.IsNullable)
+                {
+                    isInNullableComplexProperty = true;
+                }
+            }
+
+            var readType = property.ClrType;
+            if (readType.IsValueType
+                && !readType.IsNullableType()
+                && isInNullableComplexProperty)
+            {
+                readType = typeof(Nullable<>).MakeGenericType(readType);
             }
 
             Expression instanceExpression = entityParameter;
             for (var i = path.Count - 1; i >= 0; i--)
             {
+                var currentType = i == 0 ? readType : path[i].ClrType;
                 instanceExpression = Expression.Call(
-                    EF.PropertyMethod.MakeGenericMethod(path[i].ClrType),
+                    EF.PropertyMethod.MakeGenericMethod(currentType),
                     instanceExpression,
                     Expression.Constant(path[i].Name, typeof(string)));
 
@@ -877,12 +893,11 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                 }
             }
 
-            projections.Add(
-                Expression.Convert(
-                    Expression.Convert(
-                        instanceExpression,
-                        property.ClrType),
-                    typeof(object)));
+            var projection = instanceExpression.Type == property.ClrType
+                ? Expression.Convert(Expression.Convert(instanceExpression, property.ClrType), typeof(object))
+                : Expression.Convert(instanceExpression, typeof(object));
+
+            projections.Add(projection);
         }
 
         return Expression.Lambda<Func<object, object[]>>(

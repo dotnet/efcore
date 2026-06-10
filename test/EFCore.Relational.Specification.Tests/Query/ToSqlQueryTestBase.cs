@@ -1,18 +1,18 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
+public abstract class ToSqlQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "ToSqlQueryTests";
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))] // Issue #27629
+    [Theory, MemberData(nameof(IsAsyncData))]
+    // Issue #27629
     public virtual async Task Entity_type_with_navigation_mapped_to_SqlQuery(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27629>(
+        var contextFactory = await InitializeNonSharedTest<Context27629>(
             seed: async c =>
             {
                 var author = new Author { Name = "Toast", Posts = { new Post { Title = "Sausages of the world!" } } };
@@ -25,7 +25,7 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
                 await c.SaveChangesAsync();
             });
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var authors = await
             (from o in context.Authors
@@ -49,39 +49,36 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Author>(
-                builder =>
-                {
-                    builder.ToTable("Authors");
-                    builder.Property(o => o.Name).HasMaxLength(50);
-                });
+            modelBuilder.Entity<Author>(builder =>
+            {
+                builder.ToTable("Authors");
+                builder.Property(o => o.Name).HasMaxLength(50);
+            });
 
-            modelBuilder.Entity<Post>(
-                builder =>
-                {
-                    builder.ToTable("Posts");
-                    builder.Property(o => o.Title).HasMaxLength(50);
-                    builder.Property(o => o.Content).HasMaxLength(500);
+            modelBuilder.Entity<Post>(builder =>
+            {
+                builder.ToTable("Posts");
+                builder.Property(o => o.Title).HasMaxLength(50);
+                builder.Property(o => o.Content).HasMaxLength(500);
 
-                    builder
-                        .HasOne(o => o.Author)
-                        .WithMany(o => o.Posts)
-                        .HasForeignKey(o => o.AuthorId)
-                        .OnDelete(DeleteBehavior.ClientCascade);
-                });
+                builder
+                    .HasOne(o => o.Author)
+                    .WithMany(o => o.Posts)
+                    .HasForeignKey(o => o.AuthorId)
+                    .OnDelete(DeleteBehavior.ClientCascade);
+            });
 
-            modelBuilder.Entity<PostStat>(
-                builder =>
-                {
-                    builder
-                        .ToSqlQuery("SELECT * FROM PostStats")
-                        .HasKey(o => o.AuthorId);
+            modelBuilder.Entity<PostStat>(builder =>
+            {
+                builder
+                    .ToSqlQuery("SELECT * FROM PostStats")
+                    .HasKey(o => o.AuthorId);
 
-                    builder
-                        .HasOne(o => o.Author)
-                        .WithOne().HasForeignKey<PostStat>(o => o.AuthorId)
-                        .OnDelete(DeleteBehavior.ClientCascade);
-                });
+                builder
+                    .HasOne(o => o.Author)
+                    .WithOne().HasForeignKey<PostStat>(o => o.AuthorId)
+                    .OnDelete(DeleteBehavior.ClientCascade);
+            });
         }
     }
 

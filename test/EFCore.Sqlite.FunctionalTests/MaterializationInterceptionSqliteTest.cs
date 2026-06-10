@@ -5,26 +5,28 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionSqliteTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>
+public class MaterializationInterceptionSqliteTest(NonSharedFixture fixture) :
+    MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>(fixture)
 {
     public override async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Intercept_query_materialization_with_owned_types_projecting_collection(async, usePooling)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Intercept_query_materialization_with_owned_types_projecting_collection(async, usePooling)))
             .Message);
 
     public class SqliteLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<TestEntity30244>().OwnsMany(e => e.Settings, b => b.ToJson());
         }
+#pragma warning restore EF8001
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

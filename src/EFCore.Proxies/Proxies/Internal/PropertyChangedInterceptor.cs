@@ -48,12 +48,12 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
             if (methodName == $"add_{nameof(INotifyPropertyChanged.PropertyChanged)}")
             {
                 _handler = (PropertyChangedEventHandler)Delegate.Combine(
-                    _handler, (Delegate)invocation.Arguments[0]);
+                    _handler, (Delegate)invocation.Arguments[0]!)!;
             }
             else if (methodName == $"remove_{nameof(INotifyPropertyChanged.PropertyChanged)}")
             {
                 _handler = (PropertyChangedEventHandler?)Delegate.Remove(
-                    _handler, (Delegate)invocation.Arguments[0]);
+                    _handler, (Delegate)invocation.Arguments[0]!);
             }
         }
         else if (methodName.StartsWith("set_", StringComparison.Ordinal))
@@ -95,14 +95,9 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
             var oldValue = property.GetGetter().GetClrValueUsingContainingEntity(invocation.Proxy);
 
             invocation.Proceed();
-
             if (!(comparer?.Equals(oldValue, newValue) ?? Equals(oldValue, newValue)))
             {
                 NotifyPropertyChanged(property.Name, invocation.Proxy);
-            }
-            else
-            {
-                invocation.Proceed();
             }
         }
         else

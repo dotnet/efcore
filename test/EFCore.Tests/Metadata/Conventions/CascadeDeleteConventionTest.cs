@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class CascadeDeleteConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Cascade_delete_is_set_when_required_FK_is_added()
     {
         var modelBuilder = CreateModelBuilder();
@@ -27,7 +27,7 @@ public class CascadeDeleteConventionTest
         Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cascade_delete_is_not_set_when_optional_FK_is_added()
     {
         var modelBuilder = CreateModelBuilder();
@@ -39,7 +39,7 @@ public class CascadeDeleteConventionTest
         Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cascade_delete_is_set_when_optional_FK_is_made_required()
     {
         var modelBuilder = CreateModelBuilder();
@@ -55,7 +55,7 @@ public class CascadeDeleteConventionTest
         Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cascade_delete_is_not_set_when_required_FK_is_made_optional()
     {
         var modelBuilder = CreateModelBuilder();
@@ -75,7 +75,7 @@ public class CascadeDeleteConventionTest
         Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cascade_delete_is_not_changed_when_set_explicitly_on_added_FK()
     {
         var modelBuilder = CreateModelBuilder();
@@ -89,7 +89,7 @@ public class CascadeDeleteConventionTest
         Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cascade_delete_is_not_changed_when_set_explicitly_on_FK()
     {
         var modelBuilder = CreateModelBuilder();

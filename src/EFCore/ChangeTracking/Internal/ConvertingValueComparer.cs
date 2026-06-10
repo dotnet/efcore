@@ -1,9 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using static System.Linq.Expressions.Expression;
 
-using static Expression;
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
 ///     A composable value comparer that accepts a value comparer, and exposes it as a value comparer for a base type.
@@ -15,7 +15,11 @@ using static Expression;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class ConvertingValueComparer<TTo, TFrom> : ValueComparer<TTo>, IInfrastructure<ValueComparer>
+public class ConvertingValueComparer
+<[DynamicallyAccessedMembers(
+        DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)]
+    TTo, TFrom> : ValueComparer<TTo>, IInfrastructure<ValueComparer>
 {
     private readonly ValueComparer<TFrom> _valueComparer;
 

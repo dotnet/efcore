@@ -10,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Tools;
 
 internal class Project
 {
+    private const string MissingAssetsFileErrorCode = "NETSDK1004";
+
     private readonly string _file;
     private readonly string? _framework;
     private readonly string? _configuration;
@@ -29,6 +31,7 @@ internal class Project
     public string ProjectName { get; }
 
     public string? AssemblyName { get; set; }
+    public string? DesignAssembly { get; set; }
     public string? Language { get; set; }
     public string? OutputPath { get; set; }
     public string? PlatformTarget { get; set; }
@@ -50,76 +53,188 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        IDictionary<string, string> metadata;
-        var metadataFile = Path.GetTempFileName();
-        try
+        if (!File.Exists(file))
         {
-            var args = new List<string>
-            {
-                "msbuild",
-            };
-
-            if (framework != null)
-            {
-                args.Add($"/property:TargetFramework={framework}");
-            }
-
-            if (configuration != null)
-            {
-                args.Add($"/property:Configuration={configuration}");
-            }
-
-            if (runtime != null)
-            {
-                args.Add($"/property:RuntimeIdentifier={runtime}");
-            }
-
-            foreach (var property in typeof(Project).GetProperties())
-            {
-                args.Add($"/getProperty:{property.Name}");
-            }
-
-            args.Add("/getProperty:Platform");
-
-            args.Add(file);
-
-            var output = new StringBuilder();
-
-            var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
-            if (exitCode != 0)
-            {
-                throw new CommandException(Resources.GetMetadataFailed);
-            }
-
-            metadata = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(output.ToString())!["Properties"];
-        }
-        finally
-        {
-            File.Delete(metadataFile);
+            throw new CommandException(Resources.ProjectFileNotFound(file));
         }
 
-        var platformTarget = metadata[nameof(PlatformTarget)];
+        var args = new List<string> { "build", "--no-restore", };
+
+        if (framework != null)
+        {
+            args.Add($"/property:TargetFramework={framework}");
+        }
+
+        if (configuration != null)
+        {
+            args.Add($"/property:Configuration={configuration}");
+        }
+
+        if (runtime != null)
+        {
+            args.Add($"/property:RuntimeIdentifier={runtime}");
+        }
+
+        foreach (var property in typeof(Project).GetProperties())
+        {
+            args.Add($"/getProperty:{property.Name}");
+        }
+
+        args.Add("/getProperty:Platform");
+
+        args.Add("/t:ResolvePackageAssets");
+        args.Add("/getItem:RuntimeCopyLocalItems");
+
+        args.Add(file);
+
+        var output = new StringBuilder();
+        var error = new StringBuilder();
+
+        Reporter.WriteVerbose(Resources.RunningCommand("dotnet " + string.Join(" ", args)));
+
+        var exitCode = Exe.Run(
+            "dotnet", args,
+            handleOutput: line =>
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    return;
+                }
+
+                output.AppendLine(line);
+                Reporter.WriteVerbose(line);
+            },
+            handleError: line =>
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    return;
+                }
+
+                error.AppendLine(line);
+                Reporter.WriteError(line);
+            });
+        if (exitCode != 0)
+        {
+            if (framework == null && HasMultipleTargetFrameworks(file))
+            {
+                throw new CommandException(Resources.MultipleTargetFrameworks);
+            }
+
+            // NETSDK1004 indicates the assets file is missing, i.e. the project hasn't been restored yet.
+            if (output.ToString().Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal)
+                || error.ToString().Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal))
+            {
+                throw new CommandException(Resources.RestoreRequired);
+            }
+
+            throw new CommandException(Resources.GetMetadataFailed);
+        }
+
+        var metadata = JsonSerializer.Deserialize<ProjectMetadata>(output.ToString())!;
+
+        var runtimeCopyLocalItems = metadata.Items["RuntimeCopyLocalItems"];
+
+        var designAssembly = runtimeCopyLocalItems
+            .Select(i => i["FullPath"])
+            .FirstOrDefault(i => i.Contains("Microsoft.EntityFrameworkCore.Design", StringComparison.InvariantCulture))
+            ?.Replace('\\', Path.DirectorySeparatorChar);
+        var properties = metadata.Properties;
+
+        var normalizedOutputPath = properties[nameof(OutputPath)]!.Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedProjectDir = properties[nameof(ProjectDir)]!.Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedProjectAssetsFile = properties[nameof(ProjectAssetsFile)]?.Replace('\\', Path.DirectorySeparatorChar);
+        var outputPath = Path.GetFullPath(Path.Combine(normalizedProjectDir, normalizedOutputPath));
+        CopyBuildHost(runtimeCopyLocalItems, outputPath);
+
+        var platformTarget = properties[nameof(PlatformTarget)];
         if (platformTarget.Length == 0)
         {
-            platformTarget = metadata["Platform"];
+            platformTarget = properties["Platform"];
         }
 
         return new Project(file, framework, configuration, runtime)
         {
-            AssemblyName = metadata[nameof(AssemblyName)],
-            Language = metadata[nameof(Language)],
-            OutputPath = metadata[nameof(OutputPath)],
+            AssemblyName = properties[nameof(AssemblyName)],
+            DesignAssembly = designAssembly,
+            Language = properties[nameof(Language)],
+            OutputPath = normalizedOutputPath,
             PlatformTarget = platformTarget,
-            ProjectAssetsFile = metadata[nameof(ProjectAssetsFile)],
-            ProjectDir = metadata[nameof(ProjectDir)],
-            RootNamespace = metadata[nameof(RootNamespace)],
-            RuntimeFrameworkVersion = metadata[nameof(RuntimeFrameworkVersion)],
-            TargetFileName = metadata[nameof(TargetFileName)],
-            TargetFrameworkMoniker = metadata[nameof(TargetFrameworkMoniker)],
-            Nullable = metadata[nameof(Nullable)],
-            TargetFramework = metadata[nameof(TargetFramework)],
-            TargetPlatformIdentifier = metadata[nameof(TargetPlatformIdentifier)]
+            ProjectAssetsFile = normalizedProjectAssetsFile,
+            ProjectDir = normalizedProjectDir,
+            RootNamespace = properties[nameof(RootNamespace)],
+            RuntimeFrameworkVersion = properties[nameof(RuntimeFrameworkVersion)],
+            TargetFileName = properties[nameof(TargetFileName)],
+            TargetFrameworkMoniker = properties[nameof(TargetFrameworkMoniker)],
+            Nullable = properties[nameof(Nullable)],
+            TargetFramework = properties[nameof(TargetFramework)],
+            TargetPlatformIdentifier = properties[nameof(TargetPlatformIdentifier)]
         };
+    }
+
+    private record class ProjectMetadata
+    {
+        public Dictionary<string, string> Properties { get; set; } = null!;
+        public Dictionary<string, Dictionary<string, string>[]> Items { get; set; } = null!;
+    }
+
+    private static bool HasMultipleTargetFrameworks(string file)
+    {
+        var args = new List<string> { "build", "--no-restore", "/getProperty:TargetFrameworks", file };
+
+        var output = new StringBuilder();
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        if (exitCode != 0)
+        {
+            return false;
+        }
+
+        var outputString = output.ToString();
+        return !string.IsNullOrWhiteSpace(outputString);
+    }
+
+    private static void CopyBuildHost(
+        Dictionary<string, string>[] runtimeCopyLocalItems,
+        string targetDir)
+    {
+        var msbuildWorkspacesItem = runtimeCopyLocalItems.FirstOrDefault(item =>
+            string.Equals(item["Filename"], "Microsoft.CodeAnalysis.Workspaces.MSBuild", StringComparison.OrdinalIgnoreCase));
+
+        if (msbuildWorkspacesItem == null
+            || !msbuildWorkspacesItem.TryGetValue("CopyLocal", out var copyLocal)
+            || !string.Equals(copyLocal, "true", StringComparison.OrdinalIgnoreCase)
+            || !msbuildWorkspacesItem.TryGetValue("FullPath", out var fullPath)
+            || string.IsNullOrEmpty(fullPath))
+        {
+            return;
+        }
+
+        var contentFilesPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath)!, "..", "..", "contentFiles", "any", "any"));
+            CopyDirectoryRecursive(contentFilesPath, targetDir);
+    }
+
+    private static void CopyDirectoryRecursive(string sourceDir, string targetDir)
+    {
+        var directory = new DirectoryInfo(sourceDir);
+        if (!directory.Exists)
+        {
+            return;
+        }
+
+        Directory.CreateDirectory(targetDir);
+        foreach (var file in directory.GetFiles())
+        {
+            var filePath = Path.Combine(targetDir, file.Name);
+            if (!File.Exists(filePath))
+            {
+                file.CopyTo(filePath, overwrite: false);
+            }
+        }
+
+        foreach (var subDir in directory.GetDirectories())
+        {
+            CopyDirectoryRecursive(subDir.FullName, Path.Combine(targetDir, subDir.Name));
+        }
     }
 
     public void Build(IEnumerable<string>? additionalArgs)

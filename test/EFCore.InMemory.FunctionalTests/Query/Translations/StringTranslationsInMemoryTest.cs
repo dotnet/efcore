@@ -8,12 +8,12 @@ public class StringTranslationsInMemoryTest(BasicTypesQueryInMemoryFixture fixtu
 {
     // StringComparison.CurrentCulture{,IgnoreCase} and InvariantCulture{,IgnoreCase} are not supported in real providers, but the in-memory
     // provider does support them.
-    public override Task StartsWith_with_StringComparison_unsupported(bool async)
+    public override Task StartsWith_with_StringComparison_unsupported()
         => Task.CompletedTask;
 
-    public override Task EndsWith_with_StringComparison_unsupported(bool async)
+    public override Task EndsWith_with_StringComparison_unsupported()
         => Task.CompletedTask;
 
-    public override Task Contains_with_StringComparison_unsupported(bool async)
+    public override Task Contains_with_StringComparison_unsupported()
         => Task.CompletedTask;
 }

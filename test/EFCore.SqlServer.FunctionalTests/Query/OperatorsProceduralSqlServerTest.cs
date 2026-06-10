@@ -14,7 +14,8 @@ public class OperatorsProceduralSqlServerTest : OperatorsProceduralQueryTestBase
             nameof(SqlServerDbFunctionsExtensions.AtTimeZone),
             [typeof(DbFunctions), typeof(DateTimeOffset), typeof(string)])!;
 
-    public OperatorsProceduralSqlServerTest(ITestOutputHelper testOutputHelper)
+    public OperatorsProceduralSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         Binaries.AddRange(
             new List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
@@ -38,7 +39,7 @@ public class OperatorsProceduralSqlServerTest : OperatorsProceduralQueryTestBase
         ExpectedQueryRewriter = new SqlServerExpectedQueryRewritingVisitor();
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     protected override bool DivideByZeroException(Exception ex)

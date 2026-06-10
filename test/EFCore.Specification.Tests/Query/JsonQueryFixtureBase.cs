@@ -7,17 +7,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryContext>, IQueryFixtureBase
+public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
 {
     private JsonQueryData _expectedData;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => _expectedData ??= new JsonQueryData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(EntityBasic), e => ((EntityBasic)e)?.Id },
         { typeof(JsonEntityBasic), e => ((JsonEntityBasic)e)?.Id },
@@ -30,7 +27,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         { typeof(JsonEntityAllTypes), e => ((JsonEntityAllTypes)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public virtual IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(EntityBasic), (e, a) =>
@@ -453,12 +450,11 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
     {
         modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<EntityBasic>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityBasicForReference>(
-            b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.Property(x => x.Name);
-            });
+        modelBuilder.Entity<JsonEntityBasicForReference>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.Name);
+        });
 
         modelBuilder.Entity<JsonEntityBasicForCollection>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityBasic>().OwnsOne(
@@ -531,46 +527,44 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
             });
 
         modelBuilder.Entity<JsonEntityInheritanceBase>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityInheritanceBase>(
-            b =>
-            {
-                b.OwnsOne(
-                    x => x.ReferenceOnBase, bb =>
-                    {
-                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                    });
+        modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
+        {
+            b.OwnsOne(
+                x => x.ReferenceOnBase, bb =>
+                {
+                    bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                    bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                    bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                });
 
-                b.OwnsMany(
-                    x => x.CollectionOnBase, bb =>
-                    {
-                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                    });
-            });
+            b.OwnsMany(
+                x => x.CollectionOnBase, bb =>
+                {
+                    bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                    bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                    bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                });
+        });
 
-        modelBuilder.Entity<JsonEntityInheritanceDerived>(
-            b =>
-            {
-                b.HasBaseType<JsonEntityInheritanceBase>();
-                b.OwnsOne(
-                    x => x.ReferenceOnDerived, bb =>
-                    {
-                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                    });
+        modelBuilder.Entity<JsonEntityInheritanceDerived>(b =>
+        {
+            b.HasBaseType<JsonEntityInheritanceBase>();
+            b.OwnsOne(
+                x => x.ReferenceOnDerived, bb =>
+                {
+                    bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                    bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                    bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                });
 
-                b.OwnsMany(
-                    x => x.CollectionOnDerived, bb =>
-                    {
-                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                    });
-            });
+            b.OwnsMany(
+                x => x.CollectionOnDerived, bb =>
+                {
+                    bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                    bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                    bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                });
+        });
 
         modelBuilder.Entity<JsonEntityAllTypes>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(
@@ -654,13 +648,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
 
     protected override string StoreName
         => "JsonQueryTest";
-
-    public override JsonQueryContext CreateContext()
-    {
-        var context = base.CreateContext();
-
-        return context;
-    }
 
     protected override async Task SeedAsync(JsonQueryContext context)
         => await JsonQueryContext.SeedAsync(context);

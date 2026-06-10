@@ -30,7 +30,8 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             && typeof(TConcreteList).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
     private static readonly MethodInfo CompareMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic,
+        [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(Func<TElement, int>)])!;

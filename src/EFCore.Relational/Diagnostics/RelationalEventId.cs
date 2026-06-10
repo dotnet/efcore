@@ -25,98 +25,100 @@ public static class RelationalEventId
     {
         // Connection events
         ConnectionOpening = CoreEventId.RelationalBaseId,
-        ConnectionOpened,
-        ConnectionClosing,
-        ConnectionClosed,
-        ConnectionError,
-        ConnectionCreating,
-        ConnectionCreated,
-        ConnectionDisposing,
-        ConnectionDisposed,
+        ConnectionOpened = CoreEventId.RelationalBaseId + 1,
+        ConnectionClosing = CoreEventId.RelationalBaseId + 2,
+        ConnectionClosed = CoreEventId.RelationalBaseId + 3,
+        ConnectionError = CoreEventId.RelationalBaseId + 4,
+        ConnectionCreating = CoreEventId.RelationalBaseId + 5,
+        ConnectionCreated = CoreEventId.RelationalBaseId + 6,
+        ConnectionDisposing = CoreEventId.RelationalBaseId + 7,
+        ConnectionDisposed = CoreEventId.RelationalBaseId + 8,
+        ConnectionCanceled = CoreEventId.RelationalBaseId + 9,
 
         // Command events
         CommandExecuting = CoreEventId.RelationalBaseId + 100,
-        CommandExecuted,
-        CommandError,
-        CommandCreating,
-        CommandCreated,
-        CommandCanceled,
-        CommandInitialized,
+        CommandExecuted = CoreEventId.RelationalBaseId + 101,
+        CommandError = CoreEventId.RelationalBaseId + 102,
+        CommandCreating = CoreEventId.RelationalBaseId + 103,
+        CommandCreated = CoreEventId.RelationalBaseId + 104,
+        CommandCanceled = CoreEventId.RelationalBaseId + 105,
+        CommandInitialized = CoreEventId.RelationalBaseId + 106,
 
         // Transaction events
         TransactionStarted = CoreEventId.RelationalBaseId + 200,
-        TransactionUsed,
-        TransactionCommitted,
-        TransactionRolledBack,
-        TransactionDisposed,
-        TransactionError,
-        AmbientTransactionWarning,
-        AmbientTransactionEnlisted,
-        ExplicitTransactionEnlisted,
-        TransactionStarting,
-        TransactionCommitting,
-        TransactionRollingBack,
-        CreatingTransactionSavepoint,
-        CreatedTransactionSavepoint,
-        RollingBackToTransactionSavepoint,
-        RolledBackToTransactionSavepoint,
-        ReleasingTransactionSavepoint,
-        ReleasedTransactionSavepoint,
+        TransactionUsed = CoreEventId.RelationalBaseId + 201,
+        TransactionCommitted = CoreEventId.RelationalBaseId + 202,
+        TransactionRolledBack = CoreEventId.RelationalBaseId + 203,
+        TransactionDisposed = CoreEventId.RelationalBaseId + 204,
+        TransactionError = CoreEventId.RelationalBaseId + 205,
+        AmbientTransactionWarning = CoreEventId.RelationalBaseId + 206,
+        AmbientTransactionEnlisted = CoreEventId.RelationalBaseId + 207,
+        ExplicitTransactionEnlisted = CoreEventId.RelationalBaseId + 208,
+        TransactionStarting = CoreEventId.RelationalBaseId + 209,
+        TransactionCommitting = CoreEventId.RelationalBaseId + 210,
+        TransactionRollingBack = CoreEventId.RelationalBaseId + 211,
+        CreatingTransactionSavepoint = CoreEventId.RelationalBaseId + 212,
+        CreatedTransactionSavepoint = CoreEventId.RelationalBaseId + 213,
+        RollingBackToTransactionSavepoint = CoreEventId.RelationalBaseId + 214,
+        RolledBackToTransactionSavepoint = CoreEventId.RelationalBaseId + 215,
+        ReleasingTransactionSavepoint = CoreEventId.RelationalBaseId + 216,
+        ReleasedTransactionSavepoint = CoreEventId.RelationalBaseId + 217,
 
         // DataReader events
         DataReaderDisposing = CoreEventId.RelationalBaseId + 300,
-        DataReaderClosing,
+        DataReaderClosing = CoreEventId.RelationalBaseId + 301,
 
         // Migrations events
         MigrateUsingConnection = CoreEventId.RelationalBaseId + 400,
-        MigrationReverting,
-        MigrationApplying,
-        MigrationGeneratingDownScript,
-        MigrationGeneratingUpScript,
-        MigrationsNotApplied,
-        MigrationsNotFound,
-        MigrationAttributeMissingWarning,
-        ColumnOrderIgnoredWarning,
-        PendingModelChangesWarning,
-        NonTransactionalMigrationOperationWarning,
-        AcquiringMigrationLock,
-        MigrationsUserTransactionWarning,
-        ModelSnapshotNotFound,
+        MigrationReverting = CoreEventId.RelationalBaseId + 401,
+        MigrationApplying = CoreEventId.RelationalBaseId + 402,
+        MigrationGeneratingDownScript = CoreEventId.RelationalBaseId + 403,
+        MigrationGeneratingUpScript = CoreEventId.RelationalBaseId + 404,
+        MigrationsNotApplied = CoreEventId.RelationalBaseId + 405,
+        MigrationsNotFound = CoreEventId.RelationalBaseId + 406,
+        MigrationAttributeMissingWarning = CoreEventId.RelationalBaseId + 407,
+        ColumnOrderIgnoredWarning = CoreEventId.RelationalBaseId + 408,
+        PendingModelChangesWarning = CoreEventId.RelationalBaseId + 409,
+        NonTransactionalMigrationOperationWarning = CoreEventId.RelationalBaseId + 410,
+        AcquiringMigrationLock = CoreEventId.RelationalBaseId + 411,
+        MigrationsUserTransactionWarning = CoreEventId.RelationalBaseId + 412,
+        ModelSnapshotNotFound = CoreEventId.RelationalBaseId + 413,
+        OldMigrationVersionWarning = CoreEventId.RelationalBaseId + 414,
 
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
-        QueryPossibleUnintendedUseOfEqualsWarning,
+        QueryPossibleUnintendedUseOfEqualsWarning = CoreEventId.RelationalBaseId + 501,
 
         // ReSharper disable twice InconsistentNaming
-        Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning,
-        Obsolete_ValueConversionSqlLiteralWarning,
-        MultipleCollectionIncludeWarning,
-        NonQueryOperationFailed,
-        ExecuteDeleteFailed,
-        ExecuteUpdateFailed,
+        Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning = CoreEventId.RelationalBaseId + 502,
+        Obsolete_ValueConversionSqlLiteralWarning = CoreEventId.RelationalBaseId + 503,
+        MultipleCollectionIncludeWarning = CoreEventId.RelationalBaseId + 504,
+        NonQueryOperationFailed = CoreEventId.RelationalBaseId + 505,
+        ExecuteDeleteFailed = CoreEventId.RelationalBaseId + 506,
+        ExecuteUpdateFailed = CoreEventId.RelationalBaseId + 507,
 
         // Model validation events
         ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
-        BoolWithDefaultWarning,
-        AllIndexPropertiesNotToMappedToAnyTable,
-        IndexPropertiesBothMappedAndNotMappedToTable,
-        IndexPropertiesMappedToNonOverlappingTables,
-        ForeignKeyPropertiesMappedToUnrelatedTables,
-        OptionalDependentWithoutIdentifyingPropertyWarning,
-        DuplicateColumnOrders,
-        ForeignKeyTpcPrincipalWarning,
-        TpcStoreGeneratedIdentityWarning,
-        KeyPropertiesNotMappedToTable,
-        StoredProcedureConcurrencyTokenNotMapped,
-        TriggerOnNonRootTphEntity,
+        BoolWithDefaultWarning = CoreEventId.RelationalBaseId + 601,
+        AllIndexPropertiesNotMappedToAnyTable = CoreEventId.RelationalBaseId + 602,
+        IndexPropertiesBothMappedAndNotMappedToTable = CoreEventId.RelationalBaseId + 603,
+        IndexPropertiesMappedToNonOverlappingTables = CoreEventId.RelationalBaseId + 604,
+        ForeignKeyPropertiesMappedToUnrelatedTables = CoreEventId.RelationalBaseId + 605,
+        OptionalDependentWithoutIdentifyingPropertyWarning = CoreEventId.RelationalBaseId + 606,
+        DuplicateColumnOrders = CoreEventId.RelationalBaseId + 607,
+        ForeignKeyTpcPrincipalWarning = CoreEventId.RelationalBaseId + 608,
+        TpcStoreGeneratedIdentityWarning = CoreEventId.RelationalBaseId + 609,
+        KeyPropertiesNotMappedToTable = CoreEventId.RelationalBaseId + 610,
+        StoredProcedureConcurrencyTokenNotMapped = CoreEventId.RelationalBaseId + 611,
+        TriggerOnNonRootTphEntity = CoreEventId.RelationalBaseId + 612,
 
         // Update events
         BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
-        BatchSmallerThanMinBatchSize,
-        BatchExecutorFailedToRollbackToSavepoint,
-        BatchExecutorFailedToReleaseSavepoint,
-        OptionalDependentWithAllNullPropertiesWarning,
-        UnexpectedTrailingResultSetWhenSaving,
+        BatchSmallerThanMinBatchSize = CoreEventId.RelationalBaseId + 701,
+        BatchExecutorFailedToRollbackToSavepoint = CoreEventId.RelationalBaseId + 702,
+        BatchExecutorFailedToReleaseSavepoint = CoreEventId.RelationalBaseId + 703,
+        OptionalDependentWithAllNullPropertiesWarning = CoreEventId.RelationalBaseId + 704,
+        UnexpectedTrailingResultSetWhenSaving = CoreEventId.RelationalBaseId + 705,
     }
 
     private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
@@ -216,6 +218,19 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ConnectionError = MakeConnectionId(Id.ConnectionError);
+
+    /// <summary>
+    ///     A <see cref="DbConnection" /> open operation has been canceled.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConnectionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConnectionCanceled = MakeConnectionId(Id.ConnectionCanceled);
 
     /// <summary>
     ///     A <see cref="DbConnection" /> is about to be created by EF.
@@ -792,6 +807,19 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId ModelSnapshotNotFound = MakeMigrationsId(Id.ModelSnapshotNotFound);
 
+    /// <summary>
+    ///     The last migration was created with an older version of EF Core.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="MigrationVersionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId OldMigrationVersionWarning = MakeMigrationsId(Id.OldMigrationVersionWarning);
+
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
     private static EventId MakeQueryId(Id id)
@@ -900,8 +928,8 @@ public static class RelationalEventId
     ///         This event uses the <see cref="IndexEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
-    public static readonly EventId AllIndexPropertiesNotToMappedToAnyTable =
-        MakeValidationId(Id.AllIndexPropertiesNotToMappedToAnyTable);
+    public static readonly EventId AllIndexPropertiesNotMappedToAnyTable =
+        MakeValidationId(Id.AllIndexPropertiesNotMappedToAnyTable);
 
     /// <summary>
     ///     An index specifies properties some of which are mapped and some of which are not mapped to a column in a table.

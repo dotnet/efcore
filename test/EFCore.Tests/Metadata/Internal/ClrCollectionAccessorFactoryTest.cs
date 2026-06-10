@@ -18,107 +18,107 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrCollectionAccessorFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_for_IEnumerable_navigation()
         => AccessorTest("AsIEnumerable", e => e.AsIEnumerable);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_for_ICollection_navigation()
         => AccessorTest("AsICollection", e => e.AsICollection);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_for_interface_navigation_derived_from_ICollection()
         => AccessorTest("AsIList", e => e.AsIList);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_for_concrete_generic_type_navigation()
         => AccessorTest("AsList", e => e.AsList);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_for_concrete_non_generic_type_navigation()
         => AccessorTest("AsMyCollection", e => e.AsMyCollection);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_no_setter()
         => AccessorTest("WithNoSetter", e => e.WithNoSetter);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_no_backing_field_found()
         => AccessorTest("NoBackingFound", e => e.NoBackingFound);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_no_public_constructor()
         => AccessorTest("AsMyPrivateCollection", e => e.AsMyPrivateCollection);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_no_internal_constructor()
         => AccessorTest("AsMyInternalCollection", e => e.AsMyInternalCollection);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_no_parameterless_constructor()
         => AccessorTest("AsMyUnavailableCollection", e => e.AsMyUnavailableCollection);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_auto_prop()
         => AccessorTest("AutoProp", e => e.AutoProp);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_read_only_prop()
         => AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_read_only_auto_prop()
         => AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_read_only_field_prop()
         => AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_write_only_prop()
         => AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_prop_no_field_found()
         => AccessorTest("FullPropNoField", e => e.FullPropNoField);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_is_returned_when_read_only_prop_no_field_found()
         => AccessorTest("ReadOnlyPropNoField", e => e.ReadOnlyPropNoField);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_with_no_setter()
         => AccessorTest("WithNoSetter", e => e.WithNoSetter, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections()
         => AccessorTest("AsICollection", e => e.AsICollection, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_for_interface_navigation_derived_from_ICollection()
         => AccessorTest("AsIList", e => e.AsIList, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_for_concrete_generic_type_navigation()
         => AccessorTest("AsList", e => e.AsList, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_for_concrete_non_generic_type_navigation()
         => AccessorTest("AsMyCollection", e => e.AsMyCollection, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_auto_prop()
         => AccessorTest("AutoProp", e => e.AutoProp, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_read_only_prop()
         => AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_write_only_prop()
         => AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_handles_uninitialized_collections_prop_no_field_found()
         => AccessorTest("FullPropNoField", e => e.FullPropNoField, initializeCollections: false);
 
@@ -147,7 +147,7 @@ public class ClrCollectionAccessorFactoryTest
         Assert.Empty(reader(entity));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_accessor_always_creates_collections_that_use_reference_equality_comparer()
     {
         IMutableModel model = new Model();
@@ -181,7 +181,7 @@ public class ClrCollectionAccessorFactoryTest
         Assert.Equal(1, entity.AsICollectionWithCustomComparer.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Creating_accessor_for_navigation_without_getter_and_no_backing_field_throws()
     {
         var navigation = CreateNavigation("WriteOnlyPropNoField");
@@ -191,19 +191,19 @@ public class ClrCollectionAccessorFactoryTest
             Assert.Throws<InvalidOperationException>(() => ClrCollectionAccessorFactory.Instance.Create(navigation)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Add_for_enumerable_backed_by_non_collection_throws()
         => Enumerable_backed_by_non_collection_throws((a, e, v) => a.Add(e, v, forMaterialization: false));
 
-    [ConditionalFact]
+    [Fact]
     public void Contains_for_enumerable_backed_by_non_collection_throws()
         => Enumerable_backed_by_non_collection_throws((a, e, v) => a.Contains(e, v));
 
-    [ConditionalFact]
+    [Fact]
     public void Remove_for_enumerable_backed_by_non_collection_throws()
         => Enumerable_backed_by_non_collection_throws((a, e, v) => a.Remove(e, v));
 
-    [ConditionalFact]
+    [Fact]
     public void GetOrCreate_for_enumerable_backed_by_non_collection_throws()
         => Enumerable_backed_by_non_collection_throws((a, e, v) => a.GetOrCreate(e, forMaterialization: false));
 
@@ -220,7 +220,7 @@ public class ClrCollectionAccessorFactoryTest
             Assert.Throws<InvalidOperationException>(() => test(accessor, entity, value)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Creating_accessor_for_array_navigation_throws()
     {
         var navigation = CreateNavigation("AsArray");
@@ -230,59 +230,59 @@ public class ClrCollectionAccessorFactoryTest
             Assert.Throws<InvalidOperationException>(() => ClrCollectionAccessorFactory.Instance.Create(navigation)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Initialization_for_navigation_without_backing_field_throws()
     {
         var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("NoBackingFound"));
 
         Assert.Equal(
             CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Initialization_for_read_only_navigation_without_backing_field_throws()
     {
         var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("ReadOnlyPropNoField"));
 
         Assert.Equal(
             CoreStrings.NavigationNoSetter("ReadOnlyPropNoField", typeof(MyEntity).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Initialization_for_read_only_auto_prop_navigation()
         => AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Initialization_for_read_only_navigation_backed_by_readonly_field()
         => AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp, initializeCollections: false);
 
-    [ConditionalFact]
+    [Fact]
     public void Initialization_for_navigation_with_private_constructor_throws()
     {
         var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("AsMyPrivateCollection"));
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).Name, typeof(MyPrivateCollection).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Initialization_for_navigation_with_internal_constructor_throws()
     {
         var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("AsMyInternalCollection"));
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).Name, typeof(MyInternalCollection).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Initialization_for_navigation_without_parameterless_constructor_throws()
     {
         var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("AsMyUnavailableCollection"));
@@ -290,8 +290,8 @@ public class ClrCollectionAccessorFactoryTest
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType(
                 "AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
     private INavigation CreateNavigation(string navigationName)

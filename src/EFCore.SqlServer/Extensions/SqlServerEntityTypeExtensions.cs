@@ -199,7 +199,7 @@ public static class SqlServerEntityTypeExtensions
             : entityType[SqlServerAnnotationNames.TemporalHistoryTableName] is string historyTableName
                 ? historyTableName
                 : entityType[SqlServerAnnotationNames.IsTemporal] as bool? == true
-                    ? entityType.GetTableName() is string tableName
+                    ? entityType.GetTableName() is { } tableName
                         ? tableName + DefaultHistoryTableNameSuffix
                         : null
                     : null;

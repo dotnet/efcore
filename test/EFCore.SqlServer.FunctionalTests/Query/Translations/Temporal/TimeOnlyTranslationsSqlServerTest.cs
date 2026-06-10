@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class TimeOnlyTranslationsSqlServerTest : TimeOnlyTranslationsTestBase<BasicTypesQuerySqlServerFixture>
@@ -12,9 +14,9 @@ public class TimeOnlyTranslationsSqlServerTest : TimeOnlyTranslationsTestBase<Ba
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Hour(bool async)
+    public override async Task Hour()
     {
-        await base.Hour(async);
+        await base.Hour();
 
         AssertSql(
             """
@@ -24,9 +26,9 @@ WHERE DATEPART(hour, [b].[TimeOnly]) = 15
 """);
     }
 
-    public override async Task Minute(bool async)
+    public override async Task Minute()
     {
-        await base.Minute(async);
+        await base.Minute();
 
         AssertSql(
             """
@@ -36,9 +38,9 @@ WHERE DATEPART(minute, [b].[TimeOnly]) = 30
 """);
     }
 
-    public override async Task Second(bool async)
+    public override async Task Second()
     {
-        await base.Second(async);
+        await base.Second();
 
         AssertSql(
             """
@@ -48,9 +50,9 @@ WHERE DATEPART(second, [b].[TimeOnly]) = 10
 """);
     }
 
-    public override async Task Millisecond(bool async)
+    public override async Task Millisecond()
     {
-        await base.Millisecond(async);
+        await base.Millisecond();
 
         AssertSql(
             """
@@ -60,9 +62,9 @@ WHERE DATEPART(millisecond, [b].[TimeOnly]) = 123
 """);
     }
 
-    public override async Task Microsecond(bool async)
+    public override async Task Microsecond()
     {
-        await base.Microsecond(async);
+        await base.Microsecond();
 
         AssertSql(
             """
@@ -72,9 +74,9 @@ WHERE DATEPART(microsecond, [b].[TimeOnly]) % 1000 = 456
 """);
     }
 
-    public override async Task Nanosecond(bool async)
+    public override async Task Nanosecond()
     {
-        await base.Nanosecond(async);
+        await base.Nanosecond();
 
         AssertSql(
             """
@@ -84,9 +86,9 @@ WHERE DATEPART(nanosecond, [b].[TimeOnly]) % 1000 = 400
 """);
     }
 
-    public override async Task AddHours(bool async)
+    public override async Task AddHours()
     {
-        await base.AddHours(async);
+        await base.AddHours();
 
         AssertSql(
             """
@@ -96,9 +98,9 @@ WHERE DATEADD(hour, CAST(3.0E0 AS int), [b].[TimeOnly]) = '18:30:10'
 """);
     }
 
-    public override async Task AddMinutes(bool async)
+    public override async Task AddMinutes()
     {
-        await base.AddMinutes(async);
+        await base.AddMinutes();
 
         AssertSql(
             """
@@ -108,16 +110,16 @@ WHERE DATEADD(minute, CAST(3.0E0 AS int), [b].[TimeOnly]) = '15:33:10'
 """);
     }
 
-    public override async Task Add_TimeSpan(bool async)
+    public override async Task Add_TimeSpan()
     {
-        await AssertTranslationFailed(() => base.Add_TimeSpan(async));
+        await AssertTranslationFailed(() => base.Add_TimeSpan());
 
         AssertSql();
     }
 
-    public override async Task IsBetween(bool async)
+    public override async Task IsBetween()
     {
-        await base.IsBetween(async);
+        await base.IsBetween();
 
         AssertSql(
             """
@@ -133,16 +135,16 @@ END = CAST(1 AS bit)
 """);
     }
 
-    public override async Task Subtract(bool async)
+    public override async Task Subtract()
     {
-        await AssertTranslationFailed(() => base.Subtract(async));
+        await AssertTranslationFailed(() => base.Subtract());
 
         AssertSql();
     }
 
-    public override async Task FromDateTime_compared_to_property(bool async)
+    public override async Task FromDateTime_compared_to_property()
     {
-        await base.FromDateTime_compared_to_property(async);
+        await base.FromDateTime_compared_to_property();
 
         AssertSql(
             """
@@ -152,9 +154,9 @@ WHERE CAST([b].[DateTime] AS time) = [b].[TimeOnly]
 """);
     }
 
-    public override async Task FromDateTime_compared_to_parameter(bool async)
+    public override async Task FromDateTime_compared_to_parameter()
     {
-        await base.FromDateTime_compared_to_parameter(async);
+        await base.FromDateTime_compared_to_parameter();
 
         AssertSql(
             """
@@ -166,9 +168,9 @@ WHERE CAST([b].[DateTime] AS time) = @time
 """);
     }
 
-    public override async Task FromDateTime_compared_to_constant(bool async)
+    public override async Task FromDateTime_compared_to_constant()
     {
-        await base.FromDateTime_compared_to_constant(async);
+        await base.FromDateTime_compared_to_constant();
 
         AssertSql(
             """
@@ -178,21 +180,21 @@ WHERE CAST([b].[DateTime] AS time) = '15:30:10'
 """);
     }
 
-    public override async Task FromTimeSpan_compared_to_property(bool async)
+    public override async Task FromTimeSpan_compared_to_property()
     {
-        await base.FromTimeSpan_compared_to_property(async);
+        await base.FromTimeSpan_compared_to_property();
 
         AssertSql(
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE CAST([b].[TimeSpan] AS time) < [b].[TimeOnly]
+WHERE [b].[TimeSpan] < [b].[TimeOnly]
 """);
     }
 
-    public override async Task FromTimeSpan_compared_to_parameter(bool async)
+    public override async Task FromTimeSpan_compared_to_parameter()
     {
-        await base.FromTimeSpan_compared_to_parameter(async);
+        await base.FromTimeSpan_compared_to_parameter();
 
         AssertSql(
             """
@@ -200,23 +202,51 @@ WHERE CAST([b].[TimeSpan] AS time) < [b].[TimeOnly]
 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE CAST([b].[TimeSpan] AS time) = @time
+WHERE [b].[TimeSpan] = @time
 """);
     }
 
-    public override async Task Order_by_FromTimeSpan(bool async)
+    public override async Task Order_by_FromTimeSpan()
     {
-        await base.Order_by_FromTimeSpan(async);
+        await base.Order_by_FromTimeSpan();
 
         AssertSql(
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-ORDER BY CAST([b].[TimeSpan] AS time)
+ORDER BY [b].[TimeSpan]
 """);
     }
 
-    [ConditionalFact]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
+    public virtual async Task DateTrunc_hour()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("hour", b.TimeOnly)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new TimeOnly(b.TimeOnly.Hour, 0)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(hour, [b].[TimeOnly])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
+    public virtual async Task DateTrunc_minute()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("minute", b.TimeOnly)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new TimeOnly(b.TimeOnly.Hour, b.TimeOnly.Minute)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(minute, [b].[TimeOnly])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

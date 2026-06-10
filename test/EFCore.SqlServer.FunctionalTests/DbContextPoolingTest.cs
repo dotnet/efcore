@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
@@ -39,47 +39,43 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         where TContextService : class
         where TContext : DbContext, TContextService
         => new ServiceCollection()
-            .AddDbContextPool<TContextService, TContext>(
-                ob =>
+            .AddDbContextPool<TContextService, TContext>(ob =>
+            {
+                var builder = ConfigureOptions(ob);
+                if (optionsAction != null)
                 {
-                    var builder = ConfigureOptions(ob);
-                    if (optionsAction != null)
-                    {
-                        optionsAction(builder);
-                    }
-                })
-            .AddDbContextPool<ISecondContext, SecondContext>(
-                ob =>
+                    optionsAction(builder);
+                }
+            })
+            .AddDbContextPool<ISecondContext, SecondContext>(ob =>
+            {
+                var builder = ConfigureOptions(ob);
+                if (optionsAction != null)
                 {
-                    var builder = ConfigureOptions(ob);
-                    if (optionsAction != null)
-                    {
-                        optionsAction(builder);
-                    }
-                })
+                    optionsAction(builder);
+                }
+            })
             .BuildServiceProvider(validateScopes: true);
 
     private static IServiceProvider BuildServiceProvider<TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
         where TContext : DbContext
         => new ServiceCollection()
-            .AddDbContextPool<TContext>(
-                ob =>
+            .AddDbContextPool<TContext>(ob =>
+            {
+                var builder = ConfigureOptions(ob);
+                if (optionsAction != null)
                 {
-                    var builder = ConfigureOptions(ob);
-                    if (optionsAction != null)
-                    {
-                        optionsAction(builder);
-                    }
-                })
-            .AddDbContextPool<SecondContext>(
-                ob =>
+                    optionsAction(builder);
+                }
+            })
+            .AddDbContextPool<SecondContext>(ob =>
+            {
+                var builder = ConfigureOptions(ob);
+                if (optionsAction != null)
                 {
-                    var builder = ConfigureOptions(ob);
-                    if (optionsAction != null)
-                    {
-                        optionsAction(builder);
-                    }
-                })
+                    optionsAction(builder);
+                }
+            })
             .BuildServiceProvider(validateScopes: true);
 
     private static IServiceProvider BuildServiceProviderWithFactory<TContext>()
@@ -221,35 +217,27 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Invalid_pool_size()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => BuildServiceProvider<PooledContext>(poolSize: 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => BuildServiceProvider<PooledContext>(poolSize: 0));
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => BuildServiceProvider<PooledContext>(poolSize: -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => BuildServiceProvider<PooledContext>(poolSize: -1));
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: 0));
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: -1));
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Invalid_pool_size_with_factory(bool withDependencyInjection)
     {
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => BuildFactory<PooledContext>(withDependencyInjection, poolSize: 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => BuildFactory<PooledContext>(withDependencyInjection, poolSize: 0));
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => BuildFactory<PooledContext>(withDependencyInjection, poolSize: -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => BuildFactory<PooledContext>(withDependencyInjection, poolSize: -1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Validate_pool_size()
     {
         var serviceProvider = BuildServiceProvider<PooledContext>(poolSize: 64);
@@ -264,7 +252,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 .FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Validate_pool_size_with_service_interface()
     {
         var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>(poolSize: 64);
@@ -279,7 +267,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Validate_pool_size_with_factory()
     {
         var serviceProvider = BuildServiceProviderWithFactory<PooledContext>(poolSize: 64);
@@ -292,9 +280,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 .FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Validate_pool_size_behavior_with_factory(bool withDependencyInjection)
     {
         var factory = BuildFactory<PooledContext>(withDependencyInjection, poolSize: 1);
@@ -309,7 +295,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.NotSame(ctx2, ctx4);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Validate_pool_size_default()
     {
         var serviceProvider = BuildServiceProvider<PooledContext>();
@@ -324,7 +310,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 .FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Validate_pool_size_with_service_interface_default()
     {
         var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>();
@@ -339,7 +325,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Pool_can_get_context_by_concrete_type_even_when_service_interface_is_used()
     {
         var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>();
@@ -351,7 +337,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             scope.ServiceProvider.GetRequiredService<PooledContext>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Validate_pool_size_with_factory_default()
     {
         var serviceProvider = BuildServiceProviderWithFactory<PooledContext>();
@@ -364,9 +350,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 .FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Options_modified_in_on_configuring(bool useInterface)
     {
         var serviceProvider = useInterface
@@ -379,10 +363,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
 
         try
         {
-            Assert.Throws<InvalidOperationException>(
-                () => useInterface
-                    ? scopedProvider.GetService<IPooledContext>()
-                    : scopedProvider.GetService<PooledContext>());
+            Assert.Throws<InvalidOperationException>(() => useInterface
+                ? scopedProvider.GetService<IPooledContext>()
+                : scopedProvider.GetService<PooledContext>());
         }
         finally
         {
@@ -390,7 +373,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Options_modified_in_on_configuring_with_factory()
     {
         var serviceProvider = BuildServiceProviderWithFactory<PooledContext>();
@@ -409,33 +392,64 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         }
     }
 
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]
+    public async Task Parameterless_pooled_factory_should_use_ConfigureDbContext_options()
+    {
+        var services = new ServiceCollection();
+
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                .EnableServiceProviderCaching(false));
+
+        services.AddPooledDbContextFactory<DefaultOptionsPooledContext>();
+
+        using var provider = services.BuildServiceProvider();
+        var factory = provider.GetRequiredService<IDbContextFactory<DefaultOptionsPooledContext>>();
+        await using var db = await factory.CreateDbContextAsync();
+
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", db.Database.ProviderName);
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]
+    public async Task Parameterless_pooled_factory_with_custom_pool_size_should_still_resolve()
+    {
+        var services = new ServiceCollection();
+
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                .EnableServiceProviderCaching(false));
+
+        services.AddPooledDbContextFactory<DefaultOptionsPooledContext>(poolSize: 256);
+
+        using var provider = services.BuildServiceProvider();
+        var factory = provider.GetRequiredService<IDbContextFactory<DefaultOptionsPooledContext>>();
+        await using var db = await factory.CreateDbContextAsync();
+
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", db.Database.ProviderName);
+        Assert.Equal(
+            256,
+            db.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
+    }
+
     private class BadCtorContext : DbContext;
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_used_with_parameterless_constructor_context()
     {
         var serviceCollection = new ServiceCollection();
 
         Assert.Equal(
             CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
-            Assert.Throws<ArgumentException>(
-                () => serviceCollection.AddDbContextPool<BadCtorContext>(
-                    _ => { })).Message);
+            Assert.Throws<ArgumentException>(() => serviceCollection.AddDbContextPool<BadCtorContext>(_ => { })).Message);
 
         Assert.Equal(
             CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
-            Assert.Throws<ArgumentException>(
-                () => serviceCollection.AddDbContextPool<BadCtorContext>(
-                    (_, __) => { })).Message);
+            Assert.Throws<ArgumentException>(() => serviceCollection.AddDbContextPool<BadCtorContext>((_, __) => { })).Message);
 
         Assert.Equal(
             CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
-            Assert.Throws<ArgumentException>(
-                () => serviceCollection.AddPooledDbContextFactory<BadCtorContext>(
-                    (_, __) => { })).Message);
+            Assert.Throws<ArgumentException>(() => serviceCollection.AddPooledDbContextFactory<BadCtorContext>((_, __) => { })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_pooled_context_constructor_has_second_parameter_that_cannot_be_resolved_from_service_provider()
     {
         var serviceProvider
@@ -452,7 +466,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         public string StringParameter { get; } = x;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_pooled_context_constructor_has_single_parameter_that_cannot_be_resolved_from_service_provider()
     {
         var serviceProvider
@@ -468,7 +482,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     private class WrongParameterConstructorContext(string x) : DbContext(new DbContextOptions<WrongParameterConstructorContext>());
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_pooled_context_constructor_has_scoped_service()
     {
         var serviceProvider
@@ -482,7 +496,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_when_pooled_context_constructor_has_singleton_service()
     {
         var serviceProvider
@@ -497,7 +511,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Equal("string", context.StringParameter);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_when_parameterless_and_correct_constructor()
     {
         var serviceProvider
@@ -511,7 +525,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Equal("Options", context.ConstructorUsed);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_when_parameterless_and_correct_constructor_using_factory_pool()
     {
         var serviceProvider
@@ -538,11 +552,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             => ConstructorUsed = "Options";
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Can_pool_non_derived_context(bool useFactory, bool async)
     {
         var serviceProvider = useFactory
@@ -617,16 +627,13 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 : serviceScope.ServiceProvider.GetService<DbContext>();
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task ContextIds_make_sense_when_not_pooling(bool async)
     {
         var serviceProvider = new ServiceCollection()
-            .AddDbContext<DbContext>(
-                ob
-                    => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
-                        .EnableServiceProviderCaching(false))
+            .AddDbContext<DbContext>(ob
+                => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                    .EnableServiceProviderCaching(false))
             .BuildServiceProvider(validateScopes: true);
 
         var serviceScope1 = serviceProvider.CreateScope();
@@ -681,11 +688,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Equal(0, id2r.Lease);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Contexts_are_pooled(bool useInterface, bool async)
     {
         var serviceProvider = useInterface
@@ -754,11 +757,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         await Dispose(serviceScope4, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Contexts_are_pooled_with_factory(bool async, bool withDependencyInjection)
     {
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
@@ -795,23 +794,16 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         await Dispose(secondContext2, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false, null)]
-    [InlineData(true, false, null)]
-    [InlineData(false, true, null)]
-    [InlineData(true, true, null)]
-    [InlineData(false, false, QueryTrackingBehavior.TrackAll)]
-    [InlineData(true, false, QueryTrackingBehavior.TrackAll)]
-    [InlineData(false, true, QueryTrackingBehavior.TrackAll)]
-    [InlineData(true, true, QueryTrackingBehavior.TrackAll)]
-    [InlineData(false, false, QueryTrackingBehavior.NoTracking)]
-    [InlineData(true, false, QueryTrackingBehavior.NoTracking)]
-    [InlineData(false, true, QueryTrackingBehavior.NoTracking)]
-    [InlineData(true, true, QueryTrackingBehavior.NoTracking)]
-    [InlineData(false, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(true, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(false, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(true, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [Theory, InlineData(false, false, null), InlineData(true, false, null), InlineData(false, true, null),
+     InlineData(true, true, null), InlineData(false, false, QueryTrackingBehavior.TrackAll),
+     InlineData(true, false, QueryTrackingBehavior.TrackAll), InlineData(false, true, QueryTrackingBehavior.TrackAll),
+     InlineData(true, true, QueryTrackingBehavior.TrackAll), InlineData(false, false, QueryTrackingBehavior.NoTracking),
+     InlineData(true, false, QueryTrackingBehavior.NoTracking), InlineData(false, true, QueryTrackingBehavior.NoTracking),
+     InlineData(true, true, QueryTrackingBehavior.NoTracking),
+     InlineData(false, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(true, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(false, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(true, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public async Task Context_configuration_is_reset(bool useInterface, bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
         var serviceProvider = useInterface
@@ -918,15 +910,10 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.False(_localView_OnCollectionChanged);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, null)]
-    [InlineData(true, null)]
-    [InlineData(false, QueryTrackingBehavior.TrackAll)]
-    [InlineData(true, QueryTrackingBehavior.TrackAll)]
-    [InlineData(false, QueryTrackingBehavior.NoTracking)]
-    [InlineData(true, QueryTrackingBehavior.NoTracking)]
-    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [Theory, InlineData(false, null), InlineData(true, null), InlineData(false, QueryTrackingBehavior.TrackAll),
+     InlineData(true, QueryTrackingBehavior.TrackAll), InlineData(false, QueryTrackingBehavior.NoTracking),
+     InlineData(true, QueryTrackingBehavior.NoTracking), InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public async Task Uninitialized_context_configuration_is_reset_properly(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
         var serviceProvider = BuildServiceProvider<SecondContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
@@ -951,11 +938,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         await Dispose(serviceScope, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Context_configuration_is_reset_with_factory(bool async, bool withDependencyInjection)
     {
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
@@ -1038,7 +1021,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.False(_localView_OnCollectionChanged);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Change_tracker_can_be_cleared_without_resetting_context_config()
     {
         var context = new PooledContext(
@@ -1177,15 +1160,10 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     private void ChangeTracker_OnDetectedEntityChanges(object sender, DetectedEntityChangesEventArgs e)
         => _changeTracker_OnDetectedEntityChanges = true;
 
-    [ConditionalTheory]
-    [InlineData(false, null)]
-    [InlineData(true, null)]
-    [InlineData(false, QueryTrackingBehavior.TrackAll)]
-    [InlineData(true, QueryTrackingBehavior.TrackAll)]
-    [InlineData(false, QueryTrackingBehavior.NoTracking)]
-    [InlineData(true, QueryTrackingBehavior.NoTracking)]
-    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [Theory, InlineData(false, null), InlineData(true, null), InlineData(false, QueryTrackingBehavior.TrackAll),
+     InlineData(true, QueryTrackingBehavior.TrackAll), InlineData(false, QueryTrackingBehavior.NoTracking),
+     InlineData(true, QueryTrackingBehavior.NoTracking), InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public async Task Default_Context_configuration_is_reset(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
         var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
@@ -1221,11 +1199,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.True(context2.Database.AutoSavepointsEnabled);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Default_Context_configuration_is_reset_with_factory(bool async, bool withDependencyInjection)
     {
         var factory = BuildFactory<DefaultOptionsPooledContext>(withDependencyInjection);
@@ -1255,45 +1229,40 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.True(context2.Database.AutoSavepointsEnabled);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task State_manager_is_reset(bool useInterface, bool async)
     {
-        var weakRef = await Scoper(
-            async () =>
-            {
-                var serviceProvider = useInterface
-                    ? BuildServiceProvider<IPooledContext, PooledContext>()
-                    : BuildServiceProvider<PooledContext>();
+        var weakRef = await Scoper(async () =>
+        {
+            var serviceProvider = useInterface
+                ? BuildServiceProvider<IPooledContext, PooledContext>()
+                : BuildServiceProvider<PooledContext>();
 
-                var serviceScope = serviceProvider.CreateScope();
-                var scopedProvider = serviceScope.ServiceProvider;
+            var serviceScope = serviceProvider.CreateScope();
+            var scopedProvider = serviceScope.ServiceProvider;
 
-                var context1 = useInterface
-                    ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                    : scopedProvider.GetService<PooledContext>();
+            var context1 = useInterface
+                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                : scopedProvider.GetService<PooledContext>();
 
-                var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+            var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                Assert.Single(context1.ChangeTracker.Entries());
+            Assert.Single(context1.ChangeTracker.Entries());
 
-                await Dispose(serviceScope, async);
+            await Dispose(serviceScope, async);
 
-                serviceScope = serviceProvider.CreateScope();
-                scopedProvider = serviceScope.ServiceProvider;
+            serviceScope = serviceProvider.CreateScope();
+            scopedProvider = serviceScope.ServiceProvider;
 
-                var context2 = useInterface
-                    ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                    : scopedProvider.GetService<PooledContext>();
+            var context2 = useInterface
+                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                : scopedProvider.GetService<PooledContext>();
 
-                Assert.Same(context1, context2);
-                Assert.Empty(context2.ChangeTracker.Entries());
+            Assert.Same(context1, context2);
+            Assert.Empty(context2.ChangeTracker.Entries());
 
-                return new WeakReference(entity);
-            });
+            return new WeakReference(entity);
+        });
 
         GC.Collect();
 
@@ -1303,48 +1272,37 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     private static async Task<T> Scoper<T>(Func<Task<T>> getter)
         => await getter();
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task State_manager_is_reset_with_factory(bool async, bool withDependencyInjection)
     {
-        var weakRef = await Scoper(
-            async () =>
-            {
-                var factory = BuildFactory<PooledContext>(withDependencyInjection);
+        var weakRef = await Scoper(async () =>
+        {
+            var factory = BuildFactory<PooledContext>(withDependencyInjection);
 
-                var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+            var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
 
-                var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+            var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                Assert.Single(context1.ChangeTracker.Entries());
+            Assert.Single(context1.ChangeTracker.Entries());
 
-                await Dispose(context1, async);
+            await Dispose(context1, async);
 
-                var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+            var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
 
-                Assert.Same(context1, context2);
-                Assert.Empty(context2.ChangeTracker.Entries());
+            Assert.Same(context1, context2);
+            Assert.Empty(context2.ChangeTracker.Entries());
 
-                return new WeakReference(entity);
-            });
+            return new WeakReference(entity);
+        });
 
         GC.Collect();
 
         Assert.False(weakRef.IsAlive);
     }
 
-    [ConditionalTheory] // Issue #25486
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
+     InlineData(true, true, true)] // Issue #25486
     public async Task Service_properties_are_disposed(bool useInterface, bool async, bool load)
     {
         var serviceProvider = useInterface
@@ -1382,15 +1340,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         AssertDisposed(() => orderLoader.Load(entity, nameof(Customer.Orders)), "Customer", "Orders");
     }
 
-    [ConditionalTheory] // Issue #25486
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
+     InlineData(true, true, true)] // Issue #25486
     public async Task Service_properties_are_disposed_with_factory(bool async, bool withDependencyInjection, bool load)
     {
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
@@ -1431,11 +1383,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             Assert.Throws<InvalidOperationException>(
                 testCode).Message);
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Pool_disposes_context_when_context_not_pooled(bool useInterface, bool async)
     {
         var serviceProvider = useInterface
@@ -1463,11 +1411,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Throws<ObjectDisposedException>(() => context2.Customers.ToList());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Pool_disposes_contexts_when_disposed(bool useInterface, bool async)
     {
         var serviceProvider = useInterface
@@ -1488,11 +1432,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Object_in_pool_is_disposed(bool useInterface, bool async)
     {
         var serviceProvider = useInterface
@@ -1511,11 +1451,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Throws<ObjectDisposedException>(() => context!.Customers.ToList());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Double_dispose_does_not_enter_pool_twice(bool useInterface, bool async)
     {
         var serviceProvider = useInterface
@@ -1540,11 +1476,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.NotSame(lease1.Context, lease2.Context);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Double_dispose_with_standalone_lease_does_not_enter_pool_twice(bool useInterface, bool async)
     {
         var serviceProvider = useInterface
@@ -1552,6 +1484,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             : BuildServiceProvider<PooledContext>();
 
         var pool = serviceProvider.GetRequiredService<IDbContextPool<PooledContext>>();
+        Assert.Same(pool, serviceProvider.GetRequiredService<IDbContextPool<PooledContext>>());
         var lease = new DbContextLease(pool, standalone: true);
         var context = (PooledContext)lease.Context;
         ((IDbContextPoolable)context).SetLease(lease);
@@ -1567,11 +1500,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.NotSame(context1, context2);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Can_double_dispose_with_factory(bool async, bool withDependencyInjection)
     {
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
@@ -1589,11 +1518,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Provider_services_are_reset(bool useInterface, bool async)
     {
         var serviceProvider = useInterface
@@ -1640,11 +1565,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Null(context3!.Database.CurrentTransaction);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Provider_services_are_reset_with_factory(bool async, bool withDependencyInjection)
     {
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
@@ -1674,17 +1595,12 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Null(context3.Database.CurrentTransaction);
     }
 
-    [ConditionalTheory] // Issue #27308.
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #27308.
     public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection(bool async, bool openWithEf)
     {
         var serviceProvider = new ServiceCollection()
-            .AddDbContextPool<PooledContext>(
-                ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
-                    .EnableServiceProviderCaching(false))
+            .AddDbContextPool<PooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                .EnableServiceProviderCaching(false))
             .BuildServiceProvider(validateScopes: true);
 
         var serviceScope = serviceProvider.CreateScope();
@@ -1736,13 +1652,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         await Dispose(serviceScope, async);
     }
 
-    [ConditionalTheory] // Issue #27308.
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true)] // Issue #27308.
     public async Task Handle_open_connection_when_returning_to_pool_for_external_connection(bool async, bool startsOpen, bool openWithEf)
     {
         using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
@@ -1760,9 +1671,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         }
 
         var serviceProvider = new ServiceCollection()
-            .AddDbContextPool<PooledContext>(
-                ob => ob.UseSqlServer(connection)
-                    .EnableServiceProviderCaching(false))
+            .AddDbContextPool<PooledContext>(ob => ob.UseSqlServer(connection)
+                .EnableServiceProviderCaching(false))
             .BuildServiceProvider(validateScopes: true);
 
         var serviceScope = serviceProvider.CreateScope();
@@ -1816,15 +1726,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         await Dispose(serviceScope, async);
     }
 
-    [ConditionalTheory] // Issue #27308.
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
+     InlineData(true, true, true)] // Issue #27308.
     public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection_with_factory(
         bool async,
         bool openWithEf,
@@ -1838,9 +1742,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var factory =
             withDependencyInjection
                 ? new ServiceCollection()
-                    .AddPooledDbContextFactory<PooledContext>(
-                        ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
-                            .EnableServiceProviderCaching(false))
+                    .AddPooledDbContextFactory<PooledContext>(ob => ob
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                        .EnableServiceProviderCaching(false))
                     .BuildServiceProvider(validateScopes: true)
                     .GetRequiredService<IDbContextFactory<PooledContext>>()
                 : new PooledDbContextFactory<PooledContext>(options);
@@ -1888,19 +1792,11 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         await Dispose(context2, async);
     }
 
-    [ConditionalTheory] // Issue #27308.
-    [InlineData(false, false, false, false)]
-    [InlineData(true, false, false, false)]
-    [InlineData(false, true, false, false)]
-    [InlineData(true, true, false, false)]
-    [InlineData(false, false, true, false)]
-    [InlineData(true, false, true, false)]
-    [InlineData(false, false, false, true)]
-    [InlineData(true, false, false, true)]
-    [InlineData(false, true, false, true)]
-    [InlineData(true, true, false, true)]
-    [InlineData(false, false, true, true)]
-    [InlineData(true, false, true, true)]
+    [Theory, InlineData(false, false, false, false), InlineData(true, false, false, false),
+     InlineData(false, true, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
+     InlineData(true, false, true, false), InlineData(false, false, false, true), InlineData(true, false, false, true),
+     InlineData(false, true, false, true), InlineData(true, true, false, true), InlineData(false, false, true, true),
+     InlineData(true, false, true, true)] // Issue #27308.
     public async Task Handle_open_connection_when_returning_to_pool_for_external_connection_with_factory(
         bool async,
         bool startsOpen,
@@ -1929,9 +1825,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var factory =
             withDependencyInjection
                 ? new ServiceCollection()
-                    .AddPooledDbContextFactory<PooledContext>(
-                        ob => ob.UseSqlServer(connection)
-                            .EnableServiceProviderCaching(false))
+                    .AddPooledDbContextFactory<PooledContext>(ob => ob.UseSqlServer(connection)
+                        .EnableServiceProviderCaching(false))
                     .BuildServiceProvider(validateScopes: true)
                     .GetRequiredService<IDbContextFactory<PooledContext>>()
                 : new PooledDbContextFactory<PooledContext>(options);
@@ -1981,9 +1876,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         await Dispose(context2, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Double_dispose_concurrency_test(bool useInterface)
     {
         var serviceProvider = useInterface
@@ -2006,11 +1899,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             });
     }
 
-    [ConditionalTheory(Skip = "Issue #32700")]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [Theory(Skip = "Issue #32700"), InlineData(false, false), InlineData(true, false), InlineData(false, true),
+     InlineData(true, true)]
     public async Task Concurrency_test(bool useInterface, bool async)
     {
         PooledContext.InstanceCount = 0;
@@ -2097,32 +1987,28 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Concurrency_test2(bool async)
     {
         var factory = BuildFactory<PooledContext>(withDependencyInjection: false);
 
         await Task.WhenAll(
-            Enumerable.Range(0, 10).Select(
-                _ => Task.Run(
-                    async () =>
-                    {
-                        for (var j = 0; j < 1_000_000; j++)
-                        {
-                            var ctx = factory.CreateDbContext();
+            Enumerable.Range(0, 10).Select(_ => Task.Run(async () =>
+            {
+                for (var j = 0; j < 1_000_000; j++)
+                {
+                    var ctx = factory.CreateDbContext();
 
-                            if (async)
-                            {
-                                await ctx.DisposeAsync();
-                            }
-                            else
-                            {
-                                ctx.Dispose();
-                            }
-                        }
-                    })));
+                    if (async)
+                    {
+                        await ctx.DisposeAsync();
+                    }
+                    else
+                    {
+                        ctx.Dispose();
+                    }
+                }
+            })));
     }
 
     private void UseQueryTrackingBehavior(DbContextOptionsBuilder optionsBuilder, QueryTrackingBehavior? queryTrackingBehavior)

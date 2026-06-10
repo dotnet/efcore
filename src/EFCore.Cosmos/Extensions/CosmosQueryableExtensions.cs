@@ -18,21 +18,6 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class CosmosQueryableExtensions
 {
-    internal static readonly MethodInfo WithPartitionKeyMethodInfo1
-        = typeof(CosmosQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(WithPartitionKey))
-            .Single(mi => mi.GetParameters().Length == 2);
-
-    internal static readonly MethodInfo WithPartitionKeyMethodInfo2
-        = typeof(CosmosQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(WithPartitionKey))
-            .Single(mi => mi.GetParameters().Length == 3);
-
-    internal static readonly MethodInfo WithPartitionKeyMethodInfo3
-        = typeof(CosmosQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(WithPartitionKey))
-            .Single(mi => mi.GetParameters().Length == 4);
-
     /// <summary>
     ///     Specify the partition key for partition used for the query.
     ///     Required when using a resource token that provides permission based on a partition key for authentication,
@@ -48,14 +33,14 @@ public static class CosmosQueryableExtensions
     public static IQueryable<TEntity> WithPartitionKey<TEntity>(this IQueryable<TEntity> source, object partitionKeyValue)
         where TEntity : class
     {
-        Check.NotNull(partitionKeyValue, nameof(partitionKeyValue));
+        Check.NotNull(partitionKeyValue);
 
         return
             source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: WithPartitionKeyMethodInfo1.MakeGenericMethod(typeof(TEntity)),
+                        method: new Func<IQueryable<TEntity>, object, IQueryable<TEntity>>(WithPartitionKey).Method,
                         source.Expression,
                         Expression.Constant(partitionKeyValue, typeof(object))))
                 : source;
@@ -80,15 +65,15 @@ public static class CosmosQueryableExtensions
         object partitionKeyValue2)
         where TEntity : class
     {
-        Check.NotNull(partitionKeyValue1, nameof(partitionKeyValue1));
-        Check.NotNull(partitionKeyValue2, nameof(partitionKeyValue2));
+        Check.NotNull(partitionKeyValue1);
+        Check.NotNull(partitionKeyValue2);
 
         return
             source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: WithPartitionKeyMethodInfo2.MakeGenericMethod(typeof(TEntity)),
+                        method: new Func<IQueryable<TEntity>, object, object, IQueryable<TEntity>>(WithPartitionKey).Method,
                         source.Expression,
                         Expression.Constant(partitionKeyValue1, typeof(object)),
                         Expression.Constant(partitionKeyValue2, typeof(object))))
@@ -116,16 +101,16 @@ public static class CosmosQueryableExtensions
         object partitionKeyValue3)
         where TEntity : class
     {
-        Check.NotNull(partitionKeyValue1, nameof(partitionKeyValue1));
-        Check.NotNull(partitionKeyValue2, nameof(partitionKeyValue2));
-        Check.NotNull(partitionKeyValue3, nameof(partitionKeyValue3));
+        Check.NotNull(partitionKeyValue1);
+        Check.NotNull(partitionKeyValue2);
+        Check.NotNull(partitionKeyValue3);
 
         return
             source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: WithPartitionKeyMethodInfo3.MakeGenericMethod(typeof(TEntity)),
+                        method: new Func<IQueryable<TEntity>, object, object, object, IQueryable<TEntity>>(WithPartitionKey).Method,
                         source.Expression,
                         Expression.Constant(partitionKeyValue1, typeof(object)),
                         Expression.Constant(partitionKeyValue2, typeof(object)),
@@ -162,8 +147,8 @@ public static class CosmosQueryableExtensions
         [NotParameterized] FormattableString sql)
         where TEntity : class
     {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotEmpty(sql.Format, nameof(source));
+        Check.NotNull(sql);
+        Check.NotEmpty(sql.Format);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(
@@ -205,8 +190,8 @@ public static class CosmosQueryableExtensions
         params object?[] parameters)
         where TEntity : class
     {
-        Check.NotEmpty(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotEmpty(sql);
+        Check.NotNull(parameters);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(
@@ -236,9 +221,6 @@ public static class CosmosQueryableExtensions
             sql,
             Expression.Constant(arguments));
     }
-
-    internal static readonly MethodInfo ToPageAsyncMethodInfo
-        = typeof(CosmosQueryableExtensions).GetMethod(nameof(ToPageAsync))!;
 
     /// <summary>
     ///     Allows paginating through query results by repeatedly executing the same query, passing continuation tokens to retrieve
@@ -272,7 +254,7 @@ public static class CosmosQueryableExtensions
         return provider.ExecuteAsync<Task<CosmosPage<TSource>>>(
             Expression.Call(
                 instance: null,
-                method: ToPageAsyncMethodInfo.MakeGenericMethod(typeof(TSource)),
+                method: new Func<IQueryable<TSource>, int, string?, int?, CancellationToken, Task<CosmosPage<TSource>>>(ToPageAsync).Method,
                 arguments:
                 [
                     source.Expression,

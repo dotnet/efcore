@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class NonNullableNavigationConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_does_not_override_configuration_from_explicit_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -37,7 +37,7 @@ public class NonNullableNavigationConventionTest
         Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_does_not_override_configuration_from_data_annotation()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -62,7 +62,7 @@ public class NonNullableNavigationConventionTest
         Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_does_not_set_is_required_for_collection_navigation()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -86,7 +86,7 @@ public class NonNullableNavigationConventionTest
         Assert.Empty(ListLoggerFactory.Log);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_does_not_set_is_required_for_navigation_to_dependent()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -110,7 +110,7 @@ public class NonNullableNavigationConventionTest
         Assert.False(relationshipBuilder.Metadata.IsRequired);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_nullability_sets_is_required_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -238,8 +238,7 @@ public class NonNullableNavigationConventionTest
         [ForeignKey("AnotherPrincipal")]
         public int PrincipalAnotherFk { get; set; }
 
-        [ForeignKey("PrincipalFk")]
-        [InverseProperty("Dependent")]
+        [ForeignKey("PrincipalFk"), InverseProperty("Dependent")]
         public Principal? Principal { get; set; }
 
         public Principal? AnotherPrincipal { get; set; }

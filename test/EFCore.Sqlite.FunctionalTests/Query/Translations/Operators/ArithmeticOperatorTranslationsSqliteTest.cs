@@ -12,9 +12,9 @@ public class ArithmeticOperatorTranslationsSqliteTest : ArithmeticOperatorTransl
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Add(bool async)
+    public override async Task Add()
     {
-        await base.Add(async);
+        await base.Add();
 
         AssertSql(
             """
@@ -24,9 +24,9 @@ WHERE "b"."Int" + 2 = 10
 """);
     }
 
-    public override async Task Subtract(bool async)
+    public override async Task Subtract()
     {
-        await base.Subtract(async);
+        await base.Subtract();
 
         AssertSql(
             """
@@ -36,9 +36,9 @@ WHERE "b"."Int" - 3 = 5
 """);
     }
 
-    public override async Task Multiply(bool async)
+    public override async Task Multiply()
     {
-        await base.Multiply(async);
+        await base.Multiply();
 
         AssertSql(
             """
@@ -48,9 +48,9 @@ WHERE "b"."Int" * 2 = 16
 """);
     }
 
-    public override async Task Modulo(bool async)
+    public override async Task Modulo()
     {
-        await base.Modulo(async);
+        await base.Modulo();
 
         AssertSql(
             """
@@ -60,9 +60,9 @@ WHERE "b"."Int" % 3 = 2
 """);
     }
 
-    public override async Task Minus(bool async)
+    public override async Task Minus()
     {
-        await base.Minus(async);
+        await base.Minus();
 
         AssertSql(
             """
@@ -72,7 +72,7 @@ WHERE -"b"."Int" = -8
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

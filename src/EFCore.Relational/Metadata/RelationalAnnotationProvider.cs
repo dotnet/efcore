@@ -34,77 +34,166 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITable table, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IView view, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IViewColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ISqlQuery sqlQuery, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ISqlQueryColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreFunction function, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreFunctionParameter parameter, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IFunctionColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedure storedProcedure, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedureParameter parameter, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedureResultColumn column, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IForeignKeyConstraint foreignKey, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+    {
+        if (!designTime
+            || TryBuildJsonIndex(index) is not { } jsonIndex)
+        {
+            yield break;
+        }
+
+        yield return new Annotation(RelationalAnnotationNames.JsonIndex, jsonIndex);
+    }
+
+    /// <summary>
+    ///     Attempts to build a <see cref="RelationalJsonIndex" /> for the given table index when its
+    ///     leaves resolve to properties (or whole complex properties) contained in a JSON-mapped column.
+    ///     Returns <see langword="null" /> for non-JSON indexes.
+    /// </summary>
+    /// <remarks>
+    ///     Providers can override this to customize JSON index detection or element resolution. The base
+    ///     implementation handles indexes whose leaves are either scalar properties inside JSON-mapped
+    ///     complex types, or non-collection complex properties whose type is itself JSON-mapped. When
+    ///     overriding, use <see cref="FindJsonElement" /> to resolve the JSON element for an individual
+    ///     property on the index's table.
+    /// </remarks>
+    /// <param name="index">The table index.</param>
+    /// <returns>The <see cref="RelationalJsonIndex" /> describing the JSON paths, or <see langword="null" />.</returns>
+    protected virtual RelationalJsonIndex? TryBuildJsonIndex(ITableIndex index)
+    {
+        var modelIndex = index.MappedIndexes.FirstOrDefault();
+        if (modelIndex is null
+            || !IsJsonIndex(modelIndex))
+        {
+            return null;
+        }
+
+        var elements = new IRelationalJsonElement[modelIndex.Properties.Count];
+        for (var i = 0; i < modelIndex.Properties.Count; i++)
+        {
+            elements[i] = FindJsonElement(modelIndex.Properties[i], index.Table);
+        }
+
+        return new RelationalJsonIndex(elements, modelIndex.CollectionIndices);
+    }
+
+    /// <summary>
+    ///     Returns whether the given mapped <see cref="IIndex" /> is a JSON index — i.e. all its leaves
+    ///     are contained in a JSON-mapped column. Providers can override to recognize additional shapes.
+    /// </summary>
+    /// <param name="index">The mapped index.</param>
+    /// <returns><see langword="true" /> if the index is a JSON index.</returns>
+    protected virtual bool IsJsonIndex(IIndex index)
+    {
+        foreach (var property in index.Properties)
+        {
+            switch (property)
+            {
+                case IProperty { DeclaringType: IComplexType complexType } when complexType.IsMappedToJson():
+                case IComplexProperty { ComplexType: var ct } when ct.IsMappedToJson():
+                    continue;
+                default:
+                    return false;
+            }
+        }
+
+        return index.Properties.Count > 0;
+    }
+
+    /// <summary>
+    ///     Resolves the <see cref="IRelationalJsonElement" /> for the given property on the given table.
+    ///     All JSON element mappings are populated before table-index annotations are gathered, so a
+    ///     mapping is expected to exist for any property reaching this code path.
+    /// </summary>
+    /// <param name="property">The property (scalar or complex) participating in the index.</param>
+    /// <param name="table">The table containing the index.</param>
+    /// <returns>The JSON element on the given table.</returns>
+    protected static IRelationalJsonElement FindJsonElement(IPropertyBase property, ITable table)
+    {
+        // Read the JsonElementMappings runtime annotation directly: GetJsonElementMappings() would
+        // call EnsureRelationalModel, recursively re-entering RelationalModel.Create.
+        var mappings = (IEnumerable<IJsonElementMapping>?)property.FindRuntimeAnnotationValue(
+            RelationalAnnotationNames.JsonElementMappings)
+            ?? throw new UnreachableException($"Missing JSON element mappings for property '{property.Name}'.");
+        foreach (var mapping in mappings)
+        {
+            if (mapping.TableMapping.Table == table)
+            {
+                return mapping.Element;
+            }
+        }
+
+        throw new UnreachableException($"No JSON element mapping for property '{property.Name}' on table '{table.Name}'.");
+    }
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IUniqueConstraint constraint, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ISequence sequence, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITrigger trigger, bool designTime)
-        => Enumerable.Empty<IAnnotation>();
+        => [];
 }

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DbSetSourceTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_create_new_generic_DbSet()
     {
         var context = InMemoryTestHelpers.Instance.CreateContext();
@@ -19,7 +19,7 @@ public class DbSetSourceTest
         Assert.IsType<InternalDbSet<Random>>(set);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Always_creates_a_new_DbSet_instance()
     {
         var context = InMemoryTestHelpers.Instance.CreateContext();
@@ -29,7 +29,7 @@ public class DbSetSourceTest
         Assert.NotSame(factorySource.Create(context, typeof(Random)), factorySource.Create(context, typeof(Random)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_new_generic_DbSet_for_shared_type()
     {
         var context = InMemoryTestHelpers.Instance.CreateContext();
@@ -41,7 +41,7 @@ public class DbSetSourceTest
         Assert.IsType<InternalDbSet<Random>>(set);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Always_creates_a_new_DbSet_instance_for_shared_type()
     {
         var context = InMemoryTestHelpers.Instance.CreateContext();

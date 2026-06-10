@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
@@ -10,7 +10,7 @@ public class NorthwindBulkUpdatesSqlServerTest(
     ITestOutputHelper testOutputHelper)
     : NorthwindBulkUpdatesRelationalTestBase<NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -264,8 +264,8 @@ WHERE [o0].[OrderID] IN (
         AssertSql(
             """
 @p='100'
-@p1='20'
-@p2='5'
+@p2='20'
+@p3='5'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -281,7 +281,7 @@ WHERE EXISTS (
             OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
         ) AS [o0]
         ORDER BY (SELECT 1)
-        OFFSET @p1 ROWS FETCH NEXT @p2 ROWS ONLY
+        OFFSET @p2 ROWS FETCH NEXT @p3 ROWS ONLY
     ) AS [o2]
     WHERE [o2].[OrderID] = [o].[OrderID] AND [o2].[ProductID] = [o].[ProductID])
 """);
@@ -512,7 +512,7 @@ WHERE [c].[City] LIKE N'Se%'
         AssertSql(
             """
 @p='0'
-@p0='100'
+@p1='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -521,7 +521,7 @@ INNER JOIN (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10300
     ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 """);
     }
@@ -532,18 +532,8 @@ INNER JOIN (
 
         AssertSql(
             """
-@p='0'
-@p0='100'
-
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-LEFT JOIN (
-    SELECT [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] < 10300
-    ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
-) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 WHERE [o].[OrderID] < 10276
 """);
     }
@@ -554,18 +544,8 @@ WHERE [o].[OrderID] < 10276
 
         AssertSql(
             """
-@p='0'
-@p0='100'
-
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-LEFT JOIN (
-    SELECT [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] < 10300
-    ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
-) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 WHERE [o].[OrderID] < 10276
 """);
     }
@@ -627,6 +607,35 @@ WHERE [o].[OrderID] < 10276
 """);
     }
 
+    public override async Task Delete_with_RightJoin(bool async)
+    {
+        await base.Delete_with_RightJoin(async);
+
+        AssertSql(
+            """
+@p='0'
+@p1='100'
+
+DELETE FROM [o]
+FROM [Order Details] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT [o1].[OrderID], [o1].[ProductID]
+        FROM [Order Details] AS [o1]
+        WHERE [o1].[OrderID] < 10276
+    ) AS [o0]
+    RIGHT JOIN (
+        SELECT [o3].[OrderID]
+        FROM [Orders] AS [o3]
+        WHERE [o3].[OrderID] < 10300
+        ORDER BY [o3].[OrderID]
+        OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+    ) AS [o2] ON [o0].[OrderID] = [o2].[OrderID]
+    WHERE [o0].[OrderID] = [o].[OrderID] AND [o0].[ProductID] = [o].[ProductID])
+""");
+    }
+
     public override async Task Update_Where_set_constant_TagWith(bool async)
     {
         await base.Update_Where_set_constant_TagWith(async);
@@ -641,6 +650,20 @@ UPDATE [c]
 SET [c].[ContactName] = @p
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Update_set_constant_TagWith_null(bool async)
+    {
+        await base.Update_set_constant_TagWith_null(async);
+
+        AssertExecuteUpdateSql(
+            """
+-- MyUpdate
+
+UPDATE [c]
+SET [c].[ContactName] = NULL
+FROM [Customers] AS [c]
 """);
     }
 
@@ -669,6 +692,19 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Update_Where_set_nullable_int_constant_via_discard_lambda(bool async)
+    {
+        await base.Update_Where_set_nullable_int_constant_via_discard_lambda(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [p]
+SET [p].[SupplierID] = 1
+FROM [Products] AS [p]
+WHERE [p].[ProductID] < 5
 """);
     }
 
@@ -777,11 +813,11 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 30)
+@p1='Updated' (Size = 30)
 @p='4'
 
 UPDATE [c0]
-SET [c0].[ContactName] = @p0
+SET [c0].[ContactName] = @p1
 FROM [Customers] AS [c0]
 INNER JOIN (
     SELECT [c].[CustomerID]
@@ -800,10 +836,10 @@ INNER JOIN (
         AssertExecuteUpdateSql(
             """
 @p='4'
-@p0='Updated' (Size = 30)
+@p1='Updated' (Size = 30)
 
 UPDATE TOP(@p) [c]
-SET [c].[ContactName] = @p0
+SET [c].[ContactName] = @p1
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -815,19 +851,19 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@p1='Updated' (Size = 30)
+@p2='Updated' (Size = 30)
 @p='2'
-@p0='4'
+@p1='4'
 
 UPDATE [c0]
-SET [c0].[ContactName] = @p1
+SET [c0].[ContactName] = @p2
 FROM [Customers] AS [c0]
 INNER JOIN (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c1] ON [c0].[CustomerID] = [c1].[CustomerID]
 """);
     }
@@ -857,11 +893,11 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 30)
+@p1='Updated' (Size = 30)
 @p='4'
 
 UPDATE [c0]
-SET [c0].[ContactName] = @p0
+SET [c0].[ContactName] = @p1
 FROM [Customers] AS [c0]
 INNER JOIN (
     SELECT [c].[CustomerID]
@@ -879,11 +915,11 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 30)
+@p1='Updated' (Size = 30)
 @p='4'
 
 UPDATE [c0]
-SET [c0].[ContactName] = @p0
+SET [c0].[ContactName] = @p1
 FROM [Customers] AS [c0]
 INNER JOIN (
     SELECT TOP(@p) [c].[CustomerID]
@@ -900,19 +936,19 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@p1='Updated' (Size = 30)
+@p2='Updated' (Size = 30)
 @p='2'
-@p0='4'
+@p1='4'
 
 UPDATE [c0]
-SET [c0].[ContactName] = @p1
+SET [c0].[ContactName] = @p2
 FROM [Customers] AS [c0]
 INNER JOIN (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[City]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c1] ON [c0].[CustomerID] = [c1].[CustomerID]
 """);
     }
@@ -923,12 +959,12 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@p3='Updated' (Size = 30)
+@p4='Updated' (Size = 30)
 @p='2'
-@p0='6'
+@p1='6'
 
 UPDATE [c1]
-SET [c1].[ContactName] = @p3
+SET [c1].[ContactName] = @p4
 FROM [Customers] AS [c1]
 INNER JOIN (
     SELECT [c0].[CustomerID]
@@ -937,7 +973,7 @@ INNER JOIN (
         FROM [Customers] AS [c]
         WHERE [c].[CustomerID] LIKE N'F%'
         ORDER BY [c].[City]
-        OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+        OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
     ) AS [c0]
     ORDER BY [c0].[City]
     OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
@@ -1347,6 +1383,33 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
+    public override async Task Update_with_RightJoin(bool async)
+    {
+        await base.Update_with_RightJoin(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='2020-01-01T00:00:00.0000000Z' (Nullable = true) (DbType = DateTime)
+
+UPDATE [o1]
+SET [o1].[OrderDate] = @p
+FROM [Orders] AS [o1]
+INNER JOIN (
+    SELECT [o0].[OrderID]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID]
+        FROM [Orders] AS [o]
+        WHERE [o].[OrderID] < 10300
+    ) AS [o0]
+    RIGHT JOIN (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'F%'
+    ) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+) AS [s] ON [o1].[OrderID] = [s].[OrderID]
+""");
+    }
+
     public override async Task Update_with_cross_join_set_constant(bool async)
     {
         await base.Update_with_cross_join_set_constant(async);
@@ -1563,8 +1626,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Update_with_two_inner_joins(bool async)
     {
         await base.Update_with_two_inner_joins(async);
@@ -1579,6 +1641,62 @@ FROM [Order Details] AS [o]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [p].[Discontinued] = CAST(1 AS bit) AND [o0].[OrderDate] > '1990-01-01T00:00:00.000'
+""");
+    }
+
+    [Theory]
+    public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
+    {
+        await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='1'
+@p2='10' (DbType = Currency)
+
+UPDATE [o2]
+SET [o2].[Quantity] = CAST(@p AS smallint),
+    [o2].[UnitPrice] = @p2
+FROM [Order Details] AS [o2]
+INNER JOIN (
+    SELECT [o1].[OrderID], [o1].[ProductID]
+    FROM (
+        SELECT [o].[OrderID], [o].[ProductID]
+        FROM [Order Details] AS [o]
+        ORDER BY [o].[OrderID]
+        OFFSET @p ROWS
+    ) AS [o1]
+    INNER JOIN [Orders] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
+    WHERE [o0].[CustomerID] = N'ALFKI'
+) AS [s] ON [o2].[OrderID] = [s].[OrderID] AND [o2].[ProductID] = [s].[ProductID]
+""");
+    }
+
+    public override async Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_mixed_entity_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 30)
+
+UPDATE [c]
+SET [c].[ContactName] = @p
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Update_with_select_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 30)
+
+UPDATE [c]
+SET [c].[ContactName] = @p
+FROM [Customers] AS [c]
 """);
     }
 

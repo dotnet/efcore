@@ -43,7 +43,7 @@ public class SqlServerStringMemberTranslator : IMemberTranslator
             return _sqlExpressionFactory.Convert(
                 _sqlExpressionFactory.Function(
                     "LEN",
-                    new[] { instance! },
+                    [instance!],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(long)),

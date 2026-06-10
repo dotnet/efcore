@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </remarks>
 public class UpdateSettersBuilder
 {
-    private readonly List<NewExpression> _setters = new();
+    private readonly List<NewExpression> _setters = [];
 
     private static ConstructorInfo? _setterTupleConstructor;
 

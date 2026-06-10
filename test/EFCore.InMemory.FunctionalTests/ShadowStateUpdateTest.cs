@@ -5,14 +5,12 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ShadowStateUpdateTest(InMemoryFixture fixture) : IClassFixture<InMemoryFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_update_delete_end_to_end_using_partial_shadow_state()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
         var entityTypeBuilder = modelBuilder.Entity<Customer>();
         entityTypeBuilder.Property<string>("Name");
-
-        var customerType = (IEntityType)entityTypeBuilder.Metadata;
 
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseModel(modelBuilder.FinalizeModel())
@@ -45,7 +43,7 @@ public class ShadowStateUpdateTest(InMemoryFixture fixture) : IClassFixture<InMe
         using (var context = new DbContext(optionsBuilder.Options))
         {
             var customerEntry = context.Entry(customer).GetInfrastructure();
-            customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
+            customerEntry[customerEntry.EntityType.FindProperty("Name")] = "Daenerys Targaryen";
 
             context.Update(customer);
 

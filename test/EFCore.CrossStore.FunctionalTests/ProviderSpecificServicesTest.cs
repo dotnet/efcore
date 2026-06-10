@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ProviderSpecificServicesTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_with_new_when_non_relational_provider_in_use()
     {
         var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
@@ -22,13 +22,13 @@ public class ProviderSpecificServicesTest
             Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_with_add_when_non_relational_provider_in_use()
     {
         var appServiceProvider = new ServiceCollection()
             .AddEntityFrameworkInMemoryDatabase()
-            .AddDbContext<ConstructorTestContext1A>(
-                (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
+            .AddDbContext<ConstructorTestContext1A>((p, b)
+                => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
             .BuildServiceProvider(validateScopes: true);
 
         using var serviceScope = appServiceProvider
@@ -41,7 +41,7 @@ public class ProviderSpecificServicesTest
             Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_with_multiple_providers_new_when_no_provider()
     {
         var options = new DbContextOptionsBuilder()

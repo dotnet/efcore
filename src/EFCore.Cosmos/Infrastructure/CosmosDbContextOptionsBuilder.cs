@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Net;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -50,7 +51,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// <param name="getExecutionStrategy">A function that returns a new instance of an execution strategy.</param>
     public virtual CosmosDbContextOptionsBuilder ExecutionStrategy(
         Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
-        => WithOption(e => e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+        => WithOption(e => e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy)));
 
     /// <summary>
     ///     Configures the context to use the provided geo-replicated region.
@@ -61,7 +62,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="region">Azure Cosmos DB region name.</param>
     public virtual CosmosDbContextOptionsBuilder Region(string region)
-        => WithOption(e => e.WithRegion(Check.NotNull(region, nameof(region))));
+        => WithOption(e => e.WithRegion(Check.NotNull(region)));
 
     /// <summary>
     ///     Configures the context to use the provided preferred regions for geo-replicated database accounts.
@@ -72,7 +73,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="regions">A list of Azure Cosmos DB region names.</param>
     public virtual CosmosDbContextOptionsBuilder PreferredRegions(IReadOnlyList<string> regions)
-        => WithOption(e => e.WithPreferredRegions(Check.NotNull(regions, nameof(regions))));
+        => WithOption(e => e.WithPreferredRegions(Check.NotNull(regions)));
 
     /// <summary>
     ///     Limits the operations to the provided endpoint.
@@ -83,7 +84,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="enable"><see langword="true" /> to limit the operations to the provided endpoint.</param>
     public virtual CosmosDbContextOptionsBuilder LimitToEndpoint(bool enable = true)
-        => WithOption(e => e.WithLimitToEndpoint(Check.NotNull(enable, nameof(enable))));
+        => WithOption(e => e.WithLimitToEndpoint(Check.NotNull(enable)));
 
     /// <summary>
     ///     Configures the context to use a specific <see cref="HttpClient" /> factory.
@@ -103,7 +104,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="httpClientFactory">A function that returns an <see cref="HttpClient" />.</param>
     public virtual CosmosDbContextOptionsBuilder HttpClientFactory(Func<HttpClient>? httpClientFactory)
-        => WithOption(e => e.WithHttpClientFactory(Check.NotNull(httpClientFactory, nameof(httpClientFactory))));
+        => WithOption(e => e.WithHttpClientFactory(Check.NotNull(httpClientFactory)));
 
     /// <summary>
     ///     Configures the context to use the provided connection mode.
@@ -114,7 +115,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="connectionMode">Azure Cosmos DB connection mode.</param>
     public virtual CosmosDbContextOptionsBuilder ConnectionMode(ConnectionMode connectionMode)
-        => WithOption(e => e.WithConnectionMode(Check.NotNull(connectionMode, nameof(connectionMode))));
+        => WithOption(e => e.WithConnectionMode(Check.NotNull(connectionMode)));
 
     /// <summary>
     ///     Configures the proxy information used for web requests.
@@ -125,7 +126,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="proxy">The proxy information used for web requests.</param>
     public virtual CosmosDbContextOptionsBuilder WebProxy(IWebProxy proxy)
-        => WithOption(e => e.WithWebProxy(Check.NotNull(proxy, nameof(proxy))));
+        => WithOption(e => e.WithWebProxy(Check.NotNull(proxy)));
 
     /// <summary>
     ///     Configures the timeout when connecting to the Azure Cosmos DB service.
@@ -137,7 +138,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="timeout">Request timeout.</param>
     public virtual CosmosDbContextOptionsBuilder RequestTimeout(TimeSpan timeout)
-        => WithOption(e => e.WithRequestTimeout(Check.NotNull(timeout, nameof(timeout))));
+        => WithOption(e => e.WithRequestTimeout(Check.NotNull(timeout)));
 
     /// <summary>
     ///     Configures the amount of time allowed for trying to establish a connection.
@@ -148,7 +149,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="timeout">Open TCP connection timeout.</param>
     public virtual CosmosDbContextOptionsBuilder OpenTcpConnectionTimeout(TimeSpan timeout)
-        => WithOption(e => e.WithOpenTcpConnectionTimeout(Check.NotNull(timeout, nameof(timeout))));
+        => WithOption(e => e.WithOpenTcpConnectionTimeout(Check.NotNull(timeout)));
 
     /// <summary>
     ///     Configures the amount of idle time after which unused connections are closed.
@@ -159,7 +160,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="timeout">Idle connection timeout.</param>
     public virtual CosmosDbContextOptionsBuilder IdleTcpConnectionTimeout(TimeSpan timeout)
-        => WithOption(e => e.WithIdleTcpConnectionTimeout(Check.NotNull(timeout, nameof(timeout))));
+        => WithOption(e => e.WithIdleTcpConnectionTimeout(Check.NotNull(timeout)));
 
     /// <summary>
     ///     Configures the maximum number of concurrent connections allowed for the target service endpoint
@@ -171,7 +172,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="connectionLimit">The maximum number of concurrent connections allowed.</param>
     public virtual CosmosDbContextOptionsBuilder GatewayModeMaxConnectionLimit(int connectionLimit)
-        => WithOption(e => e.WithGatewayModeMaxConnectionLimit(Check.NotNull(connectionLimit, nameof(connectionLimit))));
+        => WithOption(e => e.WithGatewayModeMaxConnectionLimit(Check.NotNull(connectionLimit)));
 
     /// <summary>
     ///     Configures the maximum number of TCP connections that may be opened to each Cosmos DB back-end.
@@ -184,7 +185,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="connectionLimit">The maximum number of TCP connections that may be opened to each Cosmos DB back-end.</param>
     public virtual CosmosDbContextOptionsBuilder MaxTcpConnectionsPerEndpoint(int connectionLimit)
-        => WithOption(e => e.WithMaxTcpConnectionsPerEndpoint(Check.NotNull(connectionLimit, nameof(connectionLimit))));
+        => WithOption(e => e.WithMaxTcpConnectionsPerEndpoint(Check.NotNull(connectionLimit)));
 
     /// <summary>
     ///     Configures the number of requests allowed simultaneously over a single TCP connection.
@@ -196,7 +197,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="requestLimit">The number of requests allowed simultaneously over a single TCP connection.</param>
     public virtual CosmosDbContextOptionsBuilder MaxRequestsPerTcpConnection(int requestLimit)
-        => WithOption(e => e.WithMaxRequestsPerTcpConnection(Check.NotNull(requestLimit, nameof(requestLimit))));
+        => WithOption(e => e.WithMaxRequestsPerTcpConnection(Check.NotNull(requestLimit)));
 
     /// <summary>
     ///     Sets the boolean to only return the headers and status code in the Cosmos DB response for write item operation
@@ -204,12 +205,46 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     ///     This reduces networking and CPU load by not sending the resource back over the network and serializing it on the client.
     /// </summary>
     /// <remarks>
+    ///     The EntityFrameworkCore default is <see langword="false" /> since 11.0.
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="enabled"><see langword="false" /> to have null resource</param>
+    [Obsolete("Enabling ContentResponseOnWrite currently has no benefit for EF Core.")]
     public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = true)
-        => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled, nameof(enabled))));
+        => WithOption(e => e.ContentResponseOnWriteEnabled(enabled));
+
+    /// <summary>
+    ///     Sets the <see cref="Cosmos.Infrastructure.SessionTokenManagementMode"/> to use.
+    ///     By default, <see cref="SessionTokenManagementMode.FullyAutomatic"/> will be used.
+    ///     Any other mode is only relevant when your application needs to manage session tokens manually.
+    ///     For example: If you're using a round-robin load balancer that doesn't maintain session affinity between requests.
+    ///     Manual session token management can break session consistency when not handled properly.
+    ///     See <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-manage-consistency?tabs=portal%2Cdotnetv2%2Capi-async#utilize-session-tokens">Utilize session tokens</see> for more details.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="mode">The <see cref="Cosmos.Infrastructure.SessionTokenManagementMode"/> to use.</param>
+    public virtual CosmosDbContextOptionsBuilder SessionTokenManagementMode(SessionTokenManagementMode mode)
+        => WithOption(e => e.WithSessionTokenManagementMode(mode));
+
+    /// <summary>
+    ///     Sets the boolean to enable the <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/bulk-executor-overview">Cosmos DB SDK bulk execution feature</see>.
+    ///     Enabling this feature can improve throughput for small write operations but may increase latency.
+    ///     It is recommended only for high-throughput, non-latency-sensitive scenarios.
+    ///     Because <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/transactional-batch">Transactional Batches</see> cannot be executed in bulk mode,
+    ///     any operations batched by EF will not use bulk execution. To ensure operations are executed in bulk, consider disabling batching by setting <see cref="AutoTransactionBehavior.Never"/>.
+    ///     For more information, see <see href="https://learn.microsoft.com/en-us/ef/core/providers/cosmos/saving">Saving Data - Azure Cosmos DB Provider</see>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="enabled"><see langword="true" /> to enable the Cosmos DB SDK bulk feature.</param>
+    public virtual CosmosDbContextOptionsBuilder BulkExecutionAllowed(bool enabled = true)
+        => WithOption(e => e.BulkExecutionAllowed(enabled));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

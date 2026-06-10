@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : OverzealousInitializationTestBase<TFixture>.OverzealousInitializationFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Fixup_ignores_eagerly_initialized_reference_navs()
     {
         using var context = CreateContext();
@@ -33,7 +33,7 @@ public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixtu
 
     private static readonly Artist[] _artists =
     [
-        new Artist { Id = 1, Name = "Freddie" }, new Artist { Id = 2, Name = "Kendrick" }, new Artist { Id = 3, Name = "Jarvis" }
+        new() { Id = 1, Name = "Freddie" }, new() { Id = 2, Name = "Kendrick" }, new() { Id = 3, Name = "Jarvis" }
     ];
 
     protected class Album

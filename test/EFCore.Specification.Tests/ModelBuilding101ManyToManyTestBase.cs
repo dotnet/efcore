@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ModelBuilding101TestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void BasicManyToManyTest()
         => Model101Test();
 
@@ -56,7 +56,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UnidirectionalManyToManyTest()
         => Model101Test();
 
@@ -103,7 +103,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyNamedJoinTableTest()
         => Model101Test();
 
@@ -150,7 +150,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyNamedForeignKeyColumnsTest()
         => Model101Test();
 
@@ -199,7 +199,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithJoinClassTest()
         => Model101Test();
 
@@ -262,7 +262,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithNavsToJoinClassTest()
         => Model101Test();
 
@@ -327,7 +327,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithNavsToAndFromJoinClassTest()
         => Model101Test();
 
@@ -394,7 +394,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithNamedFksAndNavsToAndFromJoinClassTest()
         => Model101Test();
 
@@ -454,7 +454,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyAlternateKeysTest()
         => Model101Test();
 
@@ -506,7 +506,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithNavsAndAlternateKeysTest()
         => Model101Test();
 
@@ -568,7 +568,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithJoinClassHavingPrimaryKeyTest()
         => Model101Test();
 
@@ -621,7 +621,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithPrimaryKeyInJoinEntityTest()
         => Model101Test();
 
@@ -651,12 +651,11 @@ public abstract partial class ModelBuilding101TestBase
                 => modelBuilder.Entity<Post>()
                     .HasMany(e => e.Tags)
                     .WithMany(e => e.Posts)
-                    .UsingEntity(
-                        j =>
-                        {
-                            j.IndexerProperty<int>("Id");
-                            j.HasKey("Id");
-                        });
+                    .UsingEntity(j =>
+                    {
+                        j.IndexerProperty<int>("Id");
+                        j.HasKey("Id");
+                    });
         }
 
         public class Context1 : Context0
@@ -677,7 +676,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithPayloadAndNavsToJoinClassTest()
         => Model101Test();
 
@@ -735,7 +734,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithPayloadAndNavsToJoinClassShadowFKsTest()
         => Model101Test();
 
@@ -790,7 +789,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithNoCascadeDeleteTest()
         => Model101Test();
 
@@ -841,7 +840,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SelfReferencingManyToManyTest()
         => Model101Test();
 
@@ -882,7 +881,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SelfReferencingUnidirectionalManyToManyTest()
         => Model101Test();
 
@@ -919,7 +918,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ManyToManyWithCustomSharedTypeEntityTypeTest()
         => Model101Test();
 

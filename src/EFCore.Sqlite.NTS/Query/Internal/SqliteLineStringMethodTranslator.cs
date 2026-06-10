@@ -44,13 +44,12 @@ public class SqliteLineStringMethodTranslator : IMethodCallTranslator
         {
             return _sqlExpressionFactory.Function(
                 "PointN",
-                new[]
-                {
+                [
                     instance!,
                     _sqlExpressionFactory.Add(
                         arguments[0],
                         _sqlExpressionFactory.Constant(1))
-                },
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType);

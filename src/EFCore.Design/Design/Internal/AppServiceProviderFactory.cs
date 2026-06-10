@@ -89,4 +89,30 @@ public class AppServiceProviderFactory
 
         return new ServiceCollection().BuildServiceProvider();
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void SetEnvironment(IOperationReporter reporter)
+    {
+        var aspnetCoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        var dotnetEnvironment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+        var environment = aspnetCoreEnvironment
+            ?? dotnetEnvironment
+            ?? "Development";
+        if (aspnetCoreEnvironment == null)
+        {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
+        }
+
+        if (dotnetEnvironment == null)
+        {
+            Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", environment);
+        }
+
+        reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
+    }
 }

@@ -17,6 +17,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     private DeleteBehavior? _deleteBehavior;
     private bool? _isUnique;
     private bool _isRequired;
+    private bool _isConstrained;
     private bool? _isRequiredDependent;
     private bool? _isOwnership;
     private InternalForeignKeyBuilder? _builder;
@@ -26,14 +27,13 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     private ConfigurationSource? _principalKeyConfigurationSource;
     private ConfigurationSource? _isUniqueConfigurationSource;
     private ConfigurationSource? _isRequiredConfigurationSource;
+    private ConfigurationSource? _isConstrainedConfigurationSource;
     private ConfigurationSource? _isRequiredDependentConfigurationSource;
     private ConfigurationSource? _deleteBehaviorConfigurationSource;
     private ConfigurationSource? _principalEndConfigurationSource;
     private ConfigurationSource? _isOwnershipConfigurationSource;
     private ConfigurationSource? _dependentToPrincipalConfigurationSource;
     private ConfigurationSource? _principalToDependentConfigurationSource;
-    private IDependentKeyValueFactory? _dependentKeyValueFactory;
-    private Func<IDependentsMap>? _dependentsMapFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,6 +64,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         PrincipalEntityType = principalEntityType;
         _configurationSource = configurationSource;
         _isRequired = DefaultIsRequired;
+        _isConstrained = DefaultIsConstrained;
 
         if (principalEntityType.FindKey(principalKey.Properties) != principalKey)
         {
@@ -131,7 +132,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     /// </summary>
     public virtual bool IsInModel
         => _builder is not null
-            && DeclaringEntityType.IsInModel;
+            && DeclaringEntityType.IsInModel
+            && PrincipalEntityType.IsInModel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -715,6 +717,53 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool IsConstrained
+    {
+        get => _isConstrained;
+        set => SetIsConstrained(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? SetIsConstrained(bool? constrained, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        var oldConstrained = IsConstrained;
+        _isConstrained = constrained ?? DefaultIsConstrained;
+
+        _isConstrainedConfigurationSource = constrained == null
+            ? null
+            : configurationSource.Max(_isConstrainedConfigurationSource);
+
+        return IsConstrained != oldConstrained
+            ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyConstrainednessChanged(Builder)
+            : oldConstrained;
+    }
+
+    private static bool DefaultIsConstrained
+        => true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual ConfigurationSource? GetIsConstrainedConfigurationSource()
+        => _isConstrainedConfigurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual bool IsRequiredDependent
     {
         get => _isRequiredDependent ?? DefaultIsRequiredDependent;
@@ -944,23 +993,26 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual IDependentKeyValueFactory DependentKeyValueFactory
     {
         get
         {
-            if (_dependentKeyValueFactory == null)
+            if (field == null)
             {
                 EnsureReadOnly();
+                // The principal key value factory creates the dependent key value factory
+                _ = ((IKey)PrincipalKey).GetPrincipalKeyValueFactory();
             }
 
-            return _dependentKeyValueFactory!;
+            return field!;
         }
 
         set
         {
             EnsureReadOnly();
 
-            _dependentKeyValueFactory = value;
+            field = value;
         }
     }
 
@@ -971,23 +1023,24 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual Func<IDependentsMap> DependentsMapFactory
     {
         get
         {
-            if (_dependentsMapFactory == null)
+            if (field == null)
             {
                 EnsureReadOnly();
             }
 
-            return _dependentsMapFactory!;
+            return field!;
         }
 
         set
         {
             EnsureReadOnly();
 
-            _dependentsMapFactory = value;
+            field = value;
         }
     }
 
@@ -1085,8 +1138,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         bool? unique,
         bool shouldThrow)
     {
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
-        Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+        Check.NotNull(principalEntityType);
+        Check.NotNull(dependentEntityType);
 
         if (navigationToPrincipal != null
             && !Internal.Navigation.IsCompatible(
@@ -1135,10 +1188,10 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         IReadOnlyEntityType dependentEntityType,
         bool shouldThrow)
     {
-        Check.NotNull(principalProperties, nameof(principalProperties));
-        Check.NotNull(dependentProperties, nameof(dependentProperties));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
-        Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+        Check.NotNull(principalProperties);
+        Check.NotNull(dependentProperties);
+        Check.NotNull(principalEntityType);
+        Check.NotNull(dependentEntityType);
 
         if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
         {
@@ -1592,6 +1645,12 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     [DebuggerStepThrough]
     bool? IConventionForeignKey.SetIsRequired(bool? required, bool fromDataAnnotation)
         => SetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool? IConventionForeignKey.SetIsConstrained(bool? constrained, bool fromDataAnnotation)
+        => SetIsConstrained(
+            constrained, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

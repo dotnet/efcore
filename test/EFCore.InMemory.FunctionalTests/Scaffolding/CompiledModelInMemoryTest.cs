@@ -8,6 +8,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,9 +18,9 @@ public class GlobalNamespaceContext(DbContextOptions<GlobalNamespaceContext> opt
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
-    public class CompiledModelInMemoryTest : CompiledModelTestBase
+    public class CompiledModelInMemoryTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual Task Empty_model()
             => Test(
                 modelBuilder => { },
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     Assert.Same(model, model.FindRuntimeAnnotationValue("ReadOnlyModel"));
                 });
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Global_namespace()
             => Test<GlobalNamespaceContext>(
                 modelBuilder => modelBuilder.Entity(
@@ -44,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 },
                 options: new CompiledModelCodeGenerationOptions { ModelNamespace = string.Empty, ForNativeAot = true });
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Self_referential_property()
             => Test(
                 modelBuilder =>
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         public class SelfReferentialProperty : List<SelfReferentialProperty>;
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Throws_for_constructor_binding()
             => Test(
                 modelBuilder => modelBuilder.Entity(
@@ -101,24 +102,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     }),
                 expectedExceptionMessage: DesignStrings.CompiledModelConstructorBinding("Lazy", "Customize()", "LazyEntityType"));
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Manual_lazy_loading()
             => Test(
                 modelBuilder =>
                 {
                     modelBuilder.Entity<LazyConstructorEntity>();
 
-                    modelBuilder.Entity<LazyPropertyDelegateEntity>(
-                        b =>
-                        {
-                            var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
-                                typeof(LazyPropertyDelegateEntity).GetRuntimeProperties().Single(p => p.Name == "LoaderState"),
-                                typeof(ILazyLoader));
+                    modelBuilder.Entity<LazyPropertyDelegateEntity>(b =>
+                    {
+                        var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
+                            typeof(LazyPropertyDelegateEntity).GetRuntimeProperties().Single(p => p.Name == "LoaderState"),
+                            typeof(ILazyLoader));
 
-                            serviceProperty.SetParameterBinding(
-                                new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
-                                ConfigurationSource.Explicit);
-                        });
+                        serviceProperty.SetParameterBinding(
+                            new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
+                            ConfigurationSource.Explicit);
+                    });
                 },
                 model =>
                 {
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             public LazyConstructorEntity? LazyConstructorEntity { get; set; }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Lazy_loading_proxies()
             => Test(
                 modelBuilder => modelBuilder.Entity<LazyProxiesEntity1>(),
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true },
                 services => services.AddEntityFrameworkProxies());
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Lazy_loading_manual()
             => Test(
                 b =>
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Throws_for_query_filter()
             => Test(
                 modelBuilder => modelBuilder.Entity(
@@ -304,10 +304,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     }),
                 expectedExceptionMessage: DesignStrings.CompiledModelQueryFilter("QueryFilter"));
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Throws_for_defining_query()
             => Test<DefiningQueryContext>(
-                expectedExceptionMessage: DesignStrings.CompiledModelDefiningQuery("object"));
+                expectedExceptionMessage: InMemoryStrings.CompiledModelDefiningQuery("object"));
 
         public class DefiningQueryContext(DbContextOptions<DefiningQueryContext> options) : DbContext(options)
         {
@@ -315,17 +315,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<object>(
-                    e =>
-                    {
-                        e.Property<int>("Id");
-                        e.HasKey("Id");
-                        e.Metadata.SetInMemoryQuery(() => (IQueryable<object>)Set<object>());
-                    });
+                modelBuilder.Entity<object>(e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.Metadata.SetInMemoryQuery(() => (IQueryable<object>)Set<object>());
+                });
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Throws_for_value_generator()
             => Test(
                 modelBuilder => modelBuilder.Entity(
@@ -337,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 expectedExceptionMessage: DesignStrings.CompiledModelValueGenerator(
                     "MyEntity", "Id", nameof(PropertyBuilder.HasValueGeneratorFactory)));
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Custom_value_converter()
             => Test(
                 modelBuilder => modelBuilder.Entity(
@@ -357,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 },
                 options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Custom_value_comparer()
             => Test(
                 modelBuilder => modelBuilder.Entity(
@@ -391,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 => throw new NotImplementedException();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Custom_provider_value_comparer()
             => Test(
                 modelBuilder => modelBuilder.Entity(
@@ -412,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         && ((int)constant.Value!) == 1);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Custom_type_mapping()
             => Test(
                 modelBuilder => modelBuilder.Entity(
@@ -431,18 +430,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     Assert.IsType<JsonInt32ReaderWriter>(typeMapping.JsonValueReaderWriter);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task Fully_qualified_model()
             => Test<DbContext>(
                 modelBuilder =>
                 {
                     modelBuilder.Entity<Index>();
                     modelBuilder.Entity<TestModels.AspNetIdentity.IdentityUser>();
-                    modelBuilder.Entity<IdentityUser>(
-                        eb =>
-                        {
-                            eb.HasDiscriminator().HasValue("DerivedIdentityUser");
-                        });
+                    modelBuilder.Entity<IdentityUser>(eb =>
+                    {
+                        eb.HasDiscriminator().HasValue("DerivedIdentityUser");
+                    });
                     modelBuilder.Entity<Scaffolding>();
                 },
                 assertModel: model =>
@@ -453,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 options: new CompiledModelCodeGenerationOptions { ModelNamespace = "Scaffolding", ForNativeAot = true },
                 addDesignTimeServices: services => services.AddSingleton<ICSharpHelper, FullyQualifiedCSharpHelper>());
 
-        [ConditionalFact]
+        [Fact]
         public virtual Task RelationshipCycles()
             => Test(
                 BuildCyclesModel,
@@ -464,29 +462,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             modelBuilder.Ignore<OwnedType>();
 
-            modelBuilder.Entity<DependentBase<long?>>(
-                eb =>
-                {
-                    eb.Property<long?>("Id");
+            modelBuilder.Entity<DependentBase<long?>>(eb =>
+            {
+                eb.Property<long?>("Id");
 
-                    eb.HasOne<PrincipalBase>().WithOne()
-                        .HasPrincipalKey<DependentBase<long?>>("PrincipalId")
-                        .HasForeignKey<PrincipalBase>(e => e.Id);
-                });
+                eb.HasOne<PrincipalBase>().WithOne()
+                    .HasPrincipalKey<DependentBase<long?>>("PrincipalId")
+                    .HasForeignKey<PrincipalBase>(e => e.Id);
+            });
 
-            modelBuilder.Entity<PrincipalDerived<DependentBase<long?>>>(
-                eb =>
-                {
-                    eb.Ignore(d => d.Principals);
-                    eb.HasOne<PrincipalBase>()
-                        .WithMany(e => (ICollection<PrincipalDerived<DependentBase<long?>>>)e.Deriveds)
-                        .HasPrincipalKey(e => e.Id)
-                        .HasForeignKey("PrincipalId");
+            modelBuilder.Entity<PrincipalDerived<DependentBase<long?>>>(eb =>
+            {
+                eb.Ignore(d => d.Principals);
+                eb.HasOne<PrincipalBase>()
+                    .WithMany(e => (ICollection<PrincipalDerived<DependentBase<long?>>>)e.Deriveds)
+                    .HasPrincipalKey(e => e.Id)
+                    .HasForeignKey("PrincipalId");
 
-                    eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
-                        .HasForeignKey<DependentBase<long?>>("PrincipalId")
-                        .HasPrincipalKey<PrincipalDerived<DependentBase<long?>>>("PrincipalId");
-                });
+                eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
+                    .HasForeignKey<DependentBase<long?>>("PrincipalId")
+                    .HasPrincipalKey<PrincipalDerived<DependentBase<long?>>>("PrincipalId");
+            });
         }
 
         protected virtual void AssertCyclesModel(IModel model)
@@ -506,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             TestHelpers.ModelAsserter.AssertEqual(principalBaseFk.PrincipalKey.Properties, dependentFk.Properties);
         }
 
-        [ConditionalFact(Skip = "Primitive collections not supported completely")]
+        //[Fact(Skip = "Primitive collections not supported completely")]
         public override Task BigModel()
             => base.BigModel();
 
@@ -531,11 +527,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         protected override TestHelpers TestHelpers
             => InMemoryTestHelpers.Instance;
 
-        protected override ITestStoreFactory TestStoreFactory
+        protected override ITestStoreFactory NonSharedTestStoreFactory
             => InMemoryTestStoreFactory.Instance;
 
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder)
+        protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+            => base.AddNonSharedOptions(builder)
                 .ConfigureWarnings(w => w.Ignore(CoreEventId.CollectionWithoutComparer));
 
         protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")

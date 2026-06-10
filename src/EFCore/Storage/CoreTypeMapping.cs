@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -203,11 +202,6 @@ public abstract class CoreTypeMapping
         {
             _providerValueComparer = parameters.ProviderValueComparer;
         }
-
-#pragma warning disable CS0612 // Type or member is obsolete
-        ValueGeneratorFactory = parameters.ValueGeneratorFactory
-            ?? converter?.MappingHints?.ValueGeneratorFactory;
-#pragma warning restore CS0612 // Type or member is obsolete
     }
 
     /// <summary>
@@ -230,13 +224,6 @@ public abstract class CoreTypeMapping
     /// </summary>
     public virtual ValueConverter? Converter
         => Parameters.Converter;
-
-    /// <summary>
-    ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
-    ///     this mapping.
-    /// </summary>
-    [Obsolete]
-    public virtual Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
 
     /// <summary>
     ///     A <see cref="ValueComparer" /> adds custom value snapshotting and comparison for

@@ -7,9 +7,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
+public class TableSplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : TableSplittingTestBase(fixture, testOutputHelper)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     public override async Task Can_use_with_redundant_relationships()

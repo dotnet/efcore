@@ -50,8 +50,8 @@ public class OperationExecutor : MarshalByRefObject
     /// <param name="args">The executor arguments.</param>
     public OperationExecutor(IOperationReportHandler reportHandler, IDictionary args)
     {
-        Check.NotNull(reportHandler, nameof(reportHandler));
-        Check.NotNull(args, nameof(args));
+        Check.NotNull(reportHandler);
+        Check.NotNull(args);
 
         _reporter = new OperationReporter(reportHandler);
         _targetAssemblyName = (string)args["targetName"]!;
@@ -173,8 +173,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var name = (string)args["name"]!;
             var outputDir = (string?)args["outputDir"];
@@ -193,7 +193,7 @@ public class OperationExecutor : MarshalByRefObject
         string? @namespace,
         bool dryRun)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var files = MigrationsOperations.AddMigration(name, outputDir, contextType, @namespace, dryRun);
         return new Hashtable
@@ -215,6 +215,11 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -225,17 +230,18 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
-            Execute(() => executor.GetContextInfoImpl(contextType));
+            var connectionString = (string?)args["connectionString"];
+            Execute(() => executor.GetContextInfoImpl(contextType, connectionString));
         }
     }
 
-    private IDictionary GetContextInfoImpl(string? contextType)
+    private IDictionary GetContextInfoImpl(string? contextType, string? connectionString)
     {
-        var info = ContextOperations.GetContextInfo(contextType);
+        var info = ContextOperations.GetContextInfo(contextType, connectionString);
         return new Hashtable
         {
             ["Type"] = info.Type,
@@ -276,8 +282,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var targetMigration = (string?)args["targetMigration"];
             var connectionString = (string?)args["connectionString"];
@@ -292,6 +298,64 @@ public class OperationExecutor : MarshalByRefObject
         string? connectionString,
         string? contextType)
         => MigrationsOperations.UpdateDatabase(targetMigration, connectionString, contextType);
+
+    /// <summary>
+    ///     Represents an operation to add and apply a new migration in one step.
+    /// </summary>
+    public class AddAndApplyMigration : OperationBase
+    {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="AddAndApplyMigration" /> class.
+        /// </summary>
+        /// <remarks>
+        ///     <para>The arguments supported by <paramref name="args" /> are:</para>
+        ///     <para><c>name</c>--The name of the migration.</para>
+        ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
+        ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+        ///     <para><c>namespace</c>--The namespace to use for the migration.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
+        /// </remarks>
+        /// <param name="executor">The operation executor.</param>
+        /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+        /// <param name="args">The operation arguments.</param>
+        public AddAndApplyMigration(
+            OperationExecutor executor,
+            IOperationResultHandler resultHandler,
+            IDictionary args)
+            : base(resultHandler)
+        {
+            Check.NotNull(executor);
+            Check.NotNull(args);
+
+            var name = (string)args["name"]!;
+            var outputDir = (string?)args["outputDir"];
+            var contextType = (string?)args["contextType"];
+            var @namespace = (string?)args["namespace"];
+            var connectionString = (string?)args["connectionString"];
+
+            Execute(() => executor.AddAndApplyMigrationImpl(name, outputDir, contextType, @namespace, connectionString));
+        }
+    }
+
+    private IDictionary AddAndApplyMigrationImpl(
+        string name,
+        string? outputDir,
+        string? contextType,
+        string? @namespace,
+        string? connectionString)
+    {
+        var files = MigrationsOperations.AddAndApplyMigration(name, outputDir, contextType, @namespace, connectionString);
+        return new Hashtable
+        {
+            ["MigrationFile"] = files.MigrationFile,
+            ["MetadataFile"] = files.MetadataFile,
+            ["SnapshotFile"] = files.SnapshotFile
+        };
+    }
 
     /// <summary>
     ///     Represents an operation to generate a SQL script from migrations.
@@ -318,8 +382,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var fromMigration = (string?)args["fromMigration"];
             var toMigration = (string?)args["toMigration"];
@@ -367,7 +431,13 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-        ///     <para><c>force</c>--Don't check to see if the migration has been applied to the database.</para>
+        ///     <para><c>force</c>--Revert the migration if it has been applied to the database.</para>
+        ///     <para><c>offline</c>--Remove the migration without connecting to the database.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -378,20 +448,22 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
             var force = (bool)args["force"]!;
+            var offline = (bool?)args["offline"];
             var dryRun = (bool?)args["dryRun"]!;
+            var connectionString = (string?)args["connectionString"];
 
-            Execute(() => executor.RemoveMigrationImpl(contextType, force, dryRun == true));
+            Execute(() => executor.RemoveMigrationImpl(contextType, force, offline == true, dryRun == true, connectionString));
         }
     }
 
-    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool dryRun)
+    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool offline, bool dryRun, string? connectionString)
     {
-        var files = MigrationsOperations.RemoveMigration(contextType, force, dryRun);
+        var files = MigrationsOperations.RemoveMigration(contextType, force, offline, dryRun, connectionString);
 
         return new Hashtable
         {
@@ -421,8 +493,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             Execute(executor.GetContextTypesImpl);
         }
@@ -434,18 +506,17 @@ public class OperationExecutor : MarshalByRefObject
         var nameGroups = contextTypes.GroupBy(t => t.Name).ToList();
         var fullNameGroups = contextTypes.GroupBy(t => t.FullName).ToList();
 
-        return contextTypes.Select(
-            t => new Hashtable
-            {
-                ["AssemblyQualifiedName"] = t.AssemblyQualifiedName,
-                ["FullName"] = t.FullName,
-                ["Name"] = t.Name,
-                ["SafeName"] = nameGroups.Count(g => g.Key == t.Name) == 1
-                    ? t.Name
-                    : fullNameGroups.Count(g => g.Key == t.FullName) == 1
-                        ? t.FullName
-                        : t.AssemblyQualifiedName
-            });
+        return contextTypes.Select(t => new Hashtable
+        {
+            ["AssemblyQualifiedName"] = t.AssemblyQualifiedName,
+            ["FullName"] = t.FullName,
+            ["Name"] = t.Name,
+            ["SafeName"] = nameGroups.Count(g => g.Key == t.Name) == 1
+                ? t.Name
+                : fullNameGroups.Count(g => g.Key == t.FullName) == 1
+                    ? t.FullName
+                    : t.AssemblyQualifiedName
+        });
     }
 
     /// <summary>
@@ -475,8 +546,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
             var connectionString = (string?)args["connectionString"];
@@ -494,16 +565,15 @@ public class OperationExecutor : MarshalByRefObject
         var migrations = MigrationsOperations.GetMigrations(contextType, connectionString, noConnect).ToList();
         var nameGroups = migrations.GroupBy(m => m.Name).ToList();
 
-        return migrations.Select(
-            m => new Hashtable
-            {
-                ["Id"] = m.Id,
-                ["Name"] = m.Name,
-                ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
-                    ? m.Name
-                    : m.Id,
-                ["Applied"] = m.Applied
-            });
+        return migrations.Select(m => new Hashtable
+        {
+            ["Id"] = m.Id,
+            ["Name"] = m.Name,
+            ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
+                ? m.Name
+                : m.Id,
+            ["Applied"] = m.Applied
+        });
     }
 
     /// <summary>
@@ -532,8 +602,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var outputDir = (string?)args["outputDir"];
             var modelNamespace = (string?)args["modelNamespace"];
@@ -543,15 +613,14 @@ public class OperationExecutor : MarshalByRefObject
             var precompileQueries = (bool)(args["precompileQueries"] ?? false);
             var nativeAot = (bool)(args["nativeAot"] ?? false);
 
-            Execute(
-                () => executor.OptimizeContextImpl(
-                    outputDir,
-                    modelNamespace,
-                    contextType,
-                    suffix,
-                    scaffoldModel,
-                    precompileQueries,
-                    nativeAot));
+            Execute(() => executor.OptimizeContextImpl(
+                outputDir,
+                modelNamespace,
+                contextType,
+                suffix,
+                scaffoldModel,
+                precompileQueries,
+                nativeAot));
         }
     }
 
@@ -598,8 +667,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var connectionString = (string)args["connectionString"]!;
             var provider = (string)args["provider"]!;
@@ -616,11 +685,10 @@ public class OperationExecutor : MarshalByRefObject
             var suppressOnConfiguring = (bool)(args["suppressOnConfiguring"] ?? false);
             var noPluralize = (bool)(args["noPluralize"] ?? false);
 
-            Execute(
-                () => executor.ScaffoldContextImpl(
-                    provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                    schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
-                    overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize));
+            Execute(() => executor.ScaffoldContextImpl(
+                provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
+                schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
+                overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize));
         }
     }
 
@@ -640,10 +708,10 @@ public class OperationExecutor : MarshalByRefObject
         bool suppressOnConfiguring,
         bool noPluralize)
     {
-        Check.NotNull(provider, nameof(provider));
-        Check.NotNull(connectionString, nameof(connectionString));
-        Check.NotNull(schemaFilters, nameof(schemaFilters));
-        Check.NotNull(tableFilters, nameof(tableFilters));
+        Check.NotNull(provider);
+        Check.NotNull(connectionString);
+        Check.NotNull(schemaFilters);
+        Check.NotNull(tableFilters);
 
         var files = DatabaseOperations.ScaffoldContext(
             provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
@@ -664,6 +732,11 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -674,17 +747,18 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
+            var connectionString = (string?)args["connectionString"];
 
-            Execute(() => executor.DropDatabaseImpl(contextType));
+            Execute(() => executor.DropDatabaseImpl(contextType, connectionString));
         }
     }
 
-    private void DropDatabaseImpl(string? contextType)
-        => ContextOperations.DropDatabase(contextType);
+    private void DropDatabaseImpl(string? contextType, string? connectionString)
+        => ContextOperations.DropDatabase(contextType, connectionString);
 
     /// <summary>
     ///     Represents an operation to generate a SQL script from the DbContext.
@@ -707,8 +781,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
 
@@ -740,8 +814,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
 

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ModelBuilding101TestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNrtTest()
         => Model101Test();
 
@@ -84,9 +84,7 @@ public abstract partial class ModelBuilding101TestBase
                 [ForeignKey("Blog")]
                 public int BlogId { get; set; }
 
-                [InverseProperty("Posts")]
-                [Required]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Posts"), Required, ForeignKey("BlogId")]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -98,7 +96,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNrtTest()
         => Model101Test();
 
@@ -173,8 +171,7 @@ public abstract partial class ModelBuilding101TestBase
                 [ForeignKey("Blog")]
                 public int? BlogId { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Posts"), ForeignKey("BlogId")]
                 public Blog? Blog { get; set; }
             }
 
@@ -186,7 +183,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkNrtTest()
         => Model101Test();
 
@@ -257,9 +254,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
-                [Required]
+                [InverseProperty("Posts"), ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -271,7 +266,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkNrtTest()
         => Model101Test();
 
@@ -342,8 +337,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Posts"), ForeignKey("BlogId")]
                 public Blog? Blog { get; set; }
             }
 
@@ -355,7 +349,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -436,7 +430,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -515,7 +509,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -570,7 +564,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -647,7 +641,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -715,12 +709,10 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Blog")]
-                [Required]
+                [ForeignKey("Blog"), Required]
                 public int BlogId { get; set; }
 
-                [ForeignKey("BlogId")]
-                [Required]
+                [ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -732,7 +724,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -815,7 +807,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -882,8 +874,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("BlogId")]
-                [Required]
+                [ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -895,7 +886,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -974,7 +965,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1055,7 +1046,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1134,7 +1125,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1188,7 +1179,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1241,7 +1232,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithAlternateKeyNrtTest()
         => Model101Test();
 
@@ -1313,13 +1304,10 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Blog")]
-                [Required]
+                [ForeignKey("Blog"), Required]
                 public int BlogId { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
-                [Required]
+                [InverseProperty("Posts"), ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -1337,7 +1325,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1412,8 +1400,7 @@ public abstract partial class ModelBuilding101TestBase
                 [ForeignKey("Blog")]
                 public int? BlogId { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Posts"), ForeignKey("BlogId")]
                 public Blog? Blog { get; set; }
             }
 
@@ -1431,7 +1418,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30344
 
@@ -1502,9 +1489,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
-                [Required]
+                [InverseProperty("Posts"), ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -1522,7 +1507,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1593,8 +1578,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Posts"), ForeignKey("BlogId")]
                 public Blog? Blog { get; set; }
             }
 
@@ -1612,7 +1596,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1649,30 +1633,28 @@ public abstract partial class ModelBuilding101TestBase
         public class Context1 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    nestedBuilder =>
-                    {
-                        nestedBuilder.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(nestedBuilder =>
+                {
+                    nestedBuilder.HasKey(e => new { e.Id1, e.Id2 });
 
-                        nestedBuilder.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog);
-                    });
+                    nestedBuilder.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog);
+                });
         }
 
         public class Context2 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    nestedBuilder =>
-                    {
-                        nestedBuilder.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(nestedBuilder =>
+                {
+                    nestedBuilder.HasKey(e => new { e.Id1, e.Id2 });
 
-                        nestedBuilder.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey(e => new { e.BlogId1, e.BlogId2 })
-                            .IsRequired();
-                    });
+                    nestedBuilder.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey(e => new { e.BlogId1, e.BlogId2 })
+                        .IsRequired();
+                });
         }
 
         public class Context3 : Context0
@@ -1734,9 +1716,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId1 { get; set; }
                 public int BlogId2 { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId1, BlogId2")]
-                [Required]
+                [InverseProperty("Posts"), ForeignKey("BlogId1, BlogId2"), Required]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -1748,7 +1728,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1785,30 +1765,28 @@ public abstract partial class ModelBuilding101TestBase
         public class Context1 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog);
-                    });
+                    b.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog);
+                });
         }
 
         public class Context2 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey(e => new { e.BlogId1, e.BlogId2 })
-                            .IsRequired(false);
-                    });
+                    b.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey(e => new { e.BlogId1, e.BlogId2 })
+                        .IsRequired(false);
+                });
         }
 
         public class Context3 : Context0
@@ -1870,8 +1848,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId1 { get; set; }
                 public int? BlogId2 { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId1, BlogId2")]
+                [InverseProperty("Posts"), ForeignKey("BlogId1, BlogId2")]
                 public Blog? Blog { get; set; }
             }
 
@@ -1883,7 +1860,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1918,30 +1895,28 @@ public abstract partial class ModelBuilding101TestBase
         public class Context1 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog);
-                    });
+                    b.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog);
+                });
         }
 
         public class Context2 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey("BlogId1", "BlogId2")
-                            .IsRequired();
-                    });
+                    b.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey("BlogId1", "BlogId2")
+                        .IsRequired();
+                });
         }
 
         public class Context3 : Context0
@@ -1999,9 +1974,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId1, BlogId2")]
-                [Required]
+                [InverseProperty("Posts"), ForeignKey("BlogId1, BlogId2"), Required]
                 public Blog Blog { get; set; } = null!;
             }
 
@@ -2013,7 +1986,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -2048,30 +2021,28 @@ public abstract partial class ModelBuilding101TestBase
         public class Context1 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog);
-                    });
+                    b.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog);
+                });
         }
 
         public class Context2 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasMany(e => e.Posts)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey("BlogId1", "BlogId2")
-                            .IsRequired(false);
-                    });
+                    b.HasMany(e => e.Posts)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey("BlogId1", "BlogId2")
+                        .IsRequired(false);
+                });
         }
 
         public class Context3 : Context0
@@ -2129,8 +2100,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId1, BlogId2")]
+                [InverseProperty("Posts"), ForeignKey("BlogId1, BlogId2")]
                 public Blog? Blog { get; set; }
             }
 
@@ -2142,7 +2112,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManySelfReferencingNrtTest()
         => Model101Test();
 
@@ -2191,8 +2161,7 @@ public abstract partial class ModelBuilding101TestBase
                 [ForeignKey("Manager")]
                 public int? ManagerId { get; set; }
 
-                [InverseProperty("Reports")]
-                [ForeignKey("ManagerId")]
+                [InverseProperty("Reports"), ForeignKey("ManagerId")]
                 public Employee? Manager { get; set; }
 
                 [InverseProperty("Manager")]
@@ -2204,7 +2173,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithoutCascadeDeleteNrtTest()
         => Model101Test();
 
@@ -2300,14 +2269,10 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Blog")]
-                [Required]
+                [ForeignKey("Blog"), Required]
                 public int BlogId { get; set; }
 
-                [InverseProperty("Posts")]
-                [ForeignKey("BlogId")]
-                [Required]
-                [DeleteBehavior(DeleteBehavior.Restrict)]
+                [InverseProperty("Posts"), ForeignKey("BlogId"), Required, DeleteBehavior(DeleteBehavior.Restrict)]
                 public Blog Blog { get; set; } = null!;
             }
 

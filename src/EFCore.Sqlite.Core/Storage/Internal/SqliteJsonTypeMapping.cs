@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -12,19 +11,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteJsonTypeMapping : JsonTypeMapping
+public class SqliteStructuralJsonTypeMapping : StructuralJsonTypeMapping
 {
+    private static readonly MethodInfo CreateUtf8StreamMethod
+        = typeof(SqliteStructuralJsonTypeMapping).GetMethod(nameof(CreateUtf8Stream), [typeof(string)])!;
+
     private static readonly MethodInfo GetStringMethod
         = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), [typeof(int)])!;
-
-    private static readonly PropertyInfo UTF8Property
-        = typeof(Encoding).GetProperty(nameof(Encoding.UTF8))!;
-
-    private static readonly MethodInfo EncodingGetBytesMethod
-        = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
-
-    private static readonly ConstructorInfo MemoryStreamConstructor
-        = typeof(MemoryStream).GetConstructor([typeof(byte[])])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,14 +25,14 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SqliteJsonTypeMapping Default { get; } = new(SqliteTypeMappingSource.TextTypeName);
+    public static SqliteStructuralJsonTypeMapping Default { get; } = new(SqliteTypeMappingSource.TextTypeName);
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="SqliteJsonTypeMapping" /> class.
+    ///     Initializes a new instance of the <see cref="SqliteStructuralJsonTypeMapping" /> class.
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
-    public SqliteJsonTypeMapping(string storeType)
-        : base(storeType, typeof(JsonElement), System.Data.DbType.String)
+    public SqliteStructuralJsonTypeMapping(string storeType)
+        : base(storeType, typeof(JsonTypePlaceholder), System.Data.DbType.String)
     {
     }
 
@@ -49,7 +42,7 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqliteJsonTypeMapping(RelationalTypeMappingParameters parameters)
+    protected SqliteStructuralJsonTypeMapping(RelationalTypeMappingParameters parameters)
         : base(parameters)
     {
     }
@@ -69,13 +62,25 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static MemoryStream CreateUtf8Stream(string json)
+    {
+        if (json == "")
+        {
+            throw new InvalidOperationException(RelationalStrings.JsonEmptyString);
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(json);
+        return new MemoryStream(bytes, index: 0, bytes.Length, writable: false, publiclyVisible: true);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override Expression CustomizeDataReaderExpression(Expression expression)
-        => Expression.New(
-            MemoryStreamConstructor,
-            Expression.Call(
-                Expression.Property(null, UTF8Property),
-                EncodingGetBytesMethod,
-                expression));
+        => Expression.Call(CreateUtf8StreamMethod, expression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -84,7 +89,7 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => $"'{EscapeSqlLiteral(JsonSerializer.Serialize(value))}'";
+        => $"'{EscapeSqlLiteral((string)value)}'";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,5 +107,5 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqliteJsonTypeMapping(parameters);
+        => new SqliteStructuralJsonTypeMapping(parameters);
 }

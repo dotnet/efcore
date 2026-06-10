@@ -2,11 +2,19 @@
   <PropertyGroup>
     <!-- Disable IsAotCompatible on non-DefaultNetCoreTargetFrameworks even if explicitly enabled or else we'll get NETSDK1210 errors -->
     <IsAotCompatible Condition="'$(TargetFramework)' != '$(DefaultNetCoreTargetFramework)'"></IsAotCompatible>
-    <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' and Exists('PACKAGE.md')">PACKAGE.md</PackageReadmeFile>
+    <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' and Exists('README.md')">README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(PackageReadmeFile)' != ''">
     <None Include="$(PackageReadmeFile)" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Update="Microsoft.NETCore.App"
+                        Condition="('$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)') AND
+                                   ('$(PackAsTool)' != 'true')"
+                        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRefVersion)"
+                        TargetingPackVersion="$(MicrosoftNETCoreAppRefVersion)" />
   </ItemGroup>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
@@ -28,4 +36,15 @@
       </AssemblyAttribute>
     </ItemGroup>
   </Target>
+
+  <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions
+          Update="@(ProjectReference)"
+          Condition="'%(ProjectReference.Identity)' != '' And '%(ProjectReference.PackageVersion)' != ''">
+        <ProjectVersion>%(ProjectReference.PackageVersion)</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+
 </Project>

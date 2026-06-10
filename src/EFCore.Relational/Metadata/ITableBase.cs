@@ -62,7 +62,7 @@ public interface ITableBase : IAnnotatable
     /// <summary>
     ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
     /// </summary>
-    IColumnBase? FindColumn(IProperty property);
+    IColumnBase? FindColumn(IPropertyBase propertyBase);
 
     /// <summary>
     ///     Gets the foreign keys for the given entity type that point to other entity types sharing this table.

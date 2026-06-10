@@ -52,7 +52,7 @@ public static class RelationalTypeMappingSourceExtensions
         this IRelationalTypeMappingSource typeMappingSource,
         IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         var mapping = typeMappingSource.FindMapping(property);
 
@@ -74,7 +74,7 @@ public static class RelationalTypeMappingSourceExtensions
         this IRelationalTypeMappingSource typeMappingSource,
         Type clrType)
     {
-        Check.NotNull(clrType, nameof(clrType));
+        Check.NotNull(clrType);
 
         var mapping = typeMappingSource.FindMapping(clrType);
         return mapping ?? throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType.ShortDisplayName()));
@@ -92,7 +92,7 @@ public static class RelationalTypeMappingSourceExtensions
         Type clrType,
         IModel model)
     {
-        Check.NotNull(clrType, nameof(clrType));
+        Check.NotNull(clrType);
 
         var mapping = typeMappingSource.FindMapping(clrType, model);
         return mapping ?? throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType.ShortDisplayName()));
@@ -112,7 +112,7 @@ public static class RelationalTypeMappingSourceExtensions
         string typeName)
     {
         // Note: Empty string is allowed for store type name because SQLite
-        Check.NotNull(typeName, nameof(typeName));
+        Check.NotNull(typeName);
 
         var mapping = typeMappingSource.FindMapping(typeName);
         return mapping ?? throw new InvalidOperationException(RelationalStrings.UnsupportedStoreType(typeName));

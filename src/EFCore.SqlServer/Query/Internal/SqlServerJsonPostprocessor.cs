@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -28,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public sealed class SqlServerJsonPostprocessor(
     IRelationalTypeMappingSource typeMappingSource,
     ISqlExpressionFactory sqlExpressionFactory,
-    SqlAliasManager sqlAliasManager)
+    SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
-    private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = new();
+    private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
@@ -55,8 +54,7 @@ public sealed class SqlServerJsonPostprocessor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
+    protected override Expression VisitExtension(Expression expression)
     {
         switch (expression)
         {
@@ -88,7 +86,7 @@ public sealed class SqlServerJsonPostprocessor(
                     {
                         // Remove the WITH clause from the OPENJSON expression
                         var newOpenJsonExpression = openJsonExpression.Update(
-                            openJsonExpression.JsonExpression,
+                            openJsonExpression.Json,
                             openJsonExpression.Path,
                             columnInfos: null);
 
@@ -128,7 +126,7 @@ public sealed class SqlServerJsonPostprocessor(
                 {
                     Check.DebugAssert(newTables is null, "newTables must be null if columnsToRewrite is null");
 
-                    result = (SelectExpression)base.Visit(result);
+                    result = (SelectExpression)base.VisitExtension(result);
                 }
                 else
                 {
@@ -154,7 +152,7 @@ public sealed class SqlServerJsonPostprocessor(
 
                     // Record the OPENJSON expression and its projected column(s), along with the store type we just removed from the WITH
                     // clause. Then visit the select expression, adding a cast around the matching ColumnExpressions.
-                    result = (SelectExpression)base.Visit(result);
+                    result = (SelectExpression)base.VisitExtension(result);
 
                     foreach (var columnsToRewriteKey in columnsToRewrite.Keys)
                     {
@@ -218,6 +216,9 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalarExpression.IsNullable);
             }
 
+            // TODO: With the new RETURNING clause the following should not longer be needed - but support for varbinary
+            // isn't there yet. See #36474.
+
             // Some SQL Server types cannot be reliably parsed with JSON_VALUE(): binary/varbinary are encoded in base64 in the JSON,
             // but JSON_VALUE() returns a string and there's no SQL Server function to parse base64. However, OPENJSON/WITH does do base64
             // decoding.
@@ -229,6 +230,11 @@ public sealed class SqlServerJsonPostprocessor(
                     ?? (jsonScalar.Json as ColumnExpression)?.Name
                     ?? "Json";
 
+                // We need to generate an alias here; we always have a manager except
+                // when called from SqlNullabilityProcessor (where there's no manager),
+                // but in that scenario we never have to deal with JsonScalarExpression,
+                // only OpenJsonExpression.
+                Check.DebugAssert(sqlAliasManager is not null);
                 var tableAlias = sqlAliasManager.GenerateTableAlias(name);
                 var join =
                     new OuterApplyExpression(
@@ -249,24 +255,43 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalar.IsNullable);
             }
 
-            case SqlServerOpenJsonExpression openJsonExpression:
-                // Currently, OPENJSON does not accept a "json" type, so we must cast the value to a string.
-                // We do this for both the case where is a string type mapping for a top-level property with the store type
-                // of "json", and when there is an "element" type mapping to something in the document but is now being used
-                // with OPENJSON.
-                return openJsonExpression.JsonExpression.TypeMapping
-                    is SqlServerStringTypeMapping { StoreType: "json" }
-                    or SqlServerOwnedJsonTypeMapping { StoreType: "json" }
-                    ? openJsonExpression.Update(
-                        new SqlUnaryExpression(
-                            ExpressionType.Convert,
-                            (SqlExpression)Visit(openJsonExpression.JsonExpression),
-                            typeof(string),
-                            typeMappingSource.FindMapping(typeof(string))!))
-                    : base.Visit(expression);
+            // The SQL Server json type cannot be compared ("The JSON data type cannot be compared or sorted, except when using the
+            // IS NULL operator"). So we find comparisons that involve the json type, and apply a conversion to string (nvarchar(max))
+            // to both sides. We exempt this when one of the sides is a constant null (not required).
+            case SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                    Left: var left,
+                    Right: var right
+                } comparison
+                when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
+                && left is not SqlConstantExpression { Value: null }
+                && right is not SqlConstantExpression { Value: null }:
+            {
+                var stringTypeMapping = typeMappingSource.FindMapping(typeof(string))!;
+
+                return comparison.Update(ConvertToString(left), ConvertToString(right));
+
+                SqlExpression ConvertToString(SqlExpression expression)
+                {
+                    if (expression.TypeMapping?.StoreType.Equals("json", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        // If the expression happens to be a json literal (CAST('...' AS json)), we can just extract the string inside,
+                        // instead of applying an additional CAST around it
+                        return expression is SqlConstantExpression constant
+                            ? new SqlConstantExpression(
+                                constant.Value,
+                                typeof(string),
+                                (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(constant.TypeMapping!.Converter))
+                            : sqlExpressionFactory.Convert(expression, typeof(string), stringTypeMapping);
+                    }
+
+                    return expression;
+                }
+            }
 
             default:
-                return base.Visit(expression);
+                return base.VisitExtension(expression);
         }
 
         static bool IsKeyColumn(SqlExpression sqlExpression, string openJsonTableAlias)
@@ -274,7 +299,7 @@ public sealed class SqlServerJsonPostprocessor(
                 || (sqlExpression is SqlUnaryExpression
                     {
                         OperatorType: ExpressionType.Convert,
-                        Operand: SqlExpression operand
+                        Operand: var operand
                     }
                     && IsKeyColumn(operand, openJsonTableAlias));
 

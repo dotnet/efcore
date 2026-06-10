@@ -22,15 +22,15 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
     protected BatchingTestFixture Fixture { get; }
 
-    [ConditionalTheory]
-    [InlineData(true, true, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, false, true)]
-    [InlineData(true, true, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, false, false)]
+    [Theory,
+     InlineData(true, true, true),
+     InlineData(false, true, true),
+     InlineData(true, false, true),
+     InlineData(false, false, true),
+     InlineData(true, true, false),
+     InlineData(false, true, false),
+     InlineData(true, false, false),
+     InlineData(false, false, false)]
     public Task Inserts_are_batched_correctly(bool clientPk, bool clientFk, bool clientOrder)
     {
         var expectedBlogs = new List<Blog>();
@@ -69,7 +69,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             context => AssertDatabaseState(context, clientOrder, expectedBlogs));
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Inserts_and_updates_are_batched_correctly()
     {
         var expectedBlogs = new List<Blog>();
@@ -122,17 +122,17 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             context => AssertDatabaseState(context, true, expectedBlogs));
     }
 
-    [ConditionalTheory]
-    [InlineData(1)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(100)]
+    [Theory,
+     InlineData(1),
+     InlineData(3),
+     InlineData(4),
+     InlineData(100)]
     public Task Insertion_order_is_preserved(int maxBatchSize)
     {
         var blogId = new Guid();
 
         return TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => (BloggingContext)Fixture.CreateContext(maxBatchSize: maxBatchSize),
+            () => Fixture.CreateContext(maxBatchSize: maxBatchSize),
             UseTransaction, async context =>
             {
                 var owner = new Owner();
@@ -158,7 +158,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Deadlock_on_inserts_and_deletes_with_dependents_is_handled_correctly()
     {
         var blogs = new List<Blog>();
@@ -217,7 +217,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
         async Task RemoveAndAddPosts(Blog blog)
         {
-            using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
+            using var context = Fixture.CreateContext(useConnectionString: true);
 
             context.Attach(blog);
             blog.Posts.Clear();
@@ -232,7 +232,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         await Fixture.ReseedAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Deadlock_on_deletes_with_dependents_is_handled_correctly()
     {
         var owners = new[] { new Owner { Name = "0" }, new Owner { Name = "1" } };
@@ -286,7 +286,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         await Fixture.ReseedAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Inserts_when_database_type_is_different()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -299,9 +299,9 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 return context.SaveChangesAsync();
             }, async context => Assert.Equal(2, await context.Owners.CountAsync()));
 
-    [ConditionalTheory]
-    [InlineData(3)]
-    [InlineData(4)]
+    [Theory,
+     InlineData(3),
+     InlineData(4)]
     public Task Inserts_are_batched_only_when_necessary(int minBatchSize)
     {
         var expectedBlogs = new List<Blog>();
@@ -376,19 +376,17 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Owner>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                    b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                    b.Property(e => e.Name).HasColumnType("nvarchar(450)");
-                });
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
-                    b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                });
+            modelBuilder.Entity<Owner>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+                b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                b.Property(e => e.Name).HasColumnType("nvarchar(450)");
+            });
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
+                b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+            });
         }
 
         // ReSharper disable once UnusedMember.Local

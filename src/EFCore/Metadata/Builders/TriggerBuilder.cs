@@ -55,7 +55,7 @@ public class TriggerBuilder : IInfrastructure<IConventionTriggerBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual TriggerBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         InternalBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

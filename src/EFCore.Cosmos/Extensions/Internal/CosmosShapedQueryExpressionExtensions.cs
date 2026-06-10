@@ -166,10 +166,10 @@ public static class CosmosShapedQueryExpressionExtensions
         {
             projectedStructuralTypeShaper = shaper;
             projection = shaper.ValueBufferExpression;
-            if (projection is ProjectionBindingExpression { ProjectionMember: ProjectionMember projectionMember }
-                && select.GetMappedProjection(projectionMember) is EntityProjectionExpression entityProjection)
+            if (projection is ProjectionBindingExpression { ProjectionMember: { } projectionMember }
+                && select.GetMappedProjection(projectionMember) is StructuralTypeProjectionExpression structuralTypeProjection)
             {
-                projection = entityProjection.Object;
+                projection = structuralTypeProjection.Object;
             }
         }
         else
@@ -261,7 +261,7 @@ public static class CosmosShapedQueryExpressionExtensions
 
         switch (shaperExpression)
         {
-            case ProjectionBindingExpression { ProjectionMember: ProjectionMember projectionMember }
+            case ProjectionBindingExpression { ProjectionMember: { } projectionMember }
                 when shapedQueryExpression.QueryExpression is SelectExpression selectExpression:
             {
                 projection = selectExpression.GetMappedProjection(projectionMember);

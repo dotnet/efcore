@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -20,7 +19,7 @@ public class NorthwindWhereQueryCosmosTest : NorthwindWhereQueryTestBase<Northwi
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -500,7 +499,7 @@ WHERE (c["ReportsTo"] = @p)
 """);
             });
 
-    [ConditionalTheory(Skip = "Always uses sync code.")]
+    [Theory(Skip = "Always uses sync code.")]
     public override Task Where_subquery_closure_via_query_cache(bool async)
         => Task.CompletedTask;
 
@@ -1496,8 +1495,7 @@ WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDat
 
     public override async Task Where_navigation_contains(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Where_navigation_contains(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_navigation_contains(async))).Message;
 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
@@ -1777,6 +1775,112 @@ WHERE (((c["id"] || ToString(@p)) || (c["id"] || ToString(@p0))) = "ALFKI11ALFKI
 
         AssertSql();
     }
+
+    public override async Task Where_Queryable_conditional_not_null_check_with_Contains(bool async, bool withNull)
+    {
+        if (withNull)
+        {
+            await Fixture.NoSyncTest(
+                async, async a =>
+                {
+                    await base.Where_Queryable_conditional_not_null_check_with_Contains(a, withNull);
+
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
+                });
+        }
+        else
+        {
+            // Cosmos client evaluation. Issue #17246.
+            await AssertTranslationFailed(() => base.Where_Queryable_conditional_not_null_check_with_Contains(async, withNull));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Where_Queryable_conditional_null_check_with_Contains(bool async, bool withNull)
+    {
+        if (withNull)
+        {
+            await Fixture.NoSyncTest(
+                async, async a =>
+                {
+                    await base.Where_Queryable_conditional_null_check_with_Contains(a, withNull);
+
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+""");
+                });
+        }
+        else
+        {
+            // Cosmos client evaluation. Issue #17246.
+            await AssertTranslationFailed(() => base.Where_Queryable_conditional_null_check_with_Contains(async, withNull));
+
+            AssertSql();
+        }
+    }
+
+    public override Task Where_Enumerable_conditional_not_null_check_with_Contains(bool async, bool withNull)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_Enumerable_conditional_not_null_check_with_Contains(a, withNull);
+
+                if (withNull)
+                {
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
+@ids='["ALFKI","ANATR"]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ids, c["id"])
+""");
+                }
+            });
+
+    public override Task Where_Enumerable_conditional_null_check_with_Contains(bool async, bool withNull)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_Enumerable_conditional_null_check_with_Contains(a, withNull);
+
+                if (withNull)
+                {
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
+@ids='["ALFKI","ANATR"]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
+""");
+                }
+            });
 
     public override Task Where_list_object_contains_over_value_type(bool async)
         => Fixture.NoSyncTest(
@@ -2418,32 +2522,31 @@ WHERE (c["id"] = @entity_equality_customer_CustomerID)
     public override async Task EF_Constant(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
     public override async Task EF_Constant_with_subtree(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant_with_subtree(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant_with_subtree(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
     public override async Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
     public override async Task EF_Constant_with_non_evaluatable_argument_throws(bool async)
     {
         await base.EF_Constant_with_non_evaluatable_argument_throws(async);
-        AssertSql(
-        );
+
+        AssertSql();
     }
 
     public override Task EF_Parameter(bool async)

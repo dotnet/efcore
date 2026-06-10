@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text.RegularExpressions;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -20,7 +18,7 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -58,8 +56,9 @@ ORDER BY LENGTH(c["id"]), c["id"]
     public override async Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
+        await AssertTranslationFailed(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
+
+        AssertSql();
     }
 
     public override Task Sum_over_round_works_correctly_in_projection(bool async)

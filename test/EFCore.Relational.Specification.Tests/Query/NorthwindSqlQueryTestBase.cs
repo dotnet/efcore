@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -22,10 +22,9 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
 
     protected TFixture Fixture { get; }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_over_int(bool async)
     {
         using var context = CreateContext();
@@ -38,16 +37,14 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
         Assert.Equal(77, result.Count);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_composed_Contains(bool async)
     {
         using var context = CreateContext();
         var query = context.Set<Order>()
-            .Where(
-                e => context.Database
-                    .SqlQuery<int>(NormalizeDelimitersInInterpolatedString(@$"SELECT [ProductID] AS [Value] FROM [Products]"))
-                    .Contains(e.OrderID));
+            .Where(e => context.Database
+                .SqlQuery<int>(NormalizeDelimitersInInterpolatedString(@$"SELECT [ProductID] AS [Value] FROM [Products]"))
+                .Contains(e.OrderID));
 
         var result = async
             ? await query.ToListAsync()
@@ -56,8 +53,7 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
         Assert.Equal(0, result.Count);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_composed_Join(bool async)
     {
         using var context = CreateContext();
@@ -74,8 +70,7 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
         Assert.Equal(0, result.Count);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_over_int_with_parameter(bool async)
     {
         using var context = CreateContext();

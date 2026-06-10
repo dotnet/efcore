@@ -1,18 +1,16 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesRelationalTestBase
+public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -63,8 +61,7 @@ DELETE FROM "Owner" AS "o"
 
     public override async Task Replace_ColumnExpression_in_column_setter(bool async)
     {
-        // #33947
-        await Assert.ThrowsAsync<SqliteException>(() => base.Replace_ColumnExpression_in_column_setter(async));
+        await base.Replace_ColumnExpression_in_column_setter(async);
 
         AssertSql(
             """
@@ -73,7 +70,7 @@ DELETE FROM "Owner" AS "o"
 UPDATE "OwnedCollection" AS "o0"
 SET "Value" = @p
 FROM "Owner" AS "o"
-INNER JOIN "OwnedCollection" AS "o0" ON "o"."Id" = "o0"."OwnerId"
+WHERE "o"."Id" = "o0"."OwnerId"
 """);
     }
 
@@ -136,6 +133,8 @@ SET "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), ''),
             """
 UPDATE "Blogs" AS "b"
 SET "CreationTimestamp" = '2020-01-01 00:00:00'
+FROM "BlogsPart1" AS "b0"
+WHERE "b"."Id" = "b0"."Id"
 """);
     }
 
@@ -163,7 +162,6 @@ DELETE FROM "Context30572_Principal" AS "c"
 WHERE "c"."Id" IN (
     SELECT "c0"."Id"
     FROM "Context30572_Principal" AS "c0"
-    LEFT JOIN "Context30572_Dependent" AS "c1" ON "c0"."DependentId" = "c1"."Id"
 )
 """);
     }
@@ -226,12 +224,32 @@ SET "Data" = @p
     {
         await base.Update_complex_type_with_view_mapping(async);
 
-        // #34706
-        AssertSql();
+        AssertSql(
+            """
+@complex_type_p_Prop1='3' (Nullable = true)
+@complex_type_p_Prop2='4' (Nullable = true)
+
+UPDATE "Blogs" AS "b"
+SET "ComplexThing_Prop1" = @complex_type_p_Prop1,
+    "ComplexThing_Prop2" = @complex_type_p_Prop2
+""");
     }
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(wcb => wcb.Log(SqliteEventId.CompositeKeyWithValueGeneration));
+    public override async Task Update_complex_type_property_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_property_with_view_mapping(async);
+
+        AssertSql(
+            """
+@p='6'
+
+UPDATE "Blogs" AS "b"
+SET "ComplexThing_Prop1" = @p
+""");
+    }
+
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder).ConfigureWarnings(wcb => wcb.Log(SqliteEventId.CompositeKeyWithValueGeneration));
 
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);

@@ -211,6 +211,13 @@ public static class QueryableMethods
     public static MethodInfo LeftJoin { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.FullJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}},IEqualityComparer{TKey})" />
+    /// </summary>
+    public static MethodInfo FullJoin { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LongCount{TSource}(IQueryable{TSource})" />
     /// </summary>
     public static MethodInfo LongCountWithoutPredicate { get; }
@@ -271,9 +278,30 @@ public static class QueryableMethods
     public static MethodInfo OrderDescending { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.MaxBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    /// </summary>
+    public static MethodInfo MaxBy { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.MinBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    /// </summary>
+    public static MethodInfo MinBy { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Reverse{TSource}" />
     /// </summary>
     public static MethodInfo Reverse { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.RightJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}})" />
+    /// </summary>
+    public static MethodInfo RightJoin { get; }
 
     /// <summary>
     ///     The <see cref="MethodInfo" /> for
@@ -381,7 +409,7 @@ public static class QueryableMethods
     //public static MethodInfo Zip { get; }
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> without a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> without a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -389,7 +417,7 @@ public static class QueryableMethods
         => AverageWithoutSelectorMethods.ContainsValue(methodInfo);
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> with a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> with a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -398,7 +426,7 @@ public static class QueryableMethods
             && AverageWithSelectorMethods.ContainsValue(methodInfo.GetGenericMethodDefinition());
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> without a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> without a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -406,7 +434,7 @@ public static class QueryableMethods
         => SumWithoutSelectorMethods.ContainsValue(methodInfo);
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> with a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> with a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -451,6 +479,9 @@ public static class QueryableMethods
     private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
 
+    [UnconditionalSuppressMessage(
+        "AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+        Justification = "Types used here in 'MakeGenericType' are types like 'TSource', not specific types.")]
     static QueryableMethods()
     {
         var queryableMethodGroups = typeof(Queryable)
@@ -714,7 +745,46 @@ public static class QueryableMethods
                 typeof(IQueryable<>).MakeGenericType(types[0])
             ]);
 
+        MaxBy = GetMethod(
+            nameof(Queryable.MaxBy), 2,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
+            ]);
+
+        MinBy = GetMethod(
+            nameof(Queryable.MinBy), 2,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
+            ]);
+
         Reverse = GetMethod(nameof(Queryable.Reverse), 1, types => [typeof(IQueryable<>).MakeGenericType(types[0])]);
+
+        RightJoin = GetMethod(
+            nameof(Queryable.RightJoin), 4,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]))
+            ]);
+
+        FullJoin = GetMethod(
+            nameof(Queryable.FullJoin), 4,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3])),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
+            ]);
 
         Select = GetMethod(
             nameof(Queryable.Select), 2,
@@ -862,10 +932,9 @@ public static class QueryableMethods
         }
 
         MethodInfo GetMethod(string name, int genericParameterCount, Func<Type[], Type[]> parameterGenerator)
-            => queryableMethodGroups[name].Single(
-                mi => ((genericParameterCount == 0 && !mi.IsGenericMethod)
-                        || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
-                    && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
-                        parameterGenerator(mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
+            => queryableMethodGroups[name].Single(mi => ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                    || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                    parameterGenerator(mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
     }
 }

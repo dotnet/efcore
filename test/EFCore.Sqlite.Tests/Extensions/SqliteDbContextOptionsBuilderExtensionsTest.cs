@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqliteDbContextOptionsBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_max_batch_size()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -19,7 +19,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Equal(123, extension.MaxBatchSize);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_command_timeout()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -30,7 +30,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Equal(30, extension.CommandTimeout);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_connection_string()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -42,9 +42,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.Connection);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_add_extension_with_connection_string_using_generic_options(bool nullConnectionString)
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -56,7 +54,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.Connection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_connection()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -71,7 +69,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_owned_connection()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -86,7 +84,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_no_connection()
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -99,7 +97,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Connection_overrides_connection_string()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -115,7 +113,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Connection_string_overrides_connection()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -131,7 +129,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Equal("Database=Whisper", extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_connection_using_generic_options()
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -146,7 +144,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_owned_extension_with_connection_using_generic_options()
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -161,9 +159,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Service_collection_extension_method_can_configure_sqlite_options(bool nullConnectionString)
     {
         var serviceCollection = new ServiceCollection();

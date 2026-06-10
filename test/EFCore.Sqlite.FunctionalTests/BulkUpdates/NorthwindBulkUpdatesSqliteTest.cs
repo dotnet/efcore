@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -12,7 +12,7 @@ public class NorthwindBulkUpdatesSqliteTest(
     ITestOutputHelper testOutputHelper)
     : NorthwindBulkUpdatesRelationalTestBase<NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -266,8 +266,8 @@ WHERE EXISTS (
         AssertSql(
             """
 @p='100'
-@p2='5'
-@p1='20'
+@p3='5'
+@p2='20'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -280,7 +280,7 @@ WHERE EXISTS (
             WHERE "o1"."OrderID" < 10300
             LIMIT @p OFFSET @p
         ) AS "o0"
-        LIMIT @p2 OFFSET @p1
+        LIMIT @p3 OFFSET @p2
     ) AS "o2"
     WHERE "o2"."OrderID" = "o"."OrderID" AND "o2"."ProductID" = "o"."ProductID")
 """);
@@ -511,7 +511,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p0='100'
+@p1='100'
 @p='0'
 
 DELETE FROM "Order Details" AS "o"
@@ -523,7 +523,7 @@ WHERE EXISTS (
         FROM "Orders" AS "o2"
         WHERE "o2"."OrderID" < 10300
         ORDER BY "o2"."OrderID"
-        LIMIT @p0 OFFSET @p
+        LIMIT @p1 OFFSET @p
     ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
@@ -535,20 +535,10 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p0='100'
-@p='0'
-
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
-    LEFT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
-        LIMIT @p0 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
@@ -559,20 +549,10 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p0='100'
-@p='0'
-
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
-    LEFT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
-        LIMIT @p0 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
@@ -608,6 +588,34 @@ WHERE EXISTS (
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Delete_with_outer_apply(async))).Message);
 
+    public override async Task Delete_with_RightJoin(bool async)
+    {
+        await base.Delete_with_RightJoin(async);
+
+        AssertSql(
+            """
+@p1='100'
+@p='0'
+
+DELETE FROM "Order Details" AS "o"
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT "o1"."OrderID", "o1"."ProductID"
+        FROM "Order Details" AS "o1"
+        WHERE "o1"."OrderID" < 10276
+    ) AS "o0"
+    RIGHT JOIN (
+        SELECT "o3"."OrderID"
+        FROM "Orders" AS "o3"
+        WHERE "o3"."OrderID" < 10300
+        ORDER BY "o3"."OrderID"
+        LIMIT @p1 OFFSET @p
+    ) AS "o2" ON "o0"."OrderID" = "o2"."OrderID"
+    WHERE "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
+""");
+    }
+
     public override async Task Update_Where_set_constant_TagWith(bool async)
     {
         await base.Update_Where_set_constant_TagWith(async);
@@ -621,6 +629,19 @@ WHERE EXISTS (
 UPDATE "Customers" AS "c"
 SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
+""");
+    }
+
+    public override async Task Update_set_constant_TagWith_null(bool async)
+    {
+        await base.Update_set_constant_TagWith_null(async);
+
+        AssertExecuteUpdateSql(
+            """
+-- MyUpdate
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = NULL
 """);
     }
 
@@ -647,6 +668,18 @@ WHERE "c"."CustomerID" LIKE 'F%'
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 WHERE "c"."CustomerID" LIKE 'F%'
+""");
+    }
+
+    public override async Task Update_Where_set_nullable_int_constant_via_discard_lambda(bool async)
+    {
+        await base.Update_Where_set_nullable_int_constant_via_discard_lambda(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE "Products" AS "p"
+SET "SupplierID" = 1
+WHERE "p"."ProductID" < 5
 """);
     }
 
@@ -749,11 +782,11 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -770,11 +803,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -791,17 +824,17 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p1='Updated' (Size = 7)
-@p0='4'
+@p2='Updated' (Size = 7)
+@p1='4'
 @p='2'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p1
+SET "ContactName" = @p2
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
-    LIMIT @p0 OFFSET @p
+    LIMIT @p1 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -832,11 +865,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -854,11 +887,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -876,18 +909,18 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p1='Updated' (Size = 7)
-@p0='4'
+@p2='Updated' (Size = 7)
+@p1='4'
 @p='2'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p1
+SET "ContactName" = @p2
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
     ORDER BY "c"."City"
-    LIMIT @p0 OFFSET @p
+    LIMIT @p1 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -899,12 +932,12 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p3='Updated' (Size = 7)
-@p0='6'
+@p4='Updated' (Size = 7)
+@p1='6'
 @p='2'
 
 UPDATE "Customers" AS "c1"
-SET "ContactName" = @p3
+SET "ContactName" = @p4
 FROM (
     SELECT "c0"."CustomerID"
     FROM (
@@ -912,7 +945,7 @@ FROM (
         FROM "Customers" AS "c"
         WHERE "c"."CustomerID" LIKE 'F%'
         ORDER BY "c"."City"
-        LIMIT @p0 OFFSET @p
+        LIMIT @p1 OFFSET @p
     ) AS "c0"
     ORDER BY "c0"."City"
     LIMIT @p OFFSET @p
@@ -1040,10 +1073,10 @@ WHERE "o0"."OrderID" = "s"."OrderID"
 @p='1'
 
 UPDATE "Order Details" AS "o"
-SET "Quantity" = CAST(@p AS INTEGER)
+SET "Quantity" = @p
 FROM "Orders" AS "o0"
 LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
-WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
+WHERE "c"."City" = 'Seattle' AND "o"."OrderID" = "o0"."OrderID"
 """);
     }
 
@@ -1056,7 +1089,7 @@ WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
 FROM "Customers" AS "c"
-WHERE "c"."CustomerID" = "o"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o"."CustomerID"
 """);
     }
 
@@ -1275,7 +1308,7 @@ FROM (
     FROM "Orders" AS "o"
     WHERE "o"."OrderID" < 10300
 ) AS "o0"
-WHERE "c"."CustomerID" = "o0"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o0"."CustomerID"
 """);
     }
 
@@ -1327,6 +1360,33 @@ WHERE "c0"."CustomerID" = "s"."CustomerID"
 """);
     }
 
+    public override async Task Update_with_RightJoin(bool async)
+    {
+        await base.Update_with_RightJoin(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='2020-01-01T00:00:00.0000000Z' (Nullable = true) (DbType = DateTime)
+
+UPDATE "Orders" AS "o1"
+SET "OrderDate" = @p
+FROM (
+    SELECT "o0"."OrderID"
+    FROM (
+        SELECT "o"."OrderID", "o"."CustomerID"
+        FROM "Orders" AS "o"
+        WHERE "o"."OrderID" < 10300
+    ) AS "o0"
+    RIGHT JOIN (
+        SELECT "c"."CustomerID"
+        FROM "Customers" AS "c"
+        WHERE "c"."CustomerID" LIKE 'F%'
+    ) AS "c0" ON "o0"."CustomerID" = "c0"."CustomerID"
+) AS "s"
+WHERE "o1"."OrderID" = "s"."OrderID"
+""");
+    }
+
     public override async Task Update_with_cross_join_set_constant(bool async)
     {
         await base.Update_with_cross_join_set_constant(async);
@@ -1356,7 +1416,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_outer_apply_set_constant(async))).Message);
 
-    [ConditionalTheory(Skip = "Issue#28886")]
+    [Theory(Skip = "Issue#28886")]
     public override async Task Update_with_cross_join_left_join_set_constant(bool async)
     {
         await base.Update_with_cross_join_left_join_set_constant(async);
@@ -1471,7 +1531,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
 
-    [ConditionalTheory(Skip = "Issue#28886")]
+    [Theory(Skip = "Issue#28886")]
     public override async Task Update_with_two_inner_joins(bool async)
     {
         await base.Update_with_two_inner_joins(async);
@@ -1479,6 +1539,60 @@ WHERE "c"."CustomerID" LIKE 'F%'
         AssertExecuteUpdateSql(
             """
 
+""");
+    }
+
+    [Theory]
+    public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
+    {
+        await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='1'
+@p2='10'
+
+UPDATE "Order Details" AS "o2"
+SET "Quantity" = @p,
+    "UnitPrice" = @p2
+FROM (
+    SELECT "o1"."OrderID", "o1"."ProductID"
+    FROM (
+        SELECT "o"."OrderID", "o"."ProductID"
+        FROM "Order Details" AS "o"
+        ORDER BY "o"."OrderID"
+        LIMIT -1 OFFSET @p
+    ) AS "o1"
+    INNER JOIN "Orders" AS "o0" ON "o1"."OrderID" = "o0"."OrderID"
+    WHERE "o0"."CustomerID" = 'ALFKI'
+) AS "s"
+WHERE "o2"."OrderID" = "s"."OrderID" AND "o2"."ProductID" = "s"."ProductID"
+""");
+    }
+
+    public override async Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_mixed_entity_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 7)
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = @p
+""");
+    }
+
+    public override async Task Update_with_select_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 7)
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = @p
 """);
     }
 

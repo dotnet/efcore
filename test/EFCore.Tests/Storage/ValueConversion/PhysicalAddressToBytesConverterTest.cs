@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net.NetworkInformation;
@@ -9,8 +9,7 @@ public class PhysicalAddressToBytesConverterTest
 {
     private static readonly PhysicalAddressToBytesConverter _physicalAddressToBytes = new();
 
-    [ConditionalTheory]
-    [MemberData(nameof(Data))]
+    [Theory, MemberData(nameof(Data))]
     public void Can_convert_physical_address_to_bytes(string address)
     {
         var converter = _physicalAddressToBytes.ConvertToProviderExpression.Compile();
@@ -20,8 +19,7 @@ public class PhysicalAddressToBytesConverterTest
         Assert.Equal(bytes, converter(physicalAddress));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(Data))]
+    [Theory, MemberData(nameof(Data))]
     public void Can_convert_physical_address_to_bytes_object(string address)
     {
         var converter = _physicalAddressToBytes.ConvertToProvider;
@@ -32,8 +30,7 @@ public class PhysicalAddressToBytesConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(Data))]
+    [Theory, MemberData(nameof(Data))]
     public void Can_convert_bytes_to_physical_address(string address)
     {
         var converter = _physicalAddressToBytes.ConvertFromProviderExpression.Compile();
@@ -44,8 +41,7 @@ public class PhysicalAddressToBytesConverterTest
         Assert.Equal(physicalAddress, converter(bytes));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(Data))]
+    [Theory, MemberData(nameof(Data))]
     public void Can_convert_bytes_to_physical_address_object(string address)
     {
         var converter = _physicalAddressToBytes.ConvertFromProvider;

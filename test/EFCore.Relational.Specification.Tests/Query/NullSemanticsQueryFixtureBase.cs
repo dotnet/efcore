@@ -8,21 +8,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<NullSemanticsContext>, IQueryFixtureBase, ITestSqlLoggerFactory
+public abstract class NullSemanticsQueryFixtureBase : QueryFixtureBase<NullSemanticsContext>, ITestSqlLoggerFactory
 {
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
 
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => NullSemanticsData.Instance;
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(NullSemanticsEntity1), e => ((NullSemanticsEntity1)e)?.Id },
         { typeof(NullSemanticsEntity2), e => ((NullSemanticsEntity2)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(NullSemanticsEntity1), (e, a) =>
@@ -123,23 +121,21 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
 
         modelBuilder.HasDbFunction(
             typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(Cases))!,
-            b => b.HasTranslation(
-                args => new CaseExpression(
-                [
-                    new CaseWhenClause(args[0], args[1]),
-                    new CaseWhenClause(args[2], args[3]),
-                    new CaseWhenClause(args[4], args[5])
-                ])));
+            b => b.HasTranslation(args => new CaseExpression(
+            [
+                new CaseWhenClause(args[0], args[1]),
+                new CaseWhenClause(args[2], args[3]),
+                new CaseWhenClause(args[4], args[5])
+            ])));
 
         modelBuilder.HasDbFunction(
             typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(BoolSwitch))!,
-            b => b.HasTranslation(
-                args => new CaseExpression(
-                    operand: args[0],
-                    [
-                        new CaseWhenClause(new SqlConstantExpression(true, typeMapping: args[0].TypeMapping), args[1]),
-                        new CaseWhenClause(new SqlConstantExpression(false, typeMapping: args[0].TypeMapping), args[2])
-                    ])));
+            b => b.HasTranslation(args => new CaseExpression(
+                operand: args[0],
+                [
+                    new CaseWhenClause(new SqlConstantExpression(true, typeMapping: args[0].TypeMapping), args[1]),
+                    new CaseWhenClause(new SqlConstantExpression(false, typeMapping: args[0].TypeMapping), args[2])
+                ])));
     }
 
     public static int? Cases(bool c1, int v1, bool c2, int v2, bool c3, int v3)

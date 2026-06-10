@@ -3,7 +3,7 @@
 
 using System.Net;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Xunit.Sdk;
 
@@ -19,56 +19,51 @@ public class PrimitiveCollectionsQueryCosmosTest : PrimitiveCollectionsQueryTest
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Inline_collection_of_ints_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_ints_Contains(a);
+    public override async Task Inline_collection_of_ints_Contains()
+    {
+        await base.Inline_collection_of_ints_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE c["Int"] IN (10, 999)
 """);
-            });
+    }
 
-    public override Task Inline_collection_of_nullable_ints_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_nullable_ints_Contains(a);
+    public override async Task Inline_collection_of_nullable_ints_Contains()
+    {
+        await base.Inline_collection_of_nullable_ints_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE c["NullableInt"] IN (10, 999)
 """);
-            });
+    }
 
-    public override Task Inline_collection_of_nullable_ints_Contains_null(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_nullable_ints_Contains_null(a);
+    public override async Task Inline_collection_of_nullable_ints_Contains_null()
+    {
+        await base.Inline_collection_of_nullable_ints_Contains_null();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE c["NullableInt"] IN (null, 999)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Count_with_zero_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Count_with_zero_values(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Count_with_zero_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Inline_collection_Count_with_zero_values();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((
@@ -76,16 +71,17 @@ WHERE ((
     FROM a IN (SELECT VALUE [])
     WHERE (a > c["Id"])) = 1)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Count_with_one_value(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Count_with_one_value(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Count_with_one_value()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Inline_collection_Count_with_one_value();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((
@@ -93,16 +89,17 @@ WHERE ((
     FROM a IN (SELECT VALUE [2])
     WHERE (a > c["Id"])) = 1)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Count_with_two_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Count_with_two_values(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Count_with_two_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Inline_collection_Count_with_two_values();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((
@@ -110,16 +107,17 @@ WHERE ((
     FROM a IN (SELECT VALUE [2, 999])
     WHERE (a > c["Id"])) = 1)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Count_with_three_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Count_with_three_values(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Count_with_three_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Inline_collection_Count_with_three_values();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((
@@ -127,67 +125,57 @@ WHERE ((
     FROM a IN (SELECT VALUE [2, 999, 1000])
     WHERE (a > c["Id"])) = 2)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_with_zero_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_zero_values(a);
+    public override async Task Inline_collection_Contains_with_zero_values()
+    {
+        await base.Inline_collection_Contains_with_zero_values();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE false
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_with_one_value(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_one_value(a);
+    public override async Task Inline_collection_Contains_with_one_value()
+    {
+        await base.Inline_collection_Contains_with_one_value();
 
-                AssertSql("ReadItem(None, 2)");
-            });
+        AssertSql("ReadItem(None, 2)");
+    }
 
-    public override Task Inline_collection_Contains_with_two_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_two_values(a);
+    public override async Task Inline_collection_Contains_with_two_values()
+    {
+        await base.Inline_collection_Contains_with_two_values();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, 999)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_with_three_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_three_values(a);
+    public override async Task Inline_collection_Contains_with_three_values()
+    {
+        await base.Inline_collection_Contains_with_three_values();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, 999, 1000)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_with_all_parameters(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_all_parameters(a);
+    public override async Task Inline_collection_Contains_with_all_parameters()
+    {
+        await base.Inline_collection_Contains_with_all_parameters();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i='2'
 @j='999'
 
@@ -195,287 +183,284 @@ SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (@i, @j)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_with_constant_and_parameter(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_constant_and_parameter(a);
+    public override async Task Inline_collection_Contains_with_constant_and_parameter()
+    {
+        await base.Inline_collection_Contains_with_constant_and_parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @j='999'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, @j)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_with_mixed_value_types(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_mixed_value_types(a);
+    public override async Task Inline_collection_Contains_with_mixed_value_types()
+    {
+        await base.Inline_collection_Contains_with_mixed_value_types();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i='11'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Int"] IN (999, @i, c["Id"], (c["Id"] + c["Int"]))
 """);
-            });
+    }
 
-    public override Task Inline_collection_List_Contains_with_mixed_value_types(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_List_Contains_with_mixed_value_types(a);
+    public override async Task Inline_collection_List_Contains_with_mixed_value_types()
+    {
+        await base.Inline_collection_List_Contains_with_mixed_value_types();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i='11'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Int"] IN (999, @i, c["Id"], (c["Id"] + c["Int"]))
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_as_Any_with_predicate(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_as_Any_with_predicate(a);
+    public override async Task Inline_collection_Contains_as_Any_with_predicate()
+    {
+        await base.Inline_collection_Contains_as_Any_with_predicate();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, 999)
 """);
-            });
+    }
 
-    public override Task Inline_collection_negated_Contains_as_All(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_negated_Contains_as_All(a);
+    public override async Task Inline_collection_negated_Contains_as_All()
+    {
+        await base.Inline_collection_negated_Contains_as_All();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE c["Id"] NOT IN (2, 999)
 """);
-            });
-
-    public override Task Inline_collection_Min_with_two_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Min_with_two_values(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
-""");
-            });
-
-    public override Task Inline_collection_List_Min_with_two_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_List_Min_with_two_values(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
-""");
-            });
-
-    public override Task Inline_collection_Max_with_two_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Max_with_two_values(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
-""");
-            });
-
-    public override Task Inline_collection_List_Max_with_two_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_List_Max_with_two_values(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
-""");
-            });
-
-    public override Task Inline_collection_Min_with_three_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Min_with_three_values(a);
-
-                AssertSql(
-                    """
-@i='25'
-
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
-""");
-            });
-
-    public override Task Inline_collection_List_Min_with_three_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_List_Min_with_three_values(a);
-
-                AssertSql(
-                    """
-@i='25'
-
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
-""");
-            });
-
-    public override Task Inline_collection_Max_with_three_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Max_with_three_values(a);
-
-                AssertSql(
-                    """
-@i='35'
-
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
-""");
-            });
-
-    public override Task Inline_collection_List_Max_with_three_values(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_List_Max_with_three_values(a);
-
-                AssertSql(
-                    """
-@i='35'
-
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
-""");
-            });
-
-    public override Task Inline_collection_of_nullable_value_type_Min(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_nullable_value_type_Min(a);
-
-                AssertSql(
-                    """
-@i='25'
-
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
-""");
-            });
-
-    public override Task Inline_collection_of_nullable_value_type_Max(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_nullable_value_type_Max(a);
-
-                AssertSql(
-                    """
-@i='35'
-
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
-""");
-            });
-
-    public override async Task Inline_collection_of_nullable_value_type_with_null_Min(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Cosmos MIN()/MAX() sort nulls as smaller than ints (https://learn.microsoft.com/azure/cosmos-db/nosql/query/min);
-            // since some of the columns included contain null, MIN() returns null as opposed to the smallest number.
-            // In relational, aggregate MIN()/MAX() ignores nulls.
-            await Assert.ThrowsAsync<EqualException>(() => base.Inline_collection_of_nullable_value_type_with_null_Min(async));
-
-            AssertSql(
-                """
-@i=null
-
-SELECT VALUE c
-FROM root c
-WHERE ((
-    SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["NullableInt"], @i])) = 30)
-""");
-        }
     }
 
-    public override Task Inline_collection_of_nullable_value_type_with_null_Max(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_nullable_value_type_with_null_Max(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Min_with_two_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Inline_collection_Min_with_two_values();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_List_Min_with_two_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_List_Min_with_two_values();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Max_with_two_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_Max_with_two_values();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_List_Max_with_two_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_List_Max_with_two_values();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Min_with_three_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_Min_with_three_values();
+
+        AssertSql(
+            """
+@i='25'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_List_Min_with_three_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_List_Min_with_three_values();
+
+        AssertSql(
+            """
+@i='25'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Max_with_three_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_Max_with_three_values();
+
+        AssertSql(
+            """
+@i='35'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_List_Max_with_three_values()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_List_Max_with_three_values();
+
+        AssertSql(
+            """
+@i='35'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_of_nullable_value_type_Min()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_of_nullable_value_type_Min();
+
+        AssertSql(
+            """
+@i='25'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_of_nullable_value_type_Max()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_of_nullable_value_type_Max();
+
+        AssertSql(
+            """
+@i='35'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Min()
+    {
+        // Cosmos MIN()/MAX() sort nulls as smaller than ints (https://learn.microsoft.com/azure/cosmos-db/nosql/query/min);
+        // since some of the columns included contain null, MIN() returns null as opposed to the smallest number.
+        // In relational, aggregate MIN()/MAX() ignores nulls.
+        await Assert.ThrowsAsync<EqualException>(base.Inline_collection_of_nullable_value_type_with_null_Min);
+
+        AssertSql(
+            """
+@i=null
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @i])) = 30)
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Max()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_of_nullable_value_type_with_null_Max();
+
+        AssertSql(
+            """
 @i=null
 
 SELECT VALUE c
@@ -484,28 +469,27 @@ WHERE ((
     SELECT VALUE MAX(a)
     FROM a IN (SELECT VALUE [30, c["NullableInt"], @i])) = 30)
 """);
-            });
+    }
 
-    public override Task Inline_collection_with_single_parameter_element_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_with_single_parameter_element_Contains(a);
+    public override async Task Inline_collection_with_single_parameter_element_Contains()
+    {
+        await base.Inline_collection_with_single_parameter_element_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 ReadItem(None, 2)
 """);
-            });
+    }
 
-    public override Task Inline_collection_with_single_parameter_element_Count(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_with_single_parameter_element_Count(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_with_single_parameter_element_Count()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Inline_collection_with_single_parameter_element_Count();
+
+        AssertSql(
+            """
 @i='2'
 
 SELECT VALUE c
@@ -515,32 +499,45 @@ WHERE ((
     FROM a IN (SELECT VALUE [@i])
     WHERE (a > c["Id"])) = 1)
 """);
-            });
+    }
 
-    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_EF_Parameter(async);
+    public override async Task Inline_collection_Contains_with_EF_Parameter()
+    {
+        await base.Inline_collection_Contains_with_EF_Parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @p='[2,999,1000]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@p, c["Id"])
 """);
-            });
+    }
 
-    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+    public override async Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
+    {
+        await base.Inline_collection_Contains_with_IEnumerable_EF_Parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+@Select='["10","a","aa"]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@Select, c["NullableString"])
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter();
+
+        AssertSql(
+            """
 @p='[2,999,1000]'
 
 SELECT VALUE c
@@ -550,16 +547,40 @@ WHERE ((
     FROM p IN (SELECT VALUE @p)
     WHERE (p > c["Id"])) = 2)
 """);
-            });
+    }
 
-    public override Task Parameter_collection_Count(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_Count(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Inline_collection_in_query_filter()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Inline_collection_in_query_filter();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [1, 2, 3])
+    WHERE (a > c["Id"])) = 1)
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+        => await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Inline_collection_SelectMany_with_unreferenced_collection_value());
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Parameter_collection_Count()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Parameter_collection_Count();
+
+        AssertSql(
+            """
 @ids='[2,999]'
 
 SELECT VALUE c
@@ -569,456 +590,747 @@ WHERE ((
     FROM i IN (SELECT VALUE @ids)
     WHERE (i > c["Id"])) = 1)
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_ints_Contains_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_ints_Contains_int(a);
+    public override async Task Parameter_collection_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_of_ints_Contains_int();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """,
-                    //
-                    """
+            //
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_HashSet_of_ints_Contains_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_HashSet_of_ints_Contains_int(a);
+    public override async Task Parameter_collection_HashSet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_HashSet_of_ints_Contains_int();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """,
-                    //
-                    """
+            //
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_ImmutableArray_of_ints_Contains_int(a);
+    public override async Task Parameter_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_FrozenSet_of_ints_Contains_int();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """,
-                    //
-                    """
+            //
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_ints_Contains_nullable_int(a);
+    public override async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_ImmutableArray_of_ints_Contains_int();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
+    public override async Task Parameter_collection_IReadOnlySet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_IReadOnlySet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
+    public override async Task Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_nullable_int()
+    {
+        await base.Parameter_collection_of_ints_Contains_nullable_int();
+
+        AssertSql(
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@ints, c["NullableInt"])
 """,
-                    //
-                    """
+            //
+            """
 @ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@ints, c["NullableInt"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_nullable_ints_Contains_int(a);
+    public override async Task Parameter_collection_of_nullable_ints_Contains_int()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_int();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @nullableInts='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@nullableInts, c["Int"])
 """,
-                    //
-                    """
+            //
+            """
 @nullableInts='[10,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["Int"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(a);
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @nullableInts='[null,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
 """,
-                    //
-                    """
+            //
+            """
 @nullableInts='[null,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_strings_Contains_string(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_strings_Contains_string(a);
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+@nullableInts='[null,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
+""");
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_nullable_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_nullable_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_strings_Contains_string()
+    {
+        await base.Parameter_collection_of_strings_Contains_string();
+
+        AssertSql(
+            """
 @strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@strings, c["String"])
 """,
-                    //
-                    """
+            //
+            """
 @strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@strings, c["String"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_strings_Contains_nullable_string(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_strings_Contains_nullable_string(a);
+    public override async Task Parameter_collection_of_strings_Contains_nullable_string()
+    {
+        await base.Parameter_collection_of_strings_Contains_nullable_string();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@strings, c["NullableString"])
 """,
-                    //
-                    """
+            //
+            """
 @strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_nullable_strings_Contains_string(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_nullable_strings_Contains_string(a);
+    public override async Task Parameter_collection_of_nullable_strings_Contains_string()
+    {
+        await base.Parameter_collection_of_nullable_strings_Contains_string();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @strings='["10",null]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@strings, c["String"])
 """,
-                    //
-                    """
+            //
+            """
 @strings='["10",null]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@strings, c["String"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_nullable_strings_Contains_nullable_string(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_nullable_strings_Contains_nullable_string(a);
+    public override async Task Parameter_collection_of_nullable_strings_Contains_nullable_string()
+    {
+        await base.Parameter_collection_of_nullable_strings_Contains_nullable_string();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @strings='["999",null]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@strings, c["NullableString"])
 """,
-                    //
-                    """
+            //
+            """
 @strings='["999",null]'
 
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_DateTimes_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_DateTimes_Contains(a);
+    public override async Task Parameter_collection_of_DateTimes_Contains()
+    {
+        await base.Parameter_collection_of_DateTimes_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @dateTimes='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@dateTimes, c["DateTime"])
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_bools_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_bools_Contains(a);
+    public override async Task Parameter_collection_of_bools_Contains()
+    {
+        await base.Parameter_collection_of_bools_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @bools='[true]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@bools, c["Bool"])
 """);
-            });
+    }
 
-    public override Task Parameter_collection_of_enums_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_enums_Contains(a);
+    public override async Task Parameter_collection_of_enums_Contains()
+    {
+        await base.Parameter_collection_of_enums_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @enums='[0,3]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@enums, c["Enum"])
 """);
-            });
+    }
 
-    public override Task Parameter_collection_null_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_null_Contains(a);
+    public override async Task Parameter_collection_null_Contains()
+    {
+        await base.Parameter_collection_null_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @ints=null
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """);
-            });
+    }
 
-    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    public override async Task Parameter_collection_empty_Contains()
+    {
+        await base.Parameter_collection_empty_Contains();
+
+        AssertSql(
+            """
+@ints='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""");
+    }
+
+    public override async Task Parameter_collection_empty_Join()
+    {
+        // Cosmos join support. Issue #16920.
+        await AssertTranslationFailed(base.Parameter_collection_empty_Join);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_Contains_with_EF_Constant()
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Parameter_collection_Contains_with_EF_Constant(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_Contains_with_EF_Constant);
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
-    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any()
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Parameter_collection_Where_with_EF_Constant_Where_Any(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_Where_with_EF_Constant_Where_Any);
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant()
     {
         // #34327
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async));
+            base.Parameter_collection_Count_with_column_predicate_with_EF_Constant);
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
-    public override Task Column_collection_of_ints_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_ints_Contains(a);
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values()
+        => base.Parameter_collection_Count_with_huge_number_of_values();
 
-                AssertSql(
-                    """
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
+
+    public override async Task Static_readonly_collection_List_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_List_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_FrozenSet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_ImmutableArray_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Column_collection_of_ints_Contains()
+    {
+        await base.Column_collection_of_ints_Contains();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["Ints"], 10)
 """);
-            });
+    }
 
-    public override Task Column_collection_of_nullable_ints_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_nullable_ints_Contains(a);
+    public override async Task Column_collection_of_nullable_ints_Contains()
+    {
+        await base.Column_collection_of_nullable_ints_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["NullableInts"], 10)
 """);
-            });
+    }
 
-    public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_nullable_ints_Contains_null(a);
+    public override async Task Column_collection_of_nullable_ints_Contains_null()
+    {
+        await base.Column_collection_of_nullable_ints_Contains_null();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
-            });
+    }
 
-    public override Task Column_collection_of_strings_contains_null(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_strings_contains_null(a);
+    public override async Task Column_collection_of_strings_Contains()
+    {
+        await base.Column_collection_of_strings_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(c["Strings"], "10")
+""");
+    }
+
+    public override async Task Column_collection_of_strings_Contains_null()
+    {
+        await base.Column_collection_of_strings_Contains_null();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["Strings"], null)
 """);
-            });
+    }
 
-    public override Task Column_collection_of_nullable_strings_contains_null(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_nullable_strings_contains_null(a);
+    public override async Task Column_collection_of_nullable_strings_contains_null()
+    {
+        await base.Column_collection_of_nullable_strings_contains_null();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["NullableStrings"], null)
 """);
-            });
+    }
 
-    public override Task Column_collection_of_bools_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_bools_Contains(a);
+    public override async Task Column_collection_of_bools_Contains()
+    {
+        await base.Column_collection_of_bools_Contains();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["Bools"], true)
 """);
-            });
+    }
 
-    public override Task Column_collection_Count_method(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Count_method(a);
+    public override async Task Column_with_custom_converter()
+    {
+        await base.Column_with_custom_converter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+@ints='1,2,3'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["Ints"] = @ints)
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Parameter_with_inferred_value_converter()
+    {
+        await base.Parameter_with_inferred_value_converter();
+
+        AssertSql();
+    }
+
+    public override async Task Constant_with_inferred_value_converter()
+    {
+        // TODO: advanced type mapping inference for inline scalar collection, #34026
+        await AssertTranslationFailed(() => base.Constant_with_inferred_value_converter());
+
+        AssertSql();
+    }
+
+    [Fact]
+    public override Task Multidimensional_array_is_not_supported()
+        => base.Multidimensional_array_is_not_supported();
+
+    public override async Task Contains_on_Enumerable()
+    {
+        await base.Contains_on_Enumerable();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_on_MemoryExtensions()
+    {
+        await base.Contains_on_MemoryExtensions();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_with_MemoryExtensions_with_null_comparer()
+    {
+        await base.Contains_with_MemoryExtensions_with_null_comparer();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Column_collection_Count_method()
+    {
+        await base.Column_collection_Count_method();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_Length(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Length(a);
+    public override async Task Column_collection_Length()
+    {
+        await base.Column_collection_Length();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_Count_with_predicate(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Count_with_predicate(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Column_collection_Count_with_predicate()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Column_collection_Count_with_predicate();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((
@@ -1026,16 +1338,17 @@ WHERE ((
     FROM i IN c["Ints"]
     WHERE (i > 1)) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_Where_Count(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Where_Count(a);
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Column_collection_Where_Count()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-                AssertSql(
-                    """
+        await base.Column_collection_Where_Count();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((
@@ -1043,313 +1356,268 @@ WHERE ((
     FROM i IN c["Ints"]
     WHERE (i > 1)) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_index_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_index_int(a);
+    public override async Task Column_collection_index_int()
+    {
+        await base.Column_collection_index_int();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][1] = 10)
 """);
-            });
+    }
 
-    public override Task Column_collection_index_string(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_index_string(a);
+    public override async Task Column_collection_index_string()
+    {
+        await base.Column_collection_index_string();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Strings"][1] = "10")
 """);
-            });
+    }
 
-    public override Task Column_collection_index_datetime(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_index_datetime(a);
+    public override async Task Column_collection_index_datetime()
+    {
+        await base.Column_collection_index_datetime();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00Z")
 """);
-            });
+    }
 
-    public override Task Column_collection_index_beyond_end(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_index_beyond_end(a);
+    public override async Task Column_collection_index_beyond_end()
+    {
+        await base.Column_collection_index_beyond_end();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][999] = 10)
 """);
-            });
+    }
 
-    public override async Task Nullable_reference_column_collection_index_equals_nullable_column(bool async)
+    public override async Task Nullable_reference_column_collection_index_equals_nullable_column()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<EqualException>(() => base.Nullable_reference_column_collection_index_equals_nullable_column(async));
+        await Assert.ThrowsAsync<EqualException>(base.Nullable_reference_column_collection_index_equals_nullable_column);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["NullableStrings"][2] = c["NullableString"])
 """);
-        }
     }
 
-    public override Task Non_nullable_reference_column_collection_index_equals_nullable_column(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Non_nullable_reference_column_collection_index_equals_nullable_column(a);
+    public override async Task Non_nullable_reference_column_collection_index_equals_nullable_column()
+    {
+        await base.Non_nullable_reference_column_collection_index_equals_nullable_column();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString"]))
 """);
-            });
+    }
 
-    public override async Task Inline_collection_index_Column(bool async)
+    public override async Task Inline_collection_index_Column()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Inline_collection_index_Column(async));
+        // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Inline_collection_index_Column);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ([1, 2, 3][c["Int"]] = 1)
 """);
-        }
     }
 
-    public override async Task Inline_collection_value_index_Column(bool async)
+    public override async Task Inline_collection_index_Column_with_EF_Constant()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Inline_collection_value_index_Column(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_index_Column_with_EF_Constant());
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
 
-            AssertSql(
-                """
+    public override async Task Inline_collection_value_index_Column()
+    {
+        // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Inline_collection_value_index_Column);
+
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
-        }
     }
 
-    public override async Task Inline_collection_List_value_index_Column(bool async)
+    public override async Task Inline_collection_List_value_index_Column()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Inline_collection_List_value_index_Column(async));
+        // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Inline_collection_List_value_index_Column);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
-        }
     }
 
-    public override async Task Parameter_collection_index_Column_equal_Column(bool async)
+    public override async Task Parameter_collection_index_Column_equal_Column()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Parameter_collection_index_Column_equal_Column(async));
+        // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Parameter_collection_index_Column_equal_Column);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 @ints='[0,2,3]'
 
 SELECT VALUE c
 FROM root c
 WHERE (@ints[c["Int"]] = c["Int"])
 """);
-        }
     }
 
-    public override async Task Parameter_collection_index_Column_equal_constant(bool async)
+    public override async Task Parameter_collection_index_Column_equal_constant()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Parameter_collection_index_Column_equal_constant(async));
+        // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Parameter_collection_index_Column_equal_constant);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 @ints='[1,2,3]'
 
 SELECT VALUE c
 FROM root c
 WHERE (@ints[c["Int"]] = 1)
 """);
-        }
     }
 
-    public override Task Column_collection_ElementAt(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_ElementAt(a);
+    public override async Task Column_collection_ElementAt()
+    {
+        await base.Column_collection_ElementAt();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][1] = 10)
 """);
-            });
+    }
 
-    public override Task Column_collection_First(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_First(a);
+    public override async Task Column_collection_First()
+    {
+        await base.Column_collection_First();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][0] = 1)
 """);
-            });
+    }
 
-    public override Task Column_collection_FirstOrDefault(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_FirstOrDefault(a);
+    public override async Task Column_collection_FirstOrDefault()
+    {
+        await base.Column_collection_FirstOrDefault();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
-            });
+    }
 
-    public override Task Column_collection_Single(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Single(a);
+    public override async Task Column_collection_Single()
+    {
+        await base.Column_collection_Single();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][0] = 1)
 """);
-            });
+    }
 
-    public override Task Column_collection_SingleOrDefault(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_SingleOrDefault(a);
+    public override async Task Column_collection_SingleOrDefault()
+    {
+        await base.Column_collection_SingleOrDefault();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
-            });
+    }
 
-    public override Task Column_collection_Skip(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Skip(a);
+    public override async Task Column_collection_Skip()
+    {
+        await base.Column_collection_Skip();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_Take(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Take(a);
+    public override async Task Column_collection_Take()
+    {
+        await base.Column_collection_Take();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11)
 """);
-            });
+    }
 
-    public override Task Column_collection_Skip_Take(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Skip_Take(a);
+    public override async Task Column_collection_Skip_Take()
+    {
+        await base.Column_collection_Skip_Take();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11)
 """);
-            });
+    }
 
-    public override Task Column_collection_Where_Skip(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Where_Skip(a);
+    public override async Task Column_collection_Where_Skip()
+    {
+        await base.Column_collection_Where_Skip();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
@@ -1357,16 +1625,14 @@ WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     FROM i IN c["Ints"]
     WHERE (i > 1)), 1)) = 3)
 """);
-            });
+    }
 
-    public override Task Column_collection_Where_Take(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Where_Take(a);
+    public override async Task Column_collection_Where_Take()
+    {
+        await base.Column_collection_Where_Take();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
@@ -1374,16 +1640,14 @@ WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     FROM i IN c["Ints"]
     WHERE (i > 1)), 0, 2)) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_Where_Skip_Take(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Where_Skip_Take(a);
+    public override async Task Column_collection_Where_Skip_Take()
+    {
+        await base.Column_collection_Where_Skip_Take();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
@@ -1391,16 +1655,14 @@ WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     FROM i IN c["Ints"]
     WHERE (i > 1)), 1, 2)) = 1)
 """);
-            });
+    }
 
-    public override Task Column_collection_Contains_over_subquery(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Contains_over_subquery(a);
+    public override async Task Column_collection_Contains_over_subquery()
+    {
+        await base.Column_collection_Contains_over_subquery();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
@@ -1408,20 +1670,17 @@ WHERE EXISTS (
     FROM i IN c["Ints"]
     WHERE ((i > 1) AND (i = 11)))
 """);
-            });
+    }
 
-    public override async Task Column_collection_OrderByDescending_ElementAt(bool async)
+    public override async Task Column_collection_OrderByDescending_ElementAt()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // 'ORDER BY' is not supported in subqueries.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Column_collection_OrderByDescending_ElementAt(async));
+        // 'ORDER BY' is not supported in subqueries.
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Column_collection_OrderByDescending_ElementAt);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
@@ -1429,17 +1688,14 @@ WHERE (ARRAY(
     FROM i IN c["Ints"]
     ORDER BY i DESC)[0] = 111)
 """);
-        }
     }
 
-    public override Task Column_collection_Where_ElementAt(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Where_ElementAt(a);
+    public override async Task Column_collection_Where_ElementAt()
+    {
+        await base.Column_collection_Where_ElementAt();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
@@ -1447,52 +1703,46 @@ WHERE (ARRAY(
     FROM i IN c["Ints"]
     WHERE (i > 1))[0] = 11)
 """);
-            });
+    }
 
-    public override Task Column_collection_Any(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Any(a);
+    public override async Task Column_collection_Any()
+    {
+        await base.Column_collection_Any();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
 """);
-            });
+    }
 
-    public override async Task Column_collection_Distinct(bool async)
+    public override async Task Column_collection_Distinct()
     {
         // TODO: Subquery pushdown, #33968
-        await AssertTranslationFailed(() => base.Column_collection_Distinct(async));
+        await AssertTranslationFailed(base.Column_collection_Distinct);
 
         AssertSql();
     }
 
-    public override Task Column_collection_SelectMany(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_SelectMany(a);
+    public override async Task Column_collection_SelectMany()
+    {
+        await base.Column_collection_SelectMany();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE i
 FROM root c
 JOIN i IN c["Ints"]
 """);
-            });
+    }
 
-    public override Task Column_collection_SelectMany_with_filter(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_SelectMany_with_filter(a);
+    public override async Task Column_collection_SelectMany_with_filter()
+    {
+        await base.Column_collection_SelectMany_with_filter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE j
 FROM root c
 JOIN (
@@ -1500,135 +1750,115 @@ JOIN (
     FROM i IN c["Ints"]
     WHERE (i > 1)) j
 """);
-            });
-
-    public override async Task Column_collection_SelectMany_with_Select_to_anonymous_type(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // TODO: #34004
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Column_collection_SelectMany_with_Select_to_anonymous_type(async));
-
-            Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
-        }
     }
 
-    public override Task Column_collection_projection_from_top_level(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_projection_from_top_level(a);
+    public override async Task Column_collection_SelectMany_with_Select_to_anonymous_type()
+    {
+        // TODO: #34004
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Column_collection_SelectMany_with_Select_to_anonymous_type);
 
-                AssertSql(
-                    """
+        Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
+    }
+
+    public override async Task Column_collection_projection_from_top_level()
+    {
+        await base.Column_collection_projection_from_top_level();
+
+        AssertSql(
+            """
 SELECT VALUE c["Ints"]
 FROM root c
 ORDER BY c["Id"]
 """);
-            });
+    }
 
-    public override async Task Column_collection_Join_parameter_collection(bool async)
+    public override async Task Column_collection_Join_parameter_collection()
     {
         // Cosmos join support. Issue #16920.
-        await AssertTranslationFailed(() => base.Column_collection_Join_parameter_collection(async));
+        await AssertTranslationFailed(base.Column_collection_Join_parameter_collection);
 
         AssertSql();
     }
 
-    public override async Task Inline_collection_Join_ordered_column_collection(bool async)
+    public override async Task Inline_collection_Join_ordered_column_collection()
     {
         // Cosmos join support. Issue #16920.
-        await AssertTranslationFailed(() => base.Column_collection_Join_parameter_collection(async));
+        await AssertTranslationFailed(base.Column_collection_Join_parameter_collection);
 
         AssertSql();
     }
 
-    public override Task Parameter_collection_Concat_column_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_Concat_column_collection(a);
+    public override async Task Parameter_collection_Concat_column_collection()
+    {
+        await base.Parameter_collection_Concat_column_collection();
 
-                AssertSql(
-                    """
-@ints='[11,111]'
+        AssertSql(
+            """
+@p='[11,111]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@ints, c["Ints"])) = 2)
+WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@p, c["Ints"])) = 2)
 """);
-            });
+    }
 
-    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
-            var exception = await Assert.ThrowsAsync<CosmosException>(
-                () => base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async));
+        // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+        var exception = await Assert.ThrowsAsync<CosmosException>(
+            base.Parameter_collection_with_type_inference_for_JsonScalarExpression);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 @values='["one","two"]'
 
 SELECT VALUE ((c["Id"] != 0) ? @values[(c["Int"] % 2)] : "foo")
 FROM root c
 """);
-        }
     }
 
-    public override Task Column_collection_Union_parameter_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Union_parameter_collection(a);
+    public override async Task Column_collection_Union_parameter_collection()
+    {
+        await base.Column_collection_Union_parameter_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @ints='[11,111]'
 
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetUnion(c["Ints"], @ints)) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_Intersect_inline_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Intersect_inline_collection(a);
+    public override async Task Column_collection_Intersect_inline_collection()
+    {
+        await base.Column_collection_Intersect_inline_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetIntersect(c["Ints"], [11, 111])) = 2)
 """);
-            });
+    }
 
-    public override async Task Inline_collection_Except_column_collection(bool async)
+    public override async Task Inline_collection_Except_column_collection()
     {
-        await AssertTranslationFailedWithDetails(
-            () => base.Inline_collection_Except_column_collection(async),
-            CosmosStrings.ExceptNotSupported);
+        await AssertTranslationFailedWithDetails(base.Inline_collection_Except_column_collection, CosmosStrings.ExceptNotSupported);
 
         AssertSql();
     }
 
-    public override Task Column_collection_Where_Union(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Where_Union(a);
+    public override async Task Column_collection_Where_Union()
+    {
+        await base.Column_collection_Where_Union();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
@@ -1636,62 +1866,54 @@ WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
     FROM i IN c["Ints"]
     WHERE (i > 100)), [50])) = 2)
 """);
-            });
+    }
 
-    public override Task Column_collection_equality_parameter_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_equality_parameter_collection(a);
+    public override async Task Column_collection_equality_parameter_collection()
+    {
+        await base.Column_collection_equality_parameter_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @ints='[1,10]'
 
 SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = @ints)
 """);
-            });
+    }
 
-    public override Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Concat_parameter_collection_equality_inline_collection(a);
+    public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection()
+    {
+        await base.Column_collection_Concat_parameter_collection_equality_inline_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @ints='[1,10]'
 
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_CONCAT(c["Ints"], @ints) = [1,11,111,1,10])
 """);
-            });
+    }
 
-    public override Task Column_collection_equality_inline_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_equality_inline_collection(a);
+    public override async Task Column_collection_equality_inline_collection()
+    {
+        await base.Column_collection_equality_inline_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = [1,10])
 """);
-            });
+    }
 
-    public override Task Column_collection_equality_inline_collection_with_parameters(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_equality_inline_collection_with_parameters(a);
+    public override async Task Column_collection_equality_inline_collection_with_parameters()
+    {
+        await base.Column_collection_equality_inline_collection_with_parameters();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i='1'
 @j='10'
 
@@ -1699,16 +1921,14 @@ SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = [@i, @j])
 """);
-            });
+    }
 
-    public override Task Column_collection_Where_equality_inline_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_Where_equality_inline_collection(a);
+    public override async Task Column_collection_Where_equality_inline_collection()
+    {
+        await base.Column_collection_Where_equality_inline_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
@@ -1716,40 +1936,40 @@ WHERE (ARRAY(
     FROM i IN c["Ints"]
     WHERE (i != 11)) = [1,111])
 """);
-            });
+    }
 
-    public override async Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)
+    public override async Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query()
     {
         // TODO: #33931
         // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
         // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
         // sync I/O.
-        await CosmosTestHelpers.Instance.NoSyncTest(
-            async: false, a => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(a));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query);
+
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
 
-    public override Task Parameter_collection_in_subquery_Union_column_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_in_subquery_Union_column_collection(a);
+    public override async Task Parameter_collection_in_subquery_Union_column_collection()
+    {
+        await base.Parameter_collection_in_subquery_Union_column_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @Skip='[111]'
 
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
 """);
-            });
+    }
 
-    public override async Task Parameter_collection_in_subquery_Union_column_collection_nested(bool async)
+    public override async Task Parameter_collection_in_subquery_Union_column_collection_nested()
     {
         // TODO: Subquery pushdown
-        await AssertTranslationFailed(() => base.Parameter_collection_in_subquery_Union_column_collection_nested(async));
+        await AssertTranslationFailed(base.Parameter_collection_in_subquery_Union_column_collection_nested);
 
         AssertSql();
     }
@@ -1758,75 +1978,88 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
     {
         // Array indexer over a parameter array ([1,2,3][0]) isn't supported by Cosmos.
         // TODO: general OFFSET/LIMIT support
-        //Note same problem as relational test
-        var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Parameter_collection_in_subquery_and_Convert_as_compiled_query());
+        AssertTranslationFailed(base.Parameter_collection_in_subquery_and_Convert_as_compiled_query);
 
         Assert.Contains("in the SQL tree does not have a type mapping assigned", exception.Message);
     }
 
-    public override async Task Parameter_collection_in_subquery_Count_as_compiled_query(bool async)
+    public override async Task Parameter_collection_in_subquery_Count_as_compiled_query()
     {
         // TODO: #33931
         // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
         // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
         // sync I/O.
-        await CosmosTestHelpers.Instance.NoSyncTest(
-            async: false, a => base.Parameter_collection_in_subquery_Count_as_compiled_query(a));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_in_subquery_Count_as_compiled_query);
+
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
 
-    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
+    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query()
     {
         // TODO: #33931
         // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
         // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
         // sync I/O.
-        await CosmosTestHelpers.Instance.NoSyncTest(
-            async: false, a => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(a));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query);
+
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
 
-    public override async Task Column_collection_in_subquery_Union_parameter_collection(bool async)
+    public override async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
     {
-        // TODO: #33931
-        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
-        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
-        // sync I/O.
-        await CosmosTestHelpers.Instance.NoSyncTest(
-            async: false, a => base.Column_collection_in_subquery_Union_parameter_collection(a));
+        await base.Compiled_query_with_uncorrelated_parameter_collection_expression();
 
-        AssertSql();
+        AssertSql(
+            """
+@ids='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(@ids) > 0)
+""");
     }
 
-    public override Task Project_collection_of_ints_simple(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_collection_of_ints_simple(a);
+    public override async Task Column_collection_in_subquery_Union_parameter_collection()
+    {
+        await base.Column_collection_in_subquery_Union_parameter_collection();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+@ints='[10,111]'
+
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(SetUnion(ARRAY_SLICE(c["Ints"], 1), @ints)) = 3)
+""");
+    }
+
+    public override async Task Project_collection_of_ints_simple()
+    {
+        await base.Project_collection_of_ints_simple();
+
+        AssertSql(
+            """
 SELECT VALUE c["Ints"]
 FROM root c
 ORDER BY c["Id"]
 """);
-            });
+    }
 
-    public override async Task Project_collection_of_ints_ordered(bool async)
+    public override async Task Project_collection_of_ints_ordered()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // 'ORDER BY' is not supported in subqueries.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Project_collection_of_ints_ordered(async));
+        // 'ORDER BY' is not supported in subqueries.
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Project_collection_of_ints_ordered);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
@@ -1834,17 +2067,14 @@ SELECT VALUE ARRAY(
 FROM root c
 ORDER BY c["Id"]
 """);
-        }
     }
 
-    public override Task Project_collection_of_datetimes_filtered(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_collection_of_datetimes_filtered(a);
+    public override async Task Project_collection_of_datetimes_filtered()
+    {
+        await base.Project_collection_of_datetimes_filtered();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE ARRAY(
     SELECT VALUE d
     FROM d IN c["DateTimes"]
@@ -1852,82 +2082,84 @@ SELECT VALUE ARRAY(
 FROM root c
 ORDER BY c["Id"]
 """);
-            });
-
-    public override async Task Project_collection_of_nullable_ints_with_paging(bool async)
-    {
-        // TODO: #33931
-        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
-        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
-        // sync I/O.
-        await CosmosTestHelpers.Instance.NoSyncTest(
-            async: false, a => base.Project_collection_of_nullable_ints_with_paging(a));
-
-        AssertSql();
     }
 
-    public override async Task Project_collection_of_nullable_ints_with_paging2(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging()
     {
-        // TODO: #33931
-        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
-        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
-        // sync I/O.
-        await CosmosTestHelpers.Instance.NoSyncTest(
-            async: false, a => base.Project_collection_of_nullable_ints_with_paging2(a));
+        await base.Project_collection_of_nullable_ints_with_paging();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE ARRAY(
+    SELECT VALUE i
+    FROM i IN (SELECT VALUE ARRAY_SLICE(c["NullableInts"], 0, 20)))
+FROM root c
+ORDER BY c["Id"]
+""");
     }
 
-    public override async Task Project_collection_of_nullable_ints_with_paging3(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging2()
     {
-        // TODO: #33931
-        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
-        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
-        // sync I/O.
-        await CosmosTestHelpers.Instance.NoSyncTest(
-            async: false, a => base.Project_collection_of_nullable_ints_with_paging3(a));
+        // 'ORDER BY' is not supported in subqueries.
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Project_collection_of_nullable_ints_with_paging2);
 
-        AssertSql();
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+        AssertSql(
+            """
+SELECT VALUE ARRAY_SLICE(ARRAY(
+    SELECT VALUE n
+    FROM n IN c["NullableInts"]
+    ORDER BY n), 1)
+FROM root c
+ORDER BY c["Id"]
+""");
     }
 
-    public override Task Project_collection_of_ints_with_distinct(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_collection_of_ints_with_distinct(a);
+    public override async Task Project_collection_of_nullable_ints_with_paging3()
+    {
+        await base.Project_collection_of_nullable_ints_with_paging3();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+SELECT VALUE ARRAY_SLICE(c["NullableInts"], 2)
+FROM root c
+ORDER BY c["Id"]
+""");
+    }
+
+    public override async Task Project_collection_of_ints_with_distinct()
+    {
+        await base.Project_collection_of_ints_with_distinct();
+
+        AssertSql(
+            """
 SELECT VALUE ARRAY(
     SELECT DISTINCT VALUE i
     FROM i IN c["Ints"])
 FROM root c
 ORDER BY c["Id"]
 """);
-            });
+    }
 
-    public override Task Project_collection_of_nullable_ints_with_distinct(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_collection_of_nullable_ints_with_distinct(a);
+    public override async Task Project_collection_of_nullable_ints_with_distinct()
+    {
+        await base.Project_collection_of_nullable_ints_with_distinct();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE {"c" : [c["String"], "foo"]}
 FROM root c
 WHERE (c["$type"] = "PrimitiveCollectionsEntity")
 """);
-            });
+    }
 
-    public override Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(a);
+    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault()
+    {
+        await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"])
@@ -1935,16 +2167,14 @@ FROM root c
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(a);
+    public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls()
+    {
+        await base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE
 {
     "c" : ARRAY(
@@ -1959,19 +2189,16 @@ SELECT VALUE
 FROM root c
 ORDER BY c["Id"]
 """);
-            });
+    }
 
-    public override async Task Project_multiple_collections(bool async)
+    public override async Task Project_multiple_collections()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Project_multiple_collections(async));
+        var exception = await Assert.ThrowsAsync<CosmosException>(base.Project_multiple_collections);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE
 {
     "c" : ARRAY(
@@ -1993,17 +2220,14 @@ SELECT VALUE
 FROM root c
 ORDER BY c["Id"]
 """);
-        }
     }
 
-    public override Task Project_primitive_collections_element(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_primitive_collections_element(a);
+    public override async Task Project_primitive_collections_element()
+    {
+        await base.Project_primitive_collections_element();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE
 {
     "Indexer" : c["Ints"][0],
@@ -2014,50 +2238,37 @@ FROM root c
 WHERE (c["Id"] < 4)
 ORDER BY c["Id"]
 """);
-            });
+    }
 
-    public override Task Project_inline_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_inline_collection(a);
+    public override async Task Project_inline_collection()
+    {
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(x => new[] { x.String, "foo" }),
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true),
+            elementSorter: e => e[0]);
 
-                // The following should be SELECT VALUE [c["String"], "foo"], #33779
-                AssertSql(
-                    """
+        // The following should be SELECT VALUE [c["String"], "foo"], #33779
+        AssertSql(
+            """
 SELECT VALUE [c["String"], "foo"]
 FROM root c
 """);
-            });
-
-    // Non-correlated queries not supported by Cosmos
-    public override async Task Project_inline_collection_with_Union(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await AssertTranslationFailed(() => base.Project_inline_collection_with_Union(async));
-        }
     }
 
     // Non-correlated queries not supported by Cosmos
-    public override async Task Project_inline_collection_with_Concat(bool async)
+    public override Task Project_inline_collection_with_Union()
+        => AssertTranslationFailed(base.Project_inline_collection_with_Union);
+
+    // Non-correlated queries not supported by Cosmos
+    public override Task Project_inline_collection_with_Concat()
+        => AssertTranslationFailed(base.Project_inline_collection_with_Concat);
+
+    public override async Task Nested_contains_with_Lists_and_no_inferred_type_mapping()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await AssertTranslationFailed(() => base.Project_inline_collection_with_Concat(async));
-        }
-    }
+        await base.Nested_contains_with_Lists_and_no_inferred_type_mapping();
 
-    public override Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Nested_contains_with_Lists_and_no_inferred_type_mapping(a);
-
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @strings='["one","two","three"]'
 @ints='[1,2,3]'
 
@@ -2065,16 +2276,14 @@ SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two"))
 """);
-            });
+    }
 
-    public override Task Nested_contains_with_arrays_and_no_inferred_type_mapping(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Nested_contains_with_arrays_and_no_inferred_type_mapping(a);
+    public override async Task Nested_contains_with_arrays_and_no_inferred_type_mapping()
+    {
+        await base.Nested_contains_with_arrays_and_no_inferred_type_mapping();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @strings='["one","two","three"]'
 @ints='[1,2,3]'
 
@@ -2082,127 +2291,85 @@ SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two"))
 """);
-            });
+    }
+
+    public override async Task Project_collection_from_entity_type_with_owned()
+    {
+        await base.Project_collection_from_entity_type_with_owned();
+
+        AssertSql(
+            """
+SELECT VALUE c["Ints"]
+FROM root c
+WHERE (c["$type"] = "TestEntityWithOwned")
+""");
+    }
+
+    public override async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        await base.Subquery_over_primitive_collection_on_inheritance_derived_type();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "SubType") AND (ARRAY_LENGTH(c["Ints"]) > 0))
+""");
+    }
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Values_of_enum_casted_to_underlying_value()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Values_of_enum_casted_to_underlying_value();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [0, 1, 2, 3])
+    WHERE (a = c["Int"])) > 0)
+""");
+    }
 
     #region Cosmos-specific tests
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task IsDefined(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => EF.Functions.IsDefined(e.Ints[2])),
-                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => e.Ints.Length >= 3));
+    [Fact]
+    public virtual async Task IsDefined()
+    {
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => EF.Functions.IsDefined(e.Ints[2])),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => e.Ints.Length >= 3));
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE IS_DEFINED(c["Ints"][2])
 """);
-            });
+    }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task CoalesceUndefined(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => EF.Functions.CoalesceUndefined(e.Ints[2], 999) == 999),
-                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => e.Ints.Length < 3));
+    [Fact]
+    public virtual async Task CoalesceUndefined()
+    {
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => EF.Functions.CoalesceUndefined(e.Ints[2], 999) == 999),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => e.Ints.Length < 3));
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Ints"][2] ?? 999) = 999)
 """);
-            });
+    }
 
     #endregion Cosmos-specific tests
 
-    public override async Task Parameter_collection_of_structs_Contains_struct(bool async)
-    {
-        // Always throws for sync before getting to the exception to test.
-        if (async)
-        {
-            // Requires collections of converted elements
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Parameter_collection_of_structs_Contains_struct(async));
-
-            AssertSql();
-        }
-    }
-
-    public override async Task Parameter_collection_of_structs_Contains_nullable_struct(bool async)
-    {
-        // Always throws for sync before getting to the exception to test.
-        if (async)
-        {
-            // Requires collections of converted elements
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Parameter_collection_of_structs_Contains_nullable_struct(async));
-
-            AssertSql();
-        }
-    }
-
-    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
-    {
-        // Always throws for sync before getting to the exception to test.
-        if (async)
-        {
-            // Requires collections of converted elements
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(async));
-
-            AssertSql();
-        }
-    }
-
-    public override async Task Parameter_collection_of_nullable_structs_Contains_struct(bool async)
-    {
-        // Always throws for sync before getting to the exception to test.
-        if (async)
-        {
-            // Requires collections of converted elements
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_of_nullable_structs_Contains_struct(async));
-
-            AssertSql();
-        }
-    }
-
-    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct(bool async)
-    {
-        // Always throws for sync before getting to the exception to test.
-        if (async)
-        {
-            // Requires collections of converted elements
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_of_nullable_structs_Contains_nullable_struct(async));
-
-            AssertSql();
-        }
-    }
-
-    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
-    {
-        // Always throws for sync before getting to the exception to test.
-        if (async)
-        {
-            // Requires collections of converted elements
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(async));
-
-            AssertSql();
-        }
-    }
-
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -2216,8 +2383,7 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(
-                builder.ConfigureWarnings(
-                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+                builder.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -7,25 +7,23 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ServiceProviderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GetRequiredService_throws_useful_exception_if_service_not_registered()
     {
         var serviceProvider = new ServiceCollection().BuildServiceProvider(validateScopes: true);
 
-        Assert.Throws<InvalidOperationException>(
-            () => serviceProvider.GetRequiredService<IPilkington>());
+        Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<IPilkington>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_generic_GetRequiredService_throws_useful_exception_if_service_not_registered()
     {
         var serviceProvider = new ServiceCollection().BuildServiceProvider(validateScopes: true);
 
-        Assert.Throws<InvalidOperationException>(
-            () => serviceProvider.GetRequiredService(typeof(IPilkington)));
+        Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService(typeof(IPilkington)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetRequiredService_throws_useful_exception_if_resolution_fails()
     {
         var serviceCollection = new ServiceCollection();
@@ -35,11 +33,10 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetRequiredService<IPilkington>()).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetRequiredService<IPilkington>()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_generic_GetRequiredService_throws_useful_exception_if_resolution_fails()
     {
         var serviceCollection = new ServiceCollection();
@@ -50,11 +47,10 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetRequiredService(typeof(IPilkington))).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetRequiredService(typeof(IPilkington))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetService_returns_null_if_service_not_registered()
     {
         var serviceProvider = new ServiceCollection().BuildServiceProvider(validateScopes: true);
@@ -62,7 +58,7 @@ public class ServiceProviderExtensionsTest
         Assert.Null(serviceProvider.GetService<IPilkington>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_generic_GetService_returns_null_if_service_not_registered()
     {
         var serviceProvider = new ServiceCollection().BuildServiceProvider(validateScopes: true);
@@ -70,7 +66,7 @@ public class ServiceProviderExtensionsTest
         Assert.Null(serviceProvider.GetService(typeof(IPilkington)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetService_throws_useful_exception_if_resolution_fails()
     {
         var serviceCollection = new ServiceCollection();
@@ -80,11 +76,10 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetService<IPilkington>()).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetService<IPilkington>()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_generic_GetService_throws_useful_exception_if_resolution_fails()
     {
         var serviceCollection = new ServiceCollection();
@@ -95,8 +90,7 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetService(typeof(IPilkington))).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetService(typeof(IPilkington))).Message);
     }
 
     private const string KarlQuote = "You can only talk rubbish if you're aware of knowledge.";

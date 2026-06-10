@@ -19,7 +19,7 @@ public sealed class MigrationExecutionState
     public string? CurrentMigrationId { get; set; }
 
     /// <summary>
-    ///    Indicates whether any migration operation was performed.
+    ///     Indicates whether any migration operation was performed.
     /// </summary>
     public bool AnyOperationPerformed { get; set; }
 
@@ -32,4 +32,9 @@ public sealed class MigrationExecutionState
     ///     The transaction that is in use.
     /// </summary>
     public IDbContextTransaction? Transaction { get; set; }
+
+    /// <summary>
+    ///     Indicates whether seeding has been completed.
+    /// </summary>
+    public bool SeedingCompleted { get; set; }
 }

@@ -5,8 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class OperatorsProceduralSqliteTest : OperatorsProceduralQueryTestBase
+public class OperatorsProceduralSqliteTest(NonSharedFixture fixture) : OperatorsProceduralQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

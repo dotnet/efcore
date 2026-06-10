@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -84,26 +83,48 @@ public class QueryRootProcessor : ExpressionVisitor
 
     private Expression VisitQueryRootCandidate(Expression expression, Type elementClrType)
     {
-        var candidateExpression = expression;
-
+        // A:
         // In case the collection was value type, in order to call methods like AsQueryable,
         // we need to convert it to IEnumerable<T> which requires boxing.
         // We do that with Convert expression which we need to unwrap here.
+        //
+        // B:
+        // For collections that are abstract (i.e. FrozenSet<T>), some internal type is used
+        // and for readonly fields the compiler adds explicit cast. We need to unwrap here.
         if (expression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression
-            && convertExpression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            && convertExpression.Type.IsAssignableTo(typeof(IEnumerable)))
         {
-            candidateExpression = convertExpression.Operand;
+            return VisitQueryRootCandidate(convertExpression.Operand, elementClrType);
         }
 
-        switch (candidateExpression)
+        switch (expression)
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
-            // Convert that into a NewArrayExpression for use with InlineQueryRootExpression
+            // Convert that into a NewArrayExpression for use with InlineQueryRootExpression.
             case ConstantExpression { Value: IEnumerable values }:
                 var valueExpressions = new List<ConstantExpression>();
+
+                Type? valueClrType = null;
                 foreach (var value in values)
                 {
-                    valueExpressions.Add(Expression.Constant(value, elementClrType));
+                    var valueToAdd = value;
+
+                    if (value is not null)
+                    {
+                        valueClrType ??= value.GetType();
+                        // Enums are implicitly castable to/from the underlying type
+                        // hence calling i.e. LINQ Cast<T> to underlying type
+                        // does not have to do anything and return the enum array.
+                        // But when expanding the constants, we need to change the type,
+                        // otherwise the type of value for the Expression.Constant
+                        // would not be the expected type and fail.
+                        if (valueClrType != elementClrType.UnwrapNullableType() && valueClrType.IsEnum)
+                        {
+                            valueToAdd = Convert.ChangeType(value, elementClrType);
+                        }
+                    }
+
+                    valueExpressions.Add(Expression.Constant(valueToAdd, elementClrType));
                 }
 
                 if (ShouldConvertToInlineQueryRoot(Expression.NewArrayInit(elementClrType, valueExpressions)))

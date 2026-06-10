@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
 public class SpatialQuerySqlServerGeometryTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeometryFixture>
 {
     public SpatialQuerySqlServerGeometryTest(SpatialQuerySqlServerGeometryFixture fixture, ITestOutputHelper testOutputHelper)
@@ -245,8 +245,7 @@ FROM [LineStringEntity] AS [l]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task CurveToLine(bool async)
     {
         await AssertQuery(
@@ -345,8 +344,8 @@ FROM [PointEntity] AS [p]
             async,
             ss => ss.Set<PointEntity>()
                 .Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
-            ss => ss.Set<PointEntity>().Select(
-                e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
+            ss => ss.Set<PointEntity>().Select(e
+                => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {

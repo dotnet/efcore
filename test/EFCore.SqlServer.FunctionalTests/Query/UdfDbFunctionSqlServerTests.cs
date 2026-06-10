@@ -878,14 +878,14 @@ WHERE [c].[Id] = @custId
 
         AssertSql(
             """
-SELECT [c].[Id], [s].[CustomerName], [s].[OrderId], [s].[Id]
+SELECT [c].[Id], [s].[CustomerName], [s].[OrderId]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c0].[LastName] AS [CustomerName], [g].[OrderId], [c0].[Id]
+    SELECT [c0].[LastName] AS [CustomerName], [g].[OrderId]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     INNER JOIN [Customers] AS [c0] ON [g].[CustomerId] = [c0].[Id]
 ) AS [s]
-ORDER BY [c].[Id], [s].[OrderId]
+ORDER BY [c].[Id]
 """);
     }
 
@@ -908,7 +908,7 @@ ORDER BY [g].[ProductId]
         AssertSql(
             """
 SELECT [c].[LastName], (
-    SELECT COALESCE(SUM(CAST(LEN([c1].[FirstName]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([c1].[FirstName]) AS int)), 0)
     FROM [Orders] AS [o0]
     INNER JOIN [Customers] AS [c0] ON [o0].[CustomerId] = [c0].[Id]
     INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
@@ -933,7 +933,7 @@ GROUP BY [c].[LastName]
         AssertSql(
             """
 SELECT [c0].[LastName], (
-    SELECT COALESCE(SUM(CAST(LEN([c3].[FirstName]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([c3].[FirstName]) AS int)), 0)
     FROM [Orders] AS [o0]
     INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
     INNER JOIN [Customers] AS [c3] ON [o0].[CustomerId] = [c3].[Id]
@@ -966,6 +966,18 @@ GROUP BY [c0].[LastName]
 SELECT [c].[Id], [c].[FirstName], [c].[LastName]
 FROM [Customers] AS [c]
 ORDER BY [c].[FirstName]
+""");
+    }
+
+    public override void TVF_backing_entity_type_with_complextype_mapped_to_view()
+    {
+        base.TVF_backing_entity_type_with_complextype_mapped_to_view();
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[GpsCoordinates_Latitude], [m].[GpsCoordinates_Longitude]
+FROM [MapLocations] AS [m]
+ORDER BY [m].[Id]
 """);
     }
 
