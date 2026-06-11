@@ -600,25 +600,30 @@ public partial class NavigationExpandingExpressionVisitor
                 }
 
                 // Handle member access on NavigationTreeExpression with NewExpression
-                // When accessing a specific member (like x.Job.Id), only expand that member
-                // instead of reconstructing the entire anonymous type
+                // When accessing a specific member, only expand that member instead of reconstructing the entire anonymous type.
                 if (memberExpression.Expression is NavigationTreeExpression navigationTreeExpression
                     && navigationTreeExpression.Value is NewExpression newExpression
                     && newExpression.Members != null)
                 {
-                    // Find which argument corresponds to the accessed member
                     for (var i = 0; i < newExpression.Members.Count; i++)
                     {
                         if (newExpression.Members[i] == memberExpression.Member)
                         {
                             var argument = newExpression.Arguments[i];
-                            
-                            // Visit just this specific argument
-                            var visitedArgument = Visit(argument);
-                            
-                            // Return a member access on the navigation tree expression
-                            // This ensures we don't reconstruct the entire anonymous type
-                            return visitedArgument;
+                            var newRoot = Expression.MakeMemberAccess(navigationTreeExpression, newExpression.Members[i]);
+
+                            if (argument is EntityReference entityReference)
+                            {
+                                return ExpandInclude(newRoot, entityReference);
+                            }
+
+                            if (argument is NewExpression innerNewExpression
+                                && ReconstructAnonymousType(newRoot, innerNewExpression, out var replacement))
+                            {
+                                return replacement;
+                            }
+
+                            return newRoot;
                         }
                     }
                 }
@@ -1093,15 +1098,7 @@ public partial class NavigationExpandingExpressionVisitor
                 var memberIndex = FindMemberIndex(newExpr, node.Member.Name);
                 if (memberIndex >= 0)
                 {
-                    var memberValue = Visit(newExpr.Arguments[memberIndex]);
-
-                    if (memberValue is NavigationTreeExpression)
-                    {
-                        return memberValue;
-                    }
-
-                    return new NavigationTreeExpression(memberValue);
-                }
+                    return Visit(newExpr.Arguments[memberIndex]);
             }
 
             return base.VisitMember(node);
@@ -1124,18 +1121,7 @@ public partial class NavigationExpandingExpressionVisitor
         }
 
         protected override Expression VisitExtension(Expression node)
-        {
-            if (node is NavigationTreeExpression navTree && navTree.Value is NewExpression newExpr && newExpr.Members != null)
-            {
-                var visitedValue = Visit(navTree.Value);
-                if (visitedValue != navTree.Value)
-                {
-                    return new NavigationTreeExpression(visitedValue);
-                }
-            }
-
-            return base.VisitExtension(node);
-        }
+            => base.VisitExtension(node);
 
         private static int FindMemberIndex(NewExpression newExpression, string memberName)
         {
