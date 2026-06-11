@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Ownership;
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var (level, message) = reporter.Messages.Single();
             Assert.Equal(LogLevel.Warning, level);
-            Assert.Equal(DesignStrings.MultipleAnnotationConflict("DefaultSchema"), message);
+            Assert.Equal(RelationalStrings.MultipleAnnotationConflict("DefaultSchema"), message);
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];
@@ -112,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var (level, message) = reporter.Messages.Single();
             Assert.Equal(LogLevel.Warning, level);
-            Assert.Equal(DesignStrings.MultipleAnnotationConflict("DefaultSchema"), message);
+            Assert.Equal(RelationalStrings.MultipleAnnotationConflict("DefaultSchema"), message);
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];

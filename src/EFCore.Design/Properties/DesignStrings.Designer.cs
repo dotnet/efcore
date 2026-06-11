@@ -518,14 +518,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 kind, message);
 
         /// <summary>
-        ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
-        /// </summary>
-        public static string MultipleAnnotationConflict(object? annotationName)
-            => string.Format(
-                GetString("MultipleAnnotationConflict", nameof(annotationName)),
-                annotationName);
-
-        /// <summary>
         ///     More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.
         /// </summary>
         public static string MultipleContexts

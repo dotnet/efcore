@@ -1574,6 +1574,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyValues, entityState);
 
         /// <summary>
+        ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
+        /// </summary>
+        public static string MultipleAnnotationConflict(object? annotationName)
+            => string.Format(
+                GetString("MultipleAnnotationConflict", nameof(annotationName)),
+                annotationName);
+
+        /// <summary>
         ///     Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.
         /// </summary>
         public static string MultipleColumnsWithSameJsonContainerName(object? entityType, object? columnName)
