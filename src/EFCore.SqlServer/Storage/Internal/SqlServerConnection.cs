@@ -17,6 +17,8 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
 {
     // Compensate for slow SQL Server database creation
     private const int DefaultMasterConnectionCommandTimeout = 60;
+    private const string NetSqlClientDefaultApplicationName = ".NET SqlClient Data Provider";
+    private const string CoreSqlClientDefaultApplicationName = "Core Microsoft SqlClient Data Provider";
 
     private static readonly ConcurrentDictionary<string, bool> MultipleActiveResultSetsEnabledMap = new();
     private static readonly string DefaultApplicationName = "EFCore/" + ProductInfo.GetVersion();
@@ -89,7 +91,8 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
         {
             var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
 
-            if (connectionStringBuilder.ApplicationName is ".NET SqlClient Data Provider" or "Core Microsoft SqlClient Data Provider" or "" or null)
+            // SqlClient assigns one of these defaults when Application Name isn't set by the caller.
+            if (connectionStringBuilder.ApplicationName is NetSqlClientDefaultApplicationName or CoreSqlClientDefaultApplicationName or "" or null)
             {
                 connectionStringBuilder.ApplicationName = DefaultApplicationName;
                 connectionString = connectionStringBuilder.ConnectionString;
