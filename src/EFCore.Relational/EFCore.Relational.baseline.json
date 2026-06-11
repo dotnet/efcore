@@ -16711,6 +16711,9 @@
           "Member": "static string ModificationCommandInvalidEntityStateSensitive(object? entityType, object? keyValues, object? entityState);"
         },
         {
+          "Member": "static string MultipleAnnotationConflict(object? annotationName);"
+        },
+        {
           "Member": "static string MultipleColumnsWithSameJsonContainerName(object? entityType, object? columnName);"
         },
         {
