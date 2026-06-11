@@ -790,6 +790,39 @@ public partial class ConventionDispatcher
             return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
+        public override bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
+        {
+#if DEBUG
+            var initialValue = relationshipBuilder.Metadata.IsConstrained;
+#endif
+            using (dispatcher.DelayConventions())
+            {
+                _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsConstrained);
+                foreach (var foreignKeyConvention in conventionSet.ForeignKeyConstrainednessChangedConventions)
+                {
+                    if (!relationshipBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    foreignKeyConvention.ProcessForeignKeyConstrainednessChanged(relationshipBuilder, _boolConventionContext);
+
+                    if (_boolConventionContext.ShouldStopProcessing())
+                    {
+                        return _boolConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == relationshipBuilder.Metadata.IsConstrained,
+                        $"Convention {foreignKeyConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
+        }
+
         public override bool? OnForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder)
         {
@@ -1567,6 +1600,41 @@ public partial class ConventionDispatcher
 #if DEBUG
                     Check.DebugAssert(
                         initialValue == propertyBuilder.Metadata.IsNullable,
+                        $"Convention {propertyConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return !propertyBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
+        }
+
+        public override bool? OnPropertyAutoLoadChanged(IConventionPropertyBuilder propertyBuilder)
+        {
+            if (!propertyBuilder.Metadata.DeclaringType.IsInModel)
+            {
+                return null;
+            }
+#if DEBUG
+            var initialValue = propertyBuilder.Metadata.IsAutoLoaded;
+#endif
+            using (dispatcher.DelayConventions())
+            {
+                _boolConventionContext.ResetState(propertyBuilder.Metadata.IsAutoLoaded);
+                foreach (var propertyConvention in conventionSet.PropertyAutoLoadChangedConventions)
+                {
+                    if (!propertyBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    propertyConvention.ProcessPropertyAutoLoadChanged(propertyBuilder, _boolConventionContext);
+                    if (_boolConventionContext.ShouldStopProcessing())
+                    {
+                        return _boolConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == propertyBuilder.Metadata.IsAutoLoaded,
                         $"Convention {propertyConvention.GetType().Name} changed value without terminating");
 #endif
                 }

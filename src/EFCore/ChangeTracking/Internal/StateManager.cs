@@ -272,7 +272,25 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete("Use the overload that accepts a dictionary keyed by " + nameof(IProperty) + " instead.")]
     public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        UpdateReferenceMaps(entry, EntityState.Detached, null);
+
+        return entry;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry CreateEntry(IReadOnlyDictionary<IProperty, object?> values, IEntityType entityType)
     {
         var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
 
@@ -1208,6 +1226,14 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey>? foreignKeys = null)
     {
+        // When an owned entity is replaced (e.g., via record 'with' expression), the old entry is
+        // marked Deleted and a new entry with the same key is linked via SharedIdentityEntry.
+        // Skip cascade from the old entry since the replacement handles its own dependents.
+        if (entry.SharedIdentityEntry != null)
+        {
+            return;
+        }
+
         var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
         var principalIsDetached = entry.EntityState == EntityState.Detached;
 

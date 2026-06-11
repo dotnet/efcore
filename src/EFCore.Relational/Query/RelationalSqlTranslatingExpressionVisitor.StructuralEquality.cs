@@ -121,10 +121,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             var leftReference = left as StructuralTypeReferenceExpression;
             var rightReference = right as StructuralTypeReferenceExpression;
 
-            if (IsNullSqlConstantExpression(left)
-                || IsNullSqlConstantExpression(right))
+            if (left is SqlConstantExpression { Value: null }
+                || right is SqlConstantExpression { Value: null })
             {
-                var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightReference : leftReference)!;
+                var nonNullEntityReference = (left is SqlConstantExpression { Value: null } ? rightReference : leftReference)!;
                 var nullComparedEntityType = (IEntityType)nonNullEntityReference.StructuralType;
 
                 if (nonNullEntityReference is { Parameter.ValueBufferExpression: JsonQueryExpression jsonQueryExpression })
@@ -159,7 +159,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 if (nullComparedEntityType.GetRootType() == nullComparedEntityType
                     && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    var table = nullComparedEntityType.GetViewOrTableMappings().ToList() switch
+                    // Scope to actually-projected tables when known (entity-splitting).
+                    var tableMap = (nonNullEntityReference.Parameter?.ValueBufferExpression as StructuralTypeProjectionExpression)?.TableMap;
+                    var table = nullComparedEntityType.GetProjectedQueryMappings(tableMap) switch
                     {
                         [var singleMapping] => singleMapping.Table,
 

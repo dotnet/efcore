@@ -116,17 +116,6 @@ public abstract class SnapshotFactoryFactory
         var count = types.Length;
         var arguments = new Expression[count];
 
-        var structuralTypeVariable = clrType == null
-            ? null
-            : Expression.Variable(clrType, "structuralType");
-
-        Check.DebugAssert(
-            structuralTypeVariable != null || count == 0,
-            "If there are any properties then the entity parameter must be used");
-        var indicesExpression = parameter == null || !parameter.Type.IsAssignableTo(typeof(IInternalEntry))
-            ? (Expression)Expression.Property(null, typeof(ReadOnlySpan<int>), nameof(ReadOnlySpan<>.Empty))
-            : Expression.Call(parameter, PropertyAccessorsFactory.GetOrdinalsMethod);
-
         for (var i = 0; i < count; i++)
         {
             var propertyBase = propertyBases[i];
@@ -171,45 +160,79 @@ public abstract class SnapshotFactoryFactory
                 arguments),
             typeof(ISnapshot));
 
+        var structuralTypeVariable = clrType == null
+            ? null
+            : Expression.Variable(clrType, "structuralType");
+
+        Check.DebugAssert(
+            structuralTypeVariable != null || count == 0,
+            "If there are any properties then the entity parameter must be used");
         Check.DebugAssert(
             !UseEntityVariable || structuralTypeVariable == null || parameter != null,
             "Parameter can only be null when not using entity variable.");
 
-        return UseEntityVariable
-            && structuralTypeVariable != null
-                ? Expression.Block(
-                    new List<ParameterExpression> { structuralTypeVariable },
-                    new List<Expression>
-                    {
-                        Expression.Assign(
-                            structuralTypeVariable,
-                            (IRuntimeTypeBase)propertyBases[0]!.DeclaringType switch
-                            {
-                                IComplexType { ComplexProperty.IsCollection: true } declaringComplexType => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
-                                        declaringComplexType.ComplexProperty,
-                                        Expression.Convert(
-                                            Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
-                                            declaringComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
-                                        indicesExpression,
-                                        fromDeclaringType: false,
-                                        fromEntity: true),
-                                { ContainingEntryType: IComplexType collectionComplexType }
-                                    => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
-                                        collectionComplexType.ComplexProperty,
-                                        Expression.Convert(
-                                            Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
-                                            collectionComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
-                                        indicesExpression,
-                                        fromDeclaringType: false,
-                                        fromEntity: true),
-                                _
-                                    => Expression.Convert(
-                                        Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
-                                        structuralTypeVariable.Type)
-                            }),
-                        constructorExpression
-                    })
-                : constructorExpression;
+        if (!UseEntityVariable || structuralTypeVariable == null)
+        {
+            return constructorExpression;
+        }
+
+        Expression? isMissingExpression = null;
+        var indicesExpression = parameter == null || !parameter.Type.IsAssignableTo(typeof(IInternalEntry))
+            ? (Expression)Expression.Property(null, typeof(ReadOnlySpan<int>), nameof(ReadOnlySpan<>.Empty))
+            : Expression.Call(parameter, PropertyAccessorsFactory.GetOrdinalsMethod);
+        var declaringType = (IRuntimeTypeBase)propertyBases[0]!.DeclaringType;
+        var entityAccessExpression = declaringType switch
+        {
+            IComplexType { ComplexProperty.IsCollection: true } declaringComplexType => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                declaringComplexType.ComplexProperty,
+                Expression.Convert(
+                    Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
+                    declaringComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
+                indicesExpression,
+                fromDeclaringType: false,
+                fromEntity: true,
+                shouldThrowIfMissing: ShouldThrowOnMissingCollectionElement,
+                isMissingExpression: out isMissingExpression),
+            {ContainingEntryType: IComplexType collectionComplexType } => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                collectionComplexType.ComplexProperty,
+                Expression.Convert(
+                    Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
+                    collectionComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
+                indicesExpression,
+                fromDeclaringType: false,
+                fromEntity: true,
+                shouldThrowIfMissing: ShouldThrowOnMissingCollectionElement,
+                isMissingExpression: out isMissingExpression),
+            _ => Expression.Convert(
+                Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
+                structuralTypeVariable.Type),
+        };
+
+        var snapshotBlock = Expression.Block(
+            [structuralTypeVariable],
+            Expression.Assign(structuralTypeVariable, entityAccessExpression),
+            constructorExpression);
+
+        if (isMissingExpression != null)
+        {
+            // When the collection element is missing (null collection or out of bounds),
+            // return a default-valued snapshot instead of accessing the element.
+            var defaultArguments = new Expression[count];
+            for (var i = 0; i < count; i++)
+            {
+                defaultArguments[i] = Expression.Default(types[i]);
+            }
+
+            var emptySnapshotExpression = Expression.Convert(
+                Expression.New(
+                    Snapshot.CreateSnapshotType(types).GetDeclaredConstructor(types)!,
+                    defaultArguments),
+                typeof(ISnapshot));
+
+            return Expression.Condition(isMissingExpression, emptySnapshotExpression, snapshotBlock);
+        }
+
+        return snapshotBlock;
     }
 
     private Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
@@ -340,6 +363,15 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual bool UseEntityVariable
+        => true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual bool ShouldThrowOnMissingCollectionElement
         => true;
 
     private static readonly MethodInfo SnapshotCollectionMethod

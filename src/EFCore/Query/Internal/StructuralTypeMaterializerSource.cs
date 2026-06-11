@@ -31,9 +31,6 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         = typeof(StructuralTypeMaterializerSource).GetMethod(
             nameof(PopulateList), BindingFlags.Public | BindingFlags.Static)!;
 
-    private static readonly bool UseOldBehavior37162 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37162", out var enabled37162) && enabled37162;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -78,7 +75,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         bindingInfo.ServiceInstances.Add(instanceVariable);
 
         var properties = new HashSet<IPropertyBase>(
-            structuralType.GetProperties().Cast<IPropertyBase>().Where(p => !p.IsShadowProperty())
+            structuralType.GetProperties().Where(p => !p.IsShadowProperty() && p.IsAutoLoaded).Cast<IPropertyBase>()
                 .Concat(structuralType.GetComplexProperties().Where(p => !p.IsShadowProperty())));
 
         var blockExpressions = new List<Expression>();
@@ -120,7 +117,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
         return structuralType is IComplexType complexType
             && ReadComplexTypeDirectly(complexType)
-            && (UseOldBehavior37162 ? parameters.ClrType.IsNullableType() : parameters.IsNullable)
+            && parameters.IsNullable
             ? HandleNullableComplexTypeMaterialization(
                 complexType,
                 parameters.ClrType,
@@ -207,7 +204,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
             IComplexProperty complexProperty
                 => CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", complexProperty.ClrType, nullable || complexProperty.IsNullable, QueryTrackingBehavior: null),
+                    new StructuralTypeMaterializerSourceParameters(
+                        complexProperty.ComplexType,
+                        "complexType",
+                        complexProperty.ClrType,
+                        complexProperty.IsNullable,
+                        QueryTrackingBehavior: null),
                     bindingInfo.MaterializationContextExpression),
 
             _ => throw new UnreachableException()

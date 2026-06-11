@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 
 public class SqlServerByteArrayTypeTest(SqlServerByteArrayTypeTest.ByteArrayTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -14,7 +16,7 @@ public class SqlServerByteArrayTypeTest(SqlServerByteArrayTypeTest.ByteArrayType
             """
 @Fixture_Value='0x010203' (Size = 8000)
 
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = @Fixture_Value
 """);
@@ -26,11 +28,15 @@ WHERE [t].[Value] = @Fixture_Value
 
         AssertSql(
             """
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = 0x010203
 """);
     }
+
+    // byte[].Equals() does reference equality, so the base test doesn't work for byte arrays
+    public override Task Primitive_collection_in_query()
+        => Task.CompletedTask;
 
     public override async Task SaveChanges()
     {
@@ -163,13 +169,13 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    // TODO: Currently failing on Helix only, see #36746
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
         {
-            return;
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
         }
 
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -204,10 +210,10 @@ FROM [JsonTypeEntity] AS [j]
         public override Func<byte[], byte[], bool> Comparer { get; } = (a, b) => a.SequenceEqual(b);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
+            => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

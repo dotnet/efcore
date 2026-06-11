@@ -263,6 +263,7 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
     /// <returns>The number of rows affected.</returns>
+    [Obsolete("Use ExecuteSql() instead. This method is obsolete and will be removed in a future release.")]
     public static int ExecuteSqlInterpolated(
         this DatabaseFacade databaseFacade,
         FormattableString sql)
@@ -485,6 +486,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    [Obsolete("Use ExecuteSqlAsync() instead. This method is obsolete and will be removed in a future release.")]
     public static Task<int> ExecuteSqlInterpolatedAsync(
         this DatabaseFacade databaseFacade,
         FormattableString sql,

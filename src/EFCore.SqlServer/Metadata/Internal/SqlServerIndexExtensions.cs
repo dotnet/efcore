@@ -137,10 +137,13 @@ public static class SqlServerIndexExtensions
         return true;
 
         static bool SameColumnNames(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, StoreObjectIdentifier storeObject)
-            => index.GetIncludeProperties()!.Select(p => index.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject))
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            => index.GetIncludeProperties()!
+                .Select(p => RelationalModel.FindPropertyByPath(index.DeclaringEntityType, p)!.GetColumnName(storeObject))
                 .SequenceEqual(
                     duplicateIndex.GetIncludeProperties()!.Select(p
-                        => duplicateIndex.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject)));
+                        => RelationalModel.FindPropertyByPath(duplicateIndex.DeclaringEntityType, p)!.GetColumnName(storeObject)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
     private static string FormatInclude(IReadOnlyIndex index, StoreObjectIdentifier storeObject)
@@ -149,7 +152,9 @@ public static class SqlServerIndexExtensions
             : "{'"
             + string.Join(
                 "', '",
-                index.GetIncludeProperties()!.Select(p => index.DeclaringEntityType.FindProperty(p)
-                    ?.GetColumnName(storeObject)))
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                index.GetIncludeProperties()!.Select(p
+                    => RelationalModel.FindPropertyByPath(index.DeclaringEntityType, p)?.GetColumnName(storeObject)))
+#pragma warning restore EF1001 // Internal EF Core API usage.
             + "'}";
 }

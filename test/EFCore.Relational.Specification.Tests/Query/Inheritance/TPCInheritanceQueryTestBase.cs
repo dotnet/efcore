@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
@@ -37,7 +37,7 @@ public abstract class TPCInheritanceQueryTestBase<TFixture> : InheritanceQueryTe
     public override Task Discriminator_with_cast_in_shadow_property(bool async)
         => Task.CompletedTask;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Using_from_sql_throws()
     {
         using var context = CreateContext();
@@ -46,10 +46,12 @@ public abstract class TPCInheritanceQueryTestBase<TFixture> : InheritanceQueryTe
 
         Assert.Equal(RelationalStrings.MethodOnNonTphRootNotSupported("FromSqlRaw", typeof(Bird).Name), message);
 
+#pragma warning disable CS0618 // FromSqlInterpolated is obsolete
         message = Assert.Throws<InvalidOperationException>(() => context.Set<Bird>().FromSqlInterpolated($"Select * from Birds"))
             .Message;
 
         Assert.Equal(RelationalStrings.MethodOnNonTphRootNotSupported("FromSqlInterpolated", typeof(Bird).Name), message);
+#pragma warning restore CS0618
 
         message = Assert.Throws<InvalidOperationException>(() => context.Set<Bird>().FromSql($"Select * from Birds"))
             .Message;

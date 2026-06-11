@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(NetMinimum);net472</TargetFrameworks>
+    <!-- NetFrameworkToolCurrent required to reference from EFCore.Tasks, even though it's not actually used -->
+    <TargetFrameworks>$(NetMinimum);$(NetFrameworkToolCurrent)</TargetFrameworks>
     <Description>Entity Framework Core Command-line Tools</Description>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
@@ -25,7 +26,7 @@
     <Compile Include="..\EFCore.Relational\Internal\SemanticVersionComparer.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+  <ItemGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
@@ -66,10 +67,5 @@
       <DependentUpon>Resources.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-
-  <Target Name="BuildOtherPlatforms" AfterTargets="Build" Condition=" '$(TargetFramework)' == 'net472' And '$(Platform)' == 'AnyCPU' ">
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=x86;Configuration=$(Configuration)" Targets="Build" />
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=ARM64;Configuration=$(Configuration)" Targets="Build" />
-  </Target>
 
 </Project>

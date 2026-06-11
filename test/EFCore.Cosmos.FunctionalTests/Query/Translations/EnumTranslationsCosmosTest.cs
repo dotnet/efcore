@@ -241,7 +241,7 @@ OFFSET 0 LIMIT 1
     public override Task HasFlag_with_nullable_parameter()
         => AssertTranslationFailed(() => base.HasFlag());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

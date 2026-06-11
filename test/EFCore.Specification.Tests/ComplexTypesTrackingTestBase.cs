@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -10,381 +11,479 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_objects(EntityState state, bool async)
         => TrackAndSaveTest(state, async, c => CreatePub(c));
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_type_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, c => CreatePub(c));
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_types(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, c => CreatePub(c));
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_types(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, c => CreatePub(c));
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_structs(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_structs(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_structs(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithStructs);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_structs(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithReadonlyStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_readonly_structs(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_readonly_structs(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructs);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_objects(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_record_type_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_record_complex_types(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_record_complex_types(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithRecords);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_objects_with_fields(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldPub);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_type_properties_modified_with_fields(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldPub);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_types_with_fields(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldPub);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_types_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldPub);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_structs_with_fields(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldPubWithStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_properties_modified_with_fields(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldPubWithStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_structs_with_fields(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithStructs);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_structs_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Constructor binding #31621"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_structs_with_fields(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified_with_fields(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_readonly_structs_with_fields(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_readonly_structs_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithReadonlyStructs);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_objects_with_fields(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldPubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_record_type_properties_modified_with_fields(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldPubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_record_complex_types_with_fields(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_record_complex_types_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithRecords);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_type_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_type_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_type_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_type_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithCollections);
+
+    [Theory(Skip = "Issue #31411")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithStructCollections);
+
+    [Theory(Skip = "Issue #31621")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_readonly_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithReadonlyStructCollections);
+
+    [Theory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithRecordCollections);
+
+    [Theory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPub);
+
+    [Theory(Skip = "Issue #31411")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithStructs);
+
+    [Theory(Skip = "Issue #31621")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_readonly_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [Theory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithRecords);
+
+    private async Task ChangeStateFromDeletedTest<TEntity>(
+        EntityState newState,
+        bool async,
+        Func<DbContext, TEntity> createPub)
+        where TEntity : class
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var pub = createPub(context);
+                context.Add(pub);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var pub = async
+                    ? await context.Set<TEntity>().Where(e => EF.Property<string>(e, "Name") == "The FBI").FirstAsync()
+                    : context.Set<TEntity>().Where(e => EF.Property<string>(e, "Name") == "The FBI").First();
+                var entry = context.Entry(pub);
+
+                entry.State = EntityState.Deleted;
+
+                // Change to target state - this should not throw an exception
+                entry.State = newState;
+                Assert.Equal(newState, entry.State);
+
+                // Verify the complex collection is still accessible
+                var activitiesEntry = entry.ComplexCollection("Activities");
+                Assert.NotNull(activitiesEntry);
+                var activitiesValue = activitiesEntry.CurrentValue;
+                Assert.Equal(2, ((System.Collections.IList)activitiesValue!).Count);
+            });
+    }
+
+    [Theory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_struct_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithStructCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_struct_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithStructCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_struct_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithStructCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_struct_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithStructCollections);
 
-    [ConditionalTheory(Skip = "Issue #31621"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Issue #31621"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_struct_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithReadonlyStructCollections);
 
-    [ConditionalTheory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
 
-    [ConditionalTheory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_readonly_struct_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
 
-    [ConditionalTheory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_readonly_struct_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithRecordCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_record_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithRecordCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_record_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithRecordCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_record_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithRecordCollections);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_field_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldCollectionPub);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_field_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPub);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_field_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPub);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_field_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPub);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_struct_collections_with_fields(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldCollectionPubWithStructs);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_struct_collections_with_fields_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_struct_collections_with_fields(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_struct_collections_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_collections_with_fields(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldCollectionPubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_record_collections_with_fields_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_record_collections_with_fields(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_record_collections_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Constructor binding #31621"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_struct_collections_with_fields(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreateFieldCollectionPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_collections_with_fields_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_readonly_struct_collections_with_fields(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Constructor binding #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_readonly_struct_collections_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Issue #36483"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_type_array_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_type_array_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_type_array_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_type_array_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Issue #36483"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_struct_array_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_struct_array_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_struct_array_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_struct_array_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_struct_array_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithReadonlyStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_array_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_readonly_struct_array_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_readonly_struct_array_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
+    [Theory(Skip = "Issue #36483"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_array_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithRecordArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_record_array_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithRecordArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_record_array_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithRecordArrayCollections);
 
-    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_record_array_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithRecordArrayCollections);
 
-    [ConditionalTheory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Added, false), InlineData(EntityState.Added, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_property_bag_collections(EntityState state, bool async)
         => TrackAndSaveTest(state, async, CreatePubWithPropertyBagCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_mark_complex_property_bag_collection_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithPropertyBagCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
         => ReadOriginalValuesTest(trackFromQuery, CreatePubWithPropertyBagCollections);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithPropertyBagCollections);
 
@@ -700,7 +799,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Detect_changes_in_complex_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -779,7 +878,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Throws_only_when_saving_with_null_top_level_complex_property(bool async)
     {
         await using var context = CreateContext();
@@ -793,7 +892,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 => async ? context.SaveChangesAsync() : Task.FromResult(context.SaveChanges()))).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Throws_only_when_saving_with_null_second_level_complex_property(bool async)
     {
         await using var context = CreateContext();
@@ -807,7 +906,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 => async ? context.SaveChangesAsync() : Task.FromResult(context.SaveChanges()))).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -834,7 +933,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             //Assert.Null(actualYogurt.Milk.Manufacturer.Tag);
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -859,7 +958,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             //Assert.Null(actualYogurt.Milk.License);
         });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Detect_changes_in_complex_struct_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -948,7 +1047,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Detects_changes_in_complex_readonly_struct_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1091,7 +1190,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Detects_changes_in_complex_record_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1177,7 +1276,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_reordered_elements_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1205,7 +1304,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.True(collectionEntry.IsModified);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_added_elements_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1252,7 +1351,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal("New Runners Up", newActivity.Teams[1].Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_removed_elements_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1278,7 +1377,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.True(collectionEntry.IsModified);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_replaced_elements_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1329,7 +1428,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal("Replaced Runners Up", runnersUpEntry.Property(nameof(Team.Name)).CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_duplicates_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1360,7 +1459,74 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(EntityState.Added, activitiesEntry[2].State);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithCollections);
+
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_struct_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithStructCollections);
+
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_readonly_struct_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
+
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_record_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithRecordCollections);
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPub);
+
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_struct_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
+
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_readonly_struct_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [Theory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_record_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
+
+    private void RemoveFromComplexCollectionWithNestedCollectionTest<TEntity>(bool trackFromQuery, Func<DbContext, TEntity> createPub)
+        where TEntity : class
+    {
+        using var context = CreateContext();
+        var pub = createPub(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        var activitiesProperty = entry.Metadata.FindComplexProperty("Activities")!;
+        var activities = (IList)activitiesProperty.GetGetter().GetClrValue(pub)!;
+        var originalCount = activities.Count;
+        Assert.True(originalCount > 0);
+
+        activities.RemoveAt(0);
+
+        context.ChangeTracker.DetectChanges();
+
+        var collectionEntry = entry.ComplexCollection("Activities");
+        var internalEntry = entry.GetInfrastructure();
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(collectionEntry.IsModified);
+        Assert.Equal([-1, 0], internalEntry.GetComplexCollectionOriginalEntries(collectionEntry.Metadata).Select(e => e?.Ordinal));
+        Assert.Equal([1], internalEntry.GetComplexCollectionEntries(collectionEntry.Metadata).Select(e => e?.OriginalOrdinal));
+
+        context.ChangeTracker.AcceptAllChanges();
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+        Assert.False(collectionEntry.IsModified);
+        Assert.Equal([0], internalEntry.GetComplexCollectionOriginalEntries(collectionEntry.Metadata).Select(e => e?.Ordinal));
+        Assert.Equal([0], internalEntry.GetComplexCollectionEntries(collectionEntry.Metadata).Select(e => e?.OriginalOrdinal));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_handle_null_elements_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1435,7 +1601,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Assert.Throws<InvalidOperationException>(() => nullCoverChargeEntry.CurrentValue = 3.0m).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_swapped_complex_objects_in_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1482,7 +1648,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal([1, 1], team2Entry.GetInfrastructure().GetOrdinals());
     }
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_detect_changes_to_struct_collection_elements(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1511,7 +1677,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(12.5m, pub.Activities[0].CoverCharge);
     }
 
-    [ConditionalTheory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_detect_changes_to_readonly_struct_collection_elements(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1555,7 +1721,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(new[] { "X", "Y", "Z" }, pub.Activities[0].Teams[1].Members);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_handle_collection_with_mixed_null_and_duplicate_elements(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1602,7 +1768,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Null(duplicate.Teams);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_changes_to_record_collection_elements(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1630,7 +1796,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(20.0m, activityEntry.Property("CoverCharge").CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_nested_collection_changes_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1662,7 +1828,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal("New Team", teamEntry.Property("Name").CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_changes_to_nested_teams_members_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1689,7 +1855,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Contains("New Member", pub.Activities[0].Teams[0].Members);
     }
 
-    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
     public virtual void Can_detect_changes_to_nested_struct_teams_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1720,7 +1886,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Contains("Additional Member", pub.Activities[0].Teams[0].Members);
     }
 
-    [ConditionalTheory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
+    [Theory(Skip = "Issue #31621"), InlineData(false), InlineData(true)]
     public virtual void Can_detect_changes_to_nested_readonly_struct_teams_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1759,7 +1925,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Contains("Additional Member", pub.Activities[0].Teams[0].Members);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_detect_changes_to_record_teams_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1789,7 +1955,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Contains("Additional Member", pub.Activities[0].Teams[0].Members);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Can_handle_empty_nested_teams_in_complex_type_collections(bool trackFromQuery)
     {
         using var context = CreateContext();
@@ -1829,7 +1995,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Empty(emptyTeamsActivity.Teams);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_accessing_complex_entries_using_incorrect_cardinality()
     {
         using var context = CreateContext();
@@ -2053,10 +2219,11 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
         Func<DbContext, Task>? nestedTestOperation1 = null,
-        Func<DbContext, Task>? nestedTestOperation2 = null)
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2);
+            testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
@@ -2396,6 +2563,11 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                                 b.ComplexProperty(e => e.Tog);
                             });
                     });
+            });
+
+            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>(b =>
+            {
+                b.ComplexProperty(e => e.ComplexProp);
             });
         }
     }
@@ -4373,4 +4545,124 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             ],
             FeaturedTeam = new TeamReadonlyStruct("Not In This Lifetime", ["Slash", "Axl"])
         };
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = Fixture.UseProxies
+                    ? context.CreateProxy<EntityWithOptionalMultiPropComplex>()
+                    : new EntityWithOptionalMultiPropComplex();
+
+                entity.Id = Guid.NewGuid();
+                entity.ComplexProp = null;
+
+                _ = async ? await context.AddAsync(entity) : context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.Null(entity.ComplexProp);
+
+                // Set the complex property with default values
+                entity.ComplexProp = new MultiPropComplex
+                {
+                    IntValue = 0,
+                    BoolValue = false,
+                    DateValue = default
+                };
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.NotNull(entity.ComplexProp);
+                Assert.Equal(0, entity.ComplexProp.IntValue);
+                Assert.False(entity.ComplexProp.BoolValue);
+                Assert.Equal(default, entity.ComplexProp.DateValue);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                // Complex types with more than one property should materialize even with default values
+                Assert.NotNull(entity.ComplexProp);
+                Assert.Equal(0, entity.ComplexProp.IntValue);
+                Assert.False(entity.ComplexProp.BoolValue);
+                Assert.Equal(default, entity.ComplexProp.DateValue);
+            });
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = Fixture.UseProxies
+                    ? context.CreateProxy<EntityWithOptionalMultiPropComplex>()
+                    : new EntityWithOptionalMultiPropComplex();
+
+                entity.Id = Guid.NewGuid();
+                // Set the complex property with default values
+                entity.ComplexProp = new MultiPropComplex
+                {
+                    IntValue = 0,
+                    BoolValue = false,
+                    DateValue = default,
+                };
+
+                _ = async ? await context.AddAsync(entity) : context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.NotNull(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.NotNull(entity.ComplexProp);
+
+                entity.ComplexProp = null;
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.Null(entity.ComplexProp);
+            });
+    }
+
+    public class EntityWithOptionalMultiPropComplex
+    {
+        public virtual Guid Id { get; set; }
+        public virtual MultiPropComplex? ComplexProp { get; set; }
+    }
+
+    public class MultiPropComplex
+    {
+        public int IntValue { get; set; }
+        public bool BoolValue { get; set; }
+        public DateTimeOffset DateValue { get; set; }
+    }
 }

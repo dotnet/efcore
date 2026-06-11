@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class AzureSqlDbContextOptionsExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_call_UseNetTopologySuite_with_UseAzureSql()
     {
         // This test just makes sure we can call/compile UseNetTopologySuite with UseAzureSql.

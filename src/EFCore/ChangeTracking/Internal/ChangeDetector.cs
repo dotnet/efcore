@@ -46,24 +46,38 @@ public class ChangeDetector : IChangeDetector
             return;
         }
 
-        if (propertyBase is IProperty property)
+        switch (propertyBase)
         {
-            if (entry.EntityState is not EntityState.Deleted)
-            {
-                entry.SetPropertyModified(property, setModified);
-            }
-            else
-            {
-                ThrowIfKeyChanged(entry, property);
-            }
+            case IProperty property:
+                if (entry.EntityState is not EntityState.Deleted)
+                {
+                    entry.SetPropertyModified(property, setModified);
+                }
+                else
+                {
+                    ThrowIfKeyChanged(entry, property);
+                }
 
-            DetectKeyChange(entry, property);
-        }
-        else if (propertyBase.GetRelationshipIndex() != -1
-                 && propertyBase is INavigationBase navigation)
-        {
-            DetectNavigationChange(
-                entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
+                DetectKeyChange(entry, property);
+                break;
+
+            case IComplexProperty { IsCollection: false } complexProperty:
+                // TODO: This requires notification change tracking for complex types
+                // Issue #36175
+                if (entry.EntityState is not EntityState.Deleted
+                    && setModified
+                    && entry is InternalEntryBase entryBase
+                    && complexProperty.IsNullable
+                    && complexProperty.GetOriginalValueIndex() >= 0)
+                {
+                    DetectComplexPropertyChange(entryBase, complexProperty);
+                }
+                break;
+
+            case INavigationBase navigation when propertyBase.GetRelationshipIndex() != -1:
+                DetectNavigationChange(
+                    entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
+                break;
         }
     }
 
@@ -267,6 +281,17 @@ public class ChangeDetector : IChangeDetector
         var changesFound = false;
         foreach (var property in entry.StructuralType.GetFlattenedProperties())
         {
+            if (!entry.IsLoaded(property))
+            {
+                if (!property.GetValueComparer().Equals(entry[property], property.Sentinel))
+                {
+                    entry.SetPropertyModified(property);
+                    changesFound = true;
+                }
+
+                continue;
+            }
+
             if (property.GetOriginalValueIndex() >= 0
                 && !entry.IsModified(property)
                 && !entry.IsConceptualNull(property))
@@ -292,9 +317,65 @@ public class ChangeDetector : IChangeDetector
                     changesFound = true;
                 }
             }
+            else if (complexProperty.IsNullable && complexProperty.GetOriginalValueIndex() >= 0)
+            {
+                if (DetectComplexPropertyChange(entry, complexProperty))
+                {
+                    changesFound = true;
+                }
+            }
         }
 
         return changesFound;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool DetectComplexPropertyChange(InternalEntryBase entry, IComplexProperty complexProperty)
+    {
+        Check.DebugAssert(!complexProperty.IsCollection, $"Expected {complexProperty.Name} to not be a collection.");
+
+        var currentValue = entry[complexProperty];
+        var originalValue = entry.GetOriginalValue(complexProperty);
+
+        if ((currentValue is null) != (originalValue is null))
+        {
+            // Set the discriminator value for the complex type when transitioning from null to non-null or vice versa.
+            // The discriminator is a shadow property whose value needs to be updated to reflect the new state.
+            var discriminatorProperty = complexProperty.ComplexType.FindDiscriminatorProperty();
+            if (discriminatorProperty != null)
+            {
+                if (currentValue is not null)
+                {
+                    entry[discriminatorProperty] = complexProperty.ComplexType.GetDiscriminatorValue();
+                }
+                else if (discriminatorProperty.IsShadowProperty())
+                {
+                    entry[discriminatorProperty] = discriminatorProperty.ClrType.GetDefaultValue();
+                }
+            }
+
+            // If it changed from null to non-null or from non-null to null, mark all inner properties as modified
+            // to ensure the entity is detected as modified and the complex type properties are persisted
+            foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
+            {
+                // Only mark properties that are tracked, can be modified, and are loaded
+                if (innerProperty.GetOriginalValueIndex() >= 0
+                    && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                    && entry.IsLoaded(innerProperty))
+                {
+                    entry.SetPropertyModified(innerProperty);
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -735,6 +816,11 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public bool DetectValueChange(IInternalEntry entry, IProperty property)
     {
+        if (!entry.IsLoaded(property))
+        {
+            return false;
+        }
+
         var current = entry[property];
         var original = entry.GetOriginalValue(property);
 

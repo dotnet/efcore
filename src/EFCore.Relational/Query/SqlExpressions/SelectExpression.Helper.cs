@@ -286,7 +286,7 @@ public sealed partial class SelectExpression
                     var navigation = collectionResultExpression.StructuralProperty switch
                     {
                         INavigationBase n => n,
-                        null => null,
+                        null or IComplexProperty => null,
                         _ => throw new UnreachableException()
                     };
 
@@ -360,7 +360,7 @@ public sealed partial class SelectExpression
                 }
 
                 case ColumnExpression column when _tableAliasMap.TryGetValue(column.TableAlias, out var newTableAlias):
-                    return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
+                    return new ColumnExpression(column.Name, newTableAlias, column.Column, column.Type, column.TypeMapping, column.IsNullable);
 
                 default:
                     return base.Visit(expression);

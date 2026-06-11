@@ -270,7 +270,8 @@ public partial class NavigationExpandingExpressionVisitor
 
                     var resultSelector = Expression.Lambda(innerKeyParameter, outerKeyParameter, innerKeyParameter);
 
-                    var innerJoin = !inverseNavigation.IsOnDependent && secondaryForeignKey.IsRequired;
+                    var innerJoin = !inverseNavigation.IsOnDependent
+                        && secondaryForeignKey.IsEffectivelyRequired();
 
                     secondaryExpansion = Expression.Call(
                         (innerJoin
@@ -476,7 +477,7 @@ public partial class NavigationExpandingExpressionVisitor
             var innerJoin = !entityReference.IsOptional
                 && !derivedTypeConversion
                 && onDependent
-                && foreignKey.IsRequired;
+                && foreignKey.IsEffectivelyRequired();
 
             if (!innerJoin)
             {
@@ -839,7 +840,7 @@ public partial class NavigationExpandingExpressionVisitor
                         && navigationBase is ISkipNavigation skipNavigation
                         && subquery is MethodCallExpression { Method.IsGenericMethod: true } joinMethodCallExpression
                         && joinMethodCallExpression.Method.GetGenericMethodDefinition()
-                        == (skipNavigation.Inverse.ForeignKey.IsRequired
+                        == (skipNavigation.Inverse.ForeignKey.IsEffectivelyRequired()
                             ? QueryableMethods.Join
                             : QueryableMethods.LeftJoin)
                         && joinMethodCallExpression.Arguments[4] is UnaryExpression
@@ -1031,7 +1032,7 @@ public partial class NavigationExpandingExpressionVisitor
 
                     if (navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null)
                     {
-                        var arguments = new List<Expression> { result };
+                        var arguments = new List<Expression>(navigationExpansionExpression.CardinalityReducingMethodArguments.Count + 1) { result };
                         arguments.AddRange(navigationExpansionExpression.CardinalityReducingMethodArguments.Select(x => Visit(x)));
 
                         result = Expression.Call(

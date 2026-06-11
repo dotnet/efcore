@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -48,8 +49,127 @@ public class SqlServerSqlTranslatingExpressionVisitor(
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqlServerSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;
 
+    private static readonly MethodInfo TimeSpanToSwitchOffsetMethod =
+        typeof(SqlServerSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructSwitchOffsetParameter))!;
+
     private const char LikeEscapeChar = '\\';
     private const string LikeEscapeString = "\\";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitMember(MemberExpression memberExpression)
+    {
+        switch (memberExpression)
+        {
+            // Translate DateTimeOffset.Offset.TotalMinutes to DATEPART(tz, <dateTimeOffset>), which returns the offset
+            // in whole minutes. We cannot translate DateTimeOffset.Offset alone since DATEPART(tz) returns an int (minutes),
+            // not a TimeSpan.
+            case
+            {
+                Member: { Name: nameof(TimeSpan.TotalMinutes), DeclaringType: var totalMinutesType },
+                Expression: MemberExpression
+                {
+                    Member: { Name: nameof(DateTimeOffset.Offset), DeclaringType: var offsetType },
+                    Expression: { } dateTimeOffsetExpression
+                }
+            } when totalMinutesType == typeof(TimeSpan) && offsetType == typeof(DateTimeOffset):
+            {
+                if (Visit(dateTimeOffsetExpression) is not SqlExpression translatedInstance)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                return _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Function(
+                        "DATEPART",
+                        arguments: [_sqlExpressionFactory.Fragment("tz"), translatedInstance],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        typeof(int)),
+                    typeof(double));
+            }
+
+            // For standalone DateTimeOffset.Offset (not followed by TotalMinutes), provide a helpful error message.
+            case { Member: { Name: nameof(DateTimeOffset.Offset), DeclaringType: var offsetType } }
+                when offsetType == typeof(DateTimeOffset):
+            {
+                AddTranslationErrorDetails(SqlServerStrings.DateTimeOffsetOffsetRequiresTotalMinutes);
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            default:
+                return base.VisitMember(memberExpression);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitNew(NewExpression newExpression)
+    {
+        if (base.VisitNew(newExpression) is var translation
+            && translation != QueryCompilationContext.NotTranslatedExpression)
+        {
+            return translation;
+        }
+
+        // Translate new DateTimeOffset(DateTime) and new DateTimeOffset(DateTime, TimeSpan) to
+        // TODATETIMEOFFSET(datetime, offset).
+        switch (newExpression)
+        {
+            case { Constructor.DeclaringType: var type, Arguments: [var dateTimeArg, var offsetArg] }
+                when type == typeof(DateTimeOffset)
+                    && dateTimeArg.Type == typeof(DateTime)
+                    && offsetArg.Type == typeof(TimeSpan):
+            {
+                if (Visit(dateTimeArg) is not SqlExpression translatedDateTime
+                    || Visit(offsetArg) is not SqlExpression translatedOffset)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var offsetExpression = TranslateTimeSpanToOffsetExpression(translatedOffset);
+                if (offsetExpression is null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                return _sqlExpressionFactory.Function(
+                    "TODATETIMEOFFSET",
+                    [translatedDateTime, offsetExpression],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
+                    typeof(DateTimeOffset));
+            }
+
+            case { Constructor.DeclaringType: var type, Arguments: [var dateTimeArg] }
+                when type == typeof(DateTimeOffset) && dateTimeArg.Type == typeof(DateTime):
+            {
+                if (Visit(dateTimeArg) is not SqlExpression translatedDateTime)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var varcharTypeMapping = _typeMappingSource.FindMapping("varchar");
+                return _sqlExpressionFactory.Function(
+                    "TODATETIMEOFFSET",
+                    [translatedDateTime, _sqlExpressionFactory.Constant("+00:00", varcharTypeMapping)],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
+                    typeof(DateTimeOffset));
+            }
+
+            default:
+                return QueryCompilationContext.NotTranslatedExpression;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -238,6 +358,149 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     argumentsPropagateNullability: new bool[translatedArguments.Length],
                     typeof(string),
                     _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
+            }
+
+            // We translate EF.Functions.JsonContains here and not in a method translator since we need to support JsonContains over
+            // complex and owned JSON properties, which requires special handling.
+            case nameof(SqlServerDbFunctionsExtensions.JsonContains)
+                when declaringType == typeof(SqlServerDbFunctionsExtensions)
+                    && @object is null
+                    && arguments is [_, var json, var searchValue, var path, var searchMode]:
+            {
+                if (Translate(searchValue) is not SqlExpression translatedSearchValue)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                SqlExpression? translatedPath = null;
+                if (path is not ConstantExpression { Value: null })
+                {
+                    if (Translate(path) is not SqlExpression pathExpression)
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    translatedPath = pathExpression;
+                }
+
+                SqlExpression? translatedSearchMode = null;
+                if (searchMode is not ConstantExpression { Value: null })
+                {
+                    if (Translate(searchMode) is not SqlExpression searchModeExpression)
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    translatedSearchMode = searchModeExpression;
+                }
+
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    // The JSON argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The JSON argument is a complex or owned JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                if (translatedJson is null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                List<SqlExpression> functionArguments = [translatedJson, translatedSearchValue];
+                List<bool> argumentsPropagateNullability = [true, false];
+
+                if (translatedPath is not null)
+                {
+                    functionArguments.Add(translatedPath);
+                    argumentsPropagateNullability.Add(true);
+                }
+
+                if (translatedSearchMode is not null)
+                {
+                    functionArguments.Add(translatedSearchMode);
+                    argumentsPropagateNullability.Add(true);
+                }
+
+                return _sqlExpressionFactory.Function(
+                    "JSON_CONTAINS",
+                    functionArguments,
+                    nullable: true,
+                    argumentsPropagateNullability: argumentsPropagateNullability,
+                    typeof(int));
+            }
+
+            // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over
+            // complex and owned JSON properties, which requires special handling.
+            case nameof(RelationalDbFunctionsExtensions.JsonPathExists)
+                when declaringType == typeof(RelationalDbFunctionsExtensions)
+                    && @object is null
+                    && arguments is [_, var json, var path]:
+            {
+                if (Translate(path) is not SqlExpression translatedPath)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    // The JSON argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The JSON argument is a complex or owned JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                return translatedJson is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Equal(
+                        _sqlExpressionFactory.Function(
+                            "JSON_PATH_EXISTS",
+                            [translatedJson, translatedPath],
+                            nullable: true,
+                            // Note that JSON_PATH_EXISTS() does propagate nullability; however, our query pipeline assumes that if
+                            // arguments propagate nullability, that's the *only* reason for the function to return null; this means that
+                            // if the arguments are non-nullable, the IS NOT NULL wrapping check can be optimized away.
+                            argumentsPropagateNullability: [false, false],
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(1));
+            }
+
+            // https://learn.microsoft.com/dotnet/api/system.datetimeoffset.tooffset
+            case nameof(DateTimeOffset.ToOffset)
+                when declaringType == typeof(DateTimeOffset)
+                    && @object is not null
+                    && arguments is [{ Type: var argType } offsetArgument]
+                    && argType == typeof(TimeSpan):
+            {
+                if (Visit(@object) is not SqlExpression translatedInstance
+                    || Visit(offsetArgument) is not SqlExpression translatedOffset)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var offsetExpression = TranslateTimeSpanToOffsetExpression(translatedOffset);
+                if (offsetExpression is null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                return _sqlExpressionFactory.Function(
+                    "SWITCHOFFSET",
+                    [translatedInstance, offsetExpression],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
+                    typeof(DateTimeOffset),
+                    translatedInstance.TypeMapping);
             }
 
             default:
@@ -435,6 +698,43 @@ public class SqlServerSqlTranslatingExpressionVisitor(
     }
 
     /// <summary>
+    ///     Translates a TimeSpan SQL expression (constant or parameter) to a varchar offset string expression (e.g. '+01:30').
+    ///     SQL Server offset functions (SWITCHOFFSET, TODATETIMEOFFSET) expect varchar, but .NET uses TimeSpan.
+    /// </summary>
+    private SqlExpression? TranslateTimeSpanToOffsetExpression(SqlExpression translatedOffset)
+    {
+        var varcharTypeMapping = _typeMappingSource.FindMapping("varchar");
+
+        return translatedOffset switch
+        {
+            SqlConstantExpression { Value: TimeSpan timeSpan }
+                => _sqlExpressionFactory.Constant(TimeSpanToOffsetString(timeSpan), varcharTypeMapping),
+
+            SqlParameterExpression offsetParameter => CreateRuntimeParameter(offsetParameter, varcharTypeMapping!),
+
+            _ => null
+        };
+
+        SqlParameterExpression CreateRuntimeParameter(
+            SqlParameterExpression offsetParameter,
+            RelationalTypeMapping varcharTypeMapping)
+        {
+            var lambda = Expression.Lambda(
+                Expression.Call(
+                    TimeSpanToSwitchOffsetMethod,
+                    QueryCompilationContext.QueryContextParameter,
+                    Expression.Constant(offsetParameter.Name)),
+                QueryCompilationContext.QueryContextParameter);
+
+            var runtimeParameter =
+                _queryCompilationContext.RegisterRuntimeParameter(
+                    $"{offsetParameter.Name}_offset", lambda);
+
+            return new SqlParameterExpression(runtimeParameter.Name!, runtimeParameter.Type, varcharTypeMapping);
+        }
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -479,6 +779,44 @@ public class SqlServerSqlTranslatingExpressionVisitor(
 
             _ => throw new UnreachableException()
         };
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static string? ConstructSwitchOffsetParameter(
+        QueryContext queryContext,
+        string baseParameterName)
+        => queryContext.Parameters[baseParameterName] switch
+        {
+            null => null,
+            TimeSpan timeSpan => TimeSpanToOffsetString(timeSpan),
+            _ => throw new UnreachableException()
+        };
+
+    private static string TimeSpanToOffsetString(TimeSpan timeSpan)
+    {
+        if (timeSpan.Ticks % TimeSpan.TicksPerMinute != 0)
+        {
+            throw new InvalidOperationException(SqlServerStrings.TimeSpanOffsetPrecisionNotSupported);
+        }
+
+        var totalMinutes = timeSpan.Ticks / TimeSpan.TicksPerMinute;
+        if (totalMinutes is < -14 * 60 or > 14 * 60)
+        {
+            throw new InvalidOperationException(SqlServerStrings.TimeSpanOffsetOutOfRange(timeSpan));
+        }
+
+        var sign = totalMinutes >= 0 ? "+" : "-";
+        var absoluteTotalMinutes = Math.Abs(totalMinutes);
+        var hours = absoluteTotalMinutes / 60;
+        var minutes = absoluteTotalMinutes % 60;
+
+        return $"{sign}{hours:D2}:{minutes:D2}";
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations;
@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations;
 public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : AssociationsQueryFixtureBase, new()
 {
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>(),
@@ -14,19 +14,19 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
 
     #region Scalar properties
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_scalar_property_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate.String),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_property_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.String),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_value_type_property_on_null_associate_throws(QueryTrackingBehavior queryTrackingBehavior)
         // We have an entity with OptionalRelated null, so projecting a value type property from that throws
         // "Nullable object must have a value"
@@ -35,7 +35,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
                 ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.Int),
                 queryTrackingBehavior: queryTrackingBehavior));
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type_property_on_null_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => (int?)x.OptionalAssociate!.Int),
@@ -45,55 +45,55 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
 
     #region Structural properties
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_required_nested_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_optional_nested_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate.OptionalNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_required_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_optional_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_required_associate_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootReferencingEntity>().Select(e => e.Root!.RequiredAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_unmapped_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(e => e.RequiredAssociate.Unmapped),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_untranslatable_method_on_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(e => UntranslatableMethod(e.RequiredAssociate.Int)),
@@ -108,7 +108,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     // Note we order via the Id (server-side) to ensure the collections come back in deterministic order,
     // otherwise it's difficult/unreliable to compare client-side.
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.AssociateCollection),
@@ -116,7 +116,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.RequiredAssociate.NestedCollection),
@@ -124,7 +124,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
@@ -132,19 +132,19 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().SelectMany(x => x.AssociateCollection),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().SelectMany(x => x.RequiredAssociate.NestedCollection),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
@@ -157,7 +157,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
 
     #region Multiple
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_root_duplicated(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => new { First = x, Second = x }),
@@ -169,7 +169,23 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             },
             queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    [Theory, MemberData(nameof(TrackingData))] // #37551
+    public virtual Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        var obj = new object();
+        return AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => new { Obj = obj, x.Id, x.RequiredAssociate }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Same(e.Obj, a.Obj);
+                Assert.Equal(e.Id, a.Id);
+                AssertEqual(e.RequiredAssociate, a.RequiredAssociate);
+            },
+            queryTrackingBehavior: queryTrackingBehavior);
+    }
+
+    // [Theory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_trunk_and_branch_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -193,7 +209,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_trunk_and_trunk_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -217,7 +233,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_leaf_trunk_root(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -238,7 +254,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_multiple_branch_leaf(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -268,7 +284,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
 
     #region Subquery
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
@@ -278,7 +294,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
                 .FirstOrDefault()!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
@@ -288,7 +304,19 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
                 .FirstOrDefault()!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    [Theory, MemberData(nameof(TrackingData))]
+    public virtual Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>()
+                .OrderBy(x => x.Id)
+                .Select(x => ss.Set<RootEntity>()
+                    .OrderBy(e => e.Id)
+                    .FirstOrDefault()!.AssociateCollection),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
+            queryTrackingBehavior: queryTrackingBehavior);
+
+    // [Theory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_subquery_root_set_trunk_FirstOrDefault_collection(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -303,7 +331,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     //         elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee),
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -332,7 +360,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class ComplexNavigationsODataQueryTests(ComplexNavigationsODataQueryTestFixture fixture)
     : ODataQueryTestBase(fixture), IClassFixture<ComplexNavigationsODataQueryTestFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Query_level_ones()
     {
         var requestUri = $"{BaseAddress}/odata/LevelOne";
@@ -26,7 +26,7 @@ public class ComplexNavigationsODataQueryTests(ComplexNavigationsODataQueryTestF
         Assert.Equal(13, levelOnes.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Query_level_twos()
     {
         var requestUri = $"{BaseAddress}/odata/LevelTwo";
@@ -42,7 +42,7 @@ public class ComplexNavigationsODataQueryTests(ComplexNavigationsODataQueryTestF
         Assert.Equal(11, levelTwos.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Query_level_threes()
     {
         var requestUri = $"{BaseAddress}/odata/LevelThree";
@@ -58,7 +58,7 @@ public class ComplexNavigationsODataQueryTests(ComplexNavigationsODataQueryTestF
         Assert.Equal(10, levelThrees.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Query_level_four()
     {
         var requestUri = $"{BaseAddress}/odata/LevelFour";
@@ -74,7 +74,7 @@ public class ComplexNavigationsODataQueryTests(ComplexNavigationsODataQueryTestF
         Assert.Equal(10, levelFours.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Query_count_expand_with_filter_contains()
     {
         var requestUri =

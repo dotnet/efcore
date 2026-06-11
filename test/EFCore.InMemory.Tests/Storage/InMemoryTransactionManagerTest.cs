@@ -52,7 +52,7 @@ public class InMemoryTransactionManagerTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Enlist_operations_fails_if_provider_does_not_support_enlistment()
     {
         using var context = new FakeTransactionManagerContext();
@@ -66,7 +66,7 @@ public class InMemoryTransactionManagerTest
             Assert.Throws<NotSupportedException>(() => context.Database.GetEnlistedTransaction()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CurrentTransaction_returns_null()
     {
         var transactionManager = new InMemoryTransactionManager(CreateLogger());
@@ -74,35 +74,35 @@ public class InMemoryTransactionManagerTest
         Assert.Null(transactionManager.CurrentTransaction);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_BeginTransaction()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction());
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_BeginTransactionAsync()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync().GetAwaiter().GetResult());
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_BeginTransaction_with_IsolationLevel()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction(IsolationLevel.Serializable));
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_BeginTransactionAsync_with_IsolationLevel()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync(IsolationLevel.Serializable).GetAwaiter().GetResult());
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_CommitTransaction()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).CommitTransaction());
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_CommitTransactionAsync()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).CommitTransactionAsync().GetAwaiter().GetResult());
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_RollbackTransaction()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransaction());
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_RollbackTransactionAsync()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransactionAsync().GetAwaiter().GetResult());
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
@@ -129,27 +129,27 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region 34293
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_entity_with_optional_json_entity_owned_by_required_json()
     {
-        var contextFactory = await InitializeAsync<Context34293>(
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
             onModelCreating: OnModelCreating34293,
             seed: ctx => ctx.Seed());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var entityProjection = await context.Set<Context34293.Entity>().ToListAsync();
 
         Assert.Equal(3, entityProjection.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_required_json_entity()
     {
-        var contextFactory = await InitializeAsync<Context34293>(
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
             onModelCreating: OnModelCreating34293,
             seed: ctx => ctx.Seed());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var rootProjection =
             await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json).ToListAsync();
@@ -168,14 +168,14 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badBranchProjectionMessage);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_optional_json_entity_owned_by_required_json_entity()
     {
-        var contextFactory = await InitializeAsync<Context34293>(
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
             onModelCreating: OnModelCreating34293,
             seed: ctx => ctx.Seed());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var leafProjection = await context.Set<Context34293.Entity>().AsNoTracking().Select(x => x.Json.Required.Optional).ToListAsync();
         Assert.Equal(3, leafProjection.Count);
     }
@@ -564,15 +564,15 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region Entity splitting
 
-    [ConditionalFact] // #36145
+    [Fact] // #36145
     public virtual async Task Entity_splitting_with_owned_json()
     {
-        var contextFactory = await InitializeAsync<ContextEntitySplitting>(
+        var contextFactory = await InitializeNonSharedTest<ContextEntitySplitting>(
             onModelCreating: OnModelCreatingEntitySplitting,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: SeedEntitySplitting);
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var result = await context.Set<ContextEntitySplitting.MyEntity>().SingleAsync();
 
         Assert.Equal("split content", result.PropertyInOtherTable);
@@ -622,10 +622,10 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region HasJsonPropertyName
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task HasJsonPropertyName()
     {
-        var contextFactory = await InitializeAsync<Context37009>(
+        var contextFactory = await InitializeNonSharedTest<Context37009>(
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             onModelCreating: m => m.Entity<Context37009.Entity>().ComplexProperty(e => e.Json, b =>
             {
@@ -660,7 +660,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.String == "foo"));
         Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.Nested.Int == 1));
@@ -692,6 +692,142 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     }
 
     #endregion HasJsonPropertyName
+
+    #region Value converter equality null scalar
+
+    [Fact]
+    public virtual async Task Value_converter_equality_null_scalar()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37983>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context37983.Entity>().ComplexProperty(e => e.Json, b =>
+            {
+                b.ToJson();
+
+                b.Property(j => j.IntToString).HasConversion(new Context37983_StringToIntConverter());
+            }),
+            seed: context =>
+            {
+                context.Set<Context37983.Entity>().Add(new Context37983.Entity
+                {
+                    Json = new Context37983.JsonComplexType
+                    {
+                        IntToString = null,
+                    }
+                });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        TestSqlLoggerFactory.Clear();
+
+        var complexType = new Context37983.JsonComplexType
+        {
+            IntToString = null,
+        };
+
+        Assert.Equal(1, await context.Set<Context37983.Entity>().CountAsync(e => e.Json == complexType));
+    }
+
+    protected class Context37983(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonComplexType Json { get; set; }
+        }
+
+        public class JsonComplexType
+        {
+            public int? IntToString { get; set; }
+        }
+    }
+
+    protected class Context37983_StringToIntConverter : ValueConverter<int?, string>
+    {
+        public Context37983_StringToIntConverter()
+            : base(
+                v => v == null ? "<null>" : v.ToString(),
+                v => int.Parse(v))
+        {
+        }
+
+        public override bool ConvertsNulls => true;
+    }
+
+    #endregion
+
+    #region 38315
+
+    [Fact]
+    public virtual async Task Filter_on_complex_json_collection_on_entity_mapped_to_view()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38315>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m =>
+            {
+                m.Entity<Context38315.Person>(e =>
+                {
+                    e.ToTable("Persons");
+                    e.ComplexCollection(p => p.OrderIds, b => b.ToJson());
+                });
+                m.Entity<Context38315.PersonOrdersView>(e =>
+                {
+                    e.ToView("PersonOrdersView");
+                    e.ComplexCollection(p => p.OrderIds, b => b.ToJson());
+                });
+            },
+            seed: async context =>
+            {
+                var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+                await context.Database.ExecuteSqlRawAsync(
+                    $"CREATE VIEW {Q("PersonOrdersView")} AS SELECT {Q("Id")}, {Q("OrderIds")} FROM {Q("Persons")}");
+
+                context.Set<Context38315.Person>().Add(
+                    new Context38315.Person { OrderIds = [new Context38315.ValueJson { Value = 3 }] });
+                await context.SaveChangesAsync();
+
+                string Q(string name) => sqlGenerationHelper.DelimitIdentifier(name);
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var r = 3;
+        var result = await context.Set<Context38315.PersonOrdersView>()
+            .Where(po => po.OrderIds.Any(oId => oId.Value == r))
+            .ToListAsync();
+
+        Assert.Single(result);
+    }
+
+    protected class Context38315(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Person> Persons { get; set; }
+        public DbSet<PersonOrdersView> PersonOrdersViews { get; set; }
+
+        public class Person
+        {
+            public int Id { get; set; }
+            public List<ValueJson> OrderIds { get; set; } = [];
+        }
+
+        public class PersonOrdersView
+        {
+            public int Id { get; set; }
+            public List<ValueJson> OrderIds { get; set; } = [];
+        }
+
+        public class ValueJson
+        {
+            public int Value { get; set; }
+        }
+    }
+
+    #endregion
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

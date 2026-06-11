@@ -22,7 +22,7 @@ public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryR
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -134,7 +134,7 @@ WHERE [c].[Region] IS NULL
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Collate_with_invalid_chars_throws(bool async)
     {
         using var context = CreateContext();
@@ -145,17 +145,81 @@ WHERE [c].[Region] IS NULL
         Assert.Equal(SqlServerStrings.InvalidCollationName("Invalid]Collation"), exception.Message);
     }
 
-    public override Task Least(bool async)
-        => AssertTranslationFailed(() => base.Least(async));
+    public override async Task Least(bool async)
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Least(async);
 
-    public override Task Greatest(bool async)
-        => AssertTranslationFailed(() => base.Greatest(async));
+            AssertSql(
+                """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE LEAST([o].[OrderID], 10251) = 10251
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Least(async));
+        }
+    }
 
-    public override Task Least_with_nullable_value_type(bool async)
-        => AssertTranslationFailed(() => base.Least_with_nullable_value_type(async));
+    public override async Task Greatest(bool async)
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Greatest(async);
 
-    public override Task Greatest_with_nullable_value_type(bool async)
-        => AssertTranslationFailed(() => base.Greatest_with_nullable_value_type(async));
+            AssertSql(
+                """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE GREATEST([o].[OrderID], 10251) = 10251
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Greatest(async));
+        }
+    }
+
+    public override async Task Least_with_nullable_value_type(bool async)
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Least_with_nullable_value_type(async);
+
+            AssertSql(
+                """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE LEAST([o].[OrderID], 10251) = 10251
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Least_with_nullable_value_type(async));
+        }
+    }
+
+    public override async Task Greatest_with_nullable_value_type(bool async)
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Greatest_with_nullable_value_type(async);
+
+            AssertSql(
+                """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE GREATEST([o].[OrderID], 10251) = 10251
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Greatest_with_nullable_value_type(async));
+        }
+    }
 
     public override async Task Least_with_parameter_array_is_not_supported(bool async)
     {
@@ -177,363 +241,7 @@ WHERE [c].[Region] IS NULL
     protected override string CaseSensitiveCollation
         => "Latin1_General_CS_AS";
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task FreeText_literal()
-    {
-        using var context = CreateContext();
-        var result = await context.Employees
-            .Where(c => EF.Functions.FreeText(c.Title, "Representative"))
-            .ToListAsync();
-
-        Assert.Equal(1u, result.First().EmployeeID);
-
-        AssertSql(
-            """
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[Title], N'Representative')
-""");
-    }
-
-    [ConditionalFact]
-    public void FreeText_client_eval_throws()
-    {
-        Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring"));
-        Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring", 1033));
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_multiple_words()
-    {
-        using var context = CreateContext();
-        var result = context.Employees
-            .Where(c => EF.Functions.FreeText(c.Title, "Representative Sales"))
-            .Count();
-
-        Assert.Equal(9, result);
-
-        AssertSql(
-            """
-SELECT COUNT(*)
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[Title], N'Representative Sales')
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_with_language_term()
-    {
-        using var context = CreateContext();
-        var result = context.Employees.SingleOrDefault(c => EF.Functions.FreeText(c.Title, "President", 1033));
-
-        Assert.Equal(2u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_with_non_literal_language_term()
-    {
-        var language = 1033;
-        using var context = CreateContext();
-        var result = context.Employees.SingleOrDefault(c => EF.Functions.FreeText(c.Title, "President", language));
-
-        Assert.Equal(2u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_with_multiple_words_and_language_term()
-    {
-        using var context = CreateContext();
-        var result = context.Employees
-            .Where(c => EF.Functions.FreeText(c.Title, "Representative President", 1033))
-            .ToList();
-
-        Assert.Equal(1u, result.First().EmployeeID);
-
-        AssertSql(
-            """
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_multiple_predicates()
-    {
-        using var context = CreateContext();
-        var result = context.Employees
-            .Where(c => EF.Functions.FreeText(c.City, "London")
-                && EF.Functions.FreeText(c.Title, "Manager", 1033))
-            .FirstOrDefault();
-
-        Assert.Equal(5u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[City], N'London') AND FREETEXT([e].[Title], N'Manager', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_throws_for_no_FullText_index()
-    {
-        using var context = CreateContext();
-        Assert.Throws<SqlException>(() => context.Employees.Where(c => EF.Functions.FreeText(c.FirstName, "Fred")).ToArray());
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_through_navigation()
-    {
-        using var context = CreateContext();
-        var result = context.Employees
-            .Where(c => EF.Functions.FreeText(c.Manager.Title, "President")
-                && EF.Functions.FreeText(c.Title, "Inside")
-                && c.FirstName.Contains("Lau"))
-            .OrderBy(e => e.EmployeeID)
-            .LastOrDefault();
-
-        Assert.Equal(8u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
-WHERE FREETEXT([e0].[Title], N'President') AND FREETEXT([e].[Title], N'Inside') AND [e].[FirstName] LIKE N'%Lau%'
-ORDER BY [e].[EmployeeID] DESC
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void FreeText_through_navigation_with_language_terms()
-    {
-        using var context = CreateContext();
-        var result = context.Employees
-            .Where(c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
-                && EF.Functions.FreeText(c.Title, "Inside", 1031)
-                && c.FirstName.Contains("Lau"))
-            .FirstOrDefault();
-
-        Assert.Equal(8u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
-WHERE FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Title], N'Inside', LANGUAGE 1031) AND [e].[FirstName] LIKE N'%Lau%'
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task FreeText_throws_when_using_non_parameter_or_constant_for_freetext_string()
-    {
-        using var context = CreateContext();
-        await Assert.ThrowsAsync<SqlException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City, e.FirstName)));
-
-        await Assert.ThrowsAsync<SqlException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City, "")));
-
-        await Assert.ThrowsAsync<SqlException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City, e.FirstName.ToUpper())));
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task FreeText_throws_when_using_non_column_for_property_reference()
-    {
-        using var context = CreateContext();
-        await Assert.ThrowsAsync<InvalidOperationException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City + "1", "President")));
-
-        await Assert.ThrowsAsync<InvalidOperationException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City.ToLower(), "President")));
-
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await (from e1 in context.Employees
-                                                                               join m1 in context.Employees.OrderBy(e => e.EmployeeID)
-                                                                                       .Skip(0)
-                                                                                   on e1.ReportsTo equals m1.EmployeeID
-                                                                               where EF.Functions.FreeText(m1.Title, "President")
-                                                                               select e1).LastOrDefaultAsync());
-    }
-
-    [ConditionalFact]
-    public void Contains_should_throw_on_client_eval()
-    {
-        var exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring"));
-        Assert.Equal(
-            CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
-            exNoLang.Message);
-
-        var exLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring", 1033));
-        Assert.Equal(
-            CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
-            exLang.Message);
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task Contains_should_throw_when_using_non_parameter_or_constant_for_contains_string()
-    {
-        using var context = CreateContext();
-        await Assert.ThrowsAsync<SqlException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.Contains(e.City, e.FirstName)));
-
-        await Assert.ThrowsAsync<SqlException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.Contains(e.City, "")));
-
-        await Assert.ThrowsAsync<SqlException>(async ()
-            => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.Contains(e.City, e.FirstName.ToUpper())));
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void Contains_should_throw_for_no_FullText_index()
-    {
-        using var context = CreateContext();
-        Assert.Throws<SqlException>(() => context.Employees.Where(c => EF.Functions.Contains(c.FirstName, "Fred")).ToArray());
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task Contains_literal()
-    {
-        using var context = CreateContext();
-        var result = await context.Employees
-            .Where(c => EF.Functions.Contains(c.Title, "Representative"))
-            .ToListAsync();
-
-        Assert.Equal(1u, result.First().EmployeeID);
-
-        AssertSql(
-            """
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[Title], N'Representative')
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void Contains_with_language_term()
-    {
-        using var context = CreateContext();
-        var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", 1033));
-
-        Assert.Equal(2u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void Contains_with_non_literal_language_term()
-    {
-        var language = 1033;
-        using var context = CreateContext();
-        var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", language));
-
-        Assert.Equal(2u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task Contains_with_logical_operator()
-    {
-        using var context = CreateContext();
-        var result = await context.Employees
-            .Where(c => EF.Functions.Contains(c.Title, "Vice OR Inside"))
-            .ToListAsync();
-
-        Assert.Equal(2, result.Count);
-        Assert.Equal(2u, result.First().EmployeeID);
-
-        AssertSql(
-            """
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[Title], N'Vice OR Inside')
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task Contains_with_prefix_term_and_language_term()
-    {
-        using var context = CreateContext();
-        var result = await context.Employees
-            .SingleOrDefaultAsync(c => EF.Functions.Contains(c.Title, "\"Mana*\"", 1033));
-
-        Assert.Equal(5u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[Title], N'"Mana*"', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task Contains_with_proximity_term_and_language_term()
-    {
-        using var context = CreateContext();
-        var result = await context.Employees
-            .SingleOrDefaultAsync(c => EF.Functions.Contains(c.Title, "NEAR((Sales, President), 1)", 1033));
-
-        Assert.Equal(2u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public void Contains_through_navigation()
-    {
-        using var context = CreateContext();
-        var result = context.Employees
-            .Where(c => EF.Functions.Contains(c.Manager.Title, "President")
-                && EF.Functions.Contains(c.Title, "\"Ins*\""))
-            .FirstOrDefault();
-
-        Assert.NotNull(result);
-        Assert.Equal(8u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
-WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
-""");
-    }
-
-    [ConditionalFact]
+    [Fact]
     public async Task PatIndex_literal()
     {
         using var context = CreateContext();
@@ -551,7 +259,7 @@ WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Year(bool async)
     {
         await AssertCount(
@@ -569,7 +277,7 @@ WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Month(bool async)
     {
         var now = DateTime.Now;
@@ -588,7 +296,7 @@ WHERE DATEDIFF(month, [o].[OrderDate], GETDATE()) = 0
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Day(bool async)
     {
         await AssertCount(
@@ -606,7 +314,7 @@ WHERE DATEDIFF(day, [o].[OrderDate], GETDATE()) = 0
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Hour(bool async)
     {
         await AssertCount(
@@ -624,7 +332,7 @@ WHERE DATEDIFF(hour, [o].[OrderDate], GETDATE()) = 0
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Minute(bool async)
     {
         await AssertCount(
@@ -642,7 +350,7 @@ WHERE DATEDIFF(minute, [o].[OrderDate], GETDATE()) = 0
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Second(bool async)
     {
         await AssertCount(
@@ -660,7 +368,7 @@ WHERE DATEDIFF(second, [o].[OrderDate], GETDATE()) = 0
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Millisecond(bool async)
     {
         await AssertCount(
@@ -678,7 +386,7 @@ WHERE DATEDIFF(millisecond, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE(
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Microsecond(bool async)
     {
         await AssertCount(
@@ -696,7 +404,7 @@ WHERE DATEDIFF(microsecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDA
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Nanosecond(bool async)
     {
         await AssertCount(
@@ -714,7 +422,7 @@ WHERE DATEDIFF(nanosecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateDiff_Week_datetime()
     {
         using var context = CreateContext();
@@ -734,7 +442,7 @@ WHERE DATEDIFF(week, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateDiff_Week_datetimeoffset()
     {
         using var context = CreateContext();
@@ -754,7 +462,7 @@ WHERE DATEDIFF(week, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateDiff_Week_parameters_null()
     {
         using var context = CreateContext();
@@ -774,7 +482,7 @@ WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsDate_not_valid(bool async)
     {
         await AssertQueryScalar(
@@ -790,7 +498,7 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsDate_valid(bool async)
     {
         await AssertQueryScalar(
@@ -808,7 +516,7 @@ WHERE CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit) 
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsDate_join_fields(bool async)
     {
         await AssertCount(
@@ -826,7 +534,7 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarch
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsDate_should_throw_on_client_eval()
     {
         var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsDate("#ISDATE#"));
@@ -836,7 +544,7 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarch
             exIsDate.Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsNumeric_not_valid(bool async)
     {
         await AssertQueryScalar(
@@ -854,7 +562,7 @@ WHERE ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) <> 1
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsNummeric_valid(bool async)
     {
         await AssertQueryScalar(
@@ -872,7 +580,7 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsNumeric_join_fields(bool async)
     {
         await AssertCount(
@@ -890,7 +598,7 @@ WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsNumeric_should_throw_on_client_eval()
     {
         var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsNumeric("#ISNUMERIC#"));
@@ -900,7 +608,7 @@ WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar
             exIsDate.Message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateTimeFromParts_column_compare(bool async)
     {
         await AssertCount(
@@ -918,7 +626,7 @@ WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23,
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateTimeFromParts_constant_compare(bool async)
     {
         await AssertCount(
@@ -936,7 +644,7 @@ WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 1
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateTimeFromParts_compare_with_local_variable(bool async)
     {
         var dateTime = new DateTime(1919, 12, 12, 10, 20, 15, 0);
@@ -969,7 +677,7 @@ WHERE @dateTime > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @dateTime_Month, 
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateFromParts_column_compare(bool async)
     {
         await AssertCount(
@@ -987,7 +695,7 @@ WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateFromParts_constant_compare(bool async)
     {
         await AssertCount(
@@ -1005,7 +713,7 @@ WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DateFromParts_compare_with_local_variable(bool async)
     {
         var date = new DateTime(1919, 12, 12);
@@ -1028,7 +736,7 @@ WHERE @date > DATEFROMPARTS(DATEPART(year, GETDATE()), @date_Month, @date_Day)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTime2FromParts_column_compare()
     {
         using (var context = CreateContext())
@@ -1047,7 +755,7 @@ WHERE [o].[OrderDate] > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTime2FromParts_constant_compare()
     {
         using (var context = CreateContext())
@@ -1067,7 +775,7 @@ WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE(
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTime2FromParts_compare_with_local_variable()
     {
         var dateTime = new DateTime(1919, 12, 12, 10, 20, 15);
@@ -1099,7 +807,7 @@ WHERE @dateTime > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @dateTime_Month,
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTimeOffsetFromParts_column_compare()
     {
         using (var context = CreateContext())
@@ -1118,7 +826,7 @@ WHERE CAST([o].[OrderDate] AS datetimeoffset) > DATETIMEOFFSETFROMPARTS(DATEPART
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTimeOffsetFromParts_constant_compare()
     {
         using (var context = CreateContext())
@@ -1138,7 +846,7 @@ WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(yea
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateTimeOffsetFromParts_compare_with_local_variable()
     {
         var dateTimeOffset = new DateTimeOffset(1919, 12, 12, 10, 20, 15, new TimeSpan(1, 30, 0));
@@ -1174,7 +882,7 @@ WHERE @dateTimeOffset > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @date
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SmallDateTimeFromParts_column_compare(bool async)
     {
         await AssertCount(
@@ -1192,7 +900,7 @@ WHERE [o].[OrderDate] > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SmallDateTimeFromParts_constant_compare(bool async)
     {
         await AssertCount(
@@ -1210,7 +918,7 @@ WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SmallDateTimeFromParts_compare_with_local_variable(bool async)
     {
         var dateTime = new DateTime(1919, 12, 12, 23, 20, 0);
@@ -1236,7 +944,7 @@ WHERE @dateTime > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @dateTime_Mo
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TimeFromParts_constant_compare(bool async)
     {
         await AssertCount(
@@ -1254,7 +962,7 @@ WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 3)
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TimeFromParts_select(bool async)
     {
         await AssertQueryScalar(
@@ -1270,7 +978,7 @@ FROM [Orders] AS [o]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task DataLength_column_compare(bool async)
     {
         await AssertCount(
@@ -1288,7 +996,7 @@ WHERE [o].[OrderID] % 10 = DATALENGTH([o].[OrderDate])
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DataLength_constant_compare()
     {
         using (var context = CreateContext())
@@ -1307,7 +1015,7 @@ WHERE 100 < DATALENGTH([o].[OrderDate])
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DataLength_compare_with_local_variable()
     {
         int? length = 100;
@@ -1329,7 +1037,7 @@ WHERE @length < DATALENGTH([o].[OrderDate])
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DataLength_all_constants()
     {
         using (var context = CreateContext())

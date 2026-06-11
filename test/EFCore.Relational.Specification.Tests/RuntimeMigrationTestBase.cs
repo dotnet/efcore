@@ -3,13 +3,9 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 /// <summary>
 ///     Base class for runtime migration tests. These tests validate the ability to
@@ -20,14 +16,14 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
 {
     protected TFixture Fixture { get; } = fixture;
 
-    public virtual async Task InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
         using var context = CreateContext();
         await Fixture.TestStore.CleanAsync(context, createTables: false);
     }
 
-    public virtual Task DisposeAsync()
-        => Task.CompletedTask;
+    public virtual ValueTask DisposeAsync()
+        => ValueTask.CompletedTask;
 
     protected abstract Assembly ProviderAssembly { get; }
 
@@ -36,30 +32,27 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public List<Post> Posts { get; set; }
+        public required string Name { get; set; }
+        public List<Post> Posts { get; set; } = [];
     }
 
     public class Post
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public required string Title { get; set; }
+        public string? Content { get; set; }
         public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 
     public class RuntimeMigrationDbContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Blog>(b =>
-            {
-                b.Property(e => e.Name).HasMaxLength(200);
-            });
+            modelBuilder.Entity<Blog>(b => b.Property(e => e.Name).HasMaxLength(200));
 
             modelBuilder.Entity<Post>(b =>
             {
@@ -85,8 +78,8 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             .AddDbContextDesignTimeServices(context);
         ((IDesignTimeServices)Activator.CreateInstance(
                 ProviderAssembly.GetType(
-                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
-                    throwOnError: true))!)
+                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>()!.TypeName,
+                    throwOnError: true)!)!)
             .ConfigureDesignTimeServices(serviceCollection);
         return serviceCollection.BuildServiceProvider(validateScopes: true).CreateScope();
     }
@@ -106,8 +99,8 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         CreateScaffoldedMigration(
             RuntimeMigrationDbContext context,
             string migrationName,
-            string outputDir = null,
-            string @namespace = null,
+            string? outputDir = null,
+            string? @namespace = null,
             bool dryRun = true)
     {
         var operations = CreateMigrationsOperations();
@@ -123,7 +116,18 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         return (scope, migration);
     }
 
-    protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
+    protected virtual List<string> GetTableNames(DbConnection connection)
+    {
+        var tables = new List<string>();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME != '__EFMigrationsHistory'";
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            tables.Add(reader.GetString(0));
+        }
+        return tables;
+    }
 
     public abstract class RuntimeMigrationFixtureBase : SharedStoreFixtureBase<RuntimeMigrationDbContext>
     {
@@ -140,7 +144,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
 
     #region Tests
 
-    [ConditionalFact]
+    [Fact]
     public void Can_scaffold_migration()
     {
         using var context = CreateContext();
@@ -155,7 +159,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_compile_migration()
     {
         using var context = CreateContext();
@@ -173,7 +177,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_register_and_apply_compiled_migration()
     {
         using var context = CreateContext();
@@ -196,7 +200,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Compiled_migration_generates_valid_sql()
     {
         using var context = CreateContext();
@@ -213,7 +217,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             var migrationTypeInfo = migrationsAssembly.Migrations[migration.MigrationId];
             var migrationInstance = migrationsAssembly.CreateMigration(
                 migrationTypeInfo,
-                context.Database.ProviderName);
+                context.Database.ProviderName!);
 
             var commands = sqlGenerator.Generate(
                 migrationInstance.UpOperations,
@@ -223,7 +227,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasPendingModelChanges_returns_true_for_new_model()
     {
         using var context = CreateContext();
@@ -234,7 +238,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.True(migrator.HasPendingModelChanges());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasPendingModelChanges_returns_false_after_migration()
     {
         using var context = CreateContext();
@@ -255,7 +259,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Compiled_migration_contains_correct_operations()
     {
         using var context = CreateContext();
@@ -269,7 +273,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
                 .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
             Assert.NotNull(migrationType);
 
-            var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+            var migrationInstance = (Migration)Activator.CreateInstance(migrationType)!;
             var upOperations = migrationInstance.UpOperations.ToList();
 
             Assert.NotEmpty(upOperations);
@@ -277,7 +281,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_scaffold_and_save_migration_to_disk()
     {
         var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreMigrationTest_" + Guid.NewGuid().ToString("N"));
@@ -316,7 +320,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_apply_multiple_migrations_sequentially()
     {
         using var context = CreateContext();
@@ -357,7 +361,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Contains(migration2.MigrationId, appliedAfterSecond);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_down_reverses_up()
     {
         using var context = CreateContext();
@@ -431,7 +435,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         return (migration, compiledAssembly);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_revert_migration_using_down_operations()
     {
         using var context = CreateContext();
@@ -462,7 +466,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var migrationTypeInfo = migrationsAssembly.Migrations[migration.MigrationId];
         var migrationInstance = migrationsAssembly.CreateMigration(
             migrationTypeInfo,
-            context.Database.ProviderName);
+            context.Database.ProviderName!);
 
         var downCommands = sqlGenerator.Generate(
             migrationInstance.DownOperations,
@@ -479,7 +483,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Applied_migration_is_recorded_in_history()
     {
         using var context = CreateContext();
@@ -508,7 +512,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Contains(migration.MigrationId, afterApplied);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Compiled_migration_has_matching_up_and_down_table_operations()
     {
         using var context = CreateContext();
@@ -530,7 +534,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
         Assert.NotNull(migrationType);
 
-        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType)!;
 
         var upTableCount = migrationInstance.UpOperations.OfType<CreateTableOperation>().Count();
         var downTableCount = migrationInstance.DownOperations.OfType<DropTableOperation>().Count();
@@ -541,7 +545,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
 
     #region Rigorous Schema Verification Tests
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_creates_correct_table_structure()
     {
         using var context = CreateContext();
@@ -567,7 +571,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Single(postsTable.Columns, c => c.Name == "BlogId");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_creates_correct_primary_keys()
     {
         using var context = CreateContext();
@@ -594,7 +598,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.False(postsId.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_creates_correct_foreign_keys()
     {
         using var context = CreateContext();
@@ -619,7 +623,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_creates_columns_with_correct_constraints()
     {
         using var context = CreateContext();
@@ -644,7 +648,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.False(blogIdColumn.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_down_removes_schema_completely()
     {
         using var context = CreateContext();
@@ -670,7 +674,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.DoesNotContain(dbModelAfter.Tables, t => t.Name == "Posts");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_creates_foreign_key_index()
     {
         using var context = CreateContext();
@@ -690,7 +694,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal("BlogId", fkIndex.Columns[0].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_with_no_changes_produces_empty_operations()
     {
         using var context = CreateContext();
@@ -725,13 +729,13 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
         Assert.NotNull(migrationType);
 
-        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType)!;
 
         Assert.Empty(migrationInstance.UpOperations);
         Assert.Empty(migrationInstance.DownOperations);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_preserves_existing_data()
     {
         using var context = CreateContext();
@@ -790,7 +794,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal("Test Content", post.Content);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Applied_migration_snapshot_matches_model()
     {
         using var context = CreateContext();
@@ -816,7 +820,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(4, postsTable.Columns.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RemoveMigration_removes_dynamically_created_migration()
     {
         var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreRemoveMigrationTest_" + Guid.NewGuid().ToString("N"));

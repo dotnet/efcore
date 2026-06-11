@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
@@ -59,7 +59,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
 
     #region Multiple
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(AsyncAndTrackingData))]
     // public virtual Task Select_trunk_and_branch_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -84,7 +84,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(AsyncAndTrackingData))]
     // public virtual Task Select_trunk_and_trunk_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -109,7 +109,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(AsyncAndTrackingData))]
     // public virtual Task Select_leaf_trunk_root(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -131,7 +131,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(AsyncAndTrackingData))]
     // public virtual Task Select_multiple_branch_leaf(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -158,9 +158,18 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
+    public override Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior));
+
     #endregion Multiple
 
     #region Subquery
+
+    public override Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior, () => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));
 
     public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(
@@ -170,7 +179,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
         => AssertOwnedTrackingQuery(
             queryTrackingBehavior, () => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(AsyncAndTrackingData))]
     // public virtual Task Select_subquery_root_set_trunk_FirstOrDefault_collection(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -186,7 +195,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     //         elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee),
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(AsyncAndTrackingData))]
     // public virtual Task Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
@@ -216,7 +225,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     //         },
     //         queryTrackingBehavior: queryTrackingBehavior);
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(AsyncAndTrackingData))]
     // public virtual Task Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(

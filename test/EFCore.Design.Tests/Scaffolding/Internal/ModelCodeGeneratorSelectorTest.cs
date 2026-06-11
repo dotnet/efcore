@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 public class ModelCodeGeneratorSelectorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Select_returns_last_service_for_language()
     {
         var expected = new TestModelCodeGenerator("C#");
@@ -20,7 +20,7 @@ public class ModelCodeGeneratorSelectorTest
         Assert.Same(expected, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_throws_when_no_service_for_language()
     {
         var selector = new ModelCodeGeneratorSelector(
@@ -32,7 +32,7 @@ public class ModelCodeGeneratorSelectorTest
         Assert.Equal(DesignStrings.NoLanguageService("VB", nameof(IModelCodeGenerator)), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_returns_last_templated_service_with_templates()
     {
         var expected = new TestTemplatedModelGenerator(hasTemplates: true);
@@ -50,7 +50,7 @@ public class ModelCodeGeneratorSelectorTest
         Assert.Same(expected, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_returns_last_service_for_language_when_no_templates()
     {
         var expected = new TestModelCodeGenerator("C#");

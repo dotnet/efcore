@@ -11,6 +11,7 @@ internal static class EFDiagnostics
     internal const string InternalUsage = "EF1001";
     internal const string InterpolatedStringUsageInRawQueries = "EF1002";
     internal const string StringConcatenationUsageInRawQueries = "EF1003";
+    internal const string ToAsyncEnumerableOnQueryable = "EF1004";
     internal const string SuppressUninitializedDbSetRule = "EFSPR1001";
 
     // Diagnostics for [Obsolete]
@@ -23,9 +24,8 @@ internal static class EFDiagnostics
     internal const string PrecompiledQueryExperimental = "EF9100";
     internal const string MetricsExperimental = "EF9101";
     internal const string PagingExperimental = "EF9102";
-
-    // These are no longer experimental but keeping the values so we won't re-purpose them
-    internal const string CosmosVectorSearchExperimental = "EF9103";
-    internal const string CosmosFullTextSearchExperimental = "EF9104";
-
+    internal const string CosmosVectorSearchExperimental = "EF9103"; // No longer experimental
+    internal const string CosmosFullTextSearchExperimental = "EF9104"; // No longer experimental
+    internal const string SqlServerVectorSearch = "EF9105";
+    internal const string JsonContainsExperimental = "EF9106";
 }

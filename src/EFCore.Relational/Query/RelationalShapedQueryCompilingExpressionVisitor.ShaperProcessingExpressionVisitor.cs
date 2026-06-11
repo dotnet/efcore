@@ -712,7 +712,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     // We store the value here and inject it directly rather than reading from server.
                                     if (concreteTypes.Length == 1)
                                     {
-                                        _singleEntityTypeDiscriminatorValues[projectionBindingExpression] = concreteTypes[0].ShortName();
+                                        _singleEntityTypeDiscriminatorValues[projectionBindingExpression] = (string)concreteTypes[0].GetDiscriminatorValue()!;
                                     }
                                 }
 
@@ -751,7 +751,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         {
                             _singleEntityTypeDiscriminatorValues[
                                     (ProjectionBindingExpression)shaper.ValueBufferExpression]
-                                = concreteTypes[0].ShortName();
+                                = (string)concreteTypes[0].GetDiscriminatorValue()!;
                         }
                     }
 
@@ -1479,7 +1479,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 if (_containsCollectionMaterialization)
                 {
-                    _valuesArrayInitializers!.Add(parameter);
+                    var expressionToAdd = (Expression)parameter;
+                    if (expressionToAdd.Type.IsValueType)
+                    {
+                        expressionToAdd = Convert(expressionToAdd, typeof(object));
+                    }
+
+                    _valuesArrayInitializers!.Add(expressionToAdd);
                     return Convert(
                         ArrayIndex(
                             _valuesArrayExpression!,
@@ -2549,15 +2555,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        internal ParameterExpression GenerateJsonReader(int jsonColumnIndex, ITypeBase structuralType)
+        internal ParameterExpression GenerateJsonReader(int jsonColumnIndex, ITypeBase structuralType, IColumnBase? jsonColumn = null)
         {
             Check.DebugAssert(structuralType.IsMappedToJson());
 
-            var jsonColumnName = structuralType.GetContainerColumnName()!;
-            var jsonColumn = structuralType.ContainingEntityType.GetViewOrTableMappings()
-                .Select(m => m.Table.FindColumn(jsonColumnName))
-                .FirstOrDefault(c => c is not null)
-               ?? throw new UnreachableException($"Could not find JSON container column '{jsonColumnName}' for entity type '{structuralType.DisplayName()}'.");
+            if (jsonColumn is null)
+            {
+                var jsonColumnName = structuralType.GetContainerColumnName()!;
+                jsonColumn = structuralType.ContainingEntityType.GetQueryMappings()
+                    .Select(m => m.Table.FindColumn(jsonColumnName))
+                    .FirstOrDefault(c => c is not null)
+                    ?? throw new UnreachableException($"Could not find JSON container column '{jsonColumnName}' for entity type '{structuralType.DisplayName()}'.");
+            }
 
             var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
 
@@ -2618,7 +2627,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ITypeBase structuralType,
             bool isCollection)
         {
-            var jsonReaderDataVariable = GenerateJsonReader(jsonProjectionInfo.JsonColumnIndex, structuralType);
+            var jsonReaderDataVariable = GenerateJsonReader(jsonProjectionInfo.JsonColumnIndex, structuralType, jsonProjectionInfo.JsonColumn);
 
             // we should have keyAccessInfo for every PK property of the entity, unless we are generating shaper for the collection
             // in that case the final key property will be synthesized in the shaper code
@@ -2918,9 +2927,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Type type,
             IPropertyBase? property = null)
         {
-            Check.DebugAssert(
-                property != null || type.IsNullableType(), "Must read nullable value from database if property is not specified.");
-
             var getMethod = typeMapping.GetDataReaderMethod();
 
             Expression indexExpression = Constant(index);
@@ -3185,6 +3191,56 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     resultExpression = Convert(resultExpression, property.ClrType);
                 }
 
+                var converter = property.GetTypeMapping().Converter;
+                Expression nullExpression;
+                if (converter?.ConvertsNulls == true)
+                {
+                    var typeMappingExpression = Call(
+                        Convert(
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                property,
+                                LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(property),
+                                property.Name + "Property",
+                                typeof(IPropertyBase)),
+                            typeof(IReadOnlyProperty)),
+                        PropertyGetTypeMappingMethod);
+
+                    var converterExpression = (Expression)Property(typeMappingExpression, nameof(CoreTypeMapping.Converter));
+
+                    var converterType = converter.GetType();
+                    var typedConverterType = converterType.GetGenericTypeImplementations(typeof(ValueConverter<,>)).FirstOrDefault();
+                    if (typedConverterType != null)
+                    {
+                        if (converterExpression.Type != converter.GetType())
+                        {
+                            converterExpression = Convert(converterExpression, converter.GetType());
+                        }
+
+                        nullExpression = Invoke(
+                            Property(
+                                converterExpression,
+                                nameof(ValueConverter<object, object>.ConvertFromProviderTyped)),
+                            Default(converter.ProviderClrType));
+                    }
+                    else
+                    {
+                        nullExpression = Invoke(
+                            Property(
+                                converterExpression,
+                                nameof(ValueConverter.ConvertFromProvider)),
+                            Default(typeof(object)));
+                    }
+
+                    if (nullExpression.Type != property.ClrType)
+                    {
+                        nullExpression = Convert(nullExpression, property.ClrType);
+                    }
+                }
+                else
+                {
+                    nullExpression = Default(property.ClrType);
+                }
+
                 resultExpression = Condition(
                     Equal(
                         Property(
@@ -3193,7 +3249,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Utf8JsonReaderManagerCurrentReaderField),
                             Utf8JsonReaderTokenTypeProperty),
                         Constant(JsonTokenType.Null)),
-                    Default(property.ClrType),
+                    nullExpression,
                     resultExpression);
             }
 

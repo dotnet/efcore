@@ -43,7 +43,7 @@ public class SqlServerModificationCommand : ModificationCommand
     /// </summary>
     protected override void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
-        // TODO: Move more of this logic to the type mapping. Issue #34432
+        // TODO: Move more of this logic to the type mapping. Issue #38036
         var property = parameters.Property!;
         var mapping = property.GetRelationalTypeMapping();
         var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();

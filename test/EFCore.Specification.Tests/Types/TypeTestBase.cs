@@ -10,8 +10,8 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
     where TFixture : TypeFixtureBase<T>
     where T : notnull
 {
-    [ConditionalFact]
-    public async virtual Task Equality_in_query_with_parameter()
+    [Fact]
+    public virtual async Task Equality_in_query_with_parameter()
     {
         await using var context = Fixture.CreateContext();
 
@@ -20,8 +20,8 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
     }
 
-    [ConditionalFact]
-    public async virtual Task Equality_in_query_with_constant()
+    [Fact]
+    public virtual async Task Equality_in_query_with_constant()
     {
         await using var context = Fixture.CreateContext();
 
@@ -38,7 +38,17 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Primitive_collection_in_query()
+    {
+        await using var context = Fixture.CreateContext();
+
+        var value = Fixture.Value;
+        var result = await context.Set<TypeEntity<T>>().SingleAsync(e => e.ArrayValue.Count(a => a.Equals(value)) == 2);
+        Assert.Equal(1, result.Id);
+    }
+
+    [Fact]
     public virtual async Task SaveChanges()
     {
         await using var context = Fixture.CreateContext();
@@ -51,6 +61,7 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
         Assert.Equal(Fixture.OtherValue, result.Value, Fixture.Comparer);
 
         // Revert back to the original value to avoid affecting other tests (note that test parallelization is disabled)
+        // We do not use a transaction since not all databases support them (e.g. Cosmos).
         entity.Value = Fixture.Value;
         await context.SaveChangesAsync();
     }

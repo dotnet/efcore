@@ -178,6 +178,13 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }
 
+        if (method.Name == nameof(List<>.Exists)
+            && method.DeclaringType is { IsGenericType: true } existsDeclaringType
+            && existsDeclaringType.GetGenericTypeDefinition() == typeof(List<>))
+        {
+            visitedExpression = TryConvertListExistsToQueryableAny(methodCallExpression);
+        }
+
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
             && method.Name is nameof(EntityFrameworkQueryableExtensions.Include)
                 or nameof(EntityFrameworkQueryableExtensions.ThenInclude)
@@ -229,6 +236,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         {
             visitedMethodCall = TryNormalizeOrderAndOrderDescending(visitedMethodCall);
             visitedMethodCall = TryFlattenGroupJoinSelectMany(visitedMethodCall);
+            visitedMethodCall = TryNormalizeMaxByMinBy(visitedMethodCall);
 
             return visitedMethodCall;
         }
@@ -505,6 +513,35 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
     }
 
+    private Expression TryConvertListExistsToQueryableAny(MethodCallExpression methodCallExpression)
+    {
+        if (methodCallExpression.Object is MemberInitExpression or NewExpression)
+        {
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        // List<T>.Exists takes a Predicate<T>; rewrite the lambda to Func<T, bool> so it matches
+        // Queryable.Any's Expression<Func<T, bool>> parameter.
+        if (methodCallExpression.Arguments[0] is not LambdaExpression predicateLambda)
+        {
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
+        var rewrittenPredicate = Expression.Lambda(
+            typeof(Func<,>).MakeGenericType(sourceType, typeof(bool)),
+            predicateLambda.Body,
+            predicateLambda.Parameters);
+
+        return VisitMethodCall(
+            Expression.Call(
+                QueryableMethods.AnyWithPredicate.MakeGenericMethod(sourceType),
+                Expression.Call(
+                    QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
+                    methodCallExpression.Object!),
+                Expression.Quote(rewrittenPredicate)));
+    }
+
     private Expression TryConvertCollectionContainsToQueryableContains(MethodCallExpression methodCallExpression)
     {
         if (methodCallExpression.Object is MemberInitExpression or NewExpression)
@@ -753,6 +790,46 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                 break;
             }
+        }
+
+        return methodCallExpression;
+    }
+
+    private MethodCallExpression TryNormalizeMaxByMinBy(MethodCallExpression methodCallExpression)
+    {
+        /*
+            MinBy(x => x.Prop) --> OrderBy(x => x.Prop).First/FirstOrDefault()
+            MaxBy(x => x.Prop) --> OrderByDescending(x => x.Prop).First/FirstOrDefault()
+
+            MaxBy/MinBy(x => new { x.Prop, x.Prop2 }) --> OrderBy/Descending(x => x.Prop).ThenBy/Descending(x.Prop2).First/OrDefault()
+        */
+
+        var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+        if (genericMethod == QueryableMethods.MinBy
+            || genericMethod == QueryableMethods.MaxBy)
+        {
+            var sourceType = methodCallExpression.Method.GetGenericArguments()[0];
+
+            var keySelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+
+            // {Min,Max}By return null for empty sets when the source is nullable, and throw for
+            // non-nullable (this is the same as the Min/Max behavior).
+            // Mimic this by using FirstOrDefault/First.
+
+            var firstMethod = sourceType.IsNullableType()
+                ? QueryableMethods.FirstOrDefaultWithoutPredicate
+                : QueryableMethods.FirstWithoutPredicate;
+
+            var orderingMethod = genericMethod == QueryableMethods.MinBy
+                ? QueryableMethods.OrderBy
+                : QueryableMethods.OrderByDescending;
+
+            return Expression.Call(
+                firstMethod.MakeGenericMethod(sourceType),
+                Expression.Call(
+                    orderingMethod.MakeGenericMethod(sourceType, keySelector.ReturnType),
+                    methodCallExpression.Arguments[0],
+                    Expression.Quote(keySelector)));
         }
 
         return methodCallExpression;

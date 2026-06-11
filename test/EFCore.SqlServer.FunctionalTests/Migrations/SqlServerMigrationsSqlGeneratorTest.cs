@@ -18,7 +18,7 @@ public class SqlServerMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestB
             new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
         .OptionsBuilder).Options)
 {
-    [ConditionalFact]
+    [Fact]
     public void CreateIndexOperation_unique_online()
     {
         Generate(
@@ -38,7 +38,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateIndexOperation_unique_sortintempdb()
     {
         Generate(
@@ -58,7 +58,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
 """);
     }
 
-    [ConditionalTheory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
+    [Theory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
      InlineData(DataCompressionType.Page, "PAGE")]
     public void CreateIndexOperation_unique_datacompression(DataCompressionType dataCompression, string dataCompressionSql)
     {
@@ -79,7 +79,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_identity_legacy()
     {
         Generate(
@@ -98,6 +98,86 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
         AssertSql(
             """
 ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
+""");
+    }
+
+    [Fact]
+    public virtual void AddColumnOperation_identity_not_propagated_to_history_table()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            new AddColumnOperation
+            {
+                Table = "CustomersHistory",
+                Name = "Number",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                DefaultValue = 0,
+                IsNullable = false,
+                [SqlServerAnnotationNames.ValueGenerationStrategy] =
+                    SqlServerValueGenerationStrategy.IdentityColumn
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [CustomersHistory] ADD [Number] int NOT NULL DEFAULT 0;
+""");
+    }
+
+    [Fact]
+    public virtual void AddColumnOperation_identity_legacy_not_propagated_to_history_table()
+    {
+        var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
+
+        migrationBuilder.AddColumn<int>(
+                name: "Number",
+                table: "CustomersHistory",
+                type: "int",
+                nullable: false,
+                defaultValue: 0)
+            .Annotation("SqlServer:Identity", "1, 1")
+            .Annotation("SqlServer:IsTemporal", true)
+            .Annotation("SqlServer:TemporalHistoryTableName", "CustomersHistory")
+            .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+            .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+            .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
+
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            migrationBuilder.Operations.ToArray());
+
+        AssertSql(
+            """
+ALTER TABLE [CustomersHistory] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
 
@@ -181,7 +261,7 @@ ALTER TABLE [Person] ADD [Name] nvarchar(max) NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_rowversion_overridden()
     {
         Generate(
@@ -201,7 +281,7 @@ ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_rowversion_no_model()
     {
         Generate(
@@ -227,10 +307,9 @@ ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LuckyNumber');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LuckyNumber';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;
 """);
@@ -246,7 +325,73 @@ ALTER TABLE [People] ADD FOREIGN KEY ([SpouseId]) REFERENCES [People];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual void AlterColumnOperation_computed_column_with_only_clr_type_change_is_noop()
+    {
+        // Regression test for #33425: when the CLR type of a property mapped to a computed column
+        // changes (e.g. int → long for a column with .HasComputedColumnSql("DATALENGTH(...)")) but
+        // the expression and IsStored are unchanged, no SQL should be emitted. SQL Server rejects
+        // ALTER COLUMN on computed columns with "Cannot alter column ... because it is 'COMPUTED'",
+        // and the underlying database column's type is derived from the expression — there is
+        // nothing to change.
+        Generate(
+            new AlterColumnOperation
+            {
+                Table = "Files",
+                Name = "FileSize",
+                ClrType = typeof(long),
+                ColumnType = "bigint",
+                IsNullable = false,
+                ComputedColumnSql = "DATALENGTH([FileContents])",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = false,
+                    ComputedColumnSql = "DATALENGTH([FileContents])"
+                }
+            });
+
+        AssertSql("");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_computed_column_with_changed_expression_drops_and_adds()
+    {
+        // Regression guard: when the computed column expression itself changes, SQL Server still
+        // cannot ALTER COLUMN — but a drop+add is required to apply the new expression. This path
+        // must remain intact.
+        Generate(
+            new AlterColumnOperation
+            {
+                Table = "Files",
+                Name = "FileSize",
+                ClrType = typeof(long),
+                ColumnType = "bigint",
+                IsNullable = false,
+                ComputedColumnSql = "LEN([FileContents])",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = false,
+                    ComputedColumnSql = "DATALENGTH([FileContents])"
+                }
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Files]') AND [c].[name] = N'FileSize';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Files] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [Files] DROP COLUMN [FileSize];
+ALTER TABLE [Files] ADD [FileSize] AS LEN([FileContents]);
+""");
+    }
+
+    [Fact]
     public virtual void AlterColumnOperation_with_identity_legacy()
     {
         Generate(
@@ -262,16 +407,15 @@ ALTER TABLE [People] ADD FOREIGN KEY ([SpouseId]) REFERENCES [People];
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumnOperation_with_index_no_oldColumn()
     {
         Generate(
@@ -295,16 +439,15 @@ ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumnOperation_with_added_index()
     {
         Generate(
@@ -334,10 +477,9 @@ ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
 GO
@@ -346,7 +488,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumnOperation_with_added_index_no_oldType()
     {
         Generate(
@@ -375,10 +517,9 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;
 GO
@@ -387,7 +528,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumnOperation_identity_legacy()
     {
         Generate(
@@ -408,16 +549,15 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Id');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Id';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumnOperation_add_identity_legacy()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => Generate(
@@ -434,7 +574,7 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumnOperation_remove_identity_legacy()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => Generate(
@@ -454,7 +594,7 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CreateDatabaseOperation()
     {
         Generate(
@@ -472,7 +612,7 @@ END;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CreateDatabaseOperation_with_filename()
     {
         Generate(
@@ -495,7 +635,7 @@ END;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CreateDatabaseOperation_with_filename_and_datadirectory()
     {
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -520,7 +660,7 @@ END;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CreateDatabaseOperation_with_filename_and_custom_datadirectory()
     {
         var dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
@@ -549,7 +689,7 @@ END;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CreateDatabaseOperation_with_collation()
     {
         Generate(
@@ -568,7 +708,7 @@ END;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterDatabaseOperation_collation()
     {
         Generate(
@@ -579,7 +719,7 @@ END;
             Sql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterDatabaseOperation_collation_to_default()
     {
         Generate(
@@ -596,7 +736,7 @@ END
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterDatabaseOperation_memory_optimized()
     {
         Generate(
@@ -607,7 +747,7 @@ END
             Sql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropDatabaseOperation()
     {
         Generate(
@@ -625,7 +765,7 @@ DROP DATABASE [Northwind];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropIndexOperations_throws_when_no_table()
     {
         var migrationBuilder = new MigrationBuilder("SqlServer");
@@ -638,7 +778,7 @@ DROP DATABASE [Northwind];
         Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void MoveSequenceOperation_legacy()
     {
         Generate(
@@ -655,7 +795,7 @@ ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void MoveTableOperation_legacy()
     {
         Generate(
@@ -672,7 +812,7 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void RenameIndexOperations_throws_when_no_table()
     {
         var migrationBuilder = new MigrationBuilder("SqlServer");
@@ -686,7 +826,7 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
         Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void RenameSequenceOperation_legacy()
     {
         Generate(
@@ -703,7 +843,7 @@ EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override void RenameTableOperation_legacy()
     {
         base.RenameTableOperation_legacy();
@@ -724,7 +864,7 @@ EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlOperation_handles_backslash()
     {
         Generate(
@@ -736,7 +876,7 @@ EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlOperation_ignores_sequential_gos()
     {
         Generate(
@@ -748,7 +888,7 @@ EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlOperation_handles_go()
     {
         Generate(
@@ -763,7 +903,7 @@ GO
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlOperation_handles_go_with_count()
     {
         Generate(
@@ -778,7 +918,7 @@ GO
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlOperation_ignores_non_go()
     {
         Generate(
@@ -797,6 +937,539 @@ GO
         AssertSql(
             """
 -- I <3 DDL
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_block_comment_with_single_quote()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* It's a comment */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* It's a comment */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_multiline_block_comment_with_single_quote()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* This is" + EOL + "   a multiline comment with ' quote */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* This is
+   a multiline comment with ' quote */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_block_comment_with_multiple_quotes()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* It's a comment with 'multiple' quotes */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* It's a comment with 'multiple' quotes */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_block_comment_before_procedure()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* It's a procedure */" + EOL + "CREATE PROCEDURE dbo.proc1 AS SELECT 1;" + EOL + "go" + EOL
+                    + "/* Another one */" + EOL + "CREATE PROCEDURE dbo.proc2 AS SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* It's a procedure */
+CREATE PROCEDURE dbo.proc1 AS SELECT 1;
+GO
+
+/* Another one */
+CREATE PROCEDURE dbo.proc2 AS SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_empty_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/**/" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/**/
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_nested_comments_and_strings()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* Block comment */" + EOL + "SELECT 'string with '' escaped quotes';" + EOL + "go" + EOL
+                    + "-- Line comment" + EOL + "SELECT 1;"
+            });
+
+        AssertSql(
+            """
+/* Block comment */
+SELECT 'string with '' escaped quotes';
+GO
+
+-- Line comment
+SELECT 1;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_block_comment_after_string()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test';" + EOL + "/* It's a comment */" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test';
+/* It's a comment */
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_block_comment_with_asterisks()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/** It's a comment with extra stars **/" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/** It's a comment with extra stars **/
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_line_comment_with_block_comment_start()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- /*" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- /*
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_block_comment_with_line_comment_inside()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* Block comment -- with line comment */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* Block comment -- with line comment */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_multiline_block_comment_with_go_on_separate_line()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* Comment with" + EOL + "go" + EOL + "inside */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* Comment with
+go
+inside */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_square_bracket_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO [go] VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO [go] VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_escaped_square_bracket_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO [g]]o] VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO [g]]o] VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_double_quote_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO \"" + EOL + "go" + EOL + "\" VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO "
+go
+" VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_quote_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test\"';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test"';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_forward_slash_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1/2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1/2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_asterisk_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1*2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1*2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_dash_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1-2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1-2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_square_bracket_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT [" + EOL + "column" + EOL + "];" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT [
+column
+];
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_double_quote_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT \"go\"\"lum\";" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT "go""lum";
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_line_comment_inside_quotes()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT '-- not a comment';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT '-- not a comment';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_line_comment_inside_square_brackets()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT [-- column];" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT [-- column];
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_line_comment_inside_double_quotes()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT \"-- column\";" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT "-- column";
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_brackets_inside_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* [bracket identifier */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* [bracket identifier */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_double_quotes_inside_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* \"double quote */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* "double quote */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_single_quote_inside_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* ' quote */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* ' quote */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_quotes_inside_line_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- 'quote' [bracket] \"double\"" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- 'quote' [bracket] "double"
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_brackets_inside_line_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- [column" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- [column
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_double_quotes_inside_line_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- \"column" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- "column
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_escaped_quotes_in_string()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test''s value';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test''s value';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_multiple_delimiters_in_string()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT '[bracket] and \"quote\"';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT '[bracket] and "quote"';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_handles_go_in_script_with_suppress_transaction()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "CREATE PROCEDURE dbo.Proc1 AS SELECT 1;" + EOL + "GO" + EOL
+                    + "CREATE VIEW view1 AS SELECT 1 AS Id;" + EOL + "GO 2" + EOL + "SELECT 1;",
+                SuppressTransaction = true
+            },
+            MigrationsSqlGenerationOptions.Script);
+
+        AssertSql(
+            """
+CREATE PROCEDURE dbo.Proc1 AS SELECT 1;
+GO
+CREATE VIEW view1 AS SELECT 1 AS Id;
+GO 2
+SELECT 1;
 """);
     }
 
@@ -872,7 +1545,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void InsertDataOperation_max_batch_size_is_respected()
     {
         // The SQL Server max batch size is 42 by default
@@ -1210,7 +1883,7 @@ SELECT @@ROWCOUNT;
         AssertSql(expectedSql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CreateIndex_generates_exec_when_legacy_filter_and_idempotent()
     {
         Generate(
@@ -1233,7 +1906,7 @@ EXEC(N'CREATE UNIQUE INDEX [IX_Table1_Column1] ON [Table1] ([Column1]) WHERE [Co
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumn_make_required_with_idempotent()
     {
         Generate(
@@ -1257,10 +1930,9 @@ EXEC(N'CREATE UNIQUE INDEX [IX_Table1_Column1] ON [Table1] ([Column1]) WHERE [Co
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT ' + @var + ';');
 EXEC(N'UPDATE [Person] SET [Name] = N'''' WHERE [Name] IS NULL');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
@@ -1270,7 +1942,7 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
 
 
 
-    [ConditionalFact]
+    [Fact]
     public void Invalid_column_type_for_unmappable_clr_type_throws_meaningful_exception()
     {
         var ex = Assert.Throws<InvalidOperationException>(() =>

@@ -6,6 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 public class CosmosByteTypeTest(CosmosByteTypeTest.ByteTypeFixture fixture)
     : TypeTestBase<byte, CosmosByteTypeTest.ByteTypeFixture>(fixture)
 {
+    // Cosmos can't translate byte.Equals() in primitive collection queries
+    public override Task Primitive_collection_in_query()
+        => Task.CompletedTask;
+
     public class ByteTypeFixture : CosmosTypeFixtureBase<byte>
     {
         public override byte Value { get; } = byte.MinValue;
@@ -18,6 +22,14 @@ public class CosmosByteTypeTest(CosmosByteTypeTest.ByteTypeFixture fixture)
 public class CosmosShortTypeTest(CosmosShortTypeTest.ShortTypeFixture fixture)
     : TypeTestBase<short, CosmosShortTypeTest.ShortTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
+
     public class ShortTypeFixture : CosmosTypeFixtureBase<short>
     {
         public override short Value { get; } = short.MinValue;
@@ -29,6 +41,14 @@ public class CosmosShortTypeTest(CosmosShortTypeTest.ShortTypeFixture fixture)
 
 public class CosmosIntTypeTest(CosmosIntTypeTest.IntTypeFixture fixture) : TypeTestBase<int, CosmosIntTypeTest.IntTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
+
     public class IntTypeFixture : CosmosTypeFixtureBase<int>
     {
         public override int Value { get; } = int.MinValue;
@@ -41,6 +61,14 @@ public class CosmosIntTypeTest(CosmosIntTypeTest.IntTypeFixture fixture) : TypeT
 public class CosmosLongTypeTest(CosmosLongTypeTest.LongTypeFixture fixture)
     : TypeTestBase<long, CosmosLongTypeTest.LongTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
+
     public class LongTypeFixture : CosmosTypeFixtureBase<long>
     {
         public override long Value { get; } = long.MinValue;
@@ -53,6 +81,14 @@ public class CosmosLongTypeTest(CosmosLongTypeTest.LongTypeFixture fixture)
 public class CosmosDecimalTypeTest(CosmosDecimalTypeTest.DecimalTypeFixture fixture)
     : TypeTestBase<decimal, CosmosDecimalTypeTest.DecimalTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
+
     public class DecimalTypeFixture : CosmosTypeFixtureBase<decimal>
     {
         public override decimal Value { get; } = 30.5m;
@@ -65,6 +101,14 @@ public class CosmosDecimalTypeTest(CosmosDecimalTypeTest.DecimalTypeFixture fixt
 public class CosmosDoubleTypeTest(CosmosDoubleTypeTest.DoubleTypeFixture fixture)
     : TypeTestBase<double, CosmosDoubleTypeTest.DoubleTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
+
     public class DoubleTypeFixture : CosmosTypeFixtureBase<double>
     {
         public override double Value { get; } = 30.5d;
@@ -77,6 +121,14 @@ public class CosmosDoubleTypeTest(CosmosDoubleTypeTest.DoubleTypeFixture fixture
 public class CosmosFloatTypeTest(CosmosFloatTypeTest.FloatTypeFixture fixture)
     : TypeTestBase<float, CosmosFloatTypeTest.FloatTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
+
     public class FloatTypeFixture : CosmosTypeFixtureBase<float>
     {
         public override float Value { get; } = 30.5f;

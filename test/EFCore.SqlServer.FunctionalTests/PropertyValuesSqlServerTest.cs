@@ -17,8 +17,25 @@ public class PropertyValuesSqlServerTest(PropertyValuesSqlServerTest.PropertyVal
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<Building>()
-                .Property(b => b.Value).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<Building>(b =>
+            {
+                b.Property(b => b.Value).HasColumnType("decimal(18,2)");
+
+                b.ComplexProperty(b => b.Culture)
+                    .ComplexProperty(c => c.License)
+                    .Property(l => l.Charge)
+                    .HasColumnType("decimal(18,2)");
+
+                b.ComplexProperty(b => b.Milk)
+                    .ComplexProperty(c => c.License)
+                    .Property(l => l.Charge)
+                    .HasColumnType("decimal(18,2)");
+
+                b.ComplexProperty(b => b.OptionalMilk)
+                    .ComplexProperty(c => c.License)
+                    .Property(l => l.Charge)
+                    .HasColumnType("decimal(18,2)");
+            });
 
             modelBuilder.Entity<CurrentEmployee>()
                 .Property(ce => ce.LeaveBalance).HasColumnType("decimal(18,2)");

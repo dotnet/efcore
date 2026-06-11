@@ -20,9 +20,6 @@ public class StructuralTypeProjectionExpression : Expression
     private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _ownedNavigationMap;
     private readonly IReadOnlyDictionary<IComplexProperty, Expression> _complexPropertyMap;
 
-    private static readonly bool UseOldBehavior37205 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37205", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -35,14 +32,16 @@ public class StructuralTypeProjectionExpression : Expression
         IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
         IReadOnlyDictionary<IComplexProperty, Expression> complexPropertyMap,
         bool nullable = false,
-        SqlExpression? discriminatorExpression = null)
+        SqlExpression? discriminatorExpression = null,
+        IReadOnlyDictionary<ITableBase, string>? tableMap = null)
         : this(
             type,
             propertyExpressionMap,
             ownedNavigationMap: [],
             complexPropertyMap,
             nullable,
-            discriminatorExpression)
+            discriminatorExpression,
+            tableMap)
     {
     }
 
@@ -52,7 +51,8 @@ public class StructuralTypeProjectionExpression : Expression
         Dictionary<INavigation, StructuralTypeShaperExpression> ownedNavigationMap,
         IReadOnlyDictionary<IComplexProperty, Expression> complexPropertyMap,
         bool nullable,
-        SqlExpression? discriminatorExpression = null)
+        SqlExpression? discriminatorExpression = null,
+        IReadOnlyDictionary<ITableBase, string>? tableMap = null)
     {
         StructuralType = type;
         _propertyExpressionMap = propertyExpressionMap;
@@ -60,6 +60,7 @@ public class StructuralTypeProjectionExpression : Expression
         _complexPropertyMap = complexPropertyMap;
         IsNullable = nullable;
         DiscriminatorExpression = discriminatorExpression;
+        TableMap = tableMap;
     }
 
     /// <summary>
@@ -80,6 +81,20 @@ public class StructuralTypeProjectionExpression : Expression
     ///     A <see cref="SqlExpression" /> to generate discriminator for entity type.
     /// </summary>
     public virtual SqlExpression? DiscriminatorExpression { get; }
+
+    /// <summary>
+    ///     The tables being projected from, mapping each <see cref="ITableBase" /> to its alias in the containing
+    ///     <see cref="SelectExpression" />. <see langword="null" /> when the projection wasn't constructed with this
+    ///     information; consumers should fall back to model-wide accessors in that case.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    public virtual IReadOnlyDictionary<ITableBase, string>? TableMap { get; }
 
     /// <summary>
     ///     The <see cref="ExpressionType" /> of the <see cref="Expression" />.
@@ -139,7 +154,7 @@ public class StructuralTypeProjectionExpression : Expression
         return changed
             ? new StructuralTypeProjectionExpression(
                 StructuralType, propertyExpressionMap, ownedNavigationMap, complexPropertyMap, IsNullable,
-                discriminatorExpression)
+                discriminatorExpression, TableMap)
             : this;
     }
 
@@ -195,7 +210,8 @@ public class StructuralTypeProjectionExpression : Expression
             ownedNavigationMap,
             complexPropertyMap,
             nullable: true,
-            discriminatorExpression);
+            discriminatorExpression,
+            TableMap);
     }
 
     /// <summary>
@@ -263,7 +279,7 @@ public class StructuralTypeProjectionExpression : Expression
 
         return new StructuralTypeProjectionExpression(
             derivedType, propertyExpressionMap, ownedNavigationMap, complexPropertyMap, IsNullable,
-            discriminatorExpression);
+            discriminatorExpression, TableMap);
     }
 
     /// <summary>

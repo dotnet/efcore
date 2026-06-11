@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -584,7 +584,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region Static
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Extension_Method_Static()
     {
         using var context = CreateContext();
@@ -594,7 +594,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_With_Translator_Translates_Static()
     {
         using var context = CreateContext();
@@ -606,7 +606,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(5, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static()
     {
         using var context = CreateContext();
@@ -622,7 +622,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             .Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Constant_Parameter_Static()
     {
         using var context = CreateContext();
@@ -633,7 +633,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, custs.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Correlated_Static()
     {
         using var context = CreateContext();
@@ -646,7 +646,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Static()
     {
         using var context = CreateContext();
@@ -659,7 +659,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Parameter_Static()
     {
         using var context = CreateContext();
@@ -673,7 +673,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Nested_Static()
     {
         using var context = CreateContext();
@@ -693,7 +693,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***1", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Correlated_Static()
     {
         using var context = CreateContext();
@@ -705,7 +705,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(cust);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Not_Correlated_Static()
     {
         using var context = CreateContext();
@@ -718,7 +718,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Parameter_Static()
     {
         using var context = CreateContext();
@@ -733,7 +733,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Nested_Static()
     {
         using var context = CreateContext();
@@ -748,7 +748,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Correlated_Static()
     {
         using var context = CreateContext();
@@ -762,7 +762,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Correlated_Static()
     {
         using var context = CreateContext();
@@ -776,7 +776,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Parameter_Static()
     {
         using var context = CreateContext();
@@ -791,7 +791,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Nested_Static()
     {
         using var context = CreateContext();
@@ -807,7 +807,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***3", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Static()
     {
         using var context = CreateContext();
@@ -817,7 +817,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Static()
     {
         using var context = CreateContext();
@@ -827,7 +827,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Static()
     {
         using var context = CreateContext();
@@ -840,7 +840,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(results.SequenceEqual(Enumerable.Range(2, 4)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_UDF_Static()
     {
         using var context = CreateContext();
@@ -851,7 +851,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_BCL_Static()
     {
         using var context = CreateContext();
@@ -862,7 +862,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_UDF_Static()
     {
         using var context = CreateContext();
@@ -873,7 +873,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Client_Static()
     {
         using var context = CreateContext();
@@ -884,7 +884,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Client_Static()
     {
         using var context = CreateContext();
@@ -895,7 +895,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_BCL_Static()
     {
         using var context = CreateContext();
@@ -906,7 +906,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_Static()
     {
         using var context = CreateContext();
@@ -916,7 +916,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_Static()
     {
         using var context = CreateContext();
@@ -926,7 +926,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_Static()
     {
         using var context = CreateContext();
@@ -936,7 +936,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Static()
     {
         using var context = CreateContext();
@@ -948,7 +948,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_Static()
     {
         using var context = CreateContext();
@@ -958,7 +958,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Static()
     {
         using var context = CreateContext();
@@ -970,7 +970,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Nullable_navigation_property_access_preserves_schema_for_sql_function()
     {
         using var context = CreateContext();
@@ -983,7 +983,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("Customer", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_function_without_null_propagation_to_null()
     {
         using var context = CreateContext();
@@ -996,7 +996,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_function_with_null_propagation_to_null()
     {
         using var context = CreateContext();
@@ -1009,7 +1009,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_non_nullable_function_to_null_gets_optimized()
     {
         using var context = CreateContext();
@@ -1023,7 +1023,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_functions_returning_int_that_take_nullable_param_which_propagates_null()
     {
         using var context = CreateContext();
@@ -1036,7 +1036,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_SqlFragment_Static()
     {
         using var context = CreateContext();
@@ -1046,7 +1046,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_with_InExpression_translation()
     {
         using var context = CreateContext();
@@ -1055,7 +1055,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, query.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_with_nested_InExpression_translation()
     {
         using var context = CreateContext();
@@ -1065,7 +1065,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     }
 
 #if RELEASE
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_with_nullable_value_return_type_throws()
     {
         using var context = CreateContext();
@@ -1085,7 +1085,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region Instance
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Non_Static()
     {
         using var context = CreateContext();
@@ -1098,7 +1098,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("$$One", custName.LastName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Extension_Method_Instance()
     {
         using var context = CreateContext();
@@ -1108,7 +1108,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_With_Translator_Translates_Instance()
     {
         using var context = CreateContext();
@@ -1120,7 +1120,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(5, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1136,7 +1136,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             .Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Constant_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1147,7 +1147,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, custs.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1160,7 +1160,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1173,7 +1173,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1187,7 +1187,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Nested_Instance()
     {
         using var context = CreateContext();
@@ -1205,7 +1205,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***1", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1217,7 +1217,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(cust);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Not_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1230,7 +1230,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1245,7 +1245,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Nested_Instance()
     {
         using var context = CreateContext();
@@ -1260,7 +1260,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1274,7 +1274,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1288,7 +1288,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1303,7 +1303,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Nested_Instance()
     {
         using var context = CreateContext();
@@ -1319,7 +1319,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***3", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Instance()
     {
         using var context = CreateContext();
@@ -1329,7 +1329,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Instance()
     {
         using var context = CreateContext();
@@ -1339,7 +1339,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Instance()
     {
         using var context = CreateContext();
@@ -1352,7 +1352,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(results.SequenceEqual(Enumerable.Range(2, 4)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_UDF_Instance()
     {
         using var context = CreateContext();
@@ -1362,7 +1362,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_BCL_Instance()
     {
         using var context = CreateContext();
@@ -1372,7 +1372,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_UDF_Instance()
     {
         using var context = CreateContext();
@@ -1382,7 +1382,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Client_Instance()
     {
         using var context = CreateContext();
@@ -1392,7 +1392,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Client_Instance()
     {
         using var context = CreateContext();
@@ -1402,7 +1402,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_BCL_Instance()
     {
         using var context = CreateContext();
@@ -1412,7 +1412,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_Instance()
     {
         using var context = CreateContext();
@@ -1422,7 +1422,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_Instance()
     {
         using var context = CreateContext();
@@ -1432,7 +1432,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_Instance()
     {
         using var context = CreateContext();
@@ -1450,7 +1450,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         return new T();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Instance()
     {
         using var context = CreateContext();
@@ -1461,7 +1461,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_Instance()
     {
         using var context = CreateContext();
@@ -1471,7 +1471,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                                        select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Instance()
     {
         using var context = CreateContext();
@@ -1489,7 +1489,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region TableValuedFunction
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Anonymous_Collection_No_PK_Throws()
     {
         using (var context = CreateContext())
@@ -1508,7 +1508,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Anonymous_Collection_No_IQueryable_In_Projection_Throws()
     {
         using (var context = CreateContext())
@@ -1522,7 +1522,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Stand_Alone()
     {
         using (var context = CreateContext())
@@ -1539,7 +1539,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Stand_Alone_Parameter()
     {
         using (var context = CreateContext())
@@ -1556,7 +1556,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossApply_Correlated_Select_QF_Type()
     {
         using (var context = CreateContext())
@@ -1579,7 +1579,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossApply_Correlated_Select_Anonymous()
     {
         using (var context = CreateContext())
@@ -1611,7 +1611,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Direct_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1626,7 +1626,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact(Skip = "issue #26078")]
+    [Fact(Skip = "issue #26078")]
     public virtual void QF_Select_Direct_In_Anonymous_distinct()
     {
         using (var context = CreateContext())
@@ -1639,7 +1639,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1659,7 +1659,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1684,7 +1684,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested_With_QF()
     {
         using (var context = CreateContext())
@@ -1712,7 +1712,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested()
     {
         using (var context = CreateContext())
@@ -1735,7 +1735,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections()
     {
         using (var context = CreateContext())
@@ -1755,7 +1755,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_NonCorrelated_Subquery_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1772,7 +1772,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter()
     {
         using (var context = CreateContext())
@@ -1792,7 +1792,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Correlated_Select_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1830,7 +1830,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossApply_Correlated_Select_Result()
     {
         using (var context = CreateContext())
@@ -1854,7 +1854,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossJoin_Not_Correlated()
     {
         using (var context = CreateContext())
@@ -1878,7 +1878,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossJoin_Parameter()
     {
         using (var context = CreateContext())
@@ -1904,7 +1904,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Join()
     {
         using (var context = CreateContext())
@@ -1928,7 +1928,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_LeftJoin_Select_Anonymous()
     {
         using (var context = CreateContext())
@@ -1967,7 +1967,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_LeftJoin_Select_Result()
     {
         using (var context = CreateContext())
@@ -1989,7 +1989,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_OuterApply_Correlated_Select_QF()
     {
         using (var context = CreateContext())
@@ -2019,7 +2019,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_OuterApply_Correlated_Select_Entity()
     {
         using (var context = CreateContext())
@@ -2039,7 +2039,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_OuterApply_Correlated_Select_Anonymous()
     {
         using (var context = CreateContext())
@@ -2079,7 +2079,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Nested()
     {
         using (var context = CreateContext())
@@ -2105,7 +2105,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Correlated_Nested_Func_Call()
     {
         var custId = 2;
@@ -2129,7 +2129,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Correlated_Func_Call_With_Navigation()
     {
         using (var context = CreateContext())
@@ -2155,7 +2155,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_mapped_to_function()
     {
         using (var context = CreateContext())
@@ -2172,7 +2172,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TVF_with_navigation_in_projection_groupby_aggregate()
     {
         using (var context = CreateContext())
@@ -2195,7 +2195,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TVF_with_argument_being_a_subquery_with_navigation_in_projection_groupby_aggregate()
     {
         using (var context = CreateContext())
@@ -2219,7 +2219,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TVF_backing_entity_type_mapped_to_view()
     {
         using (var context = CreateContext())
@@ -2232,7 +2232,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TVF_backing_entity_type_with_complextype_mapped_to_view()
     {
         using (var context = CreateContext())
@@ -2245,7 +2245,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Udf_with_argument_being_comparison_to_null_parameter()
     {
         using (var context = CreateContext())
@@ -2270,7 +2270,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Udf_with_argument_being_comparison_of_nullable_columns()
     {
         using (var context = CreateContext())

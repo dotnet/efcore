@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
@@ -9,7 +9,7 @@ public abstract class TPCInheritanceQuerySqlServerTestBase<TFixture>(TFixture fi
     : TPCInheritanceQueryTestBase<TFixture>(fixture, testOutputHelper)
     where TFixture : TPCInheritanceQuerySqlServerFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType().BaseType);
 

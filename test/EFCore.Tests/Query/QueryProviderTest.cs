@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class QueryProviderTest
 {
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteUpdate_and_ExecuteDelete_throw_when_provider_does_not_implement()
     {
         using var context = new TestContext();
@@ -28,7 +28,7 @@ public class QueryProviderTest
             (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteDeleteAsync())).InnerException!.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_generic_ExecuteQuery_does_not_throw()
     {
         var context = new TestContext();

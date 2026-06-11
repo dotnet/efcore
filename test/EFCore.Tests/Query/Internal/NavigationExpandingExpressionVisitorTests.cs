@@ -71,7 +71,7 @@ public class NavigationExpandingExpressionVisitorTests
         public int B { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Visits_extension_children()
     {
         var model = new Model();

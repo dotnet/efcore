@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocNavigationsQuerySqliteTest(NonSharedFixture fixture) : AdHocNavigationsQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     public override async Task Projection_with_multiple_includes_and_subquery_with_set_operation()

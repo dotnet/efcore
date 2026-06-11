@@ -30,10 +30,13 @@ public class ByteArrayTranslationsCosmosTest : ByteArrayTranslationsTestBase<Bas
     public override Task Contains_with_column()
         => AssertTranslationFailed(() => base.Contains_with_column());
 
+    public override Task Any()
+        => AssertTranslationFailed(() => base.Any());
+
     public override Task SequenceEqual()
         => AssertTranslationFailed(() => base.SequenceEqual());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
