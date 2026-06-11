@@ -416,8 +416,9 @@ public static class RelationalTypeBaseExtensions
             var containingEntityType = typeBase.ContainingEntityType;
             if (containingEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
             {
-                return StoreObjectIdentifier.Create(containingEntityType, storeObject.StoreObjectType) == storeObject
-                    || containingEntityType.GetDerivedTypes().Any(e => StoreObjectIdentifier.Create(e, storeObject.StoreObjectType) == storeObject)
+                var localStoreObject = storeObject;
+                return StoreObjectIdentifier.Create(containingEntityType, localStoreObject.StoreObjectType) == localStoreObject
+                    || containingEntityType.GetDerivedTypes().Any(e => StoreObjectIdentifier.Create(e, localStoreObject.StoreObjectType) == localStoreObject)
                         ? containerColumnName
                         : null;
             }
