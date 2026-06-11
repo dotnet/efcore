@@ -3493,9 +3493,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var baseTable = StoreObjectIdentifier.Table(nameof(TpcBaseEntityWithComplexProperty));
             var derivedTable = StoreObjectIdentifier.Table(nameof(TpcDerivedEntityWithoutComplexProperty));
+            var unrelatedTable = StoreObjectIdentifier.Table("SomeOtherTable");
 
             Assert.Equal(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(baseTable));
             Assert.Equal(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(derivedTable));
+            Assert.Null(complexType.GetContainerColumnName(unrelatedTable));
         }
 
         [Fact]
