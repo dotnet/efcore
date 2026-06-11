@@ -122,7 +122,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         foreach (var complexProperty in typeBase.GetComplexProperties())
         {
             ProcessElement(complexProperty, version);
-            
+
             if (complexProperty is IMutableComplexProperty mutableComplexProperty)
             {
                 UpdateComplexPropertyNullability(mutableComplexProperty, version);

@@ -15,7 +15,7 @@ user-invocable: false
 ## Model Snapshot
 
 - Model snapshots use `typeof(Dictionary<string, object>)` (property bag format), not the actual CLR type. When examining the `ClrType` in a snapshot, don't assume it matches the real entity type.
-- `SnapshotModelProcessor.Process()` is used at design-time to fixup older model snapshots for backward compatibility.
+- `SnapshotModelProcessor.Process()` is used at design-time to fixup older model snapshots for backward compatibility. It lives in EFCore.Relational (namespace `Microsoft.EntityFrameworkCore.Migrations.Internal`) so relational providers can register a custom `ISnapshotModelProcessor`; the default is registered (via `TryAdd`) in `DesignTimeServiceCollectionExtensions`.
 
 ## Testing
 
