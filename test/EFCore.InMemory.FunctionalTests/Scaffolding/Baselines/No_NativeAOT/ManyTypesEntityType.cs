@@ -86,10 +86,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<bool, string>(string (bool v) => ((string)((v ? "B" : "A"))), bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0])), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null))),
+            converter: new ValueConverter<bool, string>(string (bool v) => ((string)((v ? "B" : "A"))), bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0])), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<bool, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<bool, string>(string (bool v) => ((string)((v ? "B" : "A"))), bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0])), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null)))));
+                new ValueConverter<bool, string>(string (bool v) => ((string)((v ? "B" : "A"))), bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0])), default(ConverterMappingHints))));
         boolToStringConverterProperty.SetSentinelFromProviderValue("A");
 
         var boolToTwoValuesConverterProperty = runtimeEntityType.AddProperty(

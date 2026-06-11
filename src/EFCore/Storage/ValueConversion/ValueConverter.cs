@@ -261,4 +261,12 @@ public abstract class ValueConverter
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public abstract Expression ConstructorExpression { get; }
+
+    /// <summary>
+    ///     The expression representing construction of this object without <see cref="ConverterMappingHints" />.
+    /// </summary>
+    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual Expression ConstructorExpressionWithoutMappingHints
+        => ConstructorExpression;
 }

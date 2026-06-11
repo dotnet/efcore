@@ -197,32 +197,36 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
         typeof(ConverterMappingHints)
     ])!;
 
+    private Expression ConstructorExpressionCore(bool includeMappingHints)
+    {
+        var mappingHintsExpression = includeMappingHints && MappingHints != null
+            ? (Expression)Expression.New(
+                MappingHintsCtor,
+                Expression.Constant(MappingHints.Size, typeof(int?)),
+                Expression.Constant(MappingHints.Precision, typeof(int?)),
+                Expression.Constant(MappingHints.Scale, typeof(int?)),
+                Expression.Constant(MappingHints.IsUnicode, typeof(bool?)))
+            : Expression.Default(typeof(ConverterMappingHints));
+
+        return ConvertsNulls
+            ? Expression.New(
+                _constructorInfoWithConvertsNulls,
+                ConvertToProviderExpression,
+                ConvertFromProviderExpression,
+                Expression.Constant(true),
+                mappingHintsExpression)
+            : Expression.New(
+                _constructorInfo,
+                ConvertToProviderExpression,
+                ConvertFromProviderExpression,
+                mappingHintsExpression);
+    }
+
     /// <inheritdoc />
     public override Expression ConstructorExpression
-    {
-        get
-        {
-            var mappingHintsExpression = MappingHints != null
-                ? (Expression)Expression.New(
-                    MappingHintsCtor,
-                    Expression.Constant(MappingHints.Size, typeof(int?)),
-                    Expression.Constant(MappingHints.Precision, typeof(int?)),
-                    Expression.Constant(MappingHints.Scale, typeof(int?)),
-                    Expression.Constant(MappingHints.IsUnicode, typeof(bool?)))
-                : Expression.Default(typeof(ConverterMappingHints));
+        => ConstructorExpressionCore(includeMappingHints: true);
 
-            return ConvertsNulls
-                ? Expression.New(
-                    _constructorInfoWithConvertsNulls,
-                    ConvertToProviderExpression,
-                    ConvertFromProviderExpression,
-                    Expression.Constant(true),
-                    mappingHintsExpression)
-                : Expression.New(
-                    _constructorInfo,
-                    ConvertToProviderExpression,
-                    ConvertFromProviderExpression,
-                    mappingHintsExpression);
-        }
-    }
+    /// <inheritdoc />
+    public override Expression ConstructorExpressionWithoutMappingHints
+        => ConstructorExpressionCore(includeMappingHints: false);
 }
