@@ -3,6 +3,7 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -73,6 +74,30 @@ public class SqlServerConnectionTest
         Assert.Equal(
             """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest""",
             connection.ConnectionString);
+    }
+
+    [Fact]
+    public void DbConnection_sets_application_name_to_ef_version_when_unspecified()
+    {
+        using var connection = new SqlServerConnection(CreateDependencies());
+
+        var connectionStringBuilder = new SqlConnectionStringBuilder(connection.DbConnection.ConnectionString);
+
+        Assert.Equal($"EFCore/{ProductInfo.GetVersion()}", connectionStringBuilder.ApplicationName);
+    }
+
+    [Fact]
+    public void DbConnection_does_not_modify_specified_application_name()
+    {
+        var options = new DbContextOptionsBuilder()
+            .UseSqlServer("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name=CustomApp""")
+            .Options;
+
+        using var connection = new SqlServerConnection(CreateDependencies(options));
+
+        var connectionStringBuilder = new SqlConnectionStringBuilder(connection.DbConnection.ConnectionString);
+
+        Assert.Equal("CustomApp", connectionStringBuilder.ApplicationName);
     }
 
     #endregion Connection string not modified

@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -18,6 +19,7 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     private const int DefaultMasterConnectionCommandTimeout = 60;
 
     private static readonly ConcurrentDictionary<string, bool> MultipleActiveResultSetsEnabledMap = new();
+    private static readonly string DefaultApplicationName = "EFCore/" + ProductInfo.GetVersion();
 
     static SqlServerConnection()
     {
@@ -80,7 +82,28 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override DbConnection CreateDbConnection()
-        => new SqlConnection(GetValidatedConnectionString());
+    {
+        var connectionString = GetValidatedConnectionString();
+
+        try
+        {
+            var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
+
+            if (connectionStringBuilder.ApplicationName is ".NET SqlClient Data Provider" or "Core Microsoft SqlClient Data Provider" or "" or null)
+            {
+                connectionStringBuilder.ApplicationName = DefaultApplicationName;
+                connectionString = connectionStringBuilder.ConnectionString;
+            }
+        }
+        catch
+        {
+            // If anything goes wrong, simply don't modify the connection string.
+            // There are some scenarios where an invalid string is provided and an exception isn't expected at this phase
+            // (see e.g. test GetContextInfo_does_not_throw_if_DbConnection_cannot_be_created)
+        }
+
+        return new SqlConnection(connectionString);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
