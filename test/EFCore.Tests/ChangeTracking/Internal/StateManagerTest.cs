@@ -567,37 +567,14 @@ public class StateManagerTest
         public CompositeKeyOwned Owned { get; set; }
     }
 
-    private class DealContext : DbContext
+    private class WidgetContext : DbContext
     {
-        public DbSet<Deal> Deals { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<Flow> Flows { get; set; }
+        public DbSet<Widget> Widgets { get; set; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseInMemoryDatabase(nameof(DealContext) + Guid.NewGuid())
+                .UseInMemoryDatabase(nameof(WidgetContext) + Guid.NewGuid())
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
-    }
-
-    private class Deal
-    {
-        public int Id { get; set; }
-        public ICollection<Transaction> Transactions { get; set; } = new HashSet<Transaction>();
-    }
-
-    private class Transaction
-    {
-        public int Id { get; set; }
-        public int DealId { get; set; }
-        public Deal Deal { get; set; }
-        public ICollection<Flow> Flows { get; set; } = new HashSet<Flow>();
-    }
-
-    private class Flow
-    {
-        public int Id { get; set; }
-        public int TransactionId { get; set; }
-        public Transaction Transaction { get; set; }
     }
 
     [Fact]
@@ -769,9 +746,9 @@ public class StateManagerTest
     [Fact]
     public void Entry_for_untracked_shared_type_entity_does_not_keep_the_entity_alive()
     {
-        var model = BuildModel();
+        var model = BuildModelWithSharedType();
         var stateManager = CreateStateManager(model);
-        var entityType = model.FindEntityType("SharedEntityA")!;
+        var entityType = model.FindEntityType("SharedCategoryA")!;
 
         // Shared-type entities are cached in a per-type sub-map; that sub-map's detached cache must also
         // hold entries weakly so the entity can be collected once nothing else references it (issue #33557).
@@ -789,7 +766,7 @@ public class StateManagerTest
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WeakReference CreateDetachedSharedTypeEntry(IStateManager stateManager, IEntityType entityType)
     {
-        var entity = new SharedEntity { Id = 1 };
+        var entity = new Category { Id = 1, PrincipalId = 777 };
         stateManager.GetOrCreateEntry(entity, entityType).SetEntityState(EntityState.Detached);
         return new WeakReference(entity);
     }
@@ -797,7 +774,7 @@ public class StateManagerTest
     [Fact]
     public void Detaching_a_tracked_graph_does_not_retain_references_to_detached_entities()
     {
-        using var context = new DealContext();
+        using var context = new WidgetContext();
 
         // Reproduces the issue's pattern: add a graph, then detach it by iterating and setting each
         // entity to Detached (detaching the principal cascade-detaches the dependents, so the later
@@ -815,35 +792,34 @@ public class StateManagerTest
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static WeakReference[] AddAndDetachGraph(DealContext context)
+    private static WeakReference[] AddAndDetachGraph(WidgetContext context)
     {
-        var deal = new Deal { Id = -3 };
-        var transaction = new Transaction { Id = -2, DealId = -3, Deal = deal };
-        var flow = new Flow { TransactionId = -2, Transaction = transaction };
-        transaction.Flows.Add(flow);
-        deal.Transactions.Add(transaction);
+        var root = new Widget { Id = -1 };
+        var child = new Widget { Id = -2, ParentWidget = root };
+        var grandChild = new Widget { Id = -3, ParentWidget = child };
+        root.ChildWidgets = [child];
+        child.ChildWidgets = [grandChild];
 
-        context.Add(flow);
+        context.Add(grandChild);
 
-        foreach (var entity in new object[] { deal, transaction, flow })
+        foreach (var entity in new object[] { root, child, grandChild })
         {
             context.Entry(entity).State = EntityState.Detached;
         }
 
-        return [new WeakReference(deal), new WeakReference(transaction), new WeakReference(flow)];
+        return [new WeakReference(root), new WeakReference(child), new WeakReference(grandChild)];
     }
 
     [Fact]
     public void Can_add_an_equivalent_graph_after_detaching_a_graph_with_the_same_keys()
     {
-        using var context = new DealContext();
+        using var context = new WidgetContext();
 
-        var first = new Flow { TransactionId = -2, Transaction = new Transaction { Id = -2, DealId = -3, Deal = new Deal { Id = -3 } } };
-        Connect(first);
+        var first = BuildWidgetGraph();
 
         // Capture the first graph's instances up front: detaching cascades through the graph and
         // nulls the navigations, so they can't be reached from 'first' afterwards.
-        var firstGraph = new object[] { first, first.Transaction!, first.Transaction!.Deal! };
+        var firstGraph = new object[] { first, first.ParentWidget!, first.ParentWidget!.ParentWidget! };
 
         context.Add(first);
         foreach (var entity in firstGraph)
@@ -851,8 +827,7 @@ public class StateManagerTest
             context.Entry(entity).State = EntityState.Detached;
         }
 
-        var second = new Flow { TransactionId = -2, Transaction = new Transaction { Id = -2, DealId = -3, Deal = new Deal { Id = -3 } } };
-        Connect(second);
+        var second = BuildWidgetGraph();
 
         // Must not throw an identity conflict and must not pull the detached first graph back in.
         context.Add(second);
@@ -864,16 +839,18 @@ public class StateManagerTest
 
         context.SaveChanges();
 
-        Assert.Equal(1, context.Set<Deal>().Count());
-        Assert.Equal(1, context.Set<Transaction>().Count());
-        Assert.Equal(1, context.Set<Flow>().Count());
+        Assert.Equal(3, context.Set<Widget>().Count());
 
-        static void Connect(Flow f)
+        // Builds a three-level chain (root -> child -> grandChild) with the same keys each time, and
+        // returns the leaf so adding it pulls in the whole graph via its to-principal navigations.
+        static Widget BuildWidgetGraph()
         {
-            f.TransactionId = f.Transaction!.Id;
-            f.Transaction.Flows.Add(f);
-            f.Transaction.DealId = f.Transaction.Deal!.Id;
-            f.Transaction.Deal.Transactions.Add(f.Transaction);
+            var root = new Widget { Id = -1 };
+            var child = new Widget { Id = -2, ParentWidget = root };
+            var grandChild = new Widget { Id = -3, ParentWidget = child };
+            root.ChildWidgets = [child];
+            child.ChildWidgets = [grandChild];
+            return grandChild;
         }
     }
 
@@ -1393,8 +1370,17 @@ public class StateManagerTest
 
         builder.Entity<Location>();
 
-        builder.SharedTypeEntity<SharedEntity>("SharedEntityA");
-        builder.SharedTypeEntity<SharedEntity>("SharedEntityB");
+        return builder.Model.FinalizeModel();
+    }
+
+    private static IModel BuildModelWithSharedType()
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        // Reuse Category as the CLR type for two shared-type entities so the model has a shared-type
+        // sub-map to exercise (Category is not used as a regular entity type in this model).
+        builder.SharedTypeEntity<Category>("SharedCategoryA");
+        builder.SharedTypeEntity<Category>("SharedCategoryB");
 
         return builder.Model.FinalizeModel();
     }
