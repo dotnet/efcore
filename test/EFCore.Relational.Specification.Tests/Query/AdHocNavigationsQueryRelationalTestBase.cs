@@ -114,6 +114,8 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
 
         Assert.NotNull(result);
         Assert.Equal(1, result.Id);
+        Assert.NotNull(result.Job);
+        Assert.Equal(1, result.Job!.Id);
     }
 
     [Theory, InlineData(false), InlineData(true)]
