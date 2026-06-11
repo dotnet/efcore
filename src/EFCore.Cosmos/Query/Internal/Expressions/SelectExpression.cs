@@ -273,10 +273,79 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         // nested embedded object). A scalar accessed directly off the root (Object is an ObjectReferenceExpression, e.g.
         // x.Name) cannot be undefined-by-nesting and is left as a VALUE projection. It is also only applied to the
         // top-level client projection: subqueries and collection projections rely on VALUE semantics for their shaping.
+        // When the predicate already guarantees the projected path cannot be undefined (e.g. a Where guarding the
+        // navigation or an EF.Functions.IsDefined check), the optimal VALUE projection is preserved.
         if (clientProjection
-            && _projection is [{ IsValueProjection: true, Expression: ScalarAccessExpression { Object: ObjectAccessExpression } } valueProjection])
+            && _projection is [{ IsValueProjection: true, Expression: ScalarAccessExpression { Object: ObjectAccessExpression } scalarAccess } valueProjection]
+            && !IsGuaranteedDefinedByPredicate(scalarAccess, Predicate))
         {
             _projection[0] = new ProjectionExpression(valueProjection.Expression, valueProjection.Alias, isValueProjection: false);
+        }
+    }
+
+    // Determines whether the predicate guarantees that the projected scalar's access path cannot be undefined for any
+    // row that passes the filter. A scalar nested in an embedded object can only be undefined if that embedded object is
+    // itself undefined, so a guard on the scalar or its immediate containing object is sufficient.
+    private static bool IsGuaranteedDefinedByPredicate(ScalarAccessExpression scalarAccess, SqlExpression? predicate)
+    {
+        if (predicate is null)
+        {
+            return false;
+        }
+
+        foreach (var conjunct in GetConjuncts(predicate))
+        {
+            switch (conjunct)
+            {
+                // e.g. IS_DEFINED(c["Associate"]["NestedAssociate"]["Id"])
+                case SqlFunctionExpression { Name: "IS_DEFINED", Arguments: [var argument] }
+                    when Guards(argument):
+                    return true;
+
+                // A comparison forces its operands to be defined, since comparing undefined yields undefined (filtered
+                // out): e.g. c["Associate"]["NestedAssociate"] != null, c["Associate"]["NestedAssociate"]["Id"] = 1
+                case SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.Equal or ExpressionType.NotEqual
+                        or ExpressionType.GreaterThan or ExpressionType.GreaterThanOrEqual
+                        or ExpressionType.LessThan or ExpressionType.LessThanOrEqual
+                } binary
+                    when Guards(binary.Left) || Guards(binary.Right):
+                    return true;
+            }
+        }
+
+        return false;
+
+        bool Guards(Expression expression)
+        {
+            // A null/comparison check against a whole structural type (e.g. x.Associate.NestedAssociate != null) is
+            // represented as a StructuralTypeProjectionExpression over the embedded object's access expression.
+            var access = expression is StructuralTypeProjectionExpression structuralProjection
+                ? structuralProjection.Object
+                : expression;
+
+            return access.Equals(scalarAccess) || access.Equals(scalarAccess.Object);
+        }
+    }
+
+    private static IEnumerable<SqlExpression> GetConjuncts(SqlExpression predicate)
+    {
+        if (predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso, Left: SqlExpression left, Right: SqlExpression right })
+        {
+            foreach (var conjunct in GetConjuncts(left))
+            {
+                yield return conjunct;
+            }
+
+            foreach (var conjunct in GetConjuncts(right))
+            {
+                yield return conjunct;
+            }
+        }
+        else
+        {
+            yield return predicate;
         }
     }
 

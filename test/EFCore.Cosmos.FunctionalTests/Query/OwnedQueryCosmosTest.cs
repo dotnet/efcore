@@ -121,7 +121,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Pe
 
                 AssertSql(
                     """
-SELECT c["PersonAddress"]["Country"]["Name"]
+SELECT VALUE c["PersonAddress"]["Country"]["Name"]
 FROM root c
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
 """);
