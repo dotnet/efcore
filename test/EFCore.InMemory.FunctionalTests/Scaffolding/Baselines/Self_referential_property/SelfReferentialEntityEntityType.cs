@@ -126,10 +126,10 @@ public partial class SelfReferentialEntityEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(string (CompiledModelInMemoryTest.SelfReferentialProperty v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.ToProvider(v), CompiledModelInMemoryTest.SelfReferentialProperty (string v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.FromProvider(v), default(ConverterMappingHints)),
+            converter: new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(string (CompiledModelInMemoryTest.SelfReferentialProperty v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.ToProvider(v), CompiledModelInMemoryTest.SelfReferentialProperty (string v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.FromProvider(v)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(string (CompiledModelInMemoryTest.SelfReferentialProperty v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.ToProvider(v), CompiledModelInMemoryTest.SelfReferentialProperty (string v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.FromProvider(v), default(ConverterMappingHints))));
+                new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(string (CompiledModelInMemoryTest.SelfReferentialProperty v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.ToProvider(v), CompiledModelInMemoryTest.SelfReferentialProperty (string v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.FromProvider(v))));
 
         var key = runtimeEntityType.AddKey(
             new[] { id });
