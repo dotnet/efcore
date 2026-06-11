@@ -78,7 +78,8 @@ FROM root c
     [Fact]
     public virtual async Task Select_nested_scalar_guarded_by_navigation_predicate_uses_VALUE()
     {
-        // The predicate guarantees the navigation path is defined, so the optimal VALUE projection is preserved.
+        // The predicate only guards the navigation path's definedness, which the VALUE projection already enforces,
+        // so the redundant guards are dropped and the optimal VALUE projection is used.
         await AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Where(x => x.OptionalAssociate != null && x.OptionalAssociate.OptionalNestedAssociate != null)
@@ -88,14 +89,14 @@ FROM root c
             """
 SELECT VALUE c["OptionalAssociate"]["OptionalNestedAssociate"]["Int"]
 FROM root c
-WHERE ((c["OptionalAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] != null))
 """);
     }
 
     [Fact]
     public virtual async Task Select_nested_scalar_guarded_by_IsDefined_uses_VALUE()
     {
-        // The IS_DEFINED guard guarantees the projected path is defined, so the optimal VALUE projection is preserved.
+        // The IS_DEFINED guard only ensures the projected path is defined, which the VALUE projection already
+        // enforces, so the redundant guard is dropped and the optimal VALUE projection is used.
         await AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Where(x => EF.Functions.IsDefined(x.OptionalAssociate!.OptionalNestedAssociate!.Int))
@@ -108,7 +109,6 @@ WHERE ((c["OptionalAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNes
             """
 SELECT VALUE c["OptionalAssociate"]["OptionalNestedAssociate"]["Int"]
 FROM root c
-WHERE IS_DEFINED(c["OptionalAssociate"]["OptionalNestedAssociate"]["Int"])
 """);
     }
 
