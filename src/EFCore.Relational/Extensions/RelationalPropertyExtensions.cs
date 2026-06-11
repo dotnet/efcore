@@ -230,7 +230,10 @@ public static class RelationalPropertyExtensions
         }
         else if (StoreObjectIdentifier.Create(property.DeclaringType, currentStoreObject.StoreObjectType) == currentStoreObject
                  || property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType)
-                     .Any(f => f.StoreObject == currentStoreObject))
+                     .Any(f => f.StoreObject == currentStoreObject)
+                 || (property.IsPrimaryKey()
+                     && property.DeclaringType.ContainingEntityType.GetDerivedTypes()
+                         .Any(e => StoreObjectIdentifier.Create(e, currentStoreObject.StoreObjectType) == currentStoreObject)))
         {
             builder = CreateComplexPrefix((IReadOnlyComplexType)property.DeclaringType, storeObject, builder);
         }
