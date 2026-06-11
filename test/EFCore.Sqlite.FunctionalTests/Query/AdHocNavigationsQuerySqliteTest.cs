@@ -54,4 +54,33 @@ WHERE "u"."Id" = 1
 LIMIT 1
 """);
     }
+
+    public override async Task Consecutive_selects_with_conditional_projection_null_navigation_returns_null(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_null_navigation_returns_null(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "j"."Id" IS NULL, "j"."Id"
+FROM "Users" AS "u"
+LEFT JOIN "Job" AS "j" ON "u"."JobId" = "j"."Id"
+WHERE "u"."JobId" IS NULL
+LIMIT 1
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "j"."Id" IS NULL, "j"."Id", "a"."Id"
+FROM "Users" AS "u"
+LEFT JOIN "Job" AS "j" ON "u"."JobId" = "j"."Id"
+LEFT JOIN "Address" AS "a" ON "j"."AddressId" = "a"."Id"
+WHERE "u"."Id" = 1
+LIMIT 1
+""");
+    }
 }
