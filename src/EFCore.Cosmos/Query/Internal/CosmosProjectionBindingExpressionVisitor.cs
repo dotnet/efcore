@@ -99,120 +99,148 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             case null:
                 return null;
-            case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression or MaterializeCollectionNavigationExpression:
+
+            case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression:
                 return base.Visit(expression);
-            case ConstantExpression when _clientEval:
-                return expression;
-            case QueryParameterExpression queryParameter when _clientEval:
-                return Expression.Call(
-                    GetParameterValueMethodInfo.MakeGenericMethod(queryParameter.Type),
-                    QueryCompilationContext.QueryContextParameter,
-                    Expression.Constant(queryParameter.Name));
+
+            case not null when _clientEval:
+            {
+                switch (expression)
+                {
+                    case ConstantExpression:
+                        return expression;
+
+                    case QueryParameterExpression queryParameter:
+                        return Expression.Call(
+                            GetParameterValueMethodInfo.MakeGenericMethod(queryParameter.Type),
+                            QueryCompilationContext.QueryContextParameter,
+                            Expression.Constant(queryParameter.Name));
+
+                    case ParameterExpression parameterExpression:
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
+
+                    case MaterializeCollectionNavigationExpression:
+                        return base.Visit(expression);
+                }
+
+                switch (_sqlTranslator.TranslateProjection(expression))
+                {
+                    case SqlExpression sqlExpression:
+                        return new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(sqlExpression), expression.Type.MakeNullable());
+
+                    case StructuralTypeShaperExpression shaper:
+                        return base.Visit(shaper);
+
+                    //case MaterializeCollectionNavigationExpression:
+                    //    return base.Visit(expression);
+                }
+
+                if (expression is MethodCallExpression
+                    {
+                        Method: { IsGenericMethod: true } method,
+                        Arguments: [var collectionArgument, ..]
+                    } methodCallExpression
+                 && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType
+                 && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
+                {
+                    if (method is not { Name: nameof(Enumerable.ToList) or nameof(Enumerable.ToArray) })
+                    {
+                        // We might actually be able to translate a subquery here without having to allocate an ARRAY on the client (e.g. ElementAt), add support in the future?
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+                    }
+
+                    if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
+                    || !subquery.TryConvertToArray(_typeMappingSource, out var array))
+                    {
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+                    }
+
+                    // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
+                    // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
+                    // simply read the JSON results out successfully.
+                    // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
+                    // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
+                    // "reprojection" subquery, effectively to change the CLR type.
+                    if (array is SqlExpression scalarArray && !(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                    {
+                        Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
+
+                        if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
+                        {
+                            throw new UnreachableException("Scalar array with no element type mapping");
+                        }
+
+                        // @TODO: Doesn't this cause an additional ARRAY(SELECT ...) to be generated in the SQL? This is bad for RU's as it will allocate an additional array
+                        // TODO: Proper alias management (#33894).
+                        var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
+                            array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
+                        arrayReprojectionSubquery.ApplyProjection();
+
+                        array = new ScalarArrayExpression(
+                            arrayReprojectionSubquery,
+                            methodCallExpression.Type, // List<>
+                            _typeMappingSource.FindMapping(methodCallExpression.Type, _model, elementTypeMapping));
+                    }
+
+                    // @TODO: Ask if there is a better way for this..
+                    // We should update projection bindings in the subquery shaper to relate to a query expression that can actually provide the correct binding information.
+                    // Then are able to use the projection binding's query expression directly in ShaperProcessingVisitor, instead of storing the select expression separately there
+                    // This appears to be needed because ShapedQueryExpression doesn't properly replace projection bindings their query expression when updating the shaper expression.
+                    // But fixing that causes a lot of errors (in other providers?).
+                    new ProjectionBindingQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
+
+                    var listType = typeof(List<>).MakeGenericType(elementType);
+                    var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
+
+                    ProjectionBindingExpression binding;
+                    if (_clientEval)
+                    {
+                        binding = new ProjectionBindingExpression(
+                            _selectExpression,
+                            _selectExpression.AddToProjection(array),
+                            listType);
+                    }
+                    else
+                    {
+                        _projectionMapping[_projectionMembers.Peek()] = array;
+                        binding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), listType);
+                    }
+
+                    Expression shaper = new CollectionShaperExpression(binding, subquery.ShaperExpression, listType, collectionCreator, elementType);
+
+                    if (method.Name == nameof(Enumerable.ToArray))
+                    {
+                        shaper = Expression.Call(shaper, listType.GetMethod(nameof(List<>.ToArray))!);
+                    }
+
+                    return shaper;
+                }
+
+                return base.Visit(expression);
+            }
+
             default:
+            {
                 var translation = _sqlTranslator.TranslateProjection(expression);
                 switch (translation)
                 {
-                    case SqlExpression when _clientEval:
-                        return new ProjectionBindingExpression(
-                            _selectExpression, _selectExpression.AddToProjection(translation), expression.Type.MakeNullable());
-                    case SqlExpression when !_clientEval:
+                    case SqlExpression:
                         _projectionMapping[_projectionMembers.Peek()] = translation;
                         return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
-                    case StructuralTypeShaperExpression:
-                        return base.Visit(translation);
+
+                    // This handles the case of a complex type being projected out of a Select.
+                    // Note that an entity type being projected is (currently) handled differently
+                    case StructuralTypeShaperExpression { StructuralType: IComplexType } shaper: // I think this is only because of FindAsync can work via a Convert in the shaper, so entity types must be client eval...?
+                        return base.Visit(shaper);
+
+                    case null or StructuralTypeShaperExpression { StructuralType: IEntityType }:
+                        return QueryCompilationContext.NotTranslatedExpression;
+
                     default:
-                        break;
+                        throw new UnreachableException();
                 }
-                break;
+            }
         }
-
-        if (!_clientEval)
-        {
-            return QueryCompilationContext.NotTranslatedExpression;
-        }
-
-        if (expression is MethodCallExpression
-            {
-                Method: { IsGenericMethod: true } method,
-                Arguments: [var collectionArgument, ..]
-            } methodCallExpression
-            && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType
-            && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
-        {
-            if (method is not { Name: nameof(Enumerable.ToList) or nameof(Enumerable.ToArray) })
-            {
-                // We might actually be able to translate a subquery here without having to allocate an ARRAY on the client (e.g. ElementAt), add support in the future?
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
-            }
-
-            if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
-            || !subquery.TryConvertToArray(_typeMappingSource, out var array))
-            {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
-            }
-
-            // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
-            // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
-            // simply read the JSON results out successfully.
-            // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
-            // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
-            // "reprojection" subquery, effectively to change the CLR type.
-            if (array is SqlExpression scalarArray && !(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-            {
-                Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
-
-                if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
-                {
-                    throw new UnreachableException("Scalar array with no element type mapping");
-                }
-
-                // @TODO: Doesn't this cause an additional ARRAY(SELECT ...) to be generated in the SQL? This is bad for RU's as it will allocate an additional array
-                // TODO: Proper alias management (#33894).
-                var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
-                    array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
-                arrayReprojectionSubquery.ApplyProjection();
-
-                array = new ScalarArrayExpression(
-                    arrayReprojectionSubquery,
-                    methodCallExpression.Type, // List<>
-                    _typeMappingSource.FindMapping(methodCallExpression.Type, _model, elementTypeMapping));
-            }
-
-            // @TODO: Ask if there is a better way for this..
-            // We should update projection bindings in the subquery shaper to relate to a query expression that can actually provide the correct binding information.
-            // Then are able to use the projection binding's query expression directly in ShaperProcessingVisitor, instead of storing the select expression separately there
-            // This appears to be needed because ShapedQueryExpression doesn't properly replace projection bindings their query expression when updating the shaper expression.
-            // But fixing that causes a lot of errors (in other providers?).
-            new ProjectionBindingQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
-
-            var listType = typeof(List<>).MakeGenericType(elementType);
-            var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
-
-            ProjectionBindingExpression binding;
-            if (_clientEval)
-            {
-                binding = new ProjectionBindingExpression(
-                    _selectExpression,
-                    _selectExpression.AddToProjection(array),
-                    listType);
-            }
-            else
-            {
-                _projectionMapping[_projectionMembers.Peek()] = array;
-                binding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), listType);
-            }
-
-            Expression shaper = new CollectionShaperExpression(binding, subquery.ShaperExpression, listType, collectionCreator, elementType);
-
-            if (method.Name == nameof(Enumerable.ToArray))
-            {
-                shaper = Expression.Call(shaper, listType.GetMethod(nameof(List<>.ToArray))!);
-            }
-
-            return shaper;
-        }
-
-        return base.Visit(expression);
     }
 
     /// <summary>
@@ -243,7 +271,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         structuralTypeProjection = (StructuralTypeProjectionExpression)
                             (innerProjectionBinding.ProjectionMember is not null
                                 ? innerSelect.GetMappedProjection(innerProjectionBinding.ProjectionMember)
-                                : innerSelect.Projection[innerProjectionBinding.Index!.Value]);
+                                : innerSelect.Projection[innerProjectionBinding.Index!.Value].Expression);
 
                         break;
                     default:

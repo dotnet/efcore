@@ -377,11 +377,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE
-{
-    "First" : c["RequiredAssociate"],
-    "Second" : c["OptionalAssociate"]
-}
+SELECT c["RequiredAssociate"], c["OptionalAssociate"]
 FROM root c
 """);
         }
@@ -395,11 +391,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE
-{
-    "First" : c["OptionalAssociate"],
-    "Ints" : c["RequiredAssociate"]["Ints"]
-}
+SELECT c["OptionalAssociate"], c["RequiredAssociate"]["Ints"]
 FROM root c
 """);
         }
