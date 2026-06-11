@@ -17,7 +17,7 @@ public abstract class ValueConverter
 {
     internal static readonly ConstructorInfo MappingHintsCtor
         = typeof(ConverterMappingHints).GetConstructor(
-            [typeof(int?), typeof(int?), typeof(int?), typeof(bool?), typeof(Func<IProperty, IEntityType, ValueGenerator>)])!;
+            [typeof(int?), typeof(int?), typeof(int?), typeof(bool?)])!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueConverter" /> class.

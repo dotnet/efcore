@@ -194,14 +194,10 @@ public partial class PrincipalBaseEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value), default(ConverterMappingHints))));
         enum1.SetSentinelFromProviderValue(0);
 
         var enum2 = runtimeEntityType.AddProperty(
@@ -251,14 +247,10 @@ public partial class PrincipalBaseEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value), default(ConverterMappingHints))));
         enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
         enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
@@ -308,14 +300,10 @@ public partial class PrincipalBaseEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value), default(ConverterMappingHints))));
         flagsEnum1.SetSentinelFromProviderValue(0);
 
         var flagsEnum2 = runtimeEntityType.AddProperty(
@@ -365,14 +353,10 @@ public partial class PrincipalBaseEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value), default(ConverterMappingHints))));
         flagsEnum2.SetSentinelFromProviderValue(6);
 
         var point = runtimeEntityType.AddProperty(
@@ -446,15 +430,11 @@ public partial class PrincipalBaseEntityType
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -470,14 +450,10 @@ public partial class PrincipalBaseEntityType
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 45),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
         var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
         refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -635,15 +611,11 @@ public partial class PrincipalBaseEntityType
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -659,14 +631,10 @@ public partial class PrincipalBaseEntityType
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 45),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
         var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
         refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 

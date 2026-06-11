@@ -87,14 +87,10 @@ public partial class ManyTypesEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.ManyTypesId, int>(
-                int (CompiledModelTestBase.ManyTypesId v) => v.Id,
-                CompiledModelTestBase.ManyTypesId (int v) => new CompiledModelTestBase.ManyTypesId(v)),
+            converter: new ValueConverter<CompiledModelTestBase.ManyTypesId, int>(int (CompiledModelTestBase.ManyTypesId v) => v.Id, CompiledModelTestBase.ManyTypesId (int v) => new CompiledModelTestBase.ManyTypesId(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.ManyTypesId, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.ManyTypesId, int>(
-                    int (CompiledModelTestBase.ManyTypesId v) => v.Id,
-                    CompiledModelTestBase.ManyTypesId (int v) => new CompiledModelTestBase.ManyTypesId(v))));
+                new ValueConverter<CompiledModelTestBase.ManyTypesId, int>(int (CompiledModelTestBase.ManyTypesId v) => v.Id, CompiledModelTestBase.ManyTypesId (int v) => new CompiledModelTestBase.ManyTypesId(v), default(ConverterMappingHints))));
         id.SetCurrentValueComparer(new CurrentProviderValueComparer<CompiledModelTestBase.ManyTypesId, int>(id));
         id.SetSentinelFromProviderValue(0);
 
@@ -324,14 +320,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 1),
-            converter: new ValueConverter<bool, string>(
-                string (bool v) => ((string)((v ? "B" : "A"))),
-                bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0]))),
+            converter: new ValueConverter<bool, string>(string (bool v) => ((string)((v ? "B" : "A"))), bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0])), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<bool, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<bool, string>(
-                    string (bool v) => ((string)((v ? "B" : "A"))),
-                    bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0])))));
+                new ValueConverter<bool, string>(string (bool v) => ((string)((v ? "B" : "A"))), bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0])), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null)))));
         boolToStringConverterProperty.SetSentinelFromProviderValue("A");
 
         var boolToTwoValuesConverterProperty = runtimeEntityType.AddProperty(
@@ -380,14 +372,10 @@ public partial class ManyTypesEntityType
                 byte (byte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<bool, byte>(
-                byte (bool v) => ((byte)((v ? 1 : 0))),
-                bool (byte v) => v == 1),
+            converter: new ValueConverter<bool, byte>(byte (bool v) => ((byte)((v ? 1 : 0))), bool (byte v) => v == 1, default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<bool, byte>(
                 JsonByteReaderWriter.Instance,
-                new ValueConverter<bool, byte>(
-                    byte (bool v) => ((byte)((v ? 1 : 0))),
-                    bool (byte v) => v == 1)));
+                new ValueConverter<bool, byte>(byte (bool v) => ((byte)((v ? 1 : 0))), bool (byte v) => v == 1, default(ConverterMappingHints))));
         boolToTwoValuesConverterProperty.SetSentinelFromProviderValue((byte)0);
 
         var boolToZeroOneConverterProperty = runtimeEntityType.AddProperty(
@@ -437,14 +425,10 @@ public partial class ManyTypesEntityType
                 short (short v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<bool, short>(
-                short (bool v) => ((short)((v ? 1 : 0))),
-                bool (short v) => v == 1),
+            converter: new ValueConverter<bool, short>(short (bool v) => ((short)((v ? 1 : 0))), bool (short v) => v == 1, default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<bool, short>(
                 JsonInt16ReaderWriter.Instance,
-                new ValueConverter<bool, short>(
-                    short (bool v) => ((short)((v ? 1 : 0))),
-                    bool (short v) => v == 1)));
+                new ValueConverter<bool, short>(short (bool v) => ((short)((v ? 1 : 0))), bool (short v) => v == 1, default(ConverterMappingHints))));
         boolToZeroOneConverterProperty.SetSentinelFromProviderValue((short)0);
 
         var bytes = runtimeEntityType.AddProperty(
@@ -602,14 +586,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<byte[], string>(
-                string (byte[] v) => Convert.ToBase64String(v),
-                byte[] (string v) => Convert.FromBase64String(v)),
+            converter: new ValueConverter<byte[], string>(string (byte[] v) => Convert.ToBase64String(v), byte[] (string v) => Convert.FromBase64String(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<byte[], string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<byte[], string>(
-                    string (byte[] v) => Convert.ToBase64String(v),
-                    byte[] (string v) => Convert.FromBase64String(v))));
+                new ValueConverter<byte[], string>(string (byte[] v) => Convert.ToBase64String(v), byte[] (string v) => Convert.FromBase64String(v), default(ConverterMappingHints))));
 
         var castingConverterProperty = runtimeEntityType.AddProperty(
             "CastingConverterProperty",
@@ -656,14 +636,10 @@ public partial class ManyTypesEntityType
                 bool (decimal v1, decimal v2) => v1 == v2,
                 int (decimal v) => ((object)v).GetHashCode(),
                 decimal (decimal v) => v),
-            converter: new ValueConverter<int, decimal>(
-                decimal (int v) => ((decimal)v),
-                int (decimal v) => ((int)v)),
+            converter: new ValueConverter<int, decimal>(decimal (int v) => ((decimal)v), int (decimal v) => ((int)v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, decimal>(
                 SqliteJsonDecimalReaderWriter.Instance,
-                new ValueConverter<int, decimal>(
-                    decimal (int v) => ((decimal)v),
-                    int (decimal v) => ((int)v))));
+                new ValueConverter<int, decimal>(decimal (int v) => ((decimal)v), int (decimal v) => ((int)v), default(ConverterMappingHints))));
         castingConverterProperty.SetSentinelFromProviderValue(0m);
 
         var @char = runtimeEntityType.AddProperty(
@@ -827,14 +803,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 1),
-            converter: new ValueConverter<char, string>(
-                string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                char (string v) => (v.Length < 1 ? '\0' : v[0])),
+            converter: new ValueConverter<char, string>(string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), char (string v) => (v.Length < 1 ? '\0' : v[0]), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<char, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<char, string>(
-                    string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                    char (string v) => (v.Length < 1 ? '\0' : v[0]))));
+                new ValueConverter<char, string>(string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), char (string v) => (v.Length < 1 ? '\0' : v[0]), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null)))));
         charToStringConverterProperty.SetSentinelFromProviderValue("\0");
 
         var dateOnly = runtimeEntityType.AddProperty(
@@ -970,14 +942,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 10),
-            converter: new ValueConverter<DateOnly, string>(
-                string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"),
-                DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None)),
+            converter: new ValueConverter<DateOnly, string>(string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"), DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), new ConverterMappingHints(10, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateOnly, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<DateOnly, string>(
-                    string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"),
-                    DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None))));
+                new ValueConverter<DateOnly, string>(string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"), DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), new ConverterMappingHints(10, (int? )(null), (int? )(null), (bool? )(null)))));
         dateOnlyToStringConverterProperty.SetSentinelFromProviderValue("0001-01-01");
 
         var dateTime = runtimeEntityType.AddProperty(
@@ -1113,14 +1081,10 @@ public partial class ManyTypesEntityType
                 long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<DateTimeOffset, long>(
-                long (DateTimeOffset v) => DateTimeOffsetToBinaryConverter.ToLong(v),
-                DateTimeOffset (long v) => DateTimeOffsetToBinaryConverter.ToDateTimeOffset(v)),
+            converter: new ValueConverter<DateTimeOffset, long>(long (DateTimeOffset v) => DateTimeOffsetToBinaryConverter.ToLong(v), DateTimeOffset (long v) => DateTimeOffsetToBinaryConverter.ToDateTimeOffset(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTimeOffset, long>(
                 JsonInt64ReaderWriter.Instance,
-                new ValueConverter<DateTimeOffset, long>(
-                    long (DateTimeOffset v) => DateTimeOffsetToBinaryConverter.ToLong(v),
-                    DateTimeOffset (long v) => DateTimeOffsetToBinaryConverter.ToDateTimeOffset(v))));
+                new ValueConverter<DateTimeOffset, long>(long (DateTimeOffset v) => DateTimeOffsetToBinaryConverter.ToLong(v), DateTimeOffset (long v) => DateTimeOffsetToBinaryConverter.ToDateTimeOffset(v), default(ConverterMappingHints))));
         dateTimeOffsetToBinaryConverterProperty.SetSentinelFromProviderValue(0L);
 
         var dateTimeOffsetToBytesConverterProperty = runtimeEntityType.AddProperty(
@@ -1170,14 +1134,10 @@ public partial class ManyTypesEntityType
                 byte[] (byte[] source) => source.ToArray()),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 12),
-            converter: new ValueConverter<DateTimeOffset, byte[]>(
-                byte[] (DateTimeOffset v) => DateTimeOffsetToBytesConverter.ToBytes(v),
-                DateTimeOffset (byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v)),
+            converter: new ValueConverter<DateTimeOffset, byte[]>(byte[] (DateTimeOffset v) => DateTimeOffsetToBytesConverter.ToBytes(v), DateTimeOffset (byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v), new ConverterMappingHints(12, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTimeOffset, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<DateTimeOffset, byte[]>(
-                    byte[] (DateTimeOffset v) => DateTimeOffsetToBytesConverter.ToBytes(v),
-                    DateTimeOffset (byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v))));
+                new ValueConverter<DateTimeOffset, byte[]>(byte[] (DateTimeOffset v) => DateTimeOffsetToBytesConverter.ToBytes(v), DateTimeOffset (byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v), new ConverterMappingHints(12, (int? )(null), (int? )(null), (bool? )(null)))));
         dateTimeOffsetToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
         var dateTimeOffsetToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -1227,14 +1187,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<DateTimeOffset, string>(
-                string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"),
-                DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<DateTimeOffset, string>(string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"), DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTimeOffset, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<DateTimeOffset, string>(
-                    string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"),
-                    DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture))));
+                new ValueConverter<DateTimeOffset, string>(string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"), DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
         dateTimeOffsetToStringConverterProperty.SetSentinelFromProviderValue("0001-01-01 00:00:00+00:00");
 
         var dateTimeToBinaryConverterProperty = runtimeEntityType.AddProperty(
@@ -1284,14 +1240,10 @@ public partial class ManyTypesEntityType
                 long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<DateTime, long>(
-                long (DateTime v) => v.ToBinary(),
-                DateTime (long v) => DateTime.FromBinary(v)),
+            converter: new ValueConverter<DateTime, long>(long (DateTime v) => v.ToBinary(), DateTime (long v) => DateTime.FromBinary(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTime, long>(
                 JsonInt64ReaderWriter.Instance,
-                new ValueConverter<DateTime, long>(
-                    long (DateTime v) => v.ToBinary(),
-                    DateTime (long v) => DateTime.FromBinary(v))));
+                new ValueConverter<DateTime, long>(long (DateTime v) => v.ToBinary(), DateTime (long v) => DateTime.FromBinary(v), default(ConverterMappingHints))));
         dateTimeToBinaryConverterProperty.SetSentinelFromProviderValue(0L);
 
         var dateTimeToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -1341,14 +1293,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<DateTime, string>(
-                string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"),
-                DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<DateTime, string>(string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"), DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTime, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<DateTime, string>(
-                    string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"),
-                    DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture))));
+                new ValueConverter<DateTime, string>(string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"), DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
         dateTimeToStringConverterProperty.SetSentinelFromProviderValue("0001-01-01 00:00:00");
 
         var dateTimeToTicksConverterProperty = runtimeEntityType.AddProperty(
@@ -1518,14 +1466,10 @@ public partial class ManyTypesEntityType
                 byte[] (byte[] source) => source.ToArray()),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 16),
-            converter: new ValueConverter<decimal, byte[]>(
-                byte[] (decimal v) => NumberToBytesConverter<decimal>.DecimalToBytes(v),
-                decimal (byte[] v) => (v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v))),
+            converter: new ValueConverter<decimal, byte[]>(byte[] (decimal v) => NumberToBytesConverter<decimal>.DecimalToBytes(v), decimal (byte[] v) => (v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v)), new ConverterMappingHints(16, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<decimal, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<decimal, byte[]>(
-                    byte[] (decimal v) => NumberToBytesConverter<decimal>.DecimalToBytes(v),
-                    decimal (byte[] v) => (v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v)))));
+                new ValueConverter<decimal, byte[]>(byte[] (decimal v) => NumberToBytesConverter<decimal>.DecimalToBytes(v), decimal (byte[] v) => (v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v)), new ConverterMappingHints(16, (int? )(null), (int? )(null), (bool? )(null)))));
         decimalNumberToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
         var decimalNumberToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -1575,14 +1519,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 64),
-            converter: new ValueConverter<decimal, string>(
-                string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<decimal, string>(string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<decimal, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<decimal, string>(
-                    string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                    decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
+                new ValueConverter<decimal, string>(string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null)))));
         decimalNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
 
         var @double = runtimeEntityType.AddProperty(
@@ -1746,14 +1686,10 @@ public partial class ManyTypesEntityType
                 byte[] (byte[] source) => source.ToArray()),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 8),
-            converter: new ValueConverter<double, byte[]>(
-                byte[] (double v) => NumberToBytesConverter<double>.ReverseLong(BitConverter.GetBytes(v)),
-                double (byte[] v) => (v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0))),
+            converter: new ValueConverter<double, byte[]>(byte[] (double v) => NumberToBytesConverter<double>.ReverseLong(BitConverter.GetBytes(v)), double (byte[] v) => (v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0)), new ConverterMappingHints(8, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<double, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<double, byte[]>(
-                    byte[] (double v) => NumberToBytesConverter<double>.ReverseLong(BitConverter.GetBytes(v)),
-                    double (byte[] v) => (v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0)))));
+                new ValueConverter<double, byte[]>(byte[] (double v) => NumberToBytesConverter<double>.ReverseLong(BitConverter.GetBytes(v)), double (byte[] v) => (v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0)), new ConverterMappingHints(8, (int? )(null), (int? )(null), (bool? )(null)))));
         doubleNumberToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
 
         var doubleNumberToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -1803,14 +1739,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 64),
-            converter: new ValueConverter<double, string>(
-                string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)),
-                double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<double, string>(string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)), double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<double, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<double, string>(
-                    string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)),
-                    double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
+                new ValueConverter<double, string>(string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)), double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null)))));
         doubleNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
 
         var enum16 = runtimeEntityType.AddProperty(
@@ -1859,14 +1791,10 @@ public partial class ManyTypesEntityType
                 short (short v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                 JsonInt16ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))));
+                new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))));
         enum16.SetSentinelFromProviderValue((short)0);
 
         var enum16Array = runtimeEntityType.AddProperty(
@@ -1916,15 +1844,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))),
             elementMapping: ShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -1940,14 +1864,10 @@ public partial class ManyTypesEntityType
                     short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))));
         var enum16ArrayElementType = enum16Array.SetElementType(typeof(CompiledModelTestBase.Enum16));
         enum16ArrayElementType.TypeMapping = enum16Array.TypeMapping.ElementTypeMapping;
 
@@ -1996,14 +1916,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                    string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints))));
         enum16AsString.SetSentinelFromProviderValue("Default");
 
         var enum16AsStringArray = runtimeEntityType.AddProperty(
@@ -2053,15 +1969,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                        string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                        string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2075,14 +1987,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                    string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                        string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum16AsStringArrayElementType = enum16AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum16),
             providerClrType: typeof(string));
         enum16AsStringArrayElementType.TypeMapping = enum16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -2134,15 +2042,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                        string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                        string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2156,14 +2060,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                    string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, string>(
-                        string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, string>(string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(), CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum16AsStringCollectionElementType = enum16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum16),
             providerClrType: typeof(string));
         enum16AsStringCollectionElementType.TypeMapping = enum16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -2215,15 +2115,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))),
             elementMapping: ShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2239,14 +2135,10 @@ public partial class ManyTypesEntityType
                     short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))));
         var enum16CollectionElementType = enum16Collection.SetElementType(typeof(CompiledModelTestBase.Enum16));
         enum16CollectionElementType.TypeMapping = enum16Collection.TypeMapping.ElementTypeMapping;
 
@@ -2296,14 +2188,10 @@ public partial class ManyTypesEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
+                new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))));
         enum32.SetSentinelFromProviderValue(0);
 
         var enum32Array = runtimeEntityType.AddProperty(
@@ -2353,15 +2241,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))),
             elementMapping: IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2377,14 +2261,10 @@ public partial class ManyTypesEntityType
                     int (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))));
         var enum32ArrayElementType = enum32Array.SetElementType(typeof(CompiledModelTestBase.Enum32));
         enum32ArrayElementType.TypeMapping = enum32Array.TypeMapping.ElementTypeMapping;
 
@@ -2433,14 +2313,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                    string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints))));
         enum32AsString.SetSentinelFromProviderValue("Default");
 
         var enum32AsStringArray = runtimeEntityType.AddProperty(
@@ -2490,15 +2366,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                        string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                        string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2512,14 +2384,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                    string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                        string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum32AsStringArrayElementType = enum32AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum32),
             providerClrType: typeof(string));
         enum32AsStringArrayElementType.TypeMapping = enum32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -2571,15 +2439,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                        string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                        string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2593,14 +2457,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                    string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                        string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum32AsStringCollectionElementType = enum32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum32),
             providerClrType: typeof(string));
         enum32AsStringCollectionElementType.TypeMapping = enum32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -2652,15 +2512,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))),
             elementMapping: IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2676,14 +2532,10 @@ public partial class ManyTypesEntityType
                     int (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))));
         var enum32CollectionElementType = enum32Collection.SetElementType(typeof(CompiledModelTestBase.Enum32));
         enum32CollectionElementType.TypeMapping = enum32Collection.TypeMapping.ElementTypeMapping;
 
@@ -2733,14 +2585,10 @@ public partial class ManyTypesEntityType
                 long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                 JsonInt64ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))));
+                new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))));
         enum64.SetSentinelFromProviderValue(0L);
 
         var enum64Array = runtimeEntityType.AddProperty(
@@ -2790,15 +2638,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))),
             elementMapping: LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2814,14 +2658,10 @@ public partial class ManyTypesEntityType
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))));
         var enum64ArrayElementType = enum64Array.SetElementType(typeof(CompiledModelTestBase.Enum64));
         enum64ArrayElementType.TypeMapping = enum64Array.TypeMapping.ElementTypeMapping;
 
@@ -2870,14 +2710,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                    string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints))));
         enum64AsString.SetSentinelFromProviderValue("Default");
 
         var enum64AsStringArray = runtimeEntityType.AddProperty(
@@ -2927,15 +2763,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                        string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                        string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -2949,14 +2781,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                    string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                        string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum64AsStringArrayElementType = enum64AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum64),
             providerClrType: typeof(string));
         enum64AsStringArrayElementType.TypeMapping = enum64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -3008,15 +2836,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                        string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                        string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3030,14 +2854,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                    string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, string>(
-                        string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, string>(string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(), CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum64AsStringCollectionElementType = enum64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum64),
             providerClrType: typeof(string));
         enum64AsStringCollectionElementType.TypeMapping = enum64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -3089,15 +2909,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))),
             elementMapping: LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3113,14 +2929,10 @@ public partial class ManyTypesEntityType
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))));
         var enum64CollectionElementType = enum64Collection.SetElementType(typeof(CompiledModelTestBase.Enum64));
         enum64CollectionElementType.TypeMapping = enum64Collection.TypeMapping.ElementTypeMapping;
 
@@ -3170,14 +2982,10 @@ public partial class ManyTypesEntityType
                 sbyte (sbyte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                 JsonSByteReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))));
+                new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))));
         enum8.SetSentinelFromProviderValue((sbyte)0);
 
         var enum8Array = runtimeEntityType.AddProperty(
@@ -3227,15 +3035,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))),
             elementMapping: SByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3251,14 +3055,10 @@ public partial class ManyTypesEntityType
                     sbyte (sbyte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))));
         var enum8ArrayElementType = enum8Array.SetElementType(typeof(CompiledModelTestBase.Enum8));
         enum8ArrayElementType.TypeMapping = enum8Array.TypeMapping.ElementTypeMapping;
 
@@ -3307,14 +3107,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                    string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints))));
         enum8AsString.SetSentinelFromProviderValue("Default");
 
         var enum8AsStringArray = runtimeEntityType.AddProperty(
@@ -3364,15 +3160,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                        string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                        string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3386,14 +3178,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                    string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                        string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum8AsStringArrayElementType = enum8AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum8),
             providerClrType: typeof(string));
         enum8AsStringArrayElementType.TypeMapping = enum8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -3445,15 +3233,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                        string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                        string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3467,14 +3251,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                    string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, string>(
-                        string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, string>(string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(), CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enum8AsStringCollectionElementType = enum8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum8),
             providerClrType: typeof(string));
         enum8AsStringCollectionElementType.TypeMapping = enum8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -3526,15 +3306,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))),
             elementMapping: SByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3550,14 +3326,10 @@ public partial class ManyTypesEntityType
                     sbyte (sbyte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))));
         var enum8CollectionElementType = enum8Collection.SetElementType(typeof(CompiledModelTestBase.Enum8));
         enum8CollectionElementType.TypeMapping = enum8Collection.TypeMapping.ElementTypeMapping;
 
@@ -3608,14 +3380,10 @@ public partial class ManyTypesEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
+                new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))));
         enumToNumberConverterProperty.SetSentinelFromProviderValue(0);
 
         var enumToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -3663,14 +3431,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum32, string>(
-                    string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.Enum32, string>(string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(), CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v), default(ConverterMappingHints))));
         enumToStringConverterProperty.SetSentinelFromProviderValue("Default");
 
         var enumU16 = runtimeEntityType.AddProperty(
@@ -3719,14 +3483,10 @@ public partial class ManyTypesEntityType
                 ushort (ushort v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                 JsonUInt16ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))));
         enumU16.SetSentinelFromProviderValue((ushort)0);
 
         var enumU16Array = runtimeEntityType.AddProperty(
@@ -3776,15 +3536,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))),
             elementMapping: UShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3800,14 +3556,10 @@ public partial class ManyTypesEntityType
                     ushort (ushort v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))));
         var enumU16ArrayElementType = enumU16Array.SetElementType(typeof(CompiledModelTestBase.EnumU16));
         enumU16ArrayElementType.TypeMapping = enumU16Array.TypeMapping.ElementTypeMapping;
 
@@ -3856,14 +3608,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                    string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints))));
         enumU16AsString.SetSentinelFromProviderValue("Min");
 
         var enumU16AsStringArray = runtimeEntityType.AddProperty(
@@ -3913,15 +3661,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                        string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                        string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -3935,14 +3679,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                    string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                        string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU16AsStringArrayElementType = enumU16AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU16),
             providerClrType: typeof(string));
         enumU16AsStringArrayElementType.TypeMapping = enumU16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -3994,15 +3734,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                        string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                        string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4016,14 +3752,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                    string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(
-                        string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, string>(string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU16AsStringCollectionElementType = enumU16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU16),
             providerClrType: typeof(string));
         enumU16AsStringCollectionElementType.TypeMapping = enumU16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -4075,15 +3807,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))),
             elementMapping: UShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4099,14 +3827,10 @@ public partial class ManyTypesEntityType
                     ushort (ushort v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))));
         var enumU16CollectionElementType = enumU16Collection.SetElementType(typeof(CompiledModelTestBase.EnumU16));
         enumU16CollectionElementType.TypeMapping = enumU16Collection.TypeMapping.ElementTypeMapping;
 
@@ -4156,14 +3880,10 @@ public partial class ManyTypesEntityType
                 uint (uint v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                 JsonUInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))));
         enumU32.SetSentinelFromProviderValue(0u);
 
         var enumU32Array = runtimeEntityType.AddProperty(
@@ -4213,15 +3933,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))),
             elementMapping: UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4237,14 +3953,10 @@ public partial class ManyTypesEntityType
                     uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))));
         var enumU32ArrayElementType = enumU32Array.SetElementType(typeof(CompiledModelTestBase.EnumU32));
         enumU32ArrayElementType.TypeMapping = enumU32Array.TypeMapping.ElementTypeMapping;
 
@@ -4293,14 +4005,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                    string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints))));
         enumU32AsString.SetSentinelFromProviderValue("Min");
 
         var enumU32AsStringArray = runtimeEntityType.AddProperty(
@@ -4350,15 +4058,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                        string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                        string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4372,14 +4076,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                    string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                        string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU32AsStringArrayElementType = enumU32AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU32),
             providerClrType: typeof(string));
         enumU32AsStringArrayElementType.TypeMapping = enumU32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -4431,15 +4131,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                        string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                        string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4453,14 +4149,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                    string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(
-                        string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, string>(string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU32AsStringCollectionElementType = enumU32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU32),
             providerClrType: typeof(string));
         enumU32AsStringCollectionElementType.TypeMapping = enumU32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -4512,15 +4204,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))),
             elementMapping: UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4536,14 +4224,10 @@ public partial class ManyTypesEntityType
                     uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))));
         var enumU32CollectionElementType = enumU32Collection.SetElementType(typeof(CompiledModelTestBase.EnumU32));
         enumU32CollectionElementType.TypeMapping = enumU32Collection.TypeMapping.ElementTypeMapping;
 
@@ -4591,14 +4275,10 @@ public partial class ManyTypesEntityType
                 bool (ulong v1, ulong v2) => v1 == v2,
                 int (ulong v) => ((object)v).GetHashCode(),
                 ulong (ulong v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                 JsonUInt64ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))));
         enumU64.SetSentinelFromProviderValue(0ul);
 
         var enumU64Array = runtimeEntityType.AddProperty(
@@ -4648,15 +4328,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))),
             elementMapping: SqliteULongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4670,14 +4346,10 @@ public partial class ManyTypesEntityType
                     bool (ulong v1, ulong v2) => v1 == v2,
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))));
         var enumU64ArrayElementType = enumU64Array.SetElementType(typeof(CompiledModelTestBase.EnumU64));
         enumU64ArrayElementType.TypeMapping = enumU64Array.TypeMapping.ElementTypeMapping;
 
@@ -4726,14 +4398,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                    string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints))));
         enumU64AsString.SetSentinelFromProviderValue("Min");
 
         var enumU64AsStringArray = runtimeEntityType.AddProperty(
@@ -4783,15 +4451,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                        string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                        string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4805,14 +4469,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                    string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                        string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU64AsStringArrayElementType = enumU64AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU64),
             providerClrType: typeof(string));
         enumU64AsStringArrayElementType.TypeMapping = enumU64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -4864,15 +4524,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                        string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                        string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4886,14 +4542,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                    string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(
-                        string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, string>(string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU64AsStringCollectionElementType = enumU64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU64),
             providerClrType: typeof(string));
         enumU64AsStringCollectionElementType.TypeMapping = enumU64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -4945,15 +4597,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))),
             elementMapping: SqliteULongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -4967,14 +4615,10 @@ public partial class ManyTypesEntityType
                     bool (ulong v1, ulong v2) => v1 == v2,
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))));
         var enumU64CollectionElementType = enumU64Collection.SetElementType(typeof(CompiledModelTestBase.EnumU64));
         enumU64CollectionElementType.TypeMapping = enumU64Collection.TypeMapping.ElementTypeMapping;
 
@@ -5024,14 +4668,10 @@ public partial class ManyTypesEntityType
                 byte (byte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                 JsonByteReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))));
         enumU8.SetSentinelFromProviderValue((byte)0);
 
         var enumU8Array = runtimeEntityType.AddProperty(
@@ -5081,15 +4721,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))),
             elementMapping: ByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -5105,14 +4741,10 @@ public partial class ManyTypesEntityType
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))));
         var enumU8ArrayElementType = enumU8Array.SetElementType(typeof(CompiledModelTestBase.EnumU8));
         enumU8ArrayElementType.TypeMapping = enumU8Array.TypeMapping.ElementTypeMapping;
 
@@ -5161,14 +4793,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                    string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v))));
+                new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints))));
         enumU8AsString.SetSentinelFromProviderValue("Min");
 
         var enumU8AsStringArray = runtimeEntityType.AddProperty(
@@ -5218,15 +4846,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                        string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                        string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -5240,14 +4864,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                    string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                        string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU8AsStringArrayElementType = enumU8AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU8),
             providerClrType: typeof(string));
         enumU8AsStringArrayElementType.TypeMapping = enumU8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -5299,15 +4919,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                        string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                        string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -5321,14 +4937,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                    string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                    CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(
-                        string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
-                        CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, string>(string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(), CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v), default(ConverterMappingHints)))));
         var enumU8AsStringCollectionElementType = enumU8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU8),
             providerClrType: typeof(string));
         enumU8AsStringCollectionElementType.TypeMapping = enumU8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -5380,15 +4992,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))),
             elementMapping: ByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -5404,14 +5012,10 @@ public partial class ManyTypesEntityType
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))));
         var enumU8CollectionElementType = enumU8Collection.SetElementType(typeof(CompiledModelTestBase.EnumU8));
         enumU8CollectionElementType.TypeMapping = enumU8Collection.TypeMapping.ElementTypeMapping;
 
@@ -5662,14 +5266,10 @@ public partial class ManyTypesEntityType
                 byte[] (byte[] source) => source.ToArray()),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 16),
-            converter: new ValueConverter<Guid, byte[]>(
-                byte[] (Guid v) => v.ToByteArray(),
-                Guid (byte[] v) => new Guid(v)),
+            converter: new ValueConverter<Guid, byte[]>(byte[] (Guid v) => v.ToByteArray(), Guid (byte[] v) => new Guid(v), new ConverterMappingHints(16, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Guid, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<Guid, byte[]>(
-                    byte[] (Guid v) => v.ToByteArray(),
-                    Guid (byte[] v) => new Guid(v))));
+                new ValueConverter<Guid, byte[]>(byte[] (Guid v) => v.ToByteArray(), Guid (byte[] v) => new Guid(v), new ConverterMappingHints(16, (int? )(null), (int? )(null), (bool? )(null)))));
         guidToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
         var guidToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -5719,14 +5319,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 36),
-            converter: new ValueConverter<Guid, string>(
-                string (Guid v) => v.ToString("D"),
-                Guid (string v) => new Guid(v)),
+            converter: new ValueConverter<Guid, string>(string (Guid v) => v.ToString("D"), Guid (string v) => new Guid(v), new ConverterMappingHints(36, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Guid, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<Guid, string>(
-                    string (Guid v) => v.ToString("D"),
-                    Guid (string v) => new Guid(v))));
+                new ValueConverter<Guid, string>(string (Guid v) => v.ToString("D"), Guid (string v) => new Guid(v), new ConverterMappingHints(36, (int? )(null), (int? )(null), (bool? )(null)))));
         guidToStringConverterProperty.SetSentinelFromProviderValue("00000000-0000-0000-0000-000000000000");
 
         var iPAddress = runtimeEntityType.AddProperty(
@@ -5775,14 +5371,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 45),
-            converter: new ValueConverter<IPAddress, string>(
-                string (IPAddress v) => ((object)v).ToString(),
-                IPAddress (string v) => IPAddress.Parse(v)),
+            converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v))));
+                new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var iPAddressArray = runtimeEntityType.AddProperty(
             "IPAddressArray",
@@ -5831,15 +5423,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -5855,14 +5443,10 @@ public partial class ManyTypesEntityType
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 45),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
         var iPAddressArrayElementType = iPAddressArray.SetElementType(typeof(IPAddress));
         iPAddressArrayElementType.TypeMapping = iPAddressArray.TypeMapping.ElementTypeMapping;
 
@@ -5913,15 +5497,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -5937,14 +5517,10 @@ public partial class ManyTypesEntityType
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 45),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
         var iPAddressReadOnlyCollectionElementType = iPAddressReadOnlyCollection.SetElementType(typeof(IPAddress),
             providerClrType: typeof(string));
         iPAddressReadOnlyCollectionElementType.TypeMapping = iPAddressReadOnlyCollection.TypeMapping.ElementTypeMapping;
@@ -5996,14 +5572,10 @@ public partial class ManyTypesEntityType
                 byte[] (byte[] source) => source.ToArray()),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 16),
-            converter: new ValueConverter<IPAddress, byte[]>(
-                byte[] (IPAddress v) => v.GetAddressBytes(),
-                IPAddress (byte[] v) => new IPAddress(v)),
+            converter: new ValueConverter<IPAddress, byte[]>(byte[] (IPAddress v) => v.GetAddressBytes(), IPAddress (byte[] v) => new IPAddress(v), new ConverterMappingHints(16, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<IPAddress, byte[]>(
-                    byte[] (IPAddress v) => v.GetAddressBytes(),
-                    IPAddress (byte[] v) => new IPAddress(v))));
+                new ValueConverter<IPAddress, byte[]>(byte[] (IPAddress v) => v.GetAddressBytes(), IPAddress (byte[] v) => new IPAddress(v), new ConverterMappingHints(16, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var iPAddressToStringConverterProperty = runtimeEntityType.AddProperty(
             "IPAddressToStringConverterProperty",
@@ -6052,14 +5624,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 45),
-            converter: new ValueConverter<IPAddress, string>(
-                string (IPAddress v) => ((object)v).ToString(),
-                IPAddress (string v) => IPAddress.Parse(v)),
+            converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v))));
+                new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var int16 = runtimeEntityType.AddProperty(
             "Int16",
@@ -6630,14 +6198,10 @@ public partial class ManyTypesEntityType
                 byte[] (byte[] source) => source.ToArray()),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 4),
-            converter: new ValueConverter<int, byte[]>(
-                byte[] (int v) => NumberToBytesConverter<int>.ReverseInt(BitConverter.GetBytes(v)),
-                int (byte[] v) => (v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt((v.Length == 0 ? new byte[4] : v)), 0))),
+            converter: new ValueConverter<int, byte[]>(byte[] (int v) => NumberToBytesConverter<int>.ReverseInt(BitConverter.GetBytes(v)), int (byte[] v) => (v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt((v.Length == 0 ? new byte[4] : v)), 0)), new ConverterMappingHints(4, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<int, byte[]>(
-                    byte[] (int v) => NumberToBytesConverter<int>.ReverseInt(BitConverter.GetBytes(v)),
-                    int (byte[] v) => (v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt((v.Length == 0 ? new byte[4] : v)), 0)))));
+                new ValueConverter<int, byte[]>(byte[] (int v) => NumberToBytesConverter<int>.ReverseInt(BitConverter.GetBytes(v)), int (byte[] v) => (v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt((v.Length == 0 ? new byte[4] : v)), 0)), new ConverterMappingHints(4, (int? )(null), (int? )(null), (bool? )(null)))));
         intNumberToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0 });
 
         var intNumberToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -6687,14 +6251,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 64),
-            converter: new ValueConverter<int, string>(
-                string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<int, string>(string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<int, string>(
-                    string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                    int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
+                new ValueConverter<int, string>(string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null)))));
         intNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
 
         var nullIntToNullStringConverterProperty = runtimeEntityType.AddProperty(
@@ -6743,16 +6303,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<int?, string>(
-                string (int? v) => (v == null ? null : ((object)v).ToString()),
-                int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))),
-                convertsNulls: true),
+            converter: new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))), true, default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int?, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<int?, string>(
-                    string (int? v) => (v == null ? null : ((object)v).ToString()),
-                    int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))),
-                    convertsNulls: true)));
+                new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))), true, default(ConverterMappingHints))));
 
         var nullableBool = runtimeEntityType.AddProperty(
             "NullableBool",
@@ -7536,14 +7090,10 @@ public partial class ManyTypesEntityType
                 short (short v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                 JsonInt16ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))));
+                new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))));
         nullableEnum16.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.Comparer));
         nullableEnum16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.KeyComparer));
 
@@ -7594,15 +7144,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))),
             elementMapping: ShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -7618,14 +7164,10 @@ public partial class ManyTypesEntityType
                     short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))));
         var nullableEnum16ArrayElementType = nullableEnum16Array.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16ArrayElementType.TypeMapping = nullableEnum16Array.TypeMapping.ElementTypeMapping;
@@ -7678,14 +7220,10 @@ public partial class ManyTypesEntityType
                 short (short v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                 JsonInt16ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))));
+                new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))));
         nullableEnum16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.Comparer));
         nullableEnum16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.KeyComparer));
 
@@ -7736,15 +7274,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))),
             elementMapping: ShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -7760,14 +7294,10 @@ public partial class ManyTypesEntityType
                     short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))));
         var nullableEnum16AsStringArrayElementType = nullableEnum16AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16AsStringArrayElementType.TypeMapping = nullableEnum16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -7820,15 +7350,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))),
             elementMapping: ShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -7844,14 +7370,10 @@ public partial class ManyTypesEntityType
                     short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))));
         var nullableEnum16AsStringCollectionElementType = nullableEnum16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16AsStringCollectionElementType.TypeMapping = nullableEnum16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -7904,15 +7426,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))),
             elementMapping: ShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -7928,14 +7446,10 @@ public partial class ManyTypesEntityType
                     short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum16, short>(short (CompiledModelTestBase.Enum16 value) => ((short)value), CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value), default(ConverterMappingHints)))));
         var nullableEnum16CollectionElementType = nullableEnum16Collection.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16CollectionElementType.TypeMapping = nullableEnum16Collection.TypeMapping.ElementTypeMapping;
@@ -7988,14 +7502,10 @@ public partial class ManyTypesEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
+                new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))));
         nullableEnum32.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.Comparer));
         nullableEnum32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.KeyComparer));
 
@@ -8046,15 +7556,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))),
             elementMapping: IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8070,14 +7576,10 @@ public partial class ManyTypesEntityType
                     int (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))));
         var nullableEnum32ArrayElementType = nullableEnum32Array.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32ArrayElementType.TypeMapping = nullableEnum32Array.TypeMapping.ElementTypeMapping;
@@ -8130,14 +7632,10 @@ public partial class ManyTypesEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
+                new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))));
         nullableEnum32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.Comparer));
         nullableEnum32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.KeyComparer));
 
@@ -8188,15 +7686,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))),
             elementMapping: IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8212,14 +7706,10 @@ public partial class ManyTypesEntityType
                     int (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))));
         var nullableEnum32AsStringArrayElementType = nullableEnum32AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32AsStringArrayElementType.TypeMapping = nullableEnum32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -8272,15 +7762,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))),
             elementMapping: IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8296,14 +7782,10 @@ public partial class ManyTypesEntityType
                     int (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))));
         var nullableEnum32AsStringCollectionElementType = nullableEnum32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32AsStringCollectionElementType.TypeMapping = nullableEnum32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -8356,15 +7838,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))),
             elementMapping: IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8380,14 +7858,10 @@ public partial class ManyTypesEntityType
                     int (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum32, int>(int (CompiledModelTestBase.Enum32 value) => ((int)value), CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value), default(ConverterMappingHints)))));
         var nullableEnum32CollectionElementType = nullableEnum32Collection.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32CollectionElementType.TypeMapping = nullableEnum32Collection.TypeMapping.ElementTypeMapping;
@@ -8440,14 +7914,10 @@ public partial class ManyTypesEntityType
                 long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                 JsonInt64ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))));
+                new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))));
         nullableEnum64.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.Comparer));
         nullableEnum64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.KeyComparer));
 
@@ -8498,15 +7968,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))),
             elementMapping: LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8522,14 +7988,10 @@ public partial class ManyTypesEntityType
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))));
         var nullableEnum64ArrayElementType = nullableEnum64Array.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64ArrayElementType.TypeMapping = nullableEnum64Array.TypeMapping.ElementTypeMapping;
@@ -8582,14 +8044,10 @@ public partial class ManyTypesEntityType
                 long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                 JsonInt64ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))));
+                new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))));
         nullableEnum64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.Comparer));
         nullableEnum64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.KeyComparer));
 
@@ -8640,15 +8098,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))),
             elementMapping: LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8664,14 +8118,10 @@ public partial class ManyTypesEntityType
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))));
         var nullableEnum64AsStringArrayElementType = nullableEnum64AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64AsStringArrayElementType.TypeMapping = nullableEnum64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -8724,15 +8174,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))),
             elementMapping: LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8748,14 +8194,10 @@ public partial class ManyTypesEntityType
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))));
         var nullableEnum64AsStringCollectionElementType = nullableEnum64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64AsStringCollectionElementType.TypeMapping = nullableEnum64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -8808,15 +8250,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))),
             elementMapping: LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8832,14 +8270,10 @@ public partial class ManyTypesEntityType
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum64, long>(long (CompiledModelTestBase.Enum64 value) => ((long)value), CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value), default(ConverterMappingHints)))));
         var nullableEnum64CollectionElementType = nullableEnum64Collection.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64CollectionElementType.TypeMapping = nullableEnum64Collection.TypeMapping.ElementTypeMapping;
@@ -8892,14 +8326,10 @@ public partial class ManyTypesEntityType
                 sbyte (sbyte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                 JsonSByteReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))));
+                new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))));
         nullableEnum8.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.Comparer));
         nullableEnum8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.KeyComparer));
 
@@ -8950,15 +8380,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))),
             elementMapping: SByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -8974,14 +8400,10 @@ public partial class ManyTypesEntityType
                     sbyte (sbyte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))));
         var nullableEnum8ArrayElementType = nullableEnum8Array.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8ArrayElementType.TypeMapping = nullableEnum8Array.TypeMapping.ElementTypeMapping;
@@ -9034,14 +8456,10 @@ public partial class ManyTypesEntityType
                 sbyte (sbyte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                 JsonSByteReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))));
+                new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))));
         nullableEnum8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.Comparer));
         nullableEnum8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.KeyComparer));
 
@@ -9092,15 +8510,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))),
             elementMapping: SByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9116,14 +8530,10 @@ public partial class ManyTypesEntityType
                     sbyte (sbyte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))));
         var nullableEnum8AsStringArrayElementType = nullableEnum8AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8AsStringArrayElementType.TypeMapping = nullableEnum8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -9176,15 +8586,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))),
             elementMapping: SByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9200,14 +8606,10 @@ public partial class ManyTypesEntityType
                     sbyte (sbyte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))));
         var nullableEnum8AsStringCollectionElementType = nullableEnum8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8AsStringCollectionElementType.TypeMapping = nullableEnum8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -9260,15 +8662,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))),
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))),
             elementMapping: SByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9284,14 +8682,10 @@ public partial class ManyTypesEntityType
                     sbyte (sbyte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)))));
+                    new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value), CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value), default(ConverterMappingHints)))));
         var nullableEnum8CollectionElementType = nullableEnum8Collection.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8CollectionElementType.TypeMapping = nullableEnum8Collection.TypeMapping.ElementTypeMapping;
@@ -9344,14 +8738,10 @@ public partial class ManyTypesEntityType
                 ushort (ushort v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                 JsonUInt16ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))));
         nullableEnumU16.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.Comparer));
         nullableEnumU16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.KeyComparer));
 
@@ -9402,15 +8792,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))),
             elementMapping: UShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9426,14 +8812,10 @@ public partial class ManyTypesEntityType
                     ushort (ushort v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))));
         var nullableEnumU16ArrayElementType = nullableEnumU16Array.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16ArrayElementType.TypeMapping = nullableEnumU16Array.TypeMapping.ElementTypeMapping;
@@ -9486,14 +8868,10 @@ public partial class ManyTypesEntityType
                 ushort (ushort v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                 JsonUInt16ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))));
         nullableEnumU16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.Comparer));
         nullableEnumU16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.KeyComparer));
 
@@ -9544,15 +8922,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))),
             elementMapping: UShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9568,14 +8942,10 @@ public partial class ManyTypesEntityType
                     ushort (ushort v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))));
         var nullableEnumU16AsStringArrayElementType = nullableEnumU16AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16AsStringArrayElementType.TypeMapping = nullableEnumU16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -9628,15 +8998,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))),
             elementMapping: UShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9652,14 +9018,10 @@ public partial class ManyTypesEntityType
                     ushort (ushort v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))));
         var nullableEnumU16AsStringCollectionElementType = nullableEnumU16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16AsStringCollectionElementType.TypeMapping = nullableEnumU16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -9712,15 +9074,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))),
             elementMapping: UShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9736,14 +9094,10 @@ public partial class ManyTypesEntityType
                     ushort (ushort v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value), CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value), default(ConverterMappingHints)))));
         var nullableEnumU16CollectionElementType = nullableEnumU16Collection.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16CollectionElementType.TypeMapping = nullableEnumU16Collection.TypeMapping.ElementTypeMapping;
@@ -9796,14 +9150,10 @@ public partial class ManyTypesEntityType
                 uint (uint v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                 JsonUInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))));
         nullableEnumU32.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.Comparer));
         nullableEnumU32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.KeyComparer));
 
@@ -9854,15 +9204,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))),
             elementMapping: UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -9878,14 +9224,10 @@ public partial class ManyTypesEntityType
                     uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))));
         var nullableEnumU32ArrayElementType = nullableEnumU32Array.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32ArrayElementType.TypeMapping = nullableEnumU32Array.TypeMapping.ElementTypeMapping;
@@ -9938,14 +9280,10 @@ public partial class ManyTypesEntityType
                 uint (uint v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                 JsonUInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))));
         nullableEnumU32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.Comparer));
         nullableEnumU32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.KeyComparer));
 
@@ -9996,15 +9334,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))),
             elementMapping: UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10020,14 +9354,10 @@ public partial class ManyTypesEntityType
                     uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))));
         var nullableEnumU32AsStringArrayElementType = nullableEnumU32AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32AsStringArrayElementType.TypeMapping = nullableEnumU32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -10080,15 +9410,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))),
             elementMapping: UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10104,14 +9430,10 @@ public partial class ManyTypesEntityType
                     uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))));
         var nullableEnumU32AsStringCollectionElementType = nullableEnumU32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32AsStringCollectionElementType.TypeMapping = nullableEnumU32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -10164,15 +9486,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))),
             elementMapping: UIntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10188,14 +9506,10 @@ public partial class ManyTypesEntityType
                     uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU32, uint>(uint (CompiledModelTestBase.EnumU32 value) => ((uint)value), CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value), default(ConverterMappingHints)))));
         var nullableEnumU32CollectionElementType = nullableEnumU32Collection.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32CollectionElementType.TypeMapping = nullableEnumU32Collection.TypeMapping.ElementTypeMapping;
@@ -10246,14 +9560,10 @@ public partial class ManyTypesEntityType
                 bool (ulong v1, ulong v2) => v1 == v2,
                 int (ulong v) => ((object)v).GetHashCode(),
                 ulong (ulong v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                 JsonUInt64ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))));
         nullableEnumU64.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.Comparer));
         nullableEnumU64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.KeyComparer));
 
@@ -10304,15 +9614,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))),
             elementMapping: SqliteULongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10326,14 +9632,10 @@ public partial class ManyTypesEntityType
                     bool (ulong v1, ulong v2) => v1 == v2,
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))));
         var nullableEnumU64ArrayElementType = nullableEnumU64Array.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64ArrayElementType.TypeMapping = nullableEnumU64Array.TypeMapping.ElementTypeMapping;
@@ -10384,14 +9686,10 @@ public partial class ManyTypesEntityType
                 bool (ulong v1, ulong v2) => v1 == v2,
                 int (ulong v) => ((object)v).GetHashCode(),
                 ulong (ulong v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                 JsonUInt64ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))));
         nullableEnumU64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.Comparer));
         nullableEnumU64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.KeyComparer));
 
@@ -10442,15 +9740,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))),
             elementMapping: SqliteULongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10464,14 +9758,10 @@ public partial class ManyTypesEntityType
                     bool (ulong v1, ulong v2) => v1 == v2,
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))));
         var nullableEnumU64AsStringArrayElementType = nullableEnumU64AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64AsStringArrayElementType.TypeMapping = nullableEnumU64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -10524,15 +9814,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))),
             elementMapping: SqliteULongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10546,14 +9832,10 @@ public partial class ManyTypesEntityType
                     bool (ulong v1, ulong v2) => v1 == v2,
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))));
         var nullableEnumU64AsStringCollectionElementType = nullableEnumU64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64AsStringCollectionElementType.TypeMapping = nullableEnumU64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -10606,15 +9888,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))),
             elementMapping: SqliteULongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10628,14 +9906,10 @@ public partial class ManyTypesEntityType
                     bool (ulong v1, ulong v2) => v1 == v2,
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value), CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value), default(ConverterMappingHints)))));
         var nullableEnumU64CollectionElementType = nullableEnumU64Collection.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64CollectionElementType.TypeMapping = nullableEnumU64Collection.TypeMapping.ElementTypeMapping;
@@ -10688,14 +9962,10 @@ public partial class ManyTypesEntityType
                 byte (byte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                 JsonByteReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))));
         nullableEnumU8.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.Comparer));
         nullableEnumU8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.KeyComparer));
 
@@ -10746,15 +10016,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))),
             elementMapping: ByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10770,14 +10036,10 @@ public partial class ManyTypesEntityType
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))));
         var nullableEnumU8ArrayElementType = nullableEnumU8Array.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8ArrayElementType.TypeMapping = nullableEnumU8Array.TypeMapping.ElementTypeMapping;
@@ -10830,14 +10092,10 @@ public partial class ManyTypesEntityType
                 byte (byte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+            converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                 JsonByteReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))));
+                new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))));
         nullableEnumU8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.Comparer));
         nullableEnumU8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.KeyComparer));
 
@@ -10888,15 +10146,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))),
             elementMapping: ByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10912,14 +10166,10 @@ public partial class ManyTypesEntityType
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))));
         var nullableEnumU8AsStringArrayElementType = nullableEnumU8AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8AsStringArrayElementType.TypeMapping = nullableEnumU8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -10972,15 +10222,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))),
             elementMapping: ByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -10996,14 +10242,10 @@ public partial class ManyTypesEntityType
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))));
         var nullableEnumU8AsStringCollectionElementType = nullableEnumU8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8AsStringCollectionElementType.TypeMapping = nullableEnumU8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -11056,15 +10298,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))),
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))),
             elementMapping: ByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
@@ -11080,14 +10318,10 @@ public partial class ManyTypesEntityType
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"),
-                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
+                converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)))));
+                    new ValueConverter<CompiledModelTestBase.EnumU8, byte>(byte (CompiledModelTestBase.EnumU8 value) => ((byte)value), CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value), default(ConverterMappingHints)))));
         var nullableEnumU8CollectionElementType = nullableEnumU8Collection.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8CollectionElementType.TypeMapping = nullableEnumU8Collection.TypeMapping.ElementTypeMapping;
@@ -11348,14 +10582,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 45),
-            converter: new ValueConverter<IPAddress, string>(
-                string (IPAddress v) => ((object)v).ToString(),
-                IPAddress (string v) => IPAddress.Parse(v)),
+            converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v))));
+                new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var nullableIPAddressArray = runtimeEntityType.AddProperty(
             "NullableIPAddressArray",
@@ -11404,15 +10634,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -11428,14 +10654,10 @@ public partial class ManyTypesEntityType
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 45),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
         var nullableIPAddressArrayElementType = nullableIPAddressArray.SetElementType(typeof(IPAddress),
             nullable: true);
         nullableIPAddressArrayElementType.TypeMapping = nullableIPAddressArray.TypeMapping.ElementTypeMapping;
@@ -11959,14 +11181,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 20),
-            converter: new ValueConverter<PhysicalAddress, string>(
-                string (PhysicalAddress v) => ((object)v).ToString(),
-                PhysicalAddress (string v) => PhysicalAddress.Parse(v)),
+            converter: new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<PhysicalAddress, string>(
-                    string (PhysicalAddress v) => ((object)v).ToString(),
-                    PhysicalAddress (string v) => PhysicalAddress.Parse(v))));
+                new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var nullablePhysicalAddressArray = runtimeEntityType.AddProperty(
             "NullablePhysicalAddressArray",
@@ -12015,15 +11233,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<PhysicalAddress>(new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[], PhysicalAddress>(
                 new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<PhysicalAddress, string>(
-                        string (PhysicalAddress v) => ((object)v).ToString(),
-                        PhysicalAddress (string v) => PhysicalAddress.Parse(v))))),
+                    new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null)))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[], PhysicalAddress>(
                 new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<PhysicalAddress, string>(
-                        string (PhysicalAddress v) => ((object)v).ToString(),
-                        PhysicalAddress (string v) => PhysicalAddress.Parse(v)))),
+                    new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<PhysicalAddress>(
                     bool (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -12039,14 +11253,10 @@ public partial class ManyTypesEntityType
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 20),
-                converter: new ValueConverter<PhysicalAddress, string>(
-                    string (PhysicalAddress v) => ((object)v).ToString(),
-                    PhysicalAddress (string v) => PhysicalAddress.Parse(v)),
+                converter: new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<PhysicalAddress, string>(
-                        string (PhysicalAddress v) => ((object)v).ToString(),
-                        PhysicalAddress (string v) => PhysicalAddress.Parse(v)))));
+                    new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))))));
         var nullablePhysicalAddressArrayElementType = nullablePhysicalAddressArray.SetElementType(typeof(PhysicalAddress),
             nullable: true);
         nullablePhysicalAddressArrayElementType.TypeMapping = nullablePhysicalAddressArray.TypeMapping.ElementTypeMapping;
@@ -12836,14 +12046,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<Uri, string>(
-                string (Uri v) => ((object)v).ToString(),
-                Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)),
+            converter: new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Uri, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<Uri, string>(
-                    string (Uri v) => ((object)v).ToString(),
-                    Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute))));
+                new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints))));
 
         var nullableUriArray = runtimeEntityType.AddProperty(
             "NullableUriArray",
@@ -12892,15 +12098,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<Uri>(new JsonCollectionOfReferencesReaderWriter<Uri[], Uri>(
                 new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<Uri, string>(
-                        string (Uri v) => ((object)v).ToString(),
-                        Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute))))),
+                    new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<Uri[], Uri>(
                 new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<Uri, string>(
-                        string (Uri v) => ((object)v).ToString(),
-                        Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))),
+                    new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
                     bool (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -12914,14 +12116,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<Uri, string>(
-                    string (Uri v) => ((object)v).ToString(),
-                    Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)),
+                converter: new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<Uri, string>(
-                        string (Uri v) => ((object)v).ToString(),
-                        Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))));
+                    new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)))));
         var nullableUriArrayElementType = nullableUriArray.SetElementType(typeof(Uri),
             nullable: true);
         nullableUriArrayElementType.TypeMapping = nullableUriArray.TypeMapping.ElementTypeMapping;
@@ -12972,14 +12170,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 20),
-            converter: new ValueConverter<PhysicalAddress, string>(
-                string (PhysicalAddress v) => ((object)v).ToString(),
-                PhysicalAddress (string v) => PhysicalAddress.Parse(v)),
+            converter: new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<PhysicalAddress, string>(
-                    string (PhysicalAddress v) => ((object)v).ToString(),
-                    PhysicalAddress (string v) => PhysicalAddress.Parse(v))));
+                new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var physicalAddressArray = runtimeEntityType.AddProperty(
             "PhysicalAddressArray",
@@ -13028,15 +12222,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<PhysicalAddress>(new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[], PhysicalAddress>(
                 new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<PhysicalAddress, string>(
-                        string (PhysicalAddress v) => ((object)v).ToString(),
-                        PhysicalAddress (string v) => PhysicalAddress.Parse(v))))),
+                    new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null)))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[], PhysicalAddress>(
                 new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<PhysicalAddress, string>(
-                        string (PhysicalAddress v) => ((object)v).ToString(),
-                        PhysicalAddress (string v) => PhysicalAddress.Parse(v)))),
+                    new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<PhysicalAddress>(
                     bool (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -13052,14 +12242,10 @@ public partial class ManyTypesEntityType
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 20),
-                converter: new ValueConverter<PhysicalAddress, string>(
-                    string (PhysicalAddress v) => ((object)v).ToString(),
-                    PhysicalAddress (string v) => PhysicalAddress.Parse(v)),
+                converter: new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<PhysicalAddress, string>(
-                        string (PhysicalAddress v) => ((object)v).ToString(),
-                        PhysicalAddress (string v) => PhysicalAddress.Parse(v)))));
+                    new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))))));
         var physicalAddressArrayElementType = physicalAddressArray.SetElementType(typeof(PhysicalAddress));
         physicalAddressArrayElementType.TypeMapping = physicalAddressArray.TypeMapping.ElementTypeMapping;
 
@@ -13110,14 +12296,10 @@ public partial class ManyTypesEntityType
                 byte[] (byte[] source) => source.ToArray()),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 8),
-            converter: new ValueConverter<PhysicalAddress, byte[]>(
-                byte[] (PhysicalAddress v) => v.GetAddressBytes(),
-                PhysicalAddress (byte[] v) => new PhysicalAddress(v)),
+            converter: new ValueConverter<PhysicalAddress, byte[]>(byte[] (PhysicalAddress v) => v.GetAddressBytes(), PhysicalAddress (byte[] v) => new PhysicalAddress(v), new ConverterMappingHints(8, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<PhysicalAddress, byte[]>(
-                    byte[] (PhysicalAddress v) => v.GetAddressBytes(),
-                    PhysicalAddress (byte[] v) => new PhysicalAddress(v))));
+                new ValueConverter<PhysicalAddress, byte[]>(byte[] (PhysicalAddress v) => v.GetAddressBytes(), PhysicalAddress (byte[] v) => new PhysicalAddress(v), new ConverterMappingHints(8, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var physicalAddressToStringConverterProperty = runtimeEntityType.AddProperty(
             "PhysicalAddressToStringConverterProperty",
@@ -13166,14 +12348,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 20),
-            converter: new ValueConverter<PhysicalAddress, string>(
-                string (PhysicalAddress v) => ((object)v).ToString(),
-                PhysicalAddress (string v) => PhysicalAddress.Parse(v)),
+            converter: new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<PhysicalAddress, string>(
-                    string (PhysicalAddress v) => ((object)v).ToString(),
-                    PhysicalAddress (string v) => PhysicalAddress.Parse(v))));
+                new ValueConverter<PhysicalAddress, string>(string (PhysicalAddress v) => ((object)v).ToString(), PhysicalAddress (string v) => PhysicalAddress.Parse(v), new ConverterMappingHints(20, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var @string = runtimeEntityType.AddProperty(
             "String",
@@ -13359,14 +12537,10 @@ public partial class ManyTypesEntityType
                 bool (bool v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<string, bool>(
-                bool (string v) => Convert.ToBoolean(v),
-                string (bool v) => Convert.ToString(v)),
+            converter: new ValueConverter<string, bool>(bool (string v) => Convert.ToBoolean(v), string (bool v) => Convert.ToString(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, bool>(
                 JsonBoolReaderWriter.Instance,
-                new ValueConverter<string, bool>(
-                    bool (string v) => Convert.ToBoolean(v),
-                    string (bool v) => Convert.ToString(v))));
+                new ValueConverter<string, bool>(bool (string v) => Convert.ToBoolean(v), string (bool v) => Convert.ToString(v), default(ConverterMappingHints))));
 
         var stringToBytesConverterProperty = runtimeEntityType.AddProperty(
             "StringToBytesConverterProperty",
@@ -13413,14 +12587,10 @@ public partial class ManyTypesEntityType
                 bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                 int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                 byte[] (byte[] source) => source.ToArray()),
-            converter: new ValueConverter<string, byte[]>(
-                byte[] (string v) => Encoding.GetEncoding(12000).GetBytes(v),
-                string (byte[] v) => Encoding.GetEncoding(12000).GetString(v)),
+            converter: new ValueConverter<string, byte[]>(byte[] (string v) => Encoding.GetEncoding(12000).GetBytes(v), string (byte[] v) => Encoding.GetEncoding(12000).GetString(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance,
-                new ValueConverter<string, byte[]>(
-                    byte[] (string v) => Encoding.GetEncoding(12000).GetBytes(v),
-                    string (byte[] v) => Encoding.GetEncoding(12000).GetString(v))));
+                new ValueConverter<string, byte[]>(byte[] (string v) => Encoding.GetEncoding(12000).GetBytes(v), string (byte[] v) => Encoding.GetEncoding(12000).GetString(v), default(ConverterMappingHints))));
 
         var stringToCharConverterProperty = runtimeEntityType.AddProperty(
             "StringToCharConverterProperty",
@@ -13470,14 +12640,10 @@ public partial class ManyTypesEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "TEXT",
                 size: 1),
-            converter: new ValueConverter<string, char>(
-                char (string v) => (v.Length < 1 ? '\0' : v[0]),
-                string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
+            converter: new ValueConverter<string, char>(char (string v) => (v.Length < 1 ? '\0' : v[0]), string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, char>(
                 JsonCharReaderWriter.Instance,
-                new ValueConverter<string, char>(
-                    char (string v) => (v.Length < 1 ? '\0' : v[0]),
-                    string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
+                new ValueConverter<string, char>(char (string v) => (v.Length < 1 ? '\0' : v[0]), string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), new ConverterMappingHints(1, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToDateOnlyConverterProperty = runtimeEntityType.AddProperty(
             "StringToDateOnlyConverterProperty",
@@ -13526,14 +12692,10 @@ public partial class ManyTypesEntityType
                 DateOnly (DateOnly v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 10),
-            converter: new ValueConverter<string, DateOnly>(
-                DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
-                string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd")),
+            converter: new ValueConverter<string, DateOnly>(DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"), new ConverterMappingHints(10, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, DateOnly>(
                 JsonDateOnlyReaderWriter.Instance,
-                new ValueConverter<string, DateOnly>(
-                    DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
-                    string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"))));
+                new ValueConverter<string, DateOnly>(DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"), new ConverterMappingHints(10, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToDateTimeConverterProperty = runtimeEntityType.AddProperty(
             "StringToDateTimeConverterProperty",
@@ -13582,14 +12744,10 @@ public partial class ManyTypesEntityType
                 DateTime (DateTime v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<string, DateTime>(
-                DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture),
-                string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF")),
+            converter: new ValueConverter<string, DateTime>(DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, DateTime>(
                 SqliteJsonDateTimeReaderWriter.Instance,
-                new ValueConverter<string, DateTime>(
-                    DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture),
-                    string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"))));
+                new ValueConverter<string, DateTime>(DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToDateTimeOffsetConverterProperty = runtimeEntityType.AddProperty(
             "StringToDateTimeOffsetConverterProperty",
@@ -13638,14 +12796,10 @@ public partial class ManyTypesEntityType
                 DateTimeOffset (DateTimeOffset v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<string, DateTimeOffset>(
-                DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture),
-                string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz")),
+            converter: new ValueConverter<string, DateTimeOffset>(DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, DateTimeOffset>(
                 SqliteJsonDateTimeOffsetReaderWriter.Instance,
-                new ValueConverter<string, DateTimeOffset>(
-                    DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture),
-                    string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"))));
+                new ValueConverter<string, DateTimeOffset>(DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToDecimalNumberConverterProperty = runtimeEntityType.AddProperty(
             "StringToDecimalNumberConverterProperty",
@@ -13694,14 +12848,10 @@ public partial class ManyTypesEntityType
                 decimal (decimal v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 64),
-            converter: new ValueConverter<string, decimal>(
-                decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
+            converter: new ValueConverter<string, decimal>(decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, decimal>(
                 SqliteJsonDecimalReaderWriter.Instance,
-                new ValueConverter<string, decimal>(
-                    decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                    string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
+                new ValueConverter<string, decimal>(decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToDoubleNumberConverterProperty = runtimeEntityType.AddProperty(
             "StringToDoubleNumberConverterProperty",
@@ -13751,14 +12901,10 @@ public partial class ManyTypesEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "REAL",
                 size: 64),
-            converter: new ValueConverter<string, double>(
-                double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v))),
+            converter: new ValueConverter<string, double>(double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, double>(
                 JsonDoubleReaderWriter.Instance,
-                new ValueConverter<string, double>(
-                    double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                    string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)))));
+                new ValueConverter<string, double>(double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToEnumConverterProperty = runtimeEntityType.AddProperty(
             "StringToEnumConverterProperty",
@@ -13807,14 +12953,10 @@ public partial class ManyTypesEntityType
                 uint (uint v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<string, uint>(
-                uint (string v) => ((uint)(StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))),
-                string (uint value) => ((object)((CompiledModelTestBase.EnumU32)value)).ToString()),
+            converter: new ValueConverter<string, uint>(uint (string v) => ((uint)(StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))), string (uint value) => ((object)((CompiledModelTestBase.EnumU32)value)).ToString(), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, uint>(
                 JsonUInt32ReaderWriter.Instance,
-                new ValueConverter<string, uint>(
-                    uint (string v) => ((uint)(StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))),
-                    string (uint value) => ((object)((CompiledModelTestBase.EnumU32)value)).ToString())));
+                new ValueConverter<string, uint>(uint (string v) => ((uint)(StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))), string (uint value) => ((object)((CompiledModelTestBase.EnumU32)value)).ToString(), default(ConverterMappingHints))));
 
         var stringToGuidConverterProperty = runtimeEntityType.AddProperty(
             "StringToGuidConverterProperty",
@@ -13897,14 +13039,10 @@ public partial class ManyTypesEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER",
                 size: 64),
-            converter: new ValueConverter<string, int>(
-                int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
+            converter: new ValueConverter<string, int>(int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<string, int>(
-                    int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                    string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
+                new ValueConverter<string, int>(int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), new ConverterMappingHints(64, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToTimeOnlyConverterProperty = runtimeEntityType.AddProperty(
             "StringToTimeOnlyConverterProperty",
@@ -13953,14 +13091,10 @@ public partial class ManyTypesEntityType
                 TimeOnly (TimeOnly v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<string, TimeOnly>(
-                TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
-                string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o"))),
+            converter: new ValueConverter<string, TimeOnly>(TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, TimeOnly>(
                 JsonTimeOnlyReaderWriter.Instance,
-                new ValueConverter<string, TimeOnly>(
-                    TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
-                    string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")))));
+                new ValueConverter<string, TimeOnly>(TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToTimeSpanConverterProperty = runtimeEntityType.AddProperty(
             "StringToTimeSpanConverterProperty",
@@ -14010,14 +13144,10 @@ public partial class ManyTypesEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "TEXT",
                 size: 48),
-            converter: new ValueConverter<string, TimeSpan>(
-                TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture),
-                string (TimeSpan v) => v.ToString("c")),
+            converter: new ValueConverter<string, TimeSpan>(TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture), string (TimeSpan v) => v.ToString("c"), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, TimeSpan>(
                 JsonTimeSpanReaderWriter.Instance,
-                new ValueConverter<string, TimeSpan>(
-                    TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture),
-                    string (TimeSpan v) => v.ToString("c"))));
+                new ValueConverter<string, TimeSpan>(TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture), string (TimeSpan v) => v.ToString("c"), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
 
         var stringToUriConverterProperty = runtimeEntityType.AddProperty(
             "StringToUriConverterProperty",
@@ -14064,14 +13194,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<string, string>(
-                string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString(),
-                string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString()),
+            converter: new ValueConverter<string, string>(string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString(), string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString(), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<string, string>(
-                    string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString(),
-                    string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString())));
+                new ValueConverter<string, string>(string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString(), string (string v) => ((object)new Uri(v, UriKind.RelativeOrAbsolute)).ToString(), default(ConverterMappingHints))));
 
         var timeOnly = runtimeEntityType.AddProperty(
             "TimeOnly",
@@ -14206,14 +13332,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<TimeOnly, string>(
-                string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")),
-                TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None)),
+            converter: new ValueConverter<TimeOnly, string>(string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")), TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<TimeOnly, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<TimeOnly, string>(
-                    string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")),
-                    TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None))));
+                new ValueConverter<TimeOnly, string>(string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")), TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
         timeOnlyToStringConverterProperty.SetSentinelFromProviderValue("00:00:00");
 
         var timeOnlyToTicksConverterProperty = runtimeEntityType.AddProperty(
@@ -14263,14 +13385,10 @@ public partial class ManyTypesEntityType
                 long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<TimeOnly, long>(
-                long (TimeOnly v) => v.Ticks,
-                TimeOnly (long v) => new TimeOnly(v)),
+            converter: new ValueConverter<TimeOnly, long>(long (TimeOnly v) => v.Ticks, TimeOnly (long v) => new TimeOnly(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<TimeOnly, long>(
                 JsonInt64ReaderWriter.Instance,
-                new ValueConverter<TimeOnly, long>(
-                    long (TimeOnly v) => v.Ticks,
-                    TimeOnly (long v) => new TimeOnly(v))));
+                new ValueConverter<TimeOnly, long>(long (TimeOnly v) => v.Ticks, TimeOnly (long v) => new TimeOnly(v), default(ConverterMappingHints))));
         timeOnlyToTicksConverterProperty.SetSentinelFromProviderValue(0L);
 
         var timeSpan = runtimeEntityType.AddProperty(
@@ -14434,14 +13552,10 @@ public partial class ManyTypesEntityType
                 string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<TimeSpan, string>(
-                string (TimeSpan v) => v.ToString("c"),
-                TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<TimeSpan, string>(string (TimeSpan v) => v.ToString("c"), TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<TimeSpan, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<TimeSpan, string>(
-                    string (TimeSpan v) => v.ToString("c"),
-                    TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture))));
+                new ValueConverter<TimeSpan, string>(string (TimeSpan v) => v.ToString("c"), TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture), new ConverterMappingHints(48, (int? )(null), (int? )(null), (bool? )(null)))));
         timeSpanToStringConverterProperty.SetSentinelFromProviderValue("00:00:00");
 
         var timeSpanToTicksConverterProperty = runtimeEntityType.AddProperty(
@@ -14491,14 +13605,10 @@ public partial class ManyTypesEntityType
                 long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<TimeSpan, long>(
-                long (TimeSpan v) => v.Ticks,
-                TimeSpan (long v) => new TimeSpan(v)),
+            converter: new ValueConverter<TimeSpan, long>(long (TimeSpan v) => v.Ticks, TimeSpan (long v) => new TimeSpan(v), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<TimeSpan, long>(
                 JsonInt64ReaderWriter.Instance,
-                new ValueConverter<TimeSpan, long>(
-                    long (TimeSpan v) => v.Ticks,
-                    TimeSpan (long v) => new TimeSpan(v))));
+                new ValueConverter<TimeSpan, long>(long (TimeSpan v) => v.Ticks, TimeSpan (long v) => new TimeSpan(v), default(ConverterMappingHints))));
         timeSpanToTicksConverterProperty.SetSentinelFromProviderValue(0L);
 
         var uInt16 = runtimeEntityType.AddProperty(
@@ -15018,14 +14128,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<Uri, string>(
-                string (Uri v) => ((object)v).ToString(),
-                Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)),
+            converter: new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Uri, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<Uri, string>(
-                    string (Uri v) => ((object)v).ToString(),
-                    Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute))));
+                new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints))));
 
         var uriArray = runtimeEntityType.AddProperty(
             "UriArray",
@@ -15074,15 +14180,11 @@ public partial class ManyTypesEntityType
             converter: new CollectionToJsonStringConverter<Uri>(new JsonCollectionOfReferencesReaderWriter<Uri[], Uri>(
                 new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<Uri, string>(
-                        string (Uri v) => ((object)v).ToString(),
-                        Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute))))),
+                    new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints))))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<Uri[], Uri>(
                 new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<Uri, string>(
-                        string (Uri v) => ((object)v).ToString(),
-                        Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))),
+                    new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)))),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
                     bool (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -15096,14 +14198,10 @@ public partial class ManyTypesEntityType
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
-                converter: new ValueConverter<Uri, string>(
-                    string (Uri v) => ((object)v).ToString(),
-                    Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)),
+                converter: new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<Uri, string>(
-                        string (Uri v) => ((object)v).ToString(),
-                        Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))));
+                    new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)))));
         var uriArrayElementType = uriArray.SetElementType(typeof(Uri));
         uriArrayElementType.TypeMapping = uriArray.TypeMapping.ElementTypeMapping;
 
@@ -15152,14 +14250,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<Uri, string>(
-                string (Uri v) => ((object)v).ToString(),
-                Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)),
+            converter: new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Uri, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<Uri, string>(
-                    string (Uri v) => ((object)v).ToString(),
-                    Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute))));
+                new ValueConverter<Uri, string>(string (Uri v) => ((object)v).ToString(), Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute), default(ConverterMappingHints))));
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

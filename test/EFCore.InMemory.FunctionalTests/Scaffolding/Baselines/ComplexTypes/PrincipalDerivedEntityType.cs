@@ -407,15 +407,11 @@ public partial class PrincipalDerivedEntityType
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v))))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -429,14 +425,10 @@ public partial class PrincipalDerivedEntityType
                         bool (string v1, string v2) => v1 == v2,
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
-                    converter: new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)),
+                    converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))));
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
             var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
             refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -688,15 +680,11 @@ public partial class PrincipalDerivedEntityType
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v))))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -710,14 +698,10 @@ public partial class PrincipalDerivedEntityType
                         bool (string v1, string v2) => v1 == v2,
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
-                    converter: new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)),
+                    converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))));
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
             var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
             refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
@@ -1652,15 +1636,11 @@ public partial class PrincipalDerivedEntityType
                     converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v))))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
                     elementMapping: InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<IPAddress>(
                             bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -1674,14 +1654,10 @@ public partial class PrincipalDerivedEntityType
                             bool (string v1, string v2) => v1 == v2,
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
-                        converter: new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)),
+                        converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))));
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
                 var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
                 refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -1939,15 +1915,11 @@ public partial class PrincipalDerivedEntityType
                     converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v))))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null)))))),
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))),
                     elementMapping: InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<IPAddress>(
                             bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -1961,14 +1933,10 @@ public partial class PrincipalDerivedEntityType
                             bool (string v1, string v2) => v1 == v2,
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
-                        converter: new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)),
+                        converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))));
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v), new ConverterMappingHints(45, (int? )(null), (int? )(null), (bool? )(null))))));
                 var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
                 refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 

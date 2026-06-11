@@ -189,20 +189,40 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
         typeof(ConverterMappingHints)
     ])!;
 
+    private readonly ConstructorInfo _constructorInfoWithConvertsNulls = typeof(ValueConverter<TModel, TProvider>).GetConstructor(
+    [
+        typeof(Expression<Func<TModel, TProvider>>),
+        typeof(Expression<Func<TProvider, TModel>>),
+        typeof(bool),
+        typeof(ConverterMappingHints)
+    ])!;
+
     /// <inheritdoc />
     public override Expression ConstructorExpression
-        => Expression.New(
-            _constructorInfo,
-            ConvertToProviderExpression,
-            ConvertFromProviderExpression,
-            MappingHints != null
-                ? Expression.New(
+    {
+        get
+        {
+            var mappingHintsExpression = MappingHints != null
+                ? (Expression)Expression.New(
                     MappingHintsCtor,
                     Expression.Constant(MappingHints.Size, typeof(int?)),
                     Expression.Constant(MappingHints.Precision, typeof(int?)),
                     Expression.Constant(MappingHints.Scale, typeof(int?)),
-                    Expression.Constant(MappingHints.IsUnicode, typeof(bool?)),
-                    // valueGeneratorFactory is difficult to build using Expression trees and is obsolete
-                    Expression.Default(typeof(Func<IProperty, IEntityType, ValueGenerator>)))
-                : Expression.Default(typeof(ConverterMappingHints)));
+                    Expression.Constant(MappingHints.IsUnicode, typeof(bool?)))
+                : Expression.Default(typeof(ConverterMappingHints));
+
+            return ConvertsNulls
+                ? Expression.New(
+                    _constructorInfoWithConvertsNulls,
+                    ConvertToProviderExpression,
+                    ConvertFromProviderExpression,
+                    Expression.Constant(true),
+                    mappingHintsExpression)
+                : Expression.New(
+                    _constructorInfo,
+                    ConvertToProviderExpression,
+                    ConvertFromProviderExpression,
+                    mappingHintsExpression);
+        }
+    }
 }
