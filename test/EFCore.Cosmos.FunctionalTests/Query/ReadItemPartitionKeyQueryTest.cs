@@ -87,7 +87,7 @@ FROM root c
         AssertSql("""ReadItem(["PK1a"], PK1a)""");
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key()
     {
         CosmosTestEnvironment.SkipOnLinuxEmulator();
@@ -117,7 +117,7 @@ WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND c["PartitionKey3"])
     }
 
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
     {
         CosmosTestEnvironment.SkipOnLinuxEmulator();
@@ -209,7 +209,7 @@ FROM root c
 """);
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/290 (Partial hierarchical partition key queries return too many results)
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
     {
         CosmosTestEnvironment.SkipOnLinuxEmulator();
