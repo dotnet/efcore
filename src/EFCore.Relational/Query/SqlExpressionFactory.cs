@@ -873,7 +873,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                         return left;
                     // a == b ? null : a -> NULLIF(a, b)
                     case SqlConstantExpression { Value: null }:
-                        return Function("NULLIF", [left, right], nullable: true, [true, false], left.Type, left.TypeMapping);
+                        return Function("NULLIF", [left, right], nullable: true, Statics.TrueFalse, left.Type, left.TypeMapping);
                 }
             }
 
@@ -887,7 +887,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                         return right;
                     // a == b ? null : b -> NULLIF(b, a)
                     case SqlConstantExpression { Value: null }:
-                        return Function("NULLIF", [right, left], nullable: true, [true, false], right.Type, right.TypeMapping);
+                        return Function("NULLIF", [right, left], nullable: true, Statics.TrueFalse, right.Type, right.TypeMapping);
                 }
             }
         }
