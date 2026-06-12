@@ -80,6 +80,26 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
     }
 
     [Fact]
+    public virtual void AddColumnOperation_mistyped_default_legacy()
+    {
+        Generate(
+            new AddColumnOperation
+            {
+                Table = "People",
+                Name = "Id",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                DefaultValue = "",
+                IsNullable = false
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [People] ADD [Id] int NOT NULL DEFAULT N'';
+""");
+    }
+
+    [Fact]
     public virtual void AddColumnOperation_identity_legacy()
     {
         Generate(
