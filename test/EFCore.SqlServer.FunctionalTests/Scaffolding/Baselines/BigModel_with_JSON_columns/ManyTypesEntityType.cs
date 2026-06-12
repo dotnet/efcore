@@ -6907,13 +6907,11 @@ public partial class ManyTypesEntityType
                 storeTypeName: "nvarchar(max)",
                 unicode: true,
                 dbType: System.Data.DbType.String),
-            converter: new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))),
-                convertsNulls: true),
+            converter: new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))), true),
             storeTypePostfix: StoreTypePostfix.None,
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int?, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))),
-                    convertsNulls: true)));
+                new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))), true)));
         nullIntToNullStringConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var nullableBool = runtimeEntityType.AddProperty(

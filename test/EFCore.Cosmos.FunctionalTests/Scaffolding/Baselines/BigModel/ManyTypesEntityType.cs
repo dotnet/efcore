@@ -4261,16 +4261,10 @@ public partial class ManyTypesEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<int?, string>(
-                string (int? v) => (v == null ? null : ((object)v).ToString()),
-                int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))),
-                convertsNulls: true),
+            converter: new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))), true),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int?, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<int?, string>(
-                    string (int? v) => (v == null ? null : ((object)v).ToString()),
-                    int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))),
-                    convertsNulls: true)));
+                new ValueConverter<int?, string>(string (int? v) => (v == null ? null : ((object)v).ToString()), int? (string v) => (v == null || v == "<null>" ? null : ((int? )(int.Parse(v)))), true)));
 
         var nullableBool = runtimeEntityType.AddProperty(
             "NullableBool",
