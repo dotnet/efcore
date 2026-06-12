@@ -4758,6 +4758,9 @@
           "Member": "static string UnhandledNavigationBase(object? type);"
         },
         {
+          "Member": "static string UnionTypeNotSupported(object? type);"
+        },
+        {
           "Member": "static string UnknownEntity(object? entity);"
         },
         {
