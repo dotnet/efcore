@@ -75,4 +75,169 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
     }
 
     #endregion
+
+    #region ConditionalProjection
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextConditionalProjection>(
+            seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Users
+            .Select(x => new
+            {
+                x.Id,
+                Job = x.Job == null ? null : new
+                {
+                    x.Job.Id,
+                    Address = new
+                    {
+                        x.Job.Address.Id,
+                        x.Job.Address.Street
+                    }
+                }
+            })
+            .Select(x => new
+            {
+                x.Id,
+                Job = x.Job == null ? null : new
+                {
+                    x.Job.Id
+                }
+            })
+            .Where(x => x.Id == 1);
+
+        var result = async ? await query.FirstOrDefaultAsync() : query.FirstOrDefault();
+
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Id);
+        Assert.NotNull(result.Job);
+        Assert.Equal(1, result.Job!.Id);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Consecutive_selects_with_conditional_projection_null_navigation_returns_null(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextConditionalProjection>(
+            seed: c => c.SeedUserWithNoJobAsync());
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Users
+            .Where(x => x.JobId == null)
+            .Select(x => new
+            {
+                x.Id,
+                Job = x.Job == null ? null : new
+                {
+                    x.Job.Id,
+                    Address = new
+                    {
+                        x.Job.Address.Id,
+                        x.Job.Address.Street
+                    }
+                }
+            })
+            .Select(x => new
+            {
+                x.Id,
+                Job = x.Job == null ? null : new
+                {
+                    x.Job.Id
+                }
+            });
+
+        var result = async ? await query.FirstOrDefaultAsync() : query.FirstOrDefault();
+
+        Assert.NotNull(result);
+        Assert.Null(result.Job);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextConditionalProjection>(
+            seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Users
+            .Select(x => new
+            {
+                x.Id,
+                Job = x.Job == null ? null : new
+                {
+                    x.Job.Id,
+                    Address = new
+                    {
+                        x.Job.Address.Id,
+                        x.Job.Address.Street
+                    }
+                }
+            })
+            .Select(x => new
+            {
+                x.Id,
+                Job = x.Job == null ? null : new
+                {
+                    x.Job.Id,
+                    AddressId = x.Job.Address.Id
+                }
+            })
+            .Where(x => x.Id == 1);
+
+        var result = async ? await query.FirstOrDefaultAsync() : query.FirstOrDefault();
+
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Id);
+        Assert.NotNull(result.Job);
+        Assert.Equal(1, result.Job.AddressId);
+    }
+
+    protected class ContextConditionalProjection(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<User> Users { get; set; }
+
+        public async Task SeedAsync()
+        {
+            var address = new Address { Street = "123 Main St" };
+            var job = new Job { Address = address };
+            var user = new User { Job = job };
+
+            Add(user);
+            await SaveChangesAsync();
+        }
+
+        public async Task SeedUserWithNoJobAsync()
+        {
+            var user = new User();
+            Add(user);
+            await SaveChangesAsync();
+        }
+
+        public class User
+        {
+            public long Id { get; set; }
+            public long? JobId { get; set; }
+            public Job Job { get; set; }
+        }
+
+        public class Job
+        {
+            public long Id { get; set; }
+            public long AddressId { get; set; }
+            public Address Address { get; set; }
+        }
+
+        public class Address
+        {
+            public long Id { get; set; }
+            public string Street { get; set; }
+        }
+    }
+
+    #endregion
 }

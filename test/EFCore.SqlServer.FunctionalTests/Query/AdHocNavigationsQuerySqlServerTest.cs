@@ -429,6 +429,55 @@ ORDER BY [o0].[Id], [s0].[Id], [s0].[Id0]
 """);
     }
 
+    public override async Task Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [u].[Id], CASE
+    WHEN [j].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [j].[Id]
+FROM [Users] AS [u]
+LEFT JOIN [Job] AS [j] ON [u].[JobId] = [j].[Id]
+WHERE [u].[Id] = CAST(1 AS bigint)
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_null_navigation_returns_null(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_null_navigation_returns_null(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [u].[Id], CASE
+    WHEN [j].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [j].[Id]
+FROM [Users] AS [u]
+LEFT JOIN [Job] AS [j] ON [u].[JobId] = [j].[Id]
+WHERE [u].[JobId] IS NULL
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [u].[Id], CASE
+    WHEN [j].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [j].[Id], [a].[Id]
+FROM [Users] AS [u]
+LEFT JOIN [Job] AS [j] ON [u].[JobId] = [j].[Id]
+LEFT JOIN [Address] AS [a] ON [j].[AddressId] = [a].[Id]
+WHERE [u].[Id] = CAST(1 AS bigint)
+""");
+    }
+
     public override async Task Using_explicit_interface_implementation_as_navigation_works()
     {
         await base.Using_explicit_interface_implementation_as_navigation_works();
