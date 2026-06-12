@@ -1082,6 +1082,24 @@ public partial class NavigationExpandingExpressionVisitor
 
     private sealed class NavigationTreeMemberPruningVisitor : ExpressionVisitor
     {
+        private readonly Stack<Expression> _knownFalseTests = new();
+
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            if (node.IfTrue is ConstantExpression { Value: null })
+            {
+                var test = Visit(node.Test);
+
+                _knownFalseTests.Push(test);
+                var ifFalse = Visit(node.IfFalse);
+                _knownFalseTests.Pop();
+
+                return node.Update(test, node.IfTrue, ifFalse);
+            }
+
+            return base.VisitConditional(node);
+        }
+
         protected override Expression VisitMember(MemberExpression node)
         {
             var innerExpression = Visit(node.Expression);
@@ -1097,14 +1115,17 @@ public partial class NavigationExpandingExpressionVisitor
                 }
             }
 
-            // The member access always appears inside the IfFalse branch of an outer null check in the
-            // source query, so the conditional wrapper is guaranteed false at this point and can be dropped.
             if (innerExpression is ConditionalExpression { IfTrue: ConstantExpression { Value: null } } conditional
                 && node.Member.DeclaringType!.IsAssignableFrom(conditional.IfFalse.Type))
             {
-                return VisitMember(Expression.MakeMemberAccess(conditional.IfFalse, node.Member));
+                foreach (var knownFalseTest in _knownFalseTests)
+                {
+                    if (ExpressionEqualityComparer.Instance.Equals(knownFalseTest, conditional.Test))
+                    {
+                        return VisitMember(Expression.MakeMemberAccess(conditional.IfFalse, node.Member));
+                    }
+                }
             }
-
             return node.Update(innerExpression);
         }
 
