@@ -5,14 +5,14 @@ namespace Microsoft.EntityFrameworkCore.Design;
 
 public class MethodCallCodeFragmentTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Ctor_throw_when_too_many_parameters_extension()
     {
         _ = new MethodCallCodeFragment(_extensionFuncMethodInfo, 1);
         Assert.Throws<ArgumentException>(() => new MethodCallCodeFragment(_extensionFuncMethodInfo, 1, 2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Ctor_throw_when_too_many_parameters_instance()
     {
         _ = new MethodCallCodeFragment(_instanceFuncMethodInfo, 1);

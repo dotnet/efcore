@@ -3,6 +3,7 @@
 
 /azure-pipelines.yml                    @AndriySvyryd @wtgodbe
 /azure-pipelines-public.yml             @AndriySvyryd @wtgodbe
+/azure-pipelines-internal-tests.yml     @AndriySvyryd @wtgodbe
 /github-merge-flow.jsonc                @AndriySvyryd @wtgodbe
 /global.json                            @AndriySvyryd @wtgodbe
 /NuGet.config                           @AndriySvyryd @wtgodbe
@@ -10,3 +11,4 @@
 /.github/                               @dotnet/efteam @wtgodbe
 /eng/                                   @AndriySvyryd @wtgodbe
 /src/                                   @dotnet/efteam
+/test/                                  @dotnet/efteam

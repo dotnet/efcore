@@ -85,6 +85,14 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
     public override Task Can_insert_when_int_PK_in_composite_key_has_sentinel_value(bool async, int initialValue)
         => Task.CompletedTask;
 
+    // Entities not configured in this fixture's OnModelCreating
+    public override Task ClientSetDefault_with_sentinel_value_sets_FK_to_sentinel_on_delete(bool async)
+        => Task.CompletedTask;
+
+    // Entities not configured in this fixture's OnModelCreating
+    public override Task SetDefault_with_default_value_sets_FK_to_default_on_delete(bool async)
+        => Task.CompletedTask;
+
     // No owned types
     public override Task Can_insert_when_nullable_bool_PK_in_composite_key_has_sentinel_value(bool async, bool? initialValue)
         => Task.CompletedTask;
@@ -95,6 +103,10 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
 
     // No owned types
     public override Task Throws_for_single_property_nullable_bool_key_with_default_value_generation(bool async, bool? initialValue)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Can_update_many_to_many_and_reference_with_composite_key(bool async)
         => Task.CompletedTask;
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

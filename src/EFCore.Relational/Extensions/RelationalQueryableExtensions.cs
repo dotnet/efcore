@@ -39,14 +39,9 @@ public static class RelationalQueryableExtensions
     /// <param name="source">The query source.</param>
     /// <returns>The query string for debugging.</returns>
     public static DbCommand CreateDbCommand(this IQueryable source)
-    {
-        if (source.Provider.Execute<IEnumerable>(source.Expression) is IRelationalQueryingEnumerable queryingEnumerable)
-        {
-            return queryingEnumerable.CreateDbCommand();
-        }
-
-        throw new NotSupportedException(RelationalStrings.NoDbCommand);
-    }
+        => source.Provider.Execute<IEnumerable>(source.Expression) is IRelationalQueryingEnumerable queryingEnumerable
+            ? queryingEnumerable.CreateDbCommand()
+            : throw new NotSupportedException(RelationalStrings.NoDbCommand);
 
     #region FromSql
 
@@ -126,6 +121,7 @@ public static class RelationalQueryableExtensions
     /// </param>
     /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
     /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
+    [Obsolete("Use FromSql() instead. This method is obsolete and will be removed in a future release.")]
     public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
         this DbSet<TEntity> source,
         [NotParameterized] FormattableString sql)
@@ -233,11 +229,10 @@ public static class RelationalQueryableExtensions
         where TEntity : class
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<TEntity>(
-                Expression.Call(AsSingleQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
+                Expression.Call(
+                    method: new Func<IQueryable<TEntity>, IQueryable<TEntity>>(AsSingleQuery).Method,
+                    source.Expression))
             : source;
-
-    internal static readonly MethodInfo AsSingleQueryMethodInfo
-        = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSingleQuery))!;
 
     /// <summary>
     ///     Returns a new query which is configured to load the collections in the query results through separate database queries.
@@ -265,11 +260,10 @@ public static class RelationalQueryableExtensions
         where TEntity : class
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<TEntity>(
-                Expression.Call(AsSplitQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
+                Expression.Call(
+                    new Func<IQueryable<TEntity>, IQueryable<TEntity>>(AsSplitQuery).Method,
+                    source.Expression))
             : source;
-
-    internal static readonly MethodInfo AsSplitQueryMethodInfo
-        = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery))!;
 
     #endregion
 }

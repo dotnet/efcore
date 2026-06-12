@@ -166,7 +166,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 
     #endregion Compare
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

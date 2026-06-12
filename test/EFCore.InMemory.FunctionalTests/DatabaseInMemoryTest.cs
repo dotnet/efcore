@@ -7,14 +7,14 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DatabaseInMemoryTest
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task CanConnect_returns_true(bool async)
     {
         using var context = new SimpleContext();
         Assert.True(async ? await context.Database.CanConnectAsync() : context.Database.CanConnect());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_update_delete_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -96,7 +96,7 @@ public class DatabaseInMemoryTest
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Customer>();
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_share_instance_between_contexts_with_sugar_experience()
     {
         using (var db = new SimpleContext())

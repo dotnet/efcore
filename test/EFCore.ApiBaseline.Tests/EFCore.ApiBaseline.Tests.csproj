@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <AssemblyName>Microsoft.EntityFrameworkCore.ApiBaseline.Tests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <ImplicitUsings>true</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\ModuleInitializer.cs" Link="ModuleInitializer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\eng\Tools\ApiChief\ApiChief.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Abstractions\EFCore.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Cosmos\EFCore.Cosmos.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.Abstractions\EFCore.SqlServer.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.HierarchyId\EFCore.SqlServer.HierarchyId.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
+  </ItemGroup>
+
+</Project>

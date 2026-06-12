@@ -54,7 +54,7 @@ public class RelationalScaffoldingModelFactoryTest
         _reporter.Clear();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Loads_HierarchyId_columns()
     {
         var info = new DatabaseModel

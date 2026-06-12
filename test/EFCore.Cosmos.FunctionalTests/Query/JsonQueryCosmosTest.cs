@@ -1,11 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
@@ -199,7 +197,7 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Custom_naming_projection_everything(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -278,35 +276,35 @@ WHERE (c["Discriminator"] = "CustomNaming")
             message);
     }
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_FirstOrDefault_on_json_scalar(bool async)
         => base.Group_by_FirstOrDefault_on_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_First_on_json_scalar(bool async)
         => base.Group_by_First_on_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(bool async)
         => base.Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_json_scalar_Skip_First_project_json_scalar(bool async)
         => base.Group_by_json_scalar_Skip_First_project_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_on_json_scalar(bool async)
         => base.Group_by_on_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_on_json_scalar_using_collection_indexer(bool async)
         => base.Group_by_on_json_scalar_using_collection_indexer(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_Skip_Take_on_json_scalar(bool async)
         => base.Group_by_Skip_Take_on_json_scalar(async);
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_all_types_entity_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -321,7 +319,7 @@ WHERE (c["Discriminator"] = "AllTypes")
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_all_types_projection_from_owned_entity_reference(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -351,7 +349,7 @@ WHERE (c["Discriminator"] = "AllTypes")
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_boolean_predicate(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -411,7 +409,7 @@ WHERE (c["Discriminator"] = "AllTypes")
     public override Task Json_branch_collection_distinct_and_other_collection(bool async)
         => AssertTranslationFailed(() => base.Json_branch_collection_distinct_and_other_collection(async));
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -421,7 +419,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -431,7 +429,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -441,7 +439,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -483,7 +481,7 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
     public override Task Json_collection_distinct_in_projection(bool async)
         => AssertTranslationFailed(() => base.Json_collection_distinct_in_projection(async));
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAtOrDefault_in_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -493,7 +491,7 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAtOrDefault_project_collection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -535,7 +533,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAt_in_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -545,7 +543,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAt_project_collection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -619,7 +617,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_basic(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -674,7 +672,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_project_collection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -684,7 +682,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_column(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -694,7 +692,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -704,7 +702,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -714,7 +712,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -724,7 +722,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -734,7 +732,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -744,7 +742,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
         => base.Json_collection_index_in_projection_using_untranslatable_client_method(async);
 
@@ -762,7 +760,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_collection_index_in_projection_when_owner_is_not_present_misc2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -790,7 +788,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_collection_index_in_projection_when_owner_is_present_misc2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -809,7 +807,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_outside_bounds(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -819,7 +817,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_collection_index_outside_bounds2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -851,7 +849,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34004")] // anonymous projection
+    [Theory(Skip = "issue #34004")] // anonymous projection
     public override Task Json_collection_in_projection_with_anonymous_projection_of_scalars(bool async)
         => base.Json_collection_in_projection_with_anonymous_projection_of_scalars(async);
 
@@ -870,31 +868,16 @@ ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34004")] // anonymous projection
+    [Theory(Skip = "issue #34004")] // anonymous projection
     public override Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(bool async)
         => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(async);
 
-    [ConditionalTheory(Skip = "issue #34004")] // anonymous projection
+    [Theory(Skip = "issue #34004")] // anonymous projection
     public override Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(bool async)
         => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(async);
 
     public override Task Json_collection_leaf_filter_in_projection(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_collection_leaf_filter_in_projection(a);
-
-                AssertSql(
-                    """
-SELECT VALUE ARRAY(
-    SELECT VALUE o
-    FROM o IN c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
-    WHERE (o["SomethingSomething"] != "Baz"))
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-ORDER BY c["Id"]
-""");
-            });
+        => AssertTranslationFailed(() => base.Json_collection_leaf_filter_in_projection(async));
 
     public override Task Json_collection_of_primitives_contains_in_predicate(bool async)
         => Fixture.NoSyncTest(
@@ -939,7 +922,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] =
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34026")] //enums property is ignored
+    [Theory(Skip = "issue #34026")] //enums property is ignored
     public override Task Json_collection_of_primitives_index_used_in_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -975,7 +958,7 @@ WHERE (c["Discriminator"] = "Basic")
             () => base.Json_collection_OrderByDescending_Skip_ElementAt(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries + Environment.NewLine + CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_Select_entity_collection_ElementAt(bool async)
         => base.Json_collection_Select_entity_collection_ElementAt(async);
 
@@ -1097,7 +1080,7 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_entity_with_inheritance_project_navigations(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1107,7 +1090,7 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_entity_with_inheritance_project_navigations_on_derived(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1218,7 +1201,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_byte(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1233,7 +1216,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_byte_array(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1248,7 +1231,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] !=
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_character(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1263,7 +1246,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] !=
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_dateonly(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1278,7 +1261,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_datetime(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1293,7 +1276,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_datetimeoffset(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1308,7 +1291,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_decimal(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1323,7 +1306,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_default_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1338,7 +1321,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_double(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1353,7 +1336,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_enum(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1368,7 +1351,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_enumwithintconverter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1383,7 +1366,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntCon
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_guid(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1398,7 +1381,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "000
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_int16(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1413,7 +1396,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_int32(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1428,7 +1411,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33)
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_int64(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1457,7 +1440,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConver
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_max_length_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1472,7 +1455,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthStrin
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenum1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1487,7 +1470,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenum2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1502,7 +1485,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenumwithconverter1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1517,7 +1500,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenumwithconverter2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1532,7 +1515,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenumwithconverterthathandlesnulls1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1556,7 +1539,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                 AssertSql("");
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableint321(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1571,7 +1554,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableint322(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1586,7 +1569,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_signedbyte(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1601,7 +1584,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] !
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_single(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1616,7 +1599,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_string_condition(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1659,7 +1642,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConverte
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_timeonly(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1674,7 +1657,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_timespan(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1689,7 +1672,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_unisgnedint16(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1704,7 +1687,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_unsignedint32(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1719,7 +1702,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_unsignedint64(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1852,7 +1835,7 @@ WHERE (c["Discriminator"] = "Basic")
             () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
         bool async)
         => Fixture.NoSyncTest(
@@ -2105,7 +2088,7 @@ WHERE (c["Discriminator"] = "SingleOwned")
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override async Task Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(()

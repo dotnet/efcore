@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Class_with_HierarchyId_key_is_generated()
         => Test(
             modelBuilder =>
@@ -45,7 +45,7 @@ public partial class Patriarch
                     code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs"));
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Class_with_HierarchyId_property_is_generated()
         => Test(
             modelBuilder =>
@@ -85,7 +85,7 @@ public partial class Patriarch
                     code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs"));
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Class_with_multiple_HierarchyId_properties_are_generated()
         => Test(
             modelBuilder =>

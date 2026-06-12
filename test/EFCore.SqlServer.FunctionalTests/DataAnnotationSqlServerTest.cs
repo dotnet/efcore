@@ -24,7 +24,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_key_string_column_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -41,7 +41,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_key_which_is_also_an_fk_column_does_not_throw()
     {
         var modelBuilder = CreateModelBuilder();
@@ -56,7 +56,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_part_of_composite_key_does_not_throw()
     {
         var modelBuilder = CreateModelBuilder();
@@ -70,7 +70,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_all_parts_of_composite_key_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -169,7 +169,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         return model;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ColumnAttribute_configures_the_property_correctly()
     {
         var modelBuilder = CreateModelBuilder();

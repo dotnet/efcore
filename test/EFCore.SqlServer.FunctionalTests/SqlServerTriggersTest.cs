@@ -13,7 +13,7 @@ public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixtur
 {
     private SqlServerTriggersFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_run_on_insert_update_and_delete()
     {
         using var context = CreateContext();
@@ -39,7 +39,7 @@ public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixtur
         Assert.Empty(context.ProductBackups);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_work_with_batch_operations()
     {
         using var context = CreateContext();

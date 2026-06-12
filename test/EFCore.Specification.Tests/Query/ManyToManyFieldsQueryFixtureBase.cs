@@ -7,17 +7,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<ManyToManyContext>, IQueryFixtureBase
+public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyToManyContext>
 {
     protected override string StoreName
         => "ManyToManyQueryTest";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
     private ManyToManyData _data;
 
-    public ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
     {
         if (_data == null)
         {
@@ -30,7 +27,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
         return _data;
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(EntityOne), e => ((EntityOne)e)?.Id },
         { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
@@ -41,7 +38,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
         { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(EntityOne), (e, a) =>

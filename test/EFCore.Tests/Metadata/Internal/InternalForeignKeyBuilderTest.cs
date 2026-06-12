@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalForeignKeyBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Facets_are_configured_with_the_specified_source()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -83,7 +83,7 @@ public class InternalForeignKeyBuilderTest
                 ConfigurationSource.DataAnnotation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Existing_facets_are_configured_explicitly()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -119,7 +119,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetDeleteBehaviorConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Read_only_facets_are_configured_explicitly_by_default()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -143,7 +143,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalEndConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_returns_same_instance_for_same_properties()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -163,7 +163,7 @@ public class InternalForeignKeyBuilderTest
                 .HasPrincipalKey(relationshipBuilder.Metadata.PrincipalKey.Properties, ConfigurationSource.Convention));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_uses_same_relationship_if_conflicting_properties_configured_with_lower_source()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -183,7 +183,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Single(orderEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_can_be_set_independently_from_requiredness()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -207,7 +207,7 @@ public class InternalForeignKeyBuilderTest
             relationshipBuilder.Metadata.Properties.Select(p => p.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_overrides_incompatible_lower_or_equal_source_principal_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -243,7 +243,7 @@ public class InternalForeignKeyBuilderTest
             relationshipBuilder.Metadata.Properties.Select(p => p.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_non_shadow()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -261,7 +261,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_creates_shadow_properties_if_principal_entity_has_no_PK()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -283,7 +283,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(2, relationshipBuilder.Metadata.PrincipalKey.Properties.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_shadow()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -298,7 +298,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrincipalKey_does_not_return_same_instance_for_same_properties()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -318,7 +318,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(2, customerEntityBuilder.Metadata.GetForeignKeys().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrincipalKey_overrides_incompatible_lower_or_equal_source_dependent_properties()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -353,7 +353,7 @@ public class InternalForeignKeyBuilderTest
             relationshipBuilder.Metadata.Properties.Select(p => p.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_Unique()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -373,7 +373,7 @@ public class InternalForeignKeyBuilderTest
         Assert.False(relationshipBuilder.Metadata.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_Unique_value_explicitly()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -416,7 +416,7 @@ public class InternalForeignKeyBuilderTest
         Assert.False(((IReadOnlyForeignKey)relationshipBuilder.Metadata).IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_overrides_incompatible_lower_or_equal_source_principalToDependent()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -441,7 +441,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Null(relationshipBuilder.Metadata.PrincipalToDependent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_Required()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -461,7 +461,7 @@ public class InternalForeignKeyBuilderTest
         Assert.False(relationshipBuilder.Metadata.IsRequired);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_Required_independently_from_nullability()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -500,7 +500,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Same(customerUniqueProperty, fk.Properties[1]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_Required_false_on_non_nullable_properties()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -533,7 +533,7 @@ public class InternalForeignKeyBuilderTest
             relationshipBuilder.Metadata.Properties.Select(p => p.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_RequiredDependent()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -554,7 +554,7 @@ public class InternalForeignKeyBuilderTest
         Assert.False(relationshipBuilder.Metadata.IsRequiredDependent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsRequiredDependent_throws_when_ambiguous()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -573,7 +573,7 @@ public class InternalForeignKeyBuilderTest
                 relationshipBuilder.IsRequiredDependent(true, ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_Ownership()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -594,7 +594,7 @@ public class InternalForeignKeyBuilderTest
         Assert.False(relationshipBuilder.Metadata.IsOwnership);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasRelationship_throws_when_incompatible_navigations()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -612,7 +612,7 @@ public class InternalForeignKeyBuilderTest
                     setTargetAsPrincipal: true)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_invert_lower_or_equal_source()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -678,7 +678,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_invert_one_to_many()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -698,7 +698,30 @@ public class InternalForeignKeyBuilderTest
         Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.PrincipalEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void IsConstrained_is_preserved_when_relationship_is_inverted()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        var relationshipBuilder = orderEntityBuilder
+            .HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.Convention)
+            .IsConstrained(false, ConfigurationSource.Explicit);
+
+        Assert.False(relationshipBuilder.Metadata.IsConstrained);
+
+        // Inverting routes through ReplaceForeignKey, which builds a brand-new ForeignKey. IsConstrained
+        // is a property of the relationship (not of an end), so it must be carried onto the new one.
+        relationshipBuilder = relationshipBuilder.HasEntityTypes(
+            relationshipBuilder.Metadata.DeclaringEntityType,
+            relationshipBuilder.Metadata.PrincipalEntityType,
+            ConfigurationSource.Convention);
+
+        Assert.False(relationshipBuilder.Metadata.IsConstrained);
+    }
+
+    [Fact]
     public void Inverting_to_keyless_throws()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -721,7 +744,7 @@ public class InternalForeignKeyBuilderTest
                     ConfigurationSource.DataAnnotation)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_lift_self_referencing_relationships()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -744,7 +767,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(nameof(SpecialOrder.SpecialOrder), relationshipBuilder.Metadata.PrincipalToDependent.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_navigations_to_higher_source_foreign_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -768,7 +791,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Same(relationship.Metadata, principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name).ForeignKey);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_conflicting_navigations_explicitly()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -812,7 +835,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Equal(Order.CustomerProperty.Name, newForeignKeyBuilder.Metadata.DependentToPrincipal.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_override_lower_or_equal_source_conflicting_navigation()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -875,7 +898,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Same(newForeignKeyBuilder.Metadata, dependentEntityBuilder.Metadata.GetForeignKeys().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_to_principal_uses_same_relationship_if_conflicting_navigation_configured_with_lower_source()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -900,7 +923,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Empty(orderEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_to_principal_does_not_change_uniqueness_for_relationship()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -922,7 +945,7 @@ public class InternalForeignKeyBuilderTest
         Assert.False(foreignKeyBuilder.Metadata.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_to_dependent_uses_same_relationship_if_conflicting_navigation_configured_with_lower_source()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -945,7 +968,7 @@ public class InternalForeignKeyBuilderTest
         Assert.Single(orderEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_to_dependent_changes_uniqueness_for_relationship_of_lower_or_equal_source()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -987,7 +1010,7 @@ public class InternalForeignKeyBuilderTest
         Assert.False(foreignKeyBuilder.Metadata.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_to_dependent_does_not_change_uniqueness_for_relationship_of_higher_source()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -1015,6 +1038,28 @@ public class InternalForeignKeyBuilderTest
             pointsToPrincipal: false,
             ConfigurationSource.Convention);
         Assert.Equal("Orders", foreignKeyBuilder.Metadata.PrincipalToDependent.Name);
+    }
+
+    [Fact]
+    public void Can_set_IsConstrained_and_respects_configuration_source()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        principalEntityBuilder.PrimaryKey([Customer.IdProperty, Customer.UniqueProperty], ConfigurationSource.Convention);
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        var relationshipBuilder = dependentEntityBuilder.HasRelationship(
+            principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+
+        Assert.True(relationshipBuilder.Metadata.IsConstrained);
+
+        var result = relationshipBuilder.IsConstrained(false, ConfigurationSource.Convention);
+        Assert.NotNull(result);
+        Assert.False(result.Metadata.IsConstrained);
+
+        relationshipBuilder.IsConstrained(false, ConfigurationSource.Explicit);
+        Assert.Null(relationshipBuilder.IsConstrained(true, ConfigurationSource.Convention));
+        Assert.False(relationshipBuilder.Metadata.IsConstrained);
     }
 
     private InternalModelBuilder CreateInternalModelBuilder()
