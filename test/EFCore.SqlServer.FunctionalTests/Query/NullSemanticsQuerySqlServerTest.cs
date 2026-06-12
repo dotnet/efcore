@@ -2965,10 +2965,10 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
-    ELSE [e].[NullableStringB]
+    ELSE [e].[NullableStringC]
 END = [e].[NullableStringC] OR (CASE
     WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
-    ELSE [e].[NullableStringB]
+    ELSE [e].[NullableStringC]
 END IS NULL AND [e].[NullableStringC] IS NULL)
 """);
     }
@@ -2983,13 +2983,13 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE ([e].[NullableStringC] <> CASE
     WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
-    ELSE [e].[NullableStringB]
+    ELSE [e].[NullableStringC]
 END OR [e].[NullableStringC] IS NULL OR CASE
     WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
-    ELSE [e].[NullableStringB]
+    ELSE [e].[NullableStringC]
 END IS NULL) AND ([e].[NullableStringC] IS NOT NULL OR CASE
     WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
-    ELSE [e].[NullableStringB]
+    ELSE [e].[NullableStringC]
 END IS NOT NULL)
 """);
     }

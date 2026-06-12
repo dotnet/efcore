@@ -711,7 +711,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.NullableStringA == e.NullableStringB
                     ? e.NullableStringA
-                    : e.NullableStringB)
+                    : e.NullableStringC)
                 == e.NullableStringC).Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -721,7 +721,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringC
                 != (e.NullableStringA == e.NullableStringB
                     ? e.NullableStringA
-                    : e.NullableStringB)).Select(e => e.Id));
+                    : e.NullableStringC)).Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_equal_with_conditional_non_nullable(bool async)

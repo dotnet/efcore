@@ -669,10 +669,7 @@ LEFT JOIN (
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note], [t].[PeriodEnd], [t].[PeriodStart]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
-WHERE CASE
-    WHEN [g].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE [g].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -1510,10 +1507,7 @@ WHERE [c].[Location] = 'Unknown'
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note], [t].[PeriodEnd], [t].[PeriodStart]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
-WHERE CASE
-    WHEN [g].[HasSoulPatch] = CAST(0 AS bit) THEN CAST(0 AS bit)
-    ELSE [g].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -5078,9 +5072,7 @@ ORDER BY [f].[Id], [g0].[Nickname]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
-END
+SELECT [c].[Name]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 LEFT JOIN [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t0] ON ([g].[Nickname] = [t0].[GearNickName] OR ([g].[Nickname] IS NULL AND [t0].[GearNickName] IS NULL)) AND ([g].[SquadId] = [t0].[GearSquadId] OR ([g].[SquadId] IS NULL AND [t0].[GearSquadId] IS NULL))
@@ -6993,9 +6985,7 @@ WHERE [g].[Nickname] = [g0].[Nickname] AND [g].[SquadId] = [g0].[SquadId]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [f].[CommanderName] IS NOT NULL THEN [f].[CommanderName]
-END
+SELECT [f].[CommanderName]
 FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 """);
     }
