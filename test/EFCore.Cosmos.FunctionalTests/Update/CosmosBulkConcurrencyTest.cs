@@ -5,25 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class CosmosBulkConcurrencyTest(CosmosBulkConcurrencyTest.ConcurrencyFixture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<CosmosBulkConcurrencyTest.ConcurrencyFixture>
 {
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/319
-    public override async Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
-    {
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
-        await base.Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException();
-    }
-
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/319
-    public override async Task Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
-    {
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
-        await base.Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException();
-    }
-
     public class ConcurrencyFixture : CosmosConcurrencyTest.CosmosFixture
     {
-
         protected override string StoreName
             => nameof(CosmosBulkConcurrencyTest);
 

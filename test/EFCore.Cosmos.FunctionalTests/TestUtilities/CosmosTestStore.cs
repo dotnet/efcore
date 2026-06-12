@@ -134,11 +134,6 @@ public class CosmosTestStore : TestStore
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
-        if (CosmosTestEnvironment.IsLinuxEmulator)
-        {
-            result.AddInterceptors(LinuxEmulatorSaveChangesInterceptor.Instance);
-        }
-
         return result;
     }
 

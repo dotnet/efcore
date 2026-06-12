@@ -72,7 +72,7 @@ public static class CosmosTestEnvironment
             CosmosDbContainer container;
             try
             {
-                container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
+                container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest")
                     .Build();
                 await container.StartAsync().ConfigureAwait(false);
             }

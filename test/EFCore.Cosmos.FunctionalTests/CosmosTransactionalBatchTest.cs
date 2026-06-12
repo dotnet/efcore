@@ -14,8 +14,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
     protected CosmosFixture Fixture { get; } = fixture;
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    [Fact]
     public virtual async Task SaveChanges_fails_for_duplicate_key_in_same_partition_prevents_other_inserts_in_same_partition_even_if_staged_before_add()
     {
         using (var arrangeContext = Fixture.CreateContext())
@@ -107,8 +106,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         Assert.Equal(4, customersCount);
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    [Fact]
     public virtual async Task SaveChanges_transaction_behavior_always_fails_for_multiple_partitionkeys()
     {
         using var context = Fixture.CreateContext();
@@ -171,8 +169,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         Assert.Equal(100, customersCount);
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    [Fact]
     public virtual async Task SaveChanges_transaction_behavior_always_fails_for_multiple_entities_with_triggers()
     {
         using var context = Fixture.CreateContext();
@@ -189,7 +186,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         Assert.Equal(0, customersCount);
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/294
+    // Triggers are not supported in the Linux emulator
     [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task SaveChanges_transaction_behavior_always_succeeds_for_single_entity_with_trigger()
     {
@@ -233,8 +230,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         Assert.Equal(1, customersCount);
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    [Fact]
     public virtual async Task SaveChanges_transaction_behavior_always_fails_for_single_entity_with_trigger_and_entity_without_trigger()
     {
         using var context = Fixture.CreateContext();
@@ -283,7 +279,6 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         var customersCount = await assertContext.Customers.CountAsync();
         Assert.Equal(0, customersCount);
     }
-
 
     [Fact]
     public virtual async Task SaveChanges_too_large_entry_after_smaller_throws_after_saving_smaller()
@@ -366,7 +361,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     private const int MaxSpecialCharsInId = MaxKeySize / 3;
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/323
-    [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator)), InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_update_id_contains_special_chars_which_makes_request_larger_than_2_mib_splits_into_2_batches(bool isIdSpecialChar)
     {
         using var context = Fixture.CreateContext();
