@@ -648,7 +648,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT VALUE c["PersonAddress"]["AddressLine"]
+SELECT c["PersonAddress"]["AddressLine"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -792,7 +792,7 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c["PersonAddress"]["ZipCode"]
+SELECT c["PersonAddress"]["ZipCode"] AS Nation
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -806,7 +806,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT VALUE c["PersonAddress"]["ZipCode"]
+SELECT c["PersonAddress"]["ZipCode"] AS Nation
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -976,7 +976,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Pe
 
                 AssertSql(
                     """
-SELECT VALUE c["PersonAddress"]["AddressLine"]
+SELECT c["PersonAddress"]["AddressLine"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -1042,13 +1042,11 @@ OFFSET @p LIMIT @p1
             await CosmosTestHelpers.Instance.NoSyncTest(
                 async, async a =>
                 {
-                    await Assert.ThrowsAsync<NullReferenceException>(() => AssertQuery(
-                        async,
-                        ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })));
+                    await base.Non_nullable_property_through_optional_navigation(a);
 
                     AssertSql(
                         """
-SELECT VALUE c["Throned"]["Value"]
+SELECT c["Throned"]["Value"]
 FROM root c
 WHERE (c["Terminator"] = "Barton")
 """);

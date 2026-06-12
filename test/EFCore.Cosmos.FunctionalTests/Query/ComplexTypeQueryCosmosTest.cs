@@ -60,7 +60,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c["ShippingAddress"]["Country"]["FullName"]
+SELECT c["ShippingAddress"]["Country"]["FullName"]
 FROM root c
 """);
     });
@@ -239,7 +239,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c["ShippingAddress"]["Country"]["FullName"]
+SELECT c["ShippingAddress"]["Country"]["FullName"]
 FROM root c
 """);
     });

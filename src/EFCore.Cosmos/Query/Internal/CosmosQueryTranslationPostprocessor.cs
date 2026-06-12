@@ -27,7 +27,7 @@ public class CosmosQueryTranslationPostprocessor(
 
         if (query is ShapedQueryExpression { QueryExpression: SelectExpression selectExpression })
         {
-            selectExpression.ApplyProjection();
+            selectExpression.ApplyProjection(clientProjection: true);
         }
 
         var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);

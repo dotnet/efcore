@@ -191,7 +191,7 @@ WHERE (c["Discriminator"] = "Basic")
 
                 AssertSql(
                     """
-SELECT VALUE c["OwnedReferenceRoot"]["Name"]
+SELECT c["OwnedReferenceRoot"]["Name"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
@@ -245,7 +245,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
 
                 AssertSql(
                     """
-SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"]
+SELECT c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"]
 FROM root c
 WHERE (c["Discriminator"] = "CustomNaming")
 """);
@@ -386,7 +386,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
 
                 AssertSql(
                     """
-SELECT VALUE c["Reference"]["TestBoolean"]
+SELECT c["Reference"]["TestBoolean"]
 FROM root c
 WHERE (c["Discriminator"] = "AllTypes")
 """);
