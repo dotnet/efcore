@@ -128,10 +128,21 @@ WHERE ((c["FlagsEnum"] & 1) = 1)
 
     public override async Task Bitwise_and_integral_constant()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Bitwise_and_integral_constant());
+        await base.Bitwise_and_integral_constant();
 
         AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & 8) = 8)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & 8) = 8)
+""",
+            //
             """
 SELECT VALUE c
 FROM root c
