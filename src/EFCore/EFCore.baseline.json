@@ -24858,12 +24858,18 @@
       "Type": "class Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<TModel, TProvider> : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter",
       "Methods": [
         {
-          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? mappingHints = null);"
+          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression);"
+        },
+        {
+          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? mappingHints);"
         }
       ],
       "Properties": [
         {
           "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression ConstructorExpressionWithoutMappingHints { get; }"
         },
         {
           "Member": "override System.Func<object?, object?> ConvertFromProvider { get; }"

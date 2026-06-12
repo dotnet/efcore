@@ -309,15 +309,11 @@ public partial class IndexedDataEntityType
                 bool (float[] v1, float[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                 int (float[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                 float[] (float[] source) => source.ToArray()),
-            converter: new ValueConverter<ReadOnlyMemory<float>, float[]>(
-                float[] (ReadOnlyMemory<float> v) => ReadOnlyMemoryConverter<float>.ToArray(v),
-                ReadOnlyMemory<float> (float[] v) => ReadOnlyMemoryConverter<float>.ToMemory(v)),
+            converter: new ValueConverter<ReadOnlyMemory<float>, float[]>(float[] (ReadOnlyMemory<float> v) => ReadOnlyMemoryConverter<float>.ToArray(v), ReadOnlyMemory<float> (float[] v) => ReadOnlyMemoryConverter<float>.ToMemory(v)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<ReadOnlyMemory<float>, IEnumerable<float>>(
                 new JsonCollectionOfStructsReaderWriter<float[], float>(
                     JsonFloatReaderWriter.Instance),
-                new ValueConverter<ReadOnlyMemory<float>, float[]>(
-                    float[] (ReadOnlyMemory<float> v) => ReadOnlyMemoryConverter<float>.ToArray(v),
-                    ReadOnlyMemory<float> (float[] v) => ReadOnlyMemoryConverter<float>.ToMemory(v))));
+                new ValueConverter<ReadOnlyMemory<float>, float[]>(float[] (ReadOnlyMemory<float> v) => ReadOnlyMemoryConverter<float>.ToArray(v), ReadOnlyMemory<float> (float[] v) => ReadOnlyMemoryConverter<float>.ToMemory(v))));
         embedding.SetSentinelFromProviderValue(new float[0]);
         embedding.AddAnnotation("Cosmos:VectorDimensions", 4);
         embedding.AddAnnotation("Cosmos:VectorDistanceFunction", DistanceFunction.Cosine);

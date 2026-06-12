@@ -121,14 +121,10 @@ public partial class DependentBaseEntityType
                 int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum1, int>(
-                int (CompiledModelTestBase.Enum1 value) => ((int)value),
-                CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum1, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum1, int>(
-                    int (CompiledModelTestBase.Enum1 value) => ((int)value),
-                    CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value))));
+                new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value))));
         enumDiscriminator.SetSentinelFromProviderValue(0);
 
         var id = runtimeEntityType.AddProperty(
