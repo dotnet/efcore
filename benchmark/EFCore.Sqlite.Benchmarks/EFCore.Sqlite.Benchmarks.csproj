@@ -23,7 +23,7 @@
       benchmark throws "You need to call SQLitePCL.raw.SetProvider()" from
       [GlobalSetup] and BenchmarkDotNet reports NA for every method.
     -->
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
+    <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
   </ItemGroup>
 
   <ItemGroup>
