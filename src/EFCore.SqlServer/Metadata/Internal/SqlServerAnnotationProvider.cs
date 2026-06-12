@@ -269,9 +269,15 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
         if (modelIndex.GetIncludeProperties(table) is { } includeProperties)
         {
 #pragma warning disable EF1001 // Internal EF Core API usage.
+            var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
             var includeColumns = includeProperties
-                .Select(p => RelationalModel.FindPropertyByPath(modelIndex.DeclaringEntityType, p)!
-                    .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
+                .Select(p =>
+                {
+                    var propertyBase = RelationalModel.FindPropertyBaseByPath(modelIndex.DeclaringEntityType, p)!;
+                    return propertyBase is IReadOnlyProperty property
+                        ? property.GetColumnName(storeObjectIdentifier)
+                        : ((IReadOnlyComplexProperty)propertyBase).ComplexType.GetContainerColumnName();
+                })
                 .ToArray();
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
