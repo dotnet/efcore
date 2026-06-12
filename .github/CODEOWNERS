@@ -8,6 +8,7 @@
 /NuGet.config                           @AndriySvyryd @wtgodbe
 Directory.Build.*                       @AndriySvyryd @wtgodbe
 Directory.Packages.props                @AndriySvyryd @wtgodbe
+/.agents/                               @dotnet/efteam @wtgodbe
 /.config/                               @AndriySvyryd @wtgodbe
 /.github/                               @dotnet/efteam @wtgodbe
 /eng/                                   @AndriySvyryd @wtgodbe
