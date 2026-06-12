@@ -4,40 +4,40 @@
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-///     any release. You should only use it directly in your code with extreme caution and knowing that
-///     doing so can result in application failures when updating to a new Entity Framework Core release.
+///     Classifies CLR members of a type during model building, determining whether a member is a candidate
+///     navigation, scalar property, complex property, or service property.
 /// </summary>
+/// <remarks>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+///     <para>
+///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+///     </para>
+/// </remarks>
 public class MemberClassifier : IMemberClassifier
 {
-    private readonly ITypeMappingSource _typeMappingSource;
-    private readonly IParameterBindingFactories _parameterBindingFactories;
+    /// <summary>
+    ///     Creates a new instance of <see cref="MemberClassifier" />.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+    public MemberClassifier(MemberClassifierDependencies dependencies)
+        => Dependencies = dependencies;
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Dependencies for this service.
     /// </summary>
-    public MemberClassifier(
-        ITypeMappingSource typeMappingSource,
-        IParameterBindingFactories parameterBindingFactories)
-    {
-        _typeMappingSource = typeMappingSource;
-        _parameterBindingFactories = parameterBindingFactories;
-    }
+    protected virtual MemberClassifierDependencies Dependencies { get; }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual IReadOnlyDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> GetNavigationCandidates(
         IConventionEntityType entityType,
         bool useAttributes)
@@ -92,12 +92,7 @@ public class MemberClassifier : IMemberClassifier
         return navigationCandidates;
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual IReadOnlyCollection<Type> GetInverseCandidateTypes(
         IConventionEntityType entityType,
         bool useAttributes)
@@ -115,12 +110,7 @@ public class MemberClassifier : IMemberClassifier
         return inverseCandidates;
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual Type? FindCandidateNavigationPropertyType(
         MemberInfo memberInfo,
         IConventionModel model,
@@ -169,16 +159,11 @@ public class MemberClassifier : IMemberClassifier
         return isConfiguredAsEntityType == true
             || targetType != typeof(object)
             && (memberType != targetType
-                || (_parameterBindingFactories.FindFactory(memberType, memberInfo.GetSimpleMemberName()) == null
-                    && _typeMappingSource.FindMapping(memberInfo, model, useAttributes) == null));
+                || (Dependencies.ParameterBindingFactories.FindFactory(memberType, memberInfo.GetSimpleMemberName()) == null
+                    && Dependencies.TypeMappingSource.FindMapping(memberInfo, model, useAttributes) == null));
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool IsCandidatePrimitiveProperty(
         MemberInfo memberInfo,
         IConventionModel model,
@@ -194,15 +179,10 @@ public class MemberClassifier : IMemberClassifier
         var configurationType = ((Model)model).Configuration?.GetConfigurationType(memberInfo.GetMemberType());
         return configurationType == TypeConfigurationType.Property
             || (configurationType == null
-                && (typeMapping = _typeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes)) != null);
+                && (typeMapping = Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes)) != null);
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool IsCandidateComplexProperty(
         MemberInfo memberInfo,
         IConventionModel model,
@@ -249,12 +229,7 @@ public class MemberClassifier : IMemberClassifier
             || configurationType == null;
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(
         MemberInfo memberInfo,
         IConventionModel model,
@@ -275,12 +250,12 @@ public class MemberClassifier : IMemberClassifier
             }
 
             if (memberInfo.IsCandidateProperty()
-                && _typeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes) != null)
+                && Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes) != null)
             {
                 return null;
             }
         }
 
-        return _parameterBindingFactories.FindFactory(type, memberInfo.GetSimpleMemberName());
+        return Dependencies.ParameterBindingFactories.FindFactory(type, memberInfo.GetSimpleMemberName());
     }
 }

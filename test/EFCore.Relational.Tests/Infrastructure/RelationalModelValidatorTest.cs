@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit.Sdk;
@@ -180,6 +181,93 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             CoreStrings.KeyOnComplexCollection(
                 "{'Value'}", nameof(EntityWithComplexCollection), nameof(EntityWithComplexCollection.Items)),
             modelBuilder);
+    }
+
+    [Fact] // Issue #26903
+    public virtual void Dictionary_string_object_with_explicit_column_type_is_mapped_as_property_not_property_bag()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<BlogWithJsonDictionary>();
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(BlogWithJsonDictionary))!;
+        Assert.Null(entityType.FindNavigation(nameof(BlogWithJsonDictionary.JsonProperty)));
+
+        var property = entityType.FindProperty(nameof(BlogWithJsonDictionary.JsonProperty));
+        Assert.NotNull(property);
+        Assert.Equal("jsonb", property.GetColumnType());
+    }
+
+    [Fact] // Issue #26903
+    public virtual void Dictionary_string_object_with_explicit_column_type_reports_unmapped_property_when_provider_has_no_mapping()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<BlogWithJsonDictionary>();
+
+        VerifyError(
+            RelationalStrings.PropertyNotMapped(
+                "Dictionary<string, object>",
+                nameof(BlogWithJsonDictionary),
+                nameof(BlogWithJsonDictionary.JsonProperty),
+                "jsonb"),
+            modelBuilder);
+    }
+
+    [Fact] // Issue #26903
+    public virtual void Dictionary_string_object_with_explicit_column_type_and_value_converter_is_mapped()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<BlogWithConvertedDictionary>()
+            .Property(e => e.JsonProperty)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions)null));
+
+        Validate(modelBuilder);
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(BlogWithConvertedDictionary))!;
+        Assert.Null(entityType.FindNavigation(nameof(BlogWithConvertedDictionary.JsonProperty)));
+
+        var property = entityType.FindProperty(nameof(BlogWithConvertedDictionary.JsonProperty));
+        Assert.NotNull(property);
+        Assert.Equal("nvarchar(max)", property.GetColumnType());
+        Assert.NotNull(property.GetValueConverter());
+    }
+
+    [Fact] // Issue #26903
+    public virtual void Dictionary_string_object_with_column_name_but_no_column_type_is_still_a_property_bag()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<BlogWithNamedJsonColumn>();
+
+        VerifyError(
+            CoreStrings.NonConfiguredNavigationToSharedType(
+                nameof(BlogWithNamedJsonColumn.JsonProperty),
+                nameof(BlogWithNamedJsonColumn)),
+            modelBuilder);
+    }
+
+    protected class BlogWithJsonDictionary
+    {
+        public int Id { get; set; }
+
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, object> JsonProperty { get; set; }
+    }
+
+    protected class BlogWithConvertedDictionary
+    {
+        public int Id { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
+        public Dictionary<string, object> JsonProperty { get; set; }
+    }
+
+    protected class BlogWithNamedJsonColumn
+    {
+        public int Id { get; set; }
+
+        [Column("json_data")]
+        public Dictionary<string, object> JsonProperty { get; set; }
     }
 
     [Fact]

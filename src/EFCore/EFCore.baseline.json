@@ -13444,6 +13444,29 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "System.Type? FindCandidateNavigationPropertyType(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out bool? shouldBeOwned);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes);"
+        },
+        {
+          "Member": "System.Collections.Generic.IReadOnlyCollection<System.Type> GetInverseCandidateTypes(Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool useAttributes);"
+        },
+        {
+          "Member": "System.Collections.Generic.IReadOnlyDictionary<System.Reflection.PropertyInfo, (System.Type Type, bool? ShouldBeOwned)> GetNavigationCandidates(Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool useAttributes);"
+        },
+        {
+          "Member": "bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping);"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMetadataReference<out T> : System.IDisposable",
       "Properties": [
         {
@@ -18169,6 +18192,71 @@
         },
         {
           "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.MaxLengthAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.MemberClassifier : Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "MemberClassifier(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies dependencies);"
+        },
+        {
+          "Member": "virtual System.Type? FindCandidateNavigationPropertyType(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out bool? shouldBeOwned);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyCollection<System.Type> GetInverseCandidateTypes(Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool useAttributes);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyDictionary<System.Reflection.PropertyInfo, (System.Type Type, bool? ShouldBeOwned)> GetNavigationCandidates(Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool useAttributes);"
+        },
+        {
+          "Member": "virtual bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies <Clone>$();"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? other);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactories ParameterBindingFactories { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Storage.ITypeMappingSource TypeMappingSource { get; init; }"
         }
       ]
     },
