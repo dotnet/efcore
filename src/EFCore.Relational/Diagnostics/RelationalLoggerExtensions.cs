@@ -3387,6 +3387,40 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs the <see cref="RelationalEventId.OwnedEntityMappedToJsonCollectionWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="entityType">The owned entity type mapped to JSON as a collection.</param>
+    public static void OwnedEntityMappedToJsonCollectionWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IEntityType entityType)
+    {
+        var definition = RelationalResources.LogOwnedEntityMappedToJsonCollection(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, entityType.DisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityTypeEventData(
+                definition,
+                OwnedEntityMappedToJsonCollectionWarning,
+                entityType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string OwnedEntityMappedToJsonCollectionWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string>)definition;
+        var p = (EntityTypeEventData)payload;
+        return d.GenerateMessage(p.EntityType.DisplayName());
+    }
+
+    /// <summary>
     ///     Logs the <see cref="RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

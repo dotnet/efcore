@@ -1895,7 +1895,6 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(DataCompressionType.Page, annotationValue);
             });
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public void Alter_column_from_nvarchar_max_to_json_for_owned_type()
         => Execute(
@@ -2001,5 +2000,4 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("nvarchar(max)", operation.ColumnType);
                 Assert.Equal("json", operation.OldColumn.ColumnType);
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 }

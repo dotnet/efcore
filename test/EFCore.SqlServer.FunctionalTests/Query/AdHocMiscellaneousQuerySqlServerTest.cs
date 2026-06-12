@@ -19,6 +19,10 @@ public class AdHocMiscellaneousQuerySqlServerTest(NonSharedFixture fixture) : Ad
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
+
     protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode)
@@ -1533,7 +1537,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
     {
         public DbSet<Entity30478> Entities { get; set; }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Entity30478>().Property(x => x.Id).ValueGeneratedNever();
@@ -1552,7 +1555,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
                     nb.OwnsOne(x => x.Nested);
                 });
         }
-#pragma warning restore EF8001
 
         public async Task SeedAsync()
         {

@@ -783,7 +783,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     [Fact]
     public virtual async Task Project_entity_with_json_null_values()
     {
-        var contextFactory = await InitializeNonSharedTest<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        var contextFactory = await InitializeNonSharedTest<Context34960>(
+            seed: Seed34960, onModelCreating: OnModelCreating34960, onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings));
 
         using var context = contextFactory.CreateDbContext();
         var query = await context.Entities.ToListAsync();
@@ -792,7 +793,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     [Fact]
     public virtual async Task Try_project_collection_but_JSON_is_entity()
     {
-        var contextFactory = await InitializeNonSharedTest<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        var contextFactory = await InitializeNonSharedTest<Context34960>(
+            seed: Seed34960, onModelCreating: OnModelCreating34960, onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings));
         using var context = contextFactory.CreateDbContext();
 
         await context.Junk.AsNoTracking().Where(x => x.Id == 1).Select(x => x.Collection).FirstOrDefaultAsync();
@@ -801,7 +803,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     [Fact]
     public virtual async Task Try_project_reference_but_JSON_is_collection()
     {
-        var contextFactory = await InitializeNonSharedTest<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        var contextFactory = await InitializeNonSharedTest<Context34960>(
+            seed: Seed34960, onModelCreating: OnModelCreating34960, onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings));
         using var context = contextFactory.CreateDbContext();
 
         await context.Junk.AsNoTracking().Where(x => x.Id == 2).Select(x => x.Reference).FirstOrDefaultAsync();

@@ -12763,6 +12763,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId OptionalDependentWithoutIdentifyingPropertyWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId OwnedEntityMappedToJsonCollectionWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId PendingModelChangesWarning"
         },
         {
@@ -13491,6 +13494,9 @@
         },
         {
           "Member": "static void OptionalDependentWithoutIdentifyingPropertyWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+        },
+        {
+          "Member": "static void OwnedEntityMappedToJsonCollectionWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
           "Member": "static void PendingModelChangesWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Migrations> diagnostics, System.Type contextType);"
@@ -14244,6 +14250,9 @@
         },
         {
           "Member": "virtual void ValidateOptionalDependents(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "virtual void ValidateOwnedEntityMappedToJsonCollection(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "override void ValidatePrimitiveCollection(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"

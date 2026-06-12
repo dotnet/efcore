@@ -9903,7 +9903,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual void Convert_table_from_owned_to_complex_properties_mapped_to_json()
         => Execute(
@@ -10005,7 +10004,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     });
             },
             Assert.Empty);
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     public virtual void Add_complex_collection_mapped_to_json_uses_empty_array_as_default_value()
@@ -10101,7 +10099,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.IsType<DropColumnOperation>(downOps[0]);
             });
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual void Add_owned_collection_mapped_to_json_has_nullable_column()
         => Execute(
@@ -10148,9 +10145,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, downOps.Count);
                 Assert.IsType<DropColumnOperation>(downOps[0]);
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual void Add_owned_reference_with_nested_collection_mapped_to_json_uses_empty_object_as_default_value()
         => Execute(
@@ -10201,7 +10196,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, downOps.Count);
                 Assert.IsType<DropColumnOperation>(downOps[0]);
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     public virtual void Noop_on_complex_properties()
