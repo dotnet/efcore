@@ -722,7 +722,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
 
         // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/319
-        [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+        [Theory]
         [InlineData(AutoTransactionBehavior.Never)]
         [InlineData(AutoTransactionBehavior.Always)]
         public virtual async Task Optimistic_concurrency_precondition_failure_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
