@@ -173,14 +173,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
         enum1.SetSentinelFromProviderValue(0);
         enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -229,14 +225,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
         enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
         enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
         enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -285,14 +277,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
         flagsEnum1.SetSentinelFromProviderValue(0);
         flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -340,14 +328,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
         flagsEnum2.SetSentinelFromProviderValue(0);
         flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -436,16 +420,12 @@ public partial class PrincipalBaseEntityType
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
             storeTypePostfix: StoreTypePostfix.None,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
             elementMapping: SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -464,14 +444,10 @@ public partial class PrincipalBaseEntityType
                     size: 45,
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
         var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
         refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
         refTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -680,16 +656,12 @@ public partial class PrincipalBaseEntityType
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
             storeTypePostfix: StoreTypePostfix.None,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
             elementMapping: SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -708,14 +680,10 @@ public partial class PrincipalBaseEntityType
                     size: 45,
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
         var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
         refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
         refTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -1261,16 +1229,12 @@ public partial class PrincipalBaseEntityType
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v))))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
                 storeTypePostfix: StoreTypePostfix.None,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -1289,14 +1253,10 @@ public partial class PrincipalBaseEntityType
                         size: 45,
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)),
+                    converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))));
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
             var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
             refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
             refTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -1541,16 +1501,12 @@ public partial class PrincipalBaseEntityType
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v))))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
                 storeTypePostfix: StoreTypePostfix.None,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))),
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -1569,14 +1525,10 @@ public partial class PrincipalBaseEntityType
                         size: 45,
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)),
+                    converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)))));
+                        new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
             var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
             refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
             refTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -2097,14 +2049,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                 enum1.SetSentinelFromProviderValue(0);
                 enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -2167,14 +2115,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                 enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
                 enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
                 enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -2237,14 +2181,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                 flagsEnum1.SetSentinelFromProviderValue(0);
                 flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -2306,14 +2246,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                 flagsEnum2.SetSentinelFromProviderValue(0);
                 flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -2446,16 +2382,12 @@ public partial class PrincipalBaseEntityType
                     converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v))))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
                     storeTypePostfix: StoreTypePostfix.None,
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ValueComparer<IPAddress>(
                             bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -2474,14 +2406,10 @@ public partial class PrincipalBaseEntityType
                             size: 45,
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)),
+                        converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))));
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
                 var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
                 refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
                 refTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -2732,16 +2660,12 @@ public partial class PrincipalBaseEntityType
                     converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v))))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
                     storeTypePostfix: StoreTypePostfix.None,
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))),
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ValueComparer<IPAddress>(
                             bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -2760,14 +2684,10 @@ public partial class PrincipalBaseEntityType
                             size: 45,
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new ValueConverter<IPAddress, string>(
-                            string (IPAddress v) => ((object)v).ToString(),
-                            IPAddress (string v) => IPAddress.Parse(v)),
+                        converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
-                            new ValueConverter<IPAddress, string>(
-                                string (IPAddress v) => ((object)v).ToString(),
-                                IPAddress (string v) => IPAddress.Parse(v)))));
+                            new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
                 var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
                 refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
                 refTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
