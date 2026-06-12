@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -52,8 +53,10 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
     public virtual IModel? Process(IReadOnlyModel? model, bool resetVersion = false)
     {
         if (model == null
+#pragma warning disable EF1001 // Internal EF Core API usage.
             || model is not Model mutableModel
             || mutableModel.IsReadOnly)
+#pragma warning restore EF1001 // Internal EF Core API usage.
         {
             return null;
         }
@@ -85,7 +88,9 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         mutableModel.RemoveAnnotation("ChangeDetector.SkipDetectChanges");
         if (resetVersion)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             mutableModel.SetProductVersion(ProductInfo.GetVersion());
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         return _modelRuntimeInitializer.Initialize((IModel)model, designTime: true, validationLogger: null);
@@ -117,7 +122,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         foreach (var complexProperty in typeBase.GetComplexProperties())
         {
             ProcessElement(complexProperty, version);
-            
+
             if (complexProperty is IMutableComplexProperty mutableComplexProperty)
             {
                 UpdateComplexPropertyNullability(mutableComplexProperty, version);
@@ -160,7 +165,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
                         else if (!Equals(duplicate.Value, annotation.Value))
                         {
                             _operationReporter.WriteWarning(
-                                DesignStrings.MultipleAnnotationConflict(stripped[1..]));
+                                RelationalStrings.MultipleAnnotationConflict(stripped[1..]));
                         }
                     }
                 }
