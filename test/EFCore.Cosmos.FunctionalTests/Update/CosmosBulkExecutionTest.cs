@@ -13,7 +13,6 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
 
     protected override ITestStoreFactory NonSharedTestStoreFactory => CosmosTestStoreFactory.Instance;
 
-
     [Fact]
     public virtual async Task DoesNotBatchSingleBatchableWrite()
     {
@@ -45,7 +44,6 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         await context.SaveChangesAsync();
     }
 
-
     [Fact]
     public virtual async Task AutoTransactionBehaviorWhenNeeded_Throws()
     {
@@ -58,7 +56,6 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
         Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
     }
-
 
     [Fact]
     public virtual async Task AutoTransactionBehaviorAlways_Throws()

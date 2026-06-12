@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
