@@ -148,7 +148,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             foreach (var table in model.Tables)
             {
-                CreateTableConstraints(table, relationalModelParameters, includeForeignKeys: true);
+                CreateTableConstraints(table, relationalModelParameters, foreignKeysOnly: true);
             }
 
             foreach (var dbFunction in model.Model.GetDbFunctions())
@@ -1471,7 +1471,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     private void CreateTableConstraints(
         ITable table,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-        bool includeForeignKeys = false)
+        bool foreignKeysOnly = false)
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
@@ -1479,7 +1479,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         var tableVariable = metadataVariables[table];
         var tableParameters = parameters with { TargetName = tableVariable };
 
-        if (includeForeignKeys)
+        if (foreignKeysOnly)
         {
             foreach (var foreignKey in table.ForeignKeyConstraints)
             {
