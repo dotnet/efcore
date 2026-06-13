@@ -1450,6 +1450,13 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;
 """);
     }
 
+    public override async Task Convert_owned_entity_with_no_schema_to_regular_entity()
+    {
+        await base.Convert_owned_entity_with_no_schema_to_regular_entity();
+
+        AssertSql();
+    }
+
     public override async Task Convert_json_entities_to_regular_owned()
     {
         await base.Convert_json_entities_to_regular_owned();
