@@ -81,24 +81,6 @@ public partial class DbContextModel
         tableMappings.Add(dependentBasebyteTableMapping);
         RelationalModel.CreateColumnMapping(idColumn, dependentBase.FindProperty("Id")!, dependentBasebyteTableMapping);
         RelationalModel.CreateColumnMapping(principalIdColumn, dependentBase.FindProperty("PrincipalId")!, dependentBasebyteTableMapping);
-        var pK_DependentBasebyte = new UniqueConstraint("PK_DependentBase<byte?>", dependentBasebyteTable, new[] { idColumn });
-        dependentBasebyteTable.PrimaryKey = pK_DependentBasebyte;
-        pK_DependentBasebyte.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<byte>(pK_DependentBasebyte));
-        var pK_DependentBasebyteKey = RelationalModel.GetKey(this,
-            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
-            new[] { "Id" });
-        pK_DependentBasebyte.MappedKeys.Add(pK_DependentBasebyteKey);
-        RelationalModel.GetOrCreateUniqueConstraints(pK_DependentBasebyteKey).Add(pK_DependentBasebyte);
-        dependentBasebyteTable.UniqueConstraints.Add("PK_DependentBase<byte?>", pK_DependentBasebyte);
-        var iX_DependentBasebyte_PrincipalId = new TableIndex(
-        "IX_DependentBase<byte?>_PrincipalId", dependentBasebyteTable, new[] { principalIdColumn }, true);
-        iX_DependentBasebyte_PrincipalId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_DependentBasebyte_PrincipalId));
-        var iX_DependentBasebyte_PrincipalIdIx = RelationalModel.GetIndex(this,
-            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
-            new[] { "PrincipalId" });
-        iX_DependentBasebyte_PrincipalId.MappedIndexes.Add(iX_DependentBasebyte_PrincipalIdIx);
-        RelationalModel.GetOrCreateTableIndexes(iX_DependentBasebyte_PrincipalIdIx).Add(iX_DependentBasebyte_PrincipalId);
-        dependentBasebyteTable.Indexes.Add("IX_DependentBase<byte?>_PrincipalId", iX_DependentBasebyte_PrincipalId);
 
         var principalBase = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase")!;
 
@@ -368,33 +350,6 @@ public partial class DbContextModel
         RelationalModel.CreateJsonElementMapping(principalBase.FindProperty("ValueTypeEnumerable")!, arrayJsonArray12, principalBaseTableMapping);
         RelationalModel.CreateJsonElementMapping(principalBase.FindProperty("ValueTypeIList")!, arrayJsonArray13, principalBaseTableMapping);
         RelationalModel.CreateJsonElementMapping(principalBase.FindProperty("ValueTypeList")!, arrayJsonArray14, principalBaseTableMapping);
-        var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn0 });
-        principalBaseTable.PrimaryKey = pK_PrincipalBase;
-        pK_PrincipalBase.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(pK_PrincipalBase));
-        var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
-            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-            new[] { "Id" });
-        pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
-        RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
-        principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
-        var iX_PrincipalBase_PrincipalDerivedDependentBasebyteId = new TableIndex(
-        "IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, new[] { principalDerivedDependentBasebyteIdColumn }, false);
-        iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId));
-        var iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx = RelationalModel.GetIndex(this,
-            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-            new[] { "PrincipalDerivedId" });
-        iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
-        RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
-        principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
-        var pIX = new TableIndex(
-        "PIX", principalBaseTable, new[] { principalBaseIdColumn }, true);
-        pIX.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(pIX));
-        var pIXIx = RelationalModel.GetIndex(this,
-            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-            "PrincipalIndex");
-        pIX.MappedIndexes.Add(pIXIx);
-        RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX);
-        principalBaseTable.Indexes.Add("PIX", pIX);
 
         var viewMappings = new List<ViewMapping>();
         principalBase.SetRuntimeAnnotation("Relational:ViewMappings", viewMappings);
@@ -983,24 +938,6 @@ public partial class DbContextModel
         RelationalModel.CreateJsonElementMapping(principalBase.FindProperty("ValueTypeEnumerable")!, arrayJsonArray36, principalDerivedTableMapping);
         RelationalModel.CreateJsonElementMapping(principalBase.FindProperty("ValueTypeIList")!, arrayJsonArray37, principalDerivedTableMapping);
         RelationalModel.CreateJsonElementMapping(principalBase.FindProperty("ValueTypeList")!, arrayJsonArray38, principalDerivedTableMapping);
-        var pK_PrincipalDerived = new UniqueConstraint("PK_PrincipalDerived", principalDerivedTable, new[] { idColumn1 });
-        principalDerivedTable.PrimaryKey = pK_PrincipalDerived;
-        pK_PrincipalDerived.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(pK_PrincipalDerived));
-        pK_PrincipalDerived.MappedKeys.Add(pK_PrincipalBaseKey);
-        RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalDerived);
-        principalDerivedTable.UniqueConstraints.Add("PK_PrincipalDerived", pK_PrincipalDerived);
-        var iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId = new TableIndex(
-        "IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalDerivedTable, new[] { principalDerivedDependentBasebyteIdColumn0 }, false);
-        iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId));
-        iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
-        RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
-        principalDerivedTable.Indexes.Add("IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
-        var pIX0 = new TableIndex(
-        "PIX", principalDerivedTable, new[] { principalBaseIdColumn0 }, true);
-        pIX0.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(pIX0));
-        pIX0.MappedIndexes.Add(pIXIx);
-        RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX0);
-        principalDerivedTable.Indexes.Add("PIX", pIX0);
 
         var viewMappings0 = new List<ViewMapping>();
         principalDerived.SetRuntimeAnnotation("Relational:ViewMappings", viewMappings0);
@@ -1319,6 +1256,69 @@ public partial class DbContextModel
         RelationalModel.CreateStoredProcedureParameterMapping(valueTypeEnumerableParameter2, derived_UpdateUSproc.FindParameter("ValueTypeEnumerable")!, principalDerived.FindProperty("ValueTypeEnumerable")!, derived_UpdateSprocMapping);
         RelationalModel.CreateStoredProcedureParameterMapping(valueTypeIListParameter2, derived_UpdateUSproc.FindParameter("ValueTypeIList")!, principalDerived.FindProperty("ValueTypeIList")!, derived_UpdateSprocMapping);
         RelationalModel.CreateStoredProcedureParameterMapping(valueTypeListParameter2, derived_UpdateUSproc.FindParameter("ValueTypeList")!, principalDerived.FindProperty("ValueTypeList")!, derived_UpdateSprocMapping);
+        var pK_DependentBasebyte = new UniqueConstraint("PK_DependentBase<byte?>", dependentBasebyteTable, new[] { idColumn });
+        dependentBasebyteTable.PrimaryKey = pK_DependentBasebyte;
+        pK_DependentBasebyte.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<byte>(pK_DependentBasebyte));
+        var pK_DependentBasebyteKey = RelationalModel.GetKey(this,
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
+            new[] { "Id" });
+        pK_DependentBasebyte.MappedKeys.Add(pK_DependentBasebyteKey);
+        RelationalModel.GetOrCreateUniqueConstraints(pK_DependentBasebyteKey).Add(pK_DependentBasebyte);
+        dependentBasebyteTable.UniqueConstraints.Add("PK_DependentBase<byte?>", pK_DependentBasebyte);
+        var iX_DependentBasebyte_PrincipalId = new TableIndex(
+        "IX_DependentBase<byte?>_PrincipalId", dependentBasebyteTable, new[] { principalIdColumn }, true);
+        iX_DependentBasebyte_PrincipalId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_DependentBasebyte_PrincipalId));
+        var iX_DependentBasebyte_PrincipalIdIx = RelationalModel.GetIndex(this,
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
+            new[] { "PrincipalId" });
+        iX_DependentBasebyte_PrincipalId.MappedIndexes.Add(iX_DependentBasebyte_PrincipalIdIx);
+        RelationalModel.GetOrCreateTableIndexes(iX_DependentBasebyte_PrincipalIdIx).Add(iX_DependentBasebyte_PrincipalId);
+        dependentBasebyteTable.Indexes.Add("IX_DependentBase<byte?>_PrincipalId", iX_DependentBasebyte_PrincipalId);
+        var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn0 });
+        principalBaseTable.PrimaryKey = pK_PrincipalBase;
+        pK_PrincipalBase.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(pK_PrincipalBase));
+        var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+            new[] { "Id" });
+        pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
+        RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
+        principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
+        var iX_PrincipalBase_PrincipalDerivedDependentBasebyteId = new TableIndex(
+        "IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, new[] { principalDerivedDependentBasebyteIdColumn }, false);
+        iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId));
+        var iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx = RelationalModel.GetIndex(this,
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+            new[] { "PrincipalDerivedId" });
+        iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
+        RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+        principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+        var pIX = new TableIndex(
+        "PIX", principalBaseTable, new[] { principalBaseIdColumn }, true);
+        pIX.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(pIX));
+        var pIXIx = RelationalModel.GetIndex(this,
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+            "PrincipalIndex");
+        pIX.MappedIndexes.Add(pIXIx);
+        RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX);
+        principalBaseTable.Indexes.Add("PIX", pIX);
+        var pK_PrincipalDerived = new UniqueConstraint("PK_PrincipalDerived", principalDerivedTable, new[] { idColumn1 });
+        principalDerivedTable.PrimaryKey = pK_PrincipalDerived;
+        pK_PrincipalDerived.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(pK_PrincipalDerived));
+        pK_PrincipalDerived.MappedKeys.Add(pK_PrincipalBaseKey);
+        RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalDerived);
+        principalDerivedTable.UniqueConstraints.Add("PK_PrincipalDerived", pK_PrincipalDerived);
+        var iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId = new TableIndex(
+        "IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalDerivedTable, new[] { principalDerivedDependentBasebyteIdColumn0 }, false);
+        iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId));
+        iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
+        RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
+        principalDerivedTable.Indexes.Add("IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
+        var pIX0 = new TableIndex(
+        "PIX", principalDerivedTable, new[] { principalBaseIdColumn0 }, true);
+        pIX0.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(pIX0));
+        pIX0.MappedIndexes.Add(pIXIx);
+        RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX0);
+        principalDerivedTable.Indexes.Add("PIX", pIX0);
         var fK_DependentBasebyte_PrincipalDerived_PrincipalId = new ForeignKeyConstraint(
             "FK_DependentBase<byte?>_PrincipalDerived_PrincipalId", dependentBasebyteTable, principalDerivedTable,
             new[] { principalIdColumn },
