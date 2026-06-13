@@ -19,7 +19,11 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     /// <typeparam name="TProperty">The property type.</typeparam>
     /// <returns>A new equality comparer.</returns>
     IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>()
-        => NullableComparerAdapter<TProperty>.Wrap(GetKeyValueComparer());
+        => NullableComparerAdapter<TProperty>.Wrap(
+            this is RuntimeProperty runtimeProperty
+                ? runtimeProperty.GetKeyValueComparer(
+                    static () => ValueComparer.CreateDefault<TProperty>(favorStructuralComparisons: true))
+                : GetKeyValueComparer());
 
     /// <summary>
     ///     Finds the first principal property that the given property is constrained by

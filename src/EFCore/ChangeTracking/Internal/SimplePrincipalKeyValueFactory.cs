@@ -27,7 +27,12 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
         _key = key;
         var property = key.Properties.Single();
         _propertyAccessors = property.GetPropertyAccessors();
-        EqualityComparer = new NoNullsCustomEqualityComparer((ValueComparer<TKey>)property.GetKeyValueComparer());
+
+        var keyValueComparer = property is RuntimeProperty runtimeProperty
+            ? runtimeProperty.GetKeyValueComparer(
+                static () => ValueComparer.CreateDefault<TKey>(favorStructuralComparisons: true))
+            : property.GetKeyValueComparer();
+        EqualityComparer = new NoNullsCustomEqualityComparer((ValueComparer<TKey>)keyValueComparer);
     }
 
     /// <summary>
