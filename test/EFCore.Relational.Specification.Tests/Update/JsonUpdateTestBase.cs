@@ -1235,6 +1235,50 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             });
 
     [Fact]
+    public virtual Task Edit_single_property_nullable_datetime_set_to_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.TestNullableDateTime = null;
+                entity.Collection[0].TestNullableDateTime = null;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Null(result.Reference.TestNullableDateTime);
+                Assert.Null(result.Collection[0].TestNullableDateTime);
+            });
+
+    [Fact]
+    public virtual Task Edit_single_property_nullable_dateonly_set_to_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.TestNullableDateOnly = null;
+                entity.Collection[0].TestNullableDateOnly = null;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Null(result.Reference.TestNullableDateOnly);
+                Assert.Null(result.Collection[0].TestNullableDateOnly);
+            });
+
+    [Fact]
     public virtual Task Edit_single_property_enum()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,

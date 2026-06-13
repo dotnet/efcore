@@ -956,6 +956,52 @@ LIMIT 2
 """);
     }
 
+    public override async Task Edit_single_property_nullable_datetime_set_to_null()
+    {
+        await base.Edit_single_property_nullable_datetime_set_to_null();
+
+        AssertSql(
+            """
+@p0=NULL (Nullable = false) (DbType = DateTime)
+@p1=NULL (Nullable = false) (DbType = DateTime)
+@p2='1'
+
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateTime', @p0), "Reference" = json_set("Reference", '$.TestNullableDateTime', @p1)
+WHERE "Id" = @p2
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"
+FROM "JsonEntitiesAllTypes" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
+    public override async Task Edit_single_property_nullable_dateonly_set_to_null()
+    {
+        await base.Edit_single_property_nullable_dateonly_set_to_null();
+
+        AssertSql(
+            """
+@p0=NULL (Nullable = false) (DbType = Date)
+@p1=NULL (Nullable = false) (DbType = Date)
+@p2='1'
+
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateOnly', @p0), "Reference" = json_set("Reference", '$.TestNullableDateOnly', @p1)
+WHERE "Id" = @p2
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"
+FROM "JsonEntitiesAllTypes" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
     public override async Task Edit_single_property_enum()
     {
         await base.Edit_single_property_enum();
