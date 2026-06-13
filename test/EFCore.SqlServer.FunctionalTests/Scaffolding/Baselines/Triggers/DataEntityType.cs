@@ -62,6 +62,7 @@ public partial class DataEntityType
                 int (int v) => v,
                 int (int v) => v));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
         id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
         var blob = runtimeEntityType.AddProperty(

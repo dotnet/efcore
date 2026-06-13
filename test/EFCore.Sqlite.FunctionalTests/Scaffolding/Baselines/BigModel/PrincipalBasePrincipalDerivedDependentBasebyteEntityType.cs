@@ -106,6 +106,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         derivedsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(derivedsId));
+        derivedsId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var derivedsAlternateId = runtimeEntityType.AddProperty(
             "DerivedsAlternateId",
@@ -164,6 +165,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             storeGenerationIndex: 1);
         derivedsAlternateId.TypeMapping = SqliteGuidTypeMapping.Default;
         derivedsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(derivedsAlternateId));
+        derivedsAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var principalsId = runtimeEntityType.AddProperty(
             "PrincipalsId",
@@ -236,6 +238,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         principalsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalsId));
+        principalsId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var principalsAlternateId = runtimeEntityType.AddProperty(
             "PrincipalsAlternateId",
@@ -294,6 +297,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             storeGenerationIndex: 3);
         principalsAlternateId.TypeMapping = SqliteGuidTypeMapping.Default;
         principalsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalsAlternateId));
+        principalsAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var rowid = runtimeEntityType.AddProperty(
             "rowid",

@@ -81,6 +81,7 @@ public partial class LazyProxiesEntity4EntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var content = runtimeEntityType.AddProperty(
             "Content",
@@ -161,6 +162,7 @@ public partial class LazyProxiesEntity4EntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         referenceNavigationId.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(referenceNavigationId));
+        referenceNavigationId.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var title = runtimeEntityType.AddProperty(
             "Title",

@@ -80,6 +80,7 @@ public partial class IdentityUserEntityType
             clrType: typeof(string),
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<string>(favorStructuralComparisons: true));
 
         var accessFailedCount = runtimeEntityType.AddProperty(
             "AccessFailedCount",

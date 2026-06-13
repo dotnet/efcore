@@ -136,6 +136,7 @@ public partial class PrincipalBaseEntityType
             storeGenerationIndex: 1);
         alternateId.TypeMapping = SqliteGuidTypeMapping.Default;
         alternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(alternateId));
+        alternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var enum1 = runtimeEntityType.AddProperty(
             "Enum1",

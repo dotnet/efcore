@@ -78,6 +78,7 @@ public partial class ScaffoldingEntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

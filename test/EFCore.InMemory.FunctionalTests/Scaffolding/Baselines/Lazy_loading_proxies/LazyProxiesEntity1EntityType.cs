@@ -83,6 +83,7 @@ public partial class LazyProxiesEntity1EntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var referenceNavigationId = runtimeEntityType.AddProperty(
             "ReferenceNavigationId",

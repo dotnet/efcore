@@ -111,6 +111,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         derivedsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(derivedsId));
+        derivedsId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var derivedsAlternateId = runtimeEntityType.AddProperty(
             "DerivedsAlternateId",
@@ -189,6 +190,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
                     string (Guid v) => v.ToString("D"),
                     Guid (string v) => new Guid(v))));
         derivedsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(derivedsAlternateId));
+        derivedsAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var principalsId = runtimeEntityType.AddProperty(
             "PrincipalsId",
@@ -261,6 +263,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalsId));
+        principalsId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var principalsAlternateId = runtimeEntityType.AddProperty(
             "PrincipalsAlternateId",
@@ -339,6 +342,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
                     string (Guid v) => v.ToString("D"),
                     Guid (string v) => new Guid(v))));
         principalsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalsAlternateId));
+        principalsAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var type = runtimeEntityType.AddProperty(
             "$type",

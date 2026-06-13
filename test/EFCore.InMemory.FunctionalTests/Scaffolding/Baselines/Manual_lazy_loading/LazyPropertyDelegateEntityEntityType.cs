@@ -82,6 +82,7 @@ public partial class LazyPropertyDelegateEntityEntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var lazyConstructorEntityId = runtimeEntityType.AddProperty(
             "LazyConstructorEntityId",
@@ -131,6 +132,7 @@ public partial class LazyPropertyDelegateEntityEntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         lazyConstructorEntityId.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(lazyConstructorEntityId));
+        lazyConstructorEntityId.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var lazyLoader = runtimeEntityType.AddServiceProperty(
             "LazyLoader",
