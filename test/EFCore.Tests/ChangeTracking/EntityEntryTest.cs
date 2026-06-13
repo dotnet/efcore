@@ -1124,7 +1124,11 @@ public class EntityEntryTest
 
         Assert.Equal("Culture", context.Entry(entity).ComplexProperty(e => e.Culture).Metadata.Name);
         Assert.Equal("Milk", context.Entry(entity).ComplexProperty(e => e.Milk).Metadata.Name);
-        Assert.Equal("OptionalCulture", context.Entry(entity).ComplexProperty(e => e.OptionalCulture).Metadata.Name);
+
+        var optionalCultureEntry = context.Entry(entity).ComplexProperty(e => e.OptionalCulture);
+        Assert.Equal("OptionalCulture", optionalCultureEntry.Metadata.Name);
+        Assert.Equal("License", optionalCultureEntry.ComplexProperty(e => e.License).Metadata.Name);
+        Assert.Equal("Manufacturer", optionalCultureEntry.ComplexProperty(e => e.Manufacturer).Metadata.Name);
     }
 
     [Fact]
