@@ -129,8 +129,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                byte.Parse(c.Phone.Substring(0, 3)) == 30),
-            entryCount: 1);
+                byte.Parse(c.Phone.Substring(0, 3)) == 30));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -175,20 +174,17 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                decimal.Parse(c.PostalCode) == 12209m),
-            entryCount: 1);
+                decimal.Parse(c.PostalCode) == 12209m));
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP" &&
-                decimal.Parse(c.Phone.Substring(0, 4)) == 88.6m),
-            entryCount: 1);
+                decimal.Parse(c.Phone.Substring(0, 4)) == 88.6m));
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                decimal.Parse(c.Phone.Substring(3, 4)) == -7m),
-            entryCount: 1);
+                decimal.Parse(c.Phone.Substring(3, 4)) == -7m));
     }
 
     [ConditionalTheory]
@@ -207,20 +203,17 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                double.Parse(c.PostalCode) == 12209d),
-            entryCount: 1);
+                double.Parse(c.PostalCode) == 12209d));
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP" &&
-                double.Parse(c.Phone.Substring(0, 4)) == 88.6d),
-            entryCount: 1);
+                double.Parse(c.Phone.Substring(0, 4)) == 88.6d));
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                double.Parse(c.Phone.Substring(3, 4)) == -7d),
-            entryCount: 1);
+                double.Parse(c.Phone.Substring(3, 4)) == -7d));
     }
 
     [ConditionalTheory]
@@ -239,14 +232,12 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                short.Parse(c.PostalCode) == 12209),
-            entryCount: 1);
+                short.Parse(c.PostalCode) == 12209));
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                short.Parse(c.Phone.Substring(3, 4)) == -7),
-            entryCount: 1);
+                short.Parse(c.Phone.Substring(3, 4)) == -7));
     }
 
     [ConditionalTheory]
@@ -283,14 +274,12 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                int.Parse(c.PostalCode) == 12209),
-            entryCount: 1);
+                int.Parse(c.PostalCode) == 12209));
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                int.Parse(c.Phone.Substring(3, 4)) == -7),
-            entryCount: 1);
+                int.Parse(c.Phone.Substring(3, 4)) == -7));
     }
 
     [ConditionalTheory]
@@ -318,14 +307,12 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                long.Parse(c.PostalCode) == 12209L),
-            entryCount: 1);
+                long.Parse(c.PostalCode) == 12209L));
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
-                long.Parse(c.Phone.Substring(3, 4)) == -7L),
-            entryCount: 1);
+                long.Parse(c.Phone.Substring(3, 4)) == -7L));
     }
 
     [ConditionalTheory]
