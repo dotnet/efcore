@@ -148,10 +148,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             foreach (var table in model.Tables)
             {
-                foreach (var foreignKey in table.ForeignKeyConstraints)
-                {
-                    Create(foreignKey, parameters with { TargetName = parameters.ScopeVariables[table] });
-                }
+                CreateTableConstraints(table, relationalModelParameters, includeForeignKeys: true);
             }
 
             foreach (var dbFunction in model.Model.GetDbFunctions())
@@ -1471,13 +1468,26 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         CreateJsonElementMappings(tableMapping, tableMappingVariable, parameters);
     }
 
-    private void CreateTableConstraints(ITable table, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    private void CreateTableConstraints(
+        ITable table,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        bool includeForeignKeys = false)
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
         var metadataVariables = parameters.ScopeVariables;
         var tableVariable = metadataVariables[table];
         var tableParameters = parameters with { TargetName = tableVariable };
+
+        if (includeForeignKeys)
+        {
+            foreach (var foreignKey in table.ForeignKeyConstraints)
+            {
+                Create(foreignKey, tableParameters);
+            }
+
+            return;
+        }
 
         foreach (var uniqueConstraint in table.UniqueConstraints)
         {
