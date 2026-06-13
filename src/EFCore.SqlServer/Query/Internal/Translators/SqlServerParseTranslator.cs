@@ -26,13 +26,14 @@ public class SqlServerParseTranslator : IMethodCallTranslator
         typeof(long) // bigint
     ];
 
-    private static readonly IEnumerable<MethodInfo> SupportedMethods
+    private static readonly MethodInfo[] SupportedMethods
         = SupportedClrTypes
             .SelectMany(
                 t => t.GetTypeInfo().GetDeclaredMethods(nameof(int.Parse))
                     .Where(
                         m => m.GetParameters().Length == 1
-                            && m.GetParameters().First().ParameterType == typeof(string)));
+                            && m.GetParameters().First().ParameterType == typeof(string)))
+            .ToArray();
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
