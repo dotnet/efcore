@@ -10,12 +10,12 @@
                 "EditorConfig.EditorConfig"
             ],
             "settings": {
-                "dotnet.dotnetPath": "${containerWorkspaceFolder}/efcore/.dotnet"
+                "dotnet.dotnetPath": "${containerWorkspaceFolder}/.dotnet"
             }
         }
     },
     "remoteEnv": {
-        "PATH": "${containerWorkspaceFolder}/efcore/.dotnet:${containerEnv:PATH}"
+        "PATH": "${containerWorkspaceFolder}/.dotnet:${containerEnv:PATH}"
     },
-    "onCreateCommand": "${containerWorkspaceFolder}/efcore/restore.sh"
+    "onCreateCommand": "${containerWorkspaceFolder}/restore.sh"
 }
