@@ -102,6 +102,7 @@ public partial class MyEntityEntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

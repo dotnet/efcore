@@ -64,6 +64,7 @@ public partial class DataEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var blob = runtimeEntityType.AddProperty(
             "Blob",

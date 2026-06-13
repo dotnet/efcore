@@ -247,16 +247,6 @@ public abstract class CoreTypeMapping
             static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
 
     /// <summary>
-    ///     Returns the <see cref="ValueComparer" /> used with keys for this type mapping if one has already been
-    ///     configured or created, without creating a default one. This avoids the reflection-based default comparer
-    ///     creation that is not compatible with NativeAOT.
-    /// </summary>
-    /// <returns>The key <see cref="ValueComparer" />, or <see langword="null" /> if none has been set.</returns>
-    [EntityFrameworkInternal]
-    public virtual ValueComparer? FindKeyComparer()
-        => _keyComparer;
-
-    /// <summary>
     ///     A <see cref="ValueComparer" /> for the provider CLR type values.
     /// </summary>
     public virtual ValueComparer ProviderValueComparer

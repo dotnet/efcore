@@ -70,6 +70,7 @@ public partial class DependentBaseEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
+        principalId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var principalAlternateId = runtimeEntityType.AddProperty(
             "PrincipalAlternateId",
@@ -89,6 +90,7 @@ public partial class DependentBaseEntityType
             storeGenerationIndex: 1);
         principalAlternateId.TypeMapping = SqliteGuidTypeMapping.Default;
         principalAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalAlternateId));
+        principalAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var enumDiscriminator = runtimeEntityType.AddProperty(
             "EnumDiscriminator",

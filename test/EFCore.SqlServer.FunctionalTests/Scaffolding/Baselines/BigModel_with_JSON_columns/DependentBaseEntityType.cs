@@ -68,6 +68,7 @@ public partial class DependentBaseEntityType
                 int (long v) => ((object)v).GetHashCode(),
                 long (long v) => v));
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
+        principalId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
         principalId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var principalAlternateId = runtimeEntityType.AddProperty(
@@ -102,6 +103,7 @@ public partial class DependentBaseEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         principalAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalAlternateId));
+        principalAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         principalAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var enumDiscriminator = runtimeEntityType.AddProperty(

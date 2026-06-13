@@ -103,6 +103,7 @@ public partial class MyEntityEntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
         id.SetProviderValueComparer(new ValueComparer<int>(
             bool (int l, int r) => false,
             int (int v) => 0,

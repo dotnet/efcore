@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace Scaffolding;
+namespace TestNamespace;
 
 [EntityFrameworkInternal]
 public partial class IndexEntityType

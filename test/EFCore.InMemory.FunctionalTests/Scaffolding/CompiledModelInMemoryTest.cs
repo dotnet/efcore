@@ -60,6 +60,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
             );
 
+        [Fact]
+        public virtual Task NativeAOT_default_key_comparer_is_emitted()
+            => Test(
+                modelBuilder => modelBuilder.Entity<Index>(),
+                model =>
+                {
+                    var id = model.FindEntityType(typeof(Index))!.FindProperty(nameof(Index.Id))!;
+                    var comparer = Assert.IsAssignableFrom<ValueComparer<Guid>>(id.GetKeyValueComparer());
+                    var value = Guid.NewGuid();
+
+                    Assert.True(comparer.Equals(value, value));
+                    Assert.False(comparer.Equals(value, Guid.NewGuid()));
+                },
+                options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+
         public class SelfReferentialEntity<T>
             where T : struct
         {
