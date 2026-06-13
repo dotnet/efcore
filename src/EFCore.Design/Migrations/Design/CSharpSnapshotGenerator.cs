@@ -1204,7 +1204,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             }
 
             if (schema != null
-                || (schemaAnnotation != null && tableName != null))
+                || (schemaAnnotation != null
+                    && tableName != null
+                    && entityType.GetDefaultSchema() != null))
             {
                 stringBuilder
                     .Append(", ");
