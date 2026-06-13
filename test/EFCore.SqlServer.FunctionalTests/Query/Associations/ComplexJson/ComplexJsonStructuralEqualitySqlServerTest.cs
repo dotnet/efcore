@@ -77,7 +77,10 @@ WHERE CAST([r].[RequiredAssociate] AS nvarchar(max)) <> CAST([r].[OptionalAssoci
                 """
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredAssociate] <> [r].[OptionalAssociate] OR [r].[OptionalAssociate] IS NULL
+WHERE CASE
+    WHEN [r].[RequiredAssociate] = [r].[OptionalAssociate] THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
         }
     }

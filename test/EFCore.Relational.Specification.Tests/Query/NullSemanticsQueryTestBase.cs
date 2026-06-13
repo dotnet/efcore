@@ -507,6 +507,24 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Compare_simple_expression(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => e.NullableIntA + e.IntB != e.IntC)
+                .Select(e => e.Id),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Compare_complex_expression_not_duplicated(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => e.NullableIntA + e.NullableIntB != e.IntC)
+                .Select(e => e.Id),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Compare_nullable_with_null_parameter_equal(bool async)
     {
         string prm = null;

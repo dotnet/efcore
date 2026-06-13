@@ -105,7 +105,10 @@ CROSS JOIN [Customers] AS [c]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] <> N'London' OR [c].[City] IS NULL
+WHERE CASE
+    WHEN [c].[City] = N'London' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
