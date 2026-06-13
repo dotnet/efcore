@@ -1098,6 +1098,41 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Convert_owned_entity_with_no_schema_to_regular_entity()
+    {
+        await base.Convert_owned_entity_with_no_schema_to_regular_entity();
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Owned" (
+    "EntityId" INTEGER NOT NULL CONSTRAINT "PK_Owned" PRIMARY KEY,
+    "Date" TEXT NOT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Owned" ("EntityId", "Date")
+SELECT "EntityId", "Date"
+FROM "Owned";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Owned";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Owned" RENAME TO "Owned";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
     public override async Task Convert_json_entities_to_regular_owned()
     {
         await base.Convert_json_entities_to_regular_owned();

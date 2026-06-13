@@ -1435,6 +1435,59 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(nameColumn.Collation);
             });
 
+    [Fact]
+    public virtual async Task Convert_owned_entity_with_no_schema_to_regular_entity()
+        => await Test(
+            common =>
+            {
+                common.HasDefaultSchema(null);
+                common.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.ToTable("Entity", "MySchema");
+                    });
+            },
+            source =>
+            {
+                source.Entity(
+                    "Entity", e =>
+                    {
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.Property<DateTime>("Date");
+                                o.ToTable("Owned", (string)null);
+                            });
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Owned", e =>
+                    {
+                        e.Property<int>("EntityId").ValueGeneratedNever();
+                        e.HasKey("EntityId");
+                        e.Property<DateTime>("Date");
+                        e.ToTable("Owned", (string)null);
+                    });
+            },
+            model =>
+            {
+                Assert.Equal(2, model.Tables.Count());
+
+                var ownedTable = model.Tables.Single(t => t.Name == "Owned");
+                var entityTable = model.Tables.Single(t => t.Name == "Entity");
+
+                if (AssertSchemaNames)
+                {
+                    Assert.Equal("MySchema", entityTable.Schema);
+                    Assert.NotEqual("MySchema", ownedTable.Schema);
+                }
+            });
+
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual async Task Convert_json_entities_to_regular_owned()
