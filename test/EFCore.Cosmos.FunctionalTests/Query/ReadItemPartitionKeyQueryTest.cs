@@ -267,7 +267,12 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.Both_WithPartitionKey_and_predicate_comparisons_with_same_values_with_only_partition_key();
 
-        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["PartitionKey"] = "PK1a")
+""");
     }
 
     public override async Task ReadItem_with_hierarchical_partition_key()
@@ -354,11 +359,57 @@ WHERE (c["PartitionKey"] = "PK1")
         AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
+    public override async Task WithPartitionKey_and_conflicting_partition_key_predicate_returns_empty()
+    {
+        await base.WithPartitionKey_and_conflicting_partition_key_predicate_returns_empty();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = "PK2"))
+""");
+    }
+
+    public override async Task WithPartitionKey_and_partition_key_predicate_same_local()
+    {
+        await base.WithPartitionKey_and_partition_key_predicate_same_local();
+
+        AssertSql(
+            """
+@partitionKey='PK1'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @partitionKey))
+""");
+    }
+
+    public override async Task WithPartitionKey_and_partition_key_predicate_two_locals_same_value()
+    {
+        await base.WithPartitionKey_and_partition_key_predicate_two_locals_same_value();
+
+        AssertSql(
+            """
+@pkForWith='PK1'
+@pkForWhere='PK1'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @pkForWhere))
+""");
+    }
+
     public override async Task ReadItem_with_WithPartitionKey_with_only_partition_key()
     {
         await base.ReadItem_with_WithPartitionKey_with_only_partition_key();
 
-        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["PartitionKey"] = "PK1a")
+""");
     }
 
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()

@@ -55,6 +55,22 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
 
         _rootAlias = rootSource.Alias;
 
+        Expression UnwrapShaperForReadItem(Expression shaper)
+        {
+            if (shaper is UnaryExpression { NodeType: ExpressionType.Convert } convert
+                && convert.Type == typeof(object))
+            {
+                shaper = convert.Operand;
+            }
+
+            while (shaper is IncludeExpression { EntityExpression: var nested })
+            {
+                shaper = nested;
+            }
+
+            return shaper;
+        }
+
         // We're going to be looking for equality comparisons on the JSON id definition properties and the partition key properties of the
         // entity type; build a dictionary where the properties are the keys, and where the values are expressions that will get populated
         // from the tree (either constants or parameters).
@@ -88,6 +104,19 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         var allIdPropertiesSpecified =
             _jsonIdPropertyValues.Values.All(p => p is not null) && _jsonIdPropertyValues.Count > 0;
 
+        // WithPartitionKey will clear _partitionKeyPropertyValues during the lift pass below; snapshot predicate partition key
+        // comparisons first so we can avoid ReadItem when both WithPartitionKey and the predicate specify partition keys (see #38238).
+        var hadWithPartitionKey = queryCompilationContext.PartitionKeyPropertyValues.Count > 0;
+        Dictionary<IProperty, (Expression? ValueExpression, Expression? OriginalExpression)>? predicatePartitionKeySnapshot = null;
+        if (hadWithPartitionKey)
+        {
+            predicatePartitionKeySnapshot = new Dictionary<IProperty, (Expression?, Expression?)>(_partitionKeyPropertyValues);
+        }
+
+        var predicateSpecifiesPartitionKey = hadWithPartitionKey
+            && predicatePartitionKeySnapshot is not null
+            && partitionKeyProperties.Any(p => predicatePartitionKeySnapshot[p].ValueExpression is not null);
+
         // First, go over the partition key properties and lift them from the predicate to the query compilation context, as possible.
         // We do this only as long as all partition key values are provided; the moment there's a gap we stop (so if PK1 and PK3 are
         // provided but not PK2, only PK1 will be lifted out).
@@ -111,11 +140,10 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             }
         }
 
-        // Now, attempt to also transform the query to ReadItem form; this is only possible if all JSON ID properties were compared in the
-        // predicate, and *all* partition key values are specified(in the predicate or via WithPartitionKey)
-        if (_isPredicateCompatibleWithReadItem
+        var willUseReadItemOptimization = _isPredicateCompatibleWithReadItem
             && allIdPropertiesSpecified
             && queryCompilationContext.PartitionKeyPropertyValues.Count == partitionKeyProperties.Count
+            && !predicateSpecifiesPartitionKey
             && select is
             {
                 Offset: null or SqlConstantExpression { Value: 0 },
@@ -123,8 +151,12 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             }
             // We only transform to ReadItem if the entire document (i.e. root entity type) is being projected out.
             // Using ReadItem even when a projection is present is tracked by #34163.
-            && Unwrap(shapedQuery.ShaperExpression) is StructuralTypeShaperExpression { StructuralType: var projectedStructuralType }
-            && projectedStructuralType == _entityType)
+            && UnwrapShaperForReadItem(shapedQuery.ShaperExpression) is StructuralTypeShaperExpression { StructuralType: var projectedStructuralType }
+            && projectedStructuralType == _entityType;
+
+        // Now, attempt to also transform the query to ReadItem form; this is only possible if all JSON ID properties were compared in the
+        // predicate, and *all* partition key values are specified(in the predicate or via WithPartitionKey)
+        if (willUseReadItemOptimization)
         {
             return shapedQuery.UpdateQueryExpression(select.WithReadItemInfo(new ReadItemInfo(_jsonIdPropertyValues!)));
         }
@@ -152,22 +184,6 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         }
 
         return shapedQuery;
-
-        Expression Unwrap(Expression shaper)
-        {
-            if (shaper is UnaryExpression { NodeType: ExpressionType.Convert } convert
-                && convert.Type == typeof(object))
-            {
-                shaper = convert.Operand;
-            }
-
-            while (shaper is IncludeExpression { EntityExpression: var nested })
-            {
-                shaper = nested;
-            }
-
-            return shaper;
-        }
     }
 
     /// <summary>
@@ -320,7 +336,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 // call. Note that this is always considered a compatible comparison for ReadItem.
                 if (propertyName == property.GetJsonPropertyName()
                     && _partitionKeyPropertyValues.TryGetValue(property, out var previousValues)
-                    && (previousValues.ValueExpression is null || previousValues.Equals(propertyValue)))
+                    && (previousValues.ValueExpression is null || previousValues.ValueExpression.Equals(propertyValue)))
                 {
                     _partitionKeyPropertyValues[property] = (ValueExpression: propertyValue, OriginalExpression: originalExpression);
                     return;
