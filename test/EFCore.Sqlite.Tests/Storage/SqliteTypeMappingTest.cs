@@ -139,7 +139,7 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue + 1ul, "-9223372036854775808");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Half_literal_generated_correctly()
     {
         var typeMapping = SqliteHalfTypeMapping.Default;
