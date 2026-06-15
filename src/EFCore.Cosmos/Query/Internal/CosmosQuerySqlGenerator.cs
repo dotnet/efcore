@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpressionVisitor
+public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : ExpressionVisitor
 {
     private readonly IndentedStringBuilder _sqlBuilder = new();
     private IReadOnlyDictionary<string, object> _parameterValues = null!;
@@ -34,9 +34,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
 
     private ParameterNameGenerator _parameterNameGenerator = null!;
-
-    private static readonly bool UseOldBehavior37252 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37252", out var enabled) && enabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,11 +62,53 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression)
-    {
-        Visit(entityProjectionExpression.Object);
+    protected override Expression VisitExtension(Expression expression)
+        => expression switch
+        {
+            ShapedQueryExpression e => e.UpdateQueryExpression(Visit(e.QueryExpression)),
+            ArrayConstantExpression e => VisitArrayConstant(e),
+            ExistsExpression e => VisitExists(e),
+            FragmentExpression e => VisitFragment(e),
+            FromSqlExpression e => VisitFromSql(e),
+            InExpression e => VisitIn(e),
+            ObjectAccessExpression e => VisitObjectAccess(e),
+            ObjectArrayAccessExpression e => VisitObjectArrayAccess(e),
+            ObjectArrayExpression e => VisitObjectArray(e),
+            ObjectArrayIndexExpression e => VisitObjectArrayIndex(e),
+            ObjectBinaryExpression e => VisitObjectBinary(e),
+            ObjectFunctionExpression e => VisitObjectFunction(e),
+            ObjectReferenceExpression e => VisitObjectReference(e),
+            OrderingExpression e => VisitOrdering(e),
+            ProjectionExpression e => VisitProjection(e),
+            ScalarAccessExpression e => VisitScalarAccess(e),
+            ScalarArrayExpression e => VisitScalarArray(e),
+            ScalarReferenceExpression e => VisitValueReference(e),
+            ScalarSubqueryExpression e => VisitScalarSubquery(e),
+            SelectExpression e => VisitSelect(e),
+            SourceExpression e => VisitSource(e),
+            SqlBinaryExpression e => VisitSqlBinary(e),
+            SqlConditionalExpression e => VisitSqlConditional(e),
+            SqlConstantExpression e => VisitSqlConstant(e),
+            SqlFunctionExpression e => VisitSqlFunction(e),
+            SqlParameterExpression e => VisitSqlParameter(e),
+            SqlUnaryExpression e => VisitSqlUnary(e),
+            StructuralTypeProjectionExpression e => VisitStructuralTypeProjection(e),
 
-        return entityProjectionExpression;
+            _ => throw new InvalidOperationException(
+                CosmosStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(CosmosQuerySqlGenerator))),
+        };
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Expression VisitStructuralTypeProjection(StructuralTypeProjectionExpression structuralTypeProjectionExpression)
+    {
+        Visit(structuralTypeProjectionExpression.Object);
+
+        return structuralTypeProjectionExpression;
     }
 
     /// <summary>
@@ -78,7 +117,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExists(ExistsExpression existsExpression)
+    protected virtual Expression VisitExists(ExistsExpression existsExpression)
     {
         _sqlBuilder.AppendLine("EXISTS (");
 
@@ -98,7 +137,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitObjectArray(ObjectArrayExpression objectArrayExpression)
+    protected virtual Expression VisitObjectArray(ObjectArrayExpression objectArrayExpression)
     {
         GenerateArray(objectArrayExpression.Subquery);
         return objectArrayExpression;
@@ -110,7 +149,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitScalarArray(ScalarArrayExpression scalarArrayExpression)
+    protected virtual Expression VisitScalarArray(ScalarArrayExpression scalarArrayExpression)
     {
         GenerateArray(scalarArrayExpression.Subquery);
         return scalarArrayExpression;
@@ -134,7 +173,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitObjectArrayAccess(ObjectArrayAccessExpression objectArrayAccessExpression)
+    protected virtual Expression VisitObjectArrayAccess(ObjectArrayAccessExpression objectArrayAccessExpression)
     {
         Visit(objectArrayAccessExpression.Object);
 
@@ -152,7 +191,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitObjectArrayIndex(ObjectArrayIndexExpression objectArrayIndexExpression)
+    protected virtual Expression VisitObjectArrayIndex(ObjectArrayIndexExpression objectArrayIndexExpression)
     {
         Visit(objectArrayIndexExpression.Array);
         _sqlBuilder.Append("[");
@@ -168,7 +207,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitScalarAccess(ScalarAccessExpression scalarAccessExpression)
+    protected virtual Expression VisitScalarAccess(ScalarAccessExpression scalarAccessExpression)
     {
         Visit(scalarAccessExpression.Object);
 
@@ -191,7 +230,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression)
+    protected virtual Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression)
     {
         Visit(objectAccessExpression.Object);
 
@@ -209,7 +248,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
+    protected virtual Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
     {
         _sqlBuilder.AppendLine("(");
         using (_sqlBuilder.Indent())
@@ -228,7 +267,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitProjection(ProjectionExpression projectionExpression)
+    protected virtual Expression VisitProjection(ProjectionExpression projectionExpression)
     {
         GenerateProjection(projectionExpression, objectProjectionStyle: false);
         return projectionExpression;
@@ -272,7 +311,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitObjectReference(ObjectReferenceExpression objectReferenceExpression)
+    protected virtual Expression VisitObjectReference(ObjectReferenceExpression objectReferenceExpression)
     {
         _sqlBuilder.Append(objectReferenceExpression.Name);
 
@@ -285,7 +324,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitValueReference(ScalarReferenceExpression scalarReferenceExpression)
+    protected virtual Expression VisitValueReference(ScalarReferenceExpression scalarReferenceExpression)
     {
         _sqlBuilder.Append(scalarReferenceExpression.Name);
 
@@ -298,7 +337,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitSelect(SelectExpression selectExpression)
+    protected virtual Expression VisitSelect(SelectExpression selectExpression)
     {
         _sqlBuilder.Append("SELECT ");
 
@@ -405,8 +444,13 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         return selectExpression;
     }
 
-    /// <inheritdoc />
-    protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Expression VisitFromSql(FromSqlExpression fromSqlExpression)
     {
         var sql = fromSqlExpression.Sql;
 
@@ -423,9 +467,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 {
                     // Note that we don't go through _sqlParametersByOriginalName, since the FromSql parameters we're adding here cannot
                     // be referenced multiple times.
-                    var parameterName = UseOldBehavior37252
-                        ? _parameterNameGenerator.GenerateNext()
-                        : PrefixAndUniquifyParameterName("p");
+                    var parameterName = PrefixAndUniquifyParameterName("p");
                     _sqlParameters.Add(new SqlParameter(parameterName, parameterValues[i]));
                     substitutions[i] = parameterName;
                 }
@@ -480,7 +522,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitOrdering(OrderingExpression orderingExpression)
+    protected virtual Expression VisitOrdering(OrderingExpression orderingExpression)
     {
         Visit(orderingExpression.Expression);
 
@@ -498,7 +540,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
+    protected virtual Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {
         if (sqlBinaryExpression.OperatorType is ExpressionType.ArrayIndex)
         {
@@ -572,7 +614,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitObjectBinary(ObjectBinaryExpression objectBinaryExpression)
+    protected virtual Expression VisitObjectBinary(ObjectBinaryExpression objectBinaryExpression)
     {
         var op = objectBinaryExpression.OperatorType switch
         {
@@ -596,7 +638,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+    protected virtual Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
     {
         var op = sqlUnaryExpression.OperatorType switch
         {
@@ -653,7 +695,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    protected virtual Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
         Check.DebugAssert(sqlConstantExpression.TypeMapping is not null, "SqlConstantExpression without a type mapping");
         _sqlBuilder.Append(((CosmosTypeMapping)sqlConstantExpression.TypeMapping).GenerateConstant(sqlConstantExpression.Value));
@@ -667,7 +709,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitFragment(FragmentExpression fragmentExpression)
+    protected virtual Expression VisitFragment(FragmentExpression fragmentExpression)
     {
         _sqlBuilder.Append(fragmentExpression.Fragment);
 
@@ -680,7 +722,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
+    protected virtual Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
     {
         _sqlBuilder.Append('(');
         Visit(sqlConditionalExpression.Test);
@@ -699,44 +741,24 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
+    protected virtual Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
-        if (UseOldBehavior37252)
+        if (!_sqlParametersByOriginalName.TryGetValue(sqlParameterExpression.Name, out var sqlParameter))
         {
-            var parameterName = $"@{sqlParameterExpression.Name}";
+            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
 
-            if (_sqlParameters.All(sp => sp.Name != parameterName))
-            {
-                Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
+            var parameterName = PrefixAndUniquifyParameterName(sqlParameterExpression.Name);
 
-                _sqlParameters.Add(
-                    new SqlParameter(
-                        parameterName,
-                        ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                        .GenerateJToken(_parameterValues[sqlParameterExpression.Name])));
-            }
+            sqlParameter = new SqlParameter(
+                    parameterName,
+                    ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
+                    .GenerateJToken(_parameterValues[sqlParameterExpression.Name]));
 
-            _sqlBuilder.Append(parameterName);
+            _sqlParametersByOriginalName[sqlParameterExpression.Name] = sqlParameter;
+            _sqlParameters.Add(sqlParameter);
         }
-        else
-        {
-            if (!_sqlParametersByOriginalName.TryGetValue(sqlParameterExpression.Name, out var sqlParameter))
-            {
-                Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
 
-                var parameterName = PrefixAndUniquifyParameterName(sqlParameterExpression.Name);
-
-                sqlParameter = new SqlParameter(
-                        parameterName,
-                        ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                        .GenerateJToken(_parameterValues[sqlParameterExpression.Name]));
-
-                _sqlParametersByOriginalName[sqlParameterExpression.Name] = sqlParameter;
-                _sqlParameters.Add(sqlParameter);
-            }
-
-            _sqlBuilder.Append(sqlParameter.Name);
-        }
+        _sqlBuilder.Append(sqlParameter.Name);
 
         return sqlParameterExpression;
     }
@@ -747,7 +769,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected sealed override Expression VisitIn(InExpression inExpression)
+    protected virtual Expression VisitIn(InExpression inExpression)
     {
         GenerateIn(inExpression, negated: false);
 
@@ -760,7 +782,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitArrayConstant(ArrayConstantExpression arrayConstantExpression)
+    protected virtual Expression VisitArrayConstant(ArrayConstantExpression arrayConstantExpression)
     {
         _sqlBuilder.Append("[");
 
@@ -786,7 +808,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected sealed override Expression VisitSource(SourceExpression sourceExpression)
+    protected virtual Expression VisitSource(SourceExpression sourceExpression)
     {
         // https://learn.microsoft.com/azure/cosmos-db/nosql/query/from
         if (sourceExpression.WithIn)
@@ -883,7 +905,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitObjectFunction(ObjectFunctionExpression objectFunctionExpression)
+    protected virtual Expression VisitObjectFunction(ObjectFunctionExpression objectFunctionExpression)
     {
         GenerateFunction(objectFunctionExpression.Name, objectFunctionExpression.Arguments);
         return objectFunctionExpression;
@@ -895,7 +917,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+    protected virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
     {
         GenerateFunction(sqlFunctionExpression.Name, sqlFunctionExpression.Arguments);
         return sqlFunctionExpression;

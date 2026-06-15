@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class TemporaryDateTimeOffsetValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_create_values_for_DateTime_types()
     {
         var generator = new TemporaryDateTimeOffsetValueGenerator();
@@ -15,7 +15,7 @@ public class TemporaryDateTimeOffsetValueGeneratorTest
         Assert.Equal(new DateTimeOffset(2, TimeSpan.Zero), generator.Next(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Generates_temporary_values()
         => Assert.True(new TemporaryDateTimeOffsetValueGenerator().GeneratesTemporaryValues);
 }

@@ -35,7 +35,7 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 
     protected abstract void BindText(string value);
 
-    protected abstract void BindBlob(byte[] value);
+    protected abstract void BindBlob(ReadOnlySpan<byte> value);
 
     protected abstract void BindNull();
 
@@ -63,6 +63,16 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         {
             var value1 = (byte[])value;
             BindBlob(value1);
+        }
+        else if (type == typeof(Memory<byte>))
+        {
+            var value1 = (Memory<byte>)value;
+            BindBlob(value1.Span);
+        }
+        else if (type == typeof(ReadOnlyMemory<byte>))
+        {
+            var value1 = (ReadOnlyMemory<byte>)value;
+            BindBlob(value1.Span);
         }
         else if (type == typeof(char))
         {
@@ -228,6 +238,12 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             var value1 = (long)(ushort)value;
             BindInt64(value1);
         }
+#if NET7_0_OR_GREATER
+        else if (type == typeof(UInt128))
+        {
+            BindText(((UInt128)value).ToString("D39", CultureInfo.InvariantCulture));
+        }
+#endif
         else
         {
             throw new InvalidOperationException(Resources.UnknownDataType(type));
@@ -240,6 +256,8 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             { typeof(bool), SqliteType.Integer },
             { typeof(byte), SqliteType.Integer },
             { typeof(byte[]), SqliteType.Blob },
+            { typeof(Memory<byte>), SqliteType.Blob },
+            { typeof(ReadOnlyMemory<byte>), SqliteType.Blob },
             { typeof(char), SqliteType.Text },
             { typeof(DateTime), SqliteType.Text },
             { typeof(DateTimeOffset), SqliteType.Text },
@@ -247,7 +265,11 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             { typeof(DateOnly), SqliteType.Text },
             { typeof(TimeOnly), SqliteType.Text },
 #endif
+
             { typeof(DBNull), SqliteType.Text },
+#if NET7_0_OR_GREATER
+            { typeof(UInt128), SqliteType.Text },
+#endif
             { typeof(decimal), SqliteType.Text },
             { typeof(double), SqliteType.Real },
             { typeof(float), SqliteType.Real },

@@ -27,6 +27,90 @@ END = N'Seattle'
 """);
     }
 
+    public override async Task Conditional_simplifiable_equality()
+    {
+        await base.Conditional_simplifiable_equality();
+
+        AssertSql(
+            """
+SELECT [n].[Id], [n].[Bool], [n].[Byte], [n].[ByteArray], [n].[DateOnly], [n].[DateTime], [n].[DateTimeOffset], [n].[Decimal], [n].[Double], [n].[Enum], [n].[FlagsEnum], [n].[Float], [n].[Guid], [n].[Int], [n].[Long], [n].[Short], [n].[String], [n].[TimeOnly], [n].[TimeSpan]
+FROM [NullableBasicTypesEntities] AS [n]
+WHERE [n].[Int] > 1
+""");
+    }
+
+    public override async Task Conditional_simplifiable_inequality()
+    {
+        await base.Conditional_simplifiable_inequality();
+
+        AssertSql(
+            """
+SELECT [n].[Id], [n].[Bool], [n].[Byte], [n].[ByteArray], [n].[DateOnly], [n].[DateTime], [n].[DateTimeOffset], [n].[Decimal], [n].[Double], [n].[Enum], [n].[FlagsEnum], [n].[Float], [n].[Guid], [n].[Int], [n].[Long], [n].[Short], [n].[String], [n].[TimeOnly], [n].[TimeSpan]
+FROM [NullableBasicTypesEntities] AS [n]
+WHERE [n].[Int] > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_equality_left()
+    {
+        await base.Conditional_uncoalesce_with_equality_left();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_equality_right()
+    {
+        await base.Conditional_uncoalesce_with_equality_right();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_inequality_left()
+    {
+        await base.Conditional_uncoalesce_with_inequality_left();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_inequality_right()
+    {
+        await base.Conditional_uncoalesce_with_inequality_right();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_string()
+    {
+        await base.Conditional_uncoalesce_with_string();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[String], N'Seattle') = N'London'
+""");
+    }
+
     public override async Task Coalesce()
     {
         await base.Coalesce();
@@ -39,7 +123,7 @@ WHERE COALESCE([n].[String], N'Unknown') = N'Seattle'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

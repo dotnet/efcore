@@ -23,7 +23,7 @@ public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecution
             new DbContext(
                 new DbContextOptionsBuilder()
                     .EnableServiceProviderCaching(false)
-                    .UseSqlServer(TestEnvironment.DefaultConnection).Options),
+                    .UseSqlServer(SqlServerTestEnvironment.DefaultConnection).Options),
             DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
     {
     }

@@ -12,7 +12,7 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
     where TModelCustomizer : ITestModelCustomizer, new()
 {
     protected override ITestStoreFactory TestStoreFactory
-        => CosmosNorthwindTestStoreFactory.Instance;
+        => CosmosTestStoreFactory.Instance;
 
     protected override bool UsePooling
         => false;

@@ -11,7 +11,7 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class OwnedTypesTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -44,7 +44,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_using_nested_closure()
         {
             var modelBuilder = CreateModelBuilder();
@@ -65,7 +65,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(owned.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_one_to_one_owned_type_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -111,7 +111,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToOneOwnedWithField)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_one_to_many_owned_type_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -156,7 +156,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToManyOwnedWithField)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_inverse()
         {
             var modelBuilder = CreateModelBuilder();
@@ -182,7 +182,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(ownership.DeclaringEntityType.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -204,7 +204,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, owned.GetChangeTrackingStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -220,7 +220,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey().Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_ownership_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -239,7 +239,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(ownership.DeclaringEntityType.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_another_relationship_to_owner()
         {
             var modelBuilder = CreateModelBuilder();
@@ -273,7 +273,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Changing_ownership_uniqueness_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -293,7 +293,7 @@ public abstract partial class ModelBuilderTest
                     })).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_on_derived_type_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -311,7 +311,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(ownership.DeclaringEntityType.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_on_derived_types_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -330,7 +330,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(ownership.DeclaringEntityType.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_multiple_ownerships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -352,7 +352,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(ownership2.DeclaringEntityType.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_one_to_one_relationship_from_an_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -379,7 +379,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, ownership.DeclaringEntityType.GetForeignKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_collection_from_an_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -428,7 +428,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(3, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -490,7 +490,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(owned.GetNavigations());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_collection_using_nested_closure()
         {
             var modelBuilder = CreateModelBuilder();
@@ -537,7 +537,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_one_to_one_relationship_from_an_owned_type_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -585,7 +585,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(SpecialOrder)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_call_Owner_fluent_api_after_calling_Entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -611,7 +611,7 @@ public abstract partial class ModelBuilderTest
             Params = 4
         }
 
-        [ConditionalTheory, InlineData(HasDataOverload.Array), InlineData(HasDataOverload.Array | HasDataOverload.Params),
+        [Theory, InlineData(HasDataOverload.Array), InlineData(HasDataOverload.Array | HasDataOverload.Params),
          InlineData(HasDataOverload.Array | HasDataOverload.Generic),
          InlineData(HasDataOverload.Array | HasDataOverload.Params | HasDataOverload.Generic), InlineData(HasDataOverload.Enumerable),
          InlineData(HasDataOverload.Enumerable | HasDataOverload.Generic)]
@@ -673,7 +673,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(4, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_chain_owned_type_collection_configurations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -725,7 +725,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(4, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_collection_without_explicit_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -769,7 +769,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(4, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_collection_without_explicit_key_or_candidate()
         {
             var modelBuilder = CreateModelBuilder();
@@ -816,7 +816,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(4, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Ambiguous_relationship_between_owned_types_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -832,7 +832,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_collection_with_one_call()
         {
             var modelBuilder = CreateModelBuilder();
@@ -887,7 +887,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(conventionModel.FindIgnoredConfigurationSource(typeof(SpecialCustomer)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_type_collection_with_one_call_afterwards()
         {
             var modelBuilder = CreateModelBuilder();
@@ -934,7 +934,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(conventionModel.FindIgnoredConfigurationSource(typeof(SpecialCustomer)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_single_owned_type_using_attribute()
         {
             var modelBuilder = CreateModelBuilder();
@@ -955,7 +955,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(ownership.DeclaringEntityType.FindProperty(nameof(StreetAddress.Street)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_fk_on_multiple_ownerships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -994,7 +994,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(3, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_map_base_of_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1021,7 +1021,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(owned.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_map_base_of_owned_type_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1048,7 +1048,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(owned.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_map_derived_of_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1085,7 +1085,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_map_derived_of_owned_type_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1120,7 +1120,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_relationship_with_PK_ValueConverter_shadow_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1159,7 +1159,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(3, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_relationship_with_PK_ValueConverter()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1190,7 +1190,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_on_FK_matching_two_relationships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1211,7 +1211,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_chained_ownerships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1263,7 +1263,7 @@ public abstract partial class ModelBuilderTest
             VerifyOwnedBookLabelModel(model);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_chained_ownerships_different_order()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1322,7 +1322,7 @@ public abstract partial class ModelBuilderTest
             VerifyOwnedBookLabelModel(model);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_hierarchy_with_reference_navigations_as_owned()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1372,7 +1372,7 @@ public abstract partial class ModelBuilderTest
             VerifyOwnedBookLabelModel(model);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_hierarchy_with_reference_navigations_as_owned_afterwards()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1475,7 +1475,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Removing_ambiguous_inverse_allows_navigations_to_be_discovered()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1529,7 +1529,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_self_ownership()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1550,7 +1550,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
         }
 
-        [ConditionalTheory, InlineData(16, 2, 16, 4, 16, 4, 16, 4, 16, 4), InlineData(16, 2, 17, 4, 17, 4, 17, 4, 17, 4),
+        [Theory, InlineData(16, 2, 16, 4, 16, 4, 16, 4, 16, 4), InlineData(16, 2, 17, 4, 17, 4, 17, 4, 17, 4),
          InlineData(null, null, 16, 4, 16, 4, 16, 4, 16, 4), InlineData(null, null, 16, 4, 15, 3, 14, 2, 13, 1),
          InlineData(null, null, 16, null, 15, null, 14, null, 13, null), InlineData(17, null, 16, null, 15, null, 14, null, 13, null),
          InlineData(17, 5, 16, 4, 15, 3, 14, 2, 13, 1), InlineData(17, 5, null, null, null, null, null, null, null, null)] // Issue #28091
@@ -1658,7 +1658,7 @@ public abstract partial class ModelBuilderTest
             public List<DepartmentId> DepartmentIds { get; set; }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_property_and_owned_entity_of_same_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1692,7 +1692,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(departmentIdProperty.GetValueConverter(), departmentIdFkProperty.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_owned_entity_and_property_of_same_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1727,7 +1727,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(departmentIdProperty.GetValueConverter(), departmentIdFkProperty.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Reconfiguring_entity_type_as_owned_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1740,7 +1740,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Reconfiguring_owned_type_as_non_owned_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1753,7 +1753,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<SpecialCustomer>().HasOne(c => c.Details)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Deriving_from_owned_type_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1775,7 +1775,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<AnotherBookLabel>().HasBaseType<BookLabel>()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Configuring_base_type_as_owned_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1791,7 +1791,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Book>().OwnsOne(c => c.Label)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void CLR_base_type_can_be_owned_when_not_in_hierarchy()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1823,7 +1823,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).BaseType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void OwnedType_can_derive_from_Collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1834,7 +1834,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(model.FindEntityTypes(typeof(MyList<DependentEntity>)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Shared_type_entity_types_with_FK_to_another_entity_works()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1867,7 +1867,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(Fixture.ForeignKeysHaveIndexes ? 1 : 0, bill2.GetIndexes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_multiple_owned_types_on_base()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1890,7 +1890,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(owner, ownership3.DependentToPrincipal.TargetEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Navigations_on_owned_type_can_set_access_mode_using_expressions()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1917,7 +1917,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOneOwner").GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Navigations_on_owned_type_collection_can_set_access_mode()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1944,7 +1944,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Attempt_to_create_OwnsMany_on_a_reference_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1960,7 +1960,7 @@ public abstract partial class ModelBuilderTest
             );
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Attempt_to_create_OwnsOne_on_a_collection_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1975,7 +1975,7 @@ public abstract partial class ModelBuilderTest
                     .OwnsOne<OwnedOneToManyNavDependent>("OwnedDependents")).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Shared_type_can_be_used_as_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2029,7 +2029,7 @@ public abstract partial class ModelBuilderTest
                 });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Shared_type_used_as_owned_type_throws_for_same_name()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2046,7 +2046,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void PrimitiveCollectionBuilder_methods_can_be_chained()
             => CreateModelBuilder()
                 .Entity<ComplexProperties>()
@@ -2084,7 +2084,7 @@ public abstract partial class ModelBuilderTest
                 .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                 .IsRequired();
 
-        [ConditionalFact]
+        [Fact]
         public virtual void PrimitiveCollectionBuilder_methods_can_be_chained_on_collection()
             => CreateModelBuilder()
                 .Entity<Customer>()
@@ -2138,5 +2138,36 @@ public abstract partial class ModelBuilderTest
         }
 
         private class CustomValueComparer<T>() : ValueComparer<T>(false);
+
+        [Fact]
+        public virtual void Lambda_throws_when_intermediate_is_owned_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember(nameof(Customer.Details), nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<Customer>().Property(c => c.Details.CustomerId)).Message);
+        }
+
+        [Fact]
+        public virtual void Dotted_string_throws_when_intermediate_is_nested_owned_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<CustomerDetails>().OwnsOne(
+                o => o.Customer,
+                cb => cb.OwnsMany(c => c.Orders));
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember(nameof(CustomerDetails.Customer), "CustomerDetails"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<CustomerDetails>().Property<string>("Customer.Name")).Message);
+        }
     }
 }

@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.IsNotEmulator)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential), nameof(CosmosTestEnvironment.IsNotEmulator))]
 public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.HybridSearchFixture>
 {
     public HybridSearchCosmosTest(HybridSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -16,7 +16,7 @@ public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.Hybri
 
     protected HybridSearchFixture Fixture { get; }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rrf_with_FullTextScore_and_VectorDistance()
     {
         await using var context = CreateContext();
@@ -39,7 +39,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rrf_with_FullTextScore_and_VectorDistance_with_weights()
     {
         await using var context = CreateContext();
@@ -66,7 +66,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rrf_with_FullTextScore_and_FullTextScore_with_owned_type()
     {
         await using var context = CreateContext();

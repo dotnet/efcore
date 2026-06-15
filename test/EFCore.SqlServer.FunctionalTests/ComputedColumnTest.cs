@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ComputedColumnTest : IAsyncLifetime
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_computed_columns()
     {
         var serviceProvider = new ServiceCollection()
@@ -31,7 +31,7 @@ public class ComputedColumnTest : IAsyncLifetime
         Assert.Equal(100, entity.P5);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_computed_columns_with_null_values()
     {
         var serviceProvider = new ServiceCollection()
@@ -112,7 +112,7 @@ public class ComputedColumnTest : IAsyncLifetime
                 .HasComputedColumnSql("FlagEnum | OptionalFlagEnum");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_computed_columns_with_nullable_enum()
     {
         var serviceProvider = new ServiceCollection()
@@ -130,9 +130,9 @@ public class ComputedColumnTest : IAsyncLifetime
 
     protected SqlServerTestStore TestStore { get; private set; }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("ComputedColumnTest");
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }

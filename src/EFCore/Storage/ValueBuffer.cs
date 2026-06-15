@@ -94,7 +94,15 @@ public readonly struct ValueBuffer : IEquatable<ValueBuffer>
     /// </returns>
     public bool Equals(ValueBuffer other)
     {
-        if (_values.Length != other._values.Length)
+        if (_values == null
+            && other._values == null)
+        {
+            return true;
+        }
+
+        if (_values == null
+            || other._values == null
+            || _values.Length != other._values.Length)
         {
             return false;
         }

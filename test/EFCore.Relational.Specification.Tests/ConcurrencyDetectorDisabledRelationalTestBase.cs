@@ -14,7 +14,7 @@ public abstract class ConcurrencyDetectorDisabledRelationalTestBase<TFixture>(TF
     protected string NormalizeDelimitersInRawString(string sql)
         => (Fixture.TestStore as RelationalTestStore)?.NormalizeDelimitersInRawString(sql) ?? sql;
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql(bool async)
         => ConcurrencyDetectorTest(async c => async
             ? await c.Products.FromSqlRaw(NormalizeDelimitersInRawString("select * from [Products]")).ToListAsync()

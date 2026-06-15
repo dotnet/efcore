@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class InMemoryModelValidatorTest : ModelValidatorTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_ToQuery_on_derived_keyless_types()
     {
         var modelBuilder = base.CreateConventionModelBuilder();

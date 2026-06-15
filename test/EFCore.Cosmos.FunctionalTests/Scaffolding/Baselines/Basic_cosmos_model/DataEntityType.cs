@@ -21,425 +21,430 @@ using Newtonsoft.Json.Linq;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+[EntityFrameworkInternal]
+public partial class DataEntityType
 {
-    [EntityFrameworkInternal]
-    public partial class DataEntityType
+    public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
-        {
-            var runtimeEntityType = model.AddEntityType(
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data",
-                typeof(CompiledModelTestBase.Data),
-                baseEntityType,
-                propertyCount: 9,
-                keyCount: 1);
+        var runtimeEntityType = model.AddEntityType(
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data",
+            typeof(CompiledModelTestBase.Data),
+            baseEntityType,
+            propertyCount: 9,
+            keyCount: 1);
 
-            var id = runtimeEntityType.AddProperty(
-                "Id",
-                typeof(int),
-                afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
-            id.SetAccessors(
-                int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
-                int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
-                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
-            id.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: 0,
-                shadowIndex: 0,
-                relationshipIndex: 0,
-                storeGenerationIndex: -1);
-            id.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                clrType: typeof(int),
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
-            id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        var id = runtimeEntityType.AddProperty(
+            "Id",
+            typeof(int),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            sentinel: 0);
+        id.SetAccessors(
+            int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
+            int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
+            int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
+            int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
+        id.SetPropertyIndexes(
+            index: 0,
+            originalValueIndex: 0,
+            shadowIndex: 0,
+            relationshipIndex: 0,
+            storeGenerationIndex: -1);
+        id.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ValueComparer<int>(
+                bool (int v1, int v2) => v1 == v2,
+                int (int v) => v,
+                int (int v) => v),
+            keyComparer: new ValueComparer<int>(
+                bool (int v1, int v2) => v1 == v2,
+                int (int v) => v,
+                int (int v) => v),
+            providerValueComparer: new ValueComparer<int>(
+                bool (int v1, int v2) => v1 == v2,
+                int (int v) => v,
+                int (int v) => v),
+            clrType: typeof(int),
+            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
-            var partitionId = runtimeEntityType.AddProperty(
-                "PartitionId",
-                typeof(long?),
-                afterSaveBehavior: PropertySaveBehavior.Throw,
-                providerPropertyType: typeof(string));
-            partitionId.SetAccessors(
-                long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
-                long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
-                long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(partitionId, 1),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(partitionId, 1));
-            partitionId.SetPropertyIndexes(
-                index: 1,
-                originalValueIndex: 1,
-                shadowIndex: 1,
-                relationshipIndex: 1,
-                storeGenerationIndex: -1);
-            partitionId.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<long>(
-                    bool (long v1, long v2) => v1 == v2,
-                    int (long v) => ((object)v).GetHashCode(),
-                    long (long v) => v),
-                keyComparer: new ValueComparer<long>(
-                    bool (long v1, long v2) => v1 == v2,
-                    int (long v) => ((object)v).GetHashCode(),
-                    long (long v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                converter: new ValueConverter<long, string>(
+        var partitionId = runtimeEntityType.AddProperty(
+            "PartitionId",
+            typeof(long?),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            providerPropertyType: typeof(string));
+        partitionId.SetAccessors(
+            long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
+            long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
+            long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(partitionId, 1),
+            long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(partitionId, 1));
+        partitionId.SetPropertyIndexes(
+            index: 1,
+            originalValueIndex: 1,
+            shadowIndex: 1,
+            relationshipIndex: 1,
+            storeGenerationIndex: -1);
+        partitionId.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ValueComparer<long>(
+                bool (long v1, long v2) => v1 == v2,
+                int (long v) => ((object)v).GetHashCode(),
+                long (long v) => v),
+            keyComparer: new ValueComparer<long>(
+                bool (long v1, long v2) => v1 == v2,
+                int (long v) => ((object)v).GetHashCode(),
+                long (long v) => v),
+            providerValueComparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            converter: new ValueConverter<long, string>(
+                string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
+                long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
+            jsonValueReaderWriter: new JsonConvertedValueReaderWriter<long, string>(
+                JsonStringReaderWriter.Instance,
+                new ValueConverter<long, string>(
                     string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                    long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<long, string>(
-                    JsonStringReaderWriter.Instance,
-                    new ValueConverter<long, string>(
-                        string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                        long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
-            partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(partitionId));
-            partitionId.SetComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
-            partitionId.SetKeyComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
+                    long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
+        partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(partitionId));
+        partitionId.SetComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
+        partitionId.SetKeyComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
 
-            var blob = runtimeEntityType.AddProperty(
-                "Blob",
-                typeof(byte[]),
-                propertyInfo: typeof(CompiledModelTestBase.Data).GetProperty("Blob", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.Data).GetField("<Blob>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            blob.SetGetter(
-                byte[] (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance),
-                bool (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance) == null);
-            blob.SetSetter(
-                CompiledModelTestBase.Data (CompiledModelTestBase.Data instance, byte[] value) =>
-                {
-                    DataUnsafeAccessors.Blob(instance) = value;
-                    return instance;
-                });
-            blob.SetMaterializationSetter(
-                CompiledModelTestBase.Data (CompiledModelTestBase.Data instance, byte[] value) =>
-                {
-                    DataUnsafeAccessors.Blob(instance) = value;
-                    return instance;
-                });
-            blob.SetAccessors(
-                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
-                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
-                byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 2),
-                byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(blob));
-            blob.SetPropertyIndexes(
-                index: 2,
-                originalValueIndex: 2,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            blob.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
-                    int (byte[] v) => ((object)v).GetHashCode(),
-                    byte[] (byte[] v) => v),
-                keyComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
-                    byte[] (byte[] source) => source.ToArray()),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                converter: new ValueConverter<byte[], string>(
+        var blob = runtimeEntityType.AddProperty(
+            "Blob",
+            typeof(byte[]),
+            propertyInfo: typeof(CompiledModelTestBase.Data).GetProperty("Blob", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(CompiledModelTestBase.Data).GetField("<Blob>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        blob.SetGetter(
+            byte[] (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance),
+            bool (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance) == null);
+        blob.SetSetter(
+            CompiledModelTestBase.Data (CompiledModelTestBase.Data instance, byte[] value) =>
+            {
+                DataUnsafeAccessors.Blob(instance) = value;
+                return instance;
+            });
+        blob.SetMaterializationSetter(
+            CompiledModelTestBase.Data (CompiledModelTestBase.Data instance, byte[] value) =>
+            {
+                DataUnsafeAccessors.Blob(instance) = value;
+                return instance;
+            });
+        blob.SetAccessors(
+            byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
+            byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
+            byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 2),
+            byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(blob));
+        blob.SetPropertyIndexes(
+            index: 2,
+            originalValueIndex: 2,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        blob.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ValueComparer<byte[]>(
+                bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                int (byte[] v) => ((object)v).GetHashCode(),
+                byte[] (byte[] v) => v),
+            keyComparer: new ValueComparer<byte[]>(
+                bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
+                byte[] (byte[] source) => source.ToArray()),
+            providerValueComparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            converter: new ValueConverter<byte[], string>(
+                string (byte[] v) => Convert.ToBase64String(v),
+                byte[] (string v) => Convert.FromBase64String(v)),
+            jsonValueReaderWriter: new JsonConvertedValueReaderWriter<byte[], string>(
+                JsonStringReaderWriter.Instance,
+                new ValueConverter<byte[], string>(
                     string (byte[] v) => Convert.ToBase64String(v),
-                    byte[] (string v) => Convert.FromBase64String(v)),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<byte[], string>(
-                    JsonStringReaderWriter.Instance,
-                    new ValueConverter<byte[], string>(
-                        string (byte[] v) => Convert.ToBase64String(v),
-                        byte[] (string v) => Convert.FromBase64String(v))));
-            blob.AddAnnotation("Cosmos:PropertyName", "JsonBlob");
+                    byte[] (string v) => Convert.FromBase64String(v))));
+        blob.AddAnnotation("Cosmos:PropertyName", "JsonBlob");
 
-            var bytes = runtimeEntityType.AddProperty(
-                "Bytes",
-                typeof(ReadOnlyMemory<byte>));
-            bytes.SetAccessors(
-                ReadOnlyMemory<byte> (IInternalEntry entry) => entry.ReadShadowValue<ReadOnlyMemory<byte>>(2),
-                ReadOnlyMemory<byte> (IInternalEntry entry) => entry.ReadShadowValue<ReadOnlyMemory<byte>>(2),
-                ReadOnlyMemory<byte> (IInternalEntry entry) => entry.ReadOriginalValue<ReadOnlyMemory<byte>>(bytes, 3),
-                ReadOnlyMemory<byte> (IInternalEntry entry) => entry.GetCurrentValue<ReadOnlyMemory<byte>>(bytes));
-            bytes.SetPropertyIndexes(
-                index: 3,
-                originalValueIndex: 3,
-                shadowIndex: 2,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            bytes.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<ReadOnlyMemory<byte>>(
-                    bool (ReadOnlyMemory<byte> v1, ReadOnlyMemory<byte> v2) => v1.Equals(v2),
-                    int (ReadOnlyMemory<byte> v) => ((object)v).GetHashCode(),
-                    ReadOnlyMemory<byte> (ReadOnlyMemory<byte> v) => v),
-                keyComparer: new ValueComparer<ReadOnlyMemory<byte>>(
-                    bool (ReadOnlyMemory<byte> v1, ReadOnlyMemory<byte> v2) => v1.Equals(v2),
-                    int (ReadOnlyMemory<byte> v) => ((object)v).GetHashCode(),
-                    ReadOnlyMemory<byte> (ReadOnlyMemory<byte> v) => v),
-                providerValueComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
-                    byte[] (byte[] source) => source.ToArray()),
-                converter: new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
+        var bytes = runtimeEntityType.AddProperty(
+            "Bytes",
+            typeof(ReadOnlyMemory<byte>));
+        bytes.SetAccessors(
+            ReadOnlyMemory<byte> (IInternalEntry entry) => entry.ReadShadowValue<ReadOnlyMemory<byte>>(2),
+            ReadOnlyMemory<byte> (IInternalEntry entry) => entry.ReadShadowValue<ReadOnlyMemory<byte>>(2),
+            ReadOnlyMemory<byte> (IInternalEntry entry) => entry.ReadOriginalValue<ReadOnlyMemory<byte>>(bytes, 3),
+            ReadOnlyMemory<byte> (IInternalEntry entry) => entry.GetCurrentValue<ReadOnlyMemory<byte>>(bytes));
+        bytes.SetPropertyIndexes(
+            index: 3,
+            originalValueIndex: 3,
+            shadowIndex: 2,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        bytes.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ValueComparer<ReadOnlyMemory<byte>>(
+                bool (ReadOnlyMemory<byte> v1, ReadOnlyMemory<byte> v2) => v1.Equals(v2),
+                int (ReadOnlyMemory<byte> v) => ((object)v).GetHashCode(),
+                ReadOnlyMemory<byte> (ReadOnlyMemory<byte> v) => v),
+            keyComparer: new ValueComparer<ReadOnlyMemory<byte>>(
+                bool (ReadOnlyMemory<byte> v1, ReadOnlyMemory<byte> v2) => v1.Equals(v2),
+                int (ReadOnlyMemory<byte> v) => ((object)v).GetHashCode(),
+                ReadOnlyMemory<byte> (ReadOnlyMemory<byte> v) => v),
+            providerValueComparer: new ValueComparer<byte[]>(
+                bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
+                byte[] (byte[] source) => source.ToArray()),
+            converter: new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
+                byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v),
+                ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v)),
+            jsonValueReaderWriter: new JsonConvertedValueReaderWriter<ReadOnlyMemory<byte>, IEnumerable<byte>>(
+                new JsonCollectionOfStructsReaderWriter<byte[], byte>(
+                    JsonByteReaderWriter.Instance),
+                new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
                     byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v),
-                    ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v)));
-            bytes.SetSentinelFromProviderValue(new byte[0]);
+                    ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v))));
+        bytes.SetSentinelFromProviderValue(new byte[0]);
 
-            var list = runtimeEntityType.AddProperty(
-                "List",
-                typeof(List<Dictionary<string, int>>),
-                nullable: true);
-            list.SetAccessors(
-                List<Dictionary<string, int>> (IInternalEntry entry) => entry.ReadShadowValue<List<Dictionary<string, int>>>(3),
-                List<Dictionary<string, int>> (IInternalEntry entry) => entry.ReadShadowValue<List<Dictionary<string, int>>>(3),
-                List<Dictionary<string, int>> (IInternalEntry entry) => entry.ReadOriginalValue<List<Dictionary<string, int>>>(list, 4),
-                List<Dictionary<string, int>> (IInternalEntry entry) => entry.GetCurrentValue<List<Dictionary<string, int>>>(list));
-            list.SetPropertyIndexes(
-                index: 4,
-                originalValueIndex: 4,
-                shadowIndex: 3,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            list.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<List<Dictionary<string, int>>, Dictionary<string, int>>(new ConvertingValueComparer<Dictionary<string, int>, object>(new StringDictionaryComparer<Dictionary<string, int>, int>(new ValueComparer<int>(
+        var list = runtimeEntityType.AddProperty(
+            "List",
+            typeof(List<Dictionary<string, int>>),
+            nullable: true);
+        list.SetAccessors(
+            List<Dictionary<string, int>> (IInternalEntry entry) => entry.ReadShadowValue<List<Dictionary<string, int>>>(3),
+            List<Dictionary<string, int>> (IInternalEntry entry) => entry.ReadShadowValue<List<Dictionary<string, int>>>(3),
+            List<Dictionary<string, int>> (IInternalEntry entry) => entry.ReadOriginalValue<List<Dictionary<string, int>>>(list, 4),
+            List<Dictionary<string, int>> (IInternalEntry entry) => entry.GetCurrentValue<List<Dictionary<string, int>>>(list));
+        list.SetPropertyIndexes(
+            index: 4,
+            originalValueIndex: 4,
+            shadowIndex: 3,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        list.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ListOfReferenceTypesComparer<List<Dictionary<string, int>>, Dictionary<string, int>>(new ConvertingValueComparer<Dictionary<string, int>, object>(new StringDictionaryComparer<Dictionary<string, int>, int>(new ValueComparer<int>(
+                bool (int v1, int v2) => v1 == v2,
+                int (int v) => v,
+                int (int v) => v)))),
+            keyComparer: new ValueComparer<List<Dictionary<string, int>>>(
+                bool (List<Dictionary<string, int>> v1, List<Dictionary<string, int>> v2) => object.Equals(v1, v2),
+                int (List<Dictionary<string, int>> v) => ((object)v).GetHashCode(),
+                List<Dictionary<string, int>> (List<Dictionary<string, int>> v) => v),
+            providerValueComparer: new ValueComparer<List<Dictionary<string, int>>>(
+                bool (List<Dictionary<string, int>> v1, List<Dictionary<string, int>> v2) => object.Equals(v1, v2),
+                int (List<Dictionary<string, int>> v) => ((object)v).GetHashCode(),
+                List<Dictionary<string, int>> (List<Dictionary<string, int>> v) => v),
+            clrType: typeof(List<Dictionary<string, int>>),
+            jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<Dictionary<string, int>>, Dictionary<string, int>>(
+                new CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReaderWriter<int>(
+                    JsonInt32ReaderWriter.Instance)),
+            elementMapping: CosmosTypeMapping.Default.Clone(
+                comparer: new StringDictionaryComparer<Dictionary<string, int>, int>(new ValueComparer<int>(
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
-                    int (int v) => v)))),
-                keyComparer: new ValueComparer<List<Dictionary<string, int>>>(
-                    bool (List<Dictionary<string, int>> v1, List<Dictionary<string, int>> v2) => object.Equals(v1, v2),
-                    int (List<Dictionary<string, int>> v) => ((object)v).GetHashCode(),
-                    List<Dictionary<string, int>> (List<Dictionary<string, int>> v) => v),
-                providerValueComparer: new ValueComparer<List<Dictionary<string, int>>>(
-                    bool (List<Dictionary<string, int>> v1, List<Dictionary<string, int>> v2) => object.Equals(v1, v2),
-                    int (List<Dictionary<string, int>> v) => ((object)v).GetHashCode(),
-                    List<Dictionary<string, int>> (List<Dictionary<string, int>> v) => v),
-                clrType: typeof(List<Dictionary<string, int>>),
-                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<Dictionary<string, int>>, Dictionary<string, int>>(
-                    new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<int>(
-                        JsonInt32ReaderWriter.Instance)),
-                elementMapping: CosmosTypeMapping.Default.Clone(
-                    comparer: new StringDictionaryComparer<Dictionary<string, int>, int>(new ValueComparer<int>(
-                        bool (int v1, int v2) => v1 == v2,
-                        int (int v) => v,
-                        int (int v) => v)),
-                    keyComparer: new ValueComparer<Dictionary<string, int>>(
-                        bool (Dictionary<string, int> v1, Dictionary<string, int> v2) => object.Equals(v1, v2),
-                        int (Dictionary<string, int> v) => ((object)v).GetHashCode(),
-                        Dictionary<string, int> (Dictionary<string, int> v) => v),
-                    providerValueComparer: new ValueComparer<Dictionary<string, int>>(
-                        bool (Dictionary<string, int> v1, Dictionary<string, int> v2) => object.Equals(v1, v2),
-                        int (Dictionary<string, int> v) => ((object)v).GetHashCode(),
-                        Dictionary<string, int> (Dictionary<string, int> v) => v),
-                    clrType: typeof(Dictionary<string, int>),
-                    jsonValueReaderWriter: new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<int>(
-                        JsonInt32ReaderWriter.Instance)));
-            var listElementType = list.SetElementType(typeof(Dictionary<string, int>),
-                nullable: true);
-            listElementType.TypeMapping = list.TypeMapping.ElementTypeMapping;
+                    int (int v) => v)),
+                keyComparer: new ValueComparer<Dictionary<string, int>>(
+                    bool (Dictionary<string, int> v1, Dictionary<string, int> v2) => object.Equals(v1, v2),
+                    int (Dictionary<string, int> v) => ((object)v).GetHashCode(),
+                    Dictionary<string, int> (Dictionary<string, int> v) => v),
+                providerValueComparer: new ValueComparer<Dictionary<string, int>>(
+                    bool (Dictionary<string, int> v1, Dictionary<string, int> v2) => object.Equals(v1, v2),
+                    int (Dictionary<string, int> v) => ((object)v).GetHashCode(),
+                    Dictionary<string, int> (Dictionary<string, int> v) => v),
+                clrType: typeof(Dictionary<string, int>),
+                jsonValueReaderWriter: new CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReaderWriter<int>(
+                    JsonInt32ReaderWriter.Instance)));
+        var listElementType = list.SetElementType(typeof(Dictionary<string, int>),
+            nullable: true);
+        listElementType.TypeMapping = list.TypeMapping.ElementTypeMapping;
 
-            var map = runtimeEntityType.AddProperty(
-                "Map",
-                typeof(Dictionary<string, string[]>),
-                nullable: true);
-            map.SetAccessors(
-                Dictionary<string, string[]> (IInternalEntry entry) => entry.ReadShadowValue<Dictionary<string, string[]>>(4),
-                Dictionary<string, string[]> (IInternalEntry entry) => entry.ReadShadowValue<Dictionary<string, string[]>>(4),
-                Dictionary<string, string[]> (IInternalEntry entry) => entry.ReadOriginalValue<Dictionary<string, string[]>>(map, 5),
-                Dictionary<string, string[]> (IInternalEntry entry) => entry.GetCurrentValue<Dictionary<string, string[]>>(map));
-            map.SetPropertyIndexes(
-                index: 5,
-                originalValueIndex: 5,
-                shadowIndex: 4,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            map.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new StringDictionaryComparer<Dictionary<string, string[]>, string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v)))),
-                keyComparer: new ValueComparer<Dictionary<string, string[]>>(
-                    bool (Dictionary<string, string[]> v1, Dictionary<string, string[]> v2) => object.Equals(v1, v2),
-                    int (Dictionary<string, string[]> v) => ((object)v).GetHashCode(),
-                    Dictionary<string, string[]> (Dictionary<string, string[]> v) => v),
-                providerValueComparer: new ValueComparer<Dictionary<string, string[]>>(
-                    bool (Dictionary<string, string[]> v1, Dictionary<string, string[]> v2) => object.Equals(v1, v2),
-                    int (Dictionary<string, string[]> v) => ((object)v).GetHashCode(),
-                    Dictionary<string, string[]> (Dictionary<string, string[]> v) => v),
-                clrType: typeof(Dictionary<string, string[]>),
-                jsonValueReaderWriter: new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<object>(
-                    new JsonCollectionOfReferencesReaderWriter<string[], string>(
-                        JsonStringReaderWriter.Instance)));
+        var map = runtimeEntityType.AddProperty(
+            "Map",
+            typeof(Dictionary<string, string[]>),
+            nullable: true);
+        map.SetAccessors(
+            Dictionary<string, string[]> (IInternalEntry entry) => entry.ReadShadowValue<Dictionary<string, string[]>>(4),
+            Dictionary<string, string[]> (IInternalEntry entry) => entry.ReadShadowValue<Dictionary<string, string[]>>(4),
+            Dictionary<string, string[]> (IInternalEntry entry) => entry.ReadOriginalValue<Dictionary<string, string[]>>(map, 5),
+            Dictionary<string, string[]> (IInternalEntry entry) => entry.GetCurrentValue<Dictionary<string, string[]>>(map));
+        map.SetPropertyIndexes(
+            index: 5,
+            originalValueIndex: 5,
+            shadowIndex: 4,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        map.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new StringDictionaryComparer<Dictionary<string, string[]>, string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v)))),
+            keyComparer: new ValueComparer<Dictionary<string, string[]>>(
+                bool (Dictionary<string, string[]> v1, Dictionary<string, string[]> v2) => object.Equals(v1, v2),
+                int (Dictionary<string, string[]> v) => ((object)v).GetHashCode(),
+                Dictionary<string, string[]> (Dictionary<string, string[]> v) => v),
+            providerValueComparer: new ValueComparer<Dictionary<string, string[]>>(
+                bool (Dictionary<string, string[]> v1, Dictionary<string, string[]> v2) => object.Equals(v1, v2),
+                int (Dictionary<string, string[]> v) => ((object)v).GetHashCode(),
+                Dictionary<string, string[]> (Dictionary<string, string[]> v) => v),
+            clrType: typeof(Dictionary<string, string[]>),
+            jsonValueReaderWriter: new CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<string[], string>(
+                new JsonCollectionOfReferencesReaderWriter<string[], string>(
+                    JsonStringReaderWriter.Instance)));
 
-            var __id = runtimeEntityType.AddProperty(
-                "__id",
-                typeof(string),
-                afterSaveBehavior: PropertySaveBehavior.Throw,
-                valueGeneratorFactory: new IdValueGeneratorFactory().Create);
-            __id.SetAccessors(
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(5),
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(5),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(__id, 6),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(__id));
-            __id.SetPropertyIndexes(
-                index: 6,
-                originalValueIndex: 6,
-                shadowIndex: 5,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            __id.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            __id.AddAnnotation("Cosmos:PropertyName", "id");
+        var __id = runtimeEntityType.AddProperty(
+            "__id",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new IdValueGeneratorFactory().Create);
+        __id.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(5),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(5),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(__id, 6),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(__id));
+        __id.SetPropertyIndexes(
+            index: 6,
+            originalValueIndex: 6,
+            shadowIndex: 5,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        __id.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            keyComparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            providerValueComparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            clrType: typeof(string),
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.AddAnnotation("Cosmos:PropertyName", "id");
 
-            var __jObject = runtimeEntityType.AddProperty(
-                "__jObject",
-                typeof(JObject),
-                nullable: true,
-                valueGenerated: ValueGenerated.OnAddOrUpdate,
-                beforeSaveBehavior: PropertySaveBehavior.Ignore,
-                afterSaveBehavior: PropertySaveBehavior.Ignore);
-            __jObject.SetAccessors(
-                JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(7) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(7) && entry.ReadShadowValue<JObject>(6) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(6))),
-                JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(6),
-                JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 7),
-                JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-            __jObject.SetPropertyIndexes(
-                index: 7,
-                originalValueIndex: 7,
-                shadowIndex: 6,
-                relationshipIndex: -1,
-                storeGenerationIndex: 0);
-            __jObject.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                keyComparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                providerValueComparer: new ValueComparer<JObject>(
-                    bool (JObject v1, JObject v2) => object.Equals(v1, v2),
-                    int (JObject v) => ((object)v).GetHashCode(),
-                    JObject (JObject v) => v),
-                clrType: typeof(JObject));
-            __jObject.AddAnnotation("Cosmos:PropertyName", "");
+        var __jObject = runtimeEntityType.AddProperty(
+            "__jObject",
+            typeof(JObject),
+            nullable: true,
+            valueGenerated: ValueGenerated.OnAddOrUpdate,
+            beforeSaveBehavior: PropertySaveBehavior.Ignore,
+            afterSaveBehavior: PropertySaveBehavior.Ignore);
+        __jObject.SetAccessors(
+            JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(7) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(7) && entry.ReadShadowValue<JObject>(6) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(6))),
+            JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(6),
+            JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 7),
+            JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
+        __jObject.SetPropertyIndexes(
+            index: 7,
+            originalValueIndex: 7,
+            shadowIndex: 6,
+            relationshipIndex: -1,
+            storeGenerationIndex: 0);
+        __jObject.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ValueComparer<JObject>(
+                bool (JObject v1, JObject v2) => object.Equals(v1, v2),
+                int (JObject v) => ((object)v).GetHashCode(),
+                JObject (JObject v) => v),
+            keyComparer: new ValueComparer<JObject>(
+                bool (JObject v1, JObject v2) => object.Equals(v1, v2),
+                int (JObject v) => ((object)v).GetHashCode(),
+                JObject (JObject v) => v),
+            providerValueComparer: new ValueComparer<JObject>(
+                bool (JObject v1, JObject v2) => object.Equals(v1, v2),
+                int (JObject v) => ((object)v).GetHashCode(),
+                JObject (JObject v) => v),
+            clrType: typeof(JObject));
+        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
-            var _etag = runtimeEntityType.AddProperty(
-                "_etag",
-                typeof(string),
-                nullable: true,
-                concurrencyToken: true,
-                valueGenerated: ValueGenerated.OnAddOrUpdate,
-                beforeSaveBehavior: PropertySaveBehavior.Ignore,
-                afterSaveBehavior: PropertySaveBehavior.Ignore);
-            _etag.SetAccessors(
-                string (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(8) ? entry.ReadStoreGeneratedValue<string>(1) : (entry.FlaggedAsTemporary(8) && entry.ReadShadowValue<string>(7) == null ? entry.ReadTemporaryValue<string>(1) : entry.ReadShadowValue<string>(7))),
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(7),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(_etag, 8),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(_etag));
-            _etag.SetPropertyIndexes(
-                index: 8,
-                originalValueIndex: 8,
-                shadowIndex: 7,
-                relationshipIndex: -1,
-                storeGenerationIndex: 1);
-            _etag.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var _etag = runtimeEntityType.AddProperty(
+            "_etag",
+            typeof(string),
+            nullable: true,
+            concurrencyToken: true,
+            valueGenerated: ValueGenerated.OnAddOrUpdate,
+            beforeSaveBehavior: PropertySaveBehavior.Ignore,
+            afterSaveBehavior: PropertySaveBehavior.Ignore);
+        _etag.SetAccessors(
+            string (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(8) ? entry.ReadStoreGeneratedValue<string>(1) : (entry.FlaggedAsTemporary(8) && entry.ReadShadowValue<string>(7) == null ? entry.ReadTemporaryValue<string>(1) : entry.ReadShadowValue<string>(7))),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(7),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(_etag, 8),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(_etag));
+        _etag.SetPropertyIndexes(
+            index: 8,
+            originalValueIndex: 8,
+            shadowIndex: 7,
+            relationshipIndex: -1,
+            storeGenerationIndex: 1);
+        _etag.TypeMapping = CosmosTypeMapping.Default.Clone(
+            comparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            keyComparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            providerValueComparer: new ValueComparer<string>(
+                bool (string v1, string v2) => v1 == v2,
+                int (string v) => ((object)v).GetHashCode(),
+                string (string v) => v),
+            clrType: typeof(string),
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var key = runtimeEntityType.AddKey(
-                new[] { id, partitionId });
-            runtimeEntityType.SetPrimaryKey(key);
+        var key = runtimeEntityType.AddKey(
+            new[] { id, partitionId });
+        runtimeEntityType.SetPrimaryKey(key);
 
-            return runtimeEntityType;
-        }
-
-        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
-        {
-            var id = runtimeEntityType.FindProperty("Id");
-            var partitionId = runtimeEntityType.FindProperty("PartitionId");
-            var blob = runtimeEntityType.FindProperty("Blob");
-            var bytes = runtimeEntityType.FindProperty("Bytes");
-            var list = runtimeEntityType.FindProperty("List");
-            var map = runtimeEntityType.FindProperty("Map");
-            var __id = runtimeEntityType.FindProperty("__id");
-            var __jObject = runtimeEntityType.FindProperty("__jObject");
-            var _etag = runtimeEntityType.FindProperty("_etag");
-            var key = runtimeEntityType.FindKey(new[] { id, partitionId });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
-            runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (IInternalEntry source) =>
-                {
-                    var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<int, long?, byte[], ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))), (source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))), ((ValueComparer<ReadOnlyMemory<byte>>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<ReadOnlyMemory<byte>>(bytes)), (((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))) == null ? null : ((List<Dictionary<string, int>>)(((ValueComparer<object>)(((IProperty)list).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))))))), (((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))) == null ? null : ((Dictionary<string, string[]>)(((ValueComparer<object>)(((IProperty)map).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(_etag) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(_etag))))));
-                });
-            runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<JObject, string>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject))), (default(string) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(default(string)))))));
-            runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<JObject, string>(default(JObject), default(string)))));
-            runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>((source.ContainsKey("Id") ? ((int)(source["Id"])) : 0), (source.ContainsKey("PartitionId") ? ((long? )(source["PartitionId"])) : null), (source.ContainsKey("Bytes") ? ((ReadOnlyMemory<byte>)(source["Bytes"])) : default(ReadOnlyMemory<byte>)), (source.ContainsKey("List") ? ((List<Dictionary<string, int>>)(source["List"])) : null), (source.ContainsKey("Map") ? ((Dictionary<string, string[]>)(source["Map"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null), (source.ContainsKey("_etag") ? ((string)(source["_etag"])) : null)))));
-            runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>(default(int), default(long? ), default(ReadOnlyMemory<byte>), default(List<Dictionary<string, int>>), default(Dictionary<string, string[]>), default(string), default(JObject), default(string)))));
-            runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (IInternalEntry source) =>
-                {
-                    var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<int, long?>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))))));
-                });
-            runtimeEntityType.SetCounts(new PropertyCounts(
-                propertyCount: 9,
-                navigationCount: 0,
-                complexPropertyCount: 0,
-                complexCollectionCount: 0,
-                originalValueCount: 9,
-                shadowCount: 8,
-                relationshipCount: 2,
-                storeGeneratedCount: 2));
-            runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "DataContainer");
-            runtimeEntityType.AddAnnotation("Cosmos:ETagName", "_etag");
-            runtimeEntityType.AddAnnotation("Cosmos:PartitionKeyNames", new List<string> { "PartitionId" });
-
-            Customize(runtimeEntityType);
-        }
-
-        static partial void Customize(RuntimeEntityType runtimeEntityType);
+        return runtimeEntityType;
     }
+
+    public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+    {
+        var id = runtimeEntityType.FindProperty("Id");
+        var partitionId = runtimeEntityType.FindProperty("PartitionId");
+        var blob = runtimeEntityType.FindProperty("Blob");
+        var bytes = runtimeEntityType.FindProperty("Bytes");
+        var list = runtimeEntityType.FindProperty("List");
+        var map = runtimeEntityType.FindProperty("Map");
+        var __id = runtimeEntityType.FindProperty("__id");
+        var __jObject = runtimeEntityType.FindProperty("__jObject");
+        var _etag = runtimeEntityType.FindProperty("_etag");
+        var key = runtimeEntityType.FindKey(new[] { id, partitionId });
+        key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
+        key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
+        runtimeEntityType.SetOriginalValuesFactory(
+            ISnapshot (IInternalEntry source) =>
+            {
+                var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
+                return ((ISnapshot)(new Snapshot<int, long?, byte[], ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))), (source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))), ((ValueComparer<ReadOnlyMemory<byte>>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<ReadOnlyMemory<byte>>(bytes)), (((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))) == null ? null : ((List<Dictionary<string, int>>)(((ValueComparer<object>)(((IProperty)list).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))))))), (((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))) == null ? null : ((Dictionary<string, string[]>)(((ValueComparer<object>)(((IProperty)map).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(_etag) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(_etag))))));
+            });
+        runtimeEntityType.SetStoreGeneratedValuesFactory(
+            ISnapshot () => ((ISnapshot)(new Snapshot<JObject, string>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject))), (default(string) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(default(string)))))));
+        runtimeEntityType.SetTemporaryValuesFactory(
+            ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<JObject, string>(default(JObject), default(string)))));
+        runtimeEntityType.SetShadowValuesFactory(
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>((source.ContainsKey("Id") ? ((int)(source["Id"])) : 0), (source.ContainsKey("PartitionId") ? ((long? )(source["PartitionId"])) : null), (source.ContainsKey("Bytes") ? ((ReadOnlyMemory<byte>)(source["Bytes"])) : default(ReadOnlyMemory<byte>)), (source.ContainsKey("List") ? ((List<Dictionary<string, int>>)(source["List"])) : null), (source.ContainsKey("Map") ? ((Dictionary<string, string[]>)(source["Map"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null), (source.ContainsKey("_etag") ? ((string)(source["_etag"])) : null)))));
+        runtimeEntityType.SetEmptyShadowValuesFactory(
+            ISnapshot () => ((ISnapshot)(new Snapshot<int, long?, ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>(default(int), default(long? ), default(ReadOnlyMemory<byte>), default(List<Dictionary<string, int>>), default(Dictionary<string, string[]>), default(string), default(JObject), default(string)))));
+        runtimeEntityType.SetRelationshipSnapshotFactory(
+            ISnapshot (IInternalEntry source) =>
+            {
+                var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
+                return ((ISnapshot)(new Snapshot<int, long?>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))))));
+            });
+        runtimeEntityType.SetCounts(new PropertyCounts(
+            propertyCount: 9,
+            navigationCount: 0,
+            complexPropertyCount: 0,
+            complexCollectionCount: 0,
+            originalValueCount: 9,
+            shadowCount: 8,
+            relationshipCount: 2,
+            storeGeneratedCount: 2));
+        runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "DataContainer");
+        runtimeEntityType.AddAnnotation("Cosmos:ETagName", "_etag");
+        runtimeEntityType.AddAnnotation("Cosmos:PartitionKeyNames", new List<string> { "PartitionId" });
+
+        Customize(runtimeEntityType);
+    }
+
+    static partial void Customize(RuntimeEntityType runtimeEntityType);
 }

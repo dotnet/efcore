@@ -153,6 +153,33 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalPropertyBuilder? IsAutoLoaded(bool? autoLoaded, ConfigurationSource configurationSource)
+    {
+        if (CanSetIsAutoLoaded(autoLoaded, configurationSource))
+        {
+            Metadata.SetIsAutoLoaded(autoLoaded, configurationSource);
+            return this;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetIsAutoLoaded(bool? autoLoaded, ConfigurationSource? configurationSource)
+        => configurationSource.Overrides(Metadata.GetIsAutoLoadedConfigurationSource())
+            || Metadata.IsAutoLoaded == autoLoaded;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalPropertyBuilder? HasSentinel(object? sentinel, ConfigurationSource configurationSource)
     {
         if (CanSetSentinel(sentinel, configurationSource))
@@ -431,7 +458,7 @@ public class InternalPropertyBuilder
                 {
                     return (ValueGenerator)Activator.CreateInstance(valueGeneratorType)!;
                 }
-                catch (Exception e)
+                catch (Exception e) when (!e.IsCritical())
                 {
                     throw new InvalidOperationException(
                         CoreStrings.CannotCreateValueGenerator(
@@ -928,6 +955,14 @@ public class InternalPropertyBuilder
                 oldIsConcurrencyTokenConfigurationSource.Value);
         }
 
+        var oldIsAutoLoadedConfigurationSource = Metadata.GetIsAutoLoadedConfigurationSource();
+        if (oldIsAutoLoadedConfigurationSource.HasValue)
+        {
+            newPropertyBuilder.IsAutoLoaded(
+                Metadata.IsAutoLoaded,
+                oldIsAutoLoadedConfigurationSource.Value);
+        }
+
         var oldValueGeneratedConfigurationSource = Metadata.GetValueGeneratedConfigurationSource();
         if (oldValueGeneratedConfigurationSource.HasValue)
         {
@@ -1166,6 +1201,26 @@ public class InternalPropertyBuilder
     bool IConventionPropertyBuilder.CanSetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
         => CanSetIsConcurrencyToken(
             concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionPropertyBuilder? IConventionPropertyBuilder.IsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation)
+        => IsAutoLoaded(
+            autoLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool IConventionPropertyBuilder.CanSetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation)
+        => CanSetIsAutoLoaded(
+            autoLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -38,12 +38,6 @@ public interface IRelationalCommandBuilder
     IRelationalCommandBuilder RemoveParameterAt(int index);
 
     /// <summary>
-    ///     The source for <see cref="RelationalTypeMapping" />s to use.
-    /// </summary>
-    [Obsolete("Code trying to add parameter should add type mapped parameter using TypeMappingSource directly.")]
-    IRelationalTypeMappingSource TypeMappingSource { get; }
-
-    /// <summary>
     ///     Creates the command.
     /// </summary>
     /// <returns>The newly created command.</returns>

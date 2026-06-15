@@ -218,6 +218,16 @@ public class DbContext :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
+    IManyToManyLoaderFactory IDbContextDependencies.ManyToManyLoaderFactory
+        => DbContextDependencies.ManyToManyLoaderFactory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
     IAsyncQueryProvider IDbContextDependencies.QueryProvider
         => DbContextDependencies.QueryProvider;
 
@@ -1058,7 +1068,7 @@ public class DbContext :
     public virtual void Dispose()
     {
         var lease = _lease;
-        var contextShouldBeDisposed = lease.IsActive && _lease.IsStandalone;
+        var contextShouldBeDisposed = lease.IsActive && lease.IsStandalone;
 
         if (DisposeSync(lease.IsActive, contextShouldBeDisposed))
         {
