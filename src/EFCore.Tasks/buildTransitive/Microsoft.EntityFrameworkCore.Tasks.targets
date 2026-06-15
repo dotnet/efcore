@@ -166,7 +166,7 @@ For Publish:
        This target has the same Inputs and Outputs as CoreCompile to run only if CoreCompile isn't going to be skipped -->
   <Target Name="_EFPrepareForCompile"
           DependsOnTargets="_EFProcessGeneratedFiles"
-          Condition="'$(_EFGenerationStage)'==''"
+          Condition="'$(_EFGenerationStage)'=='' And '$(DesignTimeBuild)' != 'True'"
           Inputs="$(MSBuildAllProjects);
                   @(Compile);
                   @(_CoreCompileResourceInputs);

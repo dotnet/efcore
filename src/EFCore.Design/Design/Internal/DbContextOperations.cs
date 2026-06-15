@@ -303,7 +303,10 @@ public class DbContextOperations
         
         try
         {
-            workspace = MSBuildWorkspace.Create();
+            // Set _EFGenerationStage to a non-empty value so that the design-time build performed by
+            // OpenProjectAsync below doesn't re-trigger the EF file generation targets. Otherwise the
+            // generation targets would invoke this operation again, resulting in a fork bomb.
+            workspace = MSBuildWorkspace.Create(new Dictionary<string, string> { ["_EFGenerationStage"] = "build" });
             workspace.LoadMetadataForReferencedProjects = true;
 #pragma warning disable CS0612 // Obsolete
 #pragma warning disable CS0618 // Obsolete
