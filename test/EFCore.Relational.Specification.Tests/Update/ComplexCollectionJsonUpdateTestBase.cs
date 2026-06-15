@@ -592,7 +592,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Grow_nested_sub_collection_in_complex_property_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
