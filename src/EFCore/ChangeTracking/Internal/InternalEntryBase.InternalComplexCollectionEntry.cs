@@ -18,6 +18,9 @@ public partial class InternalEntryBase
     internal static readonly bool UseOldBehavior37724 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37724", out var enabled) && enabled;
 
+    internal static readonly bool UseOldBehavior38299 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38299", out var enabled) && enabled;
+
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
         private static readonly bool UseOldBehavior37585 =
