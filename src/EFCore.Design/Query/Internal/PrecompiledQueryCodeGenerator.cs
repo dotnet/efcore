@@ -218,7 +218,6 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                         cancellationToken);
 
                     GenerateQueryExecutor(_code, queryNum + 1, queryExecutor, _namespaces, _unsafeAccessors);
-
                 }
                 finally
                 {

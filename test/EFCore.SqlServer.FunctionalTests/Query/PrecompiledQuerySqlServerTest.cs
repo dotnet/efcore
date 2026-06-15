@@ -12,7 +12,7 @@ public class PrecompiledQuerySqlServerTest(
         IClassFixture<PrecompiledQuerySqlServerTest.PrecompiledQuerySqlServerFixture>
 {
     protected override bool AlwaysPrintGeneratedSources
-        => true;
+        => false;
 
     #region Expression types
 
