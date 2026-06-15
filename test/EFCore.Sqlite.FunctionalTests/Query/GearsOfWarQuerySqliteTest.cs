@@ -559,9 +559,7 @@ FROM "Factions" AS "f"
             """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-END = 5
+WHERE length("g"."LeaderNickname") = 5
 """);
     }
 
@@ -4919,9 +4917,7 @@ WHERE "g"."Nickname" = "g0"."Nickname" AND "g"."SquadId" = "g0"."SquadId"
 
         AssertSql(
             """
-SELECT CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN "g"."LeaderNickname" || "g"."LeaderNickname"
-END
+SELECT "g"."LeaderNickname" || "g"."LeaderNickname"
 FROM "Gears" AS "g"
 """);
     }
@@ -6627,9 +6623,7 @@ ORDER BY "g0"."Nickname"
             """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-END = 5
+WHERE length("g"."LeaderNickname") = 5
 """);
     }
 
@@ -7372,10 +7366,7 @@ ORDER BY "g"."Nickname", "g"."SquadId"
             """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE CASE
-    WHEN "g"."LeaderNickname" IS NULL THEN NULL
-    ELSE length("g"."LeaderNickname")
-END = 5
+WHERE length("g"."LeaderNickname") = 5
 """);
     }
 
