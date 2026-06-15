@@ -60,6 +60,21 @@ Assert.Equal(new DateTime(2002, 2, 2), blog2.Json[1].Inner.Date);
 """);
 
     [Fact]
+    public virtual Task Json_entity_shaper_uses_runtime_constant_bytes()
+        => Test(
+            """
+await context.Blogs.ToListAsync();
+""",
+            interceptorCodeAsserter: code =>
+            {
+                // Asserts that we are not embedding the result of Encoding.UTF8.GetBytes("Number") directly into the code, but instead referencing a generated static field, which will be initialized at runtime.
+                Assert.DoesNotMatch(@"(?<!private static readonly System\.Byte\[\] NumberBytes = )Encoding\.UTF8\.GetBytes\(""Number""\)", code);
+                Assert.Contains("CurrentReader.ValueTextEquals(((ReadOnlySpan<byte>)(NumberBytes.AsSpan<byte>())))", code);
+
+                Assert.Contains("private static readonly System.Byte[] NumberBytes = Encoding.UTF8.GetBytes(\"Number\");", code);
+            });
+
+    [Fact]
     public virtual Task Conditional_no_evaluatable()
         => Test(
             """

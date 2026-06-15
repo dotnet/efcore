@@ -29,6 +29,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private ExpressionTreeFuncletizer _funcletizer = null!;
     private RuntimeModelLinqToCSharpSyntaxTranslator _linqToCSharpTranslator = null!;
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
+    private RuntimeConstantProcessor _runtimeConstantProcessor = null!;
+
+    private Dictionary<object, string> _constantReplacements = null!;
 
     private Symbols _symbols;
 
@@ -78,6 +81,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g);
         _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
+        _constantReplacements = [];
+        _runtimeConstantProcessor = new RuntimeConstantProcessor(_constantReplacements);
         _queryCompiler = dbContext.GetService<IQueryCompiler>();
         _unsafeAccessors.Clear();
         var contextType = dbContext.GetType();
@@ -213,6 +218,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                         cancellationToken);
 
                     GenerateQueryExecutor(_code, queryNum + 1, queryExecutor, _namespaces, _unsafeAccessors);
+
                 }
                 finally
                 {
@@ -250,6 +256,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
             _code.AppendLine("#endregion Unsafe accessors");
         }
+
+        GenerateRuntimeConstants(_code, _namespaces, _unsafeAccessors);
 
         _code
             .DecrementIndent().AppendLine("}")
@@ -921,6 +929,8 @@ namespace System.Runtime.CompilerServices
         HashSet<MethodDeclarationSyntax> unsafeAccessors)
     {
         // We're going to generate the method which will create the query executor (Func<QueryContext, TResult>).
+        queryExecutor = _runtimeConstantProcessor.Process(queryExecutor);
+
         // Note that the we store the executor itself (and return it) as object, not as a typed Func<QueryContext, TResult>.
         // We can't strong-type it since it may return an anonymous type, which is unspeakable; so instead we cast down from object to
         // the real strongly-typed signature inside the interceptor, where the return value is represented as a generic type parameter
@@ -949,7 +959,7 @@ namespace System.Runtime.CompilerServices
         foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
         {
             var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
-                liftedConstant.Expression, constantReplacements: null, _memberAccessReplacements, namespaces, unsafeAccessors);
+                liftedConstant.Expression, _constantReplacements, _memberAccessReplacements, namespaces, unsafeAccessors);
             // code.AppendLine($"{liftedConstant.Parameter.Type.Name} {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
             code.AppendLine($"var {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
         }
@@ -957,7 +967,7 @@ namespace System.Runtime.CompilerServices
         var queryExecutorSyntaxTree =
             (AnonymousFunctionExpressionSyntax)_linqToCSharpTranslator.TranslateExpression(
                 queryExecutorAfterLiftingExpression,
-                constantReplacements: null,
+                _constantReplacements,
                 _memberAccessReplacements,
                 namespaces,
                 unsafeAccessors);
@@ -968,6 +978,26 @@ namespace System.Runtime.CompilerServices
             .AppendLine("}")
             .AppendLine()
             .AppendLine($"private static object Query{queryNum}_Executor;");
+    }
+
+    private void GenerateRuntimeConstants(IndentedStringBuilder code, HashSet<string> namespaces, HashSet<MethodDeclarationSyntax> unsafeAccessors)
+    {
+        if (_runtimeConstantProcessor.RuntimeConstants.Any())
+        {
+            code.AppendLine();
+
+            code.AppendLine("#region Runtime constants");
+
+            foreach (var constant in _runtimeConstantProcessor.RuntimeConstants)
+            {
+                var syntax = _linqToCSharpTranslator.TranslateExpression(constant.Expression.InitializeExpression, constantReplacements: null, namespaces, unsafeAccessors);
+                code.AppendLine($"private static readonly {constant.Expression.Type.FullName} {constant.Name} = {syntax.NormalizeWhitespace().ToFullString()};");
+            }
+
+            code.AppendLine("#endregion Runtime constants");
+
+            code.AppendLine();
+        }
     }
 
     /// <summary>

@@ -2752,11 +2752,11 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
 
         var parameterNames = _stack.Peek().VariableNames;
 
-        if (parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name))
+        if (parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name) || _constantReplacements?.Values.Contains(name) == true)
         {
             var baseName = name;
             for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
-                 parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name);
+                 parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name) || _constantReplacements?.Values.Contains(name) == true;
                  j++)
             {
                 name = baseName + j;

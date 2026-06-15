@@ -12,7 +12,7 @@ public class PrecompiledQuerySqlServerTest(
         IClassFixture<PrecompiledQuerySqlServerTest.PrecompiledQuerySqlServerFixture>
 {
     protected override bool AlwaysPrintGeneratedSources
-        => false;
+        => true;
 
     #region Expression types
 
@@ -27,6 +27,17 @@ public class PrecompiledQuerySqlServerTest(
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > @id
+""");
+    }
+
+    public override async Task Json_entity_shaper_uses_runtime_constant_bytes()
+    {
+        await base.Json_entity_shaper_uses_runtime_constant_bytes();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
 """);
     }
 

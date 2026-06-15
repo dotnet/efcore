@@ -83,6 +83,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
             = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)])!;
 
+        private static readonly PropertyInfo EncodingUtf8Property
+            = typeof(Encoding).GetProperty(nameof(Encoding.UTF8))!;
+
+        private static readonly MethodInfo Utf8GetBytesMethod
+            = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
+
         private static readonly MethodInfo ByteArrayAsSpanMethod = typeof(MemoryExtensions).GetMethods()
             .Where(x => x.Name == nameof(MemoryExtensions.AsSpan) && x.GetGenericArguments().Count() == 1)
             .Select(x => new { x, prms = x.GetParameters() })
@@ -2136,7 +2142,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
                         var jsonPropertyName = property.GetJsonPropertyName()!;
-                        var jsonPropertyNameBytes = Encoding.UTF8.GetBytes(jsonPropertyName);
+                        var jsonPropertyNameBytes = new RuntimeConstantExpression(
+                            jsonPropertyName + "Bytes",
+                            Call(
+                                Property(null, EncodingUtf8Property),
+                                Utf8GetBytesMethod,
+                                Constant(jsonPropertyName)));
                         testExpressions.Add(
                             Call(
                                 Field(
@@ -2146,7 +2157,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Convert(
                                     Call(
                                         ByteArrayAsSpanMethod,
-                                        Constant(jsonPropertyNameBytes)),
+                                        jsonPropertyNameBytes),
                                     typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                         var propertyVariable = Variable(valueBufferTryReadValueMethodToProcess.Type);
@@ -2173,7 +2184,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     foreach (var innerShaperMapElement in innerShapersMap)
                     {
                         var innerShaperMapElementKey = innerShaperMapElement.Key;
-                        var jsonPropertyNameBytes = Encoding.UTF8.GetBytes(innerShaperMapElementKey);
+                        var jsonPropertyNameBytes = new RuntimeConstantExpression(
+                            innerShaperMapElementKey + "Bytes",
+                            Call(
+                                Property(null, EncodingUtf8Property),
+                                Utf8GetBytesMethod,
+                                Constant(innerShaperMapElementKey)));
                         testExpressions.Add(
                             Call(
                                 Field(
@@ -2183,7 +2199,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Convert(
                                     Call(
                                         ByteArrayAsSpanMethod,
-                                        Constant(jsonPropertyNameBytes)),
+                                        jsonPropertyNameBytes),
                                     typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                         var propertyVariable = Variable(innerShaperMapElement.Value.Type);
