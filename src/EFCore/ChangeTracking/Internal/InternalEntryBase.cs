@@ -644,8 +644,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
                 // Modified/Unchanged is incorrect and would fail the original ordinal validation. Leave their
                 // state (computed by change detection) untouched, mirroring the bulk state-change logic in
                 // InternalComplexCollectionEntry.SetState.
-                if (!UseOldBehavior38299
-                    && complexEntry.EntityState is EntityState.Added)
+                if (complexEntry.EntityState is EntityState.Added)
                 {
                     continue;
                 }
