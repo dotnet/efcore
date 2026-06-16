@@ -1548,6 +1548,14 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ReplaceProjection(IReadOnlyDictionary<ProjectionMember, Expression> projectionMapping)
     {
         _projectionMapping.Clear();
+
+        // A projection is represented either as a projection-member mapping or as a client-projection list, never both
+        // (see GetProjection). When switching to a member mapping, any client projections left over from a previous
+        // projection (e.g. a prior Select that fell back to index-based binding) must be cleared, otherwise the stale
+        // client projections take precedence in ApplyProjection and the member-based shaper fails to remap. See #31209.
+        _clientProjections.Clear();
+        _aliasForClientProjections.Clear();
+
         foreach (var (projectionMember, expression) in projectionMapping)
         {
             Check.DebugAssert(
