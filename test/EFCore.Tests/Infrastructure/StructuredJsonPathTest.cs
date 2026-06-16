@@ -111,4 +111,16 @@ public class StructuredJsonPathTest
         path.AppendTo(sb);
         Assert.Equal(path.ToString(), sb.ToString());
     }
+
+    [Fact]
+    public void StructuredJsonPath_allows_custom_and_empty_wildcard_for_null_array_index()
+    {
+        var path = new StructuredJsonPath(
+            [new StructuredJsonPathSegment("A"), StructuredJsonPathSegment.Array],
+            [null]);
+
+        Assert.Equal("$.A[*]", path.ToString('*'));
+        Assert.Equal("$.A[?]", path.ToString('?'));
+        Assert.Equal("$.A[]", path.ToString('\0'));
+    }
 }

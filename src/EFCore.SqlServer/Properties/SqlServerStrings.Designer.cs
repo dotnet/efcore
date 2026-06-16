@@ -1190,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateWarning))'.
+        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateIndexWarning))'.
         /// </summary>
         public static EventDefinition<string, string> LogVectorSearchWithoutApproximate(IDiagnosticsLogger logger)
         {
@@ -1202,12 +1202,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     logger,
                     static logger => new EventDefinition<string, string>(
                         logger.Options,
-                        SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                        SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
                         LogLevel.Warning,
-                        "SqlServerEventId.VectorSearchWithoutApproximateWarning",
+                        "SqlServerEventId.VectorSearchWithoutApproximateIndexWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
-                            SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                            SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
                             _resourceManager.GetString("LogVectorSearchWithoutApproximate")!)));
             }
 
