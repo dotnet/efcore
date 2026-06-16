@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
-///     A node containing an expression expressing the retreival of a value which doesn't change across executions of the query.
+///     A node containing an expression expressing the retrieval of a value which doesn't change across executions of the query.
 /// </summary>
 /// <remarks>
 ///     <para>
