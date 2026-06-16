@@ -3639,6 +3639,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     a to-one guarantee and a required foreign key guaranteeing matching rows exist (#29182).
     /// </param>
     /// <returns>An expression which shapes the result of this join.</returns>
+    [EntityFrameworkInternal]
     public Expression AddInnerJoin(
         ShapedQueryExpression innerSource,
         SqlExpression joinPredicate,

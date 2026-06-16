@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -92,7 +94,8 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     public virtual IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
         var modelIndex = index.MappedIndexes
-            .Select(ConvertToJsonIndex)
+            .Where(i => i.Properties.Count > 0)
+            .Select(CreateJsonIndex)
             .FirstOrDefault(i => i is not null);
 
         if (!designTime
@@ -129,27 +132,13 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     }
 
     /// <summary>
-    ///     Converts the given mapped <see cref="IIndex" /> into a JSON index shape if all its leaves are
+    ///     Creates a mapped <see cref="IIndex" /> representing a JSON index shape if all its leaves are
     ///     contained in a JSON-mapped column. Providers can override to recognize additional shapes.
     /// </summary>
     /// <param name="index">The mapped index.</param>
     /// <returns>The same index when recognized as a JSON index; otherwise <see langword="null" />.</returns>
-    protected virtual IIndex? ConvertToJsonIndex(IIndex index)
-    {
-        foreach (var property in index.Properties)
-        {
-            switch (property)
-            {
-                case IProperty { DeclaringType: IComplexType complexType } when complexType.IsMappedToJson():
-                case IComplexProperty { ComplexType: var ct } when ct.IsMappedToJson():
-                    continue;
-                default:
-                    return null;
-            }
-        }
-
-        return index.Properties.Count > 0 ? index : null;
-    }
+    protected virtual IIndex? CreateJsonIndex(IIndex index)
+        => index.IsJsonIndex() ? index : null;
 
     /// <summary>
     ///     Resolves the <see cref="IRelationalJsonElement" /> for the given property on the given table.
