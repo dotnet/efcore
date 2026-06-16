@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -37,112 +35,64 @@ public class MemberClassifier : IMemberClassifier
     /// </summary>
     protected virtual MemberClassifierDependencies Dependencies { get; }
 
-    /// <inheritdoc />
-    public virtual IReadOnlyDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> GetNavigationCandidates(
-        IConventionEntityType entityType,
-        bool useAttributes)
-    {
-        var candidatesAnnotationName = useAttributes
-            ? CoreAnnotationNames.NavigationCandidates
-            : CoreAnnotationNames.NavigationCandidatesNoAttribute;
-        var inverseAnnotationName = useAttributes
-            ? CoreAnnotationNames.InverseNavigations
-            : CoreAnnotationNames.InverseNavigationsNoAttribute;
-        if (entityType.FindAnnotation(candidatesAnnotationName)?.Value
-            is Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> navigationCandidates)
-        {
-            return navigationCandidates;
-        }
-
-        navigationCandidates = new Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
-
-        var model = entityType.Model;
-        if (model.FindAnnotation(inverseAnnotationName)?.Value
-            is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup)
-        {
-            inverseCandidatesLookup = new Dictionary<Type, SortedSet<Type>>();
-            model.SetAnnotation(inverseAnnotationName, inverseCandidatesLookup);
-        }
-
-        foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
-        {
-            var targetType = FindCandidateNavigationPropertyType(propertyInfo, entityType.Model, useAttributes, out var shouldBeOwned);
-            if (targetType == null)
-            {
-                continue;
-            }
-
-            navigationCandidates.Insert(propertyInfo, (targetType, shouldBeOwned), MemberInfoNameComparer.Instance);
-
-            if (!inverseCandidatesLookup.TryGetValue(targetType, out var inverseCandidates))
-            {
-                inverseCandidates = new SortedSet<Type>(TypeFullNameComparer.Instance);
-                inverseCandidatesLookup[targetType] = inverseCandidates;
-            }
-
-            inverseCandidates.Add(entityType.ClrType);
-        }
-
-        if (!((Annotatable)entityType).IsReadOnly
-            && entityType.IsInModel)
-        {
-            entityType.Builder.HasAnnotation(candidatesAnnotationName, navigationCandidates);
-        }
-
-        return navigationCandidates;
-    }
+    /// <summary>
+    ///     Returns the kind of structural type the given CLR type has been explicitly configured as, or
+    ///     <see langword="null" /> if it has no explicit configuration.
+    /// </summary>
+    /// <param name="type">The CLR type.</param>
+    /// <param name="model">The model.</param>
+    /// <returns>The configuration type, or <see langword="null" />.</returns>
+    protected virtual TypeConfigurationType? GetConfigurationType(Type type, IConventionModel model)
+        => ((Model)model).Configuration?.GetConfigurationType(type);
 
     /// <inheritdoc />
-    public virtual IReadOnlyCollection<Type> GetInverseCandidateTypes(
-        IConventionEntityType entityType,
-        bool useAttributes)
-    {
-        var annotationName = useAttributes
-            ? CoreAnnotationNames.InverseNavigations
-            : CoreAnnotationNames.InverseNavigationsNoAttribute;
-        if (entityType.Model.FindAnnotation(annotationName)?.Value
-                is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
-            || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates))
-        {
-            return Type.EmptyTypes;
-        }
-
-        return inverseCandidates;
-    }
-
-    /// <inheritdoc />
-    public virtual Type? FindCandidateNavigationPropertyType(
+    public virtual bool IsCandidateNavigationProperty(
         MemberInfo memberInfo,
         IConventionModel model,
         bool useAttributes,
-        out bool? shouldBeOwned)
+        out Type? elementType,
+        out bool? shouldBeOwned,
+        out bool explicitlyConfigured)
     {
         shouldBeOwned = null;
+        explicitlyConfigured = false;
+        elementType = null;
+
         var propertyInfo = memberInfo as PropertyInfo;
         var targetType = memberInfo.GetMemberType();
         var targetSequenceType = targetType.TryGetSequenceType();
-        return targetSequenceType != null
+
+        if (targetSequenceType != null
             && (propertyInfo == null
                 || propertyInfo.IsCandidateProperty(needsWrite: false))
-            && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, (Model)model, useAttributes, out shouldBeOwned)
-                ? targetSequenceType
-                : (propertyInfo == null
-                    || propertyInfo.IsCandidateProperty(needsWrite: true))
-                && IsCandidateNavigationPropertyType(targetType, memberInfo, (Model)model, useAttributes, out shouldBeOwned)
-                    ? targetType
-                    : null;
+            && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, model, useAttributes, out shouldBeOwned, out explicitlyConfigured))
+        {
+            elementType = targetSequenceType;
+            return true;
+        }
+
+        if ((propertyInfo == null
+                || propertyInfo.IsCandidateProperty(needsWrite: true))
+            && IsCandidateNavigationPropertyType(targetType, memberInfo, model, useAttributes, out shouldBeOwned, out explicitlyConfigured))
+        {
+            elementType = targetType;
+            return true;
+        }
+
+        return false;
     }
 
     private bool IsCandidateNavigationPropertyType(
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type targetType,
         MemberInfo memberInfo,
-        Model model,
+        IConventionModel model,
         bool useAttributes,
-        out bool? shouldBeOwned)
+        out bool? shouldBeOwned,
+        out bool explicitlyConfigured)
     {
         shouldBeOwned = null;
-        var configuration = model.Configuration;
-        var configurationType = configuration?.GetConfigurationType(targetType);
+        var configurationType = GetConfigurationType(targetType, model);
+        explicitlyConfigured = configurationType != null;
         var isConfiguredAsEntityType = configurationType.IsEntityType();
         if (isConfiguredAsEntityType == false
             || !targetType.IsValidEntityType())
@@ -160,7 +110,7 @@ public class MemberClassifier : IMemberClassifier
             || targetType != typeof(object)
             && (memberType != targetType
                 || (Dependencies.ParameterBindingFactories.FindFactory(memberType, memberInfo.GetSimpleMemberName()) == null
-                    && Dependencies.TypeMappingSource.FindMapping(memberInfo, model, useAttributes) == null));
+                    && Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes) == null));
     }
 
     /// <inheritdoc />
@@ -168,15 +118,18 @@ public class MemberClassifier : IMemberClassifier
         MemberInfo memberInfo,
         IConventionModel model,
         bool useAttributes,
-        out CoreTypeMapping? typeMapping)
+        out CoreTypeMapping? typeMapping,
+        out bool explicitlyConfigured)
     {
         typeMapping = null;
+        explicitlyConfigured = false;
         if (!memberInfo.IsCandidateProperty())
         {
             return false;
         }
 
-        var configurationType = ((Model)model).Configuration?.GetConfigurationType(memberInfo.GetMemberType());
+        var configurationType = GetConfigurationType(memberInfo.GetMemberType(), model);
+        explicitlyConfigured = configurationType != null;
         return configurationType == TypeConfigurationType.Property
             || (configurationType == null
                 && (typeMapping = Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes)) != null);
@@ -208,7 +161,7 @@ public class MemberClassifier : IMemberClassifier
         return IsCandidateComplexType(targetType.UnwrapNullableType(), model, out explicitlyConfigured);
     }
 
-    private static bool IsCandidateComplexType(Type targetType, IConventionModel model, out bool explicitlyConfigured)
+    private bool IsCandidateComplexType(Type targetType, IConventionModel model, out bool explicitlyConfigured)
     {
         if (!targetType.IsValidComplexType()
             || (targetType.IsGenericType
@@ -223,39 +176,45 @@ public class MemberClassifier : IMemberClassifier
             return false;
         }
 
-        var configurationType = ((Model)model).Configuration?.GetConfigurationType(targetType);
+        var configurationType = GetConfigurationType(targetType, model);
         explicitlyConfigured = configurationType != null;
         return configurationType == TypeConfigurationType.ComplexType
             || configurationType == null;
     }
 
     /// <inheritdoc />
-    public virtual IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(
+    public virtual bool IsCandidateServiceProperty(
         MemberInfo memberInfo,
         IConventionModel model,
-        bool useAttributes)
+        bool useAttributes,
+        out IParameterBindingFactory? bindingFactory,
+        out bool explicitlyConfigured)
     {
+        bindingFactory = null;
+        explicitlyConfigured = false;
         if (!memberInfo.IsCandidateProperty(publicOnly: false))
         {
-            return null;
+            return false;
         }
 
         var type = memberInfo.GetMemberType();
-        var configurationType = ((Model)model).Configuration?.GetConfigurationType(type);
+        var configurationType = GetConfigurationType(type, model);
+        explicitlyConfigured = configurationType != null;
         if (configurationType != TypeConfigurationType.ServiceProperty)
         {
             if (configurationType != null)
             {
-                return null;
+                return false;
             }
 
             if (memberInfo.IsCandidateProperty()
                 && Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes) != null)
             {
-                return null;
+                return false;
             }
         }
 
-        return Dependencies.ParameterBindingFactories.FindFactory(type, memberInfo.GetSimpleMemberName());
+        bindingFactory = Dependencies.ParameterBindingFactories.FindFactory(type, memberInfo.GetSimpleMemberName());
+        return bindingFactory != null;
     }
 }

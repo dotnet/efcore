@@ -251,7 +251,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         public int Id { get; set; }
 
         [Column(TypeName = "jsonb")]
-        public Dictionary<string, object> JsonProperty { get; set; }
+        public Dictionary<string, object> JsonProperty { get; set; } = null!;
     }
 
     protected class BlogWithConvertedDictionary
@@ -259,7 +259,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         public int Id { get; set; }
 
         [Column(TypeName = "nvarchar(max)")]
-        public Dictionary<string, object> JsonProperty { get; set; }
+        public Dictionary<string, object> JsonProperty { get; set; } = null!;
     }
 
     protected class BlogWithNamedJsonColumn
@@ -267,7 +267,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         public int Id { get; set; }
 
         [Column("json_data")]
-        public Dictionary<string, object> JsonProperty { get; set; }
+        public Dictionary<string, object> JsonProperty { get; set; } = null!;
     }
 
     [Fact]

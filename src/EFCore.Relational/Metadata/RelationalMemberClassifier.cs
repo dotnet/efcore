@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
 ///     Classifies CLR members of a type during model building for relational providers, honoring an explicitly
-///     configured store type so that such members are mapped as scalar properties rather than property bags.
+///     configured column type (e.g. via <see cref="ColumnAttribute.TypeName" />) so that such members are mapped
+///     as scalar properties rather than property bags.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -32,23 +33,27 @@ public class RelationalMemberClassifier : MemberClassifier
     }
 
     /// <inheritdoc />
-    public override Type? FindCandidateNavigationPropertyType(
+    public override bool IsCandidateNavigationProperty(
         MemberInfo memberInfo,
         IConventionModel model,
         bool useAttributes,
-        out bool? shouldBeOwned)
+        out Type? elementType,
+        out bool? shouldBeOwned,
+        out bool explicitlyConfigured)
     {
-        // A member with an explicitly configured store type (e.g. [Column(TypeName = "jsonb")]) is meant to be
+        // A member with an explicitly configured column type (e.g. [Column(TypeName = "jsonb")]) is meant to be
         // mapped to a column, so it should not be detected as a navigation to a property-bag entity type even when
         // no type mapping is found for it (e.g. Dictionary<string, object>). See issue #26903.
         if (useAttributes
             && HasExplicitColumnType(memberInfo))
         {
+            elementType = null;
             shouldBeOwned = null;
-            return null;
+            explicitlyConfigured = false;
+            return false;
         }
 
-        return base.FindCandidateNavigationPropertyType(memberInfo, model, useAttributes, out shouldBeOwned);
+        return base.IsCandidateNavigationProperty(memberInfo, model, useAttributes, out elementType, out shouldBeOwned, out explicitlyConfigured);
     }
 
     /// <inheritdoc />
@@ -56,14 +61,15 @@ public class RelationalMemberClassifier : MemberClassifier
         MemberInfo memberInfo,
         IConventionModel model,
         bool useAttributes,
-        out CoreTypeMapping? typeMapping)
+        out CoreTypeMapping? typeMapping,
+        out bool explicitlyConfigured)
     {
-        if (base.IsCandidatePrimitiveProperty(memberInfo, model, useAttributes, out typeMapping))
+        if (base.IsCandidatePrimitiveProperty(memberInfo, model, useAttributes, out typeMapping, out explicitlyConfigured))
         {
             return true;
         }
 
-        // When a store type is explicitly configured, the member should be discovered as a property even if no type
+        // When a column type is explicitly configured, the member should be discovered as a property even if no type
         // mapping is found for the CLR type. The provider then either maps it (e.g. Npgsql maps Dictionary<string,
         // object> to jsonb) or model validation reports that the type cannot be mapped. See issue #26903.
         if (useAttributes
@@ -71,6 +77,7 @@ public class RelationalMemberClassifier : MemberClassifier
             && HasExplicitColumnType(memberInfo))
         {
             typeMapping = null;
+            explicitlyConfigured = true;
             return true;
         }
 
