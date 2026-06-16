@@ -2205,7 +2205,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var propertyVariable = Variable(innerShaperMapElement.Value.Type);
                         finalBlockVariables.Add(propertyVariable);
 
-                        _navigationVariableMap[innerShaperMapElement.Key] = propertyVariable;
+                        _navigationVariableMap[innerShaperMapElementKey] = propertyVariable;
 
                         var moveNext = Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod);
                         var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);

@@ -37,9 +37,10 @@ public class RuntimeConstantProcessor(Dictionary<object, string> constantReplace
         {
             var existing = _runtimeConstants
                 .Select(x => x.Expression)
-                .FirstOrDefault(x => ExpressionEqualityComparer.Instance.Equals(
-                    x.InitializeExpression,
-                    runtimeConstant.InitializeExpression));
+                .FirstOrDefault(x => x.Value == runtimeConstant.Value ||
+                    ExpressionEqualityComparer.Instance.Equals(
+                        x.InitializeExpression,
+                        runtimeConstant.InitializeExpression));
 
             if (existing is null)
             {
