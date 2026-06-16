@@ -140,18 +140,19 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             // Unique constraints, indexes and triggers are created after all the column mappings have been generated, since they
             // reference columns that may be mapped by an entity type that is processed after the one that owns the table mapping
-            // (e.g. an owned entity type sharing the table with its owner). Foreign keys are created in a separate pass after that,
-            // since they reference the principal table's unique constraint, which may belong to a table processed later.
+            // (e.g. an owned entity type sharing the table with its owner).
             foreach (var table in model.Tables)
             {
                 CreateTableConstraints(table, relationalModelParameters);
             }
 
+            // Foreign keys are created in a separate pass after all the unique constraints have been generated, since each
+            // foreign key resolves the principal table's unique constraint, which may belong to a table processed later above.
             foreach (var table in model.Tables)
             {
                 foreach (var foreignKey in table.ForeignKeyConstraints)
                 {
-                    Create(foreignKey, relationalModelParameters with { TargetName = relationalModelParameters.ScopeVariables[table] });
+                    Create(foreignKey, parameters with { TargetName = parameters.ScopeVariables[table] });
                 }
             }
 
