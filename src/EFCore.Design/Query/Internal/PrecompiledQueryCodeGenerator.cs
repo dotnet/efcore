@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -31,6 +33,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
     private RuntimeConstantProcessor _runtimeConstantProcessor = null!;
 
+    private Dictionary<string, RuntimeConstantExpression> _runtimeConstants = null!;
     private Dictionary<object, string> _constantReplacements = null!;
 
     private Symbols _symbols;
@@ -82,7 +85,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
         _constantReplacements = [];
-        _runtimeConstantProcessor = new RuntimeConstantProcessor(_constantReplacements);
+        _runtimeConstants = [];
+        _runtimeConstantProcessor = new RuntimeConstantProcessor();
         _queryCompiler = dbContext.GetService<IQueryCompiler>();
         _unsafeAccessors.Clear();
         var contextType = dbContext.GetType();
@@ -928,8 +932,7 @@ namespace System.Runtime.CompilerServices
         HashSet<MethodDeclarationSyntax> unsafeAccessors)
     {
         // We're going to generate the method which will create the query executor (Func<QueryContext, TResult>).
-        queryExecutor = _runtimeConstantProcessor.Process(queryExecutor);
-
+        
         // Note that the we store the executor itself (and return it) as object, not as a typed Func<QueryContext, TResult>.
         // We can't strong-type it since it may return an anonymous type, which is unspeakable; so instead we cast down from object to
         // the real strongly-typed signature inside the interceptor, where the return value is represented as a generic type parameter
@@ -945,7 +948,20 @@ namespace System.Runtime.CompilerServices
             .AppendLine("    dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>(),")
             .AppendLine("    dbContext.GetService<RelationalCommandBuilderDependencies>());");
 
-        HashSet<string> variableNames = ["relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
+        queryExecutor = _runtimeConstantProcessor.Process(queryExecutor, _runtimeConstants.Values);
+        foreach (var runtimeConstant in _runtimeConstantProcessor.RuntimeConstants)
+        {
+            var name = SanitizeIdentifierName(runtimeConstant.Name);
+            var baseName = name;
+            for (var j = 0; _runtimeConstants.ContainsKey(name); j++)
+            {
+                name = baseName + j;
+            }
+            _runtimeConstants.Add(name, runtimeConstant);
+            _constantReplacements.Add(runtimeConstant.Value, name);
+        }
+
+        HashSet<string> variableNames = [.. _constantReplacements.Values, "relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
 
         var materializerLiftableConstantContext =
             Expression.Parameter(typeof(RelationalMaterializerLiftableConstantContext), "materializerLiftableConstantContext");
@@ -981,16 +997,16 @@ namespace System.Runtime.CompilerServices
 
     private void GenerateRuntimeConstants(IndentedStringBuilder code, HashSet<string> namespaces, HashSet<MethodDeclarationSyntax> unsafeAccessors)
     {
-        if (_runtimeConstantProcessor.RuntimeConstants.Any())
+        if (_runtimeConstants.Count != 0)
         {
             code.AppendLine();
 
             code.AppendLine("#region Runtime constants");
 
-            foreach (var constant in _runtimeConstantProcessor.RuntimeConstants)
+            foreach (var (name, constant) in _runtimeConstants)
             {
-                var syntax = _linqToCSharpTranslator.TranslateExpression(constant.Expression.InitializeExpression, constantReplacements: null, namespaces, unsafeAccessors);
-                code.AppendLine($"private static readonly {constant.Expression.Type.FullName} {constant.Name} = {syntax.NormalizeWhitespace().ToFullString()};");
+                var syntax = _linqToCSharpTranslator.TranslateExpression(constant.InitializeExpression, constantReplacements: null, namespaces, unsafeAccessors);
+                code.AppendLine($"private static readonly {constant.Type.FullName} {name} = {syntax.NormalizeWhitespace().ToFullString()};");
             }
 
             code.AppendLine("#endregion Runtime constants");
@@ -1250,6 +1266,36 @@ namespace System.Runtime.CompilerServices
         // so setters were added in reverse order. Reverse to restore source code order.
         var settersArray = settersBuilder.BuildSettersExpression();
         return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
+    }
+
+    [return: NotNullIfNotNull(nameof(name))]
+    private static string? SanitizeIdentifierName(string? name)
+    {
+        if (name == null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "_";
+        }
+
+        var replaced = name
+            .Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) ? c : '_')
+            .ToArray();
+
+        var result = Regex.Replace(new string(replaced), "(_)+", "_");
+
+        if (!SyntaxFacts.IsIdentifierStartCharacter(result[0]))
+        {
+            result = "_" + result;
+
+        }
+
+        Debug.Assert(SyntaxFacts.IsValidIdentifier(result));
+
+        return result;
     }
 
     /// <summary>

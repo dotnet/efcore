@@ -35,7 +35,7 @@ public class RuntimeConstantExpression : Expression, IPrintableExpression
         _constantExpression = Constant(Value, type);
 
         InitializeExpression = initializeExpression;
-        Name = name;
+        Name = char.ToUpper(name[0]) + name[1..];
         Type = type;
     }
 

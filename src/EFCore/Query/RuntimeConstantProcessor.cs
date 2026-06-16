@@ -10,9 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-public class RuntimeConstantProcessor(Dictionary<object, string> constantReplacements) : ExpressionVisitor
+public class RuntimeConstantProcessor : ExpressionVisitor
 {
-    private readonly List<(string Name, RuntimeConstantExpression Expression)> _runtimeConstants = [];
+    private IEnumerable<RuntimeConstantExpression> _preexistingRuntimeConstants = null!;
+    private readonly List<RuntimeConstantExpression> _foundRuntimeConstants = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,7 +21,15 @@ public class RuntimeConstantProcessor(Dictionary<object, string> constantReplace
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Process(Expression expression) => Visit(expression);
+    public virtual Expression Process(Expression expression, IEnumerable<RuntimeConstantExpression>? preexistingRuntimeConstants)
+    {
+        _preexistingRuntimeConstants = preexistingRuntimeConstants ?? [];
+        _foundRuntimeConstants.Clear();
+
+        var result = Visit(expression);
+
+        return result;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,15 +37,14 @@ public class RuntimeConstantProcessor(Dictionary<object, string> constantReplace
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<(string Name, RuntimeConstantExpression Expression)> RuntimeConstants => _runtimeConstants;
+    public virtual IReadOnlyList<RuntimeConstantExpression> RuntimeConstants => _foundRuntimeConstants;
 
     /// <inheritdoc/>
     protected override Expression VisitExtension(Expression node)
     {
         if (node is RuntimeConstantExpression runtimeConstant)
         {
-            var existing = _runtimeConstants
-                .Select(x => x.Expression)
+            var existing = _preexistingRuntimeConstants.Concat(_foundRuntimeConstants)
                 .FirstOrDefault(x => x.Value == runtimeConstant.Value ||
                     ExpressionEqualityComparer.Instance.Equals(
                         x.InitializeExpression,
@@ -44,10 +52,7 @@ public class RuntimeConstantProcessor(Dictionary<object, string> constantReplace
 
             if (existing is null)
             {
-                var fieldName = UniquifyName(runtimeConstant.Name);
-
-                _runtimeConstants.Add((fieldName, runtimeConstant));
-                constantReplacements.Add(runtimeConstant.Value, fieldName);
+                _foundRuntimeConstants.Add(runtimeConstant);
             }
             else
             {
@@ -58,16 +63,5 @@ public class RuntimeConstantProcessor(Dictionary<object, string> constantReplace
         }
 
         return base.VisitExtension(node);
-    }
-
-    private string UniquifyName(string baseName)
-    {
-        var name = baseName;
-        var i = 0;
-        while (_runtimeConstants.Any(c => c.Name == name))
-        {
-            name = baseName + i++;
-        }
-        return name;
     }
 }

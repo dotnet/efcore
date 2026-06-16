@@ -341,6 +341,56 @@ var books = await context.Books.ToListAsync();
         }
     }
 
+    #region Invalid runtime constant name
+
+    [Fact]
+    public virtual async Task Invalid_identifier_json_property_name()
+    {
+        var contextFactory = await InitializeNonSharedTest<InvalidNameContext>();
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.InvalidNameContext(dbContextOptions);
+var books = await context.Entities.ToListAsync();
+""",
+            typeof(InvalidNameContext),
+            options,
+            interceptorCodeAsserter: (code) =>
+            {
+                Assert.Contains("private static readonly System.Byte[] _1_NOT_VALID_Bytes = ", code);
+                Assert.Contains("private static readonly System.Byte[] _1_NOT_VALID_Bytes0 = ", code);
+            });
+    }
+
+    public class InvalidNameContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<InvalidNameEntity> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<InvalidNameEntity>().ComplexProperty(x => x.Nested, b =>
+            {
+                b.ToJson();
+                b.Property(x => x.Name).HasJsonPropertyName("1!NOT VALID;");
+                b.Property(x => x.Name2).HasJsonPropertyName("1-NOT VALID!");
+            });
+    }
+
+    public class InvalidNameEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public InvalidNameNestedEntity Nested { get; set; } = new();
+    }
+
+    public class InvalidNameNestedEntity
+    {
+        public string Name { get; set; } = "";
+        public string Name2 { get; set; } = "";
+    }
+
+    #endregion
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
