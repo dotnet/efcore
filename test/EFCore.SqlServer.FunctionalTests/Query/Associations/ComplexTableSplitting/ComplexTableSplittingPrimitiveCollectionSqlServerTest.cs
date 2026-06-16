@@ -85,11 +85,11 @@ WHERE (
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([r1].[value]), 0)
+    SELECT ISNULL(SUM([r1].[value]), 0)
     FROM OPENJSON([r].[RequiredAssociate_Ints]) WITH ([value] int '$') AS [r1])
 FROM [RootEntity] AS [r]
 WHERE (
-    SELECT COALESCE(SUM([r0].[value]), 0)
+    SELECT ISNULL(SUM([r0].[value]), 0)
     FROM OPENJSON([r].[RequiredAssociate_Ints]) WITH ([value] int '$') AS [r0]) >= 6
 """);
     }

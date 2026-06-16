@@ -55,18 +55,6 @@ public partial class DependentBaseEntityType
             relationshipIndex: 0,
             storeGenerationIndex: 0);
         principalId.TypeMapping = LongTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
@@ -107,24 +95,14 @@ public partial class DependentBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         enumDiscriminator.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
-            keyComparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
+            comparer: ValueComparer<CompiledModelTestBase.Enum1>.Default,
+            providerValueComparer: DefaultValueComparer<int>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value)),
+            converter: EnumToNumberConverter<CompiledModelTestBase.Enum1, int>.Instance,
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum1, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value))));
+                EnumToNumberConverter<CompiledModelTestBase.Enum1, int>.Instance));
         enumDiscriminator.SetSentinelFromProviderValue(0);
 
         var id = runtimeEntityType.AddProperty(
@@ -160,22 +138,9 @@ public partial class DependentBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         id.TypeMapping = ByteTypeMapping.Default.Clone(
-            comparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            keyComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            providerValueComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-        id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
 
         var key = runtimeEntityType.AddKey(
             new[] { principalId, principalAlternateId });

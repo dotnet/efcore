@@ -660,9 +660,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 3);
         var ids = new[] { 2, 999 };
 
-        // Id will have a different type mapping here.
-        // Very specific, kind of fragile, but at least something.
-        // More info efcore#37185.
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ids.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Id) > 0)

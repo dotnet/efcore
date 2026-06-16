@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     "MyEntity", e =>
                     {
                         e.Property<int>("Id").Metadata.SetTypeMapping(
-                            new InMemoryTypeMapping(typeof(int), jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+                            new InMemoryTypeMapping<int>(jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
                         e.HasKey("Id");
                     }),
                 model =>
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     var entityType = model.GetEntityTypes().Single();
 
                     var typeMapping = entityType.FindProperty("Id")!.FindTypeMapping()!;
-                    Assert.IsType<InMemoryTypeMapping>(typeMapping);
+                    Assert.IsType<InMemoryTypeMapping<int>>(typeMapping);
                     Assert.IsType<JsonInt32ReaderWriter>(typeMapping.JsonValueReaderWriter);
                 });
 

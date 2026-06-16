@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -83,19 +84,9 @@ public partial class ManyTypesEntityType
             typeof(bool),
             propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-        boolToStringConverterProperty.TypeMapping = CosmosTypeMapping.Default.Clone(
-            comparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            keyComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        boolToStringConverterProperty.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
+            comparer: DefaultValueComparer<bool>.Default,
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new ValueConverter<bool, string>(string (bool v) => ((string)((v ? "B" : "A"))), bool (string v) => !(string.IsNullOrEmpty(v)) && ((int)(v.ToUpperInvariant()[0])) == ((int)("B".ToUpperInvariant()[0]))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<bool, string>(
                 JsonStringReaderWriter.Instance,

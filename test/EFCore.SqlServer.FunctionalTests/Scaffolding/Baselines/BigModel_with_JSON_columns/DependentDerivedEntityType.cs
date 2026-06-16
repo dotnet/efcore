@@ -65,18 +65,6 @@ public partial class DependentDerivedEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         data.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "char(20)",
                 size: 20,
@@ -103,18 +91,6 @@ public partial class DependentDerivedEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         money.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
-            comparer: new ValueComparer<decimal>(
-                bool (decimal v1, decimal v2) => v1 == v2,
-                int (decimal v) => ((object)v).GetHashCode(),
-                decimal (decimal v) => v),
-            keyComparer: new ValueComparer<decimal>(
-                bool (decimal v1, decimal v2) => v1 == v2,
-                int (decimal v) => ((object)v).GetHashCode(),
-                decimal (decimal v) => v),
-            providerValueComparer: new ValueComparer<decimal>(
-                bool (decimal v1, decimal v2) => v1 == v2,
-                int (decimal v) => ((object)v).GetHashCode(),
-                decimal (decimal v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "decimal(9,3)",
                 precision: 9,

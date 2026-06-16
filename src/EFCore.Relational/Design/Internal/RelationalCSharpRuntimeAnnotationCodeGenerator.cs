@@ -2481,14 +2481,11 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     /// <inheritdoc />
     public override bool Create(
         CoreTypeMapping typeMapping,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-        ValueComparer? valueComparer = null,
-        ValueComparer? keyValueComparer = null,
-        ValueComparer? providerValueComparer = null)
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (typeMapping is not RelationalTypeMapping relationalTypeMapping)
         {
-            return base.Create(typeMapping, parameters, valueComparer, keyValueComparer, providerValueComparer);
+            return base.Create(typeMapping, parameters);
         }
 
         var mainBuilder = parameters.MainBuilder;
@@ -2510,17 +2507,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .AppendLine(".Clone(")
             .IncrementIndent();
 
-        mainBuilder
-            .Append("comparer: ");
-        Create(valueComparer ?? relationalTypeMapping.Comparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("keyComparer: ");
-        Create(keyValueComparer ?? relationalTypeMapping.KeyComparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("providerValueComparer: ");
-        Create(providerValueComparer ?? relationalTypeMapping.ProviderValueComparer, parameters, code);
+        var firstArgument = true;
+        CreateComparers(relationalTypeMapping, parameters, code, ref firstArgument);
 
         var storeTypeDifferent = relationalTypeMapping.StoreType != defaultInstance.StoreType;
         var sizeDifferent = relationalTypeMapping.Size != null
@@ -2542,8 +2530,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             || isFixedLengthDifferent)
         {
             AddNamespace(typeof(RelationalTypeMappingInfo), parameters.Namespaces);
-            mainBuilder.AppendLine(",")
-                .AppendLine("mappingInfo: new RelationalTypeMappingInfo(")
+            AppendArgument("mappingInfo", parameters, ref firstArgument);
+            mainBuilder
+                .AppendLine("new RelationalTypeMappingInfo(")
                 .IncrementIndent();
 
             var firstParameter = true;
@@ -2597,42 +2586,27 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         if (relationalTypeMapping.Converter != null
             && relationalTypeMapping.Converter != defaultInstance.Converter)
         {
-            mainBuilder.AppendLine(",")
-                .Append("converter: ");
-
+            AppendArgument("converter", parameters, ref firstArgument);
             Create(relationalTypeMapping.Converter, parameters, code);
         }
 
-        var typeDifferent = relationalTypeMapping.Converter == null
-            && relationalTypeMapping.ClrType != defaultInstance.ClrType;
-        if (typeDifferent)
+        if (relationalTypeMapping.StoreTypePostfix != defaultInstance.StoreTypePostfix)
         {
-            mainBuilder.AppendLine(",")
-                .Append($"clrType: {code.Literal(relationalTypeMapping.ClrType)}");
-        }
-
-        var storeTypePostfixDifferent = relationalTypeMapping.StoreTypePostfix != defaultInstance.StoreTypePostfix;
-        if (storeTypePostfixDifferent)
-        {
-            mainBuilder.AppendLine(",")
-                .Append($"storeTypePostfix: {code.Literal(relationalTypeMapping.StoreTypePostfix)}");
+            AppendArgument("storeTypePostfix", parameters, ref firstArgument);
+            mainBuilder.Append(code.Literal(relationalTypeMapping.StoreTypePostfix));
         }
 
         if (relationalTypeMapping.JsonValueReaderWriter != null
             && relationalTypeMapping.JsonValueReaderWriter != defaultInstance.JsonValueReaderWriter)
         {
-            mainBuilder.AppendLine(",")
-                .Append("jsonValueReaderWriter: ");
-
+            AppendArgument("jsonValueReaderWriter", parameters, ref firstArgument);
             CreateJsonValueReaderWriter(relationalTypeMapping.JsonValueReaderWriter, parameters, code);
         }
 
         if (relationalTypeMapping.ElementTypeMapping != null
             && relationalTypeMapping.ElementTypeMapping != defaultInstance.ElementTypeMapping)
         {
-            mainBuilder.AppendLine(",")
-                .Append("elementMapping: ");
-
+            AppendArgument("elementMapping", parameters, ref firstArgument);
             Create(relationalTypeMapping.ElementTypeMapping, parameters);
         }
 
