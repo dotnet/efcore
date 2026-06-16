@@ -140,7 +140,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             // Unique constraints, indexes and triggers are created after all the column mappings have been generated, since they
             // reference columns that may be mapped by an entity type that is processed after the one that owns the table mapping
-            // (e.g. an owned entity type sharing the table with its owner).
+            // (e.g. an owned entity type sharing the table with its owner). Foreign keys are created in a separate pass after that,
+            // since they reference the principal table's unique constraint, which may belong to a table processed later.
             foreach (var table in model.Tables)
             {
                 CreateTableConstraints(table, relationalModelParameters);
@@ -148,7 +149,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             foreach (var table in model.Tables)
             {
-                CreateTableConstraints(table, relationalModelParameters, foreignKeysOnly: true);
+                foreach (var foreignKey in table.ForeignKeyConstraints)
+                {
+                    Create(foreignKey, relationalModelParameters with { TargetName = relationalModelParameters.ScopeVariables[table] });
+                }
             }
 
             foreach (var dbFunction in model.Model.GetDbFunctions())
@@ -1470,24 +1474,13 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
     private void CreateTableConstraints(
         ITable table,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-        bool foreignKeysOnly = false)
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
         var metadataVariables = parameters.ScopeVariables;
         var tableVariable = metadataVariables[table];
         var tableParameters = parameters with { TargetName = tableVariable };
-
-        if (foreignKeysOnly)
-        {
-            foreach (var foreignKey in table.ForeignKeyConstraints)
-            {
-                Create(foreignKey, tableParameters);
-            }
-
-            return;
-        }
 
         foreach (var uniqueConstraint in table.UniqueConstraints)
         {
