@@ -91,8 +91,12 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
+        var modelIndex = index.MappedIndexes
+            .Select(ConvertToJsonIndex)
+            .FirstOrDefault(i => i is not null);
+
         if (!designTime
-            || index.MappedIndexes.FirstOrDefault(ConvertToJsonIndex) is not { } modelIndex)
+            || modelIndex is null)
         {
             yield break;
         }
