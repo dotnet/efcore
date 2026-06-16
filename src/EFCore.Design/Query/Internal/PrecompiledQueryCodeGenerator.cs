@@ -1003,7 +1003,7 @@ namespace System.Runtime.CompilerServices
 
             code.AppendLine("#region Runtime constants");
 
-            foreach (var (name, constant) in _runtimeConstants)
+            foreach (var (name, constant) in _runtimeConstants.OrderBy(x => x.Key))
             {
                 var syntax = _linqToCSharpTranslator.TranslateExpression(constant.InitializeExpression, constantReplacements: null, namespaces, unsafeAccessors);
                 code.AppendLine($"private static readonly {constant.Type.FullName} {name} = {syntax.NormalizeWhitespace().ToFullString()};");

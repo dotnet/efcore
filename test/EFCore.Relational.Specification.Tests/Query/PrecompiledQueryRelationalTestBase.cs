@@ -203,8 +203,8 @@ _ = await context.Blogs.Select(b => new[] { b.Id, b.Id + i }).ToListAsync();
 
     [Fact]
     public virtual Task RuntimeConstantExpression()
-    => Test(
-        """
+        => Test(
+            """
 await context.Blogs.ToListAsync();
 """,
         interceptorCodeAsserter: code =>

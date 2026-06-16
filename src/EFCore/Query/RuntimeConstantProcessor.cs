@@ -44,8 +44,13 @@ public class RuntimeConstantProcessor : ExpressionVisitor
     {
         if (node is RuntimeConstantExpression runtimeConstant)
         {
+            if (runtimeConstant.Value is null)
+            {
+                return Expression.Constant(null, runtimeConstant.Type);
+            }
+
             var existing = _preexistingRuntimeConstants.Concat(_foundRuntimeConstants)
-                .FirstOrDefault(x => x.Value == runtimeConstant.Value ||
+                .FirstOrDefault(x => runtimeConstant.Value.Equals(x.Value) ||
                     ExpressionEqualityComparer.Instance.Equals(
                         x.InitializeExpression,
                         runtimeConstant.InitializeExpression));

@@ -30,12 +30,15 @@ public class RuntimeConstantExpression : Expression, IPrintableExpression
     /// </summary>
     public RuntimeConstantExpression(string name, Expression initializeExpression)
     {
+        name = name.Trim();
+        ArgumentException.ThrowIfNullOrWhiteSpace(nameof(name), name);
+
         var type = initializeExpression.Type;
-        Value = Lambda<Func<object>>(Convert(initializeExpression, typeof(object)), null).Compile()();
+        Value = Lambda<Func<object>>(Convert(initializeExpression, typeof(object))).Compile()();
         _constantExpression = Constant(Value, type);
 
         InitializeExpression = initializeExpression;
-        Name = char.ToUpper(name[0]) + name[1..];
+        Name = char.ToUpperInvariant(name[0]) + name[1..];
         Type = type;
     }
 
