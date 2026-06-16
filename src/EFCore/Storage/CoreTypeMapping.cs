@@ -333,7 +333,10 @@ public abstract class CoreTypeMapping
     /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
     /// <param name="converter">The value converter, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="comparer">The value comparer, or <see langword="null" /> to leave unchanged.</param>
-    /// <param name="keyComparer">The key value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="keyComparer">
+    ///     The key value comparer, or <see langword="null" /> to use <paramref name="comparer" /> when supplied, otherwise leave
+    ///     unchanged.
+    /// </param>
     /// <param name="providerValueComparer">The provider value comparer, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="elementMapping">The element mapping, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
@@ -351,7 +354,7 @@ public abstract class CoreTypeMapping
                 Parameters.ClrType,
                 converter ?? Parameters.Converter,
                 comparer ?? Parameters.Comparer,
-                keyComparer ?? Parameters.KeyComparer,
+                keyComparer ?? comparer ?? Parameters.KeyComparer,
                 providerValueComparer ?? Parameters.ProviderValueComparer,
                 Parameters.ValueGeneratorFactory,
                 elementMapping ?? Parameters.ElementTypeMapping,

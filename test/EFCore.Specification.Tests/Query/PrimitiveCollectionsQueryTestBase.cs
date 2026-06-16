@@ -650,7 +650,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [Fact]
-    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
         {
@@ -822,7 +822,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [Fact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
         {
@@ -832,9 +832,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 3).Append(1);
         var ints = new[] { 10, 999 };
 
-        // Id will have a different type mapping here.
-        // Very specific, kind of fragile, but at least something.
-        // More info efcore#37185.
+        // Reusing the same large collection across predicates summed over occurrences triggers fallback; see #37185.
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ints.Contains(c.Int))
             .Where(c => extra.Contains(c.Int))

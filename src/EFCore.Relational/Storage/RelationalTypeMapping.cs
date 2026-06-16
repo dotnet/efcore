@@ -467,7 +467,10 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="storeTypePostfix">The new postfix, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="converter">The value converter, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="comparer">The value comparer, or <see langword="null" /> to leave unchanged.</param>
-    /// <param name="keyComparer">The key value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="keyComparer">
+    ///     The key value comparer, or <see langword="null" /> to use <paramref name="comparer" /> when supplied, otherwise leave
+    ///     unchanged.
+    /// </param>
     /// <param name="providerValueComparer">The provider value comparer, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="elementMapping">The element mapping, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
@@ -500,7 +503,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
                     Parameters.CoreParameters.ClrType,
                     converter ?? Parameters.CoreParameters.Converter,
                     comparer ?? Parameters.CoreParameters.Comparer,
-                    keyComparer ?? Parameters.CoreParameters.KeyComparer,
+                    keyComparer ?? comparer ?? Parameters.CoreParameters.KeyComparer,
                     providerValueComparer ?? Parameters.CoreParameters.ProviderValueComparer,
                     Parameters.CoreParameters.ValueGeneratorFactory,
                     elementMapping ?? Parameters.CoreParameters.ElementTypeMapping,

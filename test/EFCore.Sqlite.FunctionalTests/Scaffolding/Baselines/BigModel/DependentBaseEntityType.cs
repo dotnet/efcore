@@ -30,13 +30,14 @@ public partial class DependentBaseEntityType
             typeof(CompiledModelTestBase.DependentBase<byte?>),
             baseEntityType,
             discriminatorProperty: "EnumDiscriminator",
-            discriminatorValue: CompiledModelTestBase.Enum1.One,
             derivedTypesCount: 1,
             propertyCount: 4,
             navigationCount: 1,
             foreignKeyCount: 2,
             unnamedIndexCount: 1,
             keyCount: 1);
+
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue(1);
 
         var principalId = runtimeEntityType.AddProperty(
             "PrincipalId",

@@ -47,18 +47,6 @@ public partial class AuthorEntityType
             relationshipIndex: 0,
             storeGenerationIndex: 0);
         postId.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         postId.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(postId));
