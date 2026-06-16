@@ -30,17 +30,6 @@ WHERE [b].[Id] > @id
 """);
     }
 
-    public override async Task Json_entity_shaper_uses_runtime_constant_bytes()
-    {
-        await base.Json_entity_shaper_uses_runtime_constant_bytes();
-
-        AssertSql(
-            """
-SELECT [b].[Id], [b].[Name], [b].[Json]
-FROM [Blogs] AS [b]
-""");
-    }
-
     public override async Task Conditional_no_evaluatable()
     {
         await base.Conditional_no_evaluatable();
@@ -278,6 +267,17 @@ WHERE CAST([b].[Id] AS smallint) = CAST(8 AS smallint)
         await Test("""_ = context.Blogs.Where(b => EF.Functions.Collate(b.Name, "German_PhoneBook_CI_AS") == "foo").ToList();""");
 
         AssertSql();
+    }
+
+    public override async Task RuntimeConstantExpression()
+    {
+        await base.RuntimeConstantExpression();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
     }
 
     #endregion Expression types

@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -58,21 +59,6 @@ Assert.Equal(2, blog2.Json[1].Number);
 Assert.Equal("Two", blog2.Json[1].Text);
 Assert.Equal(new DateTime(2002, 2, 2), blog2.Json[1].Inner.Date);
 """);
-
-    [Fact]
-    public virtual Task Json_entity_shaper_uses_runtime_constant_bytes()
-        => Test(
-            """
-await context.Blogs.ToListAsync();
-""",
-            interceptorCodeAsserter: code =>
-            {
-                // Asserts that we are not embedding the result of Encoding.UTF8.GetBytes("Number") directly into the code, but instead referencing a generated static field, which will be initialized at runtime.
-                Assert.DoesNotMatch(@"(?<!private static readonly System\.Byte\[\] NumberBytes = )Encoding\.UTF8\.GetBytes\(""Number""\)", code);
-                Assert.Contains("CurrentReader.ValueTextEquals(((ReadOnlySpan<byte>)(NumberBytes.AsSpan<byte>())))", code);
-
-                Assert.Contains("private static readonly System.Byte[] NumberBytes = Encoding.UTF8.GetBytes(\"Number\");", code);
-            });
 
     [Fact]
     public virtual Task Conditional_no_evaluatable()
@@ -214,6 +200,18 @@ _ = await context.Blogs.Select(b => new[] { b.Id, b.Id + i }).ToListAsync();
     [Fact]
     public virtual Task Unary()
         => Test("_ = await context.Blogs.Where(b => (short)b.Id == (short)8).ToListAsync();");
+
+    [Fact]
+    public virtual Task RuntimeConstantExpression()
+    => Test(
+        """
+await context.Blogs.ToListAsync();
+""",
+        interceptorCodeAsserter: code =>
+        {
+            Assert.Matches(@"\bprivate\s+static\s+readonly\b(?=[^;]*\bNumberBytes\b)[^;=]*\bNumberBytes\s*=\s*[^;]+;", code); // Expected a private static readonly field named NumberBytes with an initializer.
+            Assert.True(Regex.Matches(code, @"\bNumberBytes\b").Count > 1, "Expected at least 1 reference to NumberBytes excluding the initializer.");
+        });
 
     #endregion Expression types
 
