@@ -139,7 +139,6 @@ public partial class PrincipalBaseEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         alternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(alternateId));
-        alternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         alternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var discriminator = runtimeEntityType.AddProperty(

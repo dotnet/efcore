@@ -68,7 +68,6 @@ public partial class OwnedType0EntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         principalDerivedId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalDerivedId));
-        principalDerivedId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var principalDerivedAlternateId = runtimeEntityType.AddProperty(
             "PrincipalDerivedAlternateId",
@@ -88,7 +87,6 @@ public partial class OwnedType0EntityType
             storeGenerationIndex: 1);
         principalDerivedAlternateId.TypeMapping = SqliteGuidTypeMapping.Default;
         principalDerivedAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalDerivedAlternateId));
-        principalDerivedAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var id = runtimeEntityType.AddProperty(
             "Id",
@@ -123,7 +121,6 @@ public partial class OwnedType0EntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var details = runtimeEntityType.AddProperty(
             "Details",

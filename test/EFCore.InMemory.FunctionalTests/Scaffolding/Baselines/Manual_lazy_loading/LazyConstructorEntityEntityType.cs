@@ -80,7 +80,6 @@ public partial class LazyConstructorEntityEntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var _loader = runtimeEntityType.AddServiceProperty(
             "_loader",

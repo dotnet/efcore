@@ -68,7 +68,6 @@ public partial class OwnedType0EntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalDerivedId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalDerivedId));
-        principalDerivedId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var principalDerivedAlternateId = runtimeEntityType.AddProperty(
             "PrincipalDerivedAlternateId",
@@ -107,7 +106,6 @@ public partial class OwnedType0EntityType
                     string (Guid v) => v.ToString("D"),
                     Guid (string v) => new Guid(v))));
         principalDerivedAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalDerivedAlternateId));
-        principalDerivedAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         principalDerivedAlternateId.SetSentinelFromProviderValue("00000000-0000-0000-0000-000000000000");
 
         var id = runtimeEntityType.AddProperty(
@@ -144,7 +142,6 @@ public partial class OwnedType0EntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var details = runtimeEntityType.AddProperty(
             "Details",

@@ -65,7 +65,6 @@ public partial class OwnedType0EntityType
                 int (long v) => ((object)v).GetHashCode(),
                 long (long v) => v));
         principalDerivedId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalDerivedId));
-        principalDerivedId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
         principalDerivedId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var principalDerivedAlternateId = runtimeEntityType.AddProperty(
@@ -100,7 +99,6 @@ public partial class OwnedType0EntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         principalDerivedAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalDerivedAlternateId));
-        principalDerivedAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         principalDerivedAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var __synthesizedOrdinal = runtimeEntityType.AddProperty(
@@ -135,7 +133,6 @@ public partial class OwnedType0EntityType
                 int (int v) => v,
                 int (int v) => v));
         __synthesizedOrdinal.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(__synthesizedOrdinal));
-        __synthesizedOrdinal.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
         __synthesizedOrdinal.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var details = runtimeEntityType.AddProperty(

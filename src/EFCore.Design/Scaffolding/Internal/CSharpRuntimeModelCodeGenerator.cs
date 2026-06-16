@@ -1254,30 +1254,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         var keyValueComparer = property.GetKeyValueComparer();
         var typeMappingKeyComparer = property.GetTypeMapping().KeyComparer;
-        var needsDefaultKeyComparer = parameters.ForNativeAot
-            && (property.IsKey()
-                || property.IsForeignKey()
-                || property.IsUniqueIndex())
-            && keyValueComparer == typeMappingKeyComparer
-            && keyValueComparer.IsDefault()
-            && keyValueComparer.Type == property.ClrType;
         if ((valueComparer != keyValueComparer
                 && (!parameters.ForNativeAot || keyValueComparer != typeMappingKeyComparer)
                 && (parameters.ForNativeAot || property[CoreAnnotationNames.ValueComparer] != null))
-            || needsDefaultKeyComparer)
+            )
         {
-            if (needsDefaultKeyComparer)
-            {
-                SetDefaultValueComparer(
-                    property.ClrType,
-                    favorStructuralComparisons: true,
-                    nameof(CoreTypeMapping.KeyComparer),
-                    propertyParameters);
-            }
-            else
-            {
-                SetValueComparer(keyValueComparer, typeMappingKeyComparer, nameof(CoreTypeMapping.KeyComparer), propertyParameters);
-            }
+            SetValueComparer(keyValueComparer, typeMappingKeyComparer, nameof(CoreTypeMapping.KeyComparer), propertyParameters);
         }
 
         var providerValueComparer = property.GetProviderValueComparer();
@@ -1446,23 +1428,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         return valueComparerString;
-    }
-
-    private void SetDefaultValueComparer(
-        Type clrType,
-        bool favorStructuralComparisons,
-        string typeMappingComparerProperty,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-    {
-        AddNamespace(typeof(ValueComparer), parameters.Namespaces);
-
-        parameters.MainBuilder
-            .Append(parameters.TargetName)
-            .Append(".Set").Append(typeMappingComparerProperty).Append("(ValueComparer.CreateDefault<")
-            .Append(_code.Reference(clrType))
-            .Append(">(favorStructuralComparisons: ")
-            .Append(_code.Literal(favorStructuralComparisons))
-            .AppendLine("));");
     }
 
     private void SetValueComparer(

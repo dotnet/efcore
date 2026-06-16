@@ -78,7 +78,6 @@ public partial class IndexEntityType
             clrType: typeof(Guid),
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

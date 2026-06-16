@@ -589,6 +589,27 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
     /// <inheritdoc />
     public virtual bool Create(
         CoreTypeMapping typeMapping,
+        IProperty property,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var keyValueComparer = property.GetKeyValueComparer();
+        var typeMappingKeyComparer = property.GetTypeMapping().KeyComparer;
+        keyValueComparer = parameters.ForNativeAot
+            && (property.IsKey()
+                || property.IsForeignKey()
+                || property.IsUniqueIndex())
+            && keyValueComparer == typeMappingKeyComparer
+            && keyValueComparer.IsDefault()
+            && keyValueComparer.Type == property.ClrType
+                ? keyValueComparer
+                : null;
+
+        return Create(typeMapping, parameters, keyValueComparer: keyValueComparer);
+    }
+
+    /// <inheritdoc />
+    public virtual bool Create(
+        CoreTypeMapping typeMapping,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         ValueComparer? valueComparer = null,
         ValueComparer? keyValueComparer = null,
@@ -597,7 +618,21 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         var mainBuilder = parameters.MainBuilder;
         var code = Dependencies.CSharpHelper;
         var defaultInstance = CreateDefaultTypeMapping(typeMapping, parameters);
-        if (defaultInstance == null)
+        var comparer = valueComparer ?? typeMapping.Comparer;
+        var keyComparer = keyValueComparer ?? typeMapping.KeyComparer;
+        var providerComparer = providerValueComparer ?? typeMapping.ProviderValueComparer;
+        var typeDifferent = typeMapping.Converter == null
+            && typeMapping.ClrType != defaultInstance.ClrType;
+        if (valueComparer == null
+            && keyValueComparer == null
+            && providerValueComparer == null
+            && comparer == defaultInstance.Comparer
+            && keyComparer == defaultInstance.KeyComparer
+            && providerComparer == defaultInstance.ProviderValueComparer
+            && typeMapping.Converter == defaultInstance.Converter
+            && !typeDifferent
+            && typeMapping.JsonValueReaderWriter == defaultInstance.JsonValueReaderWriter
+            && typeMapping.ElementTypeMapping == defaultInstance.ElementTypeMapping)
         {
             return true;
         }
@@ -608,15 +643,15 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
 
         mainBuilder
             .Append("comparer: ");
-        Create(valueComparer ?? typeMapping.Comparer, parameters, code);
+        Create(comparer, parameters, code);
 
         mainBuilder.AppendLine(",")
             .Append("keyComparer: ");
-        Create(keyValueComparer ?? typeMapping.KeyComparer, parameters, code);
+        Create(keyComparer, parameters, code);
 
         mainBuilder.AppendLine(",")
             .Append("providerValueComparer: ");
-        Create(providerValueComparer ?? typeMapping.ProviderValueComparer, parameters, code);
+        Create(providerComparer, parameters, code);
 
         if (typeMapping.Converter != null
             && typeMapping.Converter != defaultInstance.Converter)
@@ -627,8 +662,6 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             Create(typeMapping.Converter, parameters, code);
         }
 
-        var typeDifferent = typeMapping.Converter == null
-            && typeMapping.ClrType != defaultInstance.ClrType;
         if (typeDifferent)
         {
             mainBuilder.AppendLine(",")
@@ -666,7 +699,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual CoreTypeMapping? CreateDefaultTypeMapping(
+    protected virtual CoreTypeMapping CreateDefaultTypeMapping(
         CoreTypeMapping typeMapping,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
@@ -689,7 +722,6 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             .Append(code.Reference(typeMappingType))
             .Append(".Default");
 
-        var defaultInstance = (CoreTypeMapping)defaultProperty.GetValue(null)!;
-        return typeMapping == defaultInstance ? null : defaultInstance;
+        return (CoreTypeMapping)defaultProperty.GetValue(null)!;
     }
 }

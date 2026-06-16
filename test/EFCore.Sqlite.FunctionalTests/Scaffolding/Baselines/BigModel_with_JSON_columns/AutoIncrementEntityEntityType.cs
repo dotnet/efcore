@@ -78,7 +78,6 @@ public partial class AutoIncrementEntityEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var name = runtimeEntityType.AddProperty(
             "Name",

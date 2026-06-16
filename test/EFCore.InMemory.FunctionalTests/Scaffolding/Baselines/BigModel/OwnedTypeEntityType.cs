@@ -68,7 +68,6 @@ public partial class OwnedTypeEntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalBaseId));
-        principalBaseId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var principalBaseAlternateId = runtimeEntityType.AddProperty(
             "PrincipalBaseAlternateId",
@@ -103,7 +102,6 @@ public partial class OwnedTypeEntityType
             clrType: typeof(Guid),
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         principalBaseAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalBaseAlternateId));
-        principalBaseAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var details = runtimeEntityType.AddProperty(
             "Details",

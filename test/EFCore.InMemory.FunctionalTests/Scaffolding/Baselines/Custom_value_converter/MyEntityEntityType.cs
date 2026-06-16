@@ -110,7 +110,6 @@ public partial class MyEntityEntityType
                     string (int i) => JsonSerializer.Serialize(i, (JsonSerializerOptions)(null)),
                     int (string i) => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions)(null)))));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

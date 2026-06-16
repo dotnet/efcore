@@ -79,7 +79,6 @@ public partial class SelfReferentialEntityEntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var collection = runtimeEntityType.AddProperty(
             "Collection",

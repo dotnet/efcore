@@ -67,7 +67,6 @@ public partial class DependentBaseEntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
-        principalId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var principalAlternateId = runtimeEntityType.AddProperty(
             "PrincipalAlternateId",
@@ -101,7 +100,6 @@ public partial class DependentBaseEntityType
             clrType: typeof(Guid),
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         principalAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalAlternateId));
-        principalAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
 
         var enumDiscriminator = runtimeEntityType.AddProperty(
             "EnumDiscriminator",

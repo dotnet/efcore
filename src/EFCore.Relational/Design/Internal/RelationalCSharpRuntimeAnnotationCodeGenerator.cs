@@ -2483,28 +2483,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             return false;
         }
 
-        var defaultInstance = (RelationalTypeMapping?)CreateDefaultTypeMapping(relationalTypeMapping, parameters);
-        if (defaultInstance == null)
-        {
-            return true;
-        }
-
-        mainBuilder
-            .AppendLine(".Clone(")
-            .IncrementIndent();
-
-        mainBuilder
-            .Append("comparer: ");
-        Create(valueComparer ?? relationalTypeMapping.Comparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("keyComparer: ");
-        Create(keyValueComparer ?? relationalTypeMapping.KeyComparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("providerValueComparer: ");
-        Create(providerValueComparer ?? relationalTypeMapping.ProviderValueComparer, parameters, code);
-
+        var defaultInstance = (RelationalTypeMapping)CreateDefaultTypeMapping(relationalTypeMapping, parameters);
+        var comparer = valueComparer ?? relationalTypeMapping.Comparer;
+        var keyComparer = keyValueComparer ?? relationalTypeMapping.KeyComparer;
+        var providerComparer = providerValueComparer ?? relationalTypeMapping.ProviderValueComparer;
         var storeTypeDifferent = relationalTypeMapping.StoreType != defaultInstance.StoreType;
         var sizeDifferent = relationalTypeMapping.Size != null
             && relationalTypeMapping.Size != defaultInstance.Size;
@@ -2516,6 +2498,46 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             && relationalTypeMapping.DbType != defaultInstance.DbType;
         var isUnicodeDifferent = relationalTypeMapping.IsUnicode != defaultInstance.IsUnicode;
         var isFixedLengthDifferent = relationalTypeMapping.IsFixedLength != defaultInstance.IsFixedLength;
+        var typeDifferent = relationalTypeMapping.Converter == null
+            && relationalTypeMapping.ClrType != defaultInstance.ClrType;
+        var storeTypePostfixDifferent = relationalTypeMapping.StoreTypePostfix != defaultInstance.StoreTypePostfix;
+        if (valueComparer == null
+            && keyValueComparer == null
+            && providerValueComparer == null
+            && comparer == defaultInstance.Comparer
+            && keyComparer == defaultInstance.KeyComparer
+            && providerComparer == defaultInstance.ProviderValueComparer
+            && !storeTypeDifferent
+            && !sizeDifferent
+            && !precisionDifferent
+            && !scaleDifferent
+            && !dbTypeDifferent
+            && !isUnicodeDifferent
+            && !isFixedLengthDifferent
+            && relationalTypeMapping.Converter == defaultInstance.Converter
+            && !typeDifferent
+            && !storeTypePostfixDifferent
+            && relationalTypeMapping.JsonValueReaderWriter == defaultInstance.JsonValueReaderWriter
+            && relationalTypeMapping.ElementTypeMapping == defaultInstance.ElementTypeMapping)
+        {
+            return true;
+        }
+
+        mainBuilder
+            .AppendLine(".Clone(")
+            .IncrementIndent();
+
+        mainBuilder
+            .Append("comparer: ");
+        Create(comparer, parameters, code);
+
+        mainBuilder.AppendLine(",")
+            .Append("keyComparer: ");
+        Create(keyComparer, parameters, code);
+
+        mainBuilder.AppendLine(",")
+            .Append("providerValueComparer: ");
+        Create(providerComparer, parameters, code);
         if (storeTypeDifferent
             || sizeDifferent
             || precisionDifferent
@@ -2586,15 +2608,12 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             Create(relationalTypeMapping.Converter, parameters, code);
         }
 
-        var typeDifferent = relationalTypeMapping.Converter == null
-            && relationalTypeMapping.ClrType != defaultInstance.ClrType;
         if (typeDifferent)
         {
             mainBuilder.AppendLine(",")
                 .Append($"clrType: {code.Literal(relationalTypeMapping.ClrType)}");
         }
 
-        var storeTypePostfixDifferent = relationalTypeMapping.StoreTypePostfix != defaultInstance.StoreTypePostfix;
         if (storeTypePostfixDifferent)
         {
             mainBuilder.AppendLine(",")

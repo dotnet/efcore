@@ -142,7 +142,6 @@ public partial class PrincipalBaseEntityType
                 Guid (string v) => new Guid(v)),
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         alternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(alternateId));
-        alternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         alternateId.SetSentinelFromProviderValue("00000000-0000-0000-0000-000000000000");
 
         var type = runtimeEntityType.AddProperty(

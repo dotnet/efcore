@@ -77,7 +77,6 @@ public partial class DependentDerivedEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var data = runtimeEntityType.AddProperty(
             "Data",

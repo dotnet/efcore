@@ -68,7 +68,6 @@ public partial class OwnedTypeEntityType
                 int (long v) => ((object)v).GetHashCode(),
                 long (long v) => v));
         principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalBaseId));
-        principalBaseId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
         var principalBaseIdPrincipalBase = new RuntimeRelationalPropertyOverrides(
@@ -115,7 +114,6 @@ public partial class OwnedTypeEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         principalBaseAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalBaseAlternateId));
-        principalBaseAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         principalBaseAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var details = runtimeEntityType.AddProperty(

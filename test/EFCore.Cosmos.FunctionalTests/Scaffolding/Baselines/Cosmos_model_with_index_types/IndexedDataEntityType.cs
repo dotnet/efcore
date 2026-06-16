@@ -87,7 +87,6 @@ public partial class IndexedDataEntityType
             clrType: typeof(int),
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
-        id.SetKeyComparer(ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
 
         var partitionId = runtimeEntityType.AddProperty(
             "PartitionId",
@@ -137,7 +136,6 @@ public partial class IndexedDataEntityType
             clrType: typeof(string),
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
         partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(partitionId));
-        partitionId.SetKeyComparer(ValueComparer.CreateDefault<string>(favorStructuralComparisons: true));
 
         var type = runtimeEntityType.AddProperty(
             "$type",

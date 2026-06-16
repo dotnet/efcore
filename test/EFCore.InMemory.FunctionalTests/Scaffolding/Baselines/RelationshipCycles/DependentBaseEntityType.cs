@@ -115,7 +115,6 @@ public partial class DependentBaseEntityType
             clrType: typeof(long),
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
-        principalId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

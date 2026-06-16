@@ -104,7 +104,6 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
                 int (long v) => ((object)v).GetHashCode(),
                 long (long v) => v));
         derivedsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(derivedsId));
-        derivedsId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
         derivedsId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var derivedsAlternateId = runtimeEntityType.AddProperty(
@@ -178,7 +177,6 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         derivedsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(derivedsAlternateId));
-        derivedsAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         derivedsAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var principalsId = runtimeEntityType.AddProperty(
@@ -250,7 +248,6 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
                 int (long v) => ((object)v).GetHashCode(),
                 long (long v) => v));
         principalsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalsId));
-        principalsId.SetKeyComparer(ValueComparer.CreateDefault<long>(favorStructuralComparisons: true));
         principalsId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var principalsAlternateId = runtimeEntityType.AddProperty(
@@ -324,7 +321,6 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         principalsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalsAlternateId));
-        principalsAlternateId.SetKeyComparer(ValueComparer.CreateDefault<Guid>(favorStructuralComparisons: true));
         principalsAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var rowid = runtimeEntityType.AddProperty(
