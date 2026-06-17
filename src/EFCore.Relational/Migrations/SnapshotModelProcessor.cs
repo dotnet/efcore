@@ -1,19 +1,30 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
+namespace Microsoft.EntityFrameworkCore.Migrations;
 
 /// <summary>
-///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-///     any release. You should only use it directly in your code with extreme caution and knowing that
-///     doing so can result in application failures when updating to a new Entity Framework Core release.
+///     The default implementation of <see cref="ISnapshotModelProcessor" />. Applies fix-ups to a model loaded from a
+///     Migrations snapshot so it can be used with the current version of EF Core.
 /// </summary>
+/// <remarks>
+///     <para>
+///         Database providers can derive from this class and register their derived type as <see cref="ISnapshotModelProcessor" />
+///         to apply additional provider-specific fix-ups in addition to the relational fix-ups performed by this implementation.
+///     </para>
+///     <para>
+///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+///         <see cref="DbContext" /> instance will use its own instance of this service.
+///         The implementation may depend on other services registered with any lifetime.
+///         The implementation does not need to be thread-safe.
+///     </para>
+///     <para>
+///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+///     </para>
+/// </remarks>
 public class SnapshotModelProcessor : ISnapshotModelProcessor
 {
     private readonly IOperationReporter _operationReporter;
@@ -21,11 +32,10 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
     private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Creates a new instance of <see cref="SnapshotModelProcessor" />.
     /// </summary>
+    /// <param name="operationReporter">The reporter used to report warnings encountered while processing the model.</param>
+    /// <param name="modelRuntimeInitializer">The runtime initializer used to finalize the processed model.</param>
     public SnapshotModelProcessor(
         IOperationReporter operationReporter,
         IModelRuntimeInitializer modelRuntimeInitializer)
@@ -44,12 +54,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         _modelRuntimeInitializer = modelRuntimeInitializer;
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual IModel? Process(IReadOnlyModel? model, bool resetVersion = false)
     {
         if (model == null

@@ -21,7 +21,7 @@
     <Compile Include="..\EFCore.Design\Design\IOperationResultHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\OperationReportHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\OperationResultHandler.cs" />
-    <Compile Include="..\EFCore.Relational\Design\Internal\IOperationReporter.cs" />
+    <Compile Include="..\EFCore.Relational\Design\IOperationReporter.cs" />
     <Compile Include="..\EFCore.Design\Design\Internal\OperationReporter.cs" />
     <Compile Include="..\EFCore.Relational\Internal\SemanticVersionComparer.cs" />
   </ItemGroup>
