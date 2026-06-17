@@ -22464,7 +22464,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "virtual System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression expression, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression>? preexistingRuntimeConstants);",
+          "Member": "virtual System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression expression);",
           "Stage": "Experimental"
         },
         {
@@ -22474,7 +22474,7 @@
       ],
       "Properties": [
         {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression> RuntimeConstants { get; }",
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression> LastProcessFoundRuntimeConstants { get; }",
           "Stage": "Experimental"
         }
       ]
