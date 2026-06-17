@@ -71,6 +71,47 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         }
 
         ValidateNoIdentifyingRelationshipCycles(identifyingFkGraph);
+
+        ValidateForeignKeys(model, logger);
+    }
+
+    /// <summary>
+    ///     Validates that the types of the foreign key properties match the types of the principal key properties.
+    /// </summary>
+    /// <remarks>
+    ///     This validation is intentionally not run for model snapshots, which are initialized without a validation
+    ///     logger and may store properties using their provider types to round-trip mismatched keys.
+    /// </remarks>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateForeignKeys(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
+            {
+                var dependentProperties = foreignKey.Properties;
+                var principalProperties = foreignKey.PrincipalKey.Properties;
+                for (var i = 0; i < dependentProperties.Count; i++)
+                {
+                    if (GetProviderClrType(dependentProperties[i]) != GetProviderClrType(principalProperties[i]))
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ForeignKeyTypeMismatch(
+                                dependentProperties.Format(includeTypes: true),
+                                foreignKey.DeclaringEntityType.DisplayName(),
+                                principalProperties.Format(includeTypes: true),
+                                foreignKey.PrincipalEntityType.DisplayName()));
+                    }
+                }
+            }
+        }
+
+        static Type GetProviderClrType(IReadOnlyProperty property)
+            => (property.FindTypeMapping()?.Converter?.ProviderClrType
+                ?? property.ClrType).UnwrapNullableType();
     }
 
     private static void ValidateNoIdentifyingRelationshipCycles(Multigraph<IEntityType, IForeignKey> graph)
