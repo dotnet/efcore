@@ -119,5 +119,5 @@ public class StructuredJsonPath
 
     /// <inheritdoc />
     public override string ToString()
-        => AppendTo(new StringBuilder(), '*').ToString();
+        => AppendTo(new StringBuilder()).ToString();
 }
