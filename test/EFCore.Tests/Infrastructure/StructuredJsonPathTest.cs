@@ -121,6 +121,6 @@ public class StructuredJsonPathTest
 
         Assert.Equal("$.A[*]", path.ToString('*'));
         Assert.Equal("$.A[?]", path.ToString('?'));
-        Assert.Equal("$.A[]", path.ToString('\0'));
+        Assert.Equal("$.A[]", path.ToString(wildcardForNullIndex: null));
     }
 }

@@ -31,7 +31,7 @@ public static class RelationalIndexExtensions
             }
         }
 
-        return true;
+        return index.Properties.Count > 0;
     }
 
     /// <summary>
