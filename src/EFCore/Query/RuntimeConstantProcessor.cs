@@ -12,12 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
 public class RuntimeConstantProcessor : ExpressionVisitor
 {
-    private IEnumerable<RuntimeConstantExpression> _preexistingRuntimeConstants = null!;
     private readonly List<RuntimeConstantExpression> _foundRuntimeConstants = [];
     private readonly Dictionary<Expression, RuntimeConstantExpression> _runtimeConstantsByExpression =
         new(ExpressionEqualityComparer.Instance);
     private readonly Dictionary<object, RuntimeConstantExpression> _runtimeConstantsByValue = [];
-    private bool _runtimeConstantLookupsInitialized;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,13 +23,9 @@ public class RuntimeConstantProcessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Process(Expression expression, IEnumerable<RuntimeConstantExpression>? preexistingRuntimeConstants)
+    public virtual Expression Process(Expression expression)
     {
-        _preexistingRuntimeConstants = preexistingRuntimeConstants ?? [];
         _foundRuntimeConstants.Clear();
-        _runtimeConstantsByExpression.Clear();
-        _runtimeConstantsByValue.Clear();
-        _runtimeConstantLookupsInitialized = false;
 
         var result = Visit(expression);
 
@@ -44,7 +38,7 @@ public class RuntimeConstantProcessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<RuntimeConstantExpression> RuntimeConstants => _foundRuntimeConstants;
+    public virtual IReadOnlyList<RuntimeConstantExpression> LastProcessFoundRuntimeConstants => _foundRuntimeConstants;
 
     /// <inheritdoc/>
     protected override Expression VisitExtension(Expression node)
@@ -56,16 +50,6 @@ public class RuntimeConstantProcessor : ExpressionVisitor
                 return Expression.Constant(null, runtimeConstant.Type);
             }
 
-            if (!_runtimeConstantLookupsInitialized)
-            {
-                foreach (var preexistingRuntimeConstant in _preexistingRuntimeConstants)
-                {
-                    AddRuntimeConstantLookup(preexistingRuntimeConstant);
-                }
-
-                _runtimeConstantLookupsInitialized = true;
-            }
-
             if (_runtimeConstantsByValue.TryGetValue(runtimeConstant.Value, out var existing)
              || _runtimeConstantsByExpression.TryGetValue(runtimeConstant.InitializeExpression, out existing))
             {
@@ -73,7 +57,8 @@ public class RuntimeConstantProcessor : ExpressionVisitor
             }
             else
             {
-                AddRuntimeConstantLookup(runtimeConstant);
+                _runtimeConstantsByExpression.TryAdd(runtimeConstant.InitializeExpression, runtimeConstant);
+                _runtimeConstantsByValue.TryAdd(runtimeConstant.Value, runtimeConstant);
                 _foundRuntimeConstants.Add(runtimeConstant);
             }
 
@@ -81,15 +66,5 @@ public class RuntimeConstantProcessor : ExpressionVisitor
         }
 
         return base.VisitExtension(node);
-    }
-
-    private void AddRuntimeConstantLookup(RuntimeConstantExpression runtimeConstant)
-    {
-        _runtimeConstantsByExpression.TryAdd(runtimeConstant.InitializeExpression, runtimeConstant);
-
-        if (runtimeConstant.Value is not null)
-        {
-            _runtimeConstantsByValue.TryAdd(runtimeConstant.Value, runtimeConstant);
-        }
     }
 }

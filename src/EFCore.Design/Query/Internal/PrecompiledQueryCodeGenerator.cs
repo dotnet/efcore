@@ -952,8 +952,8 @@ namespace System.Runtime.CompilerServices
             .AppendLine("    dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>(),")
             .AppendLine("    dbContext.GetService<RelationalCommandBuilderDependencies>());");
 
-        queryExecutor = _runtimeConstantProcessor.Process(queryExecutor, _runtimeConstants.Values);
-        foreach (var runtimeConstant in _runtimeConstantProcessor.RuntimeConstants)
+        queryExecutor = _runtimeConstantProcessor.Process(queryExecutor);
+        foreach (var runtimeConstant in _runtimeConstantProcessor.LastProcessFoundRuntimeConstants)
         {
             var name = SanitizeIdentifierName(runtimeConstant.Name);
             var baseName = name;
