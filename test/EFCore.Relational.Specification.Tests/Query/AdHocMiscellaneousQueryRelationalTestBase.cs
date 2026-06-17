@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region 2951
 
         [Fact]
-        public async Task Query_when_null_key_in_database_should_throw()
+        public virtual async Task Query_when_null_key_in_database_should_throw()
         {
             var contextFactory = await InitializeNonSharedTest<Context2951>(
                 onConfiguring: o => o.EnableDetailedErrors(),
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region 36311
 
         [Theory, MemberData(nameof(IsAsyncData))]
-        public async Task Entity_equality_with_Contains_and_Parameter(bool async)
+        public virtual async Task Entity_equality_with_Contains_and_Parameter(bool async)
         {
             var contextFactory = await InitializeNonSharedTest<Context36311>(
                 onConfiguring: o => SetParameterizedCollectionMode(o, ParameterTranslationMode.Parameter));
