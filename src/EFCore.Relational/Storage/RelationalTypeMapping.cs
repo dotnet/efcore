@@ -657,6 +657,18 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
 
     /// <summary>
+    ///     Creates the value used to populate a newly added, required column for existing rows when generating a migration.
+    /// </summary>
+    /// <remarks>
+    ///     Returning <see langword="null" /> indicates that no type-mapping-specific value is available and that the generic
+    ///     default value for the CLR type should be used instead. Type mappings whose facets (such as size) are required to
+    ///     produce a usable value should override this to supply a value built from the configured mapping.
+    /// </remarks>
+    /// <returns>The default column value, or <see langword="null" /> to use the generic CLR default value.</returns>
+    public virtual object? CreateDefaultColumnValue()
+        => null;
+
+    /// <summary>
     ///     The method to use when reading values of the given type. The method must be defined
     ///     on <see cref="DbDataReader" /> or one of its subclasses.
     /// </summary>

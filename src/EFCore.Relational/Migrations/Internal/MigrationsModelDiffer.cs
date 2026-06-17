@@ -1247,7 +1247,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.DefaultValue = defaultValue
             ?? (inline || isNullable
                 ? null
-                : GetDefaultValue(columnOperation.ClrType));
+                : typeMapping.CreateDefaultColumnValue() ?? GetDefaultValue(columnOperation.ClrType));
         columnOperation.DefaultValueSql = column.DefaultValueSql;
         columnOperation.ColumnType = column.StoreType;
         columnOperation.MaxLength = column.MaxLength;
