@@ -111,6 +111,7 @@ public static class RelationalEventId
         KeyPropertiesNotMappedToTable = CoreEventId.RelationalBaseId + 610,
         StoredProcedureConcurrencyTokenNotMapped = CoreEventId.RelationalBaseId + 611,
         TriggerOnNonRootTphEntity = CoreEventId.RelationalBaseId + 612,
+        OwnedEntityMappedToJsonCollectionWarning = CoreEventId.RelationalBaseId + 613,
 
         // Update events
         BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -1000,6 +1001,21 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId TriggerOnNonRootTphEntity =
         MakeValidationId(Id.TriggerOnNonRootTphEntity);
+
+    /// <summary>
+    ///     An owned entity type is mapped to JSON as a collection, which uses a synthesized ordinal key. This mapping is obsolete; map
+    ///     the type as a complex type collection instead.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId OwnedEntityMappedToJsonCollectionWarning =
+        MakeValidationId(Id.OwnedEntityMappedToJsonCollectionWarning);
 
     /// <summary>
     ///     A foreign key specifies properties which don't map to the related tables.

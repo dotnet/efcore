@@ -1009,8 +1009,9 @@ public class RelationshipDiscoveryConventionTest
 
     private static IMemberClassifier CreateMemberClassifier()
         => new MemberClassifier(
-            TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-            TestServiceFactory.Instance.Create<IParameterBindingFactories>());
+            new MemberClassifierDependencies(
+                TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>()));
 
     private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
     {

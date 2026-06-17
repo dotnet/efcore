@@ -238,6 +238,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, index, entityType);
 
         /// <summary>
+        ///     The include property '{property}' specified on the index {index} on entity type '{entityType}' is contained within a JSON-mapped type. Properties contained within JSON-mapped types cannot be included in an index.
+        /// </summary>
+        public static string IncludePropertyInJsonMappedType(object? property, object? index, object? entityType)
+            => string.Format(
+                GetString("IncludePropertyInJsonMappedType", nameof(property), nameof(index), nameof(entityType)),
+                property, index, entityType);
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.
         /// </summary>
         public static string IncompatibleSqlOutputClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlOutputClause, object? entityTypeWithoutSqlOutputClause)
@@ -1190,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateWarning))'.
+        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateIndexWarning))'.
         /// </summary>
         public static EventDefinition<string, string> LogVectorSearchWithoutApproximate(IDiagnosticsLogger logger)
         {
@@ -1202,12 +1210,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     logger,
                     static logger => new EventDefinition<string, string>(
                         logger.Options,
-                        SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                        SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
                         LogLevel.Warning,
-                        "SqlServerEventId.VectorSearchWithoutApproximateWarning",
+                        "SqlServerEventId.VectorSearchWithoutApproximateIndexWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
-                            SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                            SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
                             _resourceManager.GetString("LogVectorSearchWithoutApproximate")!)));
             }
 

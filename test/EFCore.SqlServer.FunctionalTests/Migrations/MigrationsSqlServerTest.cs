@@ -2368,6 +2368,49 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
     }
 
     [Fact]
+    public virtual async Task Create_index_with_include_on_complex_property()
+    {
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ComplexProperty<JsonIndexItem>(
+                        "Details", cb =>
+                        {
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("People").HasIndex("Name")
+                .IncludeProperties("Details.Value"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal(1, index.Columns.Count);
+                Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
+""",
+            //
+            """
+CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([Details_Value]);
+""");
+    }
+
+    [Fact]
     public virtual async Task Create_index_with_include_and_filter()
     {
         await Test(

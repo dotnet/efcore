@@ -10241,10 +10241,7 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> For(Microsoft.EntityFrameworkCore.Metadata.ITrigger trigger, bool designTime);"
         },
         {
-          "Member": "virtual bool IsJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex? TryBuildJsonIndex(Microsoft.EntityFrameworkCore.Metadata.ITableIndex index);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex CreateJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex modelIndex, Microsoft.EntityFrameworkCore.Metadata.ITableIndex tableIndex);"
         }
       ],
       "Properties": [
@@ -12763,6 +12760,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId OptionalDependentWithoutIdentifyingPropertyWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId OwnedEntityMappedToJsonCollectionWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId PendingModelChangesWarning"
         },
         {
@@ -13493,6 +13493,9 @@
           "Member": "static void OptionalDependentWithoutIdentifyingPropertyWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
+          "Member": "static void OwnedEntityMappedToJsonCollectionWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+        },
+        {
           "Member": "static void PendingModelChangesWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Migrations> diagnostics, System.Type contextType);"
         },
         {
@@ -13701,6 +13704,20 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies RelationalDependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.RelationalMemberClassifier : Microsoft.EntityFrameworkCore.Metadata.MemberClassifier",
+      "Methods": [
+        {
+          "Member": "RelationalMemberClassifier(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies dependencies);"
+        },
+        {
+          "Member": "override bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "override bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
         }
       ]
     },
@@ -14244,6 +14261,9 @@
         },
         {
           "Member": "virtual void ValidateOptionalDependents(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "virtual void ValidateOwnedEntityMappedToJsonCollection(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "override void ValidatePrimitiveCollection(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -20017,10 +20037,10 @@
           "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, System.Collections.Generic.IReadOnlyList<int?>? indices);"
         },
         {
-          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder, bool useAsteriskForNullIndex = true);"
+          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder, char? wildcardForNullIndex = null);"
         },
         {
-          "Member": "virtual string ToString(bool useAsteriskForNullIndex = true);"
+          "Member": "virtual string ToString(char? wildcardForNullIndex = null);"
         },
         {
           "Member": "override string ToString();"

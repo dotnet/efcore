@@ -1547,6 +1547,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(System.Linq.Expressions.Expression<System.Func<TComplexProperty, TNestedComplexProperty>> propertyExpression);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(System.Linq.Expressions.Expression<System.Func<TComplexProperty, TNestedComplexProperty?>> propertyExpression);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(Microsoft.EntityFrameworkCore.Metadata.IComplexProperty complexProperty);"
         },
         {
@@ -4756,6 +4759,9 @@
         },
         {
           "Member": "static string UnhandledNavigationBase(object? type);"
+        },
+        {
+          "Member": "static string UnionTypeNotSupported(object? type);"
         },
         {
           "Member": "static string UnknownEntity(object? entity);"
@@ -9231,9 +9237,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? CreateIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool unique, Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder);"
         },
         {
-          "Member": "static bool IsNonComplexCollectionIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index);"
-        },
-        {
           "Member": "virtual void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
         },
         {
@@ -13437,6 +13440,23 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Diagnostics.InterceptionResult InitializingInstance(Microsoft.EntityFrameworkCore.Diagnostics.MaterializationInterceptionData materializationData, object entity, Microsoft.EntityFrameworkCore.Diagnostics.InterceptionResult result);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
         }
       ]
     },
@@ -18166,6 +18186,68 @@
         },
         {
           "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.MaxLengthAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.MemberClassifier : Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "MemberClassifier(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies dependencies);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType? GetConfigurationType(System.Type type, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "virtual bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies <Clone>$();"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? other);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactories ParameterBindingFactories { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Storage.ITypeMappingSource TypeMappingSource { get; init; }"
         }
       ]
     },
@@ -24200,6 +24282,55 @@
       ]
     },
     {
+      "Type": "enum Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType",
+      "Methods": [
+        {
+          "Member": "TypeConfigurationType();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType ComplexType",
+          "Value": "4"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType EntityType",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType Ignored",
+          "Value": "0"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType OwnedEntityType",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType Property",
+          "Value": "5"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType ServiceProperty",
+          "Value": "6"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType SharedTypeEntityType",
+          "Value": "2"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationTypeExtensions",
+      "Methods": [
+        {
+          "Member": "static bool? IsEntityType(this Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType? configurationType);"
+        },
+        {
+          "Member": "static bool IsEntityType(this Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType configurationType);"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.TypeEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
@@ -24858,12 +24989,18 @@
       "Type": "class Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<TModel, TProvider> : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter",
       "Methods": [
         {
-          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? mappingHints = null);"
+          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression);"
+        },
+        {
+          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? mappingHints);"
         }
       ],
       "Properties": [
         {
           "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression ConstructorExpressionWithoutMappingHints { get; }"
         },
         {
           "Member": "override System.Func<object?, object?> ConvertFromProvider { get; }"

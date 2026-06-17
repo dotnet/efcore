@@ -3586,6 +3586,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
+        ///     The type '{type}' cannot be mapped because union types are not supported. See https://github.com/dotnet/efcore/issues/36375 for more information.
+        /// </summary>
+        public static string UnionTypeNotSupported(object? type)
+            => string.Format(
+                GetString("UnionTypeNotSupported", nameof(type)),
+                type);
+
+        /// <summary>
         ///     Unhandled {entity} encountered.
         /// </summary>
         public static string UnknownEntity(object? entity)

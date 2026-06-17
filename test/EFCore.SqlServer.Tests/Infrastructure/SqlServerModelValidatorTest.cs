@@ -602,10 +602,128 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    [Fact]
+    public void IncludeProperties_on_non_json_complex_property_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(e => e.Address, cb =>
+            {
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Address");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyNotFound("Address", "{'Id'}", nameof(EntityWithIncludedComplex)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void IncludeProperties_inside_json_complex_collection_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Addresses, cb =>
+            {
+                cb.ToJson();
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Addresses.City");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyInJsonMappedType(
+                "Addresses.City", "{'Id'}", nameof(EntityWithIncludedComplexCollection)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void IncludeProperties_on_json_complex_collection_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(e => e.Addresses, cb =>
+            {
+                cb.ToJson();
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Addresses");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplexCollection))!.GetIndexes().Single();
+        Assert.Equal(["Addresses"], index.GetIncludeProperties());
+    }
+
+    [Fact]
+    public void IncludeProperties_inside_json_complex_property_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(e => e.Address, cb =>
+            {
+                cb.ToJson();
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Address.City");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyInJsonMappedType(
+                "Address.City", "{'Id'}", nameof(EntityWithIncludedComplexJson)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void IncludeProperties_on_json_complex_property_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(e => e.Address, cb =>
+            {
+                cb.ToJson();
+                cb.Property(a => a.City).IsRequired();
+                cb.Property(a => a.Street).IsRequired();
+            });
+            b.HasIndex(e => e.Id).IncludeProperties("Address");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplexJson))!.GetIndexes().Single();
+        Assert.Equal(["Address"], index.GetIncludeProperties());
+    }
+
+    protected class EntityWithIncludedComplexJson
+    {
+        public int Id { get; set; }
+        public required EntityWithIncludedComplexAddress Address { get; set; }
+    }
+
     protected class EntityWithIncludedComplex
     {
         public int Id { get; set; }
         public required EntityWithIncludedComplexAddress Address { get; set; }
+    }
+
+    protected class EntityWithIncludedComplexCollection
+    {
+        public int Id { get; set; }
+        public required List<EntityWithIncludedComplexAddress> Addresses { get; set; }
     }
 
     protected class EntityWithIncludedComplexAddress
@@ -1177,7 +1295,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual void Throws_for_vector_property_inside_JSON_owned_entity()
     {
@@ -1196,7 +1313,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             SqlServerStrings.VectorPropertiesNotSupportedInJson(nameof(VectorContainer), nameof(VectorContainer.Vector)),
             modelBuilder);
     }
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     [Experimental("EF9105")]

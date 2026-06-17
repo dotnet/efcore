@@ -428,7 +428,7 @@ ORDER BY [v1].[Id]
             .Take(1)
             .ToListAsync();
 
-        var warning = Assert.Single(Fixture.TestSqlLoggerFactory.Log, l => l.Id == SqlServerEventId.VectorSearchWithoutApproximateWarning);
+        var warning = Assert.Single(Fixture.TestSqlLoggerFactory.Log, l => l.Id == SqlServerEventId.VectorSearchWithoutApproximateIndexWarning);
         Assert.Equal(LogLevel.Warning, warning.Level);
         Assert.Contains("IndexedVector", warning.Message);
         Assert.Contains("VectorEntity", warning.Message);
@@ -544,7 +544,7 @@ WITH (METRIC = 'Cosine', TYPE = 'DiskANN');
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder)
-                .ConfigureWarnings(w => w.Log(SqlServerEventId.VectorSearchWithoutApproximateWarning));
+                .ConfigureWarnings(w => w.Log(SqlServerEventId.VectorSearchWithoutApproximateIndexWarning));
 
         protected override Task SeedAsync(VectorQueryContext context)
             => VectorQueryContext.SeedAsync(context);

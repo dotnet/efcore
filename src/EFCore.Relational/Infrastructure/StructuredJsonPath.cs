@@ -67,12 +67,13 @@ public class StructuredJsonPath
     ///     Appends the JSON path string representation to the given <see cref="StringBuilder" />.
     /// </summary>
     /// <param name="builder">The string builder.</param>
-    /// <param name="useAsteriskForNullIndex">
-    ///     When <see langword="true" /> (the default), unspecified array indices are rendered as <c>[*]</c>;
-    ///     when <see langword="false" />, the indices are rendered as <c>[]</c>.
+    /// <param name="wildcardForNullIndex">
+    ///     The wildcard character used for unspecified array indices. Use <see langword="null" /> (the default)
+    ///     to render as <c>[]</c>; use <c>'*'</c> to render as <c>[*]</c>; or provide any other character to
+    ///     render as, for example, <c>[?]</c>.
     /// </param>
     /// <returns>The same <see cref="StringBuilder" /> for chaining.</returns>
-    public virtual StringBuilder AppendTo(StringBuilder builder, bool useAsteriskForNullIndex = true)
+    public virtual StringBuilder AppendTo(StringBuilder builder, char? wildcardForNullIndex = null)
     {
         builder.Append('$');
 
@@ -87,9 +88,9 @@ public class StructuredJsonPath
                 {
                     builder.Append('[').Append(index).Append(']');
                 }
-                else if (useAsteriskForNullIndex)
+                else if (wildcardForNullIndex is { } wildcard)
                 {
-                    builder.Append("[*]");
+                    builder.Append('[').Append(wildcard).Append(']');
                 }
                 else
                 {
@@ -111,10 +112,10 @@ public class StructuredJsonPath
     /// <summary>
     ///     Returns the JSON path string representation.
     /// </summary>
-    /// <param name="useAsteriskForNullIndex">Indicates whether to use an asterisk for unspecified array indices.</param>
+    /// <param name="wildcardForNullIndex">The wildcard character used for unspecified array indices.</param>
     /// <returns>The JSON path string representation.</returns>
-    public virtual string ToString(bool useAsteriskForNullIndex = true)
-        => AppendTo(new StringBuilder(), useAsteriskForNullIndex).ToString();
+    public virtual string ToString(char? wildcardForNullIndex = null)
+        => AppendTo(new StringBuilder(), wildcardForNullIndex).ToString();
 
     /// <inheritdoc />
     public override string ToString()

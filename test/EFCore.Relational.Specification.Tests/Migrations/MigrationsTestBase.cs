@@ -232,7 +232,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 }
             });
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual async Task Create_table_with_json_column()
         => await Test(
@@ -473,7 +472,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     table.Columns.Single(c => c.Name == "Id"),
                     Assert.Single(table.PrimaryKey!.Columns));
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     public virtual Task Alter_table_add_comment()
@@ -571,7 +569,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal("Persons", table.Name);
             });
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual async Task Rename_table_with_json_column()
         => await Test(
@@ -664,7 +661,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     table.Columns.Single(c => c.Name == "Id"),
                     Assert.Single(table.PrimaryKey!.Columns));
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     public virtual Task Move_table()
@@ -781,7 +777,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         public int Foo { get; set; }
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual async Task Add_json_columns_to_existing_table()
         => await Test(
@@ -869,7 +864,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     table.Columns.Single(c => c.Name == "Id"),
                     Assert.Single(table.PrimaryKey!.Columns));
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Theory, InlineData(true), InlineData(false), InlineData(null)]
     public virtual Task Add_column_with_computedSql(bool? stored)
@@ -1785,7 +1779,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
         AssertSql();
     }
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     public virtual Task Drop_column()
@@ -1833,7 +1826,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal("Id", Assert.Single(table.Columns).Name);
             });
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual async Task Drop_json_columns_from_existing_table()
         => await Test(
@@ -1900,7 +1892,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     table.Columns.Single(c => c.Name == "Id"),
                     Assert.Single(table.PrimaryKey!.Columns));
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     public virtual Task Rename_column()
@@ -1915,7 +1906,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Single(table.Columns, c => c.Name == "SomeOtherColumn");
             });
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual async Task Rename_json_column()
         => await Test(
@@ -2006,7 +1996,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     table.Columns.Single(c => c.Name == "Id"),
                     Assert.Single(table.PrimaryKey!.Columns));
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [Fact]
     public virtual Task Create_index()

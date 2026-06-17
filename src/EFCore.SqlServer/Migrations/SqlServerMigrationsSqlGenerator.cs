@@ -1017,7 +1017,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     : element.Path;
                 builder.Append(stringTypeMapping.GenerateSqlLiteral(
                     new StructuredJsonPath(segments, jsonIndex.CollectionIndices?[i])
-                    .ToString(useAsteriskForNullIndex: true)));
+                    .ToString(wildcardForNullIndex: '*')));
             }
 
             builder.Append(")");

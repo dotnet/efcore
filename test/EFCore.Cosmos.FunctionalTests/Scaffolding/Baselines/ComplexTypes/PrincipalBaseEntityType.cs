@@ -168,14 +168,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
         enum1.SetSentinelFromProviderValue(0);
 
         var enum2 = runtimeEntityType.AddProperty(
@@ -223,14 +219,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
         enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
         enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
@@ -278,14 +270,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
         flagsEnum1.SetSentinelFromProviderValue(0);
 
         var flagsEnum2 = runtimeEntityType.AddProperty(
@@ -332,14 +320,10 @@ public partial class PrincipalBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
         flagsEnum2.SetSentinelFromProviderValue(0);
 
         var principalBaseId = runtimeEntityType.AddProperty(
@@ -1596,14 +1580,10 @@ public partial class PrincipalBaseEntityType
                         bool (string v1, string v2) => v1 == v2,
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
-                    converter: new ValueConverter<Guid, string>(
-                        string (Guid v) => v.ToString("D"),
-                        Guid (string v) => new Guid(v)),
+                    converter: new ValueConverter<Guid, string>(string (Guid v) => v.ToString("D"), Guid (string v) => new Guid(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Guid, string>(
                         JsonStringReaderWriter.Instance,
-                        new ValueConverter<Guid, string>(
-                            string (Guid v) => v.ToString("D"),
-                            Guid (string v) => new Guid(v))));
+                        new ValueConverter<Guid, string>(string (Guid v) => v.ToString("D"), Guid (string v) => new Guid(v))));
                 alternateId.SetSentinelFromProviderValue("00000000-0000-0000-0000-000000000000");
 
                 var enum1 = complexType.AddProperty(
@@ -1664,14 +1644,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                 enum1.SetSentinelFromProviderValue(0);
 
                 var enum2 = complexType.AddProperty(
@@ -1733,14 +1709,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                 enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
                 enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
@@ -1802,14 +1774,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                 flagsEnum1.SetSentinelFromProviderValue(0);
 
                 var flagsEnum2 = complexType.AddProperty(
@@ -1870,14 +1838,10 @@ public partial class PrincipalBaseEntityType
                         bool (int v1, int v2) => v1 == v2,
                         int (int v) => v,
                         int (int v) => v),
-                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+                    converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                         JsonInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                        new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                 flagsEnum2.SetSentinelFromProviderValue(0);
 
                 var id = complexType.AddProperty(

@@ -4558,7 +4558,6 @@ partial class Snapshot : ModelSnapshot
                 Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
             });
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact]
     public virtual void Owned_types_mapped_to_json_are_stored_in_snapshot()
         => Test(
@@ -4797,7 +4796,6 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
                 Assert.Equal("json", ownedType1.GetContainerColumnType());
             });
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     private class Order
     {

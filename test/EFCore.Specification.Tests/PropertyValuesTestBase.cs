@@ -461,6 +461,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         building.Milk.Rating = changed.Milk.Rating;
         building.Milk.License = changed.Milk.License;
         building.Milk.Manufacturer = changed.Milk.Manufacturer;
+        building.OptionalMilk = changed.OptionalMilk;
 
         var entry = context.Entry(building);
         var values = await getPropertyValues(entry);
@@ -480,6 +481,14 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         var milkManTagEntry = milkManufacturerEntry.ComplexProperty(e => e.Tag);
         var milkLicTogEntry = milkLicenseEntry.ComplexProperty(e => e.Tog);
         var milkLicTagEntry = milkLicenseEntry.ComplexProperty(e => e.Tag);
+
+        var optionalMilkEntry = entry.ComplexProperty(e => e.OptionalMilk);
+        var optionalMilkManufacturerEntry = optionalMilkEntry.ComplexProperty(e => e.Manufacturer);
+        var optionalMilkLicenseEntry = optionalMilkEntry.ComplexProperty(e => e.License);
+        var optionalMilkManTogEntry = optionalMilkManufacturerEntry.ComplexProperty(e => e.Tog);
+        var optionalMilkManTagEntry = optionalMilkManufacturerEntry.ComplexProperty(e => e.Tag);
+        var optionalMilkLicTogEntry = optionalMilkLicenseEntry.ComplexProperty(e => e.Tog);
+        var optionalMilkLicTagEntry = optionalMilkLicenseEntry.ComplexProperty(e => e.Tag);
 
         var expected = expectOriginalValues ? original : changed;
         Assert.Equal(expected.Culture.Rating, values[cultureEntry.Property(e => e.Rating).Metadata]);
@@ -503,6 +512,18 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(expected.Milk.License.Charge, values[milkLicenseEntry.Property(e => e.Charge).Metadata]);
         Assert.Equal(expected.Milk.License.Tog.Text, values[milkLicTogEntry.Property(e => e.Text).Metadata]);
         Assert.Equal(expected.Milk.License.Tag.Text, values[milkLicTagEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Rating, values[optionalMilkEntry.Property(e => e.Rating).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Species, values[optionalMilkEntry.Property(e => e.Species).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Subspecies, values[optionalMilkEntry.Property(e => e.Subspecies).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Validation, values[optionalMilkEntry.Property(e => e.Validation).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Manufacturer.Name, values[optionalMilkManufacturerEntry.Property(e => e.Name).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Manufacturer.Rating, values[optionalMilkManufacturerEntry.Property(e => e.Rating).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Manufacturer.Tog.Text, values[optionalMilkManTogEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.Manufacturer.Tag.Text, values[optionalMilkManTagEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.License.Title, values[optionalMilkLicenseEntry.Property(e => e.Title).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.License.Charge, values[optionalMilkLicenseEntry.Property(e => e.Charge).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.License.Tog.Text, values[optionalMilkLicTogEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.OptionalMilk!.License.Tag.Text, values[optionalMilkLicTagEntry.Property(e => e.Text).Metadata]);
 
         if (expectOriginalValues)
         {

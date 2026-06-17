@@ -101,14 +101,10 @@ public partial class MyEntityEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<int, string>(
-                string (int i) => JsonSerializer.Serialize(i, (JsonSerializerOptions)(null)),
-                int (string i) => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions)(null))),
+            converter: new ValueConverter<int, string>(string (int i) => JsonSerializer.Serialize(i, (JsonSerializerOptions)(null)), int (string i) => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions)(null))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<int, string>(
-                    string (int i) => JsonSerializer.Serialize(i, (JsonSerializerOptions)(null)),
-                    int (string i) => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions)(null)))));
+                new ValueConverter<int, string>(string (int i) => JsonSerializer.Serialize(i, (JsonSerializerOptions)(null)), int (string i) => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions)(null)))));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
         var key = runtimeEntityType.AddKey(

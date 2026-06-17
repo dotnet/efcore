@@ -57,7 +57,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [Fact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {
@@ -72,7 +71,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 "CoreEventId.AccidentalEntityType"),
             modelBuilder);
     }
-#pragma warning restore EF8001
 
     protected class MyEntity<T>
     {
@@ -1168,6 +1166,43 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         public int Id { get; set; }
         public List<StructTag> Foo { get; set; }
+    }
+
+    [Fact]
+    public virtual void Detects_union_mapped_as_entity_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<UnionEntity>();
+
+        VerifyError(
+            CoreStrings.UnionTypeNotSupported(nameof(UnionEntity)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_union_mapped_as_complex_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithUnionComplexProperty>().ComplexProperty(e => e.Union);
+
+        VerifyError(
+            CoreStrings.UnionTypeNotSupported(
+                nameof(WithUnionComplexProperty) + "." + nameof(WithUnionComplexProperty.Union) + "#" + nameof(UnionEntity)),
+            modelBuilder);
+    }
+
+    [System.Runtime.CompilerServices.Union]
+    protected class UnionEntity
+    {
+        public int Id { get; set; }
+    }
+
+    protected class WithUnionComplexProperty
+    {
+        public int Id { get; set; }
+        public UnionEntity Union { get; set; }
     }
 
     [Fact]

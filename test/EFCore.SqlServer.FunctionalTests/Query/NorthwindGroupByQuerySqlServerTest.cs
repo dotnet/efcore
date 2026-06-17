@@ -2543,9 +2543,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], MAX(CASE
-    WHEN [o].[OrderDate] IS NOT NULL THEN [o].[OrderDate]
-END) AS [Max]
+SELECT [o].[CustomerID] AS [Key], MAX([o].[OrderDate]) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -3087,14 +3085,127 @@ LEFT JOIN (
     {
         await base.GroupBy_Select_Entire_Entity_Where_Select(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT (
+    SELECT TOP(1) [o1].[EmployeeID]
+    FROM [Orders] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID])
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+HAVING (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) > 10
+""");
     }
 
     public override async Task GroupBy_Select_Entire_Entity_Select(bool async)
     {
         await base.GroupBy_Select_Entire_Entity_Select(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT (
+    SELECT TOP(1) [o0].[EmployeeID]
+    FROM [Orders] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID])
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+""");
+    }
+
+    public override async Task GroupBy_Select_Entire_Entity_FirstOrDefault_Where(bool async)
+    {
+        await base.GroupBy_Select_Entire_Entity_FirstOrDefault_Where(async);
+
+        AssertSql(
+"""
+SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING (
+        SELECT TOP(1) [o1].[EmployeeID]
+        FROM [Orders] AS [o1]
+        WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)
+        ORDER BY [o1].[OrderDate] DESC) = 5
+) AS [o2]
+LEFT JOIN (
+    SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderDate] DESC) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [o3]
+    WHERE [o3].[row] <= 1
+) AS [o4] ON [o2].[CustomerID] = [o4].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_ResultSelector_Entire_Entity_Where(bool async)
+    {
+        await base.GroupBy_ResultSelector_Entire_Entity_Where(async);
+
+        AssertSql(
+"""
+SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING (
+        SELECT TOP(1) [o1].[EmployeeID]
+        FROM [Orders] AS [o1]
+        WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)
+        ORDER BY [o1].[OrderDate] DESC) = 6
+) AS [o2]
+LEFT JOIN (
+    SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderDate] DESC) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [o3]
+    WHERE [o3].[row] <= 1
+) AS [o4] ON [o2].[CustomerID] = [o4].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Select_Entire_Entity_GroupBy(bool async)
+    {
+        await base.GroupBy_Select_Entire_Entity_GroupBy(async);
+
+        AssertSql(
+"""
+SELECT [o2].[Key], COUNT(*) AS [Count]
+FROM (
+    SELECT (
+        SELECT TOP(1) [o1].[EmployeeID]
+        FROM [Orders] AS [o1]
+        WHERE ([o0].[CustomerID] = [o1].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) AND ([o0].[EmployeeID] = [o1].[EmployeeID] OR ([o0].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL))) AS [Key]
+    FROM (
+        SELECT [o].[CustomerID], [o].[EmployeeID]
+        FROM [Orders] AS [o]
+        GROUP BY [o].[CustomerID], [o].[EmployeeID]
+    ) AS [o0]
+) AS [o2]
+GROUP BY [o2].[Key]
+""");
+    }
+
+    public override async Task GroupBy_Select_Entire_Entity_composite_key_Select(bool async)
+    {
+        await base.GroupBy_Select_Entire_Entity_composite_key_Select(async);
+
+        AssertSql(
+"""
+SELECT (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)))
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID], [o].[EmployeeID]
+""");
     }
 
     public override async Task GroupBy_Select_Entire_Entity_Order(bool async)

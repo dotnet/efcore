@@ -4111,6 +4111,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The entity type '{entityType}' is an owned entity type mapped to JSON as a collection, which uses a synthesized ordinal key. Mapping owned entity collections to JSON is obsolete; map it as a complex type collection or configure a non-shadow key instead. See https://aka.ms/efcore-docs-json-owned-entities for more information.
+        /// </summary>
+        public static EventDefinition<string> LogOwnedEntityMappedToJsonCollection(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOwnedEntityMappedToJsonCollection;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOwnedEntityMappedToJsonCollection,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.OwnedEntityMappedToJsonCollectionWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.OwnedEntityMappedToJsonCollectionWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.OwnedEntityMappedToJsonCollectionWarning,
+                            _resourceManager.GetString("LogOwnedEntityMappedToJsonCollection")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
         ///     The model for context '{contextType}' has pending changes. Add a new migration before updating the database. See https://aka.ms/efcore-docs-pending-changes.
         /// </summary>
         public static EventDefinition<string> LogPendingModelChanges(IDiagnosticsLogger logger)
