@@ -267,7 +267,13 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.Both_WithPartitionKey_and_predicate_comparisons_with_same_values_with_only_partition_key();
 
-        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+        // Not ReadItem because partition key values were provided both via WithPartitionKey and in the predicate (see #38238).
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["id"] = "PK1a")
+""");
     }
 
     public override async Task ReadItem_with_hierarchical_partition_key()
@@ -358,7 +364,26 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.ReadItem_with_WithPartitionKey_with_only_partition_key();
 
-        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+        // Not ReadItem because partition key values were provided both via WithPartitionKey and in the predicate (see #38238).
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["id"] = "PK1a")
+""");
+    }
+
+    public override async Task WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key()
+    {
+        await base.WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key();
+
+        // Not ReadItem because partition key values were provided both via WithPartitionKey and in the predicate (see #38238).
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = "PK2"))
+""");
     }
 
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
