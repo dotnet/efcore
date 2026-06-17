@@ -1437,8 +1437,15 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()),
                 "configurationSource does not override Metadata.GetPrincipalKeyConfigurationSource");
 
-            principalEntityType = principalEntityType.LeastDerivedType(Metadata.DeclaringEntityType)!;
-            dependentEntityType = dependentEntityType.LeastDerivedType(Metadata.PrincipalEntityType)!;
+            // When inverting, the new principal/dependent ends take the place of the old dependent/principal
+            // ends. If the requested type is a base of the old opposite end, keep the old (more derived) type
+            // so that an identifying relationship isn't moved to a base type. See #15898.
+            principalEntityType = principalEntityType.IsAssignableFrom(Metadata.DeclaringEntityType)
+                ? Metadata.DeclaringEntityType
+                : principalEntityType.LeastDerivedType(Metadata.DeclaringEntityType)!;
+            dependentEntityType = dependentEntityType.IsAssignableFrom(Metadata.PrincipalEntityType)
+                ? Metadata.PrincipalEntityType
+                : dependentEntityType.LeastDerivedType(Metadata.PrincipalEntityType)!;
         }
         else
         {

@@ -1062,6 +1062,38 @@ public class InternalForeignKeyBuilderTest
         Assert.False(relationshipBuilder.Metadata.IsConstrained);
     }
 
+    [Fact]
+    public void Inverting_identifying_relationship_keeps_derived_dependent()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        customerEntityBuilder.PrimaryKey([Customer.IdProperty], ConfigurationSource.Explicit);
+        var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+        orderEntityBuilder.PrimaryKey([Order.IdProperty], ConfigurationSource.Explicit);
+        var specialOrderEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Explicit);
+        specialOrderEntityBuilder.HasBaseType(orderEntityBuilder.Metadata, ConfigurationSource.Explicit);
+
+        // Identifying FK: principal = SpecialOrder (derived), dependent = Customer (non-derived),
+        // where the FK property is the dependent's primary key.
+        var relationshipBuilder = customerEntityBuilder
+            .HasRelationship(specialOrderEntityBuilder.Metadata, ConfigurationSource.Convention)
+            .HasForeignKey([Customer.IdProperty], ConfigurationSource.Explicit)
+            .HasPrincipalKey(specialOrderEntityBuilder.Metadata.FindPrimaryKey().Properties, ConfigurationSource.Explicit)
+            .IsUnique(true, ConfigurationSource.Explicit);
+
+        Assert.Same(specialOrderEntityBuilder.Metadata, relationshipBuilder.Metadata.PrincipalEntityType);
+        Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
+
+        // Invert the relationship, requesting the base Order as the new dependent. The inverted FK must
+        // remain between the derived SpecialOrder and the non-derived Customer rather than collapsing to Order.
+        var inverted = relationshipBuilder.HasEntityTypes(
+            customerEntityBuilder.Metadata, orderEntityBuilder.Metadata, ConfigurationSource.Explicit);
+
+        Assert.NotNull(inverted);
+        Assert.Same(customerEntityBuilder.Metadata, inverted.Metadata.PrincipalEntityType);
+        Assert.Same(specialOrderEntityBuilder.Metadata, inverted.Metadata.DeclaringEntityType);
+    }
+
     private InternalModelBuilder CreateInternalModelBuilder()
         => new(new Model());
 
