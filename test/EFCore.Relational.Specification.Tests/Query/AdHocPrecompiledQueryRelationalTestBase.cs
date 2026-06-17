@@ -358,8 +358,8 @@ var books = await context.Entities.ToListAsync();
             options,
             interceptorCodeAsserter: (code) =>
             {
-                Assert.Contains("private static readonly System.Byte[] _1_NOT_VALID_Bytes = ", code);
-                Assert.Contains("private static readonly System.Byte[] _1_NOT_VALID_Bytes0 = ", code);
+                Assert.Contains("_1_NOT_VALID_Bytes = ", code);
+                Assert.Contains("_1_NOT_VALID_Bytes0 = ", code);
             });
     }
 

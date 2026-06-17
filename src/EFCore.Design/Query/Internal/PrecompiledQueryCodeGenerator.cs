@@ -261,8 +261,10 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
         foreach (var (fieldName, constant) in _runtimeConstants.OrderBy(x => x.Key))
         {
+            var typeSymbol = GetTypeSymbol(semanticModel.Compilation, constant.Type);
+
             var syntax = _linqToCSharpTranslator.TranslateExpression(constant.InitializeExpression, constantReplacements: null, _namespaces, _unsafeAccessors);
-            _code.AppendLine($"private static readonly {constant.Type.FullName} {fieldName} = {syntax.NormalizeWhitespace().ToFullString()};");
+            _code.AppendLine($"private static readonly {typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {fieldName} = {syntax.NormalizeWhitespace().ToFullString()};");
         }
 
         _code
@@ -1248,6 +1250,38 @@ namespace System.Runtime.CompilerServices
         // so setters were added in reverse order. Reverse to restore source code order.
         var settersArray = settersBuilder.BuildSettersExpression();
         return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
+    }
+
+    private static ITypeSymbol GetTypeSymbol(Compilation compilation, Type type)
+    {
+        if (type.IsByRef || type.IsPointer || type.IsGenericParameter)
+        {
+            throw new NotSupportedException($"Unsupported type: {type}");
+        }
+
+        if (type.IsArray)
+        {
+            var elementSymbol = GetTypeSymbol(compilation, type.GetElementType()!);
+            return compilation.CreateArrayTypeSymbol(elementSymbol, type.GetArrayRank());
+        }
+
+        if (type.IsGenericType && !type.IsGenericTypeDefinition)
+        {
+            var genericDefinition = (INamedTypeSymbol)GetTypeSymbol(
+                compilation,
+                type.GetGenericTypeDefinition());
+
+            var typeArguments = type
+                .GetGenericArguments()
+                .Select(t => GetTypeSymbol(compilation, t))
+                .ToArray();
+
+            return genericDefinition.Construct(typeArguments);
+        }
+
+        return type.FullName is null || compilation.GetTypeByMetadataName(type.FullName) is not { } typeSymbol
+            ? throw new InvalidOperationException($"Couldn't find type symbol for: {type}")
+            : typeSymbol;
     }
 
     [return: NotNullIfNotNull(nameof(name))]
