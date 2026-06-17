@@ -1254,7 +1254,7 @@ namespace System.Runtime.CompilerServices
 
     private static ITypeSymbol GetTypeSymbol(Compilation compilation, Type type)
     {
-        if (type.IsByRef || type.IsPointer || type.IsGenericParameter)
+        if (type.IsByRef || type.IsPointer || type.IsGenericParameter || type.IsByRefLike)
         {
             throw new NotSupportedException($"Unsupported type: {type}");
         }
@@ -1300,7 +1300,7 @@ namespace System.Runtime.CompilerServices
         var result = new string(
             [.. name.Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) ? c : '_')]);
 
-        if (!SyntaxFacts.IsIdentifierStartCharacter(result[0]))
+        if (!SyntaxFacts.IsValidIdentifier(result))
         {
             result = "_" + result;
         }
