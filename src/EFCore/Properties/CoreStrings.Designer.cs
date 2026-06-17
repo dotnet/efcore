@@ -1187,6 +1187,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     The same object instance of type '{entityType}' is being referenced from the navigations '{firstNavigation}' and '{secondNavigation}' on the entity type '{ownerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for one of the navigations.
+        /// </summary>
+        public static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? secondNavigation, object? ownerType)
+            => string.Format(
+                GetString("DuplicateOwnedEntityInstance", nameof(entityType), nameof(firstNavigation), nameof(secondNavigation), nameof(ownerType)),
+                entityType, firstNavigation, secondNavigation, ownerType);
+
+        /// <summary>
         ///     The foreign key {foreignKeyProperties} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {keyProperties} on '{principalType}'.
         /// </summary>
         public static string DuplicateForeignKey(object? foreignKeyProperties, object? entityType, object? duplicateEntityType, object? keyProperties, object? principalType)

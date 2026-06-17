@@ -5019,6 +5019,24 @@ public class OwnedFixupTest
         }
     }
 
+    [Fact]
+    public void Throws_when_same_instance_is_used_for_multiple_owned_navigations()
+    {
+        using var context = new FixupContext();
+        var dependent = new Child { Name = "1" };
+        var principal = new Parent
+        {
+            Id = 77,
+            Child1 = dependent,
+            Child2 = dependent
+        };
+
+        Assert.Equal(
+            CoreStrings.DuplicateOwnedEntityInstance(
+                nameof(Child), nameof(Parent.Child1), nameof(Parent.Child2), nameof(Parent)),
+            Assert.Throws<InvalidOperationException>(() => context.Add(principal)).Message);
+    }
+
     private class OneRowContext(bool async) : DbContext
     {
         private readonly bool _async = async;
