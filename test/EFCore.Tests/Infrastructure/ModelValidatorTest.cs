@@ -1171,6 +1171,43 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
+    public virtual void Detects_union_mapped_as_entity_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<UnionEntity>();
+
+        VerifyError(
+            CoreStrings.UnionTypeNotSupported(nameof(UnionEntity)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_union_mapped_as_complex_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithUnionComplexProperty>().ComplexProperty(e => e.Union);
+
+        VerifyError(
+            CoreStrings.UnionTypeNotSupported(
+                nameof(WithUnionComplexProperty) + "." + nameof(WithUnionComplexProperty.Union) + "#" + nameof(UnionEntity)),
+            modelBuilder);
+    }
+
+    [System.Runtime.CompilerServices.Union]
+    protected class UnionEntity
+    {
+        public int Id { get; set; }
+    }
+
+    protected class WithUnionComplexProperty
+    {
+        public int Id { get; set; }
+        public UnionEntity Union { get; set; }
+    }
+
+    [Fact]
     public virtual void Detects_non_list_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();

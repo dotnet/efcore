@@ -90,6 +90,12 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IEntityType entityType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        if (entityType.ClrType.IsUnion())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.UnionTypeNotSupported(entityType.DisplayName()));
+        }
+
         ValidateEntityClrType(entityType, logger);
         ValidateChangeTrackingStrategy(entityType, logger);
         ValidateIgnoredMembers(entityType, logger);
@@ -634,6 +640,12 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     {
         var structuralType = complexProperty.DeclaringType;
         var targetType = complexProperty.ComplexType;
+
+        if (targetType.ClrType.IsUnion())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.UnionTypeNotSupported(targetType.DisplayName()));
+        }
 
         // Issue #31243: Shadow complex properties are not supported
         if (complexProperty.IsShadowProperty())
