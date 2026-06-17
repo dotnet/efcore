@@ -740,6 +740,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [p]
 SET [p].[SupplierID] = 1
 FROM [Products] AS [p]
