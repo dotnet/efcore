@@ -464,7 +464,7 @@ public abstract class StoreGeneratedTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [Theory, InlineData(EntityState.Modified), InlineData(EntityState.Deleted)] // Issue #22027 #14192
-    public Task Change_state_of_entity_with_temp_non_key_does_not_throw(EntityState targetState)
+    public virtual Task Change_state_of_entity_with_temp_non_key_does_not_throw(EntityState targetState)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -507,7 +507,7 @@ public abstract class StoreGeneratedTestBase<TFixture>(TFixture fixture) : IClas
             });
 
     [Fact] // Issue #19137
-    public Task Clearing_optional_FK_does_not_leave_temporary_value()
+    public virtual Task Clearing_optional_FK_does_not_leave_temporary_value()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
             var product = new OptionalProduct { Id = Fixture.IntSentinel };

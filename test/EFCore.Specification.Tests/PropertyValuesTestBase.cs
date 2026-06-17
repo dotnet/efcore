@@ -1285,7 +1285,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
      InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
-    public async Task Values_can_be_reloaded_from_database_for_entity_in_any_state(EntityState state, bool async)
+    public virtual async Task Values_can_be_reloaded_from_database_for_entity_in_any_state(EntityState state, bool async)
     {
         using var context = CreateContext();
         var building = context.Set<Building>().Single(b => b.Name == "Building One");
@@ -1316,7 +1316,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
      InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
-    public async Task Reload_when_entity_deleted_in_store_can_happen_for_any_state(EntityState state, bool async)
+    public virtual async Task Reload_when_entity_deleted_in_store_can_happen_for_any_state(EntityState state, bool async)
     {
         using var context = CreateContext();
         var office = new Office { Number = "35" };
@@ -2271,11 +2271,11 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [Fact]
-    public Task Store_values_really_are_store_values_not_current_or_original_values()
+    public virtual Task Store_values_really_are_store_values_not_current_or_original_values()
         => Store_values_really_are_store_values_not_current_or_original_values_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [Fact]
-    public Task Store_values_really_are_store_values_not_current_or_original_values_async()
+    public virtual Task Store_values_really_are_store_values_not_current_or_original_values_async()
         => Store_values_really_are_store_values_not_current_or_original_values_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task Store_values_really_are_store_values_not_current_or_original_values_implementation(
