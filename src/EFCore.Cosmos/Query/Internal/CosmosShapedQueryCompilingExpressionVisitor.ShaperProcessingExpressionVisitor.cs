@@ -247,15 +247,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             bool nullable,
             Expression valueBufferExpression)
         {
-            var variables = new List<ParameterExpression>();
-            var expressions = new List<Expression>();
+            var shaperBlockVariables = new List<ParameterExpression>();
+            var shaperBlockExpressions = new List<Expression>();
             var jsonReaderDataShaperLambdaParameter = _valueBufferToJsonReaderDataMapping[valueBufferExpression];
 
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             // Read metadata properties from the document (if needed)
 
             if (discriminatorProperty != null
-             || structuralType is IEntityType et && et.IsDocumentRoot()) // We only need to read primary key values if this is the root entity, since owned entities their identity are defined by the owner identity, or their index in the collection.
+             // We only need to read primary key values if this is the root entity, since owned entities their identity are defined by the owner identity, or their index in the collection.
+             || (structuralType is IEntityType et && et.IsDocumentRoot()))
             {
                 // Generate a read loop to extract the metadata properties.
                 var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
@@ -287,36 +288,42 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //  tokenType = jsonReaderManager.MoveNext();
                 //  switch($tokenType) {
                 //      case(JsonTokenType.PropertyName):
-                //          if (jsonReaderManager.CurrentReader.ValueTextEquals("discriminator".Span))
+                //          if (jsonReaderManager.CurrentReader.ValueTextEquals("$type"u8))
                 //              jsonReaderManager.MoveNext();
                 //              discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-                //          else if (jsonReaderManager.CurrentReader.ValueTextEquals("Id".Span))
+                //          else if (jsonReaderManager.CurrentReader.ValueTextEquals("Id"u8))
                 //              jsonReaderManager.MoveNext();
                 //              idValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
                 //          else if // @TODO: NESTED??
+                //          else
+                //              jsonReaderManager.Skip();
+                //
                 //      case (JsonTokenType.EndObject):
-                //          goto break
+                //          goto done
                 //      default:
                 //          throw invalid json
-                // label: break
+                // label: done
 
                 // 
                 // if (discriminatorValue == null || idValue == null)
-                // @TODO: What if not found? throw?
+                // @TODO: What if not found? throw? We will just pass to TryGetEntry and it should return IsNullKey?
 
                 var propertiesToRead = new List<(IProperty, ParameterExpression)>();
                 if (discriminatorProperty != null)
                 {
-                    propertiesToRead.Add((discriminatorProperty, Variable(discriminatorProperty.ClrType.MakeNullable(), discriminatorProperty.Name + "Value")));
+                    propertiesToRead.Add((discriminatorProperty, CreateMetadataVariable(discriminatorProperty)));
                 }
                 if (structuralType is IEntityType et1 && et1.IsDocumentRoot())
                 {
-                    propertiesToRead.AddRange(et1.FindPrimaryKey()!.Properties.Select(p => (p, Variable(p.ClrType.MakeNullable(), p.Name + "Value"))));
+                    propertiesToRead.AddRange(et1.FindPrimaryKey()!.Properties.Select(p => (p, CreateMetadataVariable(p))));
                 }
+
+                static ParameterExpression CreateMetadataVariable(IPropertyBase property)
+                    => Variable(property.ClrType.MakeNullable(), property.Name + "Value");
 
                 foreach (var (property, propertyValueVariable) in propertiesToRead)
                 {
-                    variables.Add(propertyValueVariable);
+                    shaperBlockVariables.Add(propertyValueVariable);
                     metadataBlockExpressions.Add(Assign(propertyValueVariable, Default(property.ClrType.MakeNullable())));
                 }
 
@@ -348,7 +355,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             previous);
                     });
 
-                var breakLabel = Label("done");
+                var breakLabel = Label("MetadataRead");
                 metadataBlockExpressions.Add(
                     Loop(Block(
                         Assign(tokenTypeVariable, Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod)),
@@ -372,11 +379,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             
             var innerShapersMap = new Dictionary<IPropertyBase, Expression>();
             var innerFixupMap = new Dictionary<IPropertyBase, LambdaExpression>();
+            var trackingInnerFixupMap = new Dictionary<IPropertyBase, LambdaExpression>();
 
             // Go over all structural properties (complex properties and navigations - if we're an (owned) entity), which represent JSON
             // nested types; generate shapers and fixup to wire the materialized related instance into the parent's property.
             // Note that we need to build entity shapers and fixup separately; we don't know the order in which data comes, so
-            // we need to read through everything before we can do fixup/tracking safely
+            // we need to read through everything before we can do fixup safely
             IEnumerable<IPropertyBase> nestedStructuralProperties = ((ITypeBase)structuralType.GetRootType()).GetDerivedTypesInclusive().SelectMany(x => x.GetDeclaredComplexProperties());
 
             if (structuralType is IEntityType entityType)
@@ -386,19 +394,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         .Where(n => n.ForeignKey.IsOwnership
                             && n == n.ForeignKey.PrincipalToDependent)));
             }
-
-            // We always do fixups, but we determine here what the fixup actually does
-
-            // Fixup methods take keyvalues
-
-            // When tracking:
-            // Fixups should call TryGetEntry and StartTracking?
-            // Every fixup should first call the fixups of its inner shapers (if parent not null)
-
-            // When not tracking
-            // Fixups should set the structural property (ReferenceFixup)
-
-            // Fixup only starts when we have materialized the full document...
 
             foreach (var nestedStructuralProperty in nestedStructuralProperties)
             {
@@ -443,12 +438,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var shaperEntityParameter = Parameter(nestedStructuralProperty.DeclaringType.ClrType);
                     var ownedNavigationType = nestedStructuralProperty.GetMemberInfo(forMaterialization: true, forSet: true).GetMemberType();
                     var shaperCollectionParameter = Parameter(ownedNavigationType);
-                    var expressionsForReference = new List<Expression>();
-                    var expressionsForTracking = new List<Expression>(); // @TODO: Add enumarate items and StartTracking call??
+                    var expressionsForFixup = new List<Expression>();
+                    var expressionsForTracking = new List<Expression>();
 
                     if (!nestedStructuralProperty.IsShadowProperty())
                     {
-                        expressionsForReference.Add(
+                        expressionsForFixup.Add(
                             shaperEntityParameter.MakeMemberAccess(nestedStructuralProperty.GetMemberInfo(forMaterialization: true, forSet: true))
                                 .Assign(shaperCollectionParameter));
 
@@ -480,7 +475,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             innerFixupCollectionElementParameter,
                             innerFixupParentParameter);
 
-                        expressionsForReference.Add(
+                        expressionsForFixup.Add(
                             Call(
                                 InverseCollectionFixupMethod.MakeGenericMethod(
                                     inverseNavigation.DeclaringEntityType.ClrType,
@@ -490,46 +485,35 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 elementFixup));
                     }
 
-                    var referenceFixup = Lambda(
-                        Block(typeof(void), expressionsForReference),
+                    var fixup = Lambda(
+                        Block(typeof(void), expressionsForFixup),
                         shaperEntityParameter,
                         shaperCollectionParameter);
+
+                    innerFixupMap[nestedStructuralProperty] = fixup;
 
                     var trackedFixup = Lambda(
                         Block(typeof(void), expressionsForTracking),
                         shaperEntityParameter,
                         shaperCollectionParameter);
 
-                    innerFixupMap[nestedStructuralProperty] = _isTracking ? trackedFixup : referenceFixup;
+                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
+                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
+                    trackingInnerFixupMap[nestedStructuralProperty] = relatedStructuralType is IComplexType ? fixup : trackedFixup;
                 }
                 else
                 {
-                    if (_isTracking)
-                    {
-                        // @TODO: Add StartTracking call
+                    var fixup = GenerateReferenceFixupForJson(
+                        nestedStructuralProperty.DeclaringType.ClrType,
+                        nestedStructuralProperty.ClrType,
+                        nestedStructuralProperty,
+                        inverseNavigation);
 
-                        // @TODO: Can we match this in the visitor and readd here? No
+                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
+                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
+                    innerFixupMap[nestedStructuralProperty] = fixup;
 
-                        //$entry1 = .Call $queryContext.TryGetEntry(
-                        //.Constant<Microsoft.EntityFrameworkCore.Metadata.RuntimeKey>(Key: RootEntity.Id PK),
-                        //.NewArray System.Object[] {
-                        //        (System.Object)$instance1.< Id > k__BackingField
-                        //},
-                        //True,
-                        //$hasNullKey1);
-                        //.If($entry1 == .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)) {
-                        //    $entry1 = .Call $queryContext.StartTracking(
-                        //        $entityType1,
-                        //        $instance1,
-                        //        $shadowSnapshot1)
-                        //} .Else {
-                        //    $instance1 = (Microsoft.EntityFrameworkCore.Query.Associations.RootEntity)$entry1.Entity
-                        //}
-
-
-
-                    }
-                    else
+                    if (relatedStructuralType is IComplexType)
                     {
                         innerFixupMap[nestedStructuralProperty] = GenerateReferenceFixupForJson(
                             nestedStructuralProperty.DeclaringType.ClrType,
@@ -542,15 +526,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 innerShapersMap[nestedStructuralProperty] = innerShaper;
             }
 
-            var jsonMaterializerExpression = new JsonEntityMaterializerRewriter( // @TODO: Need to pass discriminatorValueVariable, and use it in the TryGetValue calls for the discriminator property
+            var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(
                     jsonReaderDataShaperLambdaParameter,
                     innerShapersMap)
                 .Rewrite(structuralTypeShaperMaterializer);
 
-            variables.AddRange(jsonMaterializerExpression.Variables);
-            expressions.AddRange(jsonMaterializerExpression.Expressions);
+            shaperBlockVariables.AddRange(jsonMaterializerExpression.Variables);
+            shaperBlockExpressions.AddRange(jsonMaterializerExpression.Expressions);
 
-            var fullMaterializeBlock = Block(variables, expressions);
+            var fullMaterializeBlock = Block(shaperBlockVariables, shaperBlockExpressions);
 
             var shaperLambda = Lambda(
                     fullMaterializeBlock,
@@ -1182,7 +1166,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 : (projectionBindingExpression.Index
                     ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
 
-        private sealed class JsonEntityMaterializerRewriter(
+        // @TODO: Integrate...?
+        // Nah..
+        private sealed class JsonEntityMaterializerRewriter( 
             ParameterExpression jsonReaderDataParameter,
             IDictionary<IPropertyBase, Expression> innerShapersMap)
             : ExpressionVisitor
