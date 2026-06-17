@@ -1727,7 +1727,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
 
         var expectedChildState = state == EntityState.Detached ? EntityState.Detached : EntityState.Unchanged;
-        foreach(var child in parent.Children)
+        foreach (var child in parent.Children)
         {
             Assert.Equal(expectedChildState, context.Entry(child).State);
         }
