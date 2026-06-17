@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -1265,16 +1266,12 @@ namespace System.Runtime.CompilerServices
             return "_";
         }
 
-        var replaced = name
-            .Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) ? c : '_')
-            .ToArray();
-
-        var result = Regex.Replace(new string(replaced), "(_)+", "_");
+        var result = new string(
+            [.. name.Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) ? c : '_')]);
 
         if (!SyntaxFacts.IsIdentifierStartCharacter(result[0]))
         {
             result = "_" + result;
-
         }
 
         Debug.Assert(SyntaxFacts.IsValidIdentifier(result));
