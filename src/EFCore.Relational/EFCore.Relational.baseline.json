@@ -10241,7 +10241,7 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> For(Microsoft.EntityFrameworkCore.Metadata.ITrigger trigger, bool designTime);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex CreateJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex modelIndex);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex CreateJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex modelIndex, Microsoft.EntityFrameworkCore.Metadata.ITableIndex tableIndex);"
         }
       ],
       "Properties": [

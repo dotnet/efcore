@@ -109,7 +109,7 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
             yield break;
         }
 
-        yield return new Annotation(RelationalAnnotationNames.JsonIndex, CreateJsonIndex(modelIndex));
+        yield return new Annotation(RelationalAnnotationNames.JsonIndex, CreateJsonIndex(modelIndex, index));
     }
 
     /// <summary>
@@ -123,10 +123,10 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     ///     property on the index's table.
     /// </remarks>
     /// <param name="modelIndex">The mapped JSON index.</param>
+    /// <param name="tableIndex">The mapped table index being annotated.</param>
     /// <returns>The <see cref="RelationalJsonIndex" /> describing the JSON paths.</returns>
-    protected virtual RelationalJsonIndex CreateJsonIndex(IIndex modelIndex)
+    protected virtual RelationalJsonIndex CreateJsonIndex(IIndex modelIndex, ITableIndex tableIndex)
     {
-        var tableIndex = modelIndex.GetMappedTableIndexes().First();
         var elements = new IRelationalJsonElement[modelIndex.Properties.Count];
         for (var i = 0; i < modelIndex.Properties.Count; i++)
         {
