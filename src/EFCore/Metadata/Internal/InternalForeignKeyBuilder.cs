@@ -3492,13 +3492,20 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalForeignKeyBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
+    public virtual InternalForeignKeyBuilder? Attach(
+        InternalEntityTypeBuilder entityTypeBuilder,
+        EntityType? principalEntityType = null)
     {
         var configurationSource = Metadata.GetConfigurationSource();
         var model = Metadata.DeclaringEntityType.Model;
         InternalEntityTypeBuilder principalEntityTypeBuilder;
-        EntityType? principalEntityType;
-        if (Metadata.PrincipalEntityType.IsInModel)
+        if (principalEntityType is { IsInModel: true }
+            && (Metadata.PrincipalEntityType.Name == principalEntityType.Name
+                || Metadata.PrincipalEntityType.ClrType == principalEntityType.ClrType))
+        {
+            principalEntityTypeBuilder = principalEntityType.Builder;
+        }
+        else if (Metadata.PrincipalEntityType.IsInModel)
         {
             principalEntityTypeBuilder = Metadata.PrincipalEntityType.Builder;
             principalEntityType = Metadata.PrincipalEntityType;
