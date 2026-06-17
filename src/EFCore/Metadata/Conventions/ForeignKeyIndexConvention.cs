@@ -127,7 +127,7 @@ public class ForeignKeyIndexConvention :
         var key = keyBuilder.Metadata;
         foreach (var index in key.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredIndexes())
-                     .Where(i => IsNonComplexCollectionIndex(i) && AreIndexedBy(i.Properties, i.IsUnique, key.Properties, true)).ToList())
+                     .Where(i => i.CollectionIndices is null && AreIndexedBy(i.Properties, i.IsUnique, key.Properties, true)).ToList())
         {
             RemoveIndex(index);
         }
@@ -176,7 +176,7 @@ public class ForeignKeyIndexConvention :
         }
 
         var baseKeys = newBaseType?.GetKeys().ToList();
-        var baseIndexes = newBaseType?.GetIndexes().Where(IsNonComplexCollectionIndex).ToList();
+        var baseIndexes = newBaseType?.GetIndexes().Where(i => i.CollectionIndices is null).ToList();
         foreach (var foreignKey in entityTypeBuilder.Metadata.GetDeclaredForeignKeys()
                      .Concat(entityTypeBuilder.Metadata.GetDerivedForeignKeys()))
         {
@@ -216,7 +216,7 @@ public class ForeignKeyIndexConvention :
         var index = indexBuilder.Metadata;
 
         // Indexes that traverse complex properties neither cover nor are covered by others.
-        if (!IsNonComplexCollectionIndex(index))
+        if (index.CollectionIndices is not null)
         {
             return;
         }
@@ -224,7 +224,7 @@ public class ForeignKeyIndexConvention :
         foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredIndexes())
                      .Where(i => i != index
-                         && IsNonComplexCollectionIndex(i)
+                         && i.CollectionIndices is null
                          && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, index.IsUnique)).ToList())
         {
             RemoveIndex(otherIndex);
@@ -248,7 +248,7 @@ public class ForeignKeyIndexConvention :
         }
 
         // A removed complex index never covered any FK index, so nothing to re-create.
-        if (!IsNonComplexCollectionIndex(index))
+        if (index.CollectionIndices is not null)
         {
             return;
         }
@@ -292,7 +292,7 @@ public class ForeignKeyIndexConvention :
                 }
 
                 var coveringIndex = foreignKey.DeclaringEntityType.GetIndexes()
-                    .FirstOrDefault(i => IsNonComplexCollectionIndex(i)
+                    .FirstOrDefault(i => i.CollectionIndices is null
                         && AreIndexedBy(foreignKey.Properties, false, i.Properties, i.IsUnique));
                 if (coveringIndex != null)
                 {
@@ -315,7 +315,7 @@ public class ForeignKeyIndexConvention :
         IConventionContext<bool?> context)
     {
         var index = indexBuilder.Metadata;
-        if (!IsNonComplexCollectionIndex(index))
+        if (index.CollectionIndices is not null)
         {
             return;
         }
@@ -325,7 +325,7 @@ public class ForeignKeyIndexConvention :
             foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
                          .SelectMany(t => t.GetDeclaredIndexes())
                          .Where(i => i != index
-                             && IsNonComplexCollectionIndex(i)
+                             && i.CollectionIndices is null
                              && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUnique: true))
                          .ToList())
             {
@@ -366,7 +366,7 @@ public class ForeignKeyIndexConvention :
 
         foreach (var existingIndex in entityTypeBuilder.Metadata.GetIndexes())
         {
-            if (IsNonComplexCollectionIndex(existingIndex)
+            if (existingIndex.CollectionIndices is null
                 && AreIndexedBy(properties, unique, existingIndex.Properties, existingIndex.IsUnique))
             {
                 return null;
@@ -401,16 +401,6 @@ public class ForeignKeyIndexConvention :
     private static void RemoveIndex(IConventionIndex index)
         => index.DeclaringEntityType.Builder.HasNoIndex(index);
 
-    /// <summary>
-    ///     Returns whether the given index participates in the FK / index coverage logic. JSON-path indexes
-    ///     (those with <see cref="IReadOnlyIndex.CollectionIndices" />) target paths inside JSON columns and
-    ///     neither cover nor are covered by other indexes.
-    /// </summary>
-    /// <param name="index">The index to test.</param>
-    /// <returns><see langword="true" /> if the index participates in FK / index coverage logic.</returns>
-    protected static bool IsNonComplexCollectionIndex(IConventionIndex index)
-        => index.CollectionIndices is null;
-
     /// <inheritdoc />
     public virtual void ProcessModelFinalizing(
         IConventionModelBuilder modelBuilder,
@@ -441,7 +431,7 @@ public class ForeignKeyIndexConvention :
 
                 foreach (var existingIndex in entityType.GetIndexes())
                 {
-                    if (IsNonComplexCollectionIndex(existingIndex)
+                    if (existingIndex.CollectionIndices is null
                         && AreIndexedBy(
                             declaredForeignKey.Properties, declaredForeignKey.IsUnique, existingIndex.Properties,
                             existingIndex.IsUnique))

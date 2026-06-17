@@ -10241,10 +10241,7 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> For(Microsoft.EntityFrameworkCore.Metadata.ITrigger trigger, bool designTime);"
         },
         {
-          "Member": "virtual bool IsJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex? TryBuildJsonIndex(Microsoft.EntityFrameworkCore.Metadata.ITableIndex index);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex CreateJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex modelIndex, Microsoft.EntityFrameworkCore.Metadata.ITableIndex tableIndex);"
         }
       ],
       "Properties": [
@@ -20040,10 +20037,10 @@
           "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, System.Collections.Generic.IReadOnlyList<int?>? indices);"
         },
         {
-          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder, bool useAsteriskForNullIndex = true);"
+          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder, char? wildcardForNullIndex = null);"
         },
         {
-          "Member": "virtual string ToString(bool useAsteriskForNullIndex = true);"
+          "Member": "virtual string ToString(char? wildcardForNullIndex = null);"
         },
         {
           "Member": "override string ToString();"

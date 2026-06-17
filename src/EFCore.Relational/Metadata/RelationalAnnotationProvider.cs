@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -91,68 +93,47 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
+        IIndex? modelIndex = null;
+        foreach (var mappedIndex in index.MappedIndexes)
+        {
+            if (mappedIndex.IsJsonIndex())
+            {
+                modelIndex = mappedIndex;
+                break;
+            }
+        }
+
         if (!designTime
-            || TryBuildJsonIndex(index) is not { } jsonIndex)
+            || modelIndex is null)
         {
             yield break;
         }
 
-        yield return new Annotation(RelationalAnnotationNames.JsonIndex, jsonIndex);
+        yield return new Annotation(RelationalAnnotationNames.JsonIndex, CreateJsonIndex(modelIndex, index));
     }
 
     /// <summary>
-    ///     Attempts to build a <see cref="RelationalJsonIndex" /> for the given table index when its
-    ///     leaves resolve to properties (or whole complex properties) contained in a JSON-mapped column.
-    ///     Returns <see langword="null" /> for non-JSON indexes.
+    ///     Builds a <see cref="RelationalJsonIndex" /> for the given mapped JSON index.
     /// </summary>
     /// <remarks>
-    ///     Providers can override this to customize JSON index detection or element resolution. The base
+    ///     Providers can override this to customize JSON index element resolution. The base
     ///     implementation handles indexes whose leaves are either scalar properties inside JSON-mapped
     ///     complex types, or non-collection complex properties whose type is itself JSON-mapped. When
     ///     overriding, use <see cref="FindJsonElement" /> to resolve the JSON element for an individual
     ///     property on the index's table.
     /// </remarks>
-    /// <param name="index">The table index.</param>
-    /// <returns>The <see cref="RelationalJsonIndex" /> describing the JSON paths, or <see langword="null" />.</returns>
-    protected virtual RelationalJsonIndex? TryBuildJsonIndex(ITableIndex index)
+    /// <param name="modelIndex">The mapped JSON index.</param>
+    /// <param name="tableIndex">The mapped table index being annotated.</param>
+    /// <returns>The <see cref="RelationalJsonIndex" /> describing the JSON paths.</returns>
+    protected virtual RelationalJsonIndex CreateJsonIndex(IIndex modelIndex, ITableIndex tableIndex)
     {
-        var modelIndex = index.MappedIndexes.FirstOrDefault();
-        if (modelIndex is null
-            || !IsJsonIndex(modelIndex))
-        {
-            return null;
-        }
-
         var elements = new IRelationalJsonElement[modelIndex.Properties.Count];
         for (var i = 0; i < modelIndex.Properties.Count; i++)
         {
-            elements[i] = FindJsonElement(modelIndex.Properties[i], index.Table);
+            elements[i] = FindJsonElement(modelIndex.Properties[i], tableIndex.Table);
         }
 
         return new RelationalJsonIndex(elements, modelIndex.CollectionIndices);
-    }
-
-    /// <summary>
-    ///     Returns whether the given mapped <see cref="IIndex" /> is a JSON index — i.e. all its leaves
-    ///     are contained in a JSON-mapped column. Providers can override to recognize additional shapes.
-    /// </summary>
-    /// <param name="index">The mapped index.</param>
-    /// <returns><see langword="true" /> if the index is a JSON index.</returns>
-    protected virtual bool IsJsonIndex(IIndex index)
-    {
-        foreach (var property in index.Properties)
-        {
-            switch (property)
-            {
-                case IProperty { DeclaringType: IComplexType complexType } when complexType.IsMappedToJson():
-                case IComplexProperty { ComplexType: var ct } when ct.IsMappedToJson():
-                    continue;
-                default:
-                    return false;
-            }
-        }
-
-        return index.Properties.Count > 0;
     }
 
     /// <summary>
