@@ -32,8 +32,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
     private RuntimeConstantProcessor _runtimeConstantProcessor = null!;
 
-    private Dictionary<string, RuntimeConstantExpression> _runtimeConstants = null!;
-    private BidirectionalDictionary<object, string> _constantReplacements = null!;
+    private readonly Dictionary<string, RuntimeConstantExpression> _runtimeConstants = [];
+    private readonly BidirectionalDictionary<object, string> _constantReplacements = [];
 
     private Symbols _symbols;
 
@@ -83,8 +83,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g);
         _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
-        _constantReplacements = [];
-        _runtimeConstants = [];
+        _constantReplacements.Clear();
+        _runtimeConstants.Clear();
         _runtimeConstantProcessor = new RuntimeConstantProcessor();
         _queryCompiler = dbContext.GetService<IQueryCompiler>();
         _unsafeAccessors.Clear();
