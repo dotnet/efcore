@@ -2620,7 +2620,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             return null;
         }
 
-        var newRelationship = HasRelationshipInternal(principalEntityType, principalKey, configurationSource)!;
+        var newRelationship = HasRelationshipInternal(
+            principalEntityType, principalKey, configurationSource, dependentProperties: dependentProperties)!;
 
         var relationship = newRelationship.HasForeignKey(dependentProperties, configurationSource);
         if (relationship == null
@@ -3126,7 +3127,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         Key? principalKey,
         ConfigurationSource configurationSource,
         bool? required = null,
-        string? propertyBaseName = null)
+        string? propertyBaseName = null,
+        IReadOnlyList<Property>? dependentProperties = null)
     {
         InternalForeignKeyBuilder? relationship;
         InternalForeignKeyBuilder? newRelationship;
@@ -3134,7 +3136,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         {
             relationship = CreateForeignKey(
                 targetEntityType.Builder,
-                null,
+                dependentProperties,
                 principalKey,
                 propertyBaseName,
                 required,
@@ -3972,6 +3974,25 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     {
         var principalType = principalEntityTypeBuilder.Metadata;
         var principalBaseEntityTypeBuilder = principalType.GetRootType().Builder;
+
+        if (foreignKey == null
+            && dependentProperties != null)
+        {
+            // When creating a new foreign key, defer to shadow properties if a matching foreign key already
+            // exists in the hierarchy so the relationship builder can match or promote it instead of adding a
+            // conflicting duplicate. The matching and promotion is handled by the subsequent HasForeignKey call.
+            var matchPrincipalKey = principalKey ?? principalType.FindPrimaryKey();
+            if (matchPrincipalKey != null)
+            {
+                var actualDependentProperties =
+                    dependentEntityTypeBuilder.GetActualProperties(dependentProperties, ConfigurationSource.Convention);
+                if (actualDependentProperties != null
+                    && Metadata.FindForeignKeysInHierarchy(actualDependentProperties, matchPrincipalKey, principalType).Any())
+                {
+                    dependentProperties = null;
+                }
+            }
+        }
         if (principalKey == null)
         {
             if (principalType.IsKeyless
