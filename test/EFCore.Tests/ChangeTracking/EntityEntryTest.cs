@@ -956,6 +956,7 @@ public class EntityEntryTest
                 "Nonkey",
                 "Culture",
                 "Milk",
+                "OptionalCulture",
                 "Garcia"
             ],
             context.Attach(CreateChunky()).Members.Select(e => e.Metadata.Name).ToList());
@@ -1123,6 +1124,11 @@ public class EntityEntryTest
 
         Assert.Equal("Culture", context.Entry(entity).ComplexProperty(e => e.Culture).Metadata.Name);
         Assert.Equal("Milk", context.Entry(entity).ComplexProperty(e => e.Milk).Metadata.Name);
+
+        var optionalCultureEntry = context.Entry(entity).ComplexProperty(e => e.OptionalCulture);
+        Assert.Equal("OptionalCulture", optionalCultureEntry.Metadata.Name);
+        Assert.Equal("License", optionalCultureEntry.ComplexProperty(e => e.License).Metadata.Name);
+        Assert.Equal("Manufacturer", optionalCultureEntry.ComplexProperty(e => e.Manufacturer).Metadata.Name);
     }
 
     [Fact]
@@ -1305,7 +1311,7 @@ public class EntityEntryTest
     {
         using var context = new FreezerContext();
         Assert.Equal(
-            ["Culture", "Milk"],
+            ["Culture", "Milk", "OptionalCulture"],
             context.Attach(CreateChunky()).ComplexProperties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
@@ -1543,6 +1549,7 @@ public class EntityEntryTest
         public Cherry? Garcia { get; set; }
 
         public Culture Culture { get; set; }
+        public Culture? OptionalCulture { get; set; }
         public Milk Milk { get; set; } = null!;
     }
 
@@ -1787,6 +1794,23 @@ public class EntityEntryTest
 
                 b.ComplexProperty(
                     e => e.Milk, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
+
+                b.ComplexProperty(
+                    e => e.OptionalCulture, b =>
                     {
                         b.ComplexProperty(
                             e => e.License, b =>

@@ -1547,6 +1547,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(System.Linq.Expressions.Expression<System.Func<TComplexProperty, TNestedComplexProperty>> propertyExpression);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(System.Linq.Expressions.Expression<System.Func<TComplexProperty, TNestedComplexProperty?>> propertyExpression);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(Microsoft.EntityFrameworkCore.Metadata.IComplexProperty complexProperty);"
         },
         {
