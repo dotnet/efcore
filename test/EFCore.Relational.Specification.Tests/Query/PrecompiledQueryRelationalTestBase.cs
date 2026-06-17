@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -199,6 +200,18 @@ _ = await context.Blogs.Select(b => new[] { b.Id, b.Id + i }).ToListAsync();
     [Fact]
     public virtual Task Unary()
         => Test("_ = await context.Blogs.Where(b => (short)b.Id == (short)8).ToListAsync();");
+
+    [Fact]
+    public virtual Task RuntimeConstantExpression()
+        => Test(
+            """
+await context.Blogs.ToListAsync();
+""",
+        interceptorCodeAsserter: code =>
+        {
+            Assert.Matches(@"\bprivate\s+static\s+readonly\b(?=[^;]*\bNumberBytes\b)[^;=]*\bNumberBytes\s*=\s*[^;]+;", code); // Expected a private static readonly field named NumberBytes with an initializer.
+            Assert.True(Regex.Matches(code, @"\bNumberBytes\b").Count > 1, "Expected at least 1 reference to NumberBytes excluding the initializer.");
+        });
 
     #endregion Expression types
 

@@ -269,6 +269,17 @@ WHERE CAST([b].[Id] AS smallint) = CAST(8 AS smallint)
         AssertSql();
     }
 
+    public override async Task RuntimeConstantExpression()
+    {
+        await base.RuntimeConstantExpression();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
     #endregion Expression types
 
     #region Regular operators

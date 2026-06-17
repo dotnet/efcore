@@ -22486,6 +22486,82 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "RuntimeConstantExpression(string name, System.Linq.Expressions.Expression initializeExpression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression Reduce();",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression Update(System.Linq.Expressions.Expression initializeExpression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override bool CanReduce { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.Expression InitializeExpression { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual string Name { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Type Type { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual object Value { get; }",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.RuntimeConstantProcessor : System.Linq.Expressions.ExpressionVisitor",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "RuntimeConstantProcessor();",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression expression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression node);",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression> LastProcessFoundRuntimeConstants { get; }",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeElementType : Microsoft.EntityFrameworkCore.Infrastructure.RuntimeAnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IElementType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyElementType, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "Methods": [
         {
