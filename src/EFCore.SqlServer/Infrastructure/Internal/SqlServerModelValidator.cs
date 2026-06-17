@@ -247,7 +247,13 @@ public class SqlServerModelValidator(
         {
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var notFound = includeProperties
-                .FirstOrDefault(i => RelationalModel.FindPropertyByPath(index.DeclaringEntityType, i) == null);
+                .FirstOrDefault(i =>
+                {
+                    var propertyBase = RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, i);
+                    return propertyBase == null
+                        || (propertyBase is IComplexProperty complexProperty
+                            && !complexProperty.ComplexType.IsMappedToJson());
+                });
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
             if (notFound != null)
@@ -257,6 +263,21 @@ public class SqlServerModelValidator(
                         notFound,
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName()));
+            }
+
+            foreach (var includeProperty in includeProperties)
+            {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var propertyBase = RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, includeProperty)!;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                if (propertyBase.DeclaringType.IsMappedToJson())
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.IncludePropertyInJsonMappedType(
+                            includeProperty,
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName()));
+                }
             }
 
             var duplicateProperty = includeProperties
