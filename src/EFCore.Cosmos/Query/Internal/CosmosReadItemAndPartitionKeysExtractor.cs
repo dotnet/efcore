@@ -102,16 +102,16 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         var partitionKeyValuesProvidedViaApi = !liftPartitionKeys;
         if (partitionKeyValuesProvidedViaApi)
         {
-            for (var i = 0; i < Math.Min(queryCompilationContext.PartitionKeyPropertyValues.Count, partitionKeyProperties.Count); i++)
-            {
-                var predicateValue = _partitionKeyPropertyValues[partitionKeyProperties[i]].ValueExpression;
-                if (predicateValue is not null
-                    && !ExpressionEqualityComparer.Instance.Equals(queryCompilationContext.PartitionKeyPropertyValues[i], predicateValue))
-                {
-                    _partitionKeyValuesInPredicateConflictWithReadItem = true;
-                    break;
-                }
-            }
+            // Check whether any predicate partition key value conflicts with the WithPartitionKey() value at the same position.
+            // WithPartitionKey() values are translated with applyDefaultTypeMapping:false (TypeMapping is null), so we apply the
+            // predicate value's TypeMapping before comparing to ensure identical constants/parameters compare as equal.
+            _partitionKeyValuesInPredicateConflictWithReadItem = partitionKeyProperties
+                .Select((p, i) => (Property: p, Index: i))
+                .Any(t => _partitionKeyPropertyValues[t.Property].ValueExpression is SqlExpression predicateValue
+                    && (t.Index >= queryCompilationContext.PartitionKeyPropertyValues.Count
+                        || queryCompilationContext.PartitionKeyPropertyValues[t.Index] is not SqlExpression withPkValue
+                        || !predicateValue.Equals(
+                            _sqlExpressionFactory.ApplyTypeMapping(withPkValue, predicateValue.TypeMapping))));
         }
 
         foreach (var property in partitionKeyProperties)
