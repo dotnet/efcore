@@ -3508,7 +3508,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         InternalEntityTypeBuilder principalEntityTypeBuilder;
         if (principalEntityType is { IsInModel: true }
             && (Metadata.PrincipalEntityType.Name == principalEntityType.Name
-                || Metadata.PrincipalEntityType.ClrType == principalEntityType.ClrType))
+                || (!principalEntityType.HasSharedClrType
+                    && Metadata.PrincipalEntityType.ClrType == principalEntityType.ClrType)))
         {
             principalEntityTypeBuilder = principalEntityType.Builder;
         }
