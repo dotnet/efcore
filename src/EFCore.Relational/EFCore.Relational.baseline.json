@@ -17583,6 +17583,9 @@
           "Member": "virtual void ConfigureParameter(System.Data.Common.DbParameter parameter);"
         },
         {
+          "Member": "virtual object? CreateDefaultColumnValue();"
+        },
+        {
           "Member": "virtual System.Data.Common.DbParameter CreateParameter(System.Data.Common.DbCommand command, string name, object? value, bool? nullable = null, System.Data.ParameterDirection direction = System.Data.ParameterDirection.Input);"
         },
         {
