@@ -14,6 +14,10 @@ public class RuntimeConstantProcessor : ExpressionVisitor
 {
     private IEnumerable<RuntimeConstantExpression> _preexistingRuntimeConstants = null!;
     private readonly List<RuntimeConstantExpression> _foundRuntimeConstants = [];
+    private readonly Dictionary<Expression, RuntimeConstantExpression> _runtimeConstantsByExpression =
+        new(ExpressionEqualityComparer.Instance);
+    private readonly Dictionary<object, RuntimeConstantExpression> _runtimeConstantsByValue = [];
+    private bool _runtimeConstantLookupsInitialized;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,6 +29,9 @@ public class RuntimeConstantProcessor : ExpressionVisitor
     {
         _preexistingRuntimeConstants = preexistingRuntimeConstants ?? [];
         _foundRuntimeConstants.Clear();
+        _runtimeConstantsByExpression.Clear();
+        _runtimeConstantsByValue.Clear();
+        _runtimeConstantLookupsInitialized = false;
 
         var result = Visit(expression);
 
@@ -49,24 +56,40 @@ public class RuntimeConstantProcessor : ExpressionVisitor
                 return Expression.Constant(null, runtimeConstant.Type);
             }
 
-            var existing = _preexistingRuntimeConstants.Concat(_foundRuntimeConstants)
-                .FirstOrDefault(x => runtimeConstant.Value.Equals(x.Value) ||
-                    ExpressionEqualityComparer.Instance.Equals(
-                        x.InitializeExpression,
-                        runtimeConstant.InitializeExpression));
-
-            if (existing is null)
+            if (!_runtimeConstantLookupsInitialized)
             {
-                _foundRuntimeConstants.Add(runtimeConstant);
+                foreach (var preexistingRuntimeConstant in _preexistingRuntimeConstants)
+                {
+                    AddRuntimeConstantLookup(preexistingRuntimeConstant);
+                }
+
+                _runtimeConstantLookupsInitialized = true;
+            }
+
+            if (_runtimeConstantsByValue.TryGetValue(runtimeConstant.Value, out var existing)
+             || _runtimeConstantsByExpression.TryGetValue(runtimeConstant.InitializeExpression, out existing))
+            {
+                runtimeConstant = existing;
             }
             else
             {
-                runtimeConstant = existing;
+                AddRuntimeConstantLookup(runtimeConstant);
+                _foundRuntimeConstants.Add(runtimeConstant);
             }
 
             return Expression.Constant(runtimeConstant.Value, runtimeConstant.Type);
         }
 
         return base.VisitExtension(node);
+    }
+
+    private void AddRuntimeConstantLookup(RuntimeConstantExpression runtimeConstant)
+    {
+        _runtimeConstantsByExpression.TryAdd(runtimeConstant.InitializeExpression, runtimeConstant);
+
+        if (runtimeConstant.Value is not null)
+        {
+            _runtimeConstantsByValue.TryAdd(runtimeConstant.Value, runtimeConstant);
+        }
     }
 }
