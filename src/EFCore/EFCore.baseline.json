@@ -13444,6 +13444,23 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMetadataReference<out T> : System.IDisposable",
       "Properties": [
         {
@@ -18169,6 +18186,68 @@
         },
         {
           "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.MaxLengthAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.MemberClassifier : Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "MemberClassifier(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies dependencies);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType? GetConfigurationType(System.Type type, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "virtual bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies <Clone>$();"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? other);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactories ParameterBindingFactories { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Storage.ITypeMappingSource TypeMappingSource { get; init; }"
         }
       ]
     },
@@ -24199,6 +24278,55 @@
       "Fields": [
         {
           "Member": "static readonly Microsoft.EntityFrameworkCore.Metadata.TypeBaseNameComparer Instance"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType",
+      "Methods": [
+        {
+          "Member": "TypeConfigurationType();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType ComplexType",
+          "Value": "4"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType EntityType",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType Ignored",
+          "Value": "0"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType OwnedEntityType",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType Property",
+          "Value": "5"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType ServiceProperty",
+          "Value": "6"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType SharedTypeEntityType",
+          "Value": "2"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationTypeExtensions",
+      "Methods": [
+        {
+          "Member": "static bool? IsEntityType(this Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType? configurationType);"
+        },
+        {
+          "Member": "static bool IsEntityType(this Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType configurationType);"
         }
       ]
     },

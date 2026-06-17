@@ -326,6 +326,7 @@ public class EntityFrameworkServicesBuilder
             .AddDependencySingleton<ModelSourceDependencies>()
             .AddDependencySingleton<ValueGeneratorCacheDependencies>()
             .AddDependencySingleton<ModelValidatorDependencies>()
+            .AddDependencySingleton<MemberClassifierDependencies>()
             .AddDependencySingleton<TypeMappingSourceDependencies>()
             .AddDependencySingleton<ModelCustomizerDependencies>()
             .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()

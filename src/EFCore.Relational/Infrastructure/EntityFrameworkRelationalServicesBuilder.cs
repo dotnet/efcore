@@ -144,6 +144,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();
         TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
         TryAdd<IModelValidator, RelationalModelValidator>();
+        TryAdd<IMemberClassifier, RelationalMemberClassifier>();
         TryAdd<IMigrator, Migrator>();
         TryAdd<IMigrationCommandExecutor, MigrationCommandExecutor>();
         TryAdd<IMigrationsAssembly, MigrationsAssembly>();

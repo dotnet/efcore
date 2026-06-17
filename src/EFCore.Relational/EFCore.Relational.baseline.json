@@ -13711,6 +13711,20 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.RelationalMemberClassifier : Microsoft.EntityFrameworkCore.Metadata.MemberClassifier",
+      "Methods": [
+        {
+          "Member": "RelationalMemberClassifier(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies dependencies);"
+        },
+        {
+          "Member": "override bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "override bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Query.RelationalMemberTranslatorProvider : Microsoft.EntityFrameworkCore.Query.IMemberTranslatorProvider",
       "Methods": [
         {
