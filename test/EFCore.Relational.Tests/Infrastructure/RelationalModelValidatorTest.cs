@@ -1126,8 +1126,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.P0).HasPrincipalKey<B>(b => b.Id);
 
         VerifyError(
-            RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
-                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "long", "int"),
+            CoreStrings.ForeignKeyTypeMismatch(
+                "{'P0' : int?}", nameof(A), "{'Id' : int}", nameof(B)),
             modelBuilder);
     }
 

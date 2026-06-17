@@ -586,13 +586,19 @@ public abstract class RelationalTypeMappingTest
     }
 
     [Fact]
-    public virtual void Primary_key_type_mapping_can_differ_from_FK()
+    public virtual void Primary_key_type_mapping_cannot_differ_from_FK()
     {
-        using var context = new MismatchedFruityContext(ContextOptions);
+        var exception = Assert.Throws<InvalidOperationException>(
+            () =>
+            {
+                using var context = new MismatchedFruityContext(ContextOptions);
+                _ = context.Model;
+            });
+
         Assert.Equal(
-            typeof(short),
-            context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping().Converter.ProviderClrType);
-        Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
+            CoreStrings.ForeignKeyTypeMismatch(
+                "{'Id' : int}", nameof(Kiwi), "{'Id' : int}", nameof(Banana)),
+            exception.Message);
     }
 
     private class MismatchedFruityContext(DbContextOptions options) : FruityContext(options)
