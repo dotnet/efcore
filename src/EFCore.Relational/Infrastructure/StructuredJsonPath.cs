@@ -68,12 +68,12 @@ public class StructuredJsonPath
     /// </summary>
     /// <param name="builder">The string builder.</param>
     /// <param name="wildcardForNullIndex">
-    ///     The wildcard character used for unspecified array indices. Use <c>'*'</c> (the default) to render
-    ///     as <c>[*]</c>; use <c>'\0'</c> to render as <c>[]</c>; or provide any other character to render
-    ///     as, for example, <c>[?]</c>.
+    ///     The wildcard character used for unspecified array indices. Use <see langword="null" /> (the default)
+    ///     to render as <c>[]</c>; use <c>'*'</c> to render as <c>[*]</c>; or provide any other character to
+    ///     render as, for example, <c>[?]</c>.
     /// </param>
     /// <returns>The same <see cref="StringBuilder" /> for chaining.</returns>
-    public virtual StringBuilder AppendTo(StringBuilder builder, char wildcardForNullIndex = '*')
+    public virtual StringBuilder AppendTo(StringBuilder builder, char? wildcardForNullIndex = null)
     {
         builder.Append('$');
 
@@ -88,9 +88,9 @@ public class StructuredJsonPath
                 {
                     builder.Append('[').Append(index).Append(']');
                 }
-                else if (wildcardForNullIndex != '\0')
+                else if (wildcardForNullIndex is { } wildcard)
                 {
-                    builder.Append('[').Append(wildcardForNullIndex).Append(']');
+                    builder.Append('[').Append(wildcard).Append(']');
                 }
                 else
                 {
@@ -114,10 +114,10 @@ public class StructuredJsonPath
     /// </summary>
     /// <param name="wildcardForNullIndex">The wildcard character used for unspecified array indices.</param>
     /// <returns>The JSON path string representation.</returns>
-    public virtual string ToString(char wildcardForNullIndex = '*')
+    public virtual string ToString(char? wildcardForNullIndex = null)
         => AppendTo(new StringBuilder(), wildcardForNullIndex).ToString();
 
     /// <inheritdoc />
     public override string ToString()
-        => AppendTo(new StringBuilder()).ToString();
+        => AppendTo(new StringBuilder(), '*').ToString();
 }

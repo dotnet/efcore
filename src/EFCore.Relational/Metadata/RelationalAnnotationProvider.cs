@@ -93,10 +93,15 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
-        var modelIndex = index.MappedIndexes
-            .Where(i => i.Properties.Count > 0)
-            .Select(CreateJsonIndex)
-            .FirstOrDefault(i => i is not null);
+        IIndex? modelIndex = null;
+        foreach (var mappedIndex in index.MappedIndexes)
+        {
+            if (mappedIndex.IsJsonIndex())
+            {
+                modelIndex = mappedIndex;
+                break;
+            }
+        }
 
         if (!designTime
             || modelIndex is null)
@@ -104,11 +109,11 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
             yield break;
         }
 
-        yield return new Annotation(RelationalAnnotationNames.JsonIndex, CreateJsonIndex(index, modelIndex));
+        yield return new Annotation(RelationalAnnotationNames.JsonIndex, CreateJsonIndex(modelIndex));
     }
 
     /// <summary>
-    ///     Builds a <see cref="RelationalJsonIndex" /> for the given table index and mapped JSON index.
+    ///     Builds a <see cref="RelationalJsonIndex" /> for the given mapped JSON index.
     /// </summary>
     /// <remarks>
     ///     Providers can override this to customize JSON index element resolution. The base
@@ -117,28 +122,19 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     ///     overriding, use <see cref="FindJsonElement" /> to resolve the JSON element for an individual
     ///     property on the index's table.
     /// </remarks>
-    /// <param name="index">The table index.</param>
     /// <param name="modelIndex">The mapped JSON index.</param>
     /// <returns>The <see cref="RelationalJsonIndex" /> describing the JSON paths.</returns>
-    protected virtual RelationalJsonIndex CreateJsonIndex(ITableIndex index, IIndex modelIndex)
+    protected virtual RelationalJsonIndex CreateJsonIndex(IIndex modelIndex)
     {
+        var tableIndex = modelIndex.GetMappedTableIndexes().First();
         var elements = new IRelationalJsonElement[modelIndex.Properties.Count];
         for (var i = 0; i < modelIndex.Properties.Count; i++)
         {
-            elements[i] = FindJsonElement(modelIndex.Properties[i], index.Table);
+            elements[i] = FindJsonElement(modelIndex.Properties[i], tableIndex.Table);
         }
 
         return new RelationalJsonIndex(elements, modelIndex.CollectionIndices);
     }
-
-    /// <summary>
-    ///     Creates a mapped <see cref="IIndex" /> representing a JSON index shape if all its leaves are
-    ///     contained in a JSON-mapped column. Providers can override to recognize additional shapes.
-    /// </summary>
-    /// <param name="index">The mapped index.</param>
-    /// <returns>The same index when recognized as a JSON index; otherwise <see langword="null" />.</returns>
-    protected virtual IIndex? CreateJsonIndex(IIndex index)
-        => index.IsJsonIndex() ? index : null;
 
     /// <summary>
     ///     Resolves the <see cref="IRelationalJsonElement" /> for the given property on the given table.
