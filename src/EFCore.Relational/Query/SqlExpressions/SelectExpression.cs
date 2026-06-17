@@ -3546,7 +3546,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
                         && outerColumnExpressions.Contains(sqlBinaryExpression.Left)
-                        && sqlBinaryExpression.Right is SqlConstantExpression { Value: null })
+                        && sqlBinaryExpression.Right is SqlConstantExpression { Value: null }
+                        // The null check is only redundant when the outer key can never be null. When it is nullable
+                        // (e.g. the principal entity is reached through an optional navigation), the check must be kept:
+                        // the equality may later be expanded with C# null semantics in SqlNullabilityProcessor, which would
+                        // otherwise incorrectly match rows where both keys are null. See #35706.
+                        && sqlBinaryExpression.Left is not ColumnExpression { IsNullable: true })
                     {
                         return null;
                     }
