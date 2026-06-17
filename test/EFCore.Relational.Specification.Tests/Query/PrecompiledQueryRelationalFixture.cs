@@ -16,6 +16,10 @@ public abstract class PrecompiledQueryRelationalFixture
     protected override string StoreName
         => "PrecompiledQueryTest";
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
+
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

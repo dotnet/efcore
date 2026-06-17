@@ -22,7 +22,6 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// </remarks>
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static OwnedNavigationBuilder ToJson(this OwnedNavigationBuilder builder)
         => builder.ToJson(builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name);
 
@@ -37,7 +36,6 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// </remarks>
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
@@ -55,7 +53,6 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <param name="jsonColumnName">JSON column name to use.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? jsonColumnName)
@@ -74,7 +71,6 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <param name="jsonColumnName">JSON column name to use.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static OwnedNavigationBuilder ToJson(
         this OwnedNavigationBuilder builder,
         string? jsonColumnName)

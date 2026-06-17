@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
 
 using System.Text.Json;
 
@@ -11,6 +10,13 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture) : AdHocJsonQueryTestBase(fixture)
 {
+    protected override void ConfigureWarnings(WarningsConfigurationBuilder builder)
+    {
+        base.ConfigureWarnings(builder);
+
+        builder.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning);
+    }
+
     #region 21006
 
     public override async Task Project_missing_required_navigation(bool async)

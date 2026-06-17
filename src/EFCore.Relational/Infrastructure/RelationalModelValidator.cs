@@ -139,8 +139,27 @@ public class RelationalModelValidator(
         ValidateStoredProcedures(entityType, logger);
         ValidateContainerColumnType(entityType, logger);
         ValidateTphTriggers(entityType, logger);
+        ValidateOwnedEntityMappedToJsonCollection(entityType, logger);
         // TODO: support this for raw SQL and function mappings in #19970 and #21627 and remove the check
         ValidateJsonEntityOwnerMappedToTableOrView(entityType, logger);
+    }
+
+    /// <summary>
+    ///     Logs a warning if an owned entity type is mapped to JSON as a collection, which uses a synthesized ordinal key. This mapping
+    ///     is obsolete; the type should be mapped as a complex type collection instead.
+    /// </summary>
+    /// <param name="entityType">The entity type to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateOwnedEntityMappedToJsonCollection(
+        IEntityType entityType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (entityType.IsMappedToJson()
+            && entityType.FindPrimaryKey() is { } primaryKey
+            && primaryKey.Properties.Any(p => p.IsOrdinalKeyProperty()))
+        {
+            logger.OwnedEntityMappedToJsonCollectionWarning(entityType);
+        }
     }
 
     /// <summary>
