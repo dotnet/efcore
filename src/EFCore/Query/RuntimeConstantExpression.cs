@@ -31,7 +31,7 @@ public class RuntimeConstantExpression : Expression, IPrintableExpression
     public RuntimeConstantExpression(string name, Expression initializeExpression)
     {
         name = name.Trim();
-        ArgumentException.ThrowIfNullOrWhiteSpace(nameof(name), name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
 
         var type = initializeExpression.Type;
         Value = Lambda<Func<object>>(Convert(initializeExpression, typeof(object))).Compile()();
