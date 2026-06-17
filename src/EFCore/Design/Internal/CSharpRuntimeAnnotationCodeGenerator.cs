@@ -373,46 +373,18 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         ICSharpHelper codeHelper)
     {
+        var missingUnsafeAccessors = new HashSet<string>();
+
         var mainBuilder = parameters.MainBuilder;
         var constructor = converter.GetType().GetDeclaredConstructor([typeof(JsonValueReaderWriter)]);
         var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<>.JsonReaderWriter));
         if (constructor == null
             || jsonReaderWriterProperty == null)
         {
-            AddNamespace(typeof(ValueConverter<,>), parameters.Namespaces);
-            AddNamespace(converter.ModelClrType, parameters.Namespaces);
-            AddNamespace(converter.ProviderClrType, parameters.Namespaces);
-
-            var unsafeAccessors = new HashSet<string>();
-
             mainBuilder
-                .Append("new ValueConverter<")
-                .Append(codeHelper.Reference(converter.ModelClrType))
-                .Append(", ")
-                .Append(codeHelper.Reference(converter.ProviderClrType))
-                .AppendLine(">(")
-                .IncrementIndent()
                 .AppendLines(
-                    codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, unsafeAccessors),
-                    skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
+                    codeHelper.Expression(converter.ConstructorExpressionWithoutMappingHints, parameters.Namespaces, missingUnsafeAccessors),
                     skipFinalNewline: true);
-
-            Check.DebugAssert(
-                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
-
-            if (converter.ConvertsNulls)
-            {
-                mainBuilder
-                    .AppendLine(",")
-                    .Append("convertsNulls: true");
-            }
-
-            mainBuilder
-                .Append(")")
-                .DecrementIndent();
         }
         else
         {
@@ -423,11 +395,17 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
                 .Append(codeHelper.Reference(converter.GetType()))
                 .Append("(");
 
-            CreateJsonValueReaderWriter((JsonValueReaderWriter)jsonReaderWriterProperty.GetValue(converter)!, parameters, codeHelper);
+            CreateJsonValueReaderWriter(
+                (JsonValueReaderWriter)jsonReaderWriterProperty.GetValue(converter)!,
+                parameters,
+                codeHelper);
 
             mainBuilder
                 .Append(")");
         }
+
+        Check.DebugAssert(
+            missingUnsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
     }
 
     /// <inheritdoc />
@@ -530,10 +508,8 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             mainBuilder
                 .Append(")")
                 .DecrementIndent();
-            return;
         }
-
-        if (jsonValueReaderWriter is ICompositeJsonValueReaderWriter compositeJsonValueReaderWriter)
+        else if (jsonValueReaderWriter is ICompositeJsonValueReaderWriter compositeJsonValueReaderWriter)
         {
             AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
 
@@ -546,10 +522,19 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             mainBuilder
                 .Append(")")
                 .DecrementIndent();
-            return;
         }
+        else
+        {
+            var missingUnsafeAccessors = new HashSet<string>();
 
-        CreateJsonValueReaderWriter(jsonValueReaderWriterType, parameters, codeHelper);
+            mainBuilder
+                .AppendLines(
+                    codeHelper.Expression(jsonValueReaderWriter.ConstructorExpression, parameters.Namespaces, missingUnsafeAccessors),
+                    skipFinalNewline: true);
+
+            Check.DebugAssert(
+                missingUnsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
+        }
     }
 
     /// <summary>

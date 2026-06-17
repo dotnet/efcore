@@ -133,14 +133,10 @@ public partial class DependentBaseEntityType
                 bool (int v1, int v2) => v1 == v2,
                 int (int v) => v,
                 int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.Enum1, int>(
-                int (CompiledModelTestBase.Enum1 value) => ((int)value),
-                CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value)),
+            converter: new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum1, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum1, int>(
-                    int (CompiledModelTestBase.Enum1 value) => ((int)value),
-                    CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value))));
+                new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value))));
         enumDiscriminator.SetSentinelFromProviderValue(0);
         enumDiscriminator.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 

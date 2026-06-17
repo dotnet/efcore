@@ -97,14 +97,10 @@ public partial class DataEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<long, string>(
-                string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<long, string>(string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<long, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<long, string>(
-                    string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
-                    long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
+                new ValueConverter<long, string>(string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
         partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(partitionId));
         partitionId.SetComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
         partitionId.SetKeyComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
@@ -154,14 +150,10 @@ public partial class DataEntityType
                 bool (string v1, string v2) => v1 == v2,
                 int (string v) => ((object)v).GetHashCode(),
                 string (string v) => v),
-            converter: new ValueConverter<byte[], string>(
-                string (byte[] v) => Convert.ToBase64String(v),
-                byte[] (string v) => Convert.FromBase64String(v)),
+            converter: new ValueConverter<byte[], string>(string (byte[] v) => Convert.ToBase64String(v), byte[] (string v) => Convert.FromBase64String(v)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<byte[], string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<byte[], string>(
-                    string (byte[] v) => Convert.ToBase64String(v),
-                    byte[] (string v) => Convert.FromBase64String(v))));
+                new ValueConverter<byte[], string>(string (byte[] v) => Convert.ToBase64String(v), byte[] (string v) => Convert.FromBase64String(v))));
         blob.AddAnnotation("Cosmos:PropertyName", "JsonBlob");
 
         var bytes = runtimeEntityType.AddProperty(
@@ -191,15 +183,11 @@ public partial class DataEntityType
                 bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                 int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                 byte[] (byte[] source) => source.ToArray()),
-            converter: new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
-                byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v),
-                ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v)),
+            converter: new ValueConverter<ReadOnlyMemory<byte>, byte[]>(byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v), ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<ReadOnlyMemory<byte>, IEnumerable<byte>>(
                 new JsonCollectionOfStructsReaderWriter<byte[], byte>(
                     JsonByteReaderWriter.Instance),
-                new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
-                    byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v),
-                    ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v))));
+                new ValueConverter<ReadOnlyMemory<byte>, byte[]>(byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v), ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v))));
         bytes.SetSentinelFromProviderValue(new byte[0]);
 
         var list = runtimeEntityType.AddProperty(
