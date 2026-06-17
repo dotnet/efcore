@@ -125,6 +125,7 @@ WHERE [Id] = @p1;
                 """
 @Fixture_OtherValue='30'
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -136,6 +137,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 @Fixture_OtherValue='30'
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -151,6 +153,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', 30.0E0)
 FROM [JsonTypeEntity] AS [j]
@@ -160,6 +163,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', 30.0E0)
 FROM [JsonTypeEntity] AS [j]
@@ -175,6 +179,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING float))
 FROM [JsonTypeEntity] AS [j]
@@ -184,6 +189,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', CAST(JSON_VALUE([j].[JsonContainer], '$.OtherValue') AS float))
 FROM [JsonTypeEntity] AS [j]
@@ -206,6 +212,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue])
 FROM [JsonTypeEntity] AS [j]
@@ -215,6 +222,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue])
 FROM [JsonTypeEntity] AS [j]

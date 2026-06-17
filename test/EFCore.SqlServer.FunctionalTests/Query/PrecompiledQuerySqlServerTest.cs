@@ -1485,6 +1485,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1502,6 +1503,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1521,6 +1523,7 @@ FROM [Blogs] AS [b]
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1542,6 +1545,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
             """
 @newValue='NewValue' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = @newValue
 FROM [Blogs] AS [b]
@@ -1563,6 +1567,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1584,6 +1589,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
             """
 @newValue='NewValue' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = @newValue
 FROM [Blogs] AS [b]
