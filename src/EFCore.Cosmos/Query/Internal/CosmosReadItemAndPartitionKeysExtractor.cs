@@ -102,7 +102,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         var partitionKeyValuesProvidedViaApi = !liftPartitionKeys;
         if (partitionKeyValuesProvidedViaApi)
         {
-            for (var i = 0; i < queryCompilationContext.PartitionKeyPropertyValues.Count; i++)
+            for (var i = 0; i < Math.Min(queryCompilationContext.PartitionKeyPropertyValues.Count, partitionKeyProperties.Count); i++)
             {
                 var predicateValue = _partitionKeyPropertyValues[partitionKeyProperties[i]].ValueExpression;
                 if (predicateValue is not null
