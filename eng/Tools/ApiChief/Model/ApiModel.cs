@@ -114,7 +114,9 @@ public sealed class ApiModel
 
         var headerChanged = currentType != null && baselineType != null && currentType.Type != baselineType.Type;
 
-        if (addedStage == ApiStage.Stable
+        if (currentType != null
+            && baselineType != null
+            && addedStage == ApiStage.Stable
             && removedStage == ApiStage.Stable
             && additions == null
             && removals == null
