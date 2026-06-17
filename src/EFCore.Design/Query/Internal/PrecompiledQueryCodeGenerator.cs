@@ -32,8 +32,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
     private RuntimeConstantProcessor _runtimeConstantProcessor = null!;
 
-    private BidirectionalDictionary<string, RuntimeConstantExpression> _runtimeConstants = null!;
-    private Dictionary<object, string> _constantReplacements = null!;
+    private Dictionary<string, RuntimeConstantExpression> _runtimeConstants = null!;
+    private BidirectionalDictionary<object, string> _constantReplacements = null!;
 
     private Symbols _symbols;
 
