@@ -1758,7 +1758,7 @@ INNER JOIN (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ExecuteUpdate_returns_correct_rows_affected_when_nocount_on_on_open_connection()
     {
         var connectionString = Fixture.TestStore.ConnectionString;
