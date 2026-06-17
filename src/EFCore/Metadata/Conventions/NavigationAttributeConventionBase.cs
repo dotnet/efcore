@@ -309,10 +309,9 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionModel model)
     {
-        Dependencies.MemberClassifier.IsCandidateNavigationProperty(propertyInfo, model, useAttributes: true, out var targetClrType, out _, out _);
-        return targetClrType != null
+        return Dependencies.MemberClassifier.IsCandidateNavigationProperty(propertyInfo, model, useAttributes: true, out var elementType, out _, out _)
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
-                ? targetClrType
+                ? elementType ?? propertyInfo.GetMemberType()
                 : null;
     }
 

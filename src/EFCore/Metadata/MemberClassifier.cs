@@ -75,7 +75,8 @@ public class MemberClassifier : IMemberClassifier
                 || propertyInfo.IsCandidateProperty(needsWrite: true))
             && IsCandidateNavigationPropertyType(targetType, memberInfo, model, useAttributes, out shouldBeOwned, out explicitlyConfigured))
         {
-            elementType = targetType;
+            // This is a non-collection (reference) navigation, so there is no element type; callers that need the
+            // navigation target type use memberInfo.GetMemberType(). elementType remains null.
             return true;
         }
 

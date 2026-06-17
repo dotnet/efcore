@@ -62,11 +62,13 @@ public interface IMemberClassifier
 
         foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
         {
-            if (!IsCandidateNavigationProperty(propertyInfo, entityType.Model, useAttributes, out var targetType, out var shouldBeOwned, out _)
-                || targetType == null)
+            if (!IsCandidateNavigationProperty(propertyInfo, entityType.Model, useAttributes, out var elementType, out var shouldBeOwned, out _))
             {
                 continue;
             }
+
+            // elementType is the collection element type for collection navigations and null for reference navigations.
+            var targetType = elementType ?? propertyInfo.GetMemberType();
 
             navigationCandidates.Insert(propertyInfo, (targetType, shouldBeOwned), MemberInfoNameComparer.Instance);
 
@@ -119,8 +121,9 @@ public interface IMemberClassifier
     /// <param name="model">The model.</param>
     /// <param name="useAttributes">Whether attributes found on the member should be considered.</param>
     /// <param name="elementType">
-    ///     When this method returns, the navigation target type (the element type for collection navigations),
-    ///     or <see langword="null" /> if the member is not a candidate navigation.
+    ///     When this method returns, the element type for collection navigations, or <see langword="null" /> for
+    ///     non-collection (reference) navigations and for members that aren't candidate navigations. For the navigation
+    ///     target type, use this value when non-<see langword="null" />, otherwise <see cref="MemberInfo" />'s type.
     /// </param>
     /// <param name="shouldBeOwned">When this method returns, indicates whether the target should be owned, if known.</param>
     /// <param name="explicitlyConfigured">When this method returns, indicates whether the target type was explicitly configured.</param>
