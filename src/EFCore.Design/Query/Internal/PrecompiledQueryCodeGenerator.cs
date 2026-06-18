@@ -975,12 +975,52 @@ namespace System.Runtime.CompilerServices
         var queryExecutorAfterLiftingExpression =
             _liftableConstantProcessor.LiftConstants(queryExecutor, materializerLiftableConstantContext, variableNames);
 
-        foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
+        // Lifted constant variable names are partly derived from model metadata (e.g. property names), which may not be valid C#
+        // identifiers (shadow properties can be given arbitrary names). Sanitize any such names and replace the corresponding
+        // parameters across all the lifted constant expressions and the query executor.
+        var liftedConstants = _liftableConstantProcessor.LiftedConstants;
+        var sanitizedNames = new string[liftedConstants.Count];
+        var liftedConstantExpressions = new Expression[liftedConstants.Count];
+        List<Expression>? originalParameters = null;
+        List<Expression>? sanitizedParameters = null;
+        for (var i = 0; i < liftedConstants.Count; i++)
+        {
+            var (parameter, expression) = liftedConstants[i];
+            liftedConstantExpressions[i] = expression;
+
+            var sanitizedName = SanitizeIdentifierName(parameter.Name ?? "unknown");
+            if (sanitizedName != parameter.Name)
+            {
+                var baseName = sanitizedName;
+                for (var j = 0; variableNames.Contains(sanitizedName); j++)
+                {
+                    sanitizedName = baseName + j;
+                }
+
+                (originalParameters ??= []).Add(parameter);
+                (sanitizedParameters ??= []).Add(Expression.Parameter(parameter.Type, sanitizedName));
+            }
+
+            variableNames.Add(sanitizedName);
+            sanitizedNames[i] = sanitizedName;
+        }
+
+        if (originalParameters is not null)
+        {
+            var replacer = new ReplacingExpressionVisitor(originalParameters, sanitizedParameters!);
+            queryExecutorAfterLiftingExpression = replacer.Visit(queryExecutorAfterLiftingExpression);
+
+            for (var i = 0; i < liftedConstantExpressions.Length; i++)
+            {
+                liftedConstantExpressions[i] = replacer.Visit(liftedConstantExpressions[i]);
+            }
+        }
+
+        for (var i = 0; i < liftedConstants.Count; i++)
         {
             var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
-                liftedConstant.Expression, _constantReplacements, _memberAccessReplacements, namespaces, unsafeAccessors);
-            // code.AppendLine($"{liftedConstant.Parameter.Type.Name} {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
-            code.AppendLine($"var {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
+                liftedConstantExpressions[i], _constantReplacements, _memberAccessReplacements, namespaces, unsafeAccessors);
+            code.AppendLine($"var {sanitizedNames[i]} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
         }
 
         var queryExecutorSyntaxTree =
