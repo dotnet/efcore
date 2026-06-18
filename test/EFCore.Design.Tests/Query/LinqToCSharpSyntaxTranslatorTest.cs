@@ -1074,6 +1074,25 @@ else
     }
 
     [Fact]
+    public void Variable_with_same_name_as_constant_replacement_gets_renamed()
+    {
+        var i = Parameter(typeof(int), "i");
+
+        AssertStatement(
+            Block(
+                variables: [i],
+                Assign(i, Constant(8)),
+                Call(ReturnsIntWithParamMethod, i)),
+            """
+{
+    var i0 = i;
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(i0);
+}
+""",
+            new Dictionary<object, string> { { 8, "i" } });
+    }
+
+    [Fact]
     public void Variable_with_same_name_in_lambda_does_not_get_renamed()
     {
         var i1 = Parameter(typeof(int), "i");

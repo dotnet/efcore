@@ -33,7 +33,7 @@ public static class SqlServerEventId
         DecimalTypeKeyWarning = CoreEventId.ProviderBaseId + 3,
         SavepointsDisabledBecauseOfMARS = CoreEventId.ProviderBaseId + 4,
         JsonTypeExperimental = CoreEventId.ProviderBaseId + 5, // No longer used
-        VectorSearchWithoutApproximateWarning = CoreEventId.ProviderBaseId + 6,
+        VectorSearchWithoutApproximateIndexWarning = CoreEventId.ProviderBaseId + 6,
 
         // Scaffolding events
         ColumnFound = CoreEventId.ProviderDesignBaseId,
@@ -158,7 +158,7 @@ public static class SqlServerEventId
     /// <remarks>
     ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
     /// </remarks>
-    public static readonly EventId VectorSearchWithoutApproximateWarning = MakeQueryId(Id.VectorSearchWithoutApproximateWarning);
+    public static readonly EventId VectorSearchWithoutApproximateIndexWarning = MakeQueryId(Id.VectorSearchWithoutApproximateIndexWarning);
 
     private static readonly string ScaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
 

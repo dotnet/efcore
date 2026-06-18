@@ -52,7 +52,7 @@ public class SqlServerVectorSearchWithoutApproximateDetector(SqlServerQueryCompi
                     {
                         var entityType = relationalTable.EntityTypeMappings.FirstOrDefault()?.TypeBase;
 
-                        queryCompilationContext.Logger.VectorSearchWithoutApproximateWarning(
+                        queryCompilationContext.Logger.VectorSearchWithoutApproximateIndexWarning(
                             columnExpr.Name,
                             entityType?.DisplayName() ?? tableExpr.Name);
                     }

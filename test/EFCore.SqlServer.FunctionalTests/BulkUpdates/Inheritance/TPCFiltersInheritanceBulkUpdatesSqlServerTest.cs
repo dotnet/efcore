@@ -27,6 +27,7 @@ public class TPCFiltersInheritanceBulkUpdatesSqlServerTest(
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [k]
 FROM [Kiwi] AS [k]
 WHERE [k].[CountryId] = 1 AND [k].[Name] = N'Great spotted kiwi'
@@ -39,6 +40,7 @@ WHERE [k].[CountryId] = 1 AND [k].[Name] = N'Great spotted kiwi'
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -60,6 +62,7 @@ WHERE (
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -136,6 +139,7 @@ WHERE (
             """
 @p='SomeOtherKiwi' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [k]
 SET [k].[Name] = @p
 FROM [Kiwi] AS [k]
@@ -151,6 +155,7 @@ WHERE [k].[CountryId] = 1
             """
 @p='0' (Size = 1)
 
+SET NOCOUNT OFF;
 UPDATE [k]
 SET [k].[FoundOn] = @p
 FROM [Kiwi] AS [k]
@@ -166,6 +171,7 @@ WHERE [k].[CountryId] = 1
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -191,6 +197,7 @@ WHERE (
 @p='Kiwi' (Size = 4000)
 @p1='0' (Size = 1)
 
+SET NOCOUNT OFF;
 UPDATE [k]
 SET [k].[Name] = @p,
     [k].[FoundOn] = @p1
@@ -207,6 +214,7 @@ WHERE [k].[CountryId] = 1
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]

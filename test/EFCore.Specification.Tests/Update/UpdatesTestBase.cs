@@ -529,7 +529,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public Task SaveChanges_processes_all_tracked_entities(bool async)
+    public virtual Task SaveChanges_processes_all_tracked_entities(bool async)
     {
         var categoryId = 0;
         return ExecuteWithStrategyInTransactionAsync(
@@ -583,7 +583,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public Task SaveChanges_false_processes_all_tracked_entities_without_calling_AcceptAllChanges(bool async)
+    public virtual Task SaveChanges_false_processes_all_tracked_entities_without_calling_AcceptAllChanges(bool async)
     {
         var categoryId = 0;
         return ExecuteWithStrategyInTransactionAsync(
@@ -640,7 +640,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public Task Ignore_before_save_property_is_still_generated(bool async)
+    public virtual Task Ignore_before_save_property_is_still_generated(bool async)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -678,7 +678,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public Task Ignore_before_save_property_is_still_generated_graph(bool async)
+    public virtual Task Ignore_before_save_property_is_still_generated_graph(bool async)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
             {

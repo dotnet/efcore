@@ -19,14 +19,14 @@ public abstract class NonSharedModelTestBase(NonSharedFixture fixture) : IAsyncL
     protected IServiceProvider NonSharedServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
+                $"You must call `await {nameof(InitializeAsync)}<TContext>();` at the beginning of the test.");
 
     private TestStore? _testStore;
 
     protected TestStore NonSharedTestStore
         => _testStore
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
+                $"You must call `await {nameof(InitializeAsync)}<TContext>();` at the beginning of the test.");
 
     private ListLoggerFactory? _listLoggerFactory;
 

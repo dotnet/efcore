@@ -11,7 +11,7 @@ public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fi
     where TFixture : ManyToManyTrackingRelationalTestBase<TFixture>.ManyToManyTrackingRelationalFixture
 {
     [Fact]
-    public void Many_to_many_delete_behaviors_are_set()
+    public virtual void Many_to_many_delete_behaviors_are_set()
     {
         using var context = CreateContext();
         var model = context.Model;

@@ -45,7 +45,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task Can_build_monster_model_and_seed_data_using_dependent_navigations()
+    public virtual async Task Can_build_monster_model_and_seed_data_using_dependent_navigations()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingNavigations(dependentNavs: true, principalNavs: false));
 
@@ -55,7 +55,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task Can_build_monster_model_and_seed_data_using_principal_navigations()
+    public virtual async Task Can_build_monster_model_and_seed_data_using_principal_navigations()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingNavigations(dependentNavs: false, principalNavs: true));
 
@@ -65,7 +65,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
+    public virtual async Task Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingNavigationsWithDeferredAdd());
 
@@ -75,7 +75,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task One_to_many_fixup_happens_when_FKs_change_test()
+    public virtual async Task One_to_many_fixup_happens_when_FKs_change_test()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingFKs());
 
@@ -165,7 +165,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task One_to_many_fixup_happens_when_reference_changes()
+    public virtual async Task One_to_many_fixup_happens_when_reference_changes()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingFKs());
 
@@ -255,7 +255,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task One_to_many_fixup_happens_when_collection_changes()
+    public virtual async Task One_to_many_fixup_happens_when_collection_changes()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingFKs());
 
@@ -334,7 +334,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task One_to_one_fixup_happens_when_FKs_change_test()
+    public virtual async Task One_to_one_fixup_happens_when_FKs_change_test()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingFKs());
 
@@ -418,7 +418,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task One_to_one_fixup_happens_when_reference_change_test()
+    public virtual async Task One_to_one_fixup_happens_when_reference_change_test()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingFKs());
 
@@ -502,7 +502,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task Composite_fixup_happens_when_FKs_change_test()
+    public virtual async Task Composite_fixup_happens_when_FKs_change_test()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingFKs());
 
@@ -605,7 +605,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     }
 
     [Fact]
-    public async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test()
+    public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test()
     {
         await CreateAndSeedDatabase(async context => await context.SeedUsingFKs());
 

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -29,6 +30,10 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private ExpressionTreeFuncletizer _funcletizer = null!;
     private RuntimeModelLinqToCSharpSyntaxTranslator _linqToCSharpTranslator = null!;
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
+    private RuntimeConstantProcessor _runtimeConstantProcessor = null!;
+
+    private readonly Dictionary<string, RuntimeConstantExpression> _runtimeConstants = [];
+    private readonly BidirectionalDictionary<object, string> _constantReplacements = [];
 
     private Symbols _symbols;
 
@@ -78,6 +83,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g);
         _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
+        _constantReplacements.Clear();
+        _runtimeConstants.Clear();
+        _runtimeConstantProcessor = new RuntimeConstantProcessor();
         _queryCompiler = dbContext.GetService<IQueryCompiler>();
         _unsafeAccessors.Clear();
         var contextType = dbContext.GetType();
@@ -249,6 +257,14 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             }
 
             _code.AppendLine("#endregion Unsafe accessors");
+        }
+
+        foreach (var (fieldName, constant) in _runtimeConstants.OrderBy(x => x.Key))
+        {
+            var typeSymbol = GetTypeSymbol(semanticModel.Compilation, constant.Type);
+
+            var syntax = _linqToCSharpTranslator.TranslateExpression(constant.InitializeExpression, constantReplacements: null, _namespaces, _unsafeAccessors);
+            _code.AppendLine($"private static readonly {typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {fieldName} = {syntax.NormalizeWhitespace().ToFullString()};");
         }
 
         _code
@@ -936,7 +952,20 @@ namespace System.Runtime.CompilerServices
             .AppendLine("    dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>(),")
             .AppendLine("    dbContext.GetService<RelationalCommandBuilderDependencies>());");
 
-        HashSet<string> variableNames = ["relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
+        queryExecutor = _runtimeConstantProcessor.Process(queryExecutor);
+        foreach (var runtimeConstant in _runtimeConstantProcessor.LastProcessFoundRuntimeConstants)
+        {
+            var name = SanitizeIdentifierName(runtimeConstant.Name);
+            var baseName = name;
+            for (var j = 0; _runtimeConstants.ContainsKey(name); j++)
+            {
+                name = baseName + j;
+            }
+            _runtimeConstants.Add(name, runtimeConstant);
+            _constantReplacements.Add(runtimeConstant.Value, name);
+        }
+
+        HashSet<string> variableNames = [.. _constantReplacements.Values, "relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
 
         var materializerLiftableConstantContext =
             Expression.Parameter(typeof(RelationalMaterializerLiftableConstantContext), "materializerLiftableConstantContext");
@@ -949,7 +978,7 @@ namespace System.Runtime.CompilerServices
         foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
         {
             var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
-                liftedConstant.Expression, constantReplacements: null, _memberAccessReplacements, namespaces, unsafeAccessors);
+                liftedConstant.Expression, _constantReplacements, _memberAccessReplacements, namespaces, unsafeAccessors);
             // code.AppendLine($"{liftedConstant.Parameter.Type.Name} {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
             code.AppendLine($"var {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
         }
@@ -957,7 +986,7 @@ namespace System.Runtime.CompilerServices
         var queryExecutorSyntaxTree =
             (AnonymousFunctionExpressionSyntax)_linqToCSharpTranslator.TranslateExpression(
                 queryExecutorAfterLiftingExpression,
-                constantReplacements: null,
+                _constantReplacements,
                 _memberAccessReplacements,
                 namespaces,
                 unsafeAccessors);
@@ -1221,6 +1250,64 @@ namespace System.Runtime.CompilerServices
         // so setters were added in reverse order. Reverse to restore source code order.
         var settersArray = settersBuilder.BuildSettersExpression();
         return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
+    }
+
+    private static ITypeSymbol GetTypeSymbol(Compilation compilation, Type type)
+    {
+        if (type.IsByRef || type.IsPointer || type.IsGenericParameter || type.IsByRefLike)
+        {
+            throw new NotSupportedException($"Unsupported type: {type}");
+        }
+
+        if (type.IsArray)
+        {
+            var elementSymbol = GetTypeSymbol(compilation, type.GetElementType()!);
+            return compilation.CreateArrayTypeSymbol(elementSymbol, type.GetArrayRank());
+        }
+
+        if (type.IsGenericType && !type.IsGenericTypeDefinition)
+        {
+            var genericDefinition = (INamedTypeSymbol)GetTypeSymbol(
+                compilation,
+                type.GetGenericTypeDefinition());
+
+            var typeArguments = type
+                .GetGenericArguments()
+                .Select(t => GetTypeSymbol(compilation, t))
+                .ToArray();
+
+            return genericDefinition.Construct(typeArguments);
+        }
+
+        return type.FullName is null || compilation.GetTypeByMetadataName(type.FullName) is not { } typeSymbol
+            ? throw new InvalidOperationException($"Couldn't find type symbol for: {type}")
+            : typeSymbol;
+    }
+
+    [return: NotNullIfNotNull(nameof(name))]
+    private static string? SanitizeIdentifierName(string? name)
+    {
+        if (name == null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "_";
+        }
+
+        var result = new string(
+            [.. name.Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) ? c : '_')]);
+
+        if (!SyntaxFacts.IsValidIdentifier(result))
+        {
+            result = "_" + result;
+        }
+
+        Debug.Assert(SyntaxFacts.IsValidIdentifier(result));
+
+        return result;
     }
 
     /// <summary>

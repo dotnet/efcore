@@ -2783,15 +2783,18 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         name ??= "unnamed";
 
         var parameterNames = _stack.Peek().VariableNames;
-        if (parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name))
+
+        Func<string, bool> constantReplacementsContainsName =
+            _constantReplacements is BidirectionalDictionary<object, string> bidirectionalDictionary
+                ? bidirectionalDictionary.ContainsValue
+                : n => _constantReplacements?.Values.Contains(n) == true;
+
+        var baseName = name;
+        for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
+                parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name) || constantReplacementsContainsName(name);
+                j++)
         {
-            var baseName = name;
-            for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
-                 parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name);
-                 j++)
-            {
-                name = baseName + j;
-            }
+            name = baseName + j;
         }
 
         return name;
