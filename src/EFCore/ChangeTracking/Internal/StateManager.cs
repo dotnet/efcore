@@ -840,42 +840,6 @@ public class StateManager : IStateManager
         INavigationBase navigation,
         InternalEntityEntry referencedFromEntry)
     {
-        if (navigation is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } ownedNavigation)
-        {
-            // Check if the entity is already tracked
-            var existingEntry = TryGetEntry(referencedEntity);
-            if (existingEntry != null)
-            {
-                // Find the owning navigation for the already-tracked entity
-                foreach (var fk in existingEntry.EntityType.GetForeignKeys())
-                {
-                    if (fk.IsOwnership)
-                    {
-                        var principalToDependent = fk.PrincipalToDependent;
-                        if (principalToDependent is { IsCollection: false })
-                        {
-                            var existingOwner = existingEntry.StateManager.FindPrincipal(existingEntry, fk);
-                            
-                            if (existingOwner != null)
-                            {
-                                // Check if it's a different owner or a different navigation on the same owner
-                                if (!ReferenceEquals(existingOwner, referencedFromEntry) || principalToDependent.Name != ownedNavigation.Name)
-                                {
-                                    throw new InvalidOperationException(
-                                        CoreStrings.DuplicateOwnedEntityInstance(
-                                            referencedEntity.GetType().ShortDisplayName(),
-                                            principalToDependent.Name,
-                                            existingOwner.EntityType.DisplayName(),
-                                            ownedNavigation.Name,
-                                            referencedFromEntry.EntityType.DisplayName()));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         _referencedUntrackedEntities ??=
             new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance);
 
@@ -883,28 +847,6 @@ public class StateManager : IStateManager
         {
             danglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
             _referencedUntrackedEntities.Add(referencedEntity, danglers);
-        }
-
-        if (navigation is INavigation { IsCollection: false, ForeignKey.IsOwnership: true })
-        {
-            // Check danglers (untracked entities referenced from navigations)
-            foreach (var (existingNavigation, existingEntry) in danglers)
-            {
-                if (existingNavigation is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } existingOwnedNavigation)
-                {
-                    // Throw if it's the same owner with a different navigation, or a different owner (same or different navigation)
-                    if (!ReferenceEquals(existingEntry, referencedFromEntry) || existingOwnedNavigation.Name != navigation.Name)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.DuplicateOwnedEntityInstance(
-                                referencedEntity.GetType().ShortDisplayName(),
-                                existingOwnedNavigation.Name,
-                                existingEntry.EntityType.DisplayName(),
-                                navigation.Name,
-                                referencedFromEntry.EntityType.DisplayName()));
-                    }
-                }
-            }
         }
 
         danglers.Add(Tuple.Create(navigation, referencedFromEntry));

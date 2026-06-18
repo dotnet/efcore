@@ -1025,7 +1025,42 @@ public class NavigationFixer : INavigationFixer
 
             // If the entity was previously referenced while it was still untracked, go back and do the fixup
             // that we would have done then now that the entity is tracked.
-            foreach (var (navigationBase, internalEntityEntry) in stateManager.GetRecordedReferrers(entry.Entity, clear: true))
+            var referrers = stateManager.GetRecordedReferrers(entry.Entity, clear: true).ToList();
+            
+            // Check for duplicate owned entity instances
+            if (referrers.Count > 1)
+            {
+                INavigation? firstOwnedNavigation = null;
+                InternalEntityEntry? firstOwnerEntry = null;
+                
+                foreach (var (navigationBase, ownerEntry) in referrers)
+                {
+                    if (navigationBase is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } ownedNavigation)
+                    {
+                        if (firstOwnedNavigation == null)
+                        {
+                            firstOwnedNavigation = ownedNavigation;
+                            firstOwnerEntry = ownerEntry;
+                        }
+                        else
+                        {
+                            // Throw if it's the same owner with a different navigation, or a different owner
+                            if (!ReferenceEquals(firstOwnerEntry, ownerEntry) || firstOwnedNavigation.Name != ownedNavigation.Name)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.DuplicateOwnedEntityInstance(
+                                        entry.Entity.GetType().ShortDisplayName(),
+                                        firstOwnedNavigation.Name,
+                                        firstOwnerEntry!.EntityType.DisplayName(),
+                                        ownedNavigation.Name,
+                                        ownerEntry.EntityType.DisplayName()));
+                            }
+                        }
+                    }
+                }
+            }
+            
+            foreach (var (navigationBase, internalEntityEntry) in referrers)
             {
                 DelayedFixup(internalEntityEntry, navigationBase, entry, fromQuery);
             }
