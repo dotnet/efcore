@@ -465,7 +465,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IProperty property,
         CSharpSnapshotGeneratorParameters parameters)
     {
-        var clrType = (FindValueConverter(property)?.ProviderClrType ?? property.ClrType)
+        var clrType = ((property.IsKey() || property.IsForeignKey())
+                ? property.ClrType
+                : FindValueConverter(property)?.ProviderClrType ?? property.ClrType)
             .MakeNullable(property.IsNullable);
 
         var propertyCall = property.IsPrimitiveCollection ? "PrimitiveCollection" : "Property";

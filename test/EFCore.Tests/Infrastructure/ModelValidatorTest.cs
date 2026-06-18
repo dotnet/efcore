@@ -593,29 +593,15 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
-    public virtual void Passes_on_foreign_key_with_matching_provider_type()
+    public virtual void Passes_on_foreign_key_with_matching_model_type_and_mismatched_provider_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithMany().HasForeignKey(a => a.P0).HasPrincipalKey(b => b.Id);
         modelBuilder.Entity<A>().Property(a => a.P0).HasConversion<long>();
-        modelBuilder.Entity<B>().Property(b => b.Id).HasConversion<long>();
+        modelBuilder.Entity<B>().Property(b => b.Id).HasConversion<short>();
 
         Validate(modelBuilder);
-    }
-
-    [Fact]
-    public virtual void Detects_foreign_key_with_mismatched_provider_type()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        modelBuilder.Entity<A>().HasOne<B>().WithMany().HasForeignKey(a => a.P0).HasPrincipalKey(b => b.Id);
-        modelBuilder.Entity<A>().Property(a => a.P0).HasConversion<long>();
-
-        VerifyError(
-            CoreStrings.ForeignKeyTypeMismatch(
-                "{'P0' : int?}", nameof(A), "{'Id' : int}", nameof(B)),
-            modelBuilder);
     }
 
     [Fact]

@@ -122,6 +122,41 @@ partial class MySnapshot : ModelSnapshot
     }
 
     [Fact]
+    public void Snapshot_uses_model_types_for_key_properties_with_converters()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.HasDefaultSchema("DefaultSchema");
+        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+
+        modelBuilder.Entity(
+            "Principal",
+            b =>
+            {
+                b.Property<int>("Id").HasConversion<short>().HasColumnType("smallint");
+                b.HasKey("Id");
+            });
+        modelBuilder.Entity(
+            "Dependent",
+            b =>
+            {
+                b.Property<int>("Id").HasConversion<long>().HasColumnType("bigint");
+                b.HasKey("Id");
+                b.HasOne("Principal").WithMany().HasForeignKey("Id");
+            });
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var code = CreateMigrationsGenerator().GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
+        var snapshotModel = BuildModelFromSnapshotSource(code);
+
+        Assert.Equal(
+            typeof(int),
+            snapshotModel.FindEntityType("Principal")!.FindProperty("Id")!.ClrType);
+        Assert.Equal(
+            typeof(int),
+            snapshotModel.FindEntityType("Dependent")!.FindProperty("Id")!.ClrType);
+    }
+
+    [Fact]
     public void Snapshot_with_migration_id()
     {
         var generator = CreateMigrationsCodeGenerator();
