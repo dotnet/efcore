@@ -374,6 +374,22 @@ WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"]
 """);
     }
 
+    public override async Task WithPartitionKey_and_predicate_with_id_two_locals_same_value()
+    {
+        await base.WithPartitionKey_and_predicate_with_id_two_locals_same_value();
+
+        // Not ReadItem because pkForWith and pkForWhere are different parameter expressions (different names),
+        // so they can't be compared at translate time even though they have the same runtime value.
+        AssertSql(
+            """
+@pkForWhere='PK1'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @pkForWhere))
+""");
+    }
+
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
     {
         await base.Multiple_incompatible_predicate_comparisons_cause_no_ReadItem();

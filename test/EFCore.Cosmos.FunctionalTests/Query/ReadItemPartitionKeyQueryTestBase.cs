@@ -303,6 +303,20 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             assertEmpty: true);
 
     [Fact]
+    public virtual Task WithPartitionKey_and_predicate_with_id_two_locals_same_value()
+    {
+        var pkForWith = "PK1";
+        var pkForWhere = "PK1";
+
+        return AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey(pkForWith)
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == pkForWhere),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == pkForWith)
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == pkForWhere));
+    }
+
+    [Fact]
     public virtual Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
     {
         var partitionKey = "PK1";
