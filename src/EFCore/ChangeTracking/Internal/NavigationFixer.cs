@@ -134,32 +134,6 @@ public class NavigationFixer : INavigationFixer
             newTargetEntry = null;
         }
 
-        // Check for duplicate owned entity instance
-        if (newTargetEntry != null
-            && newValue != null
-            && foreignKey.IsOwnership
-            && !navigation.IsCollection)
-        {
-            // Find the existing owner of this owned entity
-            var existingOwner = stateManager.FindPrincipal(newTargetEntry, foreignKey);
-            if (existingOwner != null)
-            {
-                var existingOwnerNav = foreignKey.PrincipalToDependent;
-                // Check if it's a different owner or a different navigation on the same owner
-                if (!ReferenceEquals(existingOwner, entry) 
-                    || (existingOwnerNav != null && existingOwnerNav.Name != navigation.Name))
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.DuplicateOwnedEntityInstance(
-                            newValue.GetType().ShortDisplayName(),
-                            existingOwnerNav?.Name ?? "<unknown>",
-                            existingOwner.EntityType.DisplayName(),
-                            navigation.Name,
-                            entry.EntityType.DisplayName()));
-                }
-            }
-        }
-
         var delayingFixup = BeginDelayedFixup();
         try
         {
@@ -895,7 +869,9 @@ public class NavigationFixer : INavigationFixer
                                 else
                                 {
                                     // Check for duplicate owned entity instance
-                                    if (foreignKey.IsOwnership)
+                                    // This handles the case where an already-tracked owned entity is being assigned
+                                    // to a different owner during the initial tracking phase (not during DetectChanges)
+                                    if (foreignKey.IsOwnership && entry.EntityState == EntityState.Added)
                                     {
                                         var existingOwner = stateManager.FindPrincipal(dependentEntry, foreignKey);
                                         if (existingOwner != null
