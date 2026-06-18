@@ -5064,7 +5064,7 @@ public class OwnedFixupTest
     }
 
     [Fact]
-    public void Throws_when_different_owners_reference_same_owned_instance_from_same_navigation()
+    public void Throws_when_already_tracked_owned_instance_is_later_assigned_to_different_navigation_on_different_owner()
     {
         using var context = new FixupContext();
         var dependent = new Child { Name = "1" };
@@ -5073,19 +5073,17 @@ public class OwnedFixupTest
             Id = 77,
             Child1 = dependent
         };
-        var principal2 = new Parent
-        {
-            Id = 78,
-            Child1 = dependent  // Same instance, different owner
-        };
+        var principal2 = new Parent { Id = 78 };
 
         context.Add(principal1);
+        context.Add(principal2);
 
-        var ex = Assert.Throws<InvalidOperationException>(() => context.Add(principal2));
+        principal2.Child2 = dependent; // Same instance, different navigation, different owner
+
         Assert.Equal(
             CoreStrings.DuplicateOwnedEntityInstance(
-                nameof(Child), nameof(Parent.Child1), nameof(Parent), nameof(Parent.Child1), nameof(Parent)),
-            ex.Message);
+                nameof(Child), nameof(Parent.Child1), nameof(Parent), nameof(Parent.Child2), nameof(Parent)),
+            Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
     }
 
     [Fact]
