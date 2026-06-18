@@ -3542,30 +3542,58 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             static SqlExpression? RemoveRedundantNullChecks(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
             {
-                if (predicate is SqlBinaryExpression sqlBinaryExpression)
+                // A single key comparison join predicate is processed with SQL null semantics in SqlNullabilityProcessor, so the
+                // outer key null check is genuinely redundant and is removed. But when the predicate is compound (e.g. the collection
+                // navigation has an additional filter), it's expanded with C# null semantics, which would incorrectly match rows where
+                // both keys are null. In that case the null check on a nullable outer key (e.g. the principal entity is reached through
+                // an optional navigation) must be kept to suppress that compensation. See #35706.
+                var keepNullableKeyChecks = CountKeyComparisons(predicate, outerColumnExpressions) > 1;
+
+                return Rewrite(predicate, outerColumnExpressions, keepNullableKeyChecks);
+
+                static SqlExpression? Rewrite(
+                    SqlExpression predicate, List<SqlExpression> outerColumnExpressions, bool keepNullableKeyChecks)
                 {
-                    if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                        && outerColumnExpressions.Contains(sqlBinaryExpression.Left)
-                        && sqlBinaryExpression.Right is SqlConstantExpression { Value: null }
-                        // The null check is only redundant when the outer key can never be null. When it is nullable
-                        // (e.g. the principal entity is reached through an optional navigation), the check must be kept:
-                        // the equality may later be expanded with C# null semantics in SqlNullabilityProcessor, which would
-                        // otherwise incorrectly match rows where both keys are null. See #35706.
-                        && sqlBinaryExpression.Left is not ColumnExpression { IsNullable: true })
+                    if (predicate is SqlBinaryExpression sqlBinaryExpression)
                     {
-                        return null;
+                        if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                            && outerColumnExpressions.Contains(sqlBinaryExpression.Left)
+                            && sqlBinaryExpression.Right is SqlConstantExpression { Value: null }
+                            && !(keepNullableKeyChecks && sqlBinaryExpression.Left is ColumnExpression { IsNullable: true }))
+                        {
+                            return null;
+                        }
+
+                        if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                        {
+                            var leftPredicate = Rewrite(sqlBinaryExpression.Left, outerColumnExpressions, keepNullableKeyChecks);
+                            var rightPredicate = Rewrite(sqlBinaryExpression.Right, outerColumnExpressions, keepNullableKeyChecks);
+
+                            return CombineNonNullExpressions(leftPredicate, rightPredicate);
+                        }
                     }
 
-                    if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
-                    {
-                        var leftPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Left, outerColumnExpressions);
-                        var rightPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Right, outerColumnExpressions);
-
-                        return CombineNonNullExpressions(leftPredicate, rightPredicate);
-                    }
+                    return predicate;
                 }
 
-                return predicate;
+                // Counts the key comparisons that aren't outer-key null checks; when more than one remains the resulting join
+                // predicate is a conjunction subject to C# null semantics expansion.
+                static int CountKeyComparisons(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
+                {
+                    if (predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso)
+                    {
+                        return CountKeyComparisons(andAlso.Left, outerColumnExpressions)
+                            + CountKeyComparisons(andAlso.Right, outerColumnExpressions);
+                    }
+
+                    return predicate is SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.NotEqual, Right: SqlConstantExpression { Value: null }
+                    } nullCheck
+                    && outerColumnExpressions.Contains(nullCheck.Left)
+                        ? 0
+                        : 1;
+                }
             }
         }
     }
