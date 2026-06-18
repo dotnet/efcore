@@ -1141,6 +1141,7 @@ public class InternalForeignKeyBuilderTest
 
         Assert.NotNull(reattached);
         Assert.Same(principalABuilder.Metadata, reattached.Metadata.PrincipalEntityType);
+        Assert.NotSame(principalBBuilder.Metadata, reattached.Metadata.PrincipalEntityType);
     }
 
     [Fact]
