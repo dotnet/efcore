@@ -1640,6 +1640,23 @@ WHERE ((c["id"] = @customerId) OR (c["id"] = @customerId1))
 """);
             });
 
+    public override Task Two_parameters_with_same_case_insensitive_name_get_uniquified(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Two_parameters_with_same_case_insensitive_name_get_uniquified(a);
+
+                AssertSql(
+                    """
+@customerID='ANATR'
+@customerId0='ALFKI'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId0))
+""");
+            });
+
     public override async Task Where_Queryable_ToList_Count(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
