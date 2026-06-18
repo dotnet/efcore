@@ -35,6 +35,11 @@ public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElemen
     /// <inheritdoc />
     public override object FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
     {
+        if (manager.CurrentReader.TokenType == JsonTokenType.Null)
+        {
+            return null!;
+        }
+
         IList<TElement?> collection;
         if (IsReadOnly)
         {
