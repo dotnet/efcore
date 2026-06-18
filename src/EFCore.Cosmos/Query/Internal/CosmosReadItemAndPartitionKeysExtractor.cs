@@ -105,13 +105,24 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             // Check whether any predicate partition key value conflicts with the WithPartitionKey() value at the same position.
             // WithPartitionKey() values are translated with applyDefaultTypeMapping:false (TypeMapping is null), so we apply the
             // predicate value's TypeMapping before comparing to ensure identical constants/parameters compare as equal.
+
+            // When a literal is passed to WithPartitionKey(), the funcletizer converts it to a SqlParameterExpression (since it's
+            // outside a lambda), while the same literal inside a Where() lambda stays as a SqlConstantExpression. Their types
+            // differ so Equals() returns false even when values match — but when all partition key properties are part of the JSON
+            // ID, ReadItem is safe regardless: the document's partition key is encoded in its ID, so a wrong partition key returns
+            // null rather than the wrong document.
+            var pkPropertiesInJsonId = partitionKeyProperties.All(p => jsonIdProperties.Contains(p));
+
             _partitionKeyValuesInPredicateConflictWithReadItem = partitionKeyProperties
                 .Select((p, i) => (Property: p, Index: i))
                 .Any(t => _partitionKeyPropertyValues[t.Property].ValueExpression is SqlExpression predicateValue
                     && (t.Index >= queryCompilationContext.PartitionKeyPropertyValues.Count
                         || queryCompilationContext.PartitionKeyPropertyValues[t.Index] is not SqlExpression withPkValue
-                        || !predicateValue.Equals(
-                            _sqlExpressionFactory.ApplyTypeMapping(withPkValue, predicateValue.TypeMapping))));
+                        || (!predicateValue.Equals(
+                                _sqlExpressionFactory.ApplyTypeMapping(withPkValue, predicateValue.TypeMapping))
+                            && !(pkPropertiesInJsonId
+                                && withPkValue is SqlParameterExpression
+                                && predicateValue is SqlConstantExpression))));
         }
 
         foreach (var property in partitionKeyProperties)

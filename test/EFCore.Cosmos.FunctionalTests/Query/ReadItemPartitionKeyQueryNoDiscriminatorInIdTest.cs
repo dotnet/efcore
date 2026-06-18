@@ -275,12 +275,7 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
     {
         await base.Both_WithPartitionKey_and_predicate_comparisons_with_same_values_with_only_partition_key();
 
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND (c["id"] = "PK1a"))
-""");
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
     }
 
     public override async Task ReadItem_with_hierarchical_partition_key()
@@ -371,12 +366,7 @@ WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitio
     {
         await base.ReadItem_with_WithPartitionKey_with_only_partition_key();
 
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND (c["id"] = "PK1a"))
-""");
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
     }
 
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
