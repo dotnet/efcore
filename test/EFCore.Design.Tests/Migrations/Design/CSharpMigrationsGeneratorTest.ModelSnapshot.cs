@@ -122,7 +122,7 @@ partial class MySnapshot : ModelSnapshot
     }
 
     [Fact]
-    public void Snapshot_uses_model_types_for_key_properties_with_converters()
+    public void Snapshot_uses_model_types_for_key_and_foreign_key_properties_with_converters()
     {
         var modelBuilder = CreateConventionalModelBuilder();
         modelBuilder.HasDefaultSchema("DefaultSchema");
