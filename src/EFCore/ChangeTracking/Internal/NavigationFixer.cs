@@ -152,7 +152,7 @@ public class NavigationFixer : INavigationFixer
                     throw new InvalidOperationException(
                         CoreStrings.DuplicateOwnedEntityInstance(
                             newValue.GetType().ShortDisplayName(),
-                            existingOwnerNav?.Name ?? "",
+                            existingOwnerNav?.Name ?? "<unknown>",
                             existingOwner.EntityType.DisplayName(),
                             navigation.Name,
                             entry.EntityType.DisplayName()));

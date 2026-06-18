@@ -5080,7 +5080,7 @@ public class OwnedFixupTest
         };
 
         context.Add(principal1);
-        
+
         var ex = Assert.Throws<InvalidOperationException>(() => context.Add(principal2));
         Assert.Equal(
             CoreStrings.DuplicateOwnedEntityInstance(
