@@ -5,10 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Microsoft.Azure.Cosmos.Core.Collections;
+using Azure.Core.Serialization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -49,12 +48,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
             = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)])!;
-
-        private static readonly PropertyInfo EncodingUtf8Property
-            = typeof(Encoding).GetProperty(nameof(Encoding.UTF8))!;
-
-        private static readonly MethodInfo Utf8GetBytesMethod
-            = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
 
         private static readonly MethodInfo ByteArrayAsSpanMethod = typeof(MemoryExtensions).GetMethods()
             .Where(x => x.Name == nameof(MemoryExtensions.AsSpan) && x.GetGenericArguments().Count() == 1)
@@ -387,7 +380,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 structuralTypeShaperMaterializer = new JsonEntityMaterializerMetadataRewriter(propertiesToRead).Rewrite(structuralTypeShaperMaterializer);
             }
 
-            // @TODO: We need to pass key values
+            // @TODO: We need to pass key values to nested documents...
 
             var innerShapersMap = new Dictionary<IPropertyBase, Expression>();
             var innerFixupMap = new Dictionary<IPropertyBase, LambdaExpression>();
@@ -1100,10 +1093,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Convert(
                                     Call(
                                         ByteArrayAsSpanMethod,
-                                        Call(
-                                            Property(null, EncodingUtf8Property),
-                                            Utf8GetBytesMethod, // @TODO: Why not constant?
-                                            Constant(jsonPropertyName))),
+                                        Constant(Encoding.UTF8.GetBytes(jsonPropertyName))),
                                     typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                         var propertyVariable = Variable(valueBufferTryReadValueMethodToProcess.Type);
@@ -1137,7 +1127,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var propertyName = innerShaperMapElement.Key switch
                         {
                             IComplexProperty complexProperty => complexProperty.GetJsonPropertyName(),
-                            INavigation navigation => navigation.TargetEntityType.GetContainingPropertyName(),
+                            INavigation navigation => navigation.TargetEntityType.GetContainingPropertyName()!,
                             _ => throw new UnreachableException()
                         };
                         testExpressions.Add(
@@ -1149,10 +1139,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Convert(
                                     Call(
                                         ByteArrayAsSpanMethod,
-                                        Call(
-                                            Property(null, EncodingUtf8Property),
-                                            Utf8GetBytesMethod,
-                                            Constant(propertyName))), // @TODO: Why not constant?
+                                        Constant(Encoding.UTF8.GetBytes(propertyName))),
                                     typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                         var propertyVariable = Variable(innerShaperMapElement.Value.Type);
