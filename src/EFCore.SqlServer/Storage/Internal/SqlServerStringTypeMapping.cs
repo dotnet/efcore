@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Data.SqlTypes;
 using System.Text;
+using System.Xml;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -153,6 +155,24 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
             sqlParameter.SqlDbType = _sqlDbType.Value;
+        }
+
+        if (_sqlDbType == SqlDbType.Xml)
+        {
+            // SqlClient only sends a parameter as 'xml' (rather than 'nvarchar(max)') when its value is a SqlXml.
+            // Sending it as 'xml' lets SQL Server honor any encoding declared in the XML prolog (e.g. utf-8), which
+            // otherwise fails with "unable to switch the encoding". A fragment-conformant reader is used so that the
+            // content forms that the 'xml' store type accepts - empty strings, text, and multiple top-level nodes -
+            // continue to round-trip.
+            if (value is string xml
+                && parameter is SqlParameter xmlParameter)
+            {
+                using var reader = XmlReader.Create(
+                    new StringReader(xml), new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment });
+                xmlParameter.Value = new SqlXml(reader);
+            }
+
+            return;
         }
 
         if ((value == null

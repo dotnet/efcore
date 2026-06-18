@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Data.SqlTypes;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -376,6 +377,37 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         using var command = CreateTestCommand();
         var parameter = utf8StringMapping.CreateParameter(command, "foo", "h");
         Assert.Equal(DbType.String, parameter.DbType);
+    }
+
+    [Theory]
+    [InlineData("<r>a</r>")]
+    [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><r>a</r>")]
+    [InlineData("")]
+    [InlineData("text fragment")]
+    [InlineData("<a/><b/>")]
+    public virtual void Xml_parameter_is_sent_as_SqlXml(string value)
+    {
+        var mapping = GetMapping("xml");
+        Assert.Equal("xml", mapping.StoreType);
+
+        using var command = CreateTestCommand();
+        var parameter = (SqlParameter)mapping.CreateParameter(command, "foo", value);
+
+        Assert.Equal(SqlDbType.Xml, parameter.SqlDbType);
+        var sqlXml = Assert.IsType<SqlXml>(parameter.Value);
+        Assert.False(sqlXml.IsNull);
+    }
+
+    [Fact]
+    public virtual void Xml_null_parameter_is_sent_as_SqlDbType_Xml()
+    {
+        var mapping = GetMapping("xml");
+
+        using var command = CreateTestCommand();
+        var parameter = (SqlParameter)mapping.CreateParameter(command, "foo", null, nullable: true);
+
+        Assert.Equal(SqlDbType.Xml, parameter.SqlDbType);
+        Assert.Equal(DBNull.Value, parameter.Value);
     }
 
     [Fact]
