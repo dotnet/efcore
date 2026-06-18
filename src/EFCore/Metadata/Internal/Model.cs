@@ -111,9 +111,10 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    public virtual bool IsInModelSnapshot
-        => ScopedModelDependencies == null
-            && FindAnnotation(CoreAnnotationNames.ProductVersion) != null;
+public virtual bool IsInModelSnapshot
+    => ScopedModelDependencies == null
+        && _modelFinalizedConventions is { Count: 0 }
+        && FindAnnotation(CoreAnnotationNames.ProductVersion) != null;
 
     /// <summary>
     ///     Indicates whether the model is read-only.
