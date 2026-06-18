@@ -871,7 +871,7 @@ public class NavigationFixer : INavigationFixer
                                     // Check for duplicate owned entity instance
                                     // This handles the case where an already-tracked owned entity is being assigned
                                     // to a different owner during the initial tracking phase (not during DetectChanges)
-                                    if (foreignKey.IsOwnership && entry.EntityState == EntityState.Added)
+                                    if (foreignKey.IsOwnership)
                                     {
                                         var existingOwner = stateManager.FindPrincipal(dependentEntry, foreignKey);
                                         if (existingOwner != null
@@ -886,7 +886,7 @@ public class NavigationFixer : INavigationFixer
                                                     entry.EntityType.DisplayName()));
                                         }
                                     }
-                                    
+
                                     FixupToDependent(entry, dependentEntry, foreignKey, setModified, fromQuery);
                                 }
                             }

@@ -5038,7 +5038,7 @@ public class OwnedFixupTest
     }
 
     [Fact]
-    public void Throws_when_already_tracked_owned_instance_is_assigned_to_another_navigation()
+    public void Throws_when_already_tracked_owned_instance_is_assigned_to_another_owner()
     {
         using var context = new FixupContext();
         var dependent = new Child { Name = "1" };
