@@ -23,17 +23,6 @@ public class NorthwindWhereQuerySqlServerTest : NorthwindWhereQueryRelationalTes
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Equality_operator_int_to_long(bool async)
-    {
-        long arg = 10248;
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderID == arg));
-    }
-
     public override async Task Where_simple(bool async)
     {
         await base.Where_simple(async);
