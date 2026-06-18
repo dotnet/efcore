@@ -19,12 +19,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
-        private static readonly MethodInfo QueryContextStartTrackingMethod =
-            typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
-
-        private static readonly MethodInfo QueryContextTryGetEntryMethod
-            = typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry))!;
-
         private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate))!;
 
@@ -92,10 +86,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ParameterExpression, ParameterExpression>
             _jsonReaderDataToJsonReaderManagerParameterMapping = new();
 
-        // entityEntry: entityType variables
-        private readonly Dictionary<ParameterExpression, ParameterExpression>
-            _entryEntityTypeMapping = [];
-
         private readonly HashSet<ParameterExpression> _hasNullKeys = [];
 
         private readonly CosmosShapedQueryCompilingExpressionVisitor _parentVisitor;
@@ -119,9 +109,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
         }
 
-        private ParameterExpression? _queryRootEntryVariable;
-        private MethodCallExpression? _queryRootTryGetEntryCall;
-
         public LambdaExpression ProcessShaper(
             Expression shaperExpression)
         {
@@ -140,9 +127,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 case StructuralTypeShaperExpression shaper:
                 {
                     var (jsonReaderData, jsonReaderManager, jsonReaderInitializeExpessions) = GenerateJsonReader();
-
-                    _queryRootEntryVariable = null;
-                    _queryRootTryGetEntryCall = null;
 
                     _valueBufferToJsonReaderDataMapping[shaper.ValueBufferExpression] = jsonReaderData;
 
@@ -301,11 +285,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //          if (jsonReaderManager.CurrentReader.ValueTextEquals("$type"u8))
                 //              jsonReaderManager.MoveNext();
                 //              discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                //              if (idValue != null && discriminatorValue != null)
+                //                  goto done
                 //          else if (jsonReaderManager.CurrentReader.ValueTextEquals("Id"u8))
                 //              jsonReaderManager.MoveNext();
                 //              idValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                //              if (idValue != null && discriminatorValue != null)
+                //                  goto done
                 //          else if // @TODO: NESTED??
                 //          else
+                //              jsonReaderManager.Skip();
                 //              jsonReaderManager.Skip();
                 //
                 //      case (JsonTokenType.EndObject):
@@ -340,8 +329,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     metadataBlockExpressions.Add(Assign(propertyValueVariable, Default(property.ClrType.MakeNullable())));
                 }
 
+                var breakLabel = Label("MetadataRead");
+
+                var ifDoneGotoBreak = IfThen(propertiesToRead.Select(p => p.Value).Select(p => NotEqual(p, Default(p.Type))).Aggregate(AndAlso), Goto(breakLabel)); // if (idValue != null && discriminatorValue != null) goto break
+
                 var ifElseIfTree = propertiesToRead.Aggregate(
-                    (Expression)Empty(),
+                    (Expression)Block(Enumerable.Repeat(Call(managerVariable, Utf8JsonReaderManagerSkipMethod), 2)), // @TODO: Or do we only need to skip once here?
                     (previous, propertyTuple) =>
                     {
                         var (property, propertyValueVariable) = propertyTuple;
@@ -363,7 +356,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Property(Constant(propertyNameBytes), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!)),
                             Block(
                                 Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod), // jsonReaderManager.MoveNext()
-                                Assign(propertyValueVariable, CheckMakeNullableValueType(Call(propertyJsonValueReaderWriterConstant, fromJsonMethod, managerVariable, Default(typeof(object))))) // propertyValue = propertyjsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                                Assign(propertyValueVariable, CheckMakeNullableValueType(Call(propertyJsonValueReaderWriterConstant, fromJsonMethod, managerVariable, Default(typeof(object))))), // propertyValue = propertyjsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                                ifDoneGotoBreak
                             ),
                             previous);
 
@@ -373,7 +367,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 : expression;
                     });
 
-                var breakLabel = Label("MetadataRead");
                 metadataBlockExpressions.Add(
                     Loop(Block(
                         Assign(tokenTypeVariable, Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod)),
@@ -386,8 +379,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)))), // case JsonTokenType.EndObject: break
                         breakLabel));
 
+                shaperBlockExpressions.Add(
+                    Block(
+                        [managerVariable, tokenTypeVariable],
+                        metadataBlockExpressions));
+
                 structuralTypeShaperMaterializer = new JsonEntityMaterializerMetadataRewriter(propertiesToRead).Rewrite(structuralTypeShaperMaterializer);
             }
+
+            // @TODO: We need to pass key values
 
             var innerShapersMap = new Dictionary<IPropertyBase, Expression>();
             var innerFixupMap = new Dictionary<IPropertyBase, LambdaExpression>();
@@ -550,10 +550,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             shaperBlockVariables.AddRange(jsonMaterializerExpression.Variables);
             shaperBlockExpressions.AddRange(jsonMaterializerExpression.Expressions);
 
-            var fullMaterializeBlock = Block(shaperBlockVariables, shaperBlockExpressions);
+            jsonMaterializerExpression = Block(shaperBlockVariables, shaperBlockExpressions);
 
             var shaperLambda = Lambda(
-                    fullMaterializeBlock,
+                    jsonMaterializerExpression,
                     QueryCompilationContext.QueryContextParameter,
                     jsonReaderDataShaperLambdaParameter);
 
@@ -636,61 +636,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 ReplacingExpressionVisitor.Replace(data, dataSubset, materializeExpression));
         } // @TODO: We could do this in a switch read loop aswell..
 
-        protected override Expression VisitBlock(BlockExpression blockExpression)
-        {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            if (blockExpression.Variables.Any(x => x.Type == typeof(MaterializationContext)) && blockExpression.Variables.Any(x => x.Type == typeof(InternalEntityEntry)))
-            {
-                var entryVariable = blockExpression.Variables.First(x => x.Type == typeof(InternalEntityEntry));
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                var entityTypeVariable = blockExpression.Variables.First(x => x.Type == typeof(IEntityType));
-
-                _entryEntityTypeMapping[entryVariable] = entityTypeVariable;
-                _queryRootEntryVariable ??= entryVariable;
-            }
-
-            return base.VisitBlock(blockExpression);
-        }
-
-        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
-        {
-            switch (conditionalExpression)
-            {
-                // Remove hasNullKey checks, we only know that after we have deserialized the document.
-                case { Test: UnaryExpression { NodeType: ExpressionType.Not, Operand: { } hasNullKey } }
-                    when _hasNullKeys.Contains(hasNullKey):
-                {
-                    return Visit(conditionalExpression.IfTrue);
-                }
-
-                default:
-                    break;
-            }
-
-            // Remove id = null check, an document can not be null, and we can not read the id value before we read the rest of the document
-            // @TODO: How will this work for nested stuff. How does this work for relational? Is this only added for the top entity type?
-            //.If(.Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(
-            //    .Call $materializationContext1.get_ValueBuffer(),
-            //    0,
-            //    .Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.Id(int) Required PK AfterSave: Throw))
-            //!= null) {
-
-            var test = conditionalExpression.Test;
-            while (test is BinaryExpression { NodeType: ExpressionType.AndAlso } binary)
-            {
-                test = binary.Left; // Composite keys have && conditions
-            }
-
-            if (test is BinaryExpression { NodeType: ExpressionType.NotEqual, Left: MethodCallExpression methodCall } && methodCall.Method.IsGenericMethod
-             && methodCall.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-             && methodCall.Arguments[2] is ConstantExpression { Value: IProperty property } && property.IsKey())
-            {
-                return Visit(conditionalExpression.IfTrue);
-            }
-
-            return base.VisitConditional(conditionalExpression);
-        }
-
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             switch (binaryExpression)
@@ -713,307 +658,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     return Assign(binaryExpression.Left, updatedExpression);
                 }
-
-                #region Tracking and discriminator
-                // If there is a discriminator, we have to read the json document to find value to know how to deserialize the document
-                // On top of that, we can't try to get an already tracked entry until we have deserialized the stream to get the key values.
-
-                // This section removes the default generated materialize code for trying to retrieve existing entries, tracking materialized embedded entities and reading the discriminator value
-                // a TryGetEntry call is readded later after the full root entity is materialized, and we know the key values.
-                // @TODO: We might add a fast path that checks when we have found all key values, quitting deserialization early if an entry already exists.
-                // StartTracking for embedded entities calls are readded later in the root entity fixup, when we know the key values // @TODO
-                // discriminator based entity type assignment is replaced with reading the json document
-
-                // Removes materializer produced assignment to entry from TryGetEntry call
-                // Matches: .Call $queryContext.TryGetEntry(
-                //    .Constant<Microsoft.EntityFrameworkCore.Metadata.RuntimeKey>(Key: RootEntity.Id PK),
-                //    .NewArray System.Object[] {
-                //        .Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(
-                //            .Call $materializationContext1.get_ValueBuffer(),
-                //            0,
-                //            .Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.Id(int) Required PK AfterSave: Throw))
-                //    },
-                //    True,
-                //    $hasNullKey1);
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression entryVariable, Right: MethodCallExpression methodCall }
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    when entryVariable.Type == typeof(InternalEntityEntry) && methodCall.Method == QueryContextTryGetEntryMethod:
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                {
-                    if (_queryRootTryGetEntryCall == null)
-                    {
-                        Debug.Assert(_queryRootEntryVariable == entryVariable);
-                        _queryRootTryGetEntryCall = methodCall;
-                    }
-
-                    var hasNullKeyParameter = (ParameterExpression)methodCall.Arguments[3]; // This can actually be true... But we only know that after deserialization
-                    _hasNullKeys.Add(hasNullKeyParameter);
-
-                    return Assign(binaryExpression.Left, Default(entryVariable.Type));
-                }
-
-                // Rewrites materializer produced assignment to entityType based on discriminator value (not a const)
-                // Matches: $entityType1 = .Block(System.String $discriminator) {
-                //        $discriminator = .Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(.Call $materializationContext1.get_ValueBuffer(),1,.Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.$type(no field, string) Shadow Required AfterSave: Throw))
-                //        .Switch($discriminator) {
-                //        .Case("RootEntity"):
-                // ...
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression entityTypeVariable, Right: BlockExpression discriminatorBlock }
-                    when entityTypeVariable.Type == typeof(IEntityType):
-                {
-                    var discriminatorValueBufferTryReadValue = (MethodCallExpression)((BinaryExpression)discriminatorBlock.Expressions[0]).Right;
-                    var discriminatorProperty = ((ConstantExpression)discriminatorValueBufferTryReadValue.Arguments[2]).GetConstantValue<IProperty>();
-
-                    var rootEntityType = (IEntityType)discriminatorProperty.DeclaringType;
-
-                    var materializationContext = (ParameterExpression)((MethodCallExpression)discriminatorValueBufferTryReadValue.Arguments[0]).Object!;
-                    var jsonReaderDataParameter = _materializationContextToJsonReaderDataMapping[materializationContext];
-
-                    var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
-                    var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
-
-                    var discriminatorBlockExpressions = new List<Expression>
-                        {
-                            Assign(entityTypeVariable, Default(typeof(IEntityType))),
-                            // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
-                            Assign(
-                                managerVariable,
-                                New(
-                                    JsonReaderManagerConstructor,
-                                    jsonReaderDataParameter,
-                                    MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
-                            // tokenType = jsonReaderManager.CurrentReader.TokenType
-                            Assign(
-                                tokenTypeVariable,
-                                Property(
-                                    Field(
-                                        managerVariable,
-                                        Utf8JsonReaderManagerCurrentReaderField),
-                                    Utf8JsonReaderTokenTypeProperty)),
-                        };
-
-                    // @TODO: Change serializer to put "$type" first.?
-                    // Generate a loop to get the discriminator
-                    // entityType = default
-                    // while (true)
-                    //  tokenType = jsonReaderManager.MoveNext();
-                    //  switch($tokenType) {
-                    //      case(JsonTokenType.PropertyName):
-                    //          if (jsonReaderManager.CurrentReader.ValueTextEquals("discriminator".Span))
-                    //              switch (reader.GetValue<string>())
-                    //                  case "Type1":
-                    //                      entityTypeVariable = Constant(Type1)
-                    //                  default:
-                    //                      throw unable to discriminate
-                    //          else
-                    //              if (throw) throw // @TODO?
-                    //              else jsonReaderManager.Skip();
-                    //      case (JsonTokenType.EndObject):
-                    //          goto break
-                    //      default:
-                    //          throw invalid json
-                    // label: break
-                    // if (entityType == default) throw unable to discriminate?
-
-                    var breakLabel = Label("done");
-
-                    ReadOnlyMemory<byte> discriminatorPropertyNameBytes = Encoding.UTF8.GetBytes(discriminatorProperty.GetJsonPropertyName());
-
-                    // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-                    var discriminatorJsonValueReaderWriter = discriminatorProperty.GetJsonValueReaderWriter() ?? discriminatorProperty.GetTypeMapping().JsonValueReaderWriter;
-                    Debug.Assert(discriminatorJsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-                    var discriminatorJsonValueReaderWriterConstant = Constant(discriminatorJsonValueReaderWriter);
-
-                    var fromJsonMethod = discriminatorJsonValueReaderWriterConstant.Type.GetMethod(
-                        nameof(JsonValueReaderWriter<>.FromJsonTyped),
-                        [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
-
-                    var discriminatorValueVariable = Variable(discriminatorProperty.ClrType, "discriminatorValue");
-                    var loop = Loop(Block(
-                    Assign(tokenTypeVariable, Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod)),
-                    Switch( // switch(tokenType)
-                        tokenTypeVariable,
-                        Throw(New(typeof(Exception)), typeof(void)), // default throw @TODO: invalidjson exception
-                        SwitchCase( // case JsonTokenType.PropertyName:
-                            IfThenElse( // if (jsonReaderManager.CurrentReader.ValueTextEquals("discriminator".Span))
-                                Call(
-                                    Field(
-                                        managerVariable,
-                                        Utf8JsonReaderManagerCurrentReaderField),
-                                    Utf8JsonReaderValueTextEqualsMethod,
-                                    Property(Constant(discriminatorPropertyNameBytes), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!)),
-                                Block(
-                                    [discriminatorValueVariable],
-                                    Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod), // jsonReaderManager.MoveNext()
-                                    Assign(discriminatorValueVariable, Call(discriminatorJsonValueReaderWriterConstant, fromJsonMethod, managerVariable, Default(typeof(object)))), // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-                                    Switch(
-                                        discriminatorValueVariable, 
-                                        Throw(
-                                            New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
-                                                Call(null, typeof(CoreStrings).GetMethod(nameof(CoreStrings.UnableToDiscriminate))!,
-                                                    Constant(rootEntityType.DisplayName()), Convert(discriminatorValueVariable, typeof(object)))), typeof(void)), // default: throw new InvalidOperationException(CoreStrings.UnableToDiscriminate)
-                                        rootEntityType.GetConcreteDerivedTypesInclusive().Select(x => SwitchCase( // case "Type1":
-                                            Block(
-                                                Assign(entityTypeVariable, Constant(x)),  // entityType = x
-                                                Break(breakLabel, typeof(void))), // Goto break
-                                            Constant(x.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
-                                        .ToArray())
-                                ),
-                                Call(managerVariable, Utf8JsonReaderManagerSkipMethod) // else jsonReaderManager.Skip();
-                            ),
-                            Constant(JsonTokenType.PropertyName)),
-                        SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)))),
-                    breakLabel);
-
-                    discriminatorBlockExpressions.Add(loop);
-
-                    discriminatorBlockExpressions.Add(
-                        IfThen(Equal(entityTypeVariable, Default(typeof(IEntityType))), // if (entityTypeVariable == default) throw UnableToDiscriminate
-                            Throw(New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
-                                    Call(null, typeof(CoreStrings).GetMethod(nameof(CoreStrings.UnableToDiscriminate))!,
-                                        Constant(rootEntityType.DisplayName()), Constant(null))), typeof(void))));
-
-                    return Block(
-                        [managerVariable, tokenTypeVariable],
-                        discriminatorBlockExpressions);
-                }
-
-                #region Tracking for nested documents
-                // When we are deserializing owned types from nested documents, we don't know the key values of the root entity yet
-                // We remove any StartTracking calls and Snapshot creations for owned types and readd them in the fixup expression of the root document @TODO
-
-                // Removes materializer produced StartTracking call for embedded documents that normally runs after materialization.
-                // We can't start tracking embedded documents until we have read the key values for the root document from the JSON
-                // Matches:
-                // $entry = .If ($entityType == .Default(Microsoft.EntityFrameworkCore.Metadata.IEntityType)) {
-                //    .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)
-                //} .Else {
-                //    .Call $queryContext.StartTracking(
-                //        $entityType,
-                //        $instance,
-                //        $shadowSnapshot)
-                //}
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression entryVariable }
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    when entryVariable.Type == typeof(InternalEntityEntry)
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                         && UnwrapConditional(binaryExpression.Right) is MethodCallExpression methodCall
-                         && methodCall.Method == QueryContextStartTrackingMethod:
-                {
-                    return Empty();
-
-                    Debug.Assert(_queryRootEntryVariable != null);
-                    // We only track the query root
-                    if (_queryRootEntryVariable != entryVariable)
-                    {
-                        
-                    }
-
-                    /*
-                     * .Call $queryContext.TryGetEntry(
-                            .Constant<Microsoft.EntityFrameworkCore.Metadata.RuntimeKey>(Key: RootEntity.Id PK),
-                            .NewArray System.Object[] {
-                                .Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(
-                                    .Call $materializationContext1.get_ValueBuffer(),
-                                    0,
-                                    .Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.Id (int) Required PK AfterSave:Throw))
-                            },
-                            True,
-                            $hasNullKey1);
-                     * */
-
-                    // var entry = queryContext.TryGetEntry(out var hasNullKey);
-                    // if (hasNullKey)
-                    //   return null;
-                    // if (entry == default) {
-                    //   entry = queryContext.StartTracking(..., shadowSnapshot)
-                    // }
-                    // return (EntityType) entry.Entity
-
-                    var queryContext = (ParameterExpression)methodCall.Object!;
-                    var entityType = methodCall.Arguments[0];
-                    var instance = methodCall.Arguments[1];
-                    var shadowSnapshot = methodCall.Arguments[2];
-                    var hasNullKey = _queryRootTryGetEntryCall!.Arguments[3];
-
-                    var keyProperties = ((NewArrayExpression)_queryRootTryGetEntryCall!.Arguments[1]).Expressions.Select(x => ((MethodCallExpression)x).Arguments[2].GetConstantValue<IProperty>()).ToArray();
-                    var structuralType = keyProperties[0].DeclaringType;
-
-                    var shadowCounter = 0;
-                    var keyPropertyValueExpressions = keyProperties.Select(property =>
-                    {
-                        if (property.IsShadowProperty())
-                        {
-                            // shadowSnapshot[shadowCounter]
-                            return (Expression)MakeIndex(
-                                shadowSnapshot,
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                                typeof(ISnapshot).GetProperty("Item")!,
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                                [Constant(shadowCounter++)]);
-                        }
-                        else
-                        {
-                            //(object) instance._field; // @TODO: Well actually, what if this is missing??
-                            return Convert(MakeMemberAccess(instance, property.FieldInfo ?? (MemberInfo)property.PropertyInfo!), typeof(object));
-                        }
-                    }).ToArray();
-
-                    // @TODO: if null key, we should return null right?
-                    return Block(
-                        Assign(entryVariable, _queryRootTryGetEntryCall.Update(queryContext, [
-                            _queryRootTryGetEntryCall.Arguments[0],
-                            NewArrayInit(typeof(object), keyPropertyValueExpressions),
-                            _queryRootTryGetEntryCall.Arguments[2],
-                            hasNullKey])),
-                        IfThenElse(
-                            Equal(entryVariable, Default(entryVariable.Type)),
-                            Assign(entryVariable, methodCall),
-                            Assign(
-                                instance,
-                                Convert(
-                                    MakeMemberAccess(
-                                    entryVariable,
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                                    typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!),
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                                    instance.Type))));
-                }
-
-                static Expression UnwrapConditional(Expression expression)
-                    => expression switch
-                    {
-                        MethodCallExpression m => m,
-                        ConditionalExpression { IfFalse: MethodCallExpression m } => m,
-                        _ => expression
-                    };
-
-                // Removes materializer produced Snapshot creation for embedded documents
-                // For embedded documents, we possibly don't know the shadowSnapshot values when deserializing (depending on which property came first in the json), so we remove the shadowSnapShot assignment
-                // Matches: $shadowSnapshotN = new Snapshot(ValueBufferTryReadValue(materializationContext, property, int _));
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    when parameterExpression.Type == typeof(ISnapshot)
-                      && binaryExpression.Right.UnwrapTypeConversion(out _) is NewExpression newExpression:
-                {
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                    var arguments = newExpression.Arguments.Select(x => x.UnwrapTypeConversion(out _) as MethodCallExpression!).ToArray();
-
-                    // Check if this is the top level document, where Key values are successfully translated by the JsonEntityMaterializerRewriter to $varN
-                    // We don't remove the top level document start tracking call, because it only happens after the document has fully deserialized.
-                    // We use the shadowSnapshot in the final query root start tracking call
-
-                    // @TODO: Nested documents aren't tracked now...
-                    // @TODO: But what if the owned type has a shadow key?
-                    if (arguments.Any(x => x == null))
-                    {
-                        break;
-                    }
-
-                    return Empty();
-                }
-                #endregion
-                #endregion
 
                 case
                 {
@@ -1060,25 +704,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             return base.VisitMethodCall(methodCallExpression);
-        }
-
-        private sealed class EntityTypeDiscriminatorValueBufferTryReadValueReplacer : ExpressionVisitor
-        {
-            protected override Expression VisitBinary(BinaryExpression binaryExpression)
-            {
-                if (binaryExpression.Right is MethodCallExpression methodCallExpression
-                    && methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition()
-                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property
-                    && property.DeclaringType.FindDiscriminatorProperty() == property)
-                {
-                    // new JsonReaderManager(data);
-
-                }
-
-                return base.VisitBinary(binaryExpression);
-            }
         }
 
         private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
@@ -1196,7 +821,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     if (mappedProperties.TryGetValue(property, out var parameter))
                     {
-                        // @TODO: Do we need special case for TryGetEntry System.Object[]? Probably not because the methodCallExpression.Type is likely object
                         return methodCallExpression.Type != parameter.Type
                             ? Convert(parameter, methodCallExpression.Type)
                             : parameter;
@@ -1649,68 +1273,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     resultBlockVariables.AddRange(ifFalseBlock.Variables.ToList());
 
                     var instanceAssignment = ifFalseBlock.Expressions.OfType<BinaryExpression>().Single(e
-                        => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: BlockExpression }
+                        => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: BlockExpression or SwitchExpression }
                         && structuralBaseType.ClrType.IsAssignableFrom(instance.Type));
-                    var instanceAssignmentBody = (BlockExpression)instanceAssignment.Right;
 
-                    var newInstanceAssignmentVariables = instanceAssignmentBody.Variables.ToList();
-                    var newInstanceAssignmentExpressions = new List<Expression>();
-
-                    // we only need to generate shadowSnapshot if the entity isn't already tracked
-                    // shadow snapshot can be generated early in the block (default)
-                    // or after we read all the values from JSON (case when the entity has some shadow properties)
-                    // so we loop through the existing expressions and add the condition to snapshot assignment when we find it
-                    // expressions processed here:
-                    // shadowSnapshot = new Snapshot(...)
-                    // jsonManagerPrm = new Utf8JsonReaderManager(jsonReaderDataPrm);
-                    // tokenType = jsonManagerPrm.TokenType;
-                    // property_reading_loop(...)
-                    // jsonManagerPrm.CaptureState();
-                    for (var i = 0; i < 5; i++)
+                    var newInstanceAssignment = instanceAssignment.Right switch
                     {
-                        newInstanceAssignmentExpressions.Add(
-                            instanceAssignmentBody.Expressions[i].Type == typeof(ISnapshot)
-                                ? IfThen(
-                                    Not(entityAlreadyTrackedVariable),
-                                    instanceAssignmentBody.Expressions[i])
-                                : instanceAssignmentBody.Expressions[i]);
-                    }
-
-                    // from now on we have entity construction and property assignments
-                    // then navigation fixup and then returning the final product
-                    // entity construction could vary in length (e.g. when we have custom materializer)
-                    // but we know how many navigation fixups there are and that instance is returned as last statement
-                    var innerInstanceVariable = instanceAssignmentBody.Expressions[^1];
-
-                    var createAndPopulateInstanceIfTrueBlock = Block(
-                        Assign(innerInstanceVariable, instanceAssignment.Left),
-                        Default(typeof(void)));
-
-                    // all expressions except first 5 (that we already added)
-                    // final variable being returned is also omitted but we generate Express.Default(typeof(void)) instead
-                    var createAndPopulateInstanceIfFalseBlockExpressionsCount = instanceAssignmentBody.Expressions.Count - 5;
-                    var createAndPopulateInstanceIfFalseBlockExpressions =
-                        new Expression[createAndPopulateInstanceIfFalseBlockExpressionsCount];
-
-                    Array.Copy(
-                        instanceAssignmentBody.Expressions.ToArray()[5..^1],
-                        createAndPopulateInstanceIfFalseBlockExpressions,
-                        createAndPopulateInstanceIfFalseBlockExpressionsCount - 1);
-
-                    createAndPopulateInstanceIfFalseBlockExpressions[^1] = Default(typeof(void));
-
-                    var createAndPopulateInstanceExpression = IfThenElse(
-                        entityAlreadyTrackedVariable,
-                        createAndPopulateInstanceIfTrueBlock,
-                        Block(createAndPopulateInstanceIfFalseBlockExpressions));
-
-                    newInstanceAssignmentExpressions.Add(createAndPopulateInstanceExpression);
-                    newInstanceAssignmentExpressions.Add(innerInstanceVariable);
-
-                    var newInstanceAssignmentBlock = Block(newInstanceAssignmentVariables, newInstanceAssignmentExpressions);
+                        BlockExpression block => RemapBody(block),
+                        SwitchExpression switchExpr => switchExpr.Update(switchExpr.SwitchValue, switchExpr.Cases.Select(c => c.Update(c.TestValues, RemapBody((BlockExpression)c.Body))), switchExpr.DefaultBody),
+                        _ => throw new UnreachableException()
+                    };
 
                     resultBlockExpressions.Add(
-                        Assign(instanceAssignment.Left, newInstanceAssignmentBlock));
+                            Assign(instanceAssignment.Left, newInstanceAssignment));
 
                     var startTrackingAssignment = ifFalseBlock.Expressions
                         .OfType<BinaryExpression>()
@@ -1731,8 +1305,66 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     resultBlockExpressions.Add(startTrackingExpression);
                     resultBlockExpressions.Add(Default(typeof(void)));
                     var resultBlock = Block(resultBlockVariables, resultBlockExpressions);
-
                     return resultBlock;
+
+                    Expression RemapBody(BlockExpression instanceAssignmentBody)
+                    {
+                        var newInstanceAssignmentVariables = instanceAssignmentBody.Variables.ToList();
+                        var newInstanceAssignmentExpressions = new List<Expression>();
+
+                        // we only need to generate shadowSnapshot if the entity isn't already tracked
+                        // shadow snapshot can be generated early in the block (default)
+                        // or after we read all the values from JSON (case when the entity has some shadow properties)
+                        // so we loop through the existing expressions and add the condition to snapshot assignment when we find it
+                        // expressions processed here:
+                        // shadowSnapshot = new Snapshot(...)
+                        // jsonManagerPrm = new Utf8JsonReaderManager(jsonReaderDataPrm);
+                        // tokenType = jsonManagerPrm.TokenType;
+                        // property_reading_loop(...)
+                        // jsonManagerPrm.CaptureState();
+                        for (var i = 0; i < 5; i++)
+                        {
+                            newInstanceAssignmentExpressions.Add(
+                                instanceAssignmentBody.Expressions[i].Type == typeof(ISnapshot)
+                                    ? IfThen(
+                                        Not(entityAlreadyTrackedVariable),
+                                        instanceAssignmentBody.Expressions[i])
+                                    : instanceAssignmentBody.Expressions[i]);
+                        }
+
+                        // from now on we have entity construction and property assignments
+                        // then navigation fixup and then returning the final product
+                        // entity construction could vary in length (e.g. when we have custom materializer)
+                        // but we know how many navigation fixups there are and that instance is returned as last statement
+                        var innerInstanceVariable = instanceAssignmentBody.Expressions[^1];
+
+                        var createAndPopulateInstanceIfTrueBlock = Block(
+                            Assign(innerInstanceVariable, instanceAssignment.Left),
+                            Default(typeof(void)));
+
+                        // all expressions except first 5 (that we already added)
+                        // final variable being returned is also omitted but we generate Express.Default(typeof(void)) instead
+                        var createAndPopulateInstanceIfFalseBlockExpressionsCount = instanceAssignmentBody.Expressions.Count - 5;
+                        var createAndPopulateInstanceIfFalseBlockExpressions =
+                            new Expression[createAndPopulateInstanceIfFalseBlockExpressionsCount];
+
+                        Array.Copy(
+                            instanceAssignmentBody.Expressions.ToArray()[5..^1],
+                            createAndPopulateInstanceIfFalseBlockExpressions,
+                            createAndPopulateInstanceIfFalseBlockExpressionsCount - 1);
+
+                        createAndPopulateInstanceIfFalseBlockExpressions[^1] = Default(typeof(void));
+
+                        var createAndPopulateInstanceExpression = IfThenElse(
+                            entityAlreadyTrackedVariable,
+                            createAndPopulateInstanceIfTrueBlock,
+                            Block(createAndPopulateInstanceIfFalseBlockExpressions));
+
+                        newInstanceAssignmentExpressions.Add(createAndPopulateInstanceExpression);
+                        newInstanceAssignmentExpressions.Add(innerInstanceVariable);
+
+                        return Block(newInstanceAssignmentVariables, newInstanceAssignmentExpressions);
+                    }
                 }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
