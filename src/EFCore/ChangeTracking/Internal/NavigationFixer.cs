@@ -1001,44 +1001,42 @@ public class NavigationFixer : INavigationFixer
 
             // If the entity was previously referenced while it was still untracked, go back and do the fixup
             // that we would have done then now that the entity is tracked.
-            var referrers = stateManager.GetRecordedReferrers(entry.Entity, clear: true).ToList();
+            var referrers = stateManager.GetRecordedReferrers(entry.Entity, clear: true);
             
             // Check for duplicate owned entity instances
-            if (referrers.Count > 1)
+            // We only allocate a list if we find at least one owned navigation referrer
+            INavigation? firstOwnedNavigation = null;
+            InternalEntityEntry? firstOwnerEntry = null;
+            
+            foreach (var (navigationBase, ownerEntry) in referrers)
             {
-                INavigation? firstOwnedNavigation = null;
-                InternalEntityEntry? firstOwnerEntry = null;
-                
-                foreach (var (navigationBase, ownerEntry) in referrers)
+                if (navigationBase is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } ownedNavigation)
                 {
-                    if (navigationBase is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } ownedNavigation)
+                    if (firstOwnedNavigation == null)
                     {
-                        if (firstOwnedNavigation == null)
+                        firstOwnedNavigation = ownedNavigation;
+                        firstOwnerEntry = ownerEntry;
+                    }
+                    else
+                    {
+                        // Throw if it's the same owner with a different navigation, or a different owner (with same or different navigation)
+                        // Both scenarios are invalid: an owned entity can only have one owner with one navigation
+                        if (!ReferenceEquals(firstOwnerEntry, ownerEntry) || firstOwnedNavigation.Name != ownedNavigation.Name)
                         {
-                            firstOwnedNavigation = ownedNavigation;
-                            firstOwnerEntry = ownerEntry;
-                        }
-                        else
-                        {
-                            // Throw if it's the same owner with a different navigation, or a different owner
-                            if (!ReferenceEquals(firstOwnerEntry, ownerEntry) || firstOwnedNavigation.Name != ownedNavigation.Name)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.DuplicateOwnedEntityInstance(
-                                        entry.Entity.GetType().ShortDisplayName(),
-                                        firstOwnedNavigation.Name,
-                                        firstOwnerEntry!.EntityType.DisplayName(),
-                                        ownedNavigation.Name,
-                                        ownerEntry.EntityType.DisplayName()));
-                            }
+                            Check.DebugAssert(firstOwnerEntry != null, "firstOwnerEntry should not be null when firstOwnedNavigation is set");
+                            
+                            throw new InvalidOperationException(
+                                CoreStrings.DuplicateOwnedEntityInstance(
+                                    entry.Entity.GetType().ShortDisplayName(),
+                                    firstOwnedNavigation.Name,
+                                    firstOwnerEntry.EntityType.DisplayName(),
+                                    ownedNavigation.Name,
+                                    ownerEntry.EntityType.DisplayName()));
                         }
                     }
                 }
-            }
-            
-            foreach (var (navigationBase, internalEntityEntry) in referrers)
-            {
-                DelayedFixup(internalEntityEntry, navigationBase, entry, fromQuery);
+                
+                DelayedFixup(ownerEntry, navigationBase, entry, fromQuery);
             }
         }
     }
