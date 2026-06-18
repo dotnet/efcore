@@ -1142,6 +1142,22 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             });
 
     [Fact]
+    public virtual Task Owned_entity_sharing_table_with_owner_that_has_an_index()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Post>(eb =>
+            {
+                eb.HasOne<Blog>().WithMany(b => b.Posts).IsRequired();
+                eb.OwnsOne(p => p.Author);
+            }),
+            model =>
+            {
+                // Forces the relational model to be created, which threw when an owned entity sharing the
+                // owner's table was processed before the owner. See https://github.com/dotnet/efcore/issues/37981
+                var relationalModel = model.GetRelationalModel();
+                Assert.Contains(relationalModel.Tables, t => t.Indexes.Any());
+            });
+
+    [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>
@@ -1530,6 +1546,25 @@ public partial class DbContextModel
             ]);
 
     public class SpatialTypes : AbstractBase;
+
+    public class Blog
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
+    }
+
+    public class Post
+    {
+        public int Id { get; set; }
+
+        public Author Author { get; set; } = new();
+    }
+
+    public class Author
+    {
+        public string Name { get; set; } = "";
+    }
 
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")
     {

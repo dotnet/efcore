@@ -138,6 +138,16 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 CreateMappings(entityType, declaringVariable: null, relationalModelParameters);
             }
 
+            // Unique constraints, indexes and triggers are created after all the column mappings have been generated, since they
+            // reference columns that may be mapped by an entity type that is processed after the one that owns the table mapping
+            // (e.g. an owned entity type sharing the table with its owner).
+            foreach (var table in model.Tables)
+            {
+                CreateTableConstraints(table, relationalModelParameters);
+            }
+
+            // Foreign keys are created in a separate pass after all the unique constraints have been generated, since each
+            // foreign key resolves the principal table's unique constraint, which may belong to a table processed later above.
             foreach (var table in model.Tables)
             {
                 foreach (var foreignKey in table.ForeignKeyConstraints)
@@ -1436,7 +1446,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             tableVariable = Create(table, parameters);
         }
 
-        var tableParameters = parameters with { TargetName = tableVariable };
         var tableMappingVariable = code.Identifier(table.Name + "TableMapping", tableMapping, parameters.ScopeObjects, capitalize: false);
 
         GenerateAddMapping(
@@ -1462,28 +1471,36 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         }
 
         CreateJsonElementMappings(tableMapping, tableMappingVariable, parameters);
+    }
 
-        if (tableMapping == table.EntityTypeMappings.Last())
+    private void CreateTableConstraints(
+        ITable table,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var code = Dependencies.CSharpHelper;
+        var mainBuilder = parameters.MainBuilder;
+        var metadataVariables = parameters.ScopeVariables;
+        var tableVariable = metadataVariables[table];
+        var tableParameters = parameters with { TargetName = tableVariable };
+
+        foreach (var uniqueConstraint in table.UniqueConstraints)
         {
-            foreach (var uniqueConstraint in table.UniqueConstraints)
-            {
-                Create(uniqueConstraint, uniqueConstraint.Columns.Select(c => metadataVariables[c]), tableParameters);
-            }
+            Create(uniqueConstraint, uniqueConstraint.Columns.Select(c => metadataVariables[c]), tableParameters);
+        }
 
-            foreach (var index in table.Indexes)
-            {
-                Create(index, index.Columns.Select(c => metadataVariables[c]), tableParameters);
-            }
+        foreach (var index in table.Indexes)
+        {
+            Create(index, index.Columns.Select(c => metadataVariables[c]), tableParameters);
+        }
 
-            foreach (var trigger in table.Triggers)
-            {
-                var entityTypeVariable = metadataVariables[trigger.EntityType];
+        foreach (var trigger in table.Triggers)
+        {
+            var entityTypeVariable = metadataVariables[trigger.EntityType];
 
-                var triggerName = trigger.GetDatabaseName(StoreObjectIdentifier.Table(table.Name, table.Schema));
-                mainBuilder
-                    .Append($"{tableVariable}.Triggers.Add({code.Literal(triggerName)}, ")
-                    .AppendLine($"{entityTypeVariable}.FindDeclaredTrigger({code.Literal(trigger.ModelName)}));");
-            }
+            var triggerName = trigger.GetDatabaseName(StoreObjectIdentifier.Table(table.Name, table.Schema));
+            mainBuilder
+                .Append($"{tableVariable}.Triggers.Add({code.Literal(triggerName)}, ")
+                .AppendLine($"{entityTypeVariable}.FindDeclaredTrigger({code.Literal(trigger.ModelName)}));");
         }
     }
 
