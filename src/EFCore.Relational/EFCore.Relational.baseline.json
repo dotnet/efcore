@@ -5389,6 +5389,23 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Design.IOperationReporter",
+      "Methods": [
+        {
+          "Member": "void WriteError(string message);"
+        },
+        {
+          "Member": "void WriteInformation(string message);"
+        },
+        {
+          "Member": "void WriteVerbose(string message);"
+        },
+        {
+          "Member": "void WriteWarning(string message);"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory",
       "Methods": [
         {
@@ -6437,6 +6454,14 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IModel Model { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Migrations.ISnapshotModelProcessor",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IModel? Process(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel? model, bool resetVersion = false);"
         }
       ]
     },
@@ -16731,6 +16756,9 @@
           "Member": "static string ModificationCommandInvalidEntityStateSensitive(object? entityType, object? keyValues, object? entityState);"
         },
         {
+          "Member": "static string MultipleAnnotationConflict(object? annotationName);"
+        },
+        {
           "Member": "static string MultipleColumnsWithSameJsonContainerName(object? entityType, object? columnName);"
         },
         {
@@ -18829,6 +18857,17 @@
       "Methods": [
         {
           "Member": "SingularModificationCommandBatch(Microsoft.EntityFrameworkCore.Update.ModificationCommandBatchFactoryDependencies dependencies);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.SnapshotModelProcessor : Microsoft.EntityFrameworkCore.Migrations.ISnapshotModelProcessor",
+      "Methods": [
+        {
+          "Member": "SnapshotModelProcessor(Microsoft.EntityFrameworkCore.Design.IOperationReporter operationReporter, Microsoft.EntityFrameworkCore.Infrastructure.IModelRuntimeInitializer modelRuntimeInitializer);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IModel? Process(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel? model, bool resetVersion = false);"
         }
       ]
     },

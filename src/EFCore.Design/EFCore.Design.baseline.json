@@ -465,7 +465,7 @@
           "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddDbContextDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.DbContext context);"
         },
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter? reporter = null, System.Func<System.IServiceProvider>? applicationServiceProviderAccessor = null);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.Design.IOperationReporter? reporter = null, System.Func<System.IServiceProvider>? applicationServiceProviderAccessor = null);"
         }
       ]
     },

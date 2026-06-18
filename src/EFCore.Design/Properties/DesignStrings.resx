@@ -319,9 +319,6 @@ Change your target project to the migrations project by using the Package Manage
   <data name="MSBuildWorkspaceFailure" xml:space="preserve">
     <value>MSBuild Workspace failure: {kind} - {message}</value>
   </data>
-  <data name="MultipleAnnotationConflict" xml:space="preserve">
-    <value>The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.</value>
-  </data>
   <data name="MultipleContexts" xml:space="preserve">
     <value>More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.</value>
   </data>
