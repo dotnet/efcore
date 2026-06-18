@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -174,6 +175,70 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateTypeMapping(property, logger);
         ValidatePrimitiveCollection(property, logger);
         ValidateAutoLoaded(property, structuralType, logger);
+
+        if (property.IsShadowProperty()
+            && !IsValidCSharpIdentifier(property.Name))
+        {
+            logger.ShadowPropertyNameNotValidIdentifierWarning(property);
+        }
+    }
+
+    private static bool IsValidCSharpIdentifier(string name)
+    {
+        if (string.IsNullOrEmpty(name)
+            || !IsIdentifierStartCharacter(name[0]))
+        {
+            return false;
+        }
+
+        for (var i = 1; i < name.Length; i++)
+        {
+            if (!IsIdentifierPartCharacter(name[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+
+        static bool IsIdentifierStartCharacter(char ch)
+            => ch < 'a'
+                ? ch is >= 'A' and (<= 'Z' or '_')
+                : ch <= 'z' || (ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch)));
+
+        static bool IsIdentifierPartCharacter(char ch)
+        {
+            if (ch < 'a')
+            {
+                return (ch < 'A' ? ch is >= '0' and <= '9' : ch <= 'Z') || ch == '_';
+            }
+
+            if (ch <= 'z')
+            {
+                return true;
+            }
+
+            if (ch <= '\u007F')
+            {
+                return false;
+            }
+
+            var cat = CharUnicodeInfo.GetUnicodeCategory(ch);
+            return IsLetterChar(cat)
+                || cat is UnicodeCategory.DecimalDigitNumber
+                    or UnicodeCategory.ConnectorPunctuation
+                    or UnicodeCategory.NonSpacingMark
+                    or UnicodeCategory.SpacingCombiningMark
+                    or UnicodeCategory.Format;
+        }
+
+        static bool IsLetterChar(UnicodeCategory cat)
+            => cat is UnicodeCategory.UppercaseLetter
+                or UnicodeCategory.LowercaseLetter
+                or UnicodeCategory.TitlecaseLetter
+                or UnicodeCategory.ModifierLetter
+                or UnicodeCategory.OtherLetter
+                or UnicodeCategory.LetterNumber;
     }
 
     /// <summary>

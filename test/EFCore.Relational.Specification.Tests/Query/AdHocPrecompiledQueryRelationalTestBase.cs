@@ -390,7 +390,8 @@ var books = await context.Entities.ToListAsync();
     [Fact]
     public virtual async Task Invalid_identifier_shadow_property_name()
     {
-        var contextFactory = await InitializeNonSharedTest<InvalidShadowNameContext>();
+        var contextFactory = await InitializeNonSharedTest<InvalidShadowNameContext>(
+            onConfiguring: o => o.ConfigureWarnings(w => w.Ignore(CoreEventId.ShadowPropertyNameNotValidIdentifierWarning)));
         var options = contextFactory.GetOptions();
 
         await Test(

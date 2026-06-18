@@ -1433,6 +1433,40 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.ShadowPropertyNameNotValidIdentifierWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="property">The property.</param>
+    public static void ShadowPropertyNameNotValidIdentifierWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IProperty property)
+    {
+        var definition = CoreResources.LogShadowPropertyNameNotValidIdentifier(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, property.DeclaringType.DisplayName(), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new PropertyEventData(
+                definition,
+                ShadowPropertyNameNotValidIdentifier,
+                property);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ShadowPropertyNameNotValidIdentifier(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (PropertyEventData)payload;
+        return d.GenerateMessage(p.Property.DeclaringType.DisplayName(), p.Property.Name);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.CollectionWithoutComparer" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

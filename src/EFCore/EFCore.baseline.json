@@ -3093,6 +3093,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ShadowPropertyCreated"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ShadowPropertyNameNotValidIdentifierWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId SkipCollectionChangeDetected"
         },
         {
@@ -3354,6 +3357,9 @@
         },
         {
           "Member": "static void ShadowPropertyCreated(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
+        },
+        {
+          "Member": "static void ShadowPropertyNameNotValidIdentifierWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
         },
         {
           "Member": "static void SkipCollectionChangeDetected(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.ChangeTracking> diagnostics, Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry internalEntityEntry, Microsoft.EntityFrameworkCore.Metadata.ISkipNavigation navigation, System.Collections.Generic.ISet<object> added, System.Collections.Generic.ISet<object> removed);"

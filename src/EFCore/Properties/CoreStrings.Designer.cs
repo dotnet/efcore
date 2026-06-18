@@ -5558,6 +5558,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The shadow property '{entityType}.{property}' has a name that is not a valid C# identifier. Precompiled queries that use this property will fail to compile. Consider renaming the property to a valid C# identifier.
+        /// </summary>
+        public static EventDefinition<string, string> LogShadowPropertyNameNotValidIdentifier(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogShadowPropertyNameNotValidIdentifier;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogShadowPropertyNameNotValidIdentifier,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.ShadowPropertyNameNotValidIdentifierWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.ShadowPropertyNameNotValidIdentifierWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.ShadowPropertyNameNotValidIdentifierWarning,
+                            _resourceManager.GetString("LogShadowPropertyNameNotValidIdentifier")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     {addedCount} entities were added and {removedCount} entities were removed from skip navigation '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<int, int, string, string> LogSkipCollectionChangeDetected(IDiagnosticsLogger logger)
