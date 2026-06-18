@@ -3576,7 +3576,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     return predicate;
                 }
 
-                // Counts the key comparisons that aren't outer-key null checks; when more than one remains the resulting join
+                // Counts the non-null-check conjuncts in the extracted join predicate; when more than one remains the resulting join
                 // predicate is a conjunction subject to C# null semantics expansion.
                 static int CountKeyComparisons(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
                 {
