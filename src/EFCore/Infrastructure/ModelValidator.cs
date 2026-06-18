@@ -185,6 +185,8 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
 
     private static bool IsValidCSharpIdentifier(string name)
     {
+        // This mirrors the Unicode rules used by Roslyn (and CSharpHelper in the Design assembly), replicated here because the
+        // runtime assembly does not reference Roslyn.
         if (string.IsNullOrEmpty(name)
             || !IsIdentifierStartCharacter(name[0]))
         {
