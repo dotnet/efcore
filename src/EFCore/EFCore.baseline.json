@@ -3974,6 +3974,9 @@
           "Member": "static string DuplicateNamedIndex(object? indexName, object? indexProperties, object? entityType, object? duplicateEntityType);"
         },
         {
+          "Member": "static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? secondNavigation, object? ownerType);"
+        },
+        {
           "Member": "static string DuplicatePropertiesOnBase(object? entityType, object? baseType, object? derivedPropertyType, object? derivedProperty, object? basePropertyType, object? baseProperty);"
         },
         {
