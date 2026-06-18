@@ -598,6 +598,8 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithMany().HasForeignKey(a => a.P0).HasPrincipalKey(b => b.Id);
+        modelBuilder.Entity<A>().Property(a => a.P0).HasConversion<long>();
+        modelBuilder.Entity<B>().Property(b => b.Id).HasConversion<long>();
 
         Validate(modelBuilder);
     }
