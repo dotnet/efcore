@@ -1105,6 +1105,31 @@ partial class MySnapshot : ModelSnapshot
 """),
             o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
 
+    [Fact] // Issue #26067
+    public void ToTable_with_default_null_schema_is_not_changed_on_snapshot_round_trip()
+    {
+        // When the default schema is null, regenerating the snapshot from a model that was itself
+        // built from a snapshot (as happens when removing a migration) must not add a redundant
+        // ", (string)null" schema argument to every ToTable call.
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.HasDefaultSchema(null);
+        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+        modelBuilder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties);
+
+        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
+
+        var generator = CreateMigrationsGenerator();
+        var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
+
+        Assert.Contains(@"b.ToTable(""EntityWithOneProperty"");", code);
+        Assert.DoesNotContain("(string)null", code);
+
+        var roundTrippedModel = BuildModelFromSnapshotSource(code);
+        var roundTrippedCode = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", roundTrippedModel);
+
+        Assert.Equal(code, roundTrippedCode, ignoreLineEndingDifferences: true);
+    }
+
     [Fact]
     public void Views_with_schemas_are_stored_in_the_model_snapshot()
         => Test(
