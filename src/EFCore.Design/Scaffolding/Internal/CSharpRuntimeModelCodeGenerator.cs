@@ -201,6 +201,24 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private string GetModelClassName(Type contextType)
         => _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
 
+    private static string GetAccessibilityModifier(Type type)
+        => IsPubliclyAccessible(type) ? "public" : "internal";
+
+    private static bool IsPubliclyAccessible(Type type)
+    {
+        while (type.IsNested)
+        {
+            if (!type.IsNestedPublic)
+            {
+                return false;
+            }
+
+            type = type.DeclaringType!;
+        }
+
+        return type.IsPublic;
+    }
+
     private string GenerateUnsafeAccessorType(
         Type type,
         HashSet<MemberInfo> members,
@@ -222,7 +240,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         mainBuilder
-            .Append("public static class ").Append(className);
+            .Append(GetAccessibilityModifier(type)).Append(" static class ").Append(className);
         if (type.IsGenericTypeDefinition)
         {
             var genericParameters = type.GetGenericArguments();
@@ -715,7 +733,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var className = entityClassNames[entityType];
         mainBuilder
             .AppendLine("[EntityFrameworkInternal]")
-            .Append("public partial class ").AppendLine(className)
+            .Append(GetAccessibilityModifier(entityType.ClrType)).Append(" partial class ").AppendLine(className)
             .AppendLine("{");
         using (mainBuilder.Indent())
         {
@@ -935,11 +953,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var discriminatorValue = entityType.GetDiscriminatorValue();
         if (discriminatorValue != null)
         {
-            AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
+            var discriminatorConverter = entityType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+            if (discriminatorConverter == null)
+            {
+                AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
 
-            mainBuilder.AppendLine(",")
-                .Append("discriminatorValue: ")
-                .Append(_code.UnknownLiteral(discriminatorValue));
+                mainBuilder.AppendLine(",")
+                    .Append("discriminatorValue: ")
+                    .Append(_code.UnknownLiteral(discriminatorValue));
+            }
         }
 
         var derivedTypesCount = entityType.GetDirectlyDerivedTypes().Count();
@@ -1030,6 +1052,26 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine(");")
             .AppendLine()
             .DecrementIndent();
+
+        if (discriminatorValue != null)
+        {
+            var discriminatorConverter = entityType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+            if (discriminatorConverter != null)
+            {
+                var providerValue = discriminatorConverter.ConvertToProvider(discriminatorValue);
+                if (providerValue != null)
+                {
+                    AddNamespace(providerValue.GetType(), parameters.Namespaces);
+                }
+
+                mainBuilder
+                    .Append(parameters.TargetName)
+                    .Append(".SetDiscriminatorValueFromProviderValue(")
+                    .Append(_code.UnknownLiteral(providerValue))
+                    .AppendLine(");")
+                    .AppendLine();
+            }
+        }
     }
 
     private void Create(
@@ -2353,11 +2395,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 var discriminatorValue = complexType.GetDiscriminatorValue();
                 if (discriminatorValue != null)
                 {
-                    AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
+                    var discriminatorConverter = complexType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+                    if (discriminatorConverter == null)
+                    {
+                        AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
 
-                    mainBuilder.AppendLine(",")
-                        .Append("discriminatorValue: ")
-                        .Append(_code.UnknownLiteral(discriminatorValue));
+                        mainBuilder.AppendLine(",")
+                            .Append("discriminatorValue: ")
+                            .Append(_code.UnknownLiteral(discriminatorValue));
+                    }
                 }
 
                 mainBuilder.AppendLine(",")
@@ -2380,6 +2426,25 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder
                     .Append("var ").Append(complexTypeVariable).Append(" = ")
                     .Append(complexPropertyVariable).AppendLine(".ComplexType;");
+
+                if (discriminatorValue != null)
+                {
+                    var discriminatorConverter = complexType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+                    if (discriminatorConverter != null)
+                    {
+                        var providerValue = discriminatorConverter.ConvertToProvider(discriminatorValue);
+                        if (providerValue != null)
+                        {
+                            AddNamespace(providerValue.GetType(), parameters.Namespaces);
+                        }
+
+                        mainBuilder
+                            .Append(complexTypeVariable)
+                            .Append(".SetDiscriminatorValueFromProviderValue(")
+                            .Append(_code.UnknownLiteral(providerValue))
+                            .AppendLine(");");
+                    }
+                }
 
                 var complexTypeParameters = parameters with { TargetName = complexTypeVariable };
                 var complexPropertyParameters = parameters with { TargetName = complexPropertyVariable };
