@@ -849,6 +849,23 @@ public class StateManager : IStateManager
             _referencedUntrackedEntities.Add(referencedEntity, danglers);
         }
 
+        if (navigation is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } ownedNavigation)
+        {
+            foreach (var (existingNavigation, existingEntry) in danglers)
+            {
+                if (ReferenceEquals(existingEntry, referencedFromEntry)
+                    && existingNavigation is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } existingOwnedNavigation)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DuplicateOwnedEntityInstance(
+                            referencedEntity.GetType().ShortDisplayName(),
+                            existingOwnedNavigation.Name,
+                            ownedNavigation.Name,
+                            referencedFromEntry.EntityType.DisplayName()));
+                }
+            }
+        }
+
         danglers.Add(Tuple.Create(navigation, referencedFromEntry));
     }
 

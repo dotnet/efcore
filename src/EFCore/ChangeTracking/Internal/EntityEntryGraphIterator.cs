@@ -23,8 +23,6 @@ public class EntityEntryGraphIterator : IEntityEntryGraphIterator
         EntityEntryGraphNode<TState> node,
         Func<EntityEntryGraphNode<TState>, bool> handleNode)
     {
-        CheckForDuplicateOwnedInstances(node.GetInfrastructure());
-
         if (!handleNode(node))
         {
             return;
@@ -75,8 +73,6 @@ public class EntityEntryGraphIterator : IEntityEntryGraphIterator
         Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
         CancellationToken cancellationToken = default)
     {
-        CheckForDuplicateOwnedInstances(node.GetInfrastructure());
-
         if (!await handleNode(node, cancellationToken).ConfigureAwait(false))
         {
             return;
@@ -114,33 +110,6 @@ public class EntityEntryGraphIterator : IEntityEntryGraphIterator
                             handleNode,
                             cancellationToken)
                         .ConfigureAwait(false);
-                }
-            }
-        }
-    }
-
-    private static void CheckForDuplicateOwnedInstances(InternalEntityEntry entry)
-    {
-        Dictionary<object, INavigation>? ownedInstances = null;
-        foreach (var navigation in entry.EntityType.GetNavigations())
-        {
-            if (navigation is { IsCollection: false, ForeignKey.IsOwnership: true })
-            {
-                var navigationValue = entry[navigation];
-                if (navigationValue != null)
-                {
-                    ownedInstances ??= new Dictionary<object, INavigation>(ReferenceEqualityComparer.Instance);
-                    if (ownedInstances.TryGetValue(navigationValue, out var existingNavigation))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.DuplicateOwnedEntityInstance(
-                                navigationValue.GetType().ShortDisplayName(),
-                                existingNavigation.Name,
-                                navigation.Name,
-                                entry.EntityType.DisplayName()));
-                    }
-
-                    ownedInstances[navigationValue] = navigation;
                 }
             }
         }
