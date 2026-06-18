@@ -1210,7 +1210,9 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
 
         if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
         {
-            if (IsModelSnapshotCompatibilityMode(principalEntityType, dependentEntityType))
+            if (principalEntityType.Model is Model model
+                && ReferenceEquals(model, dependentEntityType.Model)
+                && model.IsInModelSnapshot)
             {
                 return true;
             }
@@ -1229,22 +1231,6 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         }
 
         return true;
-    }
-
-    private static bool IsModelSnapshotCompatibilityMode(
-        IReadOnlyEntityType principalEntityType,
-        IReadOnlyEntityType dependentEntityType)
-    {
-        if (principalEntityType.Model is not Model model
-            || !ReferenceEquals(model, dependentEntityType.Model))
-        {
-            return false;
-        }
-
-        // Snapshot models are built with parameterless ModelBuilder (no scoped dependencies) and set ProductVersion explicitly.
-        // Allowing type mismatches here preserves compatibility with existing snapshots that captured provider CLR types for FK/PK properties.
-        return model.ScopedModelDependencies == null
-            && model.FindAnnotation(CoreAnnotationNames.ProductVersion) != null;
     }
 
     private static bool ArePropertyCountsEqual(
