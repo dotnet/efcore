@@ -156,7 +156,7 @@ public class SqlServerVectorTypeMapping : RelationalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override object? CreateDefaultProviderValue()
+    public override object? GetDefaultProviderValue()
         => Size is int dimensions ? new SqlVector<float>(new float[dimensions]) : null;
 
     private sealed class VectorComparer() : ValueComparer<SqlVector<float>>(

@@ -664,7 +664,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     ///     a provider value built from the configured mapping.
     /// </remarks>
     /// <returns>The default provider value.</returns>
-    public virtual object? CreateDefaultProviderValue()
+    public virtual object? GetDefaultProviderValue()
     {
         if (ElementTypeMapping is not null
             && Converter?.GetType() is { IsGenericType: true } converterType
