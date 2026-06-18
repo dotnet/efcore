@@ -102,11 +102,11 @@ public sealed class ApiModel
         var (addedFields, removedFields, sharedFields) = PartitionMembers(currentType?.Fields, baselineType?.Fields, includeSharedMembers);
         var (addedProperties, removedProperties, sharedProperties) = PartitionMembers(currentType?.Properties, baselineType?.Properties, includeSharedMembers);
 
-        var addedStage = currentType != null && (baselineType == null || currentType.Stage != baselineType.Stage)
-            ? currentType.Stage
+        var addedStage = stageChanged
+            ? currentType!.Stage
             : ApiStage.Stable;
-        var removedStage = baselineType != null && (currentType == null || baselineType.Stage != currentType.Stage)
-            ? baselineType.Stage
+        var removedStage = stageChanged
+            ? baselineType!.Stage
             : ApiStage.Stable;
 
         var additions = CreateChangeSet(addedStage, addedMethods, addedFields, addedProperties);
@@ -114,7 +114,9 @@ public sealed class ApiModel
 
         var headerChanged = currentType != null && baselineType != null && currentType.Type != baselineType.Type;
 
-        if (addedStage == ApiStage.Stable
+        if (currentType != null
+            && baselineType != null
+            && addedStage == ApiStage.Stable
             && removedStage == ApiStage.Stable
             && additions == null
             && removals == null
