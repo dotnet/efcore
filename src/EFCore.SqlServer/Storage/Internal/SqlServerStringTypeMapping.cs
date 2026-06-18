@@ -110,7 +110,9 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             _maxSize = AnsiMax;
         }
 
-        _isUtf16 = parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase);
+        _isUtf16 = parameters.Unicode
+            && (parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase)
+                || parameters.StoreType.StartsWith("xml", StringComparison.OrdinalIgnoreCase));
         _sqlDbType = sqlDbType;
     }
 

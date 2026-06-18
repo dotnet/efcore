@@ -37,4 +37,14 @@ public class SqlServerStringTypeMappingTest
         var mapping = new SqlServerStringTypeMapping("nvarchar(max)", unicode: true);
         Assert.Equal(expected, mapping.GenerateProviderValueSqlLiteral(value));
     }
+
+    [Theory, InlineData("", "N''"), InlineData("it", "N'it'"), InlineData("I'm", "N'I''m'"),
+     InlineData("<x Attr=\"\U0001F62D\" />", "N'<x Attr=\"\U0001F62D\" />'"),
+     InlineData("\n", "nchar(10)"),
+     InlineData("it\n", "CONCAT(CAST(N'it' AS nvarchar(max)), nchar(10))")]
+    public void GenerateProviderValueSqlLiteral_works_xml(string value, string expected)
+    {
+        var mapping = new SqlServerStringTypeMapping("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+        Assert.Equal(expected, mapping.GenerateProviderValueSqlLiteral(value));
+    }
 }
