@@ -1035,9 +1035,9 @@ public class NavigationFixer : INavigationFixer
             // If the entity was previously referenced while it was still untracked, go back and do the fixup
             // that we would have done then now that the entity is tracked.
             var referrers = stateManager.GetRecordedReferrers(entry.Entity, clear: true);
-            
+
             // Check for duplicate owned entity instances
-            // We only allocate a list if we find at least one owned navigation referrer
+            // Track the first owned navigation referrer to compare against subsequent ones
             INavigation? firstOwnedNavigation = null;
             InternalEntityEntry? firstOwnerEntry = null;
             
