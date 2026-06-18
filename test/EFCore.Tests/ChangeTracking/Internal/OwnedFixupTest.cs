@@ -5088,6 +5088,54 @@ public class OwnedFixupTest
             ex.Message);
     }
 
+    [Fact]
+    public void Throws_when_already_tracked_owned_instance_is_later_assigned_to_different_navigation_on_same_owner()
+    {
+        using var context = new FixupContext();
+        var dependent = new Child { Name = "1" };
+        var principal = new Parent
+        {
+            Id = 79,
+            Child1 = dependent
+        };
+
+        context.Add(principal);
+
+        principal.Child2 = dependent;  // Same instance, same owner, different navigation
+
+        Assert.Equal(
+            CoreStrings.DuplicateOwnedEntityInstance(
+                nameof(Child), nameof(Parent.Child1), nameof(Parent), nameof(Parent.Child2), nameof(Parent)),
+            Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
+    }
+
+    [Fact]
+    public void Throws_when_owned_instance_in_unchanged_state_is_assigned_to_another_owner()
+    {
+        using var context = new FixupContext();
+        var dependent = new Child { Name = "1" };
+        var principal1 = new Parent
+        {
+            Id = 80,
+            Child1 = dependent
+        };
+
+        context.Add(principal1);
+        context.Entry(principal1).State = EntityState.Unchanged;
+        context.Entry(dependent).State = EntityState.Unchanged;
+
+        var principal2 = new Parent
+        {
+            Id = 81,
+            Child1 = dependent
+        };
+
+        Assert.Equal(
+            CoreStrings.DuplicateOwnedEntityInstance(
+                nameof(Child), nameof(Parent.Child1), nameof(Parent), nameof(Parent.Child1), nameof(Parent)),
+            Assert.Throws<InvalidOperationException>(() => context.Add(principal2)).Message);
+    }
+
     private class OneRowContext(bool async) : DbContext
     {
         private readonly bool _async = async;

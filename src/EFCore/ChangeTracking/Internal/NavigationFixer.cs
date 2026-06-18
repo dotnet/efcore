@@ -247,6 +247,39 @@ public class NavigationFixer : INavigationFixer
         if (newValue != null
             && newTargetEntry == null)
         {
+            // Check if this owned entity is already tracked under a different entity type
+            // (shared CLR type scenario: same CLR instance used for two different owned navigations)
+            if (foreignKey.IsOwnership && !navigation.IsOnDependent)
+            {
+                var existingEntry = stateManager.TryGetEntry(newValue, throwOnNonUniqueness: false);
+                if (existingEntry != null && existingEntry.EntityState != EntityState.Detached)
+                {
+                    var existingOwnership = existingEntry.EntityType.FindOwnership();
+                    if (existingOwnership != null)
+                    {
+                        var existingNavigation = existingOwnership.PrincipalToDependent;
+                        if (existingNavigation != null)
+                        {
+                            var existingOwner = stateManager.FindPrincipal(existingEntry, existingOwnership);
+                            // Only throw if the existing owner's navigation still points to this entity.
+                            // If the navigation has already been cleared on the CLR object, this is a
+                            // legitimate move/swap rather than a duplicate reference.
+                            if (existingOwner != null
+                                && ReferenceEquals(existingOwner[existingNavigation], newValue))
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.DuplicateOwnedEntityInstance(
+                                        newValue.GetType().ShortDisplayName(),
+                                        existingNavigation.Name,
+                                        existingOwner.EntityType.DisplayName(),
+                                        navigation.Name,
+                                        entry.EntityType.DisplayName()));
+                            }
+                        }
+                    }
+                }
+            }
+
             stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
             entry.SetRelationshipSnapshotValue(navigation, newValue);
 
