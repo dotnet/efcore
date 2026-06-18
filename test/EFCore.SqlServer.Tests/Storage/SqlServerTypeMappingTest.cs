@@ -435,9 +435,9 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             "Microsoft.Data.SqlTypes.SqlVector<float>.CreateNull(3)");
 
     [Fact]
-    public virtual void Vector_default_column_value_is_zero_vector_of_configured_dimensions()
+    public virtual void Vector_default_provider_value_is_zero_vector_of_configured_dimensions()
     {
-        var value = Assert.IsType<SqlVector<float>>(new SqlServerVectorTypeMapping(3).CreateDefaultColumnValue());
+        var value = Assert.IsType<SqlVector<float>>(new SqlServerVectorTypeMapping(3).CreateDefaultProviderValue());
 
         Assert.False(value.IsNull);
         Assert.Equal(3, value.Length);
@@ -445,8 +445,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     }
 
     [Fact]
-    public virtual void Vector_default_column_value_is_null_without_dimensions()
-        => Assert.Null(SqlServerVectorTypeMapping.Default.CreateDefaultColumnValue());
+    public virtual void Vector_default_provider_value_is_null_without_dimensions()
+        => Assert.Null(SqlServerVectorTypeMapping.Default.CreateDefaultProviderValue());
 
     #endregion Vector
 
