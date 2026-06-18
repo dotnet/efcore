@@ -1210,6 +1210,11 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
 
         if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
         {
+            if (IsModelSnapshotCompatibilityMode(principalEntityType, dependentEntityType))
+            {
+                return true;
+            }
+
             if (shouldThrow)
             {
                 throw new InvalidOperationException(
@@ -1224,6 +1229,20 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         }
 
         return true;
+    }
+
+    private static bool IsModelSnapshotCompatibilityMode(
+        IReadOnlyEntityType principalEntityType,
+        IReadOnlyEntityType dependentEntityType)
+    {
+        if (principalEntityType.Model is not Model model
+            || !ReferenceEquals(model, dependentEntityType.Model))
+        {
+            return false;
+        }
+
+        return model.ScopedModelDependencies == null
+            && model.FindAnnotation(CoreAnnotationNames.ProductVersion) != null;
     }
 
     private static bool ArePropertyCountsEqual(
