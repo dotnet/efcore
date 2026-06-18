@@ -1241,6 +1241,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
             return false;
         }
 
+        // Snapshot models are built with parameterless ModelBuilder (no scoped dependencies) and set ProductVersion explicitly.
+        // Allowing type mismatches here preserves compatibility with existing snapshots that captured provider CLR types for FK/PK properties.
         return model.ScopedModelDependencies == null
             && model.FindAnnotation(CoreAnnotationNames.ProductVersion) != null;
     }
