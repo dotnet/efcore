@@ -5101,7 +5101,7 @@ public class OwnedFixupTest
 
         context.Add(principal);
 
-        principal.Child2 = dependent;  // Same instance, same owner, different navigation
+        principal.Child2 = dependent;
 
         Assert.Equal(
             CoreStrings.DuplicateOwnedEntityInstance(

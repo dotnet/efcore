@@ -247,8 +247,8 @@ public class NavigationFixer : INavigationFixer
         if (newValue != null
             && newTargetEntry == null)
         {
-            // Check if this owned entity is already tracked under a different entity type
-            // (shared CLR type scenario: same CLR instance used for two different owned navigations)
+            // The owned entity is not yet tracked under the target entity type. Check if it's tracked
+            // under a different entity type (shared CLR type) and its current owner still references it.
             if (foreignKey.IsOwnership && !navigation.IsOnDependent)
             {
                 var existingEntry = stateManager.TryGetEntry(newValue, throwOnNonUniqueness: false);
