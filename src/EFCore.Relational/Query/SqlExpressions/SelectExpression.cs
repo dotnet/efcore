@@ -3547,7 +3547,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 // navigation has an additional filter), it's expanded with C# null semantics, which would incorrectly match rows where
                 // both keys are null. In that case the null check on a nullable outer key (e.g. the principal entity is reached through
                 // an optional navigation) must be kept to suppress that compensation. See #35706.
-                var keepNullableKeyChecks = CountKeyComparisons(predicate, outerColumnExpressions) > 1;
+                var keepNullableKeyChecks = CountNonNullCheckConjuncts(predicate, outerColumnExpressions) > 1;
 
                 return Rewrite(predicate, outerColumnExpressions, keepNullableKeyChecks);
 
@@ -3578,12 +3578,12 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                 // Counts the non-null-check conjuncts in the extracted join predicate; when more than one remains the resulting join
                 // predicate is a conjunction subject to C# null semantics expansion.
-                static int CountKeyComparisons(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
+                static int CountNonNullCheckConjuncts(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
                 {
                     if (predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso)
                     {
-                        return CountKeyComparisons(andAlso.Left, outerColumnExpressions)
-                            + CountKeyComparisons(andAlso.Right, outerColumnExpressions);
+                        return CountNonNullCheckConjuncts(andAlso.Left, outerColumnExpressions)
+                            + CountNonNullCheckConjuncts(andAlso.Right, outerColumnExpressions);
                     }
 
                     return predicate is SqlBinaryExpression
