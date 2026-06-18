@@ -134,6 +134,32 @@ public class NavigationFixer : INavigationFixer
             newTargetEntry = null;
         }
 
+        // Check for duplicate owned entity instance
+        if (newTargetEntry != null
+            && newValue != null
+            && foreignKey.IsOwnership
+            && !navigation.IsCollection)
+        {
+            // Find the existing owner of this owned entity
+            var existingOwner = stateManager.FindPrincipal(newTargetEntry, foreignKey);
+            if (existingOwner != null)
+            {
+                var existingOwnerNav = foreignKey.PrincipalToDependent;
+                // Check if it's a different owner or a different navigation on the same owner
+                if (!ReferenceEquals(existingOwner, entry) 
+                    || (existingOwnerNav != null && existingOwnerNav.Name != navigation.Name))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DuplicateOwnedEntityInstance(
+                            newValue.GetType().ShortDisplayName(),
+                            existingOwnerNav?.Name ?? "",
+                            existingOwner.EntityType.DisplayName(),
+                            navigation.Name,
+                            entry.EntityType.DisplayName()));
+                }
+            }
+        }
+
         var delayingFixup = BeginDelayedFixup();
         try
         {
@@ -868,6 +894,23 @@ public class NavigationFixer : INavigationFixer
                                 }
                                 else
                                 {
+                                    // Check for duplicate owned entity instance
+                                    if (foreignKey.IsOwnership)
+                                    {
+                                        var existingOwner = stateManager.FindPrincipal(dependentEntry, foreignKey);
+                                        if (existingOwner != null
+                                            && !ReferenceEquals(existingOwner, entry))
+                                        {
+                                            throw new InvalidOperationException(
+                                                CoreStrings.DuplicateOwnedEntityInstance(
+                                                    navigationValue.GetType().ShortDisplayName(),
+                                                    principalToDependent.Name,
+                                                    existingOwner.EntityType.DisplayName(),
+                                                    principalToDependent.Name,
+                                                    entry.EntityType.DisplayName()));
+                                        }
+                                    }
+                                    
                                     FixupToDependent(entry, dependentEntry, foreignKey, setModified, fromQuery);
                                 }
                             }

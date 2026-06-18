@@ -5033,8 +5033,59 @@ public class OwnedFixupTest
 
         Assert.Equal(
             CoreStrings.DuplicateOwnedEntityInstance(
-                nameof(Child), nameof(Parent.Child1), nameof(Parent.Child2), nameof(Parent)),
+                nameof(Child), nameof(Parent.Child1), nameof(Parent), nameof(Parent.Child2), nameof(Parent)),
             Assert.Throws<InvalidOperationException>(() => context.Add(principal)).Message);
+    }
+
+    [Fact]
+    public void Throws_when_already_tracked_owned_instance_is_assigned_to_another_navigation()
+    {
+        using var context = new FixupContext();
+        var dependent = new Child { Name = "1" };
+        var principal1 = new Parent
+        {
+            Id = 77,
+            Child1 = dependent
+        };
+
+        context.Add(principal1);
+
+        var principal2 = new Parent
+        {
+            Id = 78,
+            Child1 = dependent  // Same instance, already tracked
+        };
+
+        var ex = Assert.Throws<InvalidOperationException>(() => context.Add(principal2));
+        Assert.Equal(
+            CoreStrings.DuplicateOwnedEntityInstance(
+                nameof(Child), nameof(Parent.Child1), nameof(Parent), nameof(Parent.Child1), nameof(Parent)),
+            ex.Message);
+    }
+
+    [Fact]
+    public void Throws_when_different_owners_reference_same_owned_instance_from_same_navigation()
+    {
+        using var context = new FixupContext();
+        var dependent = new Child { Name = "1" };
+        var principal1 = new Parent
+        {
+            Id = 77,
+            Child1 = dependent
+        };
+        var principal2 = new Parent
+        {
+            Id = 78,
+            Child1 = dependent  // Same instance, different owner
+        };
+
+        context.Add(principal1);
+        
+        var ex = Assert.Throws<InvalidOperationException>(() => context.Add(principal2));
+        Assert.Equal(
+            CoreStrings.DuplicateOwnedEntityInstance(
+                nameof(Child), nameof(Parent.Child1), nameof(Parent), nameof(Parent.Child1), nameof(Parent)),
+            ex.Message);
     }
 
     private class OneRowContext(bool async) : DbContext
