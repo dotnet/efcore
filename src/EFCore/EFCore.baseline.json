@@ -4488,6 +4488,12 @@
           "Member": "static string OwnerlessOwnedType(object? ownedType);"
         },
         {
+          "Member": "static string OwnershipNotCascadeDelete(object? principalEntityType, object? dependentEntityType, object? deleteBehavior, object? cascadeBehavior);"
+        },
+        {
+          "Member": "static string OwnershipNotRequired(object? principalEntityType, object? dependentEntityType);"
+        },
+        {
           "Member": "static string OwnershipToDependent(object? navigation, object? principalEntityType, object? dependentEntityType);"
         },
         {
