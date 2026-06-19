@@ -55,11 +55,6 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
             manager.MoveNext();
         }
 
-        if (manager.CurrentReader.TokenType == JsonTokenType.Null)
-        {
-            return null!;
-        }
-
         var tokenType = manager.CurrentReader.TokenType;
         if (tokenType != JsonTokenType.StartArray)
         {

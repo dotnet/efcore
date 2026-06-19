@@ -79,7 +79,9 @@ public abstract class JsonValueReaderWriter
 
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
         readerManager.MoveNext();
-        return FromJson(ref readerManager, existingObject);
+        return readerManager.CurrentReader.TokenType == JsonTokenType.Null
+            ? null!
+            : FromJson(ref readerManager, existingObject);
     }
 
     /// <summary>

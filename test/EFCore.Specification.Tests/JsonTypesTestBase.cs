@@ -2624,6 +2624,45 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     }
 
     [Fact]
+    public virtual Task Can_read_write_null_value_of_collection_of_string_JSON_values()
+        => Can_read_and_write_JSON_value<NullStringCollectionType, List<string>?>(
+            nameof(NullStringCollectionType.String),
+            null,
+            """{"Prop":null}""",
+            mappedCollection: true);
+
+    protected class NullStringCollectionType
+    {
+        public List<string>? String { get; set; }
+    }
+
+    [Fact]
+    public virtual Task Can_read_write_null_value_of_collection_of_int_JSON_values()
+        => Can_read_and_write_JSON_value<NullIntCollectionType, List<int>?>(
+            nameof(NullIntCollectionType.Int32),
+            null,
+            """{"Prop":null}""",
+            mappedCollection: true);
+
+    protected class NullIntCollectionType
+    {
+        public List<int>? Int32 { get; set; }
+    }
+
+    [Fact]
+    public virtual Task Can_read_write_null_value_of_collection_of_nullable_int_JSON_values()
+        => Can_read_and_write_JSON_value<NullNullableIntCollectionType, List<int?>?>(
+            nameof(NullNullableIntCollectionType.Int32),
+            null,
+            """{"Prop":null}""",
+            mappedCollection: true);
+
+    protected class NullNullableIntCollectionType
+    {
+        public List<int?>? Int32 { get; set; }
+    }
+
+    [Fact]
     public virtual Task Can_read_write_collection_of_sbyte_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<Int8ConvertedType, sbyte[]>(
             b => b.HasConversion<CustomCollectionConverter<sbyte[], sbyte>, CustomCollectionComparer<sbyte[], sbyte>>(),
@@ -3671,16 +3710,18 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         using var writer = new Utf8JsonWriter(stream);
 
         var jsonReaderWriter = property.GetJsonValueReaderWriter()
-            ?? property.GetTypeMapping().JsonValueReaderWriter!;
+            ?? property.GetTypeMapping().JsonValueReaderWriter;
 
-        var toString = value == null ? null : jsonReaderWriter.ToJsonString(value);
-        var fromString = toString == null ? null : jsonReaderWriter.FromJsonString(toString, existingObject);
+        var toString = value == null ? null : jsonReaderWriter!.ToJsonString(value);
+        var fromString = value == null
+            ? jsonReaderWriter?.FromJsonString("null")
+            : jsonReaderWriter!.FromJsonString(toString!, existingObject);
         Assert.Equal(value, fromString);
 
-        var actual = ToJsonPropertyString(jsonReaderWriter, value);
+        var actual = ToJsonPropertyString(jsonReaderWriter!, value);
         Assert.Equal(json, actual);
 
-        var fromJson = FromJsonPropertyString(jsonReaderWriter, actual, existingObject);
+        var fromJson = FromJsonPropertyString(jsonReaderWriter!, actual, existingObject);
         if (existingObject != null)
         {
             Assert.Same(fromJson, existingObject);
@@ -3717,15 +3758,18 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
 
             Assert.Equal(elementNullable, element.IsNullable);
 
-            var comparer = element.GetValueComparer()!;
-            var elementReaderWriter = element.GetJsonValueReaderWriter()!;
-            foreach (var item in (IEnumerable)value!)
+            if (value != null)
             {
-                Assert.True(comparer.Equals(item, comparer.Snapshot(item)));
-                Assert.True(
-                    comparer.Equals(
-                        item, FromJsonPropertyString(
-                            elementReaderWriter, ToJsonPropertyString(elementReaderWriter, item))));
+                var comparer = element.GetValueComparer()!;
+                var elementReaderWriter = element.GetJsonValueReaderWriter()!;
+                foreach (var item in (IEnumerable)value)
+                {
+                    Assert.True(comparer.Equals(item, comparer.Snapshot(item)));
+                    Assert.True(
+                        comparer.Equals(
+                            item, FromJsonPropertyString(
+                                elementReaderWriter, ToJsonPropertyString(elementReaderWriter, item))));
+                }
             }
 
             AssertElementFacets(element, facets);
