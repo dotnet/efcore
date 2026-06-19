@@ -293,7 +293,10 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)
+WHERE [c].[City] = N'Seattle' AND CASE
+    WHEN [c].[Phone] = N'555 555 5555' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -306,7 +309,10 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)
+WHERE [c].[City] = N'Seattle' AND CASE
+    WHEN [c].[Phone] = N'555 555 5555' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -319,7 +325,10 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)
+WHERE [c].[City] = N'Seattle' AND CASE
+    WHEN [c].[Phone] = N'555 555 5555' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -349,7 +358,10 @@ FROM [Orders] AS [o]
 SELECT [c].[City] AS [B]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)
+WHERE [c].[City] = N'Seattle' AND CASE
+    WHEN [c].[Phone] = N'555 555 5555' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -576,7 +588,10 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        WHERE [c].[CustomerID] = [o].[CustomerID] AND CASE
+            WHEN [o].[CustomerID] = N'ALFKI' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [All]
 FROM [Customers] AS [c]
@@ -594,7 +609,10 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL))
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND CASE
+        WHEN [o].[CustomerID] = N'ALFKI' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit))
 """);
     }
 

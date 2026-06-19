@@ -87,7 +87,10 @@ LEFT JOIN (
 ) AS [s] ON [r].[Id] = [s].[CollectionRootId]
 LEFT JOIN [NestedAssociateType] AS [n6] ON [a0].[Id] = [n6].[CollectionAssociateId]
 LEFT JOIN [NestedAssociateType] AS [n7] ON [a].[Id] = [n7].[CollectionAssociateId]
-WHERE [a].[Id] <> [a0].[Id] OR [a0].[Id] IS NULL
+WHERE CASE
+    WHEN [a].[Id] = [a0].[Id] THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n6].[Id]
 """);
     }
