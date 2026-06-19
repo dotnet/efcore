@@ -394,7 +394,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         var parameter = (SqlParameter)mapping.CreateParameter(command, "foo", value);
 
         Assert.Equal(SqlDbType.Xml, parameter.SqlDbType);
-        var sqlXml = Assert.IsType<SqlXml>(parameter.Value);
+        var sqlXml = Assert.IsType<System.Data.SqlTypes.SqlXml>(parameter.Value);
         Assert.False(sqlXml.IsNull);
     }
 

@@ -174,11 +174,10 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             // otherwise fails with "unable to switch the encoding". A fragment-conformant reader is used so that the
             // content forms that the 'xml' store type accepts - empty strings, text, and multiple top-level nodes -
             // continue to round-trip.
-            if (value is string xml
-                && parameter is SqlParameter xmlParameter)
+            if (value is string xml)
             {
                 using var reader = XmlReader.Create(new StringReader(xml), XmlFragmentSettings);
-                xmlParameter.Value = new SqlXml(reader);
+                parameter.Value = new SqlXml(reader);
             }
 
             return;
