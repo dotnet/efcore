@@ -24,8 +24,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
 
     // Secure by default: DTD processing is prohibited and no external resolver is used so that a malicious
-    // payload (e.g. an XXE external entity reference or a "billion laughs" entity-expansion document) is
-    // rejected rather than processed.
+    // payload is rejected rather than processed.
     private static readonly XmlReaderSettings XmlFragmentSettings = new()
     {
         ConformanceLevel = ConformanceLevel.Fragment,
@@ -122,8 +121,9 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             _maxSize = AnsiMax;
         }
 
-        _isUtf16 = parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase);
         _sqlDbType = sqlDbType;
+        _isUtf16 = parameters.Unicode
+            && (parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase) || _sqlDbType == SqlDbType.Xml);
     }
 
     /// <summary>

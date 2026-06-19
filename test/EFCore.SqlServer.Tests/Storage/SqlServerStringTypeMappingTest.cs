@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 public class SqlServerStringTypeMappingTest
@@ -35,6 +37,18 @@ public class SqlServerStringTypeMappingTest
     public void GenerateProviderValueSqlLiteral_works_unicode(string value, string expected)
     {
         var mapping = new SqlServerStringTypeMapping("nvarchar(max)", unicode: true);
+        Assert.Equal(expected, mapping.GenerateProviderValueSqlLiteral(value));
+    }
+
+    [Theory]
+    [InlineData("<root>a</root>", "N'<root>a</root>'")]
+    [InlineData("<root>\U0001F600</root>", "N'<root>\U0001F600</root>'")]
+    [InlineData("I'm", "N'I''m'")]
+    [InlineData("", "N''")]
+    public void GenerateProviderValueSqlLiteral_works_xml(string value, string expected)
+    {
+        var mapping = new SqlServerStringTypeMapping(
+            "xml", unicode: true, sqlDbType: SqlDbType.Xml, storeTypePostfix: StoreTypePostfix.None);
         Assert.Equal(expected, mapping.GenerateProviderValueSqlLiteral(value));
     }
 }

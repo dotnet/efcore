@@ -3817,56 +3817,87 @@ FROM INFORMATION_SCHEMA.COLUMNS
         return actual;
     }
 
-    // The grinning-face emoji is outside the BMP and is lost when an xml value is sent to the server as a
-    // non-Unicode string, which is what makes it a good probe for the SqlXml/SqlDbType.Xml parameter path.
+    // The grinning-face emoji is outside the BMP (a UTF-16 surrogate pair, four UTF-8 bytes) and the euro sign
+    // is a single UTF-16 code unit but three UTF-8 bytes; both are represented differently in UTF-16 than in
+    // UTF-8 and are lost when an xml value is sent to the server as a non-Unicode string, which makes them good
+    // probes for the SqlXml/SqlDbType.Xml parameter path.
     private const string XmlEmoji = "\U0001F600";
-
-    private const string XmlTestStoreName = "XmlValueRoundTrips";
+    private const string XmlEuro = "\u20AC";
 
     [Theory]
-    [InlineData("<root>" + XmlEmoji + "</root>", "<root>" + XmlEmoji + "</root>")]
+    [InlineData("<root>" + XmlEmoji + XmlEuro + "</root>", "<root>" + XmlEmoji + XmlEuro + "</root>")]
     // An explicit non-UTF-16 prolog is accepted because the value is sent as 'xml', not 'nvarchar(max)'.
     [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><root>" + XmlEmoji + "</root>", "<root>" + XmlEmoji + "</root>")]
-    [InlineData("<?xml version=\"1.0\" encoding=\"utf-16\"?><root>a</root>", "<root>a</root>")]
+    [InlineData("<?xml version=\"1.0\" encoding=\"utf-16\"?><root>" + XmlEuro + "</root>", "<root>" + XmlEuro + "</root>")]
     // Content forms that the 'xml' store type accepts beyond a single well-formed document.
     [InlineData("", "")]
     [InlineData("text fragment", "text fragment")]
     [InlineData("<a/><b/>", "<a /><b />")]
     public async Task Xml_value_round_trips(string value, string expected)
     {
-        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(XmlTestStoreName);
-        var serviceProvider = new ServiceCollection()
-            .AddEntityFrameworkSqlServer()
-            .BuildServiceProvider(validateScopes: true);
+        await using var context = CreateContext();
 
-        int id;
-        await using (var context = new XmlContext(serviceProvider, testStore.Name))
-        {
-            await context.Database.EnsureCreatedResilientlyAsync();
-            var document = new XmlTestDocument { Content = value };
-            context.Documents.Add(document);
-            await context.SaveChangesAsync();
-            id = document.Id;
-        }
+        var document = new XmlTestDocument { Content = value };
+        context.Add(document);
+        await context.SaveChangesAsync();
 
-        await using (var context = new XmlContext(serviceProvider, testStore.Name))
-        {
-            // xml columns cannot be used in a WHERE comparison, so the row is fetched by its key.
-            var roundTripped = (await context.Documents.SingleAsync(d => d.Id == id)).Content;
-            Assert.Equal(expected, roundTripped);
-        }
+        var id = document.Id;
+        context.ChangeTracker.Clear();
+
+        // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key.
+        var roundTripped = (await context.Set<XmlTestDocument>().SingleAsync(d => d.Id == id)).Content;
+        Assert.Equal(expected, roundTripped);
+    }
+
+    [Fact]
+    public async Task Xml_value_can_be_inserted_and_filtered()
+    {
+        await using var context = CreateContext();
+
+        var content = "<order id=\"" + XmlEuro + "42\"><item>" + XmlEmoji + "</item></order>";
+        context.Add(new XmlTestDocument { Content = content });
+        await context.SaveChangesAsync();
+
+        // xml columns cannot be compared directly, so the value is converted to nvarchar(max) before filtering.
+        var query = context.Set<XmlTestDocument>().Where(d => Convert.ToString(d.Content) == content);
+
+        Assert.Equal(
+            """
+DECLARE @content nvarchar(4000) = N'<order id="€42"><item>😀</item></order>';
+
+SELECT [x].[Id], [x].[Content]
+FROM [XmlTestDocument] AS [x]
+WHERE CONVERT(nvarchar(max), [x].[Content]) = @content
+""",
+            query.ToQueryString(),
+            ignoreLineEndingDifferences: true);
+
+        Assert.Equal(1, await query.CountAsync());
+
+        AssertSql(
+            """
+@p0='<order id="€42"><item>😀</item></order>' (DbType = Xml)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [XmlTestDocument] ([Content])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            """
+@content='<order id="€42"><item>😀</item></order>' (Size = 4000)
+
+SELECT COUNT(*)
+FROM [XmlTestDocument] AS [x]
+WHERE CONVERT(nvarchar(max), [x].[Content]) = @content
+""");
     }
 
     [Fact]
     public async Task Xml_value_with_dtd_payload_is_rejected()
     {
-        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(XmlTestStoreName);
-        var serviceProvider = new ServiceCollection()
-            .AddEntityFrameworkSqlServer()
-            .BuildServiceProvider(validateScopes: true);
-
-        await using var context = new XmlContext(serviceProvider, testStore.Name);
-        await context.Database.EnsureCreatedResilientlyAsync();
+        await using var context = CreateContext();
 
         // A "billion laughs" entity-expansion payload: the reader must reject the DTD rather than expand it.
         const string maliciousXml =
@@ -3876,7 +3907,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
             + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">]>"
             + "<lolz>&lol3;</lolz>";
 
-        context.Documents.Add(new XmlTestDocument { Content = maliciousXml });
+        context.Add(new XmlTestDocument { Content = maliciousXml });
 
         var exception = await Assert.ThrowsAnyAsync<Exception>(() => context.SaveChangesAsync());
         Assert.True(
@@ -3895,22 +3926,6 @@ FROM INFORMATION_SCHEMA.COLUMNS
 
             return false;
         }
-    }
-
-    private class XmlContext(IServiceProvider serviceProvider, string databaseName) : DbContext
-    {
-        private readonly IServiceProvider _serviceProvider = serviceProvider;
-        private readonly string _databaseName = databaseName;
-
-        public DbSet<XmlTestDocument> Documents { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
-                .UseInternalServiceProvider(_serviceProvider);
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<XmlTestDocument>().Property(e => e.Content).HasColumnType("xml");
     }
 
     private class XmlTestDocument
@@ -3999,6 +4014,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 b.Property(e => e.Id).ValueGeneratedNever();
                 b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
             });
+
+            modelBuilder.Entity<XmlTestDocument>().Property(e => e.Content).HasColumnType("xml");
 
             MakeRequired<MappedDataTypes>(modelBuilder);
             MakeRequired<MappedSquareDataTypes>(modelBuilder);
