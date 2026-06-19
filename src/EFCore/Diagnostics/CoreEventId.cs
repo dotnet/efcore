@@ -752,7 +752,7 @@ public static class CoreEventId
     public static readonly EventId AccidentalComplexPropertyCollection = MakeModelValidationId(Id.AccidentalComplexPropertyCollection);
 
     /// <summary>
-    ///     A shadow property has a name that is not a valid C# identifier, which prevents it from being used in precompiled queries.
+    ///     A shadow property has a name that is not a valid identifier, which can cause issues in generated code.
     /// </summary>
     /// <remarks>
     ///     <para>

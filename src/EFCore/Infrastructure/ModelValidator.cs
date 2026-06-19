@@ -183,8 +183,8 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     /// <summary>
-    ///     Returns <see langword="true" /> if the given name only uses letters, digits and underscores and does not start with a digit;
-    ///     that is, if it can be used as-is as a C# identifier in generated code.
+    ///     Returns <see langword="true" /> if the given name only uses letters, ASCII digits and underscores and does not start with a digit;
+    ///     that is, if it can be used as-is as an identifier in generated code.
     /// </summary>
     internal static bool IsValidIdentifier(string? name)
     {
