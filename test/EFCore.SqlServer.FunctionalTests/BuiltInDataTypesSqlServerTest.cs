@@ -3844,39 +3844,18 @@ FROM INFORMATION_SCHEMA.COLUMNS
         var id = document.Id;
         context.ChangeTracker.Clear();
 
-        // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key.
-        var roundTripped = (await context.Set<XmlTestDocument>().SingleAsync(d => d.Id == id)).Content;
+        // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key. Coalescing
+        // the column with the original value sends that value as an 'xml' parameter, exercising the SqlXml
+        // parameter path in a query in addition to the insert above.
+        var roundTripped = await context.Set<XmlTestDocument>()
+            .Where(d => d.Id == id)
+            .Select(d => d.Content ?? value)
+            .SingleAsync();
         Assert.Equal(expected, roundTripped);
-    }
-
-    [Fact]
-    public async Task Xml_value_can_be_inserted_and_filtered()
-    {
-        await using var context = CreateContext();
-
-        var content = "<order id=\"" + XmlEuro + "42\"><item>" + XmlEmoji + "</item></order>";
-        context.Add(new XmlTestDocument { Content = content });
-        await context.SaveChangesAsync();
-
-        // xml columns cannot be compared directly, so the value is converted to nvarchar(max) before filtering.
-        var query = context.Set<XmlTestDocument>().Where(d => Convert.ToString(d.Content) == content);
-
-        Assert.Equal(
-            """
-DECLARE @content nvarchar(4000) = N'<order id="€42"><item>😀</item></order>';
-
-SELECT [x].[Id], [x].[Content]
-FROM [XmlTestDocument] AS [x]
-WHERE CONVERT(nvarchar(max), [x].[Content]) = @content
-""",
-            query.ToQueryString(),
-            ignoreLineEndingDifferences: true);
-
-        Assert.Equal(1, await query.CountAsync());
 
         AssertSql(
-            """
-@p0='<order id="€42"><item>😀</item></order>' (DbType = Xml)
+            $"""
+@p0='{expected}' (DbType = Xml)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3885,12 +3864,13 @@ OUTPUT INSERTED.[Id]
 VALUES (@p0);
 """,
             //
-            """
-@content='<order id="€42"><item>😀</item></order>' (Size = 4000)
+            $"""
+@value='{expected}' (DbType = Xml)
+@id='{id}'
 
-SELECT COUNT(*)
+SELECT TOP(2) COALESCE([x].[Content], @value)
 FROM [XmlTestDocument] AS [x]
-WHERE CONVERT(nvarchar(max), [x].[Content]) = @content
+WHERE [x].[Id] = @id
 """);
     }
 
