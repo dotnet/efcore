@@ -378,25 +378,6 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(DbType.String, parameter.DbType);
     }
 
-    [Theory]
-    [InlineData("<r>a</r>")]
-    [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><r>a</r>")]
-    [InlineData("")]
-    [InlineData("text fragment")]
-    [InlineData("<a/><b/>")]
-    public virtual void Xml_parameter_is_sent_as_SqlXml(string value)
-    {
-        var mapping = GetMapping("xml");
-        Assert.Equal("xml", mapping.StoreType);
-
-        using var command = CreateTestCommand();
-        var parameter = (SqlParameter)mapping.CreateParameter(command, "foo", value);
-
-        Assert.Equal(SqlDbType.Xml, parameter.SqlDbType);
-        var sqlXml = Assert.IsType<System.Data.SqlTypes.SqlXml>(parameter.Value);
-        Assert.False(sqlXml.IsNull);
-    }
-
     [Fact]
     public virtual void Xml_null_parameter_is_sent_as_SqlDbType_Xml()
     {
@@ -408,6 +389,10 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(SqlDbType.Xml, parameter.SqlDbType);
         Assert.Equal(DBNull.Value, parameter.Value);
     }
+
+    [Fact]
+    public virtual void Xml_literal_is_generated_as_unicode()
+        => Test_GenerateSqlLiteral_helper(GetMapping("xml"), "<r>\U0001F62D</r>", "N'<r>\U0001F62D</r>'");
 
     [Fact]
     public virtual void DateOnly_code_literal_generated_correctly()

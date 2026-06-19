@@ -21,16 +21,10 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     private const int UnicodeMax = 4000;
     private const int AnsiMax = 8000;
 
-    private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
+    private const string Utf8XmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+    private const string Utf16XmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-16\"?>";
 
-    // Secure by default: DTD processing is prohibited and no external resolver is used so that a malicious
-    // payload is rejected rather than processed.
-    private static readonly XmlReaderSettings XmlFragmentSettings = new()
-    {
-        ConformanceLevel = ConformanceLevel.Fragment,
-        DtdProcessing = DtdProcessing.Prohibit,
-        XmlResolver = null
-    };
+    private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
 
     private readonly bool _isUtf16;
     private readonly SqlDbType? _sqlDbType;
@@ -122,8 +116,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         }
 
         _sqlDbType = sqlDbType;
-        _isUtf16 = parameters.Unicode
-            && (parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase) || _sqlDbType == SqlDbType.Xml);
+        _isUtf16 = _sqlDbType == SqlDbType.Xml
+            || (parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -159,28 +153,20 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     protected override void ConfigureParameter(DbParameter parameter)
     {
         var value = parameter.Value;
+
+        if (_sqlDbType == SqlDbType.Xml
+            && value is string stringValue
+            && stringValue.StartsWith(Utf8XmlDeclaration, StringComparison.Ordinal))
+        {
+            value = parameter.Value = string.Concat(Utf16XmlDeclaration, stringValue.AsSpan(Utf8XmlDeclaration.Length));
+        }
+
         var length = (value as string)?.Length;
 
         if (_sqlDbType.HasValue
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
             sqlParameter.SqlDbType = _sqlDbType.Value;
-        }
-
-        if (_sqlDbType == SqlDbType.Xml)
-        {
-            // SqlClient only sends a parameter as 'xml' (rather than 'nvarchar(max)') when its value is a SqlXml.
-            // Sending it as 'xml' lets SQL Server honor any encoding declared in the XML prolog (e.g. utf-8), which
-            // otherwise fails with "unable to switch the encoding". A fragment-conformant reader is used so that the
-            // content forms that the 'xml' store type accepts - empty strings, text, and multiple top-level nodes -
-            // continue to round-trip.
-            if (value is string xml)
-            {
-                using var reader = XmlReader.Create(new StringReader(xml), XmlFragmentSettings);
-                parameter.Value = new SqlXml(reader);
-            }
-
-            return;
         }
 
         if ((value == null
@@ -239,7 +225,17 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         var concatCount = 1;
         var concatStartList = new List<int>();
         var insideConcat = false;
-        for (i = 0; i < stringValue.Length; i++)
+
+        if (_sqlDbType == SqlDbType.Xml
+            && stringValue.StartsWith(Utf8XmlDeclaration, StringComparison.Ordinal))
+        {
+            // The value is sent to the server as 'xml', so a UTF-8 prolog is rewritten to UTF-16.
+            builder.Append('N').Append('\'').Append(Utf16XmlDeclaration);
+            openApostrophe = true;
+            start = Utf8XmlDeclaration.Length;
+        }
+
+        for (i = start; i < stringValue.Length; i++)
         {
             var lineFeed = stringValue[i] == '\n';
             var carriageReturn = stringValue[i] == '\r';
