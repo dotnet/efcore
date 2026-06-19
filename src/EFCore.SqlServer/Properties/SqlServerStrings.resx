@@ -186,6 +186,9 @@
   <data name="FullTextIndexOnInvalidColumn" xml:space="preserve">
     <value>Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.</value>
   </data>
+  <data name="FullTextIndexUnsupportedOption" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on full-text indexes.</value>
+  </data>
   <data name="FullTextMultipleDefaultCatalogs" xml:space="preserve">
     <value>Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.</value>
   </data>
@@ -426,6 +429,9 @@
   </data>
   <data name="VectorIndexRequiresType" xml:space="preserve">
     <value>Vector index '{index}' on entity type '{entityType}' cannot have an empty vector index type.</value>
+  </data>
+  <data name="VectorIndexUnsupportedOption" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on vector indexes.</value>
   </data>
   <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
     <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
