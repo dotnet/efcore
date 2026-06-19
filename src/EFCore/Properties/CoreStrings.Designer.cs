@@ -5558,7 +5558,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The shadow property '{entityType}.{property}' has a name that is not a valid C# identifier. Precompiled queries that use this property will fail to compile. Consider renaming the property to a valid C# identifier.
+        ///     The shadow property '{entityType}.{property}' has a name that is not a valid identifier. This can cause issues in generated code. Consider renaming the property using only numbers, letters and underscore.
         /// </summary>
         public static EventDefinition<string, string> LogShadowPropertyNameNotValidIdentifier(IDiagnosticsLogger logger)
         {

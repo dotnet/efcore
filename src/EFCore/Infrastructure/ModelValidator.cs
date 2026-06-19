@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -177,70 +176,34 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateAutoLoaded(property, structuralType, logger);
 
         if (property.IsShadowProperty()
-            && !IsValidCSharpIdentifier(property.Name))
+            && !IsValidIdentifier(property.Name))
         {
             logger.ShadowPropertyNameNotValidIdentifierWarning(property);
         }
     }
 
-    private static bool IsValidCSharpIdentifier(string name)
+    /// <summary>
+    ///     Returns <see langword="true" /> if the given name only uses letters, digits and underscores and does not start with a digit;
+    ///     that is, if it can be used as-is as a C# identifier in generated code.
+    /// </summary>
+    internal static bool IsValidIdentifier(string? name)
     {
-        // This mirrors the Unicode rules used by Roslyn (and CSharpHelper in the Design assembly), replicated here because the
-        // runtime assembly does not reference Roslyn.
         if (string.IsNullOrEmpty(name)
-            || !IsIdentifierStartCharacter(name[0]))
+            || (!char.IsLetter(name[0]) && name[0] != '_'))
         {
             return false;
         }
 
         for (var i = 1; i < name.Length; i++)
         {
-            if (!IsIdentifierPartCharacter(name[i]))
+            var ch = name[i];
+            if (!char.IsLetter(ch) && !char.IsAsciiDigit(ch) && ch != '_')
             {
                 return false;
             }
         }
 
         return true;
-
-        static bool IsIdentifierStartCharacter(char ch)
-            => ch < 'a'
-                ? ch is >= 'A' and (<= 'Z' or '_')
-                : ch <= 'z' || (ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch)));
-
-        static bool IsIdentifierPartCharacter(char ch)
-        {
-            if (ch < 'a')
-            {
-                return (ch < 'A' ? ch is >= '0' and <= '9' : ch <= 'Z') || ch == '_';
-            }
-
-            if (ch <= 'z')
-            {
-                return true;
-            }
-
-            if (ch <= '\u007F')
-            {
-                return false;
-            }
-
-            var cat = CharUnicodeInfo.GetUnicodeCategory(ch);
-            return IsLetterChar(cat)
-                || cat is UnicodeCategory.DecimalDigitNumber
-                    or UnicodeCategory.ConnectorPunctuation
-                    or UnicodeCategory.NonSpacingMark
-                    or UnicodeCategory.SpacingCombiningMark
-                    or UnicodeCategory.Format;
-        }
-
-        static bool IsLetterChar(UnicodeCategory cat)
-            => cat is UnicodeCategory.UppercaseLetter
-                or UnicodeCategory.LowercaseLetter
-                or UnicodeCategory.TitlecaseLetter
-                or UnicodeCategory.ModifierLetter
-                or UnicodeCategory.OtherLetter
-                or UnicodeCategory.LetterNumber;
     }
 
     /// <summary>
