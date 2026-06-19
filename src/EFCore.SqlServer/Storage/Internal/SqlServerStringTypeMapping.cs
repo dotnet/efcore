@@ -23,7 +23,15 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 
     private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
 
-    private static readonly XmlReaderSettings XmlFragmentSettings = new() { ConformanceLevel = ConformanceLevel.Fragment };
+    // Secure by default: DTD processing is prohibited and no external resolver is used so that a malicious
+    // payload (e.g. an XXE external entity reference or a "billion laughs" entity-expansion document) is
+    // rejected rather than processed.
+    private static readonly XmlReaderSettings XmlFragmentSettings = new()
+    {
+        ConformanceLevel = ConformanceLevel.Fragment,
+        DtdProcessing = DtdProcessing.Prohibit,
+        XmlResolver = null
+    };
 
     private readonly bool _isUtf16;
     private readonly SqlDbType? _sqlDbType;
