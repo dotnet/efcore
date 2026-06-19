@@ -17294,7 +17294,7 @@
           "Member": "abstract object FromJson(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
         },
         {
-          "Member": "object FromJsonString(string json, object? existingObject = null);"
+          "Member": "object? FromJsonString(string json, object? existingObject = null);"
         },
         {
           "Member": "abstract void ToJson(System.Text.Json.Utf8JsonWriter writer, object? value);"

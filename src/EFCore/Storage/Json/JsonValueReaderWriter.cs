@@ -70,7 +70,7 @@ public abstract class JsonValueReaderWriter
     /// <param name="json">The JSON to parse.</param>
     /// <param name="existingObject">Can be used to update an existing object, rather than create a new one.</param>
     /// <returns>The read value.</returns>
-    public object FromJsonString(string json, object? existingObject = null)
+    public object? FromJsonString(string json, object? existingObject = null)
     {
         if (string.IsNullOrWhiteSpace(json))
         {
@@ -80,7 +80,7 @@ public abstract class JsonValueReaderWriter
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
         readerManager.MoveNext();
         return readerManager.CurrentReader.TokenType == JsonTokenType.Null
-            ? null!
+            ? null
             : FromJson(ref readerManager, existingObject);
     }
 
