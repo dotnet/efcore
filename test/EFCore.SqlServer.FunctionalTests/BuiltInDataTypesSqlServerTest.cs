@@ -3821,6 +3821,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
     // non-Unicode string, which is what makes it a good probe for the SqlXml/SqlDbType.Xml parameter path.
     private const string XmlEmoji = "\U0001F600";
 
+    private const string XmlTestStoreName = "XmlValueRoundTrips";
+
     [Theory]
     [InlineData("<root>" + XmlEmoji + "</root>", "<root>" + XmlEmoji + "</root>")]
     // An explicit non-UTF-16 prolog is accepted because the value is sent as 'xml', not 'nvarchar(max)'.
@@ -3832,7 +3834,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
     [InlineData("<a/><b/>", "<a /><b />")]
     public async Task Xml_value_round_trips(string value, string expected)
     {
-        await using var testStore = await SqlServerTestStore.CreateInitializedAsync("XmlValueRoundTrips");
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(XmlTestStoreName);
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlServer()
             .BuildServiceProvider(validateScopes: true);
@@ -3841,7 +3843,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
         await using (var context = new XmlContext(serviceProvider, testStore.Name))
         {
             await context.Database.EnsureCreatedResilientlyAsync();
-            var document = new XmlDocument { Content = value };
+            var document = new XmlTestDocument { Content = value };
             context.Documents.Add(document);
             await context.SaveChangesAsync();
             id = document.Id;
@@ -3858,7 +3860,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
     [Fact]
     public async Task Xml_value_with_dtd_payload_is_rejected()
     {
-        await using var testStore = await SqlServerTestStore.CreateInitializedAsync("XmlValueRoundTrips");
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(XmlTestStoreName);
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlServer()
             .BuildServiceProvider(validateScopes: true);
@@ -3874,7 +3876,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
             + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">]>"
             + "<lolz>&lol3;</lolz>";
 
-        context.Documents.Add(new XmlDocument { Content = maliciousXml });
+        context.Documents.Add(new XmlTestDocument { Content = maliciousXml });
 
         var exception = await Assert.ThrowsAnyAsync<Exception>(() => context.SaveChangesAsync());
         Assert.True(
@@ -3900,7 +3902,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
         private readonly IServiceProvider _serviceProvider = serviceProvider;
         private readonly string _databaseName = databaseName;
 
-        public DbSet<XmlDocument> Documents { get; set; }
+        public DbSet<XmlTestDocument> Documents { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -3908,10 +3910,10 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 .UseInternalServiceProvider(_serviceProvider);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<XmlDocument>().Property(e => e.Content).HasColumnType("xml");
+            => modelBuilder.Entity<XmlTestDocument>().Property(e => e.Content).HasColumnType("xml");
     }
 
-    private class XmlDocument
+    private class XmlTestDocument
     {
         public int Id { get; set; }
         public string Content { get; set; }
