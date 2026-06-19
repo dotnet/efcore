@@ -69,7 +69,7 @@ public class XmlTypeMappingSqlServerTest : IAsyncLifetime
     protected SqlServerTestStore TestStore { get; private set; }
 
     public async ValueTask InitializeAsync()
-        => TestStore = await SqlServerTestStore.CreateInitializedAsync("XmlTypeMappingSqlServerTest");
+        => TestStore = await SqlServerTestStore.CreateInitializedAsync(nameof(XmlTypeMappingSqlServerTest));
 
     public async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();

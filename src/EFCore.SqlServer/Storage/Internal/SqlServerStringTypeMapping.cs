@@ -23,6 +23,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 
     private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
 
+    private static readonly XmlReaderSettings XmlFragmentSettings = new() { ConformanceLevel = ConformanceLevel.Fragment };
+
     private readonly bool _isUtf16;
     private readonly SqlDbType? _sqlDbType;
     private readonly int _maxSpecificSize;
@@ -167,8 +169,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             if (value is string xml
                 && parameter is SqlParameter xmlParameter)
             {
-                using var reader = XmlReader.Create(
-                    new StringReader(xml), new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment });
+                using var reader = XmlReader.Create(new StringReader(xml), XmlFragmentSettings);
                 xmlParameter.Value = new SqlXml(reader);
             }
 
