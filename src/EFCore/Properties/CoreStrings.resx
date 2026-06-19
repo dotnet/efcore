@@ -1231,7 +1231,7 @@
     <comment>Debug CoreEventId.ShadowPropertyCreated string string</comment>
   </data>
   <data name="LogShadowPropertyNameNotValidIdentifier" xml:space="preserve">
-    <value>The shadow property '{entityType}.{property}' has a name that is not a valid identifier. This can cause issues in generated code. Consider renaming the property to start with a letter or underscore, and use only letters, digits and underscore.</value>
+    <value>The shadow property '{entityType}.{property}' has a name that is not a valid identifier. This can cause issues in generated code. Consider renaming the property to start with a letter or underscore, and use only letters, digits, and underscore.</value>
     <comment>Warning CoreEventId.ShadowPropertyNameNotValidIdentifierWarning string string</comment>
   </data>
   <data name="LogSkipCollectionChangeDetected" xml:space="preserve">
