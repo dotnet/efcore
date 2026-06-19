@@ -294,6 +294,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         var narrowed = false;
         var oldColumnSupported = IsOldColumnSupported(model);
+        string? oldType = null;
 
         // SQL Server can't ALTER COLUMN on a computed column when the expression is unchanged; see #33425.
         var computedColumnIsNoOp = operation.ComputedColumnSql != null
@@ -308,7 +309,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 throw new InvalidOperationException(SqlServerStrings.AlterIdentityColumn);
             }
 
-            var oldType = operation.OldColumn.ColumnType
+            oldType = operation.OldColumn.ColumnType
                 ?? GetColumnType(
                     operation.Schema,
                     operation.Table,
@@ -429,43 +430,158 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (alterStatementNeeded)
         {
-            builder
-                .Append("ALTER TABLE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ALTER COLUMN ");
-
-            // NB: ComputedColumnSql, IsStored, DefaultValue, DefaultValueSql, Comment, ValueGenerationStrategy, and Identity are
-            //     handled elsewhere. Don't copy them here.
-            var definitionOperation = new AlterColumnOperation
+            // SQL Server can't ALTER COLUMN from json to a character type; use rename-add-copy-drop instead. See #38364.
+            if ((oldType ?? operation.OldColumn.ColumnType)
+                    ?.Equals("json", StringComparison.OrdinalIgnoreCase) == true
+                && !columnType.Equals("json", StringComparison.OrdinalIgnoreCase))
             {
-                Schema = operation.Schema,
-                Table = operation.Table,
-                Name = operation.Name,
-                ClrType = operation.ClrType,
-                ColumnType = operation.ColumnType,
-                IsUnicode = operation.IsUnicode,
-                IsFixedLength = operation.IsFixedLength,
-                MaxLength = operation.MaxLength,
-                Precision = operation.Precision,
-                Scale = operation.Scale,
-                IsRowVersion = operation.IsRowVersion,
-                IsNullable = operation.IsNullable,
-                Collation = operation.Collation,
-                OldColumn = operation.OldColumn
-            };
-            definitionOperation.AddAnnotations(
-                operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
-                    && a.Name != SqlServerAnnotationNames.Identity));
+                var tempColumnName = "ef_temp_" + operation.Name;
 
-            ColumnDefinition(
-                operation.Schema,
-                operation.Table,
-                operation.Name,
-                definitionOperation,
-                model,
-                builder);
+                Rename(
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)
+                    + "."
+                    + Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                    tempColumnName,
+                    "COLUMN",
+                    builder);
 
-            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                builder
+                    .Append("ALTER TABLE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" ADD ");
+
+                ColumnDefinition(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    new AddColumnOperation
+                    {
+                        Schema = operation.Schema,
+                        Table = operation.Table,
+                        Name = operation.Name,
+                        ClrType = operation.ClrType,
+                        ColumnType = operation.ColumnType,
+                        IsUnicode = operation.IsUnicode,
+                        IsFixedLength = operation.IsFixedLength,
+                        MaxLength = operation.MaxLength,
+                        Precision = operation.Precision,
+                        Scale = operation.Scale,
+                        IsRowVersion = operation.IsRowVersion,
+                        IsNullable = true,
+                        Collation = operation.Collation
+                    },
+                    model,
+                    builder);
+
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+                var updateSql = new StringBuilder()
+                    .Append("UPDATE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" SET ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" = CONVERT(")
+                    .Append(columnType)
+                    .Append(", ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tempColumnName))
+                    .Append(")")
+                    .ToString();
+
+                builder
+                    .Append("EXEC(N'")
+                    .Append(updateSql.Replace("'", "''"))
+                    .Append("')");
+
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+                builder
+                    .Append("ALTER TABLE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" DROP COLUMN ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tempColumnName))
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+                if (!operation.IsNullable)
+                {
+                    builder
+                        .Append("ALTER TABLE ")
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                        .Append(" ALTER COLUMN ");
+
+                    // NB: ComputedColumnSql, IsStored, DefaultValue, DefaultValueSql, Comment, ValueGenerationStrategy, and Identity are
+                    //     handled elsewhere. Don't copy them here.
+                    var definitionOperation = new AlterColumnOperation
+                    {
+                        Schema = operation.Schema,
+                        Table = operation.Table,
+                        Name = operation.Name,
+                        ClrType = operation.ClrType,
+                        ColumnType = operation.ColumnType,
+                        IsUnicode = operation.IsUnicode,
+                        IsFixedLength = operation.IsFixedLength,
+                        MaxLength = operation.MaxLength,
+                        Precision = operation.Precision,
+                        Scale = operation.Scale,
+                        IsRowVersion = operation.IsRowVersion,
+                        IsNullable = false,
+                        Collation = operation.Collation,
+                        OldColumn = operation.OldColumn
+                    };
+                    definitionOperation.AddAnnotations(
+                        operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                            && a.Name != SqlServerAnnotationNames.Identity));
+
+                    ColumnDefinition(
+                        operation.Schema,
+                        operation.Table,
+                        operation.Name,
+                        definitionOperation,
+                        model,
+                        builder);
+
+                    builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                }
+            }
+            else
+            {
+                builder
+                    .Append("ALTER TABLE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" ALTER COLUMN ");
+
+                // NB: ComputedColumnSql, IsStored, DefaultValue, DefaultValueSql, Comment, ValueGenerationStrategy, and Identity are
+                //     handled elsewhere. Don't copy them here.
+                var definitionOperation = new AlterColumnOperation
+                {
+                    Schema = operation.Schema,
+                    Table = operation.Table,
+                    Name = operation.Name,
+                    ClrType = operation.ClrType,
+                    ColumnType = operation.ColumnType,
+                    IsUnicode = operation.IsUnicode,
+                    IsFixedLength = operation.IsFixedLength,
+                    MaxLength = operation.MaxLength,
+                    Precision = operation.Precision,
+                    Scale = operation.Scale,
+                    IsRowVersion = operation.IsRowVersion,
+                    IsNullable = operation.IsNullable,
+                    Collation = operation.Collation,
+                    OldColumn = operation.OldColumn
+                };
+                definitionOperation.AddAnnotations(
+                    operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                        && a.Name != SqlServerAnnotationNames.Identity));
+
+                ColumnDefinition(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    definitionOperation,
+                    model,
+                    builder);
+
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
         }
 
         if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)

@@ -1599,6 +1599,59 @@ ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
         AssertSql();
     }
 
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Convert_json_column_back_to_string_column()
+    {
+        // Use explicit operation rather than model diffing: the snapshot round-trip of a source model
+        // with HasColumnType("json") does not reliably preserve identity annotations, causing the
+        // model differ to emit a spurious AlterColumnOperation for the PK that hits the identity check.
+        await Test(
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedNever();
+                        e.HasKey("Id");
+                        e.Property<string>("Name").HasColumnType("json");
+                    });
+            },
+            new AlterColumnOperation
+            {
+                Table = "Entity",
+                Name = "Name",
+                ClrType = typeof(string),
+                ColumnType = "nvarchar(max)",
+                IsNullable = true,
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(string),
+                    ColumnType = "json",
+                    IsNullable = true
+                }
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Name");
+                Assert.Equal("nvarchar(max)", column.StoreType);
+                Assert.True(column.IsNullable);
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
+EXEC sp_rename N'[Entity].[Name]', N'ef_temp_Name', 'COLUMN';
+ALTER TABLE [Entity] ADD [Name] nvarchar(max) NULL;
+EXEC(N'UPDATE [Entity] SET [Name] = CONVERT(nvarchar(max), [ef_temp_Name])');
+ALTER TABLE [Entity] DROP COLUMN [ef_temp_Name];
+""");
+    }
+
     [Fact]
     public virtual async Task Alter_column_make_required_with_index_with_included_properties()
     {

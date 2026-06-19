@@ -1979,6 +1979,144 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
         Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("TestTable", "TestColumn", "FileStream"), ex.Message);
     }
 
+    [Fact]
+    public virtual void AlterColumnOperation_json_to_nvarchar_not_null()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
+            new AlterColumnOperation
+            {
+                Table = "People",
+                Name = "Settings",
+                ClrType = typeof(string),
+                ColumnType = "nvarchar(max)",
+                IsNullable = false,
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(string),
+                    ColumnType = "json",
+                    IsNullable = false
+                }
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Settings';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+EXEC sp_rename N'[People].[Settings]', N'ef_temp_Settings', 'COLUMN';
+ALTER TABLE [People] ADD [Settings] nvarchar(max) NULL;
+EXEC(N'UPDATE [People] SET [Settings] = CONVERT(nvarchar(max), [ef_temp_Settings])');
+ALTER TABLE [People] DROP COLUMN [ef_temp_Settings];
+ALTER TABLE [People] ALTER COLUMN [Settings] nvarchar(max) NOT NULL;
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_json_to_nvarchar_nullable()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
+            new AlterColumnOperation
+            {
+                Table = "People",
+                Name = "Settings",
+                ClrType = typeof(string),
+                ColumnType = "nvarchar(max)",
+                IsNullable = true,
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(string),
+                    ColumnType = "json",
+                    IsNullable = false
+                }
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Settings';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+EXEC sp_rename N'[People].[Settings]', N'ef_temp_Settings', 'COLUMN';
+ALTER TABLE [People] ADD [Settings] nvarchar(max) NULL;
+EXEC(N'UPDATE [People] SET [Settings] = CONVERT(nvarchar(max), [ef_temp_Settings])');
+ALTER TABLE [People] DROP COLUMN [ef_temp_Settings];
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_json_to_nvarchar_idempotent()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
+            [new AlterColumnOperation
+            {
+                Table = "People",
+                Name = "Settings",
+                ClrType = typeof(string),
+                ColumnType = "nvarchar(max)",
+                IsNullable = false,
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(string),
+                    ColumnType = "json",
+                    IsNullable = false
+                }
+            }],
+            MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Settings';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+EXEC sp_rename N'[People].[Settings]', N'ef_temp_Settings', 'COLUMN';
+ALTER TABLE [People] ADD [Settings] nvarchar(max) NULL;
+EXEC(N'UPDATE [People] SET [Settings] = CONVERT(nvarchar(max), [ef_temp_Settings])');
+ALTER TABLE [People] DROP COLUMN [ef_temp_Settings];
+ALTER TABLE [People] ALTER COLUMN [Settings] nvarchar(max) NOT NULL;
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_nvarchar_to_json_uses_alter_column()
+    {
+        // Up migration (nvarchar → json) should still use plain ALTER COLUMN since SQL Server
+        // allows implicit conversion from nvarchar to json.
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
+            new AlterColumnOperation
+            {
+                Table = "People",
+                Name = "Settings",
+                ClrType = typeof(string),
+                ColumnType = "json",
+                IsNullable = false,
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(string),
+                    ColumnType = "nvarchar(max)",
+                    IsNullable = false
+                }
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Settings';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [Settings] json NOT NULL;
+""");
+    }
+
     private static void CreateGotModel(ModelBuilder b)
         => b.HasDefaultSchema("dbo").Entity(
             "Person", pb =>
