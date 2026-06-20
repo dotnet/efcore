@@ -3042,5 +3042,25 @@ ORDER BY [s].[PickupStatusId]
 """);
     }
 
+    public override async Task Composed_user_marker_projection_into_subquery_self_heals()
+    {
+        await base.Composed_user_marker_projection_into_subquery_self_heals();
+
+        AssertSql(
+            """
+SELECT [s0].[PickupStatusId], [s0].[pickupStatusId0] AS [pickupStatusId], [s0].[marker], [s0].[marker0] AS [marker]
+FROM (
+    SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[marker], [r0].[marker0]
+    FROM [Statuses] AS [s]
+    LEFT JOIN (
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [marker], 1 AS [marker0]
+        FROM [Requests] AS [r]
+        GROUP BY [r].[PickupStatusId]
+    ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+) AS [s0]
+ORDER BY [s0].[PickupStatusId]
+""");
+    }
+
     #endregion
 }

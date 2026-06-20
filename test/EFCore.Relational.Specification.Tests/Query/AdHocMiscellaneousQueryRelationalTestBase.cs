@@ -1299,6 +1299,47 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(3m, result[2].countInfo.Total);
         }
 
+        [Fact] // 31
+        public virtual async Task Composed_user_marker_projection_into_subquery_self_heals()
+        {
+            // Test 25 leaves a cosmetic duplicate output alias at the OUTERMOST SELECT (a user member
+            // named "marker" plus the synthetic marker, both surfacing as "marker"). That is harmless at
+            // top level (EF binds by ordinal). This test pins that once the SAME projection is composed
+            // into a subquery (forced here via Distinct), the duplicate alias SELF-HEALS: the inner level
+            // must uniquify the columns to "marker"/"marker0" and produce valid SQL with correct results
+            // (no ambiguous-column error).
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, marker = els.Count() });
+
+            var query =
+                (from s in context.Statuses
+                 join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                 from countInfo in g.DefaultIfEmpty()
+                 select new { s.PickupStatusId, countInfo })
+                .Distinct();
+
+            var result = await query.OrderBy(x => x.PickupStatusId).ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, user marker = 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(2, result[0].countInfo.marker);
+
+            // status 2 -> no match -> whole object null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, user marker = 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(1, result[2].countInfo.marker);
+        }
+
         protected abstract Task Seed30915(Context30915 context);
 
         // Provider-agnostic seed for the matched-null-aggregate invariant (test 23): status 4 MATCHES
