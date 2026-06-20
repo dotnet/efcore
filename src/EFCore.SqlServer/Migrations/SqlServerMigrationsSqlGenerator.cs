@@ -510,26 +510,31 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
             .Append(" ADD ");
 
+        var addColumnOperation = new AddColumnOperation
+        {
+            Schema = operation.Schema,
+            Table = operation.Table,
+            Name = operation.Name,
+            ClrType = operation.ClrType,
+            ColumnType = operation.ColumnType,
+            IsUnicode = operation.IsUnicode,
+            IsFixedLength = operation.IsFixedLength,
+            MaxLength = operation.MaxLength,
+            Precision = operation.Precision,
+            Scale = operation.Scale,
+            IsRowVersion = operation.IsRowVersion,
+            IsNullable = true,
+            Collation = operation.Collation,
+            Comment = operation.Comment
+        };
+        addColumnOperation.AddAnnotations(
+            operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity));
+
         ColumnDefinition(
             operation.Schema,
             operation.Table,
             operation.Name,
-            new AddColumnOperation
-            {
-                Schema = operation.Schema,
-                Table = operation.Table,
-                Name = operation.Name,
-                ClrType = operation.ClrType,
-                ColumnType = operation.ColumnType,
-                IsUnicode = operation.IsUnicode,
-                IsFixedLength = operation.IsFixedLength,
-                MaxLength = operation.MaxLength,
-                Precision = operation.Precision,
-                Scale = operation.Scale,
-                IsRowVersion = operation.IsRowVersion,
-                IsNullable = true,
-                Collation = operation.Collation
-            },
+            addColumnOperation,
             model,
             builder);
 
