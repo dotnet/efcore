@@ -1616,26 +1616,37 @@ ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
                         e.Property<string>("Name").HasColumnType("json");
                     });
             },
-            new AlterColumnOperation
+            new MigrationOperation[]
             {
-                Table = "Entity",
-                Name = "Name",
-                ClrType = typeof(string),
-                ColumnType = "nvarchar(max)",
-                IsNullable = true,
-                OldColumn = new AddColumnOperation
+                new AlterColumnOperation
                 {
+                    Table = "Entity",
+                    Name = "Name",
                     ClrType = typeof(string),
-                    ColumnType = "json",
-                    IsNullable = true
+                    ColumnType = "nvarchar(450)",
+                    IsNullable = true,
+                    OldColumn = new AddColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        ColumnType = "json",
+                        IsNullable = true
+                    }
+                },
+                new CreateIndexOperation
+                {
+                    Table = "Entity",
+                    Name = "IX_Entity_Name",
+                    Columns = new[] { "Name" }
                 }
             },
             model =>
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                Assert.Equal("nvarchar(max)", column.StoreType);
+                Assert.Equal("nvarchar(450)", column.StoreType);
                 Assert.True(column.IsNullable);
+                var index = Assert.Single(table.Indexes);
+                Assert.Contains(column, index.Columns);
             });
 
         AssertSql(
@@ -1646,9 +1657,13 @@ FROM [sys].[columns] [c]
 WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 EXEC sp_rename N'[Entity].[Name]', N'ef_temp_Name', 'COLUMN';
-ALTER TABLE [Entity] ADD [Name] nvarchar(max) NULL;
-EXEC(N'UPDATE [Entity] SET [Name] = CONVERT(nvarchar(max), [ef_temp_Name])');
+ALTER TABLE [Entity] ADD [Name] nvarchar(450) NULL;
+EXEC(N'UPDATE [Entity] SET [Name] = CONVERT(nvarchar(450), [ef_temp_Name])');
 ALTER TABLE [Entity] DROP COLUMN [ef_temp_Name];
+""",
+            //
+            """
+CREATE INDEX [IX_Entity_Name] ON [Entity] ([Name]);
 """);
     }
 
