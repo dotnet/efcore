@@ -3119,6 +3119,13 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     // Returns the SQL alias for a projection-mapping entry. Normally the member name, but the #30915 nullability marker member is
     // forced to the lowercase NullabilityMarkerAlias so the synthesized column never appears in SQL as PascalCase "Marker".
+    // KNOWN, HARMLESS: when a user projection has a member literally named "marker" alongside the projected nullable object,
+    // the synthesized marker uniquifies cleanly at every subquery level (alias "marker0" - AddToProjection dedups whenever
+    // Alias != null), but the OUTERMOST SELECT carries a cosmetic duplicate output alias ("marker"/"marker") because the
+    // top-level projection never uniquifies output names (for ANY projection - EF binds the result set by ordinal). This is
+    // legal SQL and self-heals under composition (the level becomes a subquery and dedups). Verified by tests
+    // User_member_named_marker_does_not_collide_with_synthetic_marker (subquery level) and
+    // Composed_user_marker_projection_into_subquery_self_heals (composition). Do not "fix" this as a bug.
     private static string? GetProjectionAlias(ProjectionMember projectionMember)
         => Equals(projectionMember.Last, NullabilityMarkerMemberInfo) ? NullabilityMarkerAlias : projectionMember.Last?.Name;
 
