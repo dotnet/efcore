@@ -1,39 +1,55 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class KeysWithConvertersInMemoryTest(KeysWithConvertersInMemoryTest.KeysWithConvertersInMemoryFixture fixture)
     : KeysWithConvertersTestBase<
         KeysWithConvertersInMemoryTest.KeysWithConvertersInMemoryFixture>(fixture)
 {
-    [Fact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported
+    [Fact]
     public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents()
-        => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents();
+        => Assert.ThrowsAnyAsync<XunitException>(() =>
+            base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents());
 
-    [Fact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported
+    [Fact]
     public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK()
-        => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK();
+        => Assert.ThrowsAnyAsync<XunitException>(() =>
+            base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK());
 
-    [Fact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported
+    [Fact]
     public override Task Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents()
-        => base.Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents();
+        => Assert.ThrowsAnyAsync<XunitException>(() =>
+            base.Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents());
 
-    [Fact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported
+    [Fact]
     public override Task Can_insert_and_read_back_with_struct_binary_key_and_required_dependents()
-        => base.Can_insert_and_read_back_with_struct_binary_key_and_required_dependents();
+        => Assert.ThrowsAnyAsync<XunitException>(() =>
+            base.Can_insert_and_read_back_with_struct_binary_key_and_required_dependents());
 
-    [Fact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported
+    [Fact]
     public override Task Can_query_and_update_owned_entity_with_value_converter()
-        => base.Can_query_and_update_owned_entity_with_value_converter();
+        => Assert.ThrowsAnyAsync<XunitException>(() =>
+            base.Can_query_and_update_owned_entity_with_value_converter());
 
-    [Fact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported
+    [Fact]
     public override Task Can_query_and_update_owned_entity_with_int_bare_class_key()
-        => base.Can_query_and_update_owned_entity_with_int_bare_class_key();
+        => Assert.ThrowsAnyAsync<XunitException>(() =>
+            base.Can_query_and_update_owned_entity_with_int_bare_class_key());
 
-    [Fact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported
+    [Fact]
     public override Task Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
-        => base.Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents();
+        => Assert.ThrowsAnyAsync<XunitException>(() =>
+            base.Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents());
 
     public class KeysWithConvertersInMemoryFixture : KeysWithConvertersFixtureBase
     {
@@ -47,7 +63,7 @@ public class KeysWithConvertersInMemoryTest(KeysWithConvertersInMemoryTest.KeysW
         {
             base.OnModelCreating(modelBuilder, context);
 
-            // Issue #26238
+            // Value converters of keys are not supported
             modelBuilder.Ignore<EnumerableClassKeyPrincipal>();
             modelBuilder.Ignore<EnumerableClassKeyOptionalDependent>();
             modelBuilder.Ignore<EnumerableClassKeyRequiredDependent>();

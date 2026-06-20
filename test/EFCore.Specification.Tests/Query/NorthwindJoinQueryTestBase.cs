@@ -219,7 +219,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                   select e.EmployeeID);
     }
 
-    [Theory(Skip = "#30677"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_string_closure_is_cached_correctly(bool async)
     {
         var ids = "12";
@@ -237,7 +237,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                   select e.EmployeeID));
     }
 
-    [Theory(Skip = "#30677"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_bytes_closure_is_cached_correctly(bool async)
     {
         var ids = new byte[] { 1, 2 };

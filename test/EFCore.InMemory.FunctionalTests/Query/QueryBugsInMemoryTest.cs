@@ -1183,7 +1183,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue19425
 
-    [Fact(Skip = "Issue#19425")]
+    [Fact]
     public virtual async Task Non_nullable_cast_in_null_check()
     {
         await using (await CreateScratchAsync<MyContext19425>(Seed19425, "19425"))

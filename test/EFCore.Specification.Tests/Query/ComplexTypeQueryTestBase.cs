@@ -720,7 +720,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.Complex?.Two, a.Complex?.Two);
             });
 
-    [Theory(Skip = "issue #31376"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => AssertQuery(
             async,

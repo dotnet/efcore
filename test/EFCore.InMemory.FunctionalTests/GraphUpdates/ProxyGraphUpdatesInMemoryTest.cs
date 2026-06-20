@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 #pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore;
 
@@ -9,77 +11,90 @@ public class ProxyGraphUpdatesInMemoryTest
     public abstract class ProxyGraphUpdatesInMemoryTestBase<TFixture>(TFixture fixture) : ProxyGraphUpdatesTestBase<TFixture>(fixture)
         where TFixture : ProxyGraphUpdatesInMemoryTestBase<TFixture>.ProxyGraphUpdatesInMemoryFixtureBase, new()
     {
-        [Fact(Skip = "FK constraint checking. Issue #2166")]
+        // FK constraint checking.
+        [Fact]
         public override Task Optional_one_to_one_relationships_are_one_to_one()
-            => base.Optional_one_to_one_relationships_are_one_to_one();
+            => Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_one_to_one_relationships_are_one_to_one());
 
-        [Fact(Skip = "FK constraint checking. Issue #2166")]
+        // FK constraint checking.
+        [Fact]
         public override Task Optional_one_to_one_with_AK_relationships_are_one_to_one()
-            => base.Optional_one_to_one_with_AK_relationships_are_one_to_one();
+            => Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_one_to_one_with_AK_relationships_are_one_to_one());
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Optional_many_to_one_dependents_are_orphaned_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Optional_many_to_one_dependents_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Optional_many_to_one_dependents_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Required_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Required_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Required_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Fact(Skip = "FK constraint checking. Issue #2166")]
+        // FK constraint checking.
+        [Fact]
         public override Task Required_one_to_one_relationships_are_one_to_one()
-            => base.Required_one_to_one_relationships_are_one_to_one();
+            => Assert.ThrowsAnyAsync<XunitException>(() => base.Required_one_to_one_relationships_are_one_to_one());
 
-        [Fact(Skip = "FK constraint checking. Issue #2166")]
+        // FK constraint checking.
+        [Fact]
         public override Task Required_one_to_one_with_AK_relationships_are_one_to_one()
-            => base.Required_one_to_one_with_AK_relationships_are_one_to_one();
+            => Assert.ThrowsAnyAsync<XunitException>(() => base.Required_one_to_one_with_AK_relationships_are_one_to_one());
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Required_many_to_one_dependents_are_cascade_deleted_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Required_many_to_one_dependents_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Required_many_to_one_dependents_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
-                cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+                    cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Required_non_PK_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Required_non_PK_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Required_non_PK_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming));
 
-        [Theory(Skip = "Cascade delete. Issue #3924")]
+        // Cascade delete.
         public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-                cascadeDeleteTiming, deleteOrphansTiming);
+            => Assert.ThrowsAnyAsync<XunitException>(() =>
+                base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+                    cascadeDeleteTiming, deleteOrphansTiming));
 
         protected override async Task ExecuteWithStrategyInTransactionAsync(
             Func<DbContext, Task> testOperation,
