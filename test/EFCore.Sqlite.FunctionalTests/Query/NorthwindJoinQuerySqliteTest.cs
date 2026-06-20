@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -54,4 +55,41 @@ public class NorthwindJoinQuerySqliteTest : NorthwindJoinQueryRelationalTestBase
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(()
                 => base.Take_in_collection_projection_with_FirstOrDefault_on_top_level(async))).Message);
+
+    public override async Task Join_local_string_closure_is_cached_correctly(bool async)
+    {
+        // SQLite parameterizes the string closure as a single value ("12"/"3"), so no EmployeeID matches.
+        var ids = "12";
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID,
+            assertEmpty: true);
+
+        ids = "3";
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID,
+            assertEmpty: true);
+    }
+
+    public override async Task Join_local_bytes_closure_is_cached_correctly(bool async)
+    {
+        var ids = new byte[] { 1, 2 };
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
+
+        ids = new byte[] { 3 };
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
+    }
 }

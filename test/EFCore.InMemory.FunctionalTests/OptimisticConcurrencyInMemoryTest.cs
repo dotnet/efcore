@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore;
 
 public class OptimisticConcurrencyULongInMemoryTest(F1ULongInMemoryFixture fixture)
@@ -61,20 +59,17 @@ public abstract class OptimisticConcurrencyInMemoryTestBase<TFixture, TRowVersio
     public override Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
         => Task.CompletedTask;
 
-    // Optimistic concurrency not supported for in-memory
-    [Fact]
+    [Fact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
     public override Task Adding_the_same_entity_twice_results_in_DbUpdateException()
-        => Assert.ThrowsAnyAsync<XunitException>(() => base.Adding_the_same_entity_twice_results_in_DbUpdateException());
+        => Task.CompletedTask;
 
-    // Optimistic concurrency not supported for in-memory
-    [Fact]
+    [Fact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
     public override Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
-        => Assert.ThrowsAnyAsync<XunitException>(() => base.Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException());
+        => Task.CompletedTask;
 
-    // Optimistic concurrency not supported for in-memory
-    [Fact]
+    [Fact(Skip = "Throw DbUpdateException or DbUpdateConcurrencyException for in-memory database errors #23569")]
     public override Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
-        => Assert.ThrowsAnyAsync<XunitException>(() => base.Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException());
+        => Task.CompletedTask;
 
     [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()

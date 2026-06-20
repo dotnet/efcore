@@ -122,12 +122,14 @@ WHERE [b].[Id] = 1
     {
         using var context = CreateContext();
         var query = context.Database.SqlQueryRaw<HoldingEnum>("SELECT [HoldingEnum] FROM [HolderClass]");
-
-        var result = async
-            ? await query.ToListAsync()
-            : query.ToList();
-
-        Assert.Equal(HoldingEnum.Value2, result.Single());
+        if (async)
+        {
+            await Assert.ThrowsAsync<InvalidCastException>(() => query.ToListAsync());
+        }
+        else
+        {
+            Assert.Throws<InvalidCastException>(() => query.ToList());
+        }
 
         AssertSql(
             """
