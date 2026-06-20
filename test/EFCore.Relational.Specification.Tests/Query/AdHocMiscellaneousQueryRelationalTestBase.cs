@@ -425,9 +425,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderby s.PickupStatusId
                         select new { s.PickupStatusId, countInfo };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match, whole non-entity object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
         }
 
         [Fact] // 2
@@ -443,9 +459,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .LeftJoin(categories, s => s.PickupStatusId, c => c.pickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
                 .OrderBy(e => e.PickupStatusId);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match, whole non-entity object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
         }
 
         [Fact] // 3
@@ -463,9 +495,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderby s.PickupStatusId
                         select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+            // matched -> count; no-match (status 2) -> client null-check yields 0
+            Assert.Equal((1, 2), (result[0].PickupStatusId, result[0].Count));
+            Assert.Equal((2, 0), (result[1].PickupStatusId, result[1].Count));
+            Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
         [Fact] // 4
@@ -483,9 +519,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (s, countInfo) => new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count })
                 .OrderBy(e => e.PickupStatusId);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+            // matched -> count; no-match (status 2) -> client null-check yields 0
+            Assert.Equal((1, 2), (result[0].PickupStatusId, result[0].Count));
+            Assert.Equal((2, 0), (result[1].PickupStatusId, result[1].Count));
+            Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
         [Fact] // 5 - CONTROL: member access with nullable cast, likely works
@@ -524,9 +564,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
                 .OrderBy(e => e.PickupStatusId);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.PickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match, whole DTO object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.PickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
         }
 
         [Fact] // 7
@@ -602,9 +658,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderby s.PickupStatusId
                         select new { s.PickupStatusId, Wrap = new { countInfo } };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched: outer wrapper non-null, nested countInfo non-null
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].Wrap);
+            Assert.NotNull(result[0].Wrap.countInfo);
+            Assert.Equal(1, result[0].Wrap.countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].Wrap.countInfo.Count);
+
+            // status 2 -> no match: outer wrapper still materializes, nested countInfo is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.NotNull(result[1].Wrap);
+            Assert.Null(result[1].Wrap.countInfo);
+
+            // status 3 -> matched: outer wrapper non-null, nested countInfo non-null
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].Wrap);
+            Assert.NotNull(result[2].Wrap.countInfo);
+            Assert.Equal(3, result[2].Wrap.countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].Wrap.countInfo.Count);
         }
 
         // ---------------------------------------------------------------------------------------
@@ -685,9 +760,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                          select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count })
                 .Distinct();
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = (await query.ToListAsync())
+                .OrderBy(e => e.PickupStatusId)
+                .ToList();
+
+            Assert.Equal(3, result.Count);
+            // matched -> count; no-match (status 2) -> client null-check yields 0
+            Assert.Equal((1, 2), (result[0].PickupStatusId, result[0].Count));
+            Assert.Equal((2, 0), (result[1].PickupStatusId, result[1].Count));
+            Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
         [Fact] // 15
@@ -754,9 +835,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                          select new { s.PickupStatusId, countInfo })
                 .Take(10);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match, whole non-entity object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
         }
 
         [Fact] // 18
@@ -824,9 +921,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderby s.PickupStatusId
                         select new { s.PickupStatusId, countInfo };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, MaxPriority = Max(5, null) = 5
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(5, result[0].countInfo.MaxPriority);
+
+            // status 2 -> no match, whole non-entity object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, MaxPriority = 7
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(7, result[2].countInfo.MaxPriority);
         }
 
         [Fact] // 21
@@ -844,9 +957,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderby s.PickupStatusId
                         select new { s.PickupStatusId, countInfo };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2, Name "cat"
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+            Assert.Equal("cat", result[0].countInfo.Name);
+
+            // status 2 -> no match, whole non-entity object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, Count 1, Name "cat"
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
+            Assert.Equal("cat", result[2].countInfo.Name);
         }
 
         [Fact] // 22 - only nullable/reference members; all-null may be representable
@@ -866,8 +997,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderby s.PickupStatusId
                         select new { s.PickupStatusId, countInfo };
 
-            // Interesting case: the projected object contains ONLY nullable/reference members, so the
-            // all-null (no-match) row IS representable and the query currently succeeds on base.
+            // Even though every member is nullable (so an all-null object would be representable), the
+            // fix makes DefaultIfEmpty produce default(T) == null for the WHOLE projected object on a
+            // no-match, consistent with all the other whole-object shapes.
             var result = await query.ToListAsync();
 
             Assert.Equal(3, result.Count);
@@ -877,12 +1009,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[0].countInfo.pickupStatusId);
             Assert.Equal(5, result[0].countInfo.MaxPriority);
 
-            // Notable: the no-match row does NOT produce a null object; instead a non-null object
-            // with all-null members is materialized (because every member is nullable).
+            // status 2 -> no match: the whole non-entity object is null (default(T)), not a non-null
+            // object with all-null members.
             Assert.Equal(2, result[1].PickupStatusId);
-            Assert.NotNull(result[1].countInfo);
-            Assert.Null(result[1].countInfo.pickupStatusId);
-            Assert.Null(result[1].countInfo.MaxPriority);
+            Assert.Null(result[1].countInfo);
 
             Assert.Equal(3, result[2].PickupStatusId);
             Assert.NotNull(result[2].countInfo);
