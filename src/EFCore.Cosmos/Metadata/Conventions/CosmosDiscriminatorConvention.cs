@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -86,11 +85,9 @@ public class CosmosDiscriminatorConvention :
         {
             return;
         }
-
         if (entityType.IsDocumentRoot())
         {
-            var discriminator = entityTypeBuilder.HasDiscriminator(DiscriminatorPropertyName, typeof(string));
-            discriminator?.EntityType.FindDiscriminatorProperty()?.Builder.ToJsonProperty(entityType.Model.GetEmbeddedDiscriminatorName());
+            var discriminator = HasDiscriminator(entityTypeBuilder);
             discriminator?.HasValue(entityType, entityType.ShortName());
         }
         else
@@ -129,8 +126,7 @@ public class CosmosDiscriminatorConvention :
         {
             if (entityType.IsDocumentRoot())
             {
-                var discriminator = entityTypeBuilder.HasDiscriminator(DiscriminatorPropertyName, typeof(string));
-                discriminator?.EntityType.FindDiscriminatorProperty()?.Builder.ToJsonProperty(entityType.Model.GetEmbeddedDiscriminatorName());
+                HasDiscriminator(entityTypeBuilder);
             }
         }
         else
@@ -142,13 +138,26 @@ public class CosmosDiscriminatorConvention :
                 return;
             }
 
-            var discriminator = rootType.Builder.HasDiscriminator(DiscriminatorPropertyName, typeof(string));
+            var discriminator = HasDiscriminator(rootType.Builder);
             if (discriminator != null)
             {
-                discriminator.EntityType.FindDiscriminatorProperty()?.Builder.ToJsonProperty(entityType.Model.GetEmbeddedDiscriminatorName());
                 SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
             }
         }
+    }
+
+    private static IConventionDiscriminatorBuilder? HasDiscriminator(IConventionEntityTypeBuilder entityTypeBuilder)
+    {
+        var discriminator = entityTypeBuilder.HasDiscriminator(DiscriminatorPropertyName, typeof(string));
+        var discriminatorProperty = discriminator?.EntityType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null)
+        {
+            CosmosPropertyBuilderExtensions.ToJsonProperty(
+                discriminatorProperty.Builder,
+                entityTypeBuilder.Metadata.Model.GetEmbeddedDiscriminatorName());
+        }
+
+        return discriminator;
     }
 
     /// <inheritdoc />
