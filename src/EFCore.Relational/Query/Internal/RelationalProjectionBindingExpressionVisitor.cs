@@ -730,11 +730,19 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     // uses for every other projected sub-expression, so it survives to the reader as a readable nullable scalar projection.
     private Expression GateNonEntityOnNullabilityMarker(Expression visited, Expression markerBinding, Type objectType)
     {
-        // Suppress gating for intermediate (TransparentIdentifier-rooted) projections: there the recorded object is composed
-        // further and must stay a bare New for downstream member-folding. Also only reference-type non-entity objects can be
-        // nulled; for value types Default(objectType) is a zeroed struct, not null, so gating would be wrong there too.
-        // (Nullable<T> would pass IsValueType but is latent/unreachable here: the marker is only recorded for inner shapers that
-        // are a NewExpression or MemberInitExpression, and a Nullable<T> whole-object never arrives as either of those.)
+        // This skip conflates three cases:
+        //  1. Reference type (the case the fix targets): falls through below and is gated to null on a no-match row.
+        //  2. Non-nullable struct / record struct / ValueTuple: skipped here because Default(objectType) is a zeroed struct, not
+        //     null, so gating would be semantically wrong. On a no-match row the shaper still constructs the object from all-NULL
+        //     columns and throws "Nullable object must have a value" — identical to behavior on main; a pre-existing, deferred gap.
+        //     (As of #30915 the marker is no longer even recorded for value-type inners in SelectExpression.AddJoin, so for those
+        //     inners markerBinding is null and this method is not invoked; the IsValueType guard remains as defense in depth.)
+        //  3. Nullable<T>: would also be skipped here (passes IsValueType) and would therefore be semantically wrong (a no-match
+        //     should yield null), BUT it is unreachable: LINQ produces a Nullable<T> whole-object via a Convert node, not a New /
+        //     MemberInit node, so it never satisfies the SelectExpression.AddJoin recording condition and never reaches here.
+        //     Even if it somehow did, the skip falls back to base behavior (the throw), so there is no regression.
+        // Intermediate (TransparentIdentifier-rooted) projections are also suppressed: there the recorded object is composed
+        // further and must stay a bare New for downstream member-folding.
         if (_rootIsTransparentIdentifier || objectType.IsValueType)
         {
             return visited;

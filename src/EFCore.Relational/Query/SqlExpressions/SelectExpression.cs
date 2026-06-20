@@ -2958,7 +2958,12 @@ public sealed partial class SelectExpression : TableExpressionBase
         // would be inlined into the combined SELECT and never become NULL. The standalone marker binding returned here is bound
         // against innerSelect; it is remapped alongside the inner shaper in each branch below so it stays valid, then recorded
         // against the finalized inner-shaper node (consumed later by the projection binder). We do NOT wrap the inner shaper.
-        var recordNullabilityMarker = innerNullable && innerShaper is NewExpression or MemberInitExpression;
+        // Restrict recording to reference-type inner shapers: the projection-binder gate (GateNonEntityOnNullabilityMarker) skips
+        // value types via objectType.IsValueType, so a value-type inner (struct / record struct / ValueTuple) would only get a dead
+        // marker column injected that is never consumed. Skipping it here is a functional no-op that avoids that dead weight.
+        var recordNullabilityMarker = innerNullable
+            && innerShaper is NewExpression or MemberInitExpression
+            && !innerShaper.Type.IsValueType;
         Expression? markerBinding = recordNullabilityMarker
             ? InjectNullabilityMarker(innerSelect)
             : null;
