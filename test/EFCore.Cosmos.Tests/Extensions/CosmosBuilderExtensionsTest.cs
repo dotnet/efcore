@@ -135,7 +135,8 @@ public class CosmosBuilderExtensionsTest
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
 
-        Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.Name);
+        Assert.Equal("_type", entityType.FindDiscriminatorProperty()!.Name);
+        Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
         Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
         modelBuilder.Entity<Customer>().HasNoDiscriminator();
@@ -145,7 +146,8 @@ public class CosmosBuilderExtensionsTest
 
         modelBuilder.Entity<Customer>().HasBaseType<object>();
 
-        Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.Name);
+        Assert.Equal("_type", entityType.FindDiscriminatorProperty()!.Name);
+        Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
         Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
         modelBuilder.Entity<Customer>().HasBaseType((string)null);
@@ -164,6 +166,20 @@ public class CosmosBuilderExtensionsTest
         Assert.NotNull(etagProperty);
         Assert.Equal(ValueGenerated.OnAddOrUpdate, etagProperty.ValueGenerated);
         Assert.True(etagProperty.IsConcurrencyToken);
+    }
+
+    [Fact]
+    public void Default_discriminator_property_uses_embedded_discriminator_json_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.HasEmbeddedDiscriminatorName("Terminator");
+        modelBuilder.Entity<Customer>();
+
+        var discriminatorProperty = modelBuilder.Model.FindEntityType(typeof(Customer))!.FindDiscriminatorProperty()!;
+
+        Assert.Equal("_type", discriminatorProperty.Name);
+        Assert.Equal("Terminator", discriminatorProperty.GetJsonPropertyName());
     }
 
     [Fact]
