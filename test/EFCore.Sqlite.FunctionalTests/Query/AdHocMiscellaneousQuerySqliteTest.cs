@@ -26,6 +26,21 @@ CREATE TABLE ZeroKey (Id int);
 INSERT INTO ZeroKey VALUES (NULL)
 """);
 
+    protected override async Task Seed30915(Context30915 context)
+    {
+        context.Statuses.AddRange(
+            new Context30915.PickupStatus30915 { PickupStatusId = 1, Name = "Active" },
+            new Context30915.PickupStatus30915 { PickupStatusId = 2, Name = "NoRequests" },
+            new Context30915.PickupStatus30915 { PickupStatusId = 3, Name = "Busy" });
+
+        context.Requests.AddRange(
+            new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = 5 },
+            new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = null },
+            new Context30915.PickupRequest30915 { PickupStatusId = 3, Priority = 7 });
+
+        await context.SaveChangesAsync();
+    }
+
     public override async Task Average_with_cast()
     {
         await base.Average_with_cast();

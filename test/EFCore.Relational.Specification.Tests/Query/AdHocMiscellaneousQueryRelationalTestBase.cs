@@ -396,6 +396,550 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region 30915
+
+        // Characterization (golden-master) tests for LEFT JOIN / DefaultIfEmpty / LeftJoin-operator
+        // shapes that project a NON-ENTITY (anon type / DTO / struct / GroupBy-aggregate) from the
+        // nullable side. EVERY test asserts the ACTUAL CURRENT behavior on the base code (no fix
+        // applied): if the query works, it asserts the correct results; if it throws, it asserts the
+        // throw. Tests that currently throw are flagged with "#30915 TODO" so they can be flipped to
+        // assert results once the underlying issue is fixed. SQLite only.
+
+        // ---------------------------------------------------------------------------------------
+        // Category A: whole non-entity object projected from the nullable side
+        // ---------------------------------------------------------------------------------------
+
+        [Fact] // 1
+        public virtual async Task Anon_whole_object_GroupJoin_DefaultIfEmpty()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 2
+        public virtual async Task Anon_whole_object_LeftJoin_operator()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.pickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 3
+        public virtual async Task Anon_client_null_check_GroupJoin()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 4
+        public virtual async Task Anon_client_null_check_LeftJoin_operator()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = context.Statuses
+                .LeftJoin(
+                    categories, s => s.PickupStatusId, c => c.pickupStatusId,
+                    (s, countInfo) => new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 5 - CONTROL: member access with nullable cast, likely works
+        public virtual async Task Anon_member_only_nullable_cast()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, Count = (int?)countInfo.Count };
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+            Assert.Equal((1, (int?)2), (result[0].PickupStatusId, result[0].Count));
+            Assert.Equal((2, (int?)null), (result[1].PickupStatusId, result[1].Count));
+            Assert.Equal((3, (int?)1), (result[2].PickupStatusId, result[2].Count));
+        }
+
+        [Fact] // 6
+        public virtual async Task Dto_memberinit_whole_object_LeftJoin()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountDto30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 7
+        public virtual async Task Dto_constructor_whole_object_LeftJoin()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountDtoCtor30915(k, els.Count()));
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            // Constructor-bound (read-only) DTO from the nullable side currently fails to translate
+            // (rather than failing during materialization like the member-init / struct shapes).
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("could not be translated", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 8
+        public virtual async Task Struct_whole_object_LeftJoin()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountStruct30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 9
+        public virtual async Task RecordStruct_whole_object_LeftJoin()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountRecordStruct30915(k, els.Count()));
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            // Positional record struct (constructor-bound) from the nullable side currently fails to
+            // translate (rather than failing during materialization like the member-init shapes).
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("could not be translated", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 10
+        public virtual async Task Nested_anon_whole_object()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, Wrap = new { countInfo } };
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        // ---------------------------------------------------------------------------------------
+        // Category B: post-join operators
+        // ---------------------------------------------------------------------------------------
+
+        [Fact] // 11
+        public virtual async Task GroupBy_after_join_then_whole_object()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s, countInfo })
+                .GroupBy(e => e.s.PickupStatusId, (key, els) => new { key, anyInfo = els.Select(e => e.countInfo).FirstOrDefault() })
+                .OrderBy(e => e.key);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 12
+        public virtual async Task Second_join_after_then_whole_object()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s.PickupStatusId, countInfo })
+                .Join(context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId, (e, s2) => new { s2.PickupStatusId, e.countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 13 - plain inner with no aggregate -> no pushdown
+        public virtual async Task Plain_inner_no_aggregate_LeftJoin_whole_object()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests.Select(r => new { r.PickupStatusId, Count = 1 });
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 14
+        public virtual async Task Distinct_after_join_member()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count })
+                .Distinct();
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 15
+        public virtual async Task Union_of_two_leftjoin_nonentity()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var first = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
+
+            var second = from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
+
+            var query = first.Union(second);
+
+            // The client-side null-check projection forces a client projection on each operand,
+            // which then can't participate in the set operation.
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Unable to translate set operation", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 16
+        public virtual async Task OrderBy_member_of_nullable_projection()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         orderby (countInfo == null ? 0 : countInfo.Count), s.PickupStatusId
+                         select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count });
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("could not be translated", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 17
+        public virtual async Task Take_after_join_whole_object()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         orderby s.PickupStatusId
+                         select new { s.PickupStatusId, countInfo })
+                .Take(10);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 18
+        public virtual async Task Where_nonentity_projection_not_null_serverside()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         where countInfo != null
+                         orderby s.PickupStatusId
+                         select s.PickupStatusId);
+
+            // Server-side null-check against a whole non-entity projection from the nullable side
+            // currently cannot be translated.
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("could not be translated", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 19
+        public virtual async Task Where_nonentity_projection_null_serverside()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         where countInfo == null
+                         orderby s.PickupStatusId
+                         select s.PickupStatusId);
+
+            // Server-side null-check against a whole non-entity projection from the nullable side
+            // currently cannot be translated.
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("could not be translated", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        // ---------------------------------------------------------------------------------------
+        // Category C: member kinds inside the projected object
+        // ---------------------------------------------------------------------------------------
+
+        [Fact] // 20
+        public virtual async Task Projected_object_with_nullable_member()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, MaxPriority = els.Max(x => x.Priority) });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 21
+        public virtual async Task Projected_object_with_string_member()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count(), Name = "cat" });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 22 - only nullable/reference members; all-null may be representable
+        public virtual async Task Projected_object_all_nullable_members()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(
+                    r => r.PickupStatusId,
+                    (k, els) => new { pickupStatusId = (int?)k, MaxPriority = els.Max(x => x.Priority) });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            // Interesting case: the projected object contains ONLY nullable/reference members, so the
+            // all-null (no-match) row IS representable and the query currently succeeds on base.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(5, result[0].countInfo.MaxPriority);
+
+            // Notable: the no-match row does NOT produce a null object; instead a non-null object
+            // with all-null members is materialized (because every member is nullable).
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.NotNull(result[1].countInfo);
+            Assert.Null(result[1].countInfo.pickupStatusId);
+            Assert.Null(result[1].countInfo.MaxPriority);
+
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(7, result[2].countInfo.MaxPriority);
+        }
+
+        protected abstract Task Seed30915(Context30915 context);
+
+        protected class Context30915(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<PickupStatus30915> Statuses { get; set; }
+            public DbSet<PickupRequest30915> Requests { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<PickupStatus30915>(
+                    b =>
+                    {
+                        b.HasKey(e => e.PickupStatusId);
+                        b.Property(e => e.PickupStatusId).ValueGeneratedNever();
+                    });
+
+            public class PickupStatus30915
+            {
+                public int PickupStatusId { get; set; }
+                public string Name { get; set; }
+            }
+
+            public class PickupRequest30915
+            {
+                public int Id { get; set; }
+                public int PickupStatusId { get; set; }
+                public int? Priority { get; set; }
+            }
+
+            public class CountDto30915
+            {
+                public int PickupStatusId { get; set; }
+                public int Count { get; set; }
+            }
+
+            public class CountDtoCtor30915(int pickupStatusId, int count)
+            {
+                public int PickupStatusId { get; } = pickupStatusId;
+                public int Count { get; } = count;
+            }
+
+            public struct CountStruct30915
+            {
+                public int PickupStatusId { get; set; }
+                public int Count { get; set; }
+            }
+
+            public record struct CountRecordStruct30915(int PickupStatusId, int Count);
+        }
+
+        #endregion
     }
 }
 
