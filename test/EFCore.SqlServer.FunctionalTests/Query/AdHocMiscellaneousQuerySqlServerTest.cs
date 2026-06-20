@@ -39,6 +39,21 @@ CREATE TABLE ZeroKey (Id int);
 INSERT ZeroKey VALUES (NULL)
 """);
 
+    protected override async Task Seed30915(Context30915 context)
+    {
+        context.Statuses.AddRange(
+            new Context30915.PickupStatus30915 { PickupStatusId = 1, Name = "Active" },
+            new Context30915.PickupStatus30915 { PickupStatusId = 2, Name = "NoRequests" },
+            new Context30915.PickupStatus30915 { PickupStatusId = 3, Name = "Busy" });
+
+        context.Requests.AddRange(
+            new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = 5 },
+            new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = null },
+            new Context30915.PickupRequest30915 { PickupStatusId = 3, Priority = 7 });
+
+        await context.SaveChangesAsync();
+    }
+
     #region 5456
 
     [Fact]
@@ -2684,4 +2699,213 @@ FROM [Users] AS [u]
 WHERE [u].[Name] LIKE N'Name%'
 """);
     }
+
+    #region 30915
+
+    public override async Task Anon_whole_object_GroupJoin_DefaultIfEmpty()
+    {
+        await base.Anon_whole_object_GroupJoin_DefaultIfEmpty();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_whole_object_LeftJoin_operator()
+    {
+        await base.Anon_whole_object_LeftJoin_operator();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_client_null_check_GroupJoin()
+    {
+        await base.Anon_client_null_check_GroupJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_client_null_check_LeftJoin_operator()
+    {
+        await base.Anon_client_null_check_LeftJoin_operator();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_member_only_nullable_cast()
+    {
+        await base.Anon_member_only_nullable_cast();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[Count]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Dto_memberinit_whole_object_LeftJoin()
+    {
+        await base.Dto_memberinit_whole_object_LeftJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Nested_anon_whole_object()
+    {
+        await base.Nested_anon_whole_object();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Distinct_after_join_member()
+    {
+        await base.Distinct_after_join_member();
+
+        AssertSql(
+            """
+SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+""");
+    }
+
+    public override async Task Take_after_join_whole_object()
+    {
+        await base.Take_after_join_whole_object();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT TOP(@p) [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Projected_object_with_nullable_member()
+    {
+        await base.Projected_object_with_nullable_member();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[MaxPriority], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], MAX([r].[Priority]) AS [MaxPriority], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Projected_object_with_string_member()
+    {
+        await base.Projected_object_with_string_member();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[Name], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], N'cat' AS [Name], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Projected_object_all_nullable_members()
+    {
+        await base.Projected_object_all_nullable_members();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[MaxPriority], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], MAX([r].[Priority]) AS [MaxPriority], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    #endregion
 }

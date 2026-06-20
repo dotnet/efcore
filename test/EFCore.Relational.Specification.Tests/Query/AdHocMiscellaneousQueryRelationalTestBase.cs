@@ -401,10 +401,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Characterization (golden-master) tests for LEFT JOIN / DefaultIfEmpty / LeftJoin-operator
         // shapes that project a NON-ENTITY (anon type / DTO / struct / GroupBy-aggregate) from the
-        // nullable side. EVERY test asserts the ACTUAL CURRENT behavior on the base code (no fix
-        // applied): if the query works, it asserts the correct results; if it throws, it asserts the
-        // throw. Tests that currently throw are flagged with "#30915 TODO" so they can be flipped to
-        // assert results once the underlying issue is fixed. SQLite only.
+        // nullable side. EVERY test asserts the ACTUAL behavior: if the query works, it asserts the
+        // correct results; if it throws / fails to translate, it asserts that failure. Tests that
+        // still fail are flagged with "#30915 TODO" so they can be flipped to assert results once the
+        // underlying issue is fixed. Run on BOTH SQLite and SQL Server (identical behavior on both);
+        // the passing whole-object shapes also assert provider SQL baselines in the derived classes.
+        //
+        // Coverage boundary of the #30915 fix
+        // ------------------------------------
+        // COVERED (these tests assert correct results): direct whole-object projection of a left-joined
+        //   non-entity, via both GroupJoin+DefaultIfEmpty and the LeftJoin operator -- including
+        //   member-init DTO, nested anonymous wrapper, client-side null-checks of the projection,
+        //   Distinct and Take after the join, and projections with nullable/string members. The whole
+        //   non-entity object correctly materializes as null on a no-match (a synthetic "marker" column
+        //   is added inside the LEFT JOIN subquery so the shaper can distinguish a no-match row from a
+        //   matched row whose members happen to be null).
+        // DEFERRED (still failing, tracked as #30915 follow-ups; these tests assert the throw /
+        //   translation failure): constructor-bound DTO and positional record struct (fail to
+        //   translate); mutable struct whole-object (fails during materialization); GroupBy-after-join
+        //   and a second join after the DefaultIfEmpty (the shaper rebuild loses the marker); plain
+        //   inner with no aggregate / no pushdown; Union and other set operations over the projection;
+        //   and server-side OrderBy/Where null-checks against the whole non-entity projection.
 
         // ---------------------------------------------------------------------------------------
         // Category A: whole non-entity object projected from the nullable side
