@@ -3062,5 +3062,66 @@ ORDER BY [s0].[PickupStatusId]
 """);
     }
 
+    public override async Task Nested_transparent_identifier_of_entities_as_leftjoin_inner()
+    {
+        await base.Nested_transparent_identifier_of_entities_as_leftjoin_inner();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [s1].[Id], [s1].[PickupStatusId], [s1].[Priority], [s1].[PickupStatusId0], [s1].[Name]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[Id], [r].[PickupStatusId], [r].[Priority], [s0].[PickupStatusId] AS [PickupStatusId0], [s0].[Name]
+    FROM [Requests] AS [r]
+    INNER JOIN [Statuses] AS [s0] ON [r].[PickupStatusId] = [s0].[PickupStatusId]
+) AS [s1] ON [s].[PickupStatusId] = [s1].[PickupStatusId0]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Distinct_with_unconsumed_marker_is_benign()
+    {
+        await base.Distinct_with_unconsumed_marker_is_benign();
+
+        AssertSql(
+            """
+SELECT [s0].[PickupStatusId], [s0].[pickupStatusId0], [s0].[Count], [s0].[marker]
+FROM (
+    SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker]
+    FROM [Statuses] AS [s]
+    LEFT JOIN (
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+        FROM [Requests] AS [r]
+        GROUP BY [r].[PickupStatusId]
+    ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+) AS [s0]
+ORDER BY [s0].[PickupStatusId]
+""");
+    }
+
+    public override async Task Member_only_access_nested_two_joins_deep()
+    {
+        await base.Member_only_access_nested_two_joins_deep();
+
+        AssertSql(
+            """
+SELECT [s0].[PickupStatusId], [s0].[Name], CASE
+    WHEN [s1].[marker] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [s1].[pickupStatusId0], [s1].[Count]
+FROM (
+    SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker]
+    FROM [Statuses] AS [s]
+    LEFT JOIN (
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+        FROM [Requests] AS [r]
+        GROUP BY [r].[PickupStatusId]
+    ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+) AS [s1]
+INNER JOIN [Statuses] AS [s0] ON [s1].[PickupStatusId] = [s0].[PickupStatusId]
+ORDER BY [s0].[PickupStatusId]
+""");
+    }
+
     #endregion
 }

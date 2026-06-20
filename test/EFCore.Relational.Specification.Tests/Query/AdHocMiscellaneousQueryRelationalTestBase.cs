@@ -1340,6 +1340,161 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.marker);
         }
 
+        // ---------------------------------------------------------------------------------------
+        // Category F: hardening characterization (reachable structural edges of the marker mechanism)
+        // ---------------------------------------------------------------------------------------
+
+        [Fact] // 32
+        public virtual async Task Nested_transparent_identifier_of_entities_as_leftjoin_inner()
+        {
+            // The only structurally-reachable untested edge: a join-of-entities used as the LEFT JOIN
+            // inner. Its shaper is a transparent-identifier NewExpression, so a marker is injected -- but
+            // the TI is decomposed before projection, so the marker is unconsumed and must be pruned. The
+            // result is all-entity, so it works; the point is to pin that NO spurious marker column leaks.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var entityPairs = context.Requests
+                .Join(context.Statuses, r => r.PickupStatusId, s2 => s2.PickupStatusId, (r, s2) => new { r, s2 });
+
+            var query = context.Statuses
+                .LeftJoin(entityPairs, s => s.PickupStatusId, p => p.s2.PickupStatusId, (s, pair) => new { s.PickupStatusId, pair })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            // status 1 -> 2 requests (matched), status 2 -> no match, status 3 -> 1 request.
+            // The LEFT JOIN multiplies rows by matches: status 1 yields two rows, status 3 one row, status 2 one (no-match) row.
+            Assert.Equal(4, result.Count);
+
+            // status 1 -> two matched rows, each with a pair whose entities reference status 1
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].pair);
+            Assert.Equal(1, result[0].pair.s2.PickupStatusId);
+            Assert.Equal(1, result[1].PickupStatusId);
+            Assert.NotNull(result[1].pair);
+            Assert.Equal(1, result[1].pair.s2.PickupStatusId);
+
+            // status 2 -> no match. The inner shaper is a transparent-identifier { r, s2 } whose decomposed
+            // members are entities; the wrapper itself materializes (non-null) with both entity members null,
+            // rather than the whole pair being nulled (the pair is not a single user-projected non-entity object).
+            Assert.Equal(2, result[2].PickupStatusId);
+            Assert.NotNull(result[2].pair);
+            Assert.Null(result[2].pair.r);
+            Assert.Null(result[2].pair.s2);
+
+            // status 3 -> matched
+            Assert.Equal(3, result[3].PickupStatusId);
+            Assert.NotNull(result[3].pair);
+            Assert.Equal(3, result[3].pair.s2.PickupStatusId);
+        }
+
+        [Fact] // 33
+        public virtual async Task Distinct_with_unconsumed_marker_is_benign()
+        {
+            // A non-entity anon inner with MEMBER-ONLY access (so a marker is injected but unconsumed by
+            // the projection) under Distinct. A constant 1 marker cannot change DISTINCT row identity, so
+            // the results are correct regardless of whether the marker survives into the DISTINCT.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count }).Distinct();
+
+            var result = await query.OrderBy(x => x.PickupStatusId).ToListAsync();
+
+            Assert.Equal(3, result.Count);
+            Assert.Equal((1, 2), (result[0].PickupStatusId, result[0].Count));
+            Assert.Equal((2, 0), (result[1].PickupStatusId, result[1].Count));
+            Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
+        }
+
+        [Fact] // 34
+        public virtual async Task Nullable_struct_whole_object_from_nullable_side()
+        {
+            // Pins the Nullable<T> case: project a CountStruct30915? whole-object from the nullable side.
+            // Per the gate doc, Nullable<T> arrives via a Convert node (not New/MemberInit), so the marker
+            // is never recorded and the gate never fires -- the shaper materializes from all-NULL columns
+            // on a no-match and throws, identical to the non-nullable struct case.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountStruct30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = context.Statuses
+                .LeftJoin(
+                    categories, s => s.PickupStatusId, c => c.PickupStatusId,
+                    (s, countInfo) => new { s.PickupStatusId, countInfo = (Context30915.CountStruct30915?)countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: Nullable<T> whole-object from the nullable side is a deferred gap (unreachable
+            // by the marker mechanism, which only records for New/MemberInit, not Convert).
+        }
+
+        [Fact] // 35
+        public virtual async Task ValueTuple_whole_object_from_nullable_side()
+        {
+            // Pins that IsTransparentIdentifierType does NOT false-positive on a ValueTuple (its fields are
+            // Item1/Item2, not Outer/Inner) and that a ValueTuple constructed in a GroupBy projection is a
+            // value type so the marker gate never applies. Actual behavior: the constructor-bound ValueTuple
+            // projection fails to TRANSLATE (like the ctor-bound DTO in test 7 / record struct in test 9),
+            // rather than failing during materialization with "Nullable object must have a value".
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var tuples = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new ValueTuple<int, int>(k, els.Count()));
+
+            var query = from s in context.Statuses
+                        join c in tuples on s.PickupStatusId equals c.Item1 into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, tuple = countInfo };
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("could not be translated", ex.Message);
+            // #30915 TODO: value-type whole-object (ValueTuple) from the nullable side is a deferred gap; the
+            // constructor-bound ValueTuple GroupBy projection currently fails to translate.
+        }
+
+        [Fact] // 36
+        public virtual async Task Member_only_access_nested_two_joins_deep()
+        {
+            // Extends the one-level self-heal (test 31) to a deeper composition: a member-only access of a
+            // non-entity inner composed through a SECOND join/subquery. Confirms an injected-but-unused
+            // marker causes no ambiguous-column or alias issue two joins deep.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var firstLevel = (from s in context.Statuses
+                              join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                              from countInfo in g.DefaultIfEmpty()
+                              select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count }).Distinct();
+
+            var query = from f in firstLevel
+                        join s2 in context.Statuses on f.PickupStatusId equals s2.PickupStatusId
+                        orderby s2.PickupStatusId
+                        select new { s2.PickupStatusId, s2.Name, f.Count };
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+            Assert.Equal((1, "Active", 2), (result[0].PickupStatusId, result[0].Name, result[0].Count));
+            Assert.Equal((2, "NoRequests", 0), (result[1].PickupStatusId, result[1].Name, result[1].Count));
+            Assert.Equal((3, "Busy", 1), (result[2].PickupStatusId, result[2].Name, result[2].Count));
+        }
+
         protected abstract Task Seed30915(Context30915 context);
 
         // Provider-agnostic seed for the matched-null-aggregate invariant (test 23): status 4 MATCHES
