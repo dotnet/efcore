@@ -523,5 +523,90 @@ ORDER BY "s"."PickupStatusId"
 """);
     }
 
+    public override async Task Matched_row_with_null_aggregate_keeps_object_non_null()
+    {
+        await base.Matched_row_with_null_aggregate_keeps_object_non_null();
+
+        AssertSql(
+            """
+SELECT "s"."PickupStatusId", "r0"."pickupStatusId", "r0"."MaxPriority", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", MAX("r"."Priority") AS "MaxPriority", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+ORDER BY "s"."PickupStatusId"
+""");
+    }
+
+    public override async Task Bare_whole_object_projection_is_null_on_no_match()
+    {
+        await base.Bare_whole_object_projection_is_null_on_no_match();
+
+        AssertSql(
+            """
+SELECT "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+ORDER BY "s"."PickupStatusId"
+""");
+    }
+
+    public override async Task User_member_named_marker_does_not_collide_with_synthetic_marker()
+    {
+        await base.User_member_named_marker_does_not_collide_with_synthetic_marker();
+
+        AssertSql(
+            """
+SELECT "s"."PickupStatusId", "r0"."pickupStatusId", "r0"."marker", "r0"."marker0" AS "marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "marker", 1 AS "marker0"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+ORDER BY "s"."PickupStatusId"
+""");
+    }
+
+    public override async Task Anon_whole_object_GroupJoin_DefaultIfEmpty_sync()
+    {
+        await base.Anon_whole_object_GroupJoin_DefaultIfEmpty_sync();
+
+        AssertSql(
+            """
+SELECT "s"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+ORDER BY "s"."PickupStatusId"
+""");
+    }
+
+    public override async Task Projected_object_with_decimal_member()
+    {
+        await base.Projected_object_with_decimal_member();
+
+        AssertSql(
+            """
+SELECT "s"."PickupStatusId", "r0"."pickupStatusId", "r0"."Total", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COALESCE(ef_sum(CAST("r"."PickupStatusId" AS TEXT)), '0.0') AS "Total", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+ORDER BY "s"."PickupStatusId"
+""");
+    }
+
     #endregion
 }

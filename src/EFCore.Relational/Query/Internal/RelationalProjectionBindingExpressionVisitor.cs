@@ -733,6 +733,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         // Suppress gating for intermediate (TransparentIdentifier-rooted) projections: there the recorded object is composed
         // further and must stay a bare New for downstream member-folding. Also only reference-type non-entity objects can be
         // nulled; for value types Default(objectType) is a zeroed struct, not null, so gating would be wrong there too.
+        // (Nullable<T> would pass IsValueType but is latent/unreachable here: the marker is only recorded for inner shapers that
+        // are a NewExpression or MemberInitExpression, and a Nullable<T> whole-object never arrives as either of those.)
         if (_rootIsTransparentIdentifier || objectType.IsValueType)
         {
             return visited;

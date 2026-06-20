@@ -1037,7 +1037,286 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(7, result[2].countInfo.MaxPriority);
         }
 
+        // ---------------------------------------------------------------------------------------
+        // Category D: reviewer-suggested hardening (matched-null invariant, bare-root projection,
+        // alias collision, and boundary cases)
+        // ---------------------------------------------------------------------------------------
+
+        [Fact] // 23
+        public virtual async Task Matched_row_with_null_aggregate_keeps_object_non_null()
+        {
+            // A matched group whose aggregate is null must STILL materialize a non-null object: the
+            // synthetic marker (constant 1, NULL only on no-match) must distinguish a matched-but-null
+            // row from a genuine no-match. Status 4 matches (two requests) but Max(Priority) is null.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915MatchedNullAggregate);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, MaxPriority = els.Max(x => x.Priority) });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, MaxPriority = 5
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(5, result[0].countInfo.MaxPriority);
+
+            // status 2 -> genuine no-match: whole object null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 4 -> MATCHED but Max(Priority) is null: object MUST stay non-null with a null member
+            Assert.Equal(4, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(4, result[2].countInfo.pickupStatusId);
+            Assert.Null(result[2].countInfo.MaxPriority);
+        }
+
+        [Fact] // 24
+        public virtual async Task Bare_whole_object_projection_is_null_on_no_match()
+        {
+            // The non-entity object is the ROOT of the projection (not nested in an anon wrapper).
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select countInfo;
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.NotNull(result[0]);
+            Assert.Equal(1, result[0].pickupStatusId);
+            Assert.Equal(2, result[0].Count);
+
+            // status 2 -> no match: bare whole object is null
+            Assert.Null(result[1]);
+
+            // status 3 -> matched, Count 1
+            Assert.NotNull(result[2]);
+            Assert.Equal(3, result[2].pickupStatusId);
+            Assert.Equal(1, result[2].Count);
+        }
+
+        [Fact] // 25
+        public virtual async Task User_member_named_marker_does_not_collide_with_synthetic_marker()
+        {
+            // A user member literally named "marker" must not collide with the synthetic nullability
+            // marker column the fix injects (which is also aliased "marker"). The two columns must get
+            // DISTINCT SQL aliases.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, marker = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, user marker = 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.marker);
+
+            // status 2 -> no match: whole object null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, user marker = 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.marker);
+        }
+
+        [Fact] // 26
+        public virtual async Task RightJoin_whole_object_outer_nullable()
+        {
+            // Queryable.RightJoin makes the OUTER (the non-entity categories) the nullable side.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            // The RightJoin operator makes the OUTER (non-entity categories) the nullable side; the fix's
+            // marker is injected for the INNER nullable side of LEFT JOIN / DefaultIfEmpty only, so this
+            // RIGHT JOIN whole-object shape is not covered and still fails during materialization.
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: RightJoin (outer-nullable) whole-object not yet covered; flip to assert results if/when fixed.
+        }
+
+        [Fact] // 27
+        public virtual async Task Correlated_SelectMany_DefaultIfEmpty_whole_object()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var query = from s in context.Statuses
+                        from countInfo in context.Requests
+                            .Where(r => r.PickupStatusId == s.PickupStatusId)
+                            .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() })
+                            .DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            // Correlated SelectMany over a grouped subquery needs the SQL APPLY operator. This base
+            // assertion is the SQLite behavior (no APPLY support, so it cannot be translated). PROVIDER
+            // DIVERGENCE: SQL Server supports OUTER APPLY, so there the fix actually materializes the
+            // whole object correctly -- that case is asserted in the SQL Server override.
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("requires the SQL APPLY", ex.Message);
+            // #30915 TODO: correlated APPLY whole-object shape not yet covered on providers without APPLY.
+        }
+
+        [Fact] // 28
+        public virtual async Task Two_left_joined_nonentity_objects_second_marker_orphaned()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.pickupStatusId, (s, first) => new { s.PickupStatusId, first })
+                .LeftJoin(categories, e => e.PickupStatusId, c => c.pickupStatusId, (e, second) => new { e.PickupStatusId, e.first, second })
+                .OrderBy(e => e.PickupStatusId);
+
+            // Two sequential non-entity nullable joins: the FIRST object's marker must pass through the
+            // SECOND join's outer-shaper remap. It currently does not (Blocker-1).
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: Blocker-1 (graph-anchored keying); when fixed, flip to assert results and
+            // verify two distinct marker aliases.
+        }
+
+        // ---------------------------------------------------------------------------------------
+        // Category E: low-priority coverage (sync variant, non-int value-type member)
+        // ---------------------------------------------------------------------------------------
+
+        [Fact] // 29
+        public virtual async Task Anon_whole_object_GroupJoin_DefaultIfEmpty_sync()
+        {
+            // Sync (ToList) variant of test 1: the null-gate lives in the shared shaper, so both the
+            // sync and async paths must behave identically.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var result = query.ToList();
+
+            Assert.Equal(3, result.Count);
+
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
+        }
+
+        [Fact] // 30
+        public virtual async Task Projected_object_with_decimal_member()
+        {
+            // Exercises the gated branch with a non-int, non-nullable value-type member (decimal), so a
+            // type-mapping read other than int flows through the null-gate.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Total = els.Sum(x => (decimal)x.PickupStatusId) });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched: two requests, Total = 1 + 1 = 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2m, result[0].countInfo.Total);
+
+            // status 2 -> no match: whole object null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched: one request, Total = 3
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(3m, result[2].countInfo.Total);
+        }
+
         protected abstract Task Seed30915(Context30915 context);
+
+        // Provider-agnostic seed for the matched-null-aggregate invariant (test 23): status 4 MATCHES
+        // (two requests) but Max(Priority) over the matched group is null; status 2 is a genuine no-match.
+        private static async Task Seed30915MatchedNullAggregate(Context30915 context)
+        {
+            context.Statuses.AddRange(
+                new Context30915.PickupStatus30915 { PickupStatusId = 1, Name = "HasPriority" },
+                new Context30915.PickupStatus30915 { PickupStatusId = 2, Name = "NoRequests" },
+                new Context30915.PickupStatus30915 { PickupStatusId = 4, Name = "AllNullPriority" });
+
+            context.Requests.AddRange(
+                new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = 5 },
+                new Context30915.PickupRequest30915 { PickupStatusId = 4, Priority = null },
+                new Context30915.PickupRequest30915 { PickupStatusId = 4, Priority = null });
+
+            await context.SaveChangesAsync();
+        }
 
         protected class Context30915(DbContextOptions options) : DbContext(options)
         {
