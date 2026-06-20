@@ -430,7 +430,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (alterStatementNeeded)
         {
-            // SQL Server can't ALTER COLUMN from json to a character type; use rename-add-copy-drop instead. See #38364.
+            // SQL Server can't ALTER COLUMN from json to a non JSON type; use rename-add-copy-drop instead. See #38364.
             if ((oldType ?? operation.OldColumn.ColumnType)
                     ?.Equals("json", StringComparison.OrdinalIgnoreCase) == true
                 && !columnType.Equals("json", StringComparison.OrdinalIgnoreCase))
