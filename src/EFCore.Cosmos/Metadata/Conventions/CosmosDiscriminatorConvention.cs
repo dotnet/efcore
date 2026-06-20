@@ -21,8 +21,6 @@ public class CosmosDiscriminatorConvention :
     IEntityTypeAnnotationChangedConvention,
     IModelEmbeddedDiscriminatorNameConvention
 {
-    private const string DiscriminatorPropertyName = "_type";
-
     /// <summary>
     ///     Creates a new instance of <see cref="CosmosDiscriminatorConvention" />.
     /// </summary>
@@ -148,7 +146,7 @@ public class CosmosDiscriminatorConvention :
 
     private static IConventionDiscriminatorBuilder? HasDiscriminator(IConventionEntityTypeBuilder entityTypeBuilder)
     {
-        var discriminator = entityTypeBuilder.HasDiscriminator(DiscriminatorPropertyName, typeof(string));
+        var discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
         var discriminatorProperty = discriminator?.EntityType.FindDiscriminatorProperty();
         if (discriminatorProperty != null)
         {

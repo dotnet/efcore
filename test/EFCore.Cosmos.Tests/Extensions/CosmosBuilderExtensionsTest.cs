@@ -135,7 +135,7 @@ public class CosmosBuilderExtensionsTest
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
 
-        Assert.Equal("_type", entityType.FindDiscriminatorProperty()!.Name);
+        Assert.Equal("Discriminator", entityType.FindDiscriminatorProperty()!.Name);
         Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
         Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
@@ -146,7 +146,7 @@ public class CosmosBuilderExtensionsTest
 
         modelBuilder.Entity<Customer>().HasBaseType<object>();
 
-        Assert.Equal("_type", entityType.FindDiscriminatorProperty()!.Name);
+        Assert.Equal("Discriminator", entityType.FindDiscriminatorProperty()!.Name);
         Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
         Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
@@ -178,7 +178,7 @@ public class CosmosBuilderExtensionsTest
 
         var discriminatorProperty = modelBuilder.Model.FindEntityType(typeof(Customer))!.FindDiscriminatorProperty()!;
 
-        Assert.Equal("_type", discriminatorProperty.Name);
+        Assert.Equal("Discriminator", discriminatorProperty.Name);
         Assert.Equal("Terminator", discriminatorProperty.GetJsonPropertyName());
     }
 
