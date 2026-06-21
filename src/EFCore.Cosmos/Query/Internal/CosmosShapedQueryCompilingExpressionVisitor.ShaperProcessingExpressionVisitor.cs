@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Azure.Core.Serialization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -23,9 +22,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
-
-        private static readonly PropertyInfo ObjectArrayIndexerPropertyInfo
-            = typeof(object[]).GetProperty("Item")!;
 
         private static readonly ConstructorInfo JsonReaderDataConstructor
             = typeof(JsonReaderData).GetConstructor([typeof(ReadOnlyMemory<byte>)])!;
@@ -69,13 +65,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         // ValueBuffer: JsonReaderManager
         private readonly Dictionary<Expression, ParameterExpression>
-            _valueBufferToJsonReaderDataMapping = new(); // @TODO: Basically only ever 1 entry...? Or will we do includes separatly? Probably not? It's not done in relational
+            _valueBufferToJsonReaderDataMapping = new();
 
-        // MaterializationContext: JsonReaderManager variables
+        // MaterializationContext: JsonReaderManager
         private readonly Dictionary<ParameterExpression, ParameterExpression>
-            _materializationContextToJsonReaderDataMapping = new(); // @TODO: Basically only ever 1 entry...? Or will we do includes separatly? Probably not? It's not done in relational
+            _materializationContextToJsonReaderDataMapping = new();
 
-        // JsonReaderData: JsonReaderManager variables
+        // MaterializationContext: KeyValues
+        private readonly Dictionary<ParameterExpression, ParameterExpression>
+            _jsonMaterializationContextToKeyValuesMapping = new();
+
+        private readonly Dictionary<Expression, ParameterExpression>
+            _valueBufferToKeyValuesMapping = new();
+
+        // JsonReaderData: JsonReaderManager
         private readonly Dictionary<ParameterExpression, ParameterExpression>
             _jsonReaderDataToJsonReaderManagerParameterMapping = new();
 
@@ -225,11 +228,23 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ITypeBase structuralType,
             Type clrType,
             bool nullable,
-            Expression valueBufferExpression)
+            Expression valueBufferExpression,
+            (ParameterExpression Parameter, Type Type) keyValues = default)
         {
             var shaperBlockVariables = new List<ParameterExpression>();
             var shaperBlockExpressions = new List<Expression>();
             var jsonReaderDataShaperLambdaParameter = _valueBufferToJsonReaderDataMapping[valueBufferExpression];
+
+            var noKeyValues = keyValues.Equals(default);
+            if (noKeyValues)
+            {
+                keyValues = (Parameter(typeof(ISnapshot), "keyValues"), typeof(ISnapshot));
+            }
+            else
+            {
+                Check.DebugAssert(keyValues.Parameter != null && keyValues.Type != null);
+                _valueBufferToKeyValuesMapping[valueBufferExpression] = keyValues.Parameter!;
+            }
 
             Expression structuralTypeShaperExpression = new StructuralTypeShaperExpression(
                 structuralType,
@@ -239,11 +254,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var structuralTypeShaperMaterializer =
                 (BlockExpression)_parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
 
-            var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             // Read metadata properties from the document (if needed)
+            // We only need to read primary key values if this is the root entity, since owned entities their identity are defined by the owner identity, or the latter combined with their index in the collection.
+            var isDocumentRoot = structuralType is IEntityType et && et.IsDocumentRoot();
+            var extractKeyValues = _queryStateManager && isDocumentRoot;
+            var discriminatorProperty = structuralType.FindDiscriminatorProperty(); // @TODO: Optimize, if there is only 1 discriminator value possible we don't need to read this..? We would need to check the discriminator value in the shaper later then tho to make sure something else isn't wrong (read wrong entity)
             if (discriminatorProperty != null
-             // We only need to read primary key values if this is the root entity, since owned entities their identity are defined by the owner identity, or their index in the collection.
-             || (structuralType is IEntityType et && et.IsDocumentRoot()))
+             || extractKeyValues)
             {
                 // Generate a read loop to extract the metadata properties.
                 var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
@@ -305,9 +322,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     propertiesToRead.Add(discriminatorProperty, CreateMetadataVariable(discriminatorProperty));
                 }
-                if (structuralType is IEntityType et1 && et1.IsDocumentRoot())
+                if (extractKeyValues)
                 {
-                    foreach (var property in et1.FindPrimaryKey()!.Properties)
+                    foreach (var property in ((IEntityType)structuralType).FindPrimaryKey()!.Properties)
                     {
                         propertiesToRead.Add(property, CreateMetadataVariable(property));
                     }
@@ -377,10 +394,33 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         [managerVariable, tokenTypeVariable],
                         metadataBlockExpressions));
 
-                structuralTypeShaperMaterializer = new JsonEntityMaterializerMetadataRewriter(propertiesToRead).Rewrite(structuralTypeShaperMaterializer);
+                structuralTypeShaperMaterializer = new JsonEntityMaterializerMetadataRewriter(propertiesToRead).Rewrite(structuralTypeShaperMaterializer); // @TODO: Not needed anymore with JsonEntityMaterializerKeyValuesSnapshotRewriter?
+
+                if (isDocumentRoot)
+                {
+                    // Add assignment for keyValuesParameter
+                    var primaryKeyProperties = ((IEntityType)structuralType).FindPrimaryKey()!.Properties;
+                    keyValues = (keyValues.Parameter, Snapshot.CreateSnapshotType(primaryKeyProperties.Select(x => x.ClrType).ToArray()));
+
+                    // This way we don't break any other visitor, since we don't touch the materializer much, just appending.
+                    var newExpressions = structuralTypeShaperMaterializer.Expressions.ToList();
+                    var entryIndex = newExpressions.FindIndex(ex => ex is BinaryExpression { NodeType: ExpressionType.Assign, Right: MethodCallExpression { Method.Name: nameof(QueryContext.TryGetEntry) } });
+
+                    Check.DebugAssert(entryIndex != -1, "a TryGetEntry call should be in the materializer");
+
+                    var entryExpression = (BinaryExpression)newExpressions[entryIndex];
+                    var hasNullKey = ((MethodCallExpression)entryExpression.Right).Arguments.Last();
+                    newExpressions.Insert(
+                        entryIndex + 1,
+                        IfThen(Not(hasNullKey),
+                            Assign(keyValues.Parameter,
+                                New(keyValues.Type.GetConstructors().Single(),
+                                    primaryKeyProperties.Select(x => Convert(propertiesToRead[x], x.ClrType))))));
+                    structuralTypeShaperMaterializer = structuralTypeShaperMaterializer.Update(structuralTypeShaperMaterializer.Variables, newExpressions);
+                }
             }
 
-            // @TODO: We need to pass key values to nested documents...
+            structuralTypeShaperMaterializer = new JsonEntityMaterializerKeyValuesSnapshotRewriter(keyValues.Parameter).Rewrite(structuralTypeShaperMaterializer);
 
             var innerShapersMap = new Dictionary<IPropertyBase, Expression>();
             var innerFixupMap = new Dictionary<IPropertyBase, LambdaExpression>();
@@ -414,14 +454,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     _ => throw new UnreachableException()
                 };
 
+                var indexBasedSnapshotType = Snapshot.CreateSnapshotType([.. keyValues.Type.GenericTypeArguments, typeof(int)]);
+
                 var innerShaper = CreateJsonShapers(
                     relatedStructuralType,
                     nestedStructuralProperty.ClrType,
                     nullable || isStructuralPropertyNullable,
-                    valueBufferExpression);
+                    valueBufferExpression,
+                    nestedStructuralProperty.IsCollection ? (keyValues.Parameter, indexBasedSnapshotType) : keyValues);
 
                 if (nestedStructuralProperty.IsCollection)
                 {
+                    // Build a snapshot factory that uses the collection index as last argument.
+                    var indexParameter = Parameter(typeof(int), "index");
+                    var indexBasedSnapshotFactory = Lambda(
+                        New(
+                            indexBasedSnapshotType.GetConstructors().Single(),
+                            [.. keyValues.Type.GenericTypeArguments.Select((type, i) => Call(keyValues.Parameter, Snapshot.GetValueMethod.MakeGenericMethod(type), Constant(i))), indexParameter]),
+                        keyValues.Parameter,
+                        indexParameter);
+
                     var collectionClrType = nestedStructuralProperty.GetMemberInfo(forMaterialization: true, forSet: true).GetMemberType();
                     innerShaper = Call(
                         MaterializeJsonEntityCollectionMethodInfo.MakeGenericMethod(
@@ -433,12 +485,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             },
                             collectionClrType),
                         QueryCompilationContext.QueryContextParameter,
+                        keyValues.Parameter,
                         jsonReaderDataShaperLambdaParameter,
                         Constant(nestedStructuralProperty),
                         Lambda(
                             innerShaper,
                             QueryCompilationContext.QueryContextParameter,
-                            jsonReaderDataShaperLambdaParameter));
+                            keyValues.Parameter,
+                            jsonReaderDataShaperLambdaParameter),
+                        indexBasedSnapshotFactory);
 
                     var shaperEntityParameter = Parameter(nestedStructuralProperty.DeclaringType.ClrType);
                     var ownedNavigationType = nestedStructuralProperty.GetMemberInfo(forMaterialization: true, forSet: true).GetMemberType();
@@ -546,9 +601,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             jsonMaterializerExpression = Block(shaperBlockVariables, shaperBlockExpressions);
 
             var shaperLambda = Lambda(
-                    jsonMaterializerExpression,
-                    QueryCompilationContext.QueryContextParameter,
-                    jsonReaderDataShaperLambdaParameter);
+                jsonMaterializerExpression,
+                QueryCompilationContext.QueryContextParameter,
+                keyValues.Parameter,
+                jsonReaderDataShaperLambdaParameter);
 
             MethodInfo method;
             if (Nullable.GetUnderlyingType(clrType) is { } underlyingType)
@@ -568,6 +624,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return Call(
                 method,
                 QueryCompilationContext.QueryContextParameter,
+                noKeyValues ? Constant(null, typeof(ISnapshot)) : keyValues.Parameter,
                 jsonReaderDataShaperLambdaParameter,
                 Constant(nullable),
                 shaperLambda);
@@ -640,7 +697,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // and adds mapping between materialization context parameter and json reader data parameter,
                     // so when we encounter an expression that tries to read from value buffer we know which json reader data to rewrite the read to instead.
                     var newExpression = (NewExpression)binaryExpression.Right;
-                    _materializationContextToJsonReaderDataMapping[parameterExpression] = _valueBufferToJsonReaderDataMapping[newExpression.Arguments[0]];
+                    var valueBufferExpression = newExpression.Arguments[0];
+                    _materializationContextToJsonReaderDataMapping[parameterExpression] = _valueBufferToJsonReaderDataMapping[valueBufferExpression];
+
+                    if (_valueBufferToKeyValuesMapping.TryGetValue(valueBufferExpression, out var keyValuesParameter))
+                    {
+                        _jsonMaterializationContextToKeyValuesMapping[parameterExpression] = keyValuesParameter;
+                    }
 
                     var valueBuffer = Constant(ValueBuffer.Empty);
                     var updatedExpression = newExpression.Update(
@@ -683,21 +746,36 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 && methodCallExpression.Method.GetGenericMethodDefinition()
                 == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
-                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
                 var materializationContext = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
+                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
+
+                //if (property.IsPrimaryKey())
+                //{
+                //    var indexArgument = methodCallExpression.Arguments[1];
+                //    var keyValues = _jsonMaterializationContextToKeyValuesMapping[materializationContext];
+                //    return ConvertIfNotMatch(
+                //        Call(
+                //            keyValues,
+                //            Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
+                //            indexArgument),
+                //        methodCallExpression.Type);
+                //}
 
                 var jsonReaderData = _materializationContextToJsonReaderDataMapping[materializationContext];
                 var jsonReaderManager = _jsonReaderDataToJsonReaderManagerParameterMapping[jsonReaderData];
 
                 var jsonReadPropertyValueExpression = CreateReadJsonPropertyValueExpression(jsonReaderManager, property);
 
-                return methodCallExpression.Type != jsonReadPropertyValueExpression.Type
-                    ? Convert(jsonReadPropertyValueExpression, methodCallExpression.Type)
-                    : jsonReadPropertyValueExpression;
+                return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
             }
 
             return base.VisitMethodCall(methodCallExpression);
         }
+
+        private static Expression ConvertIfNotMatch(Expression expression, Type targetType)
+            => expression.Type != targetType
+                ? Convert(expression, targetType)
+                : expression;
 
         private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
         {
@@ -799,6 +877,44 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
                 : (projectionBindingExpression.Index
                     ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
+
+        private sealed class JsonEntityMaterializerKeyValuesSnapshotRewriter(ParameterExpression keyValuesParameter) : ExpressionVisitor
+        {
+            public BlockExpression Rewrite(BlockExpression jsonEntityShaperMaterializer)
+                => (BlockExpression)VisitBlock(jsonEntityShaperMaterializer);
+
+            protected override Expression VisitNew(NewExpression newExpression)
+            {
+                if (newExpression.Type.IsAssignableTo(typeof(ISnapshot)))
+                {
+                    var newArgs = new Expression[newExpression.Arguments.Count];
+                    for (var i = 0; i < newExpression.Arguments.Count; i++)
+                    {
+                        var argument = newExpression.Arguments[i];
+                        if (argument is MethodCallExpression methodCallExpression
+                         && methodCallExpression.Method.IsGenericMethod
+                         && methodCallExpression.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                         && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property)
+                        {
+                            newArgs[i] = ConvertIfNotMatch(
+                                Call(
+                                    keyValuesParameter,
+                                    Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
+                                    Constant(property.GetIndex())),
+                                methodCallExpression.Type);
+                        }
+                        else
+                        {
+                            newArgs[i] = argument;
+                        }
+                    }
+
+                    return newExpression.Update(newArgs);
+                }
+
+                return base.VisitNew(newExpression);
+            }
+        }
 
         private sealed class JsonEntityMaterializerMetadataRewriter(Dictionary<IProperty, ParameterExpression> mappedProperties) : ExpressionVisitor
         {

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -47,12 +48,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return false;
         }
 
-        // Almost 1-1 copy from relational, but no key values
+        // Almost 1-1 copy from relational, but different key values
         public static TStructural? MaterializeJsonStructuralType<TStructural>(
             QueryContext queryContext,
+            ISnapshot? keyValues,
             JsonReaderData jsonReaderData,
             bool nullable,
-            Func<QueryContext, JsonReaderData, TStructural> shaper)
+            Func<QueryContext, ISnapshot?, JsonReaderData, TStructural> shaper)
         {
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
@@ -67,16 +69,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            var result = shaper(queryContext, jsonReaderData);
+            var result = shaper(queryContext, keyValues, jsonReaderData);
 
             return result;
         }
 
         public static TStructural? MaterializeJsonNullableValueStructuralType<TStructural>(
             QueryContext queryContext,
+            ISnapshot? keyValues,
             JsonReaderData jsonReaderData,
             bool nullable,
-            Func<QueryContext, JsonReaderData, TStructural> shaper)
+            Func<QueryContext, ISnapshot?, JsonReaderData, TStructural> shaper)
             where TStructural : struct
         {
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
@@ -92,16 +95,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            var result = shaper(queryContext, jsonReaderData);
+            var result = shaper(queryContext, keyValues, jsonReaderData);
 
             return result;
         }
 
         public static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
             QueryContext queryContext,
+            ISnapshot? keyValues,
             JsonReaderData jsonReaderData,
             IPropertyBase structuralProperty,
-            Func<QueryContext, JsonReaderData, TEntity> innerShaper)
+            Func<QueryContext, ISnapshot?, JsonReaderData, TEntity> innerShaper,
+            Func<ISnapshot?, int, ISnapshot?> snapshotFactory)
             where TEntity : class
         {
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
@@ -120,13 +125,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             tokenType = manager.MoveNext();
-
+            var count = 0;
             while (tokenType != JsonTokenType.EndArray)
             {
                 if (tokenType == JsonTokenType.StartObject)
                 {
                     manager.CaptureState();
-                    var entity = innerShaper(queryContext, jsonReaderData);
+                    var newKeyValues = snapshotFactory(keyValues, count++);
+                    var entity = innerShaper(queryContext, newKeyValues, jsonReaderData);
                     collectionAccessor.AddStandalone(result, entity);
                     manager = new Utf8JsonReaderManager(manager.Data, queryContext.QueryLogger);
 
