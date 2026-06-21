@@ -56,8 +56,8 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
             afterSaveBehavior: PropertySaveBehavior.Throw);
 
-        var type = runtimeEntityType.AddProperty(
-            "$type",
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
             typeof(string),
             propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
             afterSaveBehavior: PropertySaveBehavior.Throw,
