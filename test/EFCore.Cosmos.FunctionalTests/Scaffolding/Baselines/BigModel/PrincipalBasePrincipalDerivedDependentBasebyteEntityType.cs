@@ -34,7 +34,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             sharedClrType: true,
             indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(typeof(Dictionary<string, object>)),
             propertyBag: true,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
             propertyCount: 8,
             foreignKeyCount: 2,

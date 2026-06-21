@@ -20,7 +20,7 @@ public partial class PrincipalDerivedEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>",
             typeof(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalDerived",
             propertyCount: 0,
             navigationCount: 2,

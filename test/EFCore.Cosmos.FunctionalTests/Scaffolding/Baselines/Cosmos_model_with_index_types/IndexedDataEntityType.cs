@@ -32,7 +32,7 @@ public partial class IndexedDataEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCosmosTest+IndexedData",
             typeof(CompiledModelCosmosTest.IndexedData),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "IndexedData",
             propertyCount: 10,
             unnamedIndexCount: 3,

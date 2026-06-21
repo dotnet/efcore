@@ -2071,7 +2071,7 @@ public static class RelationalPropertyExtensions
             ?? (property.IsKey() || !property.DeclaringType.IsMappedToJson()
                 ? null
                 : property == property.DeclaringType.FindDiscriminatorProperty()
-                    ? property.DeclaringType.Model.GetEmbeddedDiscriminatorName()
+                    ? (string?)property.DeclaringType.Model.FindAnnotation("EmbeddedDiscriminatorName")?.Value
                     : property.Name);
 
     /// <summary>

@@ -6517,7 +6517,6 @@ partial class Snapshot : ModelSnapshot
             AddBoilerPlate(
                 """
         modelBuilder
-            .HasEmbeddedDiscriminatorName("Terminator")
             .HasDefaultSchema("DefaultSchema")
             .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -6552,7 +6551,8 @@ partial class Snapshot : ModelSnapshot
                         b1.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
                             {
                                 b2.Property<string>("Discriminator")
-                                    .IsRequired();
+                                    .IsRequired()
+                                    .HasJsonPropertyName("Terminator");
 
                                 b2.Property<string>("Id");
 

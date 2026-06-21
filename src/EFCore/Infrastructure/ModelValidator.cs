@@ -186,7 +186,8 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     ///     Returns <see langword="true" /> if the given name only uses letters, ASCII digits and underscores and does not start with a digit;
     ///     that is, if it can be used as-is as an identifier in generated code.
     /// </summary>
-    internal static bool IsValidIdentifier(string? name)
+    [EntityFrameworkInternal]
+    public static bool IsValidIdentifier(string? name)
     {
         if (string.IsNullOrEmpty(name)
             || (!char.IsLetter(name[0]) && name[0] != '_'))

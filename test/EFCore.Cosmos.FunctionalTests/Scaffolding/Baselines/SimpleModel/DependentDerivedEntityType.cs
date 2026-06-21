@@ -28,7 +28,7 @@ public partial class DependentDerivedEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<int>",
             typeof(CompiledModelTestBase.DependentDerived<int>),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "DependentDerived",
             propertyCount: 5,
             keyCount: 1);

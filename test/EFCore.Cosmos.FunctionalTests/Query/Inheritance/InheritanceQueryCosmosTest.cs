@@ -253,7 +253,7 @@ WHERE (c["Discriminator"] = "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] IN ("Daisy", "Rose") AND (c["$type"] = "Rose"))
+WHERE (c["Discriminator"] IN ("Daisy", "Rose") AND (c["Discriminator"] = "Rose"))
 """);
             });
 
@@ -290,7 +290,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["$type"] IN ("Daisy", "Rose")
+WHERE c["Discriminator"] IN ("Daisy", "Rose")
 ORDER BY c["id"]
 """);
             });
@@ -350,7 +350,7 @@ OFFSET 0 LIMIT 2
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] = "Rose")
+WHERE (c["Discriminator"] = "Rose")
 OFFSET 0 LIMIT 2
 """);
             });

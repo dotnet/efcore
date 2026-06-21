@@ -297,8 +297,7 @@ public class CSharpHelper : ICSharpHelper
             builder.Append(name[partStart..]);
         }
 
-        if (builder.Length == 0
-            || !IsIdentifierStartCharacter(builder[0]))
+        if (!ModelValidator.IsValidIdentifier(builder.ToString()))
         {
             builder.Insert(0, '_');
         }
@@ -1633,8 +1632,8 @@ public class CSharpHelper : ICSharpHelper
     }
 
     private static bool IsIdentifierStartCharacter(char ch)
-        => char.IsLetter(ch) || ch == '_';
+        => ModelValidator.IsValidIdentifier(ch.ToString());
 
     private static bool IsIdentifierPartCharacter(char ch)
-        => char.IsLetter(ch) || char.IsAsciiDigit(ch) || ch == '_';
+        => ModelValidator.IsValidIdentifier($"_{ch}");
 }

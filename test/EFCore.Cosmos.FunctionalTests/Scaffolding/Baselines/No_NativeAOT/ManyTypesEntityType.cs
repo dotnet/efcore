@@ -30,7 +30,7 @@ public partial class ManyTypesEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes",
             typeof(CompiledModelTestBase.ManyTypes),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "ManyTypes",
             propertyCount: 170,
             keyCount: 1);
