@@ -919,8 +919,9 @@ public class RelationalBuilderExtensionsTest
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(JsonContainer))!;
         var ownedEntityType = entityType.FindNavigation(nameof(JsonContainer.JsonOwned))!.TargetEntityType;
-        ((EntityType)ownedEntityType).Builder.HasDiscriminator("EntityDiscriminator", typeof(string), ConfigurationSource.Explicit)!.HasValue(
-            typeof(JsonOwned), "Owned");
+        var discriminatorBuilder = ((EntityType)ownedEntityType).Builder.HasDiscriminator(
+            "EntityDiscriminator", typeof(string), ConfigurationSource.Explicit)!;
+        discriminatorBuilder.HasValue(typeof(JsonOwned), "Owned");
         var complexType = entityType.FindComplexProperty(nameof(JsonContainer.JsonComplex))!.ComplexType;
 
         var ownedDiscriminatorProperty = ownedEntityType.FindDiscriminatorProperty()!;

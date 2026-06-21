@@ -54,8 +54,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     public virtual IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations)
         => annotations.Where(
             a => (!CoreAnnotationNames.AllNames.Contains(a.Name)
-                    || a.Name == CoreAnnotationNames.EmbeddedDiscriminatorName)
+                    || ShouldGenerateCoreAnnotation(a.Name))
                 && !IgnoredRelationalAnnotations.Contains(a.Name));
+
+    private static bool ShouldGenerateCoreAnnotation(string annotationName)
+        => annotationName == CoreAnnotationNames.EmbeddedDiscriminatorName;
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(IModel model, IDictionary<string, IAnnotation> annotations)
