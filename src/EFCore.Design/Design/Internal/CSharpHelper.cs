@@ -297,17 +297,17 @@ public class CSharpHelper : ICSharpHelper
             builder.Append(name[partStart..]);
         }
 
-        if (!ModelValidator.IsValidIdentifier(builder.ToString()))
-        {
-            builder.Insert(0, '_');
-        }
-
         if (capitalize != null)
         {
             ChangeFirstLetterCase(builder, capitalize.Value);
         }
 
         var identifier = builder.ToString();
+        if (!ModelValidator.IsValidIdentifier(identifier))
+        {
+            identifier = "_" + identifier;
+        }
+
         return identifier;
     }
 
@@ -1632,8 +1632,8 @@ public class CSharpHelper : ICSharpHelper
     }
 
     private static bool IsIdentifierStartCharacter(char ch)
-        => ModelValidator.IsValidIdentifier(ch.ToString());
+        => char.IsLetter(ch) || ch == '_';
 
     private static bool IsIdentifierPartCharacter(char ch)
-        => ModelValidator.IsValidIdentifier($"_{ch}");
+        => char.IsLetter(ch) || char.IsAsciiDigit(ch) || ch == '_';
 }
