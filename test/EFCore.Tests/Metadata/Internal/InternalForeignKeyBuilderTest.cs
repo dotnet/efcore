@@ -1062,6 +1062,117 @@ public class InternalForeignKeyBuilderTest
         Assert.False(relationshipBuilder.Metadata.IsConstrained);
     }
 
+    [Fact]
+    public void Inverting_identifying_relationship_keeps_derived_dependent()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        customerEntityBuilder.PrimaryKey([Customer.IdProperty], ConfigurationSource.Explicit);
+        var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+        orderEntityBuilder.PrimaryKey([Order.IdProperty], ConfigurationSource.Explicit);
+        var specialOrderEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Explicit);
+        specialOrderEntityBuilder.HasBaseType(orderEntityBuilder.Metadata, ConfigurationSource.Explicit);
+
+        // Identifying FK: principal = SpecialOrder (derived), dependent = Customer (non-derived),
+        // where the FK property is the dependent's primary key.
+        var relationshipBuilder = customerEntityBuilder
+            .HasRelationship(specialOrderEntityBuilder.Metadata, ConfigurationSource.Convention)
+            .HasForeignKey([Customer.IdProperty], ConfigurationSource.Explicit)
+            .HasPrincipalKey(specialOrderEntityBuilder.Metadata.FindPrimaryKey().Properties, ConfigurationSource.Explicit)
+            .IsUnique(true, ConfigurationSource.Explicit);
+
+        Assert.Same(specialOrderEntityBuilder.Metadata, relationshipBuilder.Metadata.PrincipalEntityType);
+        Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
+
+        // Invert the relationship, requesting the base Order as the new dependent. The inverted FK must
+        // remain between the derived SpecialOrder and the non-derived Customer rather than collapsing to Order.
+        var inverted = relationshipBuilder.HasEntityTypes(
+            customerEntityBuilder.Metadata, orderEntityBuilder.Metadata, ConfigurationSource.Explicit);
+
+        Assert.NotNull(inverted);
+        Assert.Same(customerEntityBuilder.Metadata, inverted.Metadata.PrincipalEntityType);
+        Assert.Same(specialOrderEntityBuilder.Metadata, inverted.Metadata.DeclaringEntityType);
+    }
+
+    [Fact]
+    public void Attach_uses_provided_principal_type_when_in_model()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        principalEntityBuilder.PrimaryKey([Customer.IdProperty], ConfigurationSource.Explicit);
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        var fkBuilder = dependentEntityBuilder
+            .HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+
+        var snapshot = InternalEntityTypeBuilder.DetachRelationship(fkBuilder.Metadata);
+
+        // snapshot.PrincipalEntityType is Customer (in model, name matches) — the short-circuit fires
+        var reattached = snapshot.Attach(dependentEntityBuilder);
+
+        Assert.NotNull(reattached);
+        Assert.Same(principalEntityBuilder.Metadata, reattached.Metadata.PrincipalEntityType);
+        Assert.Same(dependentEntityBuilder.Metadata, reattached.Metadata.DeclaringEntityType);
+    }
+
+    [Fact]
+    public void Attach_does_not_bind_to_wrong_shared_type_principal_by_clr_type()
+    {
+        // Two shared-type entity types with the same CLR type but different names.
+        // Passing PrincipalB (wrong entity, same CLR type) should NOT cause the FK to bind to it;
+        // the !HasSharedClrType guard disables CLR-type matching for shared types.
+        var modelBuilder = CreateInternalModelBuilder();
+
+        var principalABuilder = modelBuilder.SharedTypeEntity("PrincipalA", typeof(Customer), ConfigurationSource.Explicit)!;
+        principalABuilder.PrimaryKey([Customer.IdProperty], ConfigurationSource.Explicit);
+        var principalBBuilder = modelBuilder.SharedTypeEntity("PrincipalB", typeof(Customer), ConfigurationSource.Explicit)!;
+
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        var fkBuilder = dependentEntityBuilder
+            .HasRelationship(principalABuilder.Metadata, ConfigurationSource.Convention);
+
+        var snapshot = InternalEntityTypeBuilder.DetachRelationship(fkBuilder.Metadata);
+
+        // Pass PrincipalB (same CLR type as PrincipalA but different name) as principalEntityType.
+        // Because PrincipalB.HasSharedClrType = true the CLR-type path is skipped; name matching also
+        // fails, so the fallback uses the FK's recorded PrincipalA (still in model).
+        var reattached = snapshot.Relationship.Attach(dependentEntityBuilder, principalBBuilder.Metadata);
+
+        Assert.NotNull(reattached);
+        Assert.Same(principalABuilder.Metadata, reattached.Metadata.PrincipalEntityType);
+        Assert.NotSame(principalBBuilder.Metadata, reattached.Metadata.PrincipalEntityType);
+    }
+
+    [Fact]
+    public void Attach_falls_back_to_model_lookup_when_provided_principal_is_not_in_model()
+    {
+        var modelBuilder = CreateInternalModelBuilder();
+        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        principalEntityBuilder.PrimaryKey([Customer.IdProperty], ConfigurationSource.Explicit);
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        var fkBuilder = dependentEntityBuilder
+            .HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+
+        var stalePrincipal = principalEntityBuilder.Metadata;
+        var snapshot = InternalEntityTypeBuilder.DetachRelationship(fkBuilder.Metadata);
+
+        // Remove and re-add the principal entity to produce a stale captured reference.
+        modelBuilder.HasNoEntityType(stalePrincipal, ConfigurationSource.Explicit);
+        var newPrincipalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
+        newPrincipalEntityBuilder.PrimaryKey([Customer.IdProperty], ConfigurationSource.Explicit);
+
+        Assert.False(stalePrincipal.IsInModel);
+
+        // snapshot.PrincipalEntityType is stale (IsInModel = false), so the short-circuit is skipped;
+        // Attach falls back to model lookup by name and finds the new Customer instance.
+        var reattached = snapshot.Attach(dependentEntityBuilder);
+
+        Assert.NotNull(reattached);
+        Assert.Same(newPrincipalEntityBuilder.Metadata, reattached.Metadata.PrincipalEntityType);
+    }
+
     private InternalModelBuilder CreateInternalModelBuilder()
         => new(new Model());
 
