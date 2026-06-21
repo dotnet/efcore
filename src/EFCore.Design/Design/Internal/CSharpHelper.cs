@@ -302,13 +302,11 @@ public class CSharpHelper : ICSharpHelper
             ChangeFirstLetterCase(builder, capitalize.Value);
         }
 
-        var identifier = builder.ToString();
-        if (!ModelValidator.IsValidIdentifier(identifier))
-        {
-            identifier = "_" + identifier;
-        }
+        var candidateIdentifier = builder.ToString();
 
-        return identifier;
+        return ModelValidator.IsValidIdentifier(candidateIdentifier)
+            ? candidateIdentifier
+            : "_" + candidateIdentifier;
     }
 
     private static void ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
