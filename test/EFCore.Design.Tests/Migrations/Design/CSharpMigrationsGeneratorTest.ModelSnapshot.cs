@@ -6489,6 +6489,7 @@ partial class Snapshot : ModelSnapshot
         => Test(
             builder =>
             {
+                builder.HasEmbeddedDiscriminatorName("Terminator");
                 builder.Entity<EntityWithOneProperty>(b =>
                 {
                     b.HasKey(x => x.Id).HasName("PK_Custom");
@@ -6501,6 +6502,7 @@ partial class Snapshot : ModelSnapshot
                             bb.ComplexProperty(
                                 x => x.EntityWithStringKey, bbb =>
                                 {
+                                    bbb.HasDiscriminator<string>("Discriminator");
                                     bbb.ComplexCollection(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
                                 });
                             bb.ComplexProperty(
@@ -6513,8 +6515,14 @@ partial class Snapshot : ModelSnapshot
                 });
             },
             AddBoilerPlate(
-                GetHeading()
-                + """
+                """
+        modelBuilder
+            .HasEmbeddedDiscriminatorName("Terminator")
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
         modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
             {
                 var id = b.Property<int>("Id")
@@ -6543,6 +6551,9 @@ partial class Snapshot : ModelSnapshot
 
                         b1.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
                             {
+                                b2.Property<string>("Discriminator")
+                                    .IsRequired();
+
                                 b2.Property<string>("Id");
 
                                 b2.ComplexCollection(typeof(List<Dictionary<string, object>>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
@@ -6553,6 +6564,8 @@ partial class Snapshot : ModelSnapshot
 
                                         b3.HasJsonPropertyName("JsonProps");
                                     });
+
+                                b2.HasDiscriminator<string>("Discriminator").HasValue("EntityWithStringKey");
                             });
 
                         b1
@@ -6595,6 +6608,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.False(entityWithStringKeyComplexProperty.IsCollection);
                 Assert.True(entityWithStringKeyComplexProperty.IsNullable);
                 var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
+                Assert.Equal("Terminator", entityWithStringKeyComplexType.FindDiscriminatorProperty()!.GetJsonPropertyName());
 
                 var propertiesComplexCollection =
                     entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));

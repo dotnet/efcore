@@ -52,7 +52,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations)
-        => annotations.Where(a => !(CoreAnnotationNames.AllNames.Contains(a.Name)
+        => annotations.Where(a => !((CoreAnnotationNames.AllNames.Contains(a.Name)
+                && a.Name != CoreAnnotationNames.EmbeddedDiscriminatorName)
             || IgnoredRelationalAnnotations.Contains(a.Name)));
 
     /// <inheritdoc />
@@ -179,6 +180,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         IDictionary<string, IAnnotation> annotations)
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        GenerateSimpleFluentApiCall(
+            annotations,
+            CoreAnnotationNames.EmbeddedDiscriminatorName, "HasEmbeddedDiscriminatorName",
+            methodCallCodeFragments);
 
         GenerateSimpleFluentApiCall(
             annotations,

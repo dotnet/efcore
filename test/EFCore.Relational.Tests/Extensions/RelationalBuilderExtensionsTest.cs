@@ -896,6 +896,38 @@ public class RelationalBuilderExtensionsTest
     }
 
     [Fact]
+    public void Embedded_discriminator_name_is_used_for_json_entity_and_complex_discriminators()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.HasEmbeddedDiscriminatorName("Terminator");
+        modelBuilder.Entity<JsonContainer>(
+            b =>
+            {
+                b.OwnsOne(
+                    e => e.JsonOwned, bb =>
+                    {
+                        bb.ToJson();
+                    });
+                b.ComplexProperty(
+                    e => e.JsonComplex, bb =>
+                    {
+                        bb.ToJson();
+                        bb.HasDiscriminator<string>("ComplexDiscriminator");
+                    });
+            });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(JsonContainer))!;
+        var ownedEntityType = entityType.FindNavigation(nameof(JsonContainer.JsonOwned))!.TargetEntityType;
+        ((EntityType)ownedEntityType).Builder.HasDiscriminator("EntityDiscriminator", typeof(string), ConfigurationSource.Explicit)!.HasValue(
+            typeof(JsonOwned), "Owned");
+        var complexType = entityType.FindComplexProperty(nameof(JsonContainer.JsonComplex))!.ComplexType;
+
+        Assert.Equal("Terminator", ownedEntityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
+        Assert.Equal("Terminator", complexType.FindDiscriminatorProperty()!.GetJsonPropertyName());
+    }
+
+    [Fact]
     public void Can_set_schema_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1520,6 +1552,23 @@ public class RelationalBuilderExtensionsTest
 
         public int OrderId { get; set; }
         public Order Order { get; }
+    }
+
+    private class JsonContainer
+    {
+        public int Id { get; set; }
+        public JsonOwned JsonOwned { get; set; }
+        public JsonComplex JsonComplex { get; set; }
+    }
+
+    private class JsonOwned
+    {
+        public string Name { get; set; }
+    }
+
+    private class JsonComplex
+    {
+        public string Name { get; set; }
     }
 
     private class Splot
