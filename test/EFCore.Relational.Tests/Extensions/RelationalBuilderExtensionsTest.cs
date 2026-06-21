@@ -1562,18 +1562,18 @@ public class RelationalBuilderExtensionsTest
     private class JsonContainer
     {
         public int Id { get; set; }
-        public JsonOwned JsonOwned { get; set; }
-        public JsonComplex JsonComplex { get; set; }
+        public JsonOwned JsonOwned { get; set; } = null!;
+        public JsonComplex JsonComplex { get; set; } = null!;
     }
 
     private class JsonOwned
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class JsonComplex
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Splot
