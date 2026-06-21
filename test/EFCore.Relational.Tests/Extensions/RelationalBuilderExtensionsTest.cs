@@ -923,8 +923,13 @@ public class RelationalBuilderExtensionsTest
             typeof(JsonOwned), "Owned");
         var complexType = entityType.FindComplexProperty(nameof(JsonContainer.JsonComplex))!.ComplexType;
 
-        Assert.Equal("Terminator", ownedEntityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
-        Assert.Equal("Terminator", complexType.FindDiscriminatorProperty()!.GetJsonPropertyName());
+        var ownedDiscriminatorProperty = ownedEntityType.FindDiscriminatorProperty()!;
+        var complexDiscriminatorProperty = complexType.FindDiscriminatorProperty()!;
+
+        Assert.Equal("EntityDiscriminator", ownedDiscriminatorProperty.Name);
+        Assert.Equal("Terminator", ownedDiscriminatorProperty.GetJsonPropertyName());
+        Assert.Equal("ComplexDiscriminator", complexDiscriminatorProperty.Name);
+        Assert.Equal("Terminator", complexDiscriminatorProperty.GetJsonPropertyName());
     }
 
     [Fact]
