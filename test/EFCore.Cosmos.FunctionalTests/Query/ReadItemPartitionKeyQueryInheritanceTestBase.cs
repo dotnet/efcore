@@ -262,6 +262,16 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
             ss => ss.Set<DerivedOnlySinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1c"));
 
     [Fact]
+    public virtual Task WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key_leaf()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().WithPartitionKey("PK1")
+                .Where(e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == "PK2"),
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1")
+                .Where(e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == "PK2"),
+            assertEmpty: true);
+
+    [Fact]
     public virtual Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_leaf()
     {
         var partitionKey = "PK1";

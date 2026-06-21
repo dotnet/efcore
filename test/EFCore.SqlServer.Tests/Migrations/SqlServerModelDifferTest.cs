@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -172,6 +173,37 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 
                 var columnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
                 Assert.Equal("[FirstName] + [LastName]", columnOperation.ComputedColumnSql);
+            });
+
+    [Fact]
+    public void Add_required_vector_column_uses_zero_vector_default_value()
+        => Execute(
+            source => source.Entity(
+                "Cat",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.ToTable("Cats");
+                }),
+            target => target.Entity(
+                "Cat",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.ToTable("Cats");
+                    x.Property<SqlVector<float>>("Embedding").HasColumnType("vector(3)");
+                }),
+            operations =>
+            {
+                Assert.Equal(1, operations.Count);
+
+                var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                Assert.Equal("Embedding", operation.Name);
+
+                var defaultValue = Assert.IsType<SqlVector<float>>(operation.DefaultValue);
+                Assert.False(defaultValue.IsNull);
+                Assert.Equal(3, defaultValue.Length);
+                Assert.True(defaultValue.Memory.Span.TrimStart(0f).IsEmpty);
             });
 
     [Fact]

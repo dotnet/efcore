@@ -1726,6 +1726,12 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(2, parent.Children.Count());
         Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
 
+        var expectedChildState = state == EntityState.Detached ? EntityState.Detached : EntityState.Unchanged;
+        foreach (var child in parent.Children)
+        {
+            Assert.Equal(expectedChildState, context.Entry(child).State);
+        }
+
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
@@ -1868,8 +1874,13 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
             var single = context.ChangeTracker.Entries<Single>().Single().Entity;
 
+            Assert.Equal(EntityState.Unchanged, context.Entry(single).State);
             Assert.Same(single, parent.Single);
             Assert.Same(parent, single.Parent);
+        }
+        else
+        {
+            Assert.Equal(EntityState.Detached, navigationEntry.EntityEntry.State);
         }
     }
 

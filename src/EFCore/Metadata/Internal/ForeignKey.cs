@@ -1210,6 +1210,13 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
 
         if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
         {
+            if (principalEntityType.Model is Model model
+                && ReferenceEquals(model, dependentEntityType.Model)
+                && model.IsInModelSnapshot)
+            {
+                return true;
+            }
+
             if (shouldThrow)
             {
                 throw new InvalidOperationException(
