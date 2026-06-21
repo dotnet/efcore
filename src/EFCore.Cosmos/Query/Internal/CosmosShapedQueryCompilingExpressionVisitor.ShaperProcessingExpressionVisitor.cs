@@ -63,6 +63,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly PropertyInfo QueryContextQueryLoggerProperty =
             typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger))!;
 
+        private static readonly MethodInfo TryGetEntryMethod =
+            typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)) ?? throw new UnreachableException();
+
         // ValueBuffer: JsonReaderManager
         private readonly Dictionary<Expression, ParameterExpression>
             _valueBufferToJsonReaderDataMapping = new();
@@ -304,7 +307,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //                  goto done
                 //          else if // @TODO: NESTED??
                 //          else
-                //              jsonReaderManager.Skip();
+                //              jsonReaderManager.Skip(); // @TODO: was it 1 or 2 skips?
                 //              jsonReaderManager.Skip();
                 //
                 //      case (JsonTokenType.EndObject):
@@ -312,10 +315,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //      default:
                 //          throw invalid json
                 // label: done
-
-                // 
-                // if (discriminatorValue == null || idValue == null)
-                // @TODO: What if not found? throw? We will just pass to TryGetEntry and it should return IsNullKey?
 
                 var propertiesToRead = new Dictionary<IProperty, ParameterExpression>();
                 if (discriminatorProperty != null)
@@ -394,7 +393,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         [managerVariable, tokenTypeVariable],
                         metadataBlockExpressions));
 
-                structuralTypeShaperMaterializer = new JsonEntityMaterializerMetadataRewriter(propertiesToRead).Rewrite(structuralTypeShaperMaterializer); // @TODO: Not needed anymore with JsonEntityMaterializerKeyValuesSnapshotRewriter?
+                structuralTypeShaperMaterializer = new JsonEntityMaterializerMetadataRewriter(propertiesToRead).Rewrite(structuralTypeShaperMaterializer);
 
                 if (isDocumentRoot)
                 {
@@ -749,18 +748,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var materializationContext = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
 
-                //if (property.IsPrimaryKey())
-                //{
-                //    var indexArgument = methodCallExpression.Arguments[1];
-                //    var keyValues = _jsonMaterializationContextToKeyValuesMapping[materializationContext];
-                //    return ConvertIfNotMatch(
-                //        Call(
-                //            keyValues,
-                //            Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
-                //            indexArgument),
-                //        methodCallExpression.Type);
-                //}
-
                 var jsonReaderData = _materializationContextToJsonReaderDataMapping[materializationContext];
                 var jsonReaderManager = _jsonReaderDataToJsonReaderManagerParameterMapping[jsonReaderData];
 
@@ -890,23 +877,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var newArgs = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
-                        var argument = newExpression.Arguments[i];
-                        if (argument is MethodCallExpression methodCallExpression
-                         && methodCallExpression.Method.IsGenericMethod
-                         && methodCallExpression.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                         && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property)
-                        {
-                            newArgs[i] = ConvertIfNotMatch(
-                                Call(
-                                    keyValuesParameter,
-                                    Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
-                                    Constant(property.GetIndex())),
-                                methodCallExpression.Type);
-                        }
-                        else
-                        {
-                            newArgs[i] = argument;
-                        }
+                        newArgs[i] = TryRewriteValueBufferTryReadValue(newExpression.Arguments[i]);
                     }
 
                     return newExpression.Update(newArgs);
@@ -914,6 +885,39 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 return base.VisitNew(newExpression);
             }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method == TryGetEntryMethod)
+                {
+                    var keyValuesArray = (NewArrayExpression)methodCallExpression.Arguments[1];
+                    var newExpressions = new Expression[keyValuesArray.Expressions.Count];
+                    for (var i = 0; i < keyValuesArray.Expressions.Count; i++)
+                    {
+                        newExpressions[i] = TryRewriteValueBufferTryReadValue(keyValuesArray.Expressions[i]);
+                    }
+
+                    return methodCallExpression.Update(
+                        methodCallExpression.Object,
+                        [methodCallExpression.Arguments[0], keyValuesArray.Update(newExpressions), ..methodCallExpression.Arguments.Skip(2)]);
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            private Expression TryRewriteValueBufferTryReadValue(Expression methodCallExpression)
+                => methodCallExpression is MethodCallExpression methodCall
+                && methodCall.Method.IsGenericMethod
+                && methodCall.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                && methodCall.Arguments[2].GetConstantValue<object>() is IProperty property
+                && property.IsKey()
+                    ? ConvertIfNotMatch(
+                            Call(
+                                keyValuesParameter,
+                                Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
+                                Constant(property.GetIndex())),
+                            methodCall.Type)
+                    : methodCallExpression;
         }
 
         private sealed class JsonEntityMaterializerMetadataRewriter(Dictionary<IProperty, ParameterExpression> mappedProperties) : ExpressionVisitor
