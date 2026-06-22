@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using System.Xml;
 using Microsoft.Data.SqlClient;
 
 // ReSharper disable InconsistentNaming
@@ -3850,14 +3851,9 @@ FROM INFORMATION_SCHEMA.COLUMNS
             .Where(d => d.Id == id)
             .Select(d => d.Content ?? value);
 
-        // A UTF-8 prolog is rewritten to UTF-16 because the value is sent as an 'xml' parameter.
-        var expectedParameterValue = value.StartsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>", StringComparison.Ordinal)
-            ? "<?xml version=\"1.0\" encoding=\"utf-16\"?>" + value["<?xml version=\"1.0\" encoding=\"utf-8\"?>".Length..]
-            : value;
-
         Assert.Equal(
             $"""
-DECLARE @value xml = N'{expectedParameterValue}';
+DECLARE @value xml = N'{expected}';
 DECLARE @id int = {id};
 
 SELECT COALESCE([x].[Content], @value)
@@ -3871,7 +3867,7 @@ WHERE [x].[Id] = @id
 
         AssertSql(
             $"""
-@p0='{expectedParameterValue}' (Size = 4000) (DbType = Xml)
+@p0='{expected}' (DbType = Xml)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3881,13 +3877,47 @@ VALUES (@p0);
 """,
             //
             $"""
-@value='{expectedParameterValue}' (Size = 4000) (DbType = Xml)
+@value='{expected}' (DbType = Xml)
 @id='{id}'
 
 SELECT TOP(2) COALESCE([x].[Content], @value)
 FROM [XmlTestDocument] AS [x]
 WHERE [x].[Id] = @id
 """);
+    }
+
+    [Fact]
+    public async Task Xml_value_with_dtd_payload_is_rejected()
+    {
+        await using var context = CreateContext();
+
+        // A "billion laughs" entity-expansion payload: the reader must reject the DTD rather than expand it.
+        const string maliciousXml =
+            "<?xml version=\"1.0\"?>"
+            + "<!DOCTYPE lolz [<!ENTITY lol \"lol\">"
+            + "<!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
+            + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">]>"
+            + "<lolz>&lol3;</lolz>";
+
+        context.Add(new XmlTestDocument { Content = maliciousXml });
+
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() => context.SaveChangesAsync());
+        Assert.True(
+            HasXmlException(exception),
+            $"Expected an {nameof(XmlException)} in the exception chain but found: {exception}");
+
+        static bool HasXmlException(Exception exception)
+        {
+            for (var current = exception; current is not null; current = current.InnerException)
+            {
+                if (current is XmlException)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     private class XmlTestDocument
