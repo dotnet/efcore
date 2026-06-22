@@ -76,12 +76,13 @@ jobs:
 
       - name: Merge coverage report
         if: always()
+        continue-on-error: true
         run: |
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet tool install --global dotnet-coverage || dotnet tool update --global dotnet-coverage
             dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
           fi
 
@@ -147,12 +148,13 @@ jobs:
 
       - name: Merge coverage report
         if: always()
+        continue-on-error: true
         run: |
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet tool install --global dotnet-coverage || dotnet tool update --global dotnet-coverage
             dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
           fi
 
@@ -224,12 +226,13 @@ jobs:
 
       - name: Merge coverage report
         if: always()
+        continue-on-error: true
         run: |
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet tool install --global dotnet-coverage || dotnet tool update --global dotnet-coverage
             dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
           fi
 
@@ -289,12 +292,13 @@ jobs:
 
       - name: Merge coverage report
         if: always()
+        continue-on-error: true
         run: |
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet tool install --global dotnet-coverage || dotnet tool update --global dotnet-coverage
             dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
           fi
 
@@ -356,12 +360,13 @@ jobs:
 
       - name: Merge coverage report
         if: always()
+        continue-on-error: true
         run: |
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet tool install --global dotnet-coverage || dotnet tool update --global dotnet-coverage
             dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
           fi
 
