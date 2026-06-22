@@ -1,6 +1,8 @@
 name: Build
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
 
 permissions: {}
@@ -42,6 +44,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    permissions:
+      contents: read
+      code-quality: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -57,13 +63,36 @@ jobs:
 
       - name: Test
         run: |
+          mkdir -p artifacts/coverage
           pattern=$(echo "$SQLSERVER_TEST_PROJECTS $ADDITIONAL_EXCLUDED_PROJECTS" | xargs -n1 | tr '\n' '|' | sed 's/|$//')
           failed=0
           for proj in $(find test -maxdepth 2 \( -name '*.csproj' -o -name '*.fsproj' -o -name '*.vbproj' \) \
             | grep -v -E "$pattern"); do
-            dotnet test "$proj" || failed=1
+            dotnet test "$proj" \
+              -- --coverage --coverage-output-format cobertura \
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
           done
           exit $failed
+
+      - name: Merge coverage report
+        if: always()
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet tool install --global dotnet-coverage
+          shopt -s nullglob
+          files=(artifacts/coverage/*.cobertura.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+          fi
+
+      - name: Upload coverage report
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/upload-code-coverage@abb5995db9e0199b0e2bb9dbd136fce4cb1ec4d3
+        with:
+          file: artifacts/coverage/coverage.cobertura.xml
+          language: C#
+          label: code-coverage/main-${{ matrix.os }}
+          fail-on-error: false
 
       - name: Publish Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -81,6 +110,10 @@ jobs:
           - os: ubuntu-24.04
 
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: read
+      code-quality: write
 
     steps:
       - name: Start Cosmos Emulator
@@ -103,10 +136,34 @@ jobs:
         run: restore.cmd
 
       - name: Test on Cosmos
-        run: dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
+        run: |
+          mkdir -p artifacts/coverage
+          dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj \
+            -- --coverage --coverage-output-format cobertura \
+            --coverage-output "$PWD/artifacts/coverage/EFCore.Cosmos.FunctionalTests.cobertura.xml"
         env:
           Test__Cosmos__DefaultConnection: ${{ runner.os == 'Windows' && 'https://localhost:8081' || '' }}
           Test__Cosmos__SkipConnectionCheck: ${{ runner.os == 'Windows' && 'true' || '' }}
+
+      - name: Merge coverage report
+        if: always()
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet tool install --global dotnet-coverage
+          shopt -s nullglob
+          files=(artifacts/coverage/*.cobertura.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+          fi
+
+      - name: Upload coverage report
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/upload-code-coverage@abb5995db9e0199b0e2bb9dbd136fce4cb1ec4d3
+        with:
+          file: artifacts/coverage/coverage.cobertura.xml
+          language: C#
+          label: code-coverage/cosmos-${{ matrix.os }}
+          fail-on-error: false
 
       - name: Publish Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -117,6 +174,10 @@ jobs:
 
   SqlServer:
     runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      code-quality: write
 
     strategy:
       fail-fast: false
@@ -152,11 +213,34 @@ jobs:
         env:
           Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=${{ env.MSSQL_SA_PASSWORD }};Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
         run: |
+          mkdir -p artifacts/coverage
           failed=0
           for proj in $SQLSERVER_TEST_PROJECTS; do
-            dotnet test "$proj" || failed=1
+            dotnet test "$proj" \
+              -- --coverage --coverage-output-format cobertura \
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
           done
           exit $failed
+
+      - name: Merge coverage report
+        if: always()
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet tool install --global dotnet-coverage
+          shopt -s nullglob
+          files=(artifacts/coverage/*.cobertura.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+          fi
+
+      - name: Upload coverage report
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/upload-code-coverage@abb5995db9e0199b0e2bb9dbd136fce4cb1ec4d3
+        with:
+          file: artifacts/coverage/coverage.cobertura.xml
+          language: C#
+          label: code-coverage/sqlserver-${{ matrix.sqlserver_version }}
+          fail-on-error: false
 
       - name: Publish Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -175,6 +259,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    permissions:
+      contents: read
+      code-quality: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -190,11 +278,34 @@ jobs:
 
       - name: Test EF Core Sqlite
         run: |
+          mkdir -p artifacts/coverage
           failed=0
           for proj in test/EFCore.Sqlite.FunctionalTests test/EFCore.Sqlite.Tests test/EFCore.AspNet.Sqlite.FunctionalTests; do
-            dotnet test "$proj" || failed=1
+            dotnet test "$proj" \
+              -- --coverage --coverage-output-format cobertura \
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
           done
           exit $failed
+
+      - name: Merge coverage report
+        if: always()
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet tool install --global dotnet-coverage
+          shopt -s nullglob
+          files=(artifacts/coverage/*.cobertura.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+          fi
+
+      - name: Upload coverage report
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/upload-code-coverage@abb5995db9e0199b0e2bb9dbd136fce4cb1ec4d3
+        with:
+          file: artifacts/coverage/coverage.cobertura.xml
+          language: C#
+          label: code-coverage/sqlite-${{ matrix.os }}
+          fail-on-error: false
 
       - name: Publish Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -214,6 +325,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    permissions:
+      contents: read
+      code-quality: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -229,12 +344,35 @@ jobs:
 
       - name: Test Microsoft.Data.Sqlite
         run: |
+          mkdir -p artifacts/coverage
           failed=0
           for proj in $(find test/Microsoft.Data.Sqlite.Tests -name '*.csproj' \
             | if [ "$RUNNER_OS" != "Windows" ]; then grep -v winsqlite3; else cat; fi); do
-            dotnet test "$proj" || failed=1
+            dotnet test "$proj" \
+              -- --coverage --coverage-output-format cobertura \
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
           done
           exit $failed
+
+      - name: Merge coverage report
+        if: always()
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet tool install --global dotnet-coverage
+          shopt -s nullglob
+          files=(artifacts/coverage/*.cobertura.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+          fi
+
+      - name: Upload coverage report
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/upload-code-coverage@abb5995db9e0199b0e2bb9dbd136fce4cb1ec4d3
+        with:
+          file: artifacts/coverage/coverage.cobertura.xml
+          language: C#
+          label: code-coverage/microsoft-data-sqlite-${{ matrix.os }}
+          fail-on-error: false
 
       - name: Publish Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
