@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -72,18 +73,8 @@ public partial class ManyTypesEntityType
             propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
         boolToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-            comparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            keyComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: DefaultValueComparer<bool>.Default,
+            providerValueComparer: DefaultValueComparer<string>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "nvarchar(1)",
                 size: 1,

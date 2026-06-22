@@ -234,7 +234,7 @@ public abstract class CoreTypeMapping
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _comparer,
             this,
-            static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: false));
+            static c => c.CreateDefaultComparer(favorStructuralComparisons: false));
 
     /// <summary>
     ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
@@ -244,7 +244,7 @@ public abstract class CoreTypeMapping
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _keyComparer,
             this,
-            static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
+            static c => c.CreateDefaultComparer(favorStructuralComparisons: true));
 
     /// <summary>
     ///     A <see cref="ValueComparer" /> for the provider CLR type values.
@@ -255,7 +255,53 @@ public abstract class CoreTypeMapping
             this,
             static c => (c.Converter?.ProviderClrType ?? c.ClrType) == c.ClrType
                 ? c.KeyComparer
-                : ValueComparer.CreateDefault(c.Converter!.ProviderClrType, favorStructuralComparisons: true));
+                : c.CreateDefaultProviderComparer(c.Converter!.ProviderClrType));
+
+    /// <summary>
+    ///     Creates the default <see cref="ValueComparer" /> for the model CLR type of this mapping.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation creates the comparer reflectively, which is not compatible with NativeAOT.
+    ///     Generic type mappings (e.g. <see cref="CoreTypeMapping{T}" />) override this to create the comparer
+    ///     without reflection.
+    /// </remarks>
+    /// <param name="favorStructuralComparisons">
+    ///     If <see langword="true" />, then EF will use <see cref="System.Collections.IStructuralEquatable" /> if the type implements it.
+    /// </param>
+    /// <returns>The newly created <see cref="ValueComparer" />.</returns>
+    [UnconditionalSuppressMessage(
+        "AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+        Justification = "The base implementation is the reflective fallback for non-generic type mappings. Generic type mappings "
+            + "and compiled models avoid this path by creating the default comparer without reflection.")]
+    protected virtual ValueComparer CreateDefaultComparer(bool favorStructuralComparisons)
+        => ValueComparer.CreateDefault(ClrType, favorStructuralComparisons);
+
+    [UnconditionalSuppressMessage(
+        "AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+        Justification = "The provider CLR type is not statically known, so the default provider value comparer is created "
+            + "reflectively. This path is not reached by compiled models, which bake in the comparer.")]
+    private ValueComparer CreateDefaultProviderComparer(
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type providerClrType)
+        => ValueComparer.CreateDefault(providerClrType, favorStructuralComparisons: true);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Whether this mapping was created without an explicitly-specified value comparer or key comparer, meaning both are the
+    ///     defaults for its CLR type. Used by compiled-model generation to omit redundant comparer code. The provider value comparer
+    ///     is handled separately because its default is not NativeAOT-compatible when a converter is present.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    public virtual bool HasDefaultComparers
+        => Parameters.Comparer is null
+            && Parameters.KeyComparer is null;
 
     /// <summary>
     ///     Creates a copy of this mapping.
@@ -285,17 +331,18 @@ public abstract class CoreTypeMapping
     ///     Clones the type mapping to update any parameter if needed.
     /// </summary>
     /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
-    /// <param name="clrType">The .NET type used in the EF model, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="converter">The value converter, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="comparer">The value comparer, or <see langword="null" /> to leave unchanged.</param>
-    /// <param name="keyComparer">The key value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="keyComparer">
+    ///     The key value comparer, or <see langword="null" /> to use <paramref name="comparer" /> when supplied, otherwise leave
+    ///     unchanged.
+    /// </param>
     /// <param name="providerValueComparer">The provider value comparer, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="elementMapping">The element mapping, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
     /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
     public virtual CoreTypeMapping Clone(
         in TypeMappingInfo? mappingInfo = null,
-        Type? clrType = null,
         ValueConverter? converter = null,
         ValueComparer? comparer = null,
         ValueComparer? keyComparer = null,
@@ -304,10 +351,10 @@ public abstract class CoreTypeMapping
         JsonValueReaderWriter? jsonValueReaderWriter = null)
         => Clone(
             new CoreTypeMappingParameters(
-                clrType ?? Parameters.ClrType,
+                Parameters.ClrType,
                 converter ?? Parameters.Converter,
                 comparer ?? Parameters.Comparer,
-                keyComparer ?? Parameters.KeyComparer,
+                keyComparer ?? comparer ?? Parameters.KeyComparer,
                 providerValueComparer ?? Parameters.ProviderValueComparer,
                 Parameters.ValueGeneratorFactory,
                 elementMapping ?? Parameters.ElementTypeMapping,

@@ -1029,8 +1029,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // parameters all share the same query plan, reducing query plan fragmentation.
                 if (translationMode is ParameterTranslationMode.MultipleParameters)
                 {
-                    var padFactor = CalculateParameterBucketSize(values.Count, elementTypeMapping);
-                    var padding = CalculatePadding(values.Count, padFactor);
+                    var padding = CalculateBucketPadding(values.Count, elementTypeMapping);
                     for (var i = 0; i < padding; i++)
                     {
                         // Create parameter for value if we didn't create it yet,
@@ -1699,6 +1698,17 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     [EntityFrameworkInternal]
     protected virtual int CalculatePadding(int count, int padFactor)
         => (padFactor - (count % padFactor)) % padFactor;
+
+    /// <summary>
+    ///     Calculates the number of padding parameters to append to a multi-parameter collection expansion so that
+    ///     parameter counts align to a shared bucket size. This is composed from <see cref="CalculateParameterBucketSize"/>
+    ///     and <see cref="CalculatePadding"/>.
+    /// </summary>
+    /// <param name="count">Number of value parameters.</param>
+    /// <param name="elementTypeMapping">The type mapping for the collection element.</param>
+    [EntityFrameworkInternal]
+    protected virtual int CalculateBucketPadding(int count, RelationalTypeMapping elementTypeMapping)
+        => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping));
 
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)

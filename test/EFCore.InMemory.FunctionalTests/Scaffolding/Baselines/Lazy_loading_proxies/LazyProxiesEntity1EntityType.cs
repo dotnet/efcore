@@ -67,20 +67,7 @@ public partial class LazyProxiesEntity1EntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        id.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            clrType: typeof(int),
+        id.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
@@ -99,24 +86,10 @@ public partial class LazyProxiesEntity1EntityType
             shadowIndex: 0,
             relationshipIndex: 1,
             storeGenerationIndex: 1);
-        referenceNavigationId.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            clrType: typeof(int),
+        referenceNavigationId.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
         referenceNavigationId.SetCurrentValueComparer(new EntryCurrentValueComparer<int?>(referenceNavigationId));
         referenceNavigationId.SetComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.Comparer));
-        referenceNavigationId.SetKeyComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.KeyComparer));
 
         var lazyLoader = runtimeEntityType.AddServiceProperty(
             "LazyLoader",

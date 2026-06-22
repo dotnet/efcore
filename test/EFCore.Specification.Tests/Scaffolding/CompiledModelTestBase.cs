@@ -77,13 +77,13 @@ namespace TestNamespace
 
     [Fact]
     public virtual Task No_NativeAOT()
-        => BigModel(false);
+        => TestBigModel(false);
 
     [Fact]
     public virtual Task BigModel()
-        => BigModel(true);
+        => TestBigModel(true);
 
-    protected virtual Task BigModel(bool forNativeAot, [CallerMemberName] string testName = "")
+    protected virtual Task TestBigModel(bool forNativeAot, [CallerMemberName] string testName = "")
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
             model => AssertBigModel(model, jsonColumns: false),

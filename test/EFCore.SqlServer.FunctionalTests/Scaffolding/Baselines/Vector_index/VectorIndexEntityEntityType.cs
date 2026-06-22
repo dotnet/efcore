@@ -64,19 +64,7 @@ public partial class VectorIndexEntityEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        id.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v));
+        id.TypeMapping = IntTypeMapping.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
         id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -114,23 +102,11 @@ public partial class VectorIndexEntityEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         vector.TypeMapping = SqlServerVectorTypeMapping.Default.Clone(
-            comparer: new ValueComparer<SqlVector<float>>(
-                bool (SqlVector<float> v1, SqlVector<float> v2) => object.Equals(((object)v1), ((object)v2)),
-                int (SqlVector<float> v) => ((object)v).GetHashCode(),
-                SqlVector<float> (SqlVector<float> v) => v),
-            keyComparer: new ValueComparer<SqlVector<float>>(
-                bool (SqlVector<float> v1, SqlVector<float> v2) => object.Equals(((object)v1), ((object)v2)),
-                int (SqlVector<float> v) => ((object)v).GetHashCode(),
-                SqlVector<float> (SqlVector<float> v) => v),
-            providerValueComparer: new ValueComparer<SqlVector<float>>(
-                bool (SqlVector<float> v1, SqlVector<float> v2) => object.Equals(((object)v1), ((object)v2)),
-                int (SqlVector<float> v) => ((object)v).GetHashCode(),
-                SqlVector<float> (SqlVector<float> v) => v),
+            comparer: ValueComparer<SqlVector<float>>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "vector(3)",
                 size: 3));
         vector.SetComparer(new NullableValueComparer<SqlVector<float>>(vector.TypeMapping.Comparer));
-        vector.SetKeyComparer(new NullableValueComparer<SqlVector<float>>(vector.TypeMapping.KeyComparer));
         vector.AddAnnotation("Relational:ColumnType", "vector(3)");
         vector.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 

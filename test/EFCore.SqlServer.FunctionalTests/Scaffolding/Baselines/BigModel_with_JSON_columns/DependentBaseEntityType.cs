@@ -55,19 +55,7 @@ public partial class DependentBaseEntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        principalId.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v));
+        principalId.TypeMapping = SqlServerLongTypeMapping.Default;
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
         principalId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -88,18 +76,6 @@ public partial class DependentBaseEntityType
             relationshipIndex: 1,
             storeGenerationIndex: 1);
         principalAlternateId.TypeMapping = GuidTypeMapping.Default.Clone(
-            comparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            keyComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            providerValueComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         principalAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalAlternateId));
@@ -122,22 +98,12 @@ public partial class DependentBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         enumDiscriminator.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
-            keyComparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            converter: new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value)),
+            comparer: ValueComparer<CompiledModelTestBase.Enum1>.Default,
+            providerValueComparer: DefaultValueComparer<int>.Default,
+            converter: EnumToNumberConverter<CompiledModelTestBase.Enum1, int>.Instance,
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum1, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.Enum1, int>(int (CompiledModelTestBase.Enum1 value) => ((int)value), CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value))));
+                EnumToNumberConverter<CompiledModelTestBase.Enum1, int>.Instance));
         enumDiscriminator.SetSentinelFromProviderValue(0);
         enumDiscriminator.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -173,21 +139,8 @@ public partial class DependentBaseEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        id.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
-            comparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            keyComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            providerValueComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v));
+        id.TypeMapping = SqlServerByteTypeMapping.Default;
         id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-        id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
         id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var key = runtimeEntityType.AddKey(

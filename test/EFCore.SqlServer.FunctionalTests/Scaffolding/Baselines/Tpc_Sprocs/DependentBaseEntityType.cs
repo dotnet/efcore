@@ -63,22 +63,9 @@ public partial class DependentBaseEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: -1);
-        id.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
-            comparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            keyComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            providerValueComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v));
+        id.TypeMapping = SqlServerByteTypeMapping.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<byte?>(id));
         id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-        id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
         id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var principalId = runtimeEntityType.AddProperty(
@@ -96,22 +83,9 @@ public partial class DependentBaseEntityType
             shadowIndex: 0,
             relationshipIndex: 1,
             storeGenerationIndex: 0);
-        principalId.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v));
+        principalId.TypeMapping = SqlServerLongTypeMapping.Default;
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(principalId));
         principalId.SetComparer(new NullableValueComparer<long>(principalId.TypeMapping.Comparer));
-        principalId.SetKeyComparer(new NullableValueComparer<long>(principalId.TypeMapping.KeyComparer));
         principalId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
         var key = runtimeEntityType.AddKey(
