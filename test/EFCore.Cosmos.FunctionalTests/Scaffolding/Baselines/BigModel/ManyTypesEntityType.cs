@@ -98,8 +98,7 @@ public partial class ManyTypesEntityType
             shadowIndex: 0,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        type.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        type.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var @bool = runtimeEntityType.AddProperty(
             "Bool",
@@ -133,8 +132,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @bool.TypeMapping = CosmosTypeMapping<bool>.Default.Clone(
-            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        @bool.TypeMapping = CosmosTypeMapping<bool>.Default;
 
         var boolArray = runtimeEntityType.AddProperty(
             "BoolArray",
@@ -172,8 +170,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<bool[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<bool[], bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<bool>.Default);
         var boolArrayElementType = boolArray.SetElementType(typeof(bool));
         boolArrayElementType.TypeMapping = boolArray.TypeMapping.ElementTypeMapping;
 
@@ -219,8 +216,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<bool[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<bool[], bool>(
                     JsonBoolReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                    jsonValueReaderWriter: JsonBoolReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<bool>.Default));
         var boolNestedCollectionElementType = boolNestedCollection.SetElementType(typeof(bool[]));
         boolNestedCollectionElementType.TypeMapping = boolNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -260,8 +256,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<bool>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<bool>, bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<bool>.Default);
         var boolReadOnlyCollectionElementType = boolReadOnlyCollection.SetElementType(typeof(bool));
         boolReadOnlyCollectionElementType.TypeMapping = boolReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -541,8 +536,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @char.TypeMapping = CosmosTypeMapping<char>.Default.Clone(
-            jsonValueReaderWriter: JsonCharReaderWriter.Instance);
+        @char.TypeMapping = CosmosTypeMapping<char>.Default;
 
         var charArray = runtimeEntityType.AddProperty(
             "CharArray",
@@ -580,8 +574,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<char[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<char[], char>(
                 JsonCharReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<char>.Default.Clone(
-                jsonValueReaderWriter: JsonCharReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<char>.Default);
         var charArrayElementType = charArray.SetElementType(typeof(char));
         charArrayElementType.TypeMapping = charArray.TypeMapping.ElementTypeMapping;
 
@@ -627,8 +620,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<char[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<char[], char>(
                     JsonCharReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<char>.Default.Clone(
-                    jsonValueReaderWriter: JsonCharReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<char>.Default));
         var charNestedCollectionElementType = charNestedCollection.SetElementType(typeof(char[]));
         charNestedCollectionElementType.TypeMapping = charNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -705,8 +697,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        dateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default.Clone(
-            jsonValueReaderWriter: JsonDateOnlyReaderWriter.Instance);
+        dateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default;
 
         var dateOnlyToStringConverterProperty = runtimeEntityType.AddProperty(
             "DateOnlyToStringConverterProperty",
@@ -781,8 +772,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        dateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default.Clone(
-            jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance);
+        dateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default;
 
         var dateTimeOffsetToBinaryConverterProperty = runtimeEntityType.AddProperty(
             "DateTimeOffsetToBinaryConverterProperty",
@@ -1021,8 +1011,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        dateTimeToTicksConverterProperty.TypeMapping = CosmosTypeMapping<DateTime>.Default.Clone(
-            jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance);
+        dateTimeToTicksConverterProperty.TypeMapping = CosmosTypeMapping<DateTime>.Default;
 
         var @decimal = runtimeEntityType.AddProperty(
             "Decimal",
@@ -1056,8 +1045,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @decimal.TypeMapping = CosmosTypeMapping<decimal>.Default.Clone(
-            jsonValueReaderWriter: JsonDecimalReaderWriter.Instance);
+        @decimal.TypeMapping = CosmosTypeMapping<decimal>.Default;
 
         var decimalArray = runtimeEntityType.AddProperty(
             "DecimalArray",
@@ -1095,8 +1083,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<decimal[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<decimal[], decimal>(
                 JsonDecimalReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<decimal>.Default.Clone(
-                jsonValueReaderWriter: JsonDecimalReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<decimal>.Default);
         var decimalArrayElementType = decimalArray.SetElementType(typeof(decimal));
         decimalArrayElementType.TypeMapping = decimalArray.TypeMapping.ElementTypeMapping;
 
@@ -1214,8 +1201,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @double.TypeMapping = CosmosTypeMapping<double>.Default.Clone(
-            jsonValueReaderWriter: JsonDoubleReaderWriter.Instance);
+        @double.TypeMapping = CosmosTypeMapping<double>.Default;
 
         var doubleArray = runtimeEntityType.AddProperty(
             "DoubleArray",
@@ -1253,8 +1239,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<double[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<double[], double>(
                 JsonDoubleReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<double>.Default.Clone(
-                jsonValueReaderWriter: JsonDoubleReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<double>.Default);
         var doubleArrayElementType = doubleArray.SetElementType(typeof(double));
         doubleArrayElementType.TypeMapping = doubleArray.TypeMapping.ElementTypeMapping;
 
@@ -2102,8 +2087,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @float.TypeMapping = CosmosTypeMapping<float>.Default.Clone(
-            jsonValueReaderWriter: JsonFloatReaderWriter.Instance);
+        @float.TypeMapping = CosmosTypeMapping<float>.Default;
 
         var floatArray = runtimeEntityType.AddProperty(
             "FloatArray",
@@ -2141,8 +2125,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<float[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<float[], float>(
                 JsonFloatReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<float>.Default.Clone(
-                jsonValueReaderWriter: JsonFloatReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<float>.Default);
         var floatArrayElementType = floatArray.SetElementType(typeof(float));
         floatArrayElementType.TypeMapping = floatArray.TypeMapping.ElementTypeMapping;
 
@@ -2419,8 +2402,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int16.TypeMapping = CosmosTypeMapping<short>.Default.Clone(
-            jsonValueReaderWriter: JsonInt16ReaderWriter.Instance);
+        int16.TypeMapping = CosmosTypeMapping<short>.Default;
 
         var int16Array = runtimeEntityType.AddProperty(
             "Int16Array",
@@ -2458,8 +2440,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<short[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<short[], short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<short>.Default);
         var int16ArrayElementType = int16Array.SetElementType(typeof(short));
         int16ArrayElementType.TypeMapping = int16Array.TypeMapping.ElementTypeMapping;
 
@@ -2495,8 +2476,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int32.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        int32.TypeMapping = CosmosTypeMapping<int>.Default;
 
         var int32Array = runtimeEntityType.AddProperty(
             "Int32Array",
@@ -2534,8 +2514,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<int[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<int[], int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<int>.Default);
         var int32ArrayElementType = int32Array.SetElementType(typeof(int));
         int32ArrayElementType.TypeMapping = int32Array.TypeMapping.ElementTypeMapping;
 
@@ -2581,8 +2560,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<int[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<int[], int>(
                     JsonInt32ReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                    jsonValueReaderWriter: JsonInt32ReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<int>.Default));
         var int32NestedCollectionElementType = int32NestedCollection.SetElementType(typeof(int[]));
         int32NestedCollectionElementType.TypeMapping = int32NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -2622,8 +2600,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<int>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<int>, int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<int>.Default);
         var int32ReadOnlyCollectionElementType = int32ReadOnlyCollection.SetElementType(typeof(int));
         int32ReadOnlyCollectionElementType.TypeMapping = int32ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -2659,8 +2636,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int64.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        int64.TypeMapping = CosmosTypeMapping<long>.Default;
 
         var int64Array = runtimeEntityType.AddProperty(
             "Int64Array",
@@ -2698,8 +2674,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<long[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<long[], long>(
                 JsonInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                jsonValueReaderWriter: JsonInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<long>.Default);
         var int64ArrayElementType = int64Array.SetElementType(typeof(long));
         int64ArrayElementType.TypeMapping = int64Array.TypeMapping.ElementTypeMapping;
 
@@ -2752,8 +2727,7 @@ public partial class ManyTypesEntityType
                     keyComparer: ValueComparer<long[]>.DefaultWithStructuralComparisons,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<long[], long>(
                         JsonInt64ReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                        jsonValueReaderWriter: JsonInt64ReaderWriter.Instance))));
+                    elementMapping: CosmosTypeMapping<long>.Default)));
         var int64NestedCollectionElementType = int64NestedCollection.SetElementType(typeof(IList<long[]>));
         int64NestedCollectionElementType.TypeMapping = int64NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -2789,8 +2763,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int8.TypeMapping = CosmosTypeMapping<sbyte>.Default.Clone(
-            jsonValueReaderWriter: JsonSByteReaderWriter.Instance);
+        int8.TypeMapping = CosmosTypeMapping<sbyte>.Default;
 
         var int8Array = runtimeEntityType.AddProperty(
             "Int8Array",
@@ -2828,8 +2801,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<sbyte[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
                 JsonSByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<sbyte>.Default.Clone(
-                jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<sbyte>.Default);
         var int8ArrayElementType = int8Array.SetElementType(typeof(sbyte));
         int8ArrayElementType.TypeMapping = int8Array.TypeMapping.ElementTypeMapping;
 
@@ -2882,8 +2854,7 @@ public partial class ManyTypesEntityType
                     keyComparer: ValueComparer<sbyte[]>.DefaultWithStructuralComparisons,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
                         JsonSByteReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<sbyte>.Default.Clone(
-                        jsonValueReaderWriter: JsonSByteReaderWriter.Instance))));
+                    elementMapping: CosmosTypeMapping<sbyte>.Default)));
         var int8NestedCollectionElementType = int8NestedCollection.SetElementType(typeof(sbyte[][]));
         int8NestedCollectionElementType.TypeMapping = int8NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -3042,8 +3013,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableBool.TypeMapping = CosmosTypeMapping<bool>.Default.Clone(
-            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        nullableBool.TypeMapping = CosmosTypeMapping<bool>.Default;
         nullableBool.SetComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.Comparer));
 
         var nullableBoolArray = runtimeEntityType.AddProperty(
@@ -3082,8 +3052,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<bool?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<bool?[], bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<bool>.Default);
         var nullableBoolArrayElementType = nullableBoolArray.SetElementType(typeof(bool?),
             nullable: true);
         nullableBoolArrayElementType.TypeMapping = nullableBoolArray.TypeMapping.ElementTypeMapping;
@@ -3162,8 +3131,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableChar.TypeMapping = CosmosTypeMapping<char>.Default.Clone(
-            jsonValueReaderWriter: JsonCharReaderWriter.Instance);
+        nullableChar.TypeMapping = CosmosTypeMapping<char>.Default;
         nullableChar.SetComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.Comparer));
 
         var nullableCharArray = runtimeEntityType.AddProperty(
@@ -3202,8 +3170,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<char?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<char?[], char>(
                 JsonCharReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<char>.Default.Clone(
-                jsonValueReaderWriter: JsonCharReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<char>.Default);
         var nullableCharArrayElementType = nullableCharArray.SetElementType(typeof(char?),
             nullable: true);
         nullableCharArrayElementType.TypeMapping = nullableCharArray.TypeMapping.ElementTypeMapping;
@@ -3241,8 +3208,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default.Clone(
-            jsonValueReaderWriter: JsonDateOnlyReaderWriter.Instance);
+        nullableDateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default;
         nullableDateOnly.SetComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.Comparer));
 
         var nullableDateTime = runtimeEntityType.AddProperty(
@@ -3277,8 +3243,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default.Clone(
-            jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance);
+        nullableDateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default;
         nullableDateTime.SetComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.Comparer));
 
         var nullableDecimal = runtimeEntityType.AddProperty(
@@ -3313,8 +3278,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDecimal.TypeMapping = CosmosTypeMapping<decimal>.Default.Clone(
-            jsonValueReaderWriter: JsonDecimalReaderWriter.Instance);
+        nullableDecimal.TypeMapping = CosmosTypeMapping<decimal>.Default;
         nullableDecimal.SetComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
 
         var nullableDecimalArray = runtimeEntityType.AddProperty(
@@ -3353,8 +3317,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<decimal?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<decimal?[], decimal>(
                 JsonDecimalReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<decimal>.Default.Clone(
-                jsonValueReaderWriter: JsonDecimalReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<decimal>.Default);
         var nullableDecimalArrayElementType = nullableDecimalArray.SetElementType(typeof(decimal?),
             nullable: true);
         nullableDecimalArrayElementType.TypeMapping = nullableDecimalArray.TypeMapping.ElementTypeMapping;
@@ -3392,8 +3355,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDouble.TypeMapping = CosmosTypeMapping<double>.Default.Clone(
-            jsonValueReaderWriter: JsonDoubleReaderWriter.Instance);
+        nullableDouble.TypeMapping = CosmosTypeMapping<double>.Default;
         nullableDouble.SetComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.Comparer));
 
         var nullableDoubleArray = runtimeEntityType.AddProperty(
@@ -3432,8 +3394,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<double?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<double?[], double>(
                 JsonDoubleReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<double>.Default.Clone(
-                jsonValueReaderWriter: JsonDoubleReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<double>.Default);
         var nullableDoubleArrayElementType = nullableDoubleArray.SetElementType(typeof(double?),
             nullable: true);
         nullableDoubleArrayElementType.TypeMapping = nullableDoubleArray.TypeMapping.ElementTypeMapping;
@@ -4127,8 +4088,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableFloat.TypeMapping = CosmosTypeMapping<float>.Default.Clone(
-            jsonValueReaderWriter: JsonFloatReaderWriter.Instance);
+        nullableFloat.TypeMapping = CosmosTypeMapping<float>.Default;
         nullableFloat.SetComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.Comparer));
 
         var nullableFloatArray = runtimeEntityType.AddProperty(
@@ -4167,8 +4127,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<float?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<float?[], float>(
                 JsonFloatReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<float>.Default.Clone(
-                jsonValueReaderWriter: JsonFloatReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<float>.Default);
         var nullableFloatArrayElementType = nullableFloatArray.SetElementType(typeof(float?),
             nullable: true);
         nullableFloatArrayElementType.TypeMapping = nullableFloatArray.TypeMapping.ElementTypeMapping;
@@ -4287,8 +4246,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt16.TypeMapping = CosmosTypeMapping<short>.Default.Clone(
-            jsonValueReaderWriter: JsonInt16ReaderWriter.Instance);
+        nullableInt16.TypeMapping = CosmosTypeMapping<short>.Default;
         nullableInt16.SetComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.Comparer));
 
         var nullableInt16Array = runtimeEntityType.AddProperty(
@@ -4327,8 +4285,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<short?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<short?[], short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<short>.Default);
         var nullableInt16ArrayElementType = nullableInt16Array.SetElementType(typeof(short?),
             nullable: true);
         nullableInt16ArrayElementType.TypeMapping = nullableInt16Array.TypeMapping.ElementTypeMapping;
@@ -4366,8 +4323,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt32.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        nullableInt32.TypeMapping = CosmosTypeMapping<int>.Default;
         nullableInt32.SetComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.Comparer));
 
         var nullableInt32Array = runtimeEntityType.AddProperty(
@@ -4406,8 +4362,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<int?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<int>.Default);
         var nullableInt32ArrayElementType = nullableInt32Array.SetElementType(typeof(int?),
             nullable: true);
         nullableInt32ArrayElementType.TypeMapping = nullableInt32Array.TypeMapping.ElementTypeMapping;
@@ -4455,8 +4410,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<int?[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
                     JsonInt32ReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                    jsonValueReaderWriter: JsonInt32ReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<int>.Default));
         var nullableInt32NestedCollectionElementType = nullableInt32NestedCollection.SetElementType(typeof(int?[]));
         nullableInt32NestedCollectionElementType.TypeMapping = nullableInt32NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -4492,8 +4446,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt64.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        nullableInt64.TypeMapping = CosmosTypeMapping<long>.Default;
         nullableInt64.SetComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.Comparer));
 
         var nullableInt64Array = runtimeEntityType.AddProperty(
@@ -4532,8 +4485,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<long?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                 JsonInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                jsonValueReaderWriter: JsonInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<long>.Default);
         var nullableInt64ArrayElementType = nullableInt64Array.SetElementType(typeof(long?),
             nullable: true);
         nullableInt64ArrayElementType.TypeMapping = nullableInt64Array.TypeMapping.ElementTypeMapping;
@@ -4588,8 +4540,7 @@ public partial class ManyTypesEntityType
                     keyComparer: ValueComparer<long?[]>.DefaultWithStructuralComparisons,
                     jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                         JsonInt64ReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                        jsonValueReaderWriter: JsonInt64ReaderWriter.Instance))));
+                    elementMapping: CosmosTypeMapping<long>.Default)));
         var nullableInt64NestedCollectionElementType = nullableInt64NestedCollection.SetElementType(typeof(long?[][]));
         nullableInt64NestedCollectionElementType.TypeMapping = nullableInt64NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -4625,8 +4576,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt8.TypeMapping = CosmosTypeMapping<sbyte>.Default.Clone(
-            jsonValueReaderWriter: JsonSByteReaderWriter.Instance);
+        nullableInt8.TypeMapping = CosmosTypeMapping<sbyte>.Default;
         nullableInt8.SetComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.Comparer));
 
         var nullableInt8Array = runtimeEntityType.AddProperty(
@@ -4665,8 +4615,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<sbyte?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<sbyte?[], sbyte>(
                 JsonSByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<sbyte>.Default.Clone(
-                jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<sbyte>.Default);
         var nullableInt8ArrayElementType = nullableInt8Array.SetElementType(typeof(sbyte?),
             nullable: true);
         nullableInt8ArrayElementType.TypeMapping = nullableInt8Array.TypeMapping.ElementTypeMapping;
@@ -4744,8 +4693,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableString.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        nullableString.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var nullableStringArray = runtimeEntityType.AddProperty(
             "NullableStringArray",
@@ -4783,8 +4731,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var nullableStringArrayElementType = nullableStringArray.SetElementType(typeof(string),
             nullable: true);
         nullableStringArrayElementType.TypeMapping = nullableStringArray.TypeMapping.ElementTypeMapping;
@@ -4831,8 +4778,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                     JsonStringReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                    jsonValueReaderWriter: JsonStringReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<string>.Default));
         var nullableStringNestedCollectionElementType = nullableStringNestedCollection.SetElementType(typeof(string[]));
         nullableStringNestedCollectionElementType.TypeMapping = nullableStringNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -4938,8 +4884,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt16.TypeMapping = CosmosTypeMapping<ushort>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance);
+        nullableUInt16.TypeMapping = CosmosTypeMapping<ushort>.Default;
         nullableUInt16.SetComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.Comparer));
 
         var nullableUInt16Array = runtimeEntityType.AddProperty(
@@ -4978,8 +4923,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ushort?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ushort?[], ushort>(
                 JsonUInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ushort>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ushort>.Default);
         var nullableUInt16ArrayElementType = nullableUInt16Array.SetElementType(typeof(ushort?),
             nullable: true);
         nullableUInt16ArrayElementType.TypeMapping = nullableUInt16Array.TypeMapping.ElementTypeMapping;
@@ -5017,8 +4961,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt32.TypeMapping = CosmosTypeMapping<uint>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance);
+        nullableUInt32.TypeMapping = CosmosTypeMapping<uint>.Default;
         nullableUInt32.SetComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.Comparer));
 
         var nullableUInt32Array = runtimeEntityType.AddProperty(
@@ -5057,8 +5000,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<uint?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<uint?[], uint>(
                 JsonUInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<uint>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<uint>.Default);
         var nullableUInt32ArrayElementType = nullableUInt32Array.SetElementType(typeof(uint?),
             nullable: true);
         nullableUInt32ArrayElementType.TypeMapping = nullableUInt32Array.TypeMapping.ElementTypeMapping;
@@ -5096,8 +5038,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt64.TypeMapping = CosmosTypeMapping<ulong>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance);
+        nullableUInt64.TypeMapping = CosmosTypeMapping<ulong>.Default;
         nullableUInt64.SetComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.Comparer));
 
         var nullableUInt64Array = runtimeEntityType.AddProperty(
@@ -5136,8 +5077,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ulong?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ulong?[], ulong>(
                 JsonUInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ulong>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ulong>.Default);
         var nullableUInt64ArrayElementType = nullableUInt64Array.SetElementType(typeof(ulong?),
             nullable: true);
         nullableUInt64ArrayElementType.TypeMapping = nullableUInt64Array.TypeMapping.ElementTypeMapping;
@@ -5175,8 +5115,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt8.TypeMapping = CosmosTypeMapping<byte>.Default.Clone(
-            jsonValueReaderWriter: JsonByteReaderWriter.Instance);
+        nullableUInt8.TypeMapping = CosmosTypeMapping<byte>.Default;
         nullableUInt8.SetComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.Comparer));
 
         var nullableUInt8Array = runtimeEntityType.AddProperty(
@@ -5215,8 +5154,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<byte?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<byte?[], byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var nullableUInt8ArrayElementType = nullableUInt8Array.SetElementType(typeof(byte?),
             nullable: true);
         nullableUInt8ArrayElementType.TypeMapping = nullableUInt8Array.TypeMapping.ElementTypeMapping;
@@ -5412,8 +5350,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @string.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        @string.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var stringArray = runtimeEntityType.AddProperty(
             "StringArray",
@@ -5451,8 +5388,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var stringArrayElementType = stringArray.SetElementType(typeof(string));
         stringArrayElementType.TypeMapping = stringArray.TypeMapping.ElementTypeMapping;
 
@@ -5498,8 +5434,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                     JsonStringReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                    jsonValueReaderWriter: JsonStringReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<string>.Default));
         var stringNestedCollectionElementType = stringNestedCollection.SetElementType(typeof(string[]));
         stringNestedCollectionElementType.TypeMapping = stringNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -5539,8 +5474,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<string>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var stringReadOnlyCollectionElementType = stringReadOnlyCollection.SetElementType(typeof(string));
         stringReadOnlyCollectionElementType.TypeMapping = stringReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -5934,8 +5868,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        stringToGuidConverterProperty.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        stringToGuidConverterProperty.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var stringToIntNumberConverterProperty = runtimeEntityType.AddProperty(
             "StringToIntNumberConverterProperty",
@@ -6360,8 +6293,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt16.TypeMapping = CosmosTypeMapping<ushort>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance);
+        uInt16.TypeMapping = CosmosTypeMapping<ushort>.Default;
 
         var uInt16Array = runtimeEntityType.AddProperty(
             "UInt16Array",
@@ -6399,8 +6331,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ushort[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ushort[], ushort>(
                 JsonUInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ushort>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ushort>.Default);
         var uInt16ArrayElementType = uInt16Array.SetElementType(typeof(ushort));
         uInt16ArrayElementType.TypeMapping = uInt16Array.TypeMapping.ElementTypeMapping;
 
@@ -6436,8 +6367,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt32.TypeMapping = CosmosTypeMapping<uint>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance);
+        uInt32.TypeMapping = CosmosTypeMapping<uint>.Default;
 
         var uInt32Array = runtimeEntityType.AddProperty(
             "UInt32Array",
@@ -6475,8 +6405,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<uint[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<uint[], uint>(
                 JsonUInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<uint>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<uint>.Default);
         var uInt32ArrayElementType = uInt32Array.SetElementType(typeof(uint));
         uInt32ArrayElementType.TypeMapping = uInt32Array.TypeMapping.ElementTypeMapping;
 
@@ -6512,8 +6441,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt64.TypeMapping = CosmosTypeMapping<ulong>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance);
+        uInt64.TypeMapping = CosmosTypeMapping<ulong>.Default;
 
         var uInt64Array = runtimeEntityType.AddProperty(
             "UInt64Array",
@@ -6551,8 +6479,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ulong[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ulong[], ulong>(
                 JsonUInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ulong>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ulong>.Default);
         var uInt64ArrayElementType = uInt64Array.SetElementType(typeof(ulong));
         uInt64ArrayElementType.TypeMapping = uInt64Array.TypeMapping.ElementTypeMapping;
 
@@ -6588,8 +6515,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt8.TypeMapping = CosmosTypeMapping<byte>.Default.Clone(
-            jsonValueReaderWriter: JsonByteReaderWriter.Instance);
+        uInt8.TypeMapping = CosmosTypeMapping<byte>.Default;
 
         var uInt8Array = runtimeEntityType.AddProperty(
             "UInt8Array",
@@ -6667,8 +6593,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<byte>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var uInt8ReadOnlyCollectionElementType = uInt8ReadOnlyCollection.SetElementType(typeof(byte));
         uInt8ReadOnlyCollectionElementType.TypeMapping = uInt8ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -6767,8 +6692,7 @@ public partial class ManyTypesEntityType
             shadowIndex: 1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
         var __jObject = runtimeEntityType.AddProperty(
