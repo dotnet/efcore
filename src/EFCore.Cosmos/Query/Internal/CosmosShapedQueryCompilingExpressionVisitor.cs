@@ -4,6 +4,7 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;

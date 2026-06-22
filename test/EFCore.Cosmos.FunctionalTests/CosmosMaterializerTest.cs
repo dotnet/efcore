@@ -14,6 +14,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         using (var context = factory.CreateDbContext())
         {
             var entry = context.Entry(new ShadowKeyEntity { Id = 1 });
+            entry.Property<string>("Name").CurrentValue = "Name";
             entry.Property<int>("Id2").CurrentValue = 1;
             entry.State = EntityState.Added;
             await context.SaveChangesAsync();
@@ -41,6 +42,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ShadowKeyEntity>(e =>
             {
+                e.Property<string>("Name");
                 e.Property<int>("Id2");
                 e.HasKey("Id", "Id2");
                 e.HasPartitionKey(x => x.Id);
