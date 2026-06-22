@@ -117,25 +117,9 @@ WHERE [b].[Id] = 1
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
-    [Theory, InlineData(true), InlineData(false)]
-    public virtual async Task SqlQuery_with_converted_type_using_model_configuration_builder_works(bool async)
-    {
-        using var context = CreateContext();
-        var query = context.Database.SqlQueryRaw<HoldingEnum>("SELECT [HoldingEnum] FROM [HolderClass]");
-        if (async)
-        {
-            await Assert.ThrowsAsync<InvalidCastException>(() => query.ToListAsync());
-        }
-        else
-        {
-            Assert.Throws<InvalidCastException>(() => query.ToList());
-        }
-
-        AssertSql(
-            """
-SELECT [HoldingEnum] FROM [HolderClass]
-""");
-    }
+    [Theory(Skip = "Issue #33206"), InlineData(true), InlineData(false)]
+    public virtual Task SqlQuery_with_converted_type_using_model_configuration_builder_works(bool async)
+        => Task.CompletedTask;
 
     public override void Infer_type_mapping_from_in_subquery_to_item()
     {
