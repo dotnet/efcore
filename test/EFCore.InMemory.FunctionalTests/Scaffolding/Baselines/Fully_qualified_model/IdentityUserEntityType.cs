@@ -64,20 +64,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: -1);
-        id.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        id.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(id));
 
@@ -113,20 +100,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        accessFailedCount.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            clrType: typeof(int),
+        accessFailedCount.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
 
         var concurrencyStamp = runtimeEntityType.AddProperty(
@@ -161,20 +135,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        concurrencyStamp.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        concurrencyStamp.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var discriminator = runtimeEntityType.AddProperty(
@@ -193,20 +154,7 @@ public partial class IdentityUserEntityType
             shadowIndex: 0,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        discriminator.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        discriminator.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var email = runtimeEntityType.AddProperty(
@@ -241,20 +189,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        email.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        email.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var emailConfirmed = runtimeEntityType.AddProperty(
@@ -289,20 +224,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        emailConfirmed.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            keyComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            providerValueComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            clrType: typeof(bool),
+        emailConfirmed.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
             jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
         var lockoutEnabled = runtimeEntityType.AddProperty(
@@ -337,20 +259,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        lockoutEnabled.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            keyComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            providerValueComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            clrType: typeof(bool),
+        lockoutEnabled.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
             jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
         var lockoutEnd = runtimeEntityType.AddProperty(
@@ -385,23 +294,9 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        lockoutEnd.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<DateTimeOffset>(
-                bool (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
-                int (DateTimeOffset v) => ((object)v).GetHashCode(),
-                DateTimeOffset (DateTimeOffset v) => v),
-            keyComparer: new ValueComparer<DateTimeOffset>(
-                bool (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
-                int (DateTimeOffset v) => ((object)v).GetHashCode(),
-                DateTimeOffset (DateTimeOffset v) => v),
-            providerValueComparer: new ValueComparer<DateTimeOffset>(
-                bool (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
-                int (DateTimeOffset v) => ((object)v).GetHashCode(),
-                DateTimeOffset (DateTimeOffset v) => v),
-            clrType: typeof(DateTimeOffset),
+        lockoutEnd.TypeMapping = InMemoryTypeMapping<DateTimeOffset>.Default.Clone(
             jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance);
         lockoutEnd.SetComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.Comparer));
-        lockoutEnd.SetKeyComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.KeyComparer));
 
         var normalizedEmail = runtimeEntityType.AddProperty(
             "NormalizedEmail",
@@ -435,20 +330,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        normalizedEmail.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        normalizedEmail.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var normalizedUserName = runtimeEntityType.AddProperty(
@@ -483,20 +365,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        normalizedUserName.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        normalizedUserName.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var passwordHash = runtimeEntityType.AddProperty(
@@ -531,20 +400,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        passwordHash.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        passwordHash.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var phoneNumber = runtimeEntityType.AddProperty(
@@ -579,20 +435,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        phoneNumber.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        phoneNumber.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var phoneNumberConfirmed = runtimeEntityType.AddProperty(
@@ -627,20 +470,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        phoneNumberConfirmed.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            keyComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            providerValueComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            clrType: typeof(bool),
+        phoneNumberConfirmed.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
             jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
         var securityStamp = runtimeEntityType.AddProperty(
@@ -675,20 +505,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        securityStamp.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        securityStamp.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var twoFactorEnabled = runtimeEntityType.AddProperty(
@@ -723,20 +540,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        twoFactorEnabled.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            keyComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            providerValueComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            clrType: typeof(bool),
+        twoFactorEnabled.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
             jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
         var userName = runtimeEntityType.AddProperty(
@@ -771,20 +575,7 @@ public partial class IdentityUserEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        userName.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        userName.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var key = runtimeEntityType.AddKey(

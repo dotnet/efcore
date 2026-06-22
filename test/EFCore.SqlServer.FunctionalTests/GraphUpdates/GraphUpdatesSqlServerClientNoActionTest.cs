@@ -33,7 +33,8 @@ public class GraphUpdatesSqlServerClientNoActionTest(GraphUpdatesSqlServerClient
 
             foreach (var foreignKey in modelBuilder.Model
                          .GetEntityTypes()
-                         .SelectMany(e => e.GetDeclaredForeignKeys()))
+                         .SelectMany(e => e.GetDeclaredForeignKeys())
+                         .Where(e => !e.IsOwnership))
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.ClientNoAction;
             }

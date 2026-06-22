@@ -232,7 +232,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[Key1]), 0)
+SELECT ISNULL(SUM([s].[Key1]), 0)
 FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN (
     SELECT [e1].[Key1], [e0].[RootSkipSharedId]
@@ -295,7 +295,7 @@ FROM [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([e1].[Id]), 0)
+    SELECT ISNULL(SUM([e1].[Id]), 0)
     FROM [EntityOneEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
     INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[OneSkipSharedId] = [e1].[Id]
     WHERE [e].[Id] = [e0].[TwoSkipSharedId])

@@ -74,23 +74,10 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: 0,
             storeGenerationIndex: -1);
         id.TypeMapping = LongTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(id));
         id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
-        id.SetKeyComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
 
         var alternateId = runtimeEntityType.AddProperty(
             "AlternateId",
@@ -180,24 +167,14 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         enum1.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
-            keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
+            comparer: ValueComparer<CompiledModelTestBase.AnEnum>.Default,
+            providerValueComparer: DefaultValueComparer<int>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: EnumToNumberConverter<CompiledModelTestBase.AnEnum, int>.Instance,
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                EnumToNumberConverter<CompiledModelTestBase.AnEnum, int>.Instance));
         enum1.SetSentinelFromProviderValue(0);
 
         var enum2 = runtimeEntityType.AddProperty(
@@ -233,26 +210,15 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         enum2.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
-            keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
+            comparer: ValueComparer<CompiledModelTestBase.AnEnum>.Default,
+            providerValueComparer: DefaultValueComparer<int>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
+            converter: EnumToNumberConverter<CompiledModelTestBase.AnEnum, int>.Instance,
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AnEnum, int>(int (CompiledModelTestBase.AnEnum value) => ((int)value), CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
+                EnumToNumberConverter<CompiledModelTestBase.AnEnum, int>.Instance));
         enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
-        enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
         var flagsEnum1 = runtimeEntityType.AddProperty(
             "FlagsEnum1",
@@ -286,24 +252,14 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         flagsEnum1.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
-            keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
+            comparer: ValueComparer<CompiledModelTestBase.AFlagsEnum>.Default,
+            providerValueComparer: DefaultValueComparer<int>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: EnumToNumberConverter<CompiledModelTestBase.AFlagsEnum, int>.Instance,
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                EnumToNumberConverter<CompiledModelTestBase.AFlagsEnum, int>.Instance));
         flagsEnum1.SetSentinelFromProviderValue(0);
 
         var flagsEnum2 = runtimeEntityType.AddProperty(
@@ -339,24 +295,14 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         flagsEnum2.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
-            keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
+            comparer: ValueComparer<CompiledModelTestBase.AFlagsEnum>.Default,
+            providerValueComparer: DefaultValueComparer<int>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"),
-            converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
+            converter: EnumToNumberConverter<CompiledModelTestBase.AFlagsEnum, int>.Instance,
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                 JsonInt32ReaderWriter.Instance,
-                new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(int (CompiledModelTestBase.AFlagsEnum value) => ((int)value), CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
+                EnumToNumberConverter<CompiledModelTestBase.AFlagsEnum, int>.Instance));
         flagsEnum2.SetSentinelFromProviderValue(6);
 
         var point = runtimeEntityType.AddProperty(
@@ -415,45 +361,25 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         refTypeArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(ValueComparer<IPAddress>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
+                    IPAddressToStringConverter.Instance))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
+                    IPAddressToStringConverter.Instance)),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
-                comparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                keyComparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 45),
-                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
+                converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
+                    IPAddressToStringConverter.Instance)));
         var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
         refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -490,18 +416,8 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         refTypeEnumerable.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfReferenceTypesComparer<List<string>, string>(DefaultValueComparer<string>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
@@ -543,18 +459,8 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         refTypeIList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfReferenceTypesComparer<List<string>, string>(DefaultValueComparer<string>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
@@ -596,45 +502,25 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         refTypeList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(ValueComparer<IPAddress>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v))))),
+                    IPAddressToStringConverter.Instance))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))),
+                    IPAddressToStringConverter.Instance)),
             elementMapping: SqliteStringTypeMapping.Default.Clone(
-                comparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                keyComparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
                     size: 45),
-                converter: new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)),
+                converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(string (IPAddress v) => ((object)v).ToString(), IPAddress (string v) => IPAddress.Parse(v)))));
+                    IPAddressToStringConverter.Instance)));
         var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
         refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
@@ -671,18 +557,8 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         valueTypeArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
-                bool (DateTime v1, DateTime v2) => v1.Equals(v2),
-                int (DateTime v) => ((object)v).GetHashCode(),
-                DateTime (DateTime v) => v)),
-            keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
-                bool (DateTime v1, DateTime v2) => v1.Equals(v2),
-                int (DateTime v) => ((object)v).GetHashCode(),
-                DateTime (DateTime v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(DefaultValueComparer<DateTime>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                 SqliteJsonDateTimeReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
@@ -724,35 +600,13 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         valueTypeEnumerable.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfValueTypesComparer<List<byte>, byte>(DefaultValueComparer<byte>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
             elementMapping: ByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                keyComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER")));
         var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
@@ -791,35 +645,13 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         valueTypeIList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfValueTypesComparer<List<byte>, byte>(DefaultValueComparer<byte>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
             elementMapping: ByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                keyComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER")));
         var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
@@ -858,35 +690,13 @@ public partial class PrincipalBaseEntityType
             relationshipIndex: -1,
             storeGenerationIndex: -1);
         valueTypeList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
-                bool (short v1, short v2) => v1 == v2,
-                int (short v) => ((int)v),
-                short (short v) => v)),
-            keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
-                bool (short v1, short v2) => v1 == v2,
-                int (short v) => ((int)v),
-                short (short v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+            comparer: new ListOfValueTypesComparer<List<short>, short>(DefaultValueComparer<short>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                 JsonInt16ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                 JsonInt16ReaderWriter.Instance),
             elementMapping: ShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<short>(
-                    bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)v),
-                    short (short v) => v),
-                keyComparer: new ValueComparer<short>(
-                    bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)v),
-                    short (short v) => v),
-                providerValueComparer: new ValueComparer<short>(
-                    bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)v),
-                    short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER")));
         var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));

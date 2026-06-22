@@ -1113,6 +1113,24 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 throw new InvalidOperationException(CoreStrings.OwnedDerivedType(entityType.DisplayName()));
             }
 
+            if (ownership.DeleteBehavior != DeleteBehavior.Cascade)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.OwnershipNotCascadeDelete(
+                        ownership.PrincipalEntityType.DisplayName(),
+                        ownership.DeclaringEntityType.DisplayName(),
+                        ownership.DeleteBehavior,
+                        DeleteBehavior.Cascade));
+            }
+
+            if (!ownership.IsRequired)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.OwnershipNotRequired(
+                        ownership.PrincipalEntityType.DisplayName(),
+                        ownership.DeclaringEntityType.DisplayName()));
+            }
+
             foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership
                          && (fk.PrincipalEntityType != fk.DeclaringEntityType
                              || !fk.Properties.SequenceEqual(entityType.FindPrimaryKey()!.Properties))

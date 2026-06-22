@@ -1187,6 +1187,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.
+        /// </summary>
+        public static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? firstOwnerType, object? secondNavigation, object? secondOwnerType)
+            => string.Format(
+                GetString("DuplicateOwnedEntityInstance", nameof(entityType), nameof(firstNavigation), nameof(firstOwnerType), nameof(secondNavigation), nameof(secondOwnerType)),
+                entityType, firstNavigation, firstOwnerType, secondNavigation, secondOwnerType);
+
+        /// <summary>
         ///     The foreign key {foreignKeyProperties} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {keyProperties} on '{principalType}'.
         /// </summary>
         public static string DuplicateForeignKey(object? foreignKeyProperties, object? entityType, object? duplicateEntityType, object? keyProperties, object? principalType)
@@ -2748,6 +2756,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("OwnerlessOwnedType", nameof(ownedType)),
                 ownedType);
+
+        /// <summary>
+        ///     The ownership relationship from '{principalEntityType}' to '{dependentEntityType}' is configured with '{deleteBehavior}' delete behavior. Ownership relationships must use '{cascadeBehavior}' delete behavior. Either remove the explicit delete behavior configuration or don't configure this relationship as an ownership.
+        /// </summary>
+        public static string OwnershipNotCascadeDelete(object? principalEntityType, object? dependentEntityType, object? deleteBehavior, object? cascadeBehavior)
+            => string.Format(
+                GetString("OwnershipNotCascadeDelete", nameof(principalEntityType), nameof(dependentEntityType), nameof(deleteBehavior), nameof(cascadeBehavior)),
+                principalEntityType, dependentEntityType, deleteBehavior, cascadeBehavior);
+
+        /// <summary>
+        ///     The ownership relationship from '{principalEntityType}' to '{dependentEntityType}' is configured as optional. Ownership relationships must be required. Either remove the optional configuration or don't configure this relationship as an ownership.
+        /// </summary>
+        public static string OwnershipNotRequired(object? principalEntityType, object? dependentEntityType)
+            => string.Format(
+                GetString("OwnershipNotRequired", nameof(principalEntityType), nameof(dependentEntityType)),
+                principalEntityType, dependentEntityType);
 
         /// <summary>
         ///     The navigation '{navigation}' cannot be changed, because the foreign key between '{principalEntityType}' and '{dependentEntityType}' is an ownership. To change the navigation to the owned entity type remove the ownership.

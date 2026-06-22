@@ -527,7 +527,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.BoolTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.BoolTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<bool>",
       "Methods": [
         {
           "Member": "BoolTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Boolean);"
@@ -549,7 +549,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteArrayTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteArrayTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<byte[]>",
       "Methods": [
         {
           "Member": "ByteArrayTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Binary, int? size = null);"
@@ -571,7 +571,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<byte>",
       "Methods": [
         {
           "Member": "ByteTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Byte);"
@@ -652,7 +652,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.CharTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.CharTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<char>",
       "Methods": [
         {
           "Member": "CharTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.String);"
@@ -1976,7 +1976,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.DateOnly>",
       "Methods": [
         {
           "Member": "DateOnlyTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Date);"
@@ -1998,7 +1998,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeOffsetTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeOffsetTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.DateTimeOffset>",
       "Methods": [
         {
           "Member": "DateTimeOffsetTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.DateTimeOffset);"
@@ -2020,7 +2020,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.DateTime>",
       "Methods": [
         {
           "Member": "DateTimeTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.DateTime);"
@@ -2388,7 +2388,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DecimalTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DecimalTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<decimal>",
       "Methods": [
         {
           "Member": "DecimalTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Decimal, int? precision = null, int? scale = null);"
@@ -2531,7 +2531,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DoubleTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DoubleTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<double>",
       "Methods": [
         {
           "Member": "DoubleTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Double);"
@@ -2966,7 +2966,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.FloatTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.FloatTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<float>",
       "Methods": [
         {
           "Member": "FloatTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Single);"
@@ -3069,7 +3069,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.GuidTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.GuidTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.Guid>",
       "Methods": [
         {
           "Member": "GuidTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Guid);"
@@ -5370,7 +5370,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.IntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.IntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<int>",
       "Methods": [
         {
           "Member": "IntTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Int32);"
@@ -7564,7 +7564,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.LongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.LongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<long>",
       "Methods": [
         {
           "Member": "LongTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Int64);"
@@ -17605,10 +17605,13 @@
           "Member": "abstract Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping.RelationalTypeMappingParameters parameters);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(in Microsoft.EntityFrameworkCore.Storage.RelationalTypeMappingInfo? mappingInfo = null, System.Type? clrType = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? comparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? keyComparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? providerValueComparer = null, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null, Microsoft.EntityFrameworkCore.Storage.StoreTypePostfix? storeTypePostfix = null);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(in Microsoft.EntityFrameworkCore.Storage.RelationalTypeMappingInfo? mappingInfo = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? comparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? keyComparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? providerValueComparer = null, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null, Microsoft.EntityFrameworkCore.Storage.StoreTypePostfix? storeTypePostfix = null);"
         },
         {
           "Member": "virtual void ConfigureParameter(System.Data.Common.DbParameter parameter);"
+        },
+        {
+          "Member": "virtual object? GetDefaultProviderValue();"
         },
         {
           "Member": "virtual System.Data.Common.DbParameter CreateParameter(System.Data.Common.DbCommand command, string name, object? value, bool? nullable = null, System.Data.ParameterDirection direction = System.Data.ParameterDirection.Input);"
@@ -17746,6 +17749,20 @@
         },
         {
           "Member": "bool Unicode { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)] T> : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Methods": [
+        {
+          "Member": "RelationalTypeMapping(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping.RelationalTypeMappingParameters parameters);"
+        },
+        {
+          "Member": "RelationalTypeMapping(string storeType, System.Type clrType, System.Data.DbType? dbType = null, bool unicode = false, int? size = null, bool fixedLength = false, int? precision = null, int? scale = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null);"
+        },
+        {
+          "Member": "override Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer CreateDefaultComparer(bool favorStructuralComparisons);"
         }
       ]
     },
@@ -18411,7 +18428,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.SByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.SByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<sbyte>",
       "Methods": [
         {
           "Member": "SByteTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.SByte);"
@@ -18834,7 +18851,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<short>",
       "Methods": [
         {
           "Member": "ShortTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Int16);"
@@ -19988,7 +20005,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.StringTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.StringTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<string>",
       "Methods": [
         {
           "Member": "StringTypeMapping(string storeType, System.Data.DbType? dbType, bool unicode = false, int? size = null);"
@@ -20501,7 +20518,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.TimeOnly>",
       "Methods": [
         {
           "Member": "TimeOnlyTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Time);"
@@ -20523,7 +20540,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeSpanTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeSpanTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.TimeSpan>",
       "Methods": [
         {
           "Member": "TimeSpanTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Time);"
@@ -20693,7 +20710,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.UIntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.UIntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<uint>",
       "Methods": [
         {
           "Member": "UIntTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.UInt32);"
@@ -20712,7 +20729,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ULongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ULongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<ulong>",
       "Methods": [
         {
           "Member": "ULongTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.UInt64);"
@@ -21036,7 +21053,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.UShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.UShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<ushort>",
       "Methods": [
         {
           "Member": "UShortTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.UInt16);"

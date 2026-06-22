@@ -58,8 +58,15 @@ public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static GuidToBytesConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(Guid), typeof(byte[]), i => new GuidToBytesConverter(i.MappingHints), DefaultHints);
+        = new(typeof(Guid), typeof(byte[]),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new GuidToBytesConverter(i.MappingHints),
+            DefaultHints);
 }

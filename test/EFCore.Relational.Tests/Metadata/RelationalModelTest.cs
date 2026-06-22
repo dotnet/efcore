@@ -3775,13 +3775,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         var tags = b.PrimitiveCollection(e => e.Tags);
                         tags.Metadata.SetTypeMapping(
                             (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
-                                clrType: typeof(List<string>),
+                                converter: new ValueConverter<List<string>, string>(v => null!, v => null!),
                                 elementMapping: new StringTypeMapping("nvarchar(max)", null)));
 
                         var enumValues = b.PrimitiveCollection(e => e.EnumValues);
                         enumValues.Metadata.SetTypeMapping(
                             (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
-                                clrType: typeof(List<PrimitiveCollectionEnum>),
+                                converter: new ValueConverter<List<PrimitiveCollectionEnum>, string>(v => null!, v => null!),
                                 elementMapping: new IntTypeMapping("int")));
                         enumValues.ElementType(b => b.HasConversion<int>());
                     });

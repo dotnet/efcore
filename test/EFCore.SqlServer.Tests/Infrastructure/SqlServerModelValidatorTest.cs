@@ -1373,6 +1373,28 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_with_unsupported_option()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorWithoutDimensionsEntity>(
+            b =>
+            {
+                b.Property(e => e.Vector).HasMaxLength(3);
+                var indexBuilder = b.HasVectorIndex(e => e.Vector).HasMetric("cosine");
+                indexBuilder.Metadata.SetDataCompression(DataCompressionType.Page);
+            });
+
+        VerifyError(
+            SqlServerStrings.VectorIndexUnsupportedOption(
+                "{'Vector'}",
+                nameof(VectorWithoutDimensionsEntity),
+                "DataCompression"),
+            modelBuilder);
+    }
+
     public class VectorWithoutDimensionsEntity
     {
         public int Id { get; set; }
@@ -1548,6 +1570,25 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 "{'Title', 'Count'}",
                 nameof(FullTextEntityWithMixedValidInvalid),
                 nameof(FullTextEntityWithMixedValidInvalid.Count)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Throws_for_full_text_index_with_unsupported_option()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(b =>
+        {
+            var indexBuilder = b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityValid");
+            indexBuilder.Metadata.IsUnique = true;
+        });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexUnsupportedOption(
+                "{'Title'}",
+                nameof(FullTextEntityValid),
+                "IsUnique"),
             modelBuilder);
     }
 

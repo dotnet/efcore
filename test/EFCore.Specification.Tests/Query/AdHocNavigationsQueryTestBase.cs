@@ -1650,4 +1650,83 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 35706
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Filtered_collection_through_optional_navigation_does_not_match_on_null_keys(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35706>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.People
+            .OrderBy(p => p.PersonId)
+            .Select(
+                subject => new
+                {
+                    subject.Name,
+                    Coworkers = subject.Employer.Employees
+                        .Where(employee => employee != subject)
+                        .Select(coworker => new { coworker.Name })
+                        .ToList()
+                });
+
+        var people = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var satya = people.Single(p => p.Name == "Satya");
+        Assert.Equal(2, satya.Coworkers.Count);
+        Assert.Contains(satya.Coworkers, c => c.Name == "Brad");
+        Assert.Contains(satya.Coworkers, c => c.Name == "Amy");
+
+        var donald = people.Single(p => p.Name == "Donald");
+        Assert.Empty(donald.Coworkers);
+    }
+
+    protected class Context35706(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Employer35706> Employers { get; set; }
+        public DbSet<Person35706> People { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employer35706>().HasKey(e => e.EmployerId);
+            modelBuilder.Entity<Person35706>().HasKey(p => p.PersonId);
+            modelBuilder.Entity<Employer35706>()
+                .HasMany(e => e.Employees)
+                .WithOne(p => p.Employer)
+                .HasForeignKey(p => p.EmployerId);
+        }
+
+        public Task SeedAsync()
+        {
+            var microsoft = new Employer35706 { Name = "Microsoft" };
+            AddRange(
+                new Person35706 { Name = "Satya", Employer = microsoft },
+                new Person35706 { Name = "Brad", Employer = microsoft },
+                new Person35706 { Name = "Amy", Employer = microsoft },
+                new Person35706 { Name = "Donald" },
+                new Person35706 { Name = "Elon" });
+
+            return SaveChangesAsync();
+        }
+
+        public class Employer35706
+        {
+            public int EmployerId { get; set; }
+            public string Name { get; set; }
+            public IList<Person35706> Employees { get; set; }
+        }
+
+        public class Person35706
+        {
+            public int PersonId { get; set; }
+            public string Name { get; set; }
+            public int? EmployerId { get; set; }
+            public Employer35706 Employer { get; set; }
+        }
+    }
+
+    #endregion
 }

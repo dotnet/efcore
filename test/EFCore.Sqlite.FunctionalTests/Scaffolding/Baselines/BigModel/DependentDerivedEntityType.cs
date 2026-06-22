@@ -25,8 +25,9 @@ public partial class DependentDerivedEntityType
             typeof(CompiledModelTestBase.DependentDerived<byte?>),
             baseEntityType,
             discriminatorProperty: "EnumDiscriminator",
-            discriminatorValue: CompiledModelTestBase.Enum1.Two,
             propertyCount: 2);
+
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue(2);
 
         var data = runtimeEntityType.AddProperty(
             "Data",

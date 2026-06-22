@@ -122,6 +122,54 @@ partial class MySnapshot : ModelSnapshot
     }
 
     [Fact]
+    public void Snapshot_with_mismatched_key_and_foreign_key_property_types_is_usable()
+    {
+        const string snapshotCode =
+            """
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
+#nullable disable
+
+namespace RootNamespace;
+
+partial class Snapshot : ModelSnapshot
+{
+    protected override void BuildModel(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .HasAnnotation("ProductVersion", "10.0.0");
+
+        modelBuilder.Entity("Dependent", b =>
+            {
+                b.Property<long>("Id")
+                    .HasColumnType("bigint");
+
+                b.HasKey("Id");
+
+                b.HasOne("Principal")
+                    .WithMany()
+                    .HasForeignKey("Id");
+            });
+
+        modelBuilder.Entity("Principal", b =>
+            {
+                b.Property<short>("Id")
+                    .HasColumnType("smallint");
+
+                b.HasKey("Id");
+            });
+    }
+}
+
+""";
+
+        var snapshotModel = BuildModelFromSnapshotSource(snapshotCode);
+
+        Assert.Single(snapshotModel.FindEntityType("Dependent")!.GetForeignKeys());
+    }
+
+    [Fact]
     public void Snapshot_with_migration_id()
     {
         var generator = CreateMigrationsCodeGenerator();

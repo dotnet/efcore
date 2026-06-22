@@ -89,7 +89,7 @@ public interface ICSharpHelper
     /// <param name="lambdaIdentifier">The identifier to use for parameter in the lambda.</param>
     /// <returns>The lambda.</returns>
     string Lambda(IEnumerable<IProperty> properties, string? lambdaIdentifier = null)
-        => Lambda(properties.Select(p => p.Name).ToList(), lambdaIdentifier);
+        => Lambda(properties.Cast<IPropertyBase>(), lambdaIdentifier);
 
     /// <summary>
     ///     Generates a property accessor lambda. Properties declared on a complex type are emitted using the dotted path
