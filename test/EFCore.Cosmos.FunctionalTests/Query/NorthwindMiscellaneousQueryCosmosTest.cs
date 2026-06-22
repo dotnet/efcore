@@ -3236,14 +3236,9 @@ ORDER BY c["OrderID"] DESC, c["ProductID"] DESC
 
                 AssertSql(
                     """
-SELECT VALUE
-{
-    "ReportsTo" : c["ReportsTo"],
-    "c" : 1,
-    "c0" : 2,
-    "c1" : 3
-}
+SELECT VALUE (((c["ReportsTo"] + 1) != null) ? (c["ReportsTo"] + 1) : (((c["ReportsTo"] + 2) != null) ? (c["ReportsTo"] + 2) : (c["ReportsTo"] + 3)))
 FROM root c
+WHERE ((((c["ReportsTo"] + 1) != null) ? (c["ReportsTo"] + 1) : (((c["ReportsTo"] + 2) != null) ? (c["ReportsTo"] + 2) : (c["ReportsTo"] + 3))) != null)
 ORDER BY c["EmployeeID"]
 """);
             });

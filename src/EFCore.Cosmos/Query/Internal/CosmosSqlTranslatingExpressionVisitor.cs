@@ -24,8 +24,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
     : ExpressionVisitor
 {
-    private static readonly MethodInfo ConcatMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(object), typeof(object)])!;
 
     private static readonly MethodInfo StringEqualsWithStringComparison
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(StringComparison)])!;
@@ -865,8 +863,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                     || typeMappingSource.FindMapping(unaryExpression.Type, queryCompilationContext.Model) != null)
                 {
                     sqlOperand = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
-
-                    return sqlExpressionFactory.Convert(sqlOperand!, unaryExpression.Type);
+                    return sqlOperand?.TypeMapping is null ? QueryCompilationContext.NotTranslatedExpression : sqlExpressionFactory.Convert(sqlOperand!, unaryExpression.Type);
                 }
 
                 break;
