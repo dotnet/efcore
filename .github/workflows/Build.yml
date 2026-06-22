@@ -78,7 +78,7 @@ jobs:
         if: always()
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool install --global dotnet-coverage
+          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
@@ -149,7 +149,7 @@ jobs:
         if: always()
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool install --global dotnet-coverage
+          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
@@ -226,7 +226,7 @@ jobs:
         if: always()
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool install --global dotnet-coverage
+          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
@@ -291,7 +291,7 @@ jobs:
         if: always()
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool install --global dotnet-coverage
+          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
@@ -358,7 +358,7 @@ jobs:
         if: always()
         run: |
           export PATH="$PATH:$HOME/.dotnet/tools"
-          dotnet tool install --global dotnet-coverage
+          dotnet tool update --global dotnet-coverage
           shopt -s nullglob
           files=(artifacts/coverage/*.cobertura.xml)
           if [ ${#files[@]} -gt 0 ]; then
