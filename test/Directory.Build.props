@@ -26,4 +26,8 @@
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --filter-not-trait category=failing --ignore-exit-code 8</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(IsTestProject)' != 'false'">
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+  </ItemGroup>
+
 </Project>
