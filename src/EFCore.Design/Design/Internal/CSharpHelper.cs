@@ -1629,9 +1629,6 @@ public class CSharpHelper : ICSharpHelper
         return code;
     }
 
-    private static bool IsIdentifierStartCharacter(char ch)
-        => char.IsLetter(ch) || ch == '_';
-
     private static bool IsIdentifierPartCharacter(char ch)
         => char.IsLetter(ch) || char.IsAsciiDigit(ch) || ch == '_';
 }
