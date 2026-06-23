@@ -22,6 +22,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
+    private delegate T Shaper<T>(CosmosQueryContext queryContext, ReadOnlyMemory<byte> data, ref int bytesConsumed);
+
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
@@ -63,12 +65,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
         VerifyNoClientConstant(shaperBody);
 
-        var test = InjectStructuralTypeMaterializers(shaperBody);
+        //var test = InjectStructuralTypeMaterializers(shaperBody);
 
         // Because the shaper might process the data twice (duplicated shaper),
         // we pass the data as ROM, and the shaper will create a JsonReaderData where needed.
         var dataParameter = Parameter(typeof(ReadOnlyMemory<byte>), "data");
-        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter)
+        // The shaper will always read the while next json token/object, and will know how many bytes that was
+        // we get the amount of bytes read from the shaper, so that we can advance the data in the QueryingEnumerable as needed, without having to scan the data twice (once for shaper, once for advancing the data).
+        var bytesConsumedParameter = Parameter(typeof(int).MakeByRefType(), "bytesConsumed");
+        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter, bytesConsumedParameter)
             .ProcessShaper(shaperBody);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));

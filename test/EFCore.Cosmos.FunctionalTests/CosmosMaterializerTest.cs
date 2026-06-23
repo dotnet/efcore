@@ -6,10 +6,12 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     protected override ITestStoreFactory NonSharedTestStoreFactory { get; } = CosmosTestStoreFactory.Instance;
 
+    #region Shadow key materialization
+
     [ConditionalFact]
     public async Task Materialize_entity_with_shadow_key()
     {
-        var factory = await InitializeNonSharedTest<MaterializerContext>();
+        var factory = await InitializeNonSharedTest<ShadowKeyContext>();
 
         using (var context = factory.CreateDbContext())
         {
@@ -33,7 +35,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     }
 
-    public class MaterializerContext(DbContextOptions options) : DbContext(options)
+    public class ShadowKeyContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<ShadowKeyEntity> Entities { get; set; }
 
@@ -49,4 +51,49 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
             });
         }
     }
+
+    #endregion
+
+    #region Discriminator
+
+    [ConditionalFact]
+    public async Task Materialize_entity_with_discriminator()
+    {
+        var factory = await InitializeNonSharedTest<DiscriminatorContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new DiscriminatorDerivedEntity { Name = "Name" });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var entity = await context.Entities.SingleAsync();
+            Assert.IsType<DiscriminatorDerivedEntity>(entity);
+        }
+    }
+
+    public abstract class DiscriminatorBaseEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+    }
+
+    public class DiscriminatorDerivedEntity : DiscriminatorBaseEntity
+    {
+        public string Name { get; set; } = "Name";
+    }
+
+    public class DiscriminatorContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<DiscriminatorBaseEntity> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DiscriminatorBaseEntity>().HasPartitionKey(x => x.Id);
+            modelBuilder.Entity<DiscriminatorDerivedEntity>();
+        }
+    }
+
+    #endregion
 }
