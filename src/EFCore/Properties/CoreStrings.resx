@@ -606,6 +606,12 @@
   <data name="EFParameterInvoked" xml:space="preserve">
     <value>The 'EF.Parameter&lt;T&gt;' method may only be used within Entity Framework LINQ queries.</value>
   </data>
+  <data name="ElementNotMapped" xml:space="preserve">
+    <value>The element type '{elementType}' of the primitive collection '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the element value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
+  <data name="ElementTypeNotCompatible" xml:space="preserve">
+    <value>The element type '{elementType}' is not compatible with the type '{collectionType}' of the primitive collection '{entityType}.{property}'. The collection type must implement 'IEnumerable&lt;T&gt;' where 'T' is assignable to the element type.</value>
+  </data>
   <data name="EmptyComplexType" xml:space="preserve">
     <value>Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.</value>
   </data>

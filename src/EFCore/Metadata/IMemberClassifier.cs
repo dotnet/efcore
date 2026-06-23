@@ -143,6 +143,10 @@ public interface IMemberClassifier
     /// <param name="model">The model.</param>
     /// <param name="useAttributes">Whether attributes found on the member should be considered.</param>
     /// <param name="typeMapping">When this method returns, the type mapping for the member, if one was found.</param>
+    /// <param name="elementType">
+    ///     When this method returns <see langword="true" />, the element type if the member is a primitive collection;
+    ///     otherwise <see langword="null" />.
+    /// </param>
     /// <param name="explicitlyConfigured">When this method returns, indicates whether the type was explicitly configured.</param>
     /// <returns><see langword="true" /> if the member is a candidate primitive property; otherwise <see langword="false" />.</returns>
     bool IsCandidatePrimitiveProperty(
@@ -150,6 +154,7 @@ public interface IMemberClassifier
         IConventionModel model,
         bool useAttributes,
         out CoreTypeMapping? typeMapping,
+        out Type? elementType,
         out bool explicitlyConfigured);
 
     /// <summary>

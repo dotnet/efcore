@@ -2671,6 +2671,24 @@ public abstract partial class ModelBuilderTest
         }
 
         [Fact]
+        public virtual void Can_override_primitive_collection_as_scalar_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<CollectionQuarks>().PrimitiveCollection(e => e.Up);
+
+            var entityType = model.FindEntityType(typeof(CollectionQuarks))!;
+            Assert.NotNull(entityType.FindProperty(nameof(CollectionQuarks.Up))!.GetElementType());
+
+            modelBuilder.Entity<CollectionQuarks>().Property(e => e.Up);
+
+            var property = entityType.FindProperty(nameof(CollectionQuarks.Up));
+            Assert.NotNull(property);
+            Assert.Null(property.GetElementType());
+        }
+
+        [Fact]
         public virtual void Primitive_collections_can_be_made_required()
         {
             var modelBuilder = CreateModelBuilder();

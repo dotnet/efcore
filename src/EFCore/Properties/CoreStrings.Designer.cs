@@ -1307,6 +1307,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFParameterInvoked");
 
         /// <summary>
+        ///     The element type '{elementType}' of the primitive collection '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the element value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        /// </summary>
+        public static string ElementNotMapped(object? elementType, object? entityType, object? property)
+            => string.Format(
+                GetString("ElementNotMapped", nameof(elementType), nameof(entityType), nameof(property)),
+                elementType, entityType, property);
+
+        /// <summary>
+        ///     The element type '{elementType}' is not compatible with the type '{collectionType}' of the primitive collection '{entityType}.{property}'. The collection type must implement 'IEnumerable&lt;T&gt;' where 'T' is assignable to the element type.
+        /// </summary>
+        public static string ElementTypeNotCompatible(object? elementType, object? collectionType, object? entityType, object? property)
+            => string.Format(
+                GetString("ElementTypeNotCompatible", nameof(elementType), nameof(collectionType), nameof(entityType), nameof(property)),
+                elementType, collectionType, entityType, property);
+
+        /// <summary>
         ///     Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.
         /// </summary>
         public static string EmptyComplexType(object? complexType)

@@ -120,9 +120,11 @@ public class MemberClassifier : IMemberClassifier
         IConventionModel model,
         bool useAttributes,
         out CoreTypeMapping? typeMapping,
+        out Type? elementType,
         out bool explicitlyConfigured)
     {
         typeMapping = null;
+        elementType = null;
         explicitlyConfigured = false;
         if (!memberInfo.IsCandidateProperty())
         {
@@ -131,9 +133,17 @@ public class MemberClassifier : IMemberClassifier
 
         var configurationType = GetConfigurationType(memberInfo.GetMemberType(), model);
         explicitlyConfigured = configurationType != null;
-        return configurationType == TypeConfigurationType.Property
+        var isCandidate = configurationType == TypeConfigurationType.Property
             || (configurationType == null
                 && (typeMapping = Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes)) != null);
+
+        if (isCandidate
+            && typeMapping?.ElementTypeMapping != null)
+        {
+            elementType = memberInfo.GetMemberType().TryGetElementType(typeof(IEnumerable<>));
+        }
+
+        return isCandidate;
     }
 
     /// <inheritdoc />

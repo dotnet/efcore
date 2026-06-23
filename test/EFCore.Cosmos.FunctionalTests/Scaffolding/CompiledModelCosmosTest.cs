@@ -32,7 +32,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                     eb.HasKey("Id", "PartitionId");
                     eb.ToContainer("DataContainer");
                     eb.Property<Dictionary<string, string[]>>("Map");
-                    eb.Property<List<Dictionary<string, int>>>("List");
+                    eb.PrimitiveCollection<List<Dictionary<string, int>>>("List");
                     eb.Property<ReadOnlyMemory<byte>>("Bytes");
                     eb.UseETagConcurrency();
                     eb.HasNoDiscriminator();

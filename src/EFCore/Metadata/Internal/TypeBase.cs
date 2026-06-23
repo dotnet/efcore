@@ -633,7 +633,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
-        ConfigurationSource configurationSource)
+        ConfigurationSource configurationSource,
+        Type? elementType = null)
     {
         Check.NotNull(name);
         Check.NotNull(propertyType);
@@ -685,7 +686,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
         var property = new Property(
             name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this,
-            configurationSource, typeConfigurationSource);
+            configurationSource, typeConfigurationSource, elementType);
 
         _properties.Add(property.Name, property);
 
@@ -2010,6 +2011,25 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    IMutableProperty IMutableTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        Type elementType)
+        => AddProperty(
+            name,
+            propertyType,
+            memberInfo: null,
+            ConfigurationSource.Explicit,
+            ConfigurationSource.Explicit,
+            elementType)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     IConventionProperty? IConventionTypeBase.AddProperty(
         string name,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
@@ -2022,6 +2042,29 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                 ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                 : null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionProperty? IConventionTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        Type elementType,
+        bool setTypeConfigurationSource,
+        bool fromDataAnnotation)
+        => AddProperty(
+            name,
+            propertyType,
+            memberInfo: null,
+            setTypeConfigurationSource
+                ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                : null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            elementType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2045,6 +2088,22 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    IMutableProperty IMutableTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo memberInfo,
+        Type elementType)
+        => AddProperty(
+            name, propertyType, memberInfo,
+            ConfigurationSource.Explicit, ConfigurationSource.Explicit, elementType)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     IConventionProperty? IConventionTypeBase.AddProperty(
         string name,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
@@ -2059,6 +2118,30 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                 ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                 : null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionProperty? IConventionTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo memberInfo,
+        Type elementType,
+        bool setTypeConfigurationSource,
+        bool fromDataAnnotation)
+        => AddProperty(
+            name,
+            propertyType,
+            memberInfo,
+            setTypeConfigurationSource
+                ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                : null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            elementType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

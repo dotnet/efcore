@@ -32,7 +32,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     {
         Check.NotNull(property);
 
-        Builder = ((Property)property).Builder;
+        _builder = ((Property)property).Builder;
     }
 
     /// <summary>
@@ -41,7 +41,22 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     IConventionPropertyBuilder IInfrastructure<IConventionPropertyBuilder>.Instance
         => Builder;
 
-    private InternalPropertyBuilder Builder { get; }
+    private InternalPropertyBuilder _builder;
+
+    private InternalPropertyBuilder Builder
+    {
+        get
+        {
+            if (!_builder.Metadata.IsInModel
+                && _builder.Metadata.DeclaringType.FindProperty(_builder.Metadata.Name) is { } property)
+            {
+                // The property may have been recreated, so re-resolve the current builder to keep chained calls working.
+                _builder = property.Builder;
+            }
+
+            return _builder;
+        }
+    }
 
     /// <summary>
     ///     The property being configured.

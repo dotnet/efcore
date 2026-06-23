@@ -28,7 +28,9 @@ public interface IConventionElementType : IReadOnlyElementType, IConventionAnnot
     ///     Returns the configuration source for this element.
     /// </summary>
     /// <returns>The configuration source.</returns>
-    ConfigurationSource GetConfigurationSource();
+    [Obsolete("The element type is now a creation-time concern; its configuration source is always that of its collection property. Use CollectionProperty.GetConfigurationSource() instead.")]
+    ConfigurationSource GetConfigurationSource()
+        => CollectionProperty.GetConfigurationSource();
 
     /// <summary>
     ///     Gets the builder that can be used to configure this element.

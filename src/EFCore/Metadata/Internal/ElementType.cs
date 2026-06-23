@@ -20,7 +20,6 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     private bool? _isNullable;
     private CoreTypeMapping? _typeMapping;
 
-    private ConfigurationSource _configurationSource;
     private ConfigurationSource? _isNullableConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
 
@@ -32,43 +31,12 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     /// </summary>
     public ElementType(
         Type clrType,
-        Property collectionProperty,
-        ConfigurationSource configurationSource)
+        Property collectionProperty)
     {
         ClrType = clrType;
         CollectionProperty = collectionProperty;
-        _configurationSource = configurationSource;
         _builder = new InternalElementTypeBuilder(this, collectionProperty.DeclaringType.Model.Builder);
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource GetConfigurationSource()
-        => _configurationSource;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
-        => _configurationSource = configurationSource.Max(_configurationSource);
-
-    // Needed for a workaround before reference counting is implemented
-    // Issue #15898
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void SetConfigurationSource(ConfigurationSource configurationSource)
-        => _configurationSource = configurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,7 +58,7 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     /// </summary>
     public virtual bool IsInModel
         => _builder is not null
-            && CollectionProperty.DeclaringType.IsInModel;
+            && CollectionProperty.IsInModel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -474,8 +442,6 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
                 ref _typeMapping, (IElementType)this, static elementType =>
                     elementType.CollectionProperty.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(elementType)!)
             : _typeMapping;
-
-        set => SetTypeMapping(value, ConfigurationSource.Explicit);
     }
 
     /// <summary>

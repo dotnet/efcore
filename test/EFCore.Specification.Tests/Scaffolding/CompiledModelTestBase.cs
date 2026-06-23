@@ -214,10 +214,10 @@ namespace TestNamespace
             b.PrimitiveCollection(e => e.EnumU32AsStringArray).ElementType(b => b.HasConversion<string>());
             b.PrimitiveCollection(e => e.EnumU64AsStringArray).ElementType(b => b.HasConversion<string>());
 
-            b.Property(e => e.BoolReadOnlyCollection);
-            b.Property(e => e.UInt8ReadOnlyCollection).HasField("_uInt8ReadOnlyCollection");
-            b.Property(e => e.Int32ReadOnlyCollection);
-            b.Property(e => e.StringReadOnlyCollection).HasField("_stringReadOnlyCollection");
+            b.PrimitiveCollection(e => e.BoolReadOnlyCollection);
+            b.PrimitiveCollection(e => e.UInt8ReadOnlyCollection).HasField("_uInt8ReadOnlyCollection");
+            b.PrimitiveCollection(e => e.Int32ReadOnlyCollection);
+            b.PrimitiveCollection(e => e.StringReadOnlyCollection).HasField("_stringReadOnlyCollection");
 
             b.PrimitiveCollection(e => e.IPAddressReadOnlyCollection)
                 .ElementType(b => b.HasConversion<string>())
