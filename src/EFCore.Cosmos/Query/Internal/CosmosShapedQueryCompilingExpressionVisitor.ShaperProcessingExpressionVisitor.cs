@@ -86,16 +86,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)) ?? throw new UnreachableException();
 
         /// <summary>
-        ///     Structural types their materialize expressions.
+        ///     Structural types their shaper lambda.
         /// </summary>
         private readonly Dictionary<ITypeBase, LambdaExpression>
-            _structuralTypeMaterializerLambdaMapping = new();
+            _structuralTypeJsonShaperLambdaMapping = new();
 
         /// <summary>
-        ///     Structural types their deserialze expressions.
+        ///     Structural types their materializer lambda.
         /// </summary>
         private readonly Dictionary<ITypeBase, LambdaExpression>
-            _structuralTypeDeserializerLambdaMapping = new();
+            _structuralTypeJsonMaterializerLambdaMapping = new();
 
         private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, LambdaExpression Materializer)>
             _deferredProjectionBindings = new();
@@ -223,11 +223,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 case StructuralTypeShaperExpression shaper:
                 {
-                    if (!_structuralTypeMaterializerLambdaMapping.TryGetValue(shaper.StructuralType, out var materializeLambda)) // @TODO: We might need to cache per nullable aswell?
-                    {
-                        materializeLambda = CreateStructuralTypeJsonMaterializer(shaper);
-                        _structuralTypeMaterializerLambdaMapping.Add(shaper.StructuralType, materializeLambda);
-                    }
+                    var shaperLambda = StructuralTypeJsonShaper(shaper);
 
                     //var (jsonReaderData, jsonReaderManager, jsonReaderInitializeExpessions) = GenerateJsonReader();
 
@@ -250,12 +246,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the document, so we have to defer the projection to a variable assignment when reading the parent document. See: ProcessShaper
                         {
                             var variable = Variable(shaper.Type, projection.Alias);
-                            _deferredProjectionBindings[projectionBindingExpression] = (variable, materializeLambda);
+                            _deferredProjectionBindings[projectionBindingExpression] = (variable, shaperLambda);
                             return variable;
                         }
                     }
 
-                    return Invoke(materializeLambda, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter);
+                    return Invoke(shaperLambda, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter);
                 }
 
                 case ProjectionBindingExpression projectionBindingExpression:
@@ -310,44 +306,60 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitExtension(extensionExpression);
         }
 
-        private LambdaExpression CreateStructuralTypeJsonMaterializer(StructuralTypeShaperExpression shaper)
+        private LambdaExpression StructuralTypeJsonShaper(StructuralTypeShaperExpression shaper)
         {
-            if (!_structuralTypeDeserializerLambdaMapping.TryGetValue(shaper.StructuralType, out var deserializer)) // @TODO: We might need to cache per nullable aswell?
+            if (_structuralTypeJsonShaperLambdaMapping.TryGetValue(shaper.StructuralType, out var lambda)) // @TODO: We might need to cache per nullable aswell?
             {
-                deserializer = CreateStructuralTypeJsonDeserializer(
-                    shaper.StructuralType,
-                    shaper.Type,
-                    shaper.IsNullable,
-                    shaper.ValueBufferExpression);
-                _structuralTypeDeserializerLambdaMapping.Add(shaper.StructuralType, deserializer);
+                return lambda;
             }
+
+            var materializer = StructuralTypeJsonMaterializer(
+                shaper.StructuralType,
+                shaper.Type,
+                shaper.IsNullable,
+                shaper.ValueBufferExpression);
 
             if (!_isTracking)
             {
-                return deserializer;
+                // Materializer will be generated as a simple deserialize for non tracking queries.
+                // We can return the materializer directly as the shaper, since we don't need to read any metadata properties from the document.
+                return materializer;
             }
 
 
-            var materializerVariables = new List<ParameterExpression>();
-            var materializerExpressions = new List<Expression>();
+            var shaperVariables = new List<ParameterExpression>();
+            var shaperExpressions = new List<Expression>();
 
             // @TODO: Do we want to get this from the injection or rebuild ourselfs?
 
-            return null!;
+            // Always returns only the instance
+
+            lambda = Lambda(
+                Block(shaperVariables, shaperExpressions),
+                QueryCompilationContext.QueryContextParameter,
+                _jsonReaderDataParameter);
+            _structuralTypeJsonShaperLambdaMapping.Add(shaper.StructuralType, lambda);
+
+            return lambda;
         }
 
-        private LambdaExpression CreateStructuralTypeJsonDeserializer(
+        private LambdaExpression StructuralTypeJsonMaterializer(
             ITypeBase structuralType,
             Type clrType,
             bool nullable,
             Expression valueBufferExpression)
         {
+            if (_structuralTypeJsonMaterializerLambdaMapping.TryGetValue(structuralType, out var lambda)) // @TODO: We might need to cache per nullable aswell?
+            {
+                return lambda;
+            }
+
             var jsonReaderMangagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
-            var deserializerVariables = new List<ParameterExpression>()
+            var materializerVariables = new List<ParameterExpression>()
             {
                 jsonReaderMangagerVariable
             };
-            var deserializerExpressions = new List<Expression>()
+            var materializerExpressions = new List<Expression>()
             {
                 Assign(jsonReaderMangagerVariable, NewJsonReaderManager()),
             };
@@ -366,9 +378,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // We have to read the json document to find the discriminator value before we can know how to deserialize the document.
                 var (discriminatorReadLoopExpression, discriminatorValueVariable) = ReadDiscriminator(structuralType, jsonReaderMangagerVariable, discriminatorProperty);
 
-                deserializerVariables.Add(discriminatorValueVariable);
-                deserializerExpressions.Add(discriminatorReadLoopExpression);
-                deserializerExpressions.Add(Assign(jsonReaderMangagerVariable, NewJsonReaderManager())); // Start reading from the beginning for the deserializer.
+                materializerVariables.Add(discriminatorValueVariable);
+                materializerExpressions.Add(discriminatorReadLoopExpression);
+                materializerExpressions.Add(Assign(jsonReaderMangagerVariable, NewJsonReaderManager())); // Start reading from the beginning for the actual materializer block.
 
                 // Replace calls for ValueBufferTryReadValue for the discriminator property
                 materializerBlock = new ValueBufferTryReadValueRewriter(new Dictionary<IProperty, ParameterExpression>
@@ -380,7 +392,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // If tracking, this returns (IEntityType, RootEntity, ISnapshot, List<Action>)
             // Else this only returns RootEntity (clrType)
 
-            return null!;
+            materializerBlock.Update(
+                [..materializerVariables, ..materializerBlock.Variables],
+                [..materializerExpressions, ..materializerBlock.Expressions]
+            );
+
+            lambda = Lambda(
+                materializerBlock,
+                QueryCompilationContext.QueryContextParameter,
+                _jsonReaderDataParameter);
+
+            _structuralTypeJsonMaterializerLambdaMapping.Add(structuralType, lambda);
+
+            return lambda;
         }
         
         private (Expression, ParameterExpression) ReadDiscriminator(ITypeBase structuralType, ParameterExpression jsonReaderMangagerVariable, IProperty discriminatorProperty)
@@ -498,6 +522,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Utf8JsonReaderManagerCurrentReaderField),
                 Utf8JsonReaderValueTextEqualsMethod,
                 StringConstantSpan(text));
+
+        private class StructuralTypeMaterializerJsonDeserializerRewriter : ExpressionVisitor
+        {
+            
+        }
 
 
         private (ParameterExpression jsonReaderData, ParameterExpression jsonReaderManager, Expression[] jsonReaderInitializeExpessions) GenerateJsonReader()
