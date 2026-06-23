@@ -54,8 +54,8 @@
     <SQLite3MCPCLRawBundleVersion>2.3.5</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.0-pre.108</XUnitV3Version>
     <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26319.1</MicrosoftDotNetXUnitV3ExtensionsVersion>
-    <MicrosoftTestingPlatformVersion>2.2.2</MicrosoftTestingPlatformVersion>
-    <MicrosoftTestingExtensionsCodeCoverageVersion>17.10.1</MicrosoftTestingExtensionsCodeCoverageVersion>
+    <MicrosoftTestingPlatformVersion>2.2.3</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingExtensionsCodeCoverageVersion>18.8.0</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
