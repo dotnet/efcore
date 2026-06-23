@@ -140,173 +140,167 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 
     #region Compare
 
-    public override Task Int_Compare_to_simple_zero(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Int_Compare_to_simple_zero(a);
+    public override async Task Int_Compare_to_simple_zero()
+    {
+        await base.Int_Compare_to_simple_zero();
 
-                AssertSql(
-                    """
-@orderId=?
+        AssertSql(
+            """
+@orderId='8'
 
 SELECT VALUE c
 FROM root c
 WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) = 0)
 """,
-                    //
-                    """
-@orderId=?
+            //
+            """
+@orderId='8'
 
 SELECT VALUE c
 FROM root c
 WHERE (0 != IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
 """,
-                    //
-                    """
-@orderId=?
+            //
+            """
+@orderId='8'
 
 SELECT VALUE c
 FROM root c
 WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) > 0)
 """,
-                    //
-                    """
-@orderId=?
+            //
+            """
+@orderId='8'
 
 SELECT VALUE c
 FROM root c
 WHERE (0 >= IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
 """,
-                    //
-                    """
-@orderId=?
+            //
+            """
+@orderId='8'
 
 SELECT VALUE c
 FROM root c
 WHERE (0 < IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
 """,
-                    //
-                    """
-@orderId=?
+            //
+            """
+@orderId='8'
 
 SELECT VALUE c
 FROM root c
 WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) <= 0)
 """);
-            });
+    }
 
-    public override Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.DateTime_Compare_to_simple_zero(a,compareTo);
+    public override async Task DateTime_Compare_to_simple_zero(bool compareTo)
+    {
+        await base.DateTime_Compare_to_simple_zero(compareTo);
 
-                AssertSql(
-                    """
-@dateTime=?
+        AssertSql(
+            """
+@dateTime='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
 WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) = 0)
 """,
-                    //
-                    """
-@dateTime=?
+            //
+            """
+@dateTime='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
 WHERE (0 != IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
 """,
-                    //
-                    """
-@dateTime=?
+            //
+            """
+@dateTime='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
 WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) > 0)
 """,
-                    //
-                    """
-@dateTime=?
+            //
+            """
+@dateTime='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
 WHERE (0 >= IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
 """,
-                    //
-                    """
-@dateTime=?
+            //
+            """
+@dateTime='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
 WHERE (0 < IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
 """,
-                    //
-                    """
-@dateTime=?
+            //
+            """
+@dateTime='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
 WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) <= 0)
 """);
-            });
+    }
 
-    public override Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.TimeSpan_Compare_to_simple_zero(a, compareTo);
+    public override async Task TimeSpan_Compare_to_simple_zero(bool compareTo)
+    {
+        await base.TimeSpan_Compare_to_simple_zero(compareTo);
 
-                AssertSql(
-                    """
-@timeSpan=?
-
-SELECT VALUE c
-FROM root c
-WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) = 0)
-""",
-                    //
-                    """
-@timeSpan=?
-
-SELECT VALUE c
-FROM root c
-WHERE (0 != IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
-""",
-                    //
-                    """
-@timeSpan=?
-
-SELECT VALUE c
-FROM root c
-WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) > 0)
-""",
-                    //
-                    """
-@timeSpan=?
-
-SELECT VALUE c
-FROM root c
-WHERE (0 >= IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
-""",
-                    //
-                    """
-@timeSpan=?
-
-SELECT VALUE c
-FROM root c
-WHERE (0 < IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
-""",
-                    //
-                    """
-@timeSpan=?
-
-SELECT VALUE c
-FROM root c
-WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) <= 0)
-""");
-            });
+        AssertSql(
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) = 0)
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (0 != IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) > 0)
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (0 >= IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (0 < IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) <= 0)
+    """);
+    }
 
     #endregion Compare
 

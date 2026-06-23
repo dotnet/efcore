@@ -241,44 +241,42 @@ OFFSET 0 LIMIT 1
     }
 
     // #35317
-    public override Task HasFlag(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.HasFlag(a);
+    public override async Task HasFlag()
+    {
+        await base.HasFlag();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & 8) = 8)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & 12) = 12)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & 8) = 8)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & 8) = 8)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((8 & c["FlagsEnum"]) = c["FlagsEnum"])
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE
 {
     "hasFlagTrue" : ((c["FlagsEnum"] & 8) = 8),
@@ -288,41 +286,37 @@ FROM root c
 WHERE ((c["FlagsEnum"] & 8) = 8)
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
     // #35317
-    public override Task HasFlag_with_non_nullable_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.HasFlag_with_non_nullable_parameter(a);
+    public override async Task HasFlag_with_non_nullable_parameter()
+    {
+        await base.HasFlag_with_non_nullable_parameter();
 
-                AssertSql(
-                    """
-@flagsEnum=?
+        AssertSql(
+            """
+@flagsEnum='8'
 
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
 """);
-            });
+    }
 
     // #35317
-    public override Task HasFlag_with_nullable_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.HasFlag_with_nullable_parameter(a);
+    public override async Task HasFlag_with_nullable_parameter()
+    {
+        await base.HasFlag_with_nullable_parameter();
 
-                AssertSql(
-                    """
-@flagsEnum=?
+        AssertSql(
+            """
+@flagsEnum='8'
 
 SELECT VALUE c
 FROM root c
 WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
 """);
-            });
+    }
 
 
     public override Task ToString_enum_contains(bool async)
@@ -333,7 +327,9 @@ WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
 
                 AssertSql(
                     """
-
+SELECT VALUE c["Enum"]
+FROM root c
+WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", (ToString(c["Enum"]) ?? "")))), "One")
 """);
             });
 
@@ -345,8 +341,10 @@ WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
 
                 AssertSql(
                     """
-
-""");
+    SELECT VALUE c["Enum"]
+    FROM root c
+    WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", (ToString(c["Enum"]) ?? "")))), "One")
+    """);
             });
 
     public override Task ToString_enum_property_projection(bool async)
@@ -357,7 +355,8 @@ WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
 
                 AssertSql(
                     """
-
+SELECT VALUE IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", (ToString(c["Enum"]) ?? ""))))
+FROM root c
 """);
             });
 
@@ -369,8 +368,9 @@ WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
 
                 AssertSql(
                     """
-                    
-                    """);
+SELECT VALUE c["Enum"]
+FROM root c
+""");
             });
 
     [Fact]

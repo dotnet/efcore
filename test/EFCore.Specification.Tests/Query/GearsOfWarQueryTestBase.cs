@@ -75,13 +75,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<LocustHorde>().Select(lh => (lh.Eradicated | lh.CommanderName == "Unknown").ToString()));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-            async,
-            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString().Contains("Cart")).Select(g => g.Name));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<Weapon>().Include(w => w.Owner.Weapons)));
 

@@ -88,6 +88,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
             SourceExpression e => VisitSource(e),
             SqlBinaryExpression e => VisitSqlBinary(e),
             SqlConditionalExpression e => VisitSqlConditional(e),
+            CaseExpression e => VisitCase(e),
             SqlConstantExpression e => VisitSqlConstant(e),
             SqlFunctionExpression e => VisitSqlFunction(e),
             SqlParameterExpression e => VisitSqlParameter(e),
@@ -753,7 +754,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
     ///     Generates SQL for a CASE clause CASE/WHEN construct.
     /// </summary>
     /// <param name="caseExpression">The <see cref="CaseExpression" /> for which to generate SQL.</param>
-    protected override Expression VisitCase(CaseExpression caseExpression)
+    protected virtual Expression VisitCase(CaseExpression caseExpression)
     {
         //using (_sqlBuilder.Indent())
         {

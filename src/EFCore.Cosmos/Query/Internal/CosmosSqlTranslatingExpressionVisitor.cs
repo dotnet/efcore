@@ -5,8 +5,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query;
-using static Microsoft.EntityFrameworkCore.Query.QueryHelpers;
+using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -347,20 +346,14 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                         _queryCompilationContext.IsPrecompiling,
                         "Parameters can only be known to has non-nullable reference types in query precompilation.");*/
                     return new SqlParameterExpression(
-                        invariantName: queryParameter.Name,
                         name: queryParameter.Name,
                         queryParameter.Type,
-                        nullable: false,
-                        queryParameter.ShouldBeConstantized,
                         typeMapping: null);
                 }
 
                 return new SqlParameterExpression(
-                    invariantName: queryParameter.Name,
                     name: queryParameter.Name,
-                    queryParameter.Type,
-                    queryParameter.Type.IsNullableType(),
-                    queryParameter.ShouldBeConstantized,
+                    queryParameter.Type.UnwrapNullableType(),
                     typeMapping: null);
 
             case StructuralTypeShaperExpression shaper:
