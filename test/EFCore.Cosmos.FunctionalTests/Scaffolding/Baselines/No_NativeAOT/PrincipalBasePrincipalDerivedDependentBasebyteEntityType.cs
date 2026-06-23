@@ -62,6 +62,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var __id = runtimeEntityType.AddProperty(
             "__id",

@@ -152,7 +152,7 @@ public class CosmosDiscriminatorConvention :
         {
             CosmosPropertyBuilderExtensions.ToJsonProperty(
                 discriminatorProperty.Builder,
-                (string?)entityTypeBuilder.Metadata.Model.FindAnnotation("EmbeddedDiscriminatorName")?.Value);
+                entityTypeBuilder.Metadata.Model.GetEmbeddedDiscriminatorName());
         }
 
         return discriminator;

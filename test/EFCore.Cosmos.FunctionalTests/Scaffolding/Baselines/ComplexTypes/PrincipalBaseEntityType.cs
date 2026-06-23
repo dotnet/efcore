@@ -92,8 +92,9 @@ public partial class PrincipalBaseEntityType
             shadowIndex: 0,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        type.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
+        discriminator.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var enum1 = runtimeEntityType.AddProperty(
             "Enum1",

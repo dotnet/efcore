@@ -80,7 +80,7 @@ WHERE c["Discriminator"] IN (0, 1, 2, 3)
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
 """);
             });
@@ -95,7 +95,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi"))
 """);
             });
 
@@ -107,9 +107,9 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT VALUE ((c["Discriminator"] = "Kiwi") ? c["FoundOn"] : 0)
+SELECT VALUE ((c["$type"] = "Kiwi") ? c["FoundOn"] : 0)
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 """);
             });
 
@@ -123,7 +123,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Kiwi")
+WHERE (c["$type"] = "Kiwi")
 """);
             });
 
@@ -137,7 +137,7 @@ WHERE (c["Discriminator"] = "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ((c["Discriminator"] = "Kiwi") AND (c["CountryId"] = 1)))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND ((c["$type"] = "Kiwi") AND (c["CountryId"] = 1)))
 """);
             });
 
@@ -149,9 +149,9 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ((c["Discriminator"] = "Kiwi"
 
                 AssertSql(
                     """
-SELECT VALUE (c["Discriminator"] = "Kiwi")
+SELECT VALUE (c["$type"] = "Kiwi")
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 """);
             });
 
@@ -165,7 +165,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND c["$type"] IN ("Eagle", "Kiwi"))
 ORDER BY c["Species"]
 """);
             });
@@ -180,7 +180,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["CountryId"] = 1)) AND c["Discriminator"] IN ("Eagle", "Kiwi"))
+WHERE ((c["$type"] IN ("Eagle", "Kiwi") AND (c["CountryId"] = 1)) AND c["$type"] IN ("Eagle", "Kiwi"))
 ORDER BY c["Species"]
 """);
             });
@@ -195,7 +195,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c["EagleId"]
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND c["$type"] IN ("Eagle", "Kiwi"))
 """);
             });
 
@@ -209,7 +209,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND c["$type"] IN ("Eagle", "Kiwi"))
 ORDER BY c["Species"]
 OFFSET 0 LIMIT 1
 """);
@@ -225,7 +225,7 @@ OFFSET 0 LIMIT 1
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi"))
 """);
             });
 
@@ -239,7 +239,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Kiwi")
+WHERE (c["$type"] = "Kiwi")
 """);
             });
 
@@ -253,7 +253,7 @@ WHERE (c["Discriminator"] = "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Daisy", "Rose") AND (c["Discriminator"] = "Rose"))
+WHERE (c["$type"] IN ("Daisy", "Rose") AND (c["$type"] = "Rose"))
 """);
             });
 
@@ -267,7 +267,7 @@ WHERE (c["Discriminator"] IN ("Daisy", "Rose") AND (c["Discriminator"] = "Rose")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
 """);
             });
@@ -290,7 +290,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Daisy", "Rose")
+WHERE c["$type"] IN ("Daisy", "Rose")
 ORDER BY c["id"]
 """);
             });
@@ -305,7 +305,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Name"] = "Great spotted kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["Name"] = "Great spotted kiwi"))
 ORDER BY c["Species"]
 """);
             });
@@ -320,7 +320,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
 """);
             });
@@ -335,7 +335,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Kiwi")
+WHERE (c["$type"] = "Kiwi")
 OFFSET 0 LIMIT 2
 """);
             });
@@ -350,7 +350,7 @@ OFFSET 0 LIMIT 2
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Rose")
+WHERE (c["$type"] = "Rose")
 OFFSET 0 LIMIT 2
 """);
             });
@@ -381,7 +381,7 @@ OFFSET 0 LIMIT 2
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["FoundOn"] = 1))
+WHERE ((c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi")) AND (c["FoundOn"] = 1))
 """);
             });
 
@@ -395,7 +395,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["FoundOn"] = 0))
+WHERE ((c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi")) AND (c["FoundOn"] = 0))
 """);
             });
 
@@ -409,7 +409,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
                     """
 SELECT VALUE c["FoundOn"]
 FROM root c
-WHERE (c["Discriminator"] = "Kiwi")
+WHERE (c["$type"] = "Kiwi")
 """);
             });
 
@@ -421,9 +421,13 @@ WHERE (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT c["IsFlightless"], c["Discriminator"]
+SELECT VALUE
+{
+    "IsFlightless" : c["IsFlightless"],
+    "Discriminator" : c["$type"]
+}
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 """);
             });
 
@@ -437,7 +441,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ("Kiwi" = c["Discriminator"]))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND ("Kiwi" = c["$type"]))
 """);
             });
 
@@ -451,7 +455,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ("Kiwi" = c["Discriminator"])
                     """
 SELECT VALUE c["FoundOn"]
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi"))
 """);
             });
 
@@ -504,7 +508,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Kiwi")
+WHERE (c["$type"] = "Kiwi")
 OFFSET 0 LIMIT 2
 """);
     }
@@ -519,7 +523,7 @@ OFFSET 0 LIMIT 2
                     """
 SELECT VALUE (c["IsFlightless"] ? 0 : 1)
 FROM root c
-WHERE (c["Discriminator"] = "Kiwi")
+WHERE (c["$type"] = "Kiwi")
 """);
             });
 
@@ -531,7 +535,7 @@ WHERE (c["Discriminator"] = "Kiwi")
             """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE (c["Discriminator"] = "Kiwi")
+WHERE (c["$type"] = "Kiwi")
 ORDER BY c["Name"]
 """);
     }
@@ -554,7 +558,7 @@ ORDER BY c["Name"]
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 """);
             });
 
@@ -568,7 +572,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE c["$type"] IN ("Eagle", "Kiwi")
 """);
             });
 
@@ -582,7 +586,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND false)
 """);
             });
 
@@ -596,7 +600,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND false)
 """);
             });
 
@@ -610,7 +614,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Eagle"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Eagle"))
 """);
             });
 
@@ -624,7 +628,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Eagle"
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi"))
 """);
             });
 
@@ -638,7 +642,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi"))
 """);
             });
 
@@ -652,7 +656,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] != "Kiwi"))
+WHERE (c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] != "Kiwi"))
 """);
             });
 
@@ -666,7 +670,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] != "Kiwi"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["Discriminator"] = "Eagle"))
+WHERE ((c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi")) AND (c["$type"] = "Eagle"))
 """);
             });
 
@@ -680,7 +684,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["Discriminator"] = "Eagle"))
+WHERE ((c["$type"] IN ("Eagle", "Kiwi") AND (c["$type"] = "Kiwi")) AND (c["$type"] = "Eagle"))
 """);
             });
 

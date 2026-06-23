@@ -258,6 +258,7 @@ public partial class ManyTypesEntityType
             typeof(string),
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var @double = runtimeEntityType.AddProperty(
             "Double",

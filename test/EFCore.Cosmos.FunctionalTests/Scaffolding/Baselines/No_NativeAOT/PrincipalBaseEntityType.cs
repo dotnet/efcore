@@ -54,6 +54,7 @@ public partial class PrincipalBaseEntityType
             typeof(string),
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var enum1 = runtimeEntityType.AddProperty(
             "Enum1",
