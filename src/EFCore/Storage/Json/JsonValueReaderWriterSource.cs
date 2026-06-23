@@ -33,6 +33,45 @@ public class JsonValueReaderWriterSource : IJsonValueReaderWriterSource
     /// </summary>
     protected virtual JsonValueReaderWriterSourceDependencies Dependencies { get; }
 
+    /// <summary>
+    ///     Attempts to find a <see cref="JsonValueReaderWriter" /> for a given CLR type, using a generic type parameter
+    ///     to enable reflection-free dispatch for non-enum types.
+    /// </summary>
+    /// <typeparam name="T">The CLR type.</typeparam>
+    /// <returns>The found <see cref="JsonValueReaderWriter" />, or <see langword="null" /> if none is available.</returns>
+    public static JsonValueReaderWriter? FindReaderWriter<T>()
+        => typeof(T) switch
+        {
+            var t when t == typeof(int) => JsonInt32ReaderWriter.Instance,
+            var t when t == typeof(string) => JsonStringReaderWriter.Instance,
+            var t when t == typeof(Guid) => JsonGuidReaderWriter.Instance,
+            var t when t == typeof(bool) => JsonBoolReaderWriter.Instance,
+            var t when t == typeof(DateTime) => JsonDateTimeReaderWriter.Instance,
+            var t when t == typeof(DateTimeOffset) => JsonDateTimeOffsetReaderWriter.Instance,
+            var t when t == typeof(decimal) => JsonDecimalReaderWriter.Instance,
+            var t when t == typeof(double) => JsonDoubleReaderWriter.Instance,
+            var t when t == typeof(long) => JsonInt64ReaderWriter.Instance,
+            var t when t == typeof(DateOnly) => JsonDateOnlyReaderWriter.Instance,
+            var t when t == typeof(TimeOnly) => JsonTimeOnlyReaderWriter.Instance,
+            var t when t == typeof(byte[]) => JsonByteArrayReaderWriter.Instance,
+            var t when t == typeof(ulong) => JsonUInt64ReaderWriter.Instance,
+            var t when t == typeof(uint) => JsonUInt32ReaderWriter.Instance,
+            var t when t == typeof(byte) => JsonByteReaderWriter.Instance,
+            var t when t == typeof(char) => JsonCharReaderWriter.Instance,
+            var t when t == typeof(float) => JsonFloatReaderWriter.Instance,
+            var t when t == typeof(short) => JsonInt16ReaderWriter.Instance,
+            var t when t == typeof(sbyte) => JsonSByteReaderWriter.Instance,
+            var t when t == typeof(ushort) => JsonUInt16ReaderWriter.Instance,
+            var t when t == typeof(TimeSpan) => JsonTimeSpanReaderWriter.Instance,
+            var t when t.IsEnum => (JsonValueReaderWriter?)(t.GetEnumUnderlyingType().IsSignedInteger()
+                ? typeof(JsonSignedEnumReaderWriter<>)
+                : typeof(JsonUnsignedEnumReaderWriter<>))
+                .MakeGenericType(t)
+                .GetAnyProperty("Instance")!
+                .GetValue(null),
+            _ => null
+        };
+
     /// <inheritdoc />
     public virtual JsonValueReaderWriter? FindReaderWriter(Type type)
     {

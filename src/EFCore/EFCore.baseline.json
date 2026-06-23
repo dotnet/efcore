@@ -17425,6 +17425,9 @@
           "Member": "JsonValueReaderWriterSource(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriterSourceDependencies dependencies);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? FindReaderWriter<T>();"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? FindReaderWriter(System.Type type);"
         }
       ],
