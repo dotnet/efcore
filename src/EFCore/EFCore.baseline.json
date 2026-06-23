@@ -17207,7 +17207,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum> where TEnum : struct, System.Enum",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
       "Methods": [
         {
           "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
@@ -17340,7 +17340,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum> where TEnum : struct, System.Enum",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
       "Methods": [
         {
           "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
