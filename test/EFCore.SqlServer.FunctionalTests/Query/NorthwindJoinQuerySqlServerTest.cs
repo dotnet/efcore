@@ -1045,7 +1045,7 @@ INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID,
             ss => from e in ss.Set<Employee>()
-                  join id in ids.Select(c => (uint)char.GetNumericValue(c)) on e.EmployeeID equals id
+                  join id in ids.Select(c => (uint)(c - '0')) on e.EmployeeID equals id
                   select e.EmployeeID);
 
         ids = "3";
@@ -1055,8 +1055,26 @@ INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID,
             ss => from e in ss.Set<Employee>()
-                  join id in ids.Select(c => (uint)char.GetNumericValue(c)) on e.EmployeeID equals id
+                  join id in ids.Select(c => (uint)(c - '0')) on e.EmployeeID equals id
                   select e.EmployeeID);
+
+        AssertSql(
+            """
+@p1='1' (Nullable = false) (Size = 1)
+@p2='2' (Nullable = false) (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1), (@p2)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""",
+            //
+            """
+@p1='3' (Nullable = false) (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""");
     }
 
     public override async Task Join_local_bytes_closure_is_cached_correctly(bool async)

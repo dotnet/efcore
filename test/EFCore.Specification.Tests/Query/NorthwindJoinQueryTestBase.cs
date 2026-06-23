@@ -223,18 +223,20 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual async Task Join_local_string_closure_is_cached_correctly(bool async)
     {
         var ids = "12";
-        await AssertTranslationFailed(() => AssertQueryScalar(
+        await AssertQueryScalar(
             async,
             ss => from e in ss.Set<Employee>()
                   join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID));
+                  select e.EmployeeID,
+            assertEmpty: true);
 
         ids = "3";
-        await AssertTranslationFailed(() => AssertQueryScalar(
+        await AssertQueryScalar(
             async,
             ss => from e in ss.Set<Employee>()
                   join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID));
+                  select e.EmployeeID,
+            assertEmpty: true);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]

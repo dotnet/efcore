@@ -58,22 +58,25 @@ public class NorthwindJoinQuerySqliteTest : NorthwindJoinQueryRelationalTestBase
 
     public override async Task Join_local_string_closure_is_cached_correctly(bool async)
     {
-        // SQLite parameterizes the string closure as a single value ("12"/"3"), so no EmployeeID matches.
-        var ids = "12";
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID,
-            assertEmpty: true);
+        await base.Join_local_string_closure_is_cached_correctly(async);
 
-        ids = "3";
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID,
-            assertEmpty: true);
+        AssertSql(
+            """
+@p1='1' (DbType = String)
+@p2='2' (DbType = String)
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value" UNION ALL VALUES (@p2)) AS "p" ON "e"."EmployeeID" = unicode("p"."Value")
+""",
+            //
+            """
+@p1='3' (DbType = String)
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value") AS "p" ON "e"."EmployeeID" = unicode("p"."Value")
+""");
     }
 
     public override async Task Join_local_bytes_closure_is_cached_correctly(bool async)
@@ -92,4 +95,7 @@ public class NorthwindJoinQuerySqliteTest : NorthwindJoinQueryRelationalTestBase
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID);
     }
+
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
