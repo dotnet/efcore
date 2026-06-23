@@ -132,11 +132,27 @@ extends:
                 displayName: 'Set CI tags'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__SqlServer__DefaultConnection: "Data Source="
                 displayName: Build
+              - powershell: |
+                  $files = Get-ChildItem -Path 'artifacts\coverage' -Filter '*.cobertura.xml' -ErrorAction SilentlyContinue
+                  if ($files) {
+                    $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+                    dotnet tool update --global dotnet-coverage
+                    dotnet-coverage merge -o 'artifacts\coverage\coverage.cobertura.xml' -f cobertura $files.FullName
+                  }
+                displayName: Merge coverage reports
+                condition: always()
+                continueOnError: true
+              - task: PublishCodeCoverageResults@2
+                displayName: Publish code coverage
+                inputs:
+                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                condition: always()
+                continueOnError: true
 
           - job: Windows_SqlServer
             displayName: 'Windows SQL Server'
@@ -153,8 +169,25 @@ extends:
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng\common\build.cmd -restore -build -test -ci -configuration $(_BuildConfig) -prepareMachine $(_InternalRuntimeDownloadArgs)
+                  /p:CollectCoverage=true
                   /p:Projects="$(Build.SourcesDirectory)/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.SqlServer.HierarchyId.Tests/EFCore.SqlServer.HierarchyId.Tests.csproj;$(Build.SourcesDirectory)/test/EFCore.CrossStore.FunctionalTests/EFCore.CrossStore.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.OData.FunctionalTests/EFCore.OData.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.AspNet.SqlServer.FunctionalTests/EFCore.AspNet.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.VisualBasic.FunctionalTests/EFCore.VisualBasic.FunctionalTests.vbproj;$(Build.SourcesDirectory)/test/EFCore.FSharp.FunctionalTests/EFCore.FSharp.FunctionalTests.fsproj"
                 displayName: Test SQL Server
+              - powershell: |
+                  $files = Get-ChildItem -Path 'artifacts\coverage' -Filter '*.cobertura.xml' -ErrorAction SilentlyContinue
+                  if ($files) {
+                    $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+                    dotnet tool update --global dotnet-coverage
+                    dotnet-coverage merge -o 'artifacts\coverage\coverage.cobertura.xml' -f cobertura $files.FullName
+                  }
+                displayName: Merge coverage reports
+                condition: always()
+                continueOnError: true
+              - task: PublishCodeCoverageResults@2
+                displayName: Publish code coverage
+                inputs:
+                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                condition: always()
+                continueOnError: true
 
           - job: macOS
             pool:
@@ -167,12 +200,29 @@ extends:
             steps:
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
                   COMPlus_EnableWriteXorExecute: 0
                 displayName: Build
+              - bash: |
+                  shopt -s nullglob
+                  files=(artifacts/coverage/*.cobertura.xml)
+                  if [ ${#files[@]} -gt 0 ]; then
+                    export PATH="$PATH:$HOME/.dotnet/tools"
+                    dotnet tool update --global dotnet-coverage
+                    dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+                  fi
+                displayName: Merge coverage reports
+                condition: always()
+                continueOnError: true
+              - task: PublishCodeCoverageResults@2
+                displayName: Publish code coverage
+                inputs:
+                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                condition: always()
+                continueOnError: true
           - job: Linux
             timeoutInMinutes: 180
             pool:
@@ -185,10 +235,27 @@ extends:
             steps:
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 displayName: Build
+              - bash: |
+                  shopt -s nullglob
+                  files=(artifacts/coverage/*.cobertura.xml)
+                  if [ ${#files[@]} -gt 0 ]; then
+                    export PATH="$PATH:$HOME/.dotnet/tools"
+                    dotnet tool update --global dotnet-coverage
+                    dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+                  fi
+                displayName: Merge coverage reports
+                condition: always()
+                continueOnError: true
+              - task: PublishCodeCoverageResults@2
+                displayName: Publish code coverage
+                inputs:
+                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                condition: always()
+                continueOnError: true
             templateContext:
               sdl:
                 binskim:
@@ -227,13 +294,30 @@ extends:
                   scriptType: bash
                   scriptLocation: 'inlineScript'
                   inlineScript: |
-                      ./test.sh --ci --configuration $(_BuildConfig) --projects $(Build.SourcesDirectory)/test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
+                      ./test.sh --ci --configuration $(_BuildConfig) --projects $(Build.SourcesDirectory)/test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj /p:CollectCoverage=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__UseTokenCredential: true
                   Test__Cosmos__SubscriptionId: d709b837-4a74-4aec-addc-b6e4b9b23e7e
                   Test__Cosmos__ResourceGroup: efcosmosci
                 name: Build
+              - bash: |
+                  shopt -s nullglob
+                  files=(artifacts/coverage/*.cobertura.xml)
+                  if [ ${#files[@]} -gt 0 ]; then
+                    export PATH="$PATH:$HOME/.dotnet/tools"
+                    dotnet tool update --global dotnet-coverage
+                    dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
+                  fi
+                displayName: Merge coverage reports
+                condition: always()
+                continueOnError: true
+              - task: PublishCodeCoverageResults@2
+                displayName: Publish code coverage
+                inputs:
+                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                condition: always()
+                continueOnError: true
             templateContext:
               sdl:
                 binskim:
