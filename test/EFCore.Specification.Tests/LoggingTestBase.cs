@@ -10,17 +10,17 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class LoggingTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_default_options()
         => Assert.Equal(ExpectedMessage(DefaultOptions), ActualMessage(CreateOptionsBuilder));
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_no_tracking()
         => Assert.Equal(
             ExpectedMessage("NoTracking " + DefaultOptions),
             ActualMessage(s => CreateOptionsBuilder(s).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)));
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_sensitive_data_logging()
         => Assert.Equal(
             ExpectedMessage("SensitiveDataLoggingEnabled " + DefaultOptions),
@@ -34,7 +34,7 @@ public abstract class LoggingTestBase
             ProviderVersion,
             optionsFragment ?? "None").Trim();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void InvalidIncludePathError_throws_by_default()
     {
         using var context = new InvalidIncludePathErrorContext(CreateOptionsBuilder(new ServiceCollection()));
@@ -45,8 +45,7 @@ public abstract class LoggingTestBase
                 CoreResources.LogInvalidIncludePath(CreateTestLogger())
                     .GenerateMessage("Wheels", "Wheels"),
                 "CoreEventId.InvalidIncludePathError"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Set<Animal>().Include("Wheels").Load()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Set<Animal>().Include("Wheels").Load()).Message);
     }
 
     protected class InvalidIncludePathErrorContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)

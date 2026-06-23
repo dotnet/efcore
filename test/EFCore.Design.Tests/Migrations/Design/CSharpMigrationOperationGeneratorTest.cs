@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public class CSharpMigrationOperationGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Generate_separates_operations_by_a_blank_line()
     {
         var generator = new CSharpMigrationOperationGenerator(
@@ -19,13 +20,14 @@ public class CSharpMigrationOperationGeneratorTest
                 new CSharpHelper(
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<SqlServerSingletonOptions>()))));
 
         var builder = new IndentedStringBuilder();
 
         generator.Generate(
             "mb",
-            new[] { new SqlOperation { Sql = "-- Don't stand so" }, new SqlOperation { Sql = "-- close to me" } },
+            [new SqlOperation { Sql = "-- Don't stand so" }, new SqlOperation { Sql = "-- close to me" }],
             builder);
 
         Assert.Equal(
@@ -37,7 +39,7 @@ mb.Sql("-- close to me");
             builder.ToString(), ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddColumnOperation_required_args()
         => Test(
             new AddColumnOperation
@@ -59,7 +61,7 @@ mb.AddColumn<int>(
                 Assert.Equal(typeof(int), o.ClrType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddColumnOperation_all_args()
         => Test(
             new AddColumnOperation
@@ -112,7 +114,7 @@ mb.AddColumn<int>(
                 Assert.Equal("Some Collation", o.Collation);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddColumnOperation_DefaultValueSql()
         => Test(
             new AddColumnOperation
@@ -137,7 +139,7 @@ mb.AddColumn<int>(
                 Assert.Equal("1", o.DefaultValueSql);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddColumnOperation_ComputedExpression()
         => Test(
             new AddColumnOperation
@@ -165,7 +167,7 @@ mb.AddColumn<int>(
                 Assert.True(o.IsStored);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddForeignKeyOperation_required_args()
         => Test(
             new AddForeignKeyOperation
@@ -191,7 +193,7 @@ mb.AddForeignKey(
                 Assert.Null(o.PrincipalColumns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddForeignKeyOperation_required_args_composite()
         => Test(
             new AddForeignKeyOperation
@@ -217,7 +219,7 @@ mb.AddForeignKey(
                 Assert.Null(o.PrincipalColumns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddForeignKeyOperation_all_args()
         => Test(
             new AddForeignKeyOperation
@@ -257,7 +259,7 @@ mb.AddForeignKey(
                 Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddForeignKeyOperation_all_args_composite()
         => Test(
             new AddForeignKeyOperation
@@ -297,7 +299,7 @@ mb.AddForeignKey(
                 Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddPrimaryKey_required_args()
         => Test(
             new AddPrimaryKeyOperation
@@ -319,7 +321,7 @@ mb.AddPrimaryKey(
                 Assert.Equal(new[] { "Id" }, o.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddPrimaryKey_all_args()
         => Test(
             new AddPrimaryKeyOperation
@@ -344,7 +346,7 @@ mb.AddPrimaryKey(
                 Assert.Equal(new[] { "Id" }, o.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddPrimaryKey_composite()
         => Test(
             new AddPrimaryKeyOperation
@@ -366,7 +368,7 @@ mb.AddPrimaryKey(
                 Assert.Equal(new[] { "Id1", "Id2" }, o.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddUniqueConstraint_required_args()
         => Test(
             new AddUniqueConstraintOperation
@@ -388,7 +390,7 @@ mb.AddUniqueConstraint(
                 Assert.Equal(new[] { "AltId" }, o.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddUniqueConstraint_all_args()
         => Test(
             new AddUniqueConstraintOperation
@@ -413,7 +415,7 @@ mb.AddUniqueConstraint(
                 Assert.Equal(new[] { "AltId" }, o.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddUniqueConstraint_composite()
         => Test(
             new AddUniqueConstraintOperation
@@ -435,7 +437,7 @@ mb.AddUniqueConstraint(
                 Assert.Equal(new[] { "AltId1", "AltId2" }, o.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddCheckConstraint_required_args()
         => Test(
             new AddCheckConstraintOperation
@@ -457,7 +459,7 @@ mb.AddCheckConstraint(
                 Assert.Equal("AltId1 > AltId2", o.Sql);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AddCheckConstraint_all_args()
         => Test(
             new AddCheckConstraintOperation
@@ -482,7 +484,7 @@ mb.AddCheckConstraint(
                 Assert.Equal("AltId1 > AltId2", o.Sql);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterColumnOperation_required_args()
         => Test(
             new AlterColumnOperation
@@ -531,7 +533,7 @@ mb.AlterColumn<int>(
                 Assert.Null(o.OldColumn.Collation);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterColumnOperation_all_args()
         => Test(
             new AlterColumnOperation
@@ -631,7 +633,7 @@ mb.AlterColumn<int>(
                 Assert.Equal("Some Collation", o.OldColumn.Collation);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterColumnOperation_DefaultValueSql()
         => Test(
             new AlterColumnOperation
@@ -674,7 +676,7 @@ mb.AlterColumn<int>(
                 Assert.Null(o.OldColumn.ComputedColumnSql);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterColumnOperation_computedColumnSql()
         => Test(
             new AlterColumnOperation
@@ -723,7 +725,7 @@ mb.AlterColumn<int>(
                 Assert.Null(o.OldColumn.IsStored);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterDatabaseOperation()
         => Test(
             new AlterDatabaseOperation
@@ -747,7 +749,7 @@ mb.AlterDatabase(
                 Assert.Equal("foo", o.OldDatabase["bar"]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterDatabaseOperation_with_default_old_collation()
         => Test(
             new AlterDatabaseOperation { Collation = "Some collation" },
@@ -761,7 +763,7 @@ mb.AlterDatabase(
                 Assert.Null(o.OldDatabase.Collation);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterDatabaseOperation_with_default_new_collation()
         => Test(
             new AlterDatabaseOperation { OldDatabase = { Collation = "Some collation" } },
@@ -775,7 +777,7 @@ mb.AlterDatabase(
                 Assert.Equal("Some collation", o.OldDatabase.Collation);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterSequenceOperation_required_args()
         => Test(
             new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
@@ -797,7 +799,7 @@ mb.AlterSequence(
                 Assert.False(o.OldSequence.IsCyclic);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterSequenceOperation_all_args()
         => Test(
             new AlterSequenceOperation
@@ -843,7 +845,7 @@ mb.AlterSequence(
                 Assert.True(o.OldSequence.IsCyclic);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterTableOperation_required_args()
         => Test(
             new AlterTableOperation { Name = "Customer" },
@@ -856,7 +858,7 @@ mb.AlterTable(
                 Assert.Equal("Customer", o.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterTableOperation_all_args()
         => Test(
             new AlterTableOperation
@@ -881,7 +883,7 @@ mb.AlterTable(
                 Assert.Equal("My Comment", o.OldTable.Comment);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateIndexOperation_required_args()
         => Test(
             new CreateIndexOperation
@@ -906,7 +908,7 @@ mb.CreateIndex(
                 Assert.Null(o.Filter);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateIndexOperation_all_args()
         => Test(
             new CreateIndexOperation
@@ -940,7 +942,7 @@ mb.CreateIndex(
                 Assert.Equal("[Title] IS NOT NULL", o.Filter);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateIndexOperation_composite()
         => Test(
             new CreateIndexOperation
@@ -962,7 +964,7 @@ mb.CreateIndex(
                 Assert.Equal(new[] { "Title", "Subtitle" }, o.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateSchemaOperation_required_args()
         => Test(
             new EnsureSchemaOperation { Name = "my" },
@@ -972,7 +974,7 @@ mb.EnsureSchema(
 """,
             o => Assert.Equal("my", o.Name));
 
-    [ConditionalFact]
+    [Fact]
     public void CreateSequenceOperation_required_args()
         => Test(
             new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(long) },
@@ -986,7 +988,7 @@ mb.CreateSequence(
                 Assert.Equal(typeof(long), o.ClrType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateSequenceOperation_required_args_not_long()
         => Test(
             new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(int) },
@@ -1000,7 +1002,7 @@ mb.CreateSequence<int>(
                 Assert.Equal(typeof(int), o.ClrType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateSequenceOperation_all_args()
         => Test(
             new CreateSequenceOperation
@@ -1036,7 +1038,7 @@ mb.CreateSequence(
                 Assert.True(o.IsCyclic);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateSequenceOperation_all_args_not_long()
         => Test(
             new CreateSequenceOperation
@@ -1072,7 +1074,7 @@ mb.CreateSequence<int>(
                 Assert.True(o.IsCyclic);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_Columns_required_args()
         => Test(
             new CreateTableOperation
@@ -1109,7 +1111,7 @@ mb.CreateTable(
                 Assert.Equal(typeof(int), o.Columns[0].ClrType);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_Columns_all_args()
         => Test(
             new CreateTableOperation
@@ -1169,7 +1171,7 @@ mb.CreateTable(
                 Assert.Equal("Some Collation", o.Columns[0].Collation);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_Columns_DefaultValueSql()
         => Test(
             new CreateTableOperation
@@ -1207,7 +1209,7 @@ mb.CreateTable(
                 Assert.Equal("1", o.Columns[0].DefaultValueSql);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_Columns_computedColumnSql()
         => Test(
             new CreateTableOperation
@@ -1247,7 +1249,7 @@ mb.CreateTable(
                 Assert.True(o.Columns[0].IsStored);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_ForeignKeys_required_args()
         => Test(
             new CreateTableOperation
@@ -1291,7 +1293,7 @@ mb.CreateTable(
                 Assert.Equal("Blog", fk.PrincipalTable);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_ForeignKeys_all_args()
         => Test(
             new CreateTableOperation
@@ -1351,7 +1353,7 @@ mb.CreateTable(
                 Assert.Equal(ReferentialAction.SetDefault, fk.OnDelete);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_ForeignKeys_composite()
         => Test(
             new CreateTableOperation
@@ -1402,7 +1404,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "Id1", "Id2" }, fk.PrincipalColumns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_ForeignKeys_composite_no_principal_columns()
         => Test(
             new CreateTableOperation
@@ -1450,7 +1452,7 @@ mb.CreateTable(
                 Assert.Equal("Blog", fk.PrincipalTable);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_PrimaryKey_required_args()
         => Test(
             new CreateTableOperation
@@ -1485,7 +1487,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_PrimaryKey_all_args()
         => Test(
             new CreateTableOperation
@@ -1524,7 +1526,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_PrimaryKey_composite()
         => Test(
             new CreateTableOperation
@@ -1564,7 +1566,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "Id1", "Id2" }, o.PrimaryKey.Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_UniqueConstraints_required_args()
         => Test(
             new CreateTableOperation
@@ -1602,7 +1604,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_UniqueConstraints_all_args()
         => Test(
             new CreateTableOperation
@@ -1644,7 +1646,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_UniqueConstraints_composite()
         => Test(
             new CreateTableOperation
@@ -1687,7 +1689,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "AltId1", "AltId2" }, o.UniqueConstraints[0].Columns);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_CheckConstraints_required_args()
         => Test(
             new CreateTableOperation
@@ -1730,7 +1732,7 @@ mb.CreateTable(
                 Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].Sql);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_ChecksConstraints_all_args()
         => Test(
             new CreateTableOperation
@@ -1777,7 +1779,7 @@ mb.CreateTable(
                 Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].Sql);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_Comment()
         => Test(
             new CreateTableOperation
@@ -1805,7 +1807,7 @@ mb.CreateTable(
                 Assert.Equal("My Comment", o.Comment);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void CreateTableOperation_TableComment_ColumnComment()
         => Test(
             new CreateTableOperation
@@ -1842,7 +1844,7 @@ mb.CreateTable(
                 Assert.Equal("My Column comment", o.Columns[0].Comment);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropColumnOperation_required_args()
         => Test(
             new DropColumnOperation { Name = "Id", Table = "Post" },
@@ -1857,7 +1859,7 @@ mb.DropColumn(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropColumnOperation_all_args()
         => Test(
             new DropColumnOperation
@@ -1879,7 +1881,7 @@ mb.DropColumn(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropForeignKeyOperation_required_args()
         => Test(
             new DropForeignKeyOperation { Name = "FK_Post_BlogId", Table = "Post" },
@@ -1894,7 +1896,7 @@ mb.DropForeignKey(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropForeignKeyOperation_all_args()
         => Test(
             new DropForeignKeyOperation
@@ -1916,7 +1918,7 @@ mb.DropForeignKey(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropIndexOperation_required_args()
         => Test(
             new DropIndexOperation { Name = "IX_Post_Title" },
@@ -1929,7 +1931,7 @@ mb.DropIndex(
                 Assert.Equal("IX_Post_Title", o.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropIndexOperation_all_args()
         => Test(
             new DropIndexOperation
@@ -1951,7 +1953,7 @@ mb.DropIndex(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropPrimaryKeyOperation_required_args()
         => Test(
             new DropPrimaryKeyOperation { Name = "PK_Post", Table = "Post" },
@@ -1966,7 +1968,7 @@ mb.DropPrimaryKey(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropPrimaryKeyOperation_all_args()
         => Test(
             new DropPrimaryKeyOperation
@@ -1988,7 +1990,7 @@ mb.DropPrimaryKey(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropSchemaOperation_required_args()
         => Test(
             new DropSchemaOperation { Name = "my" },
@@ -1998,7 +2000,7 @@ mb.DropSchema(
 """,
             o => Assert.Equal("my", o.Name));
 
-    [ConditionalFact]
+    [Fact]
     public void DropSequenceOperation_required_args()
         => Test(
             new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
@@ -2008,7 +2010,7 @@ mb.DropSequence(
 """,
             o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
 
-    [ConditionalFact]
+    [Fact]
     public void DropSequenceOperation_all_args()
         => Test(
             new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo" },
@@ -2023,7 +2025,7 @@ mb.DropSequence(
                 Assert.Equal("dbo", o.Schema);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropTableOperation_required_args()
         => Test(
             new DropTableOperation { Name = "Post" },
@@ -2033,7 +2035,7 @@ mb.DropTable(
 """,
             o => Assert.Equal("Post", o.Name));
 
-    [ConditionalFact]
+    [Fact]
     public void DropTableOperation_all_args()
         => Test(
             new DropTableOperation { Name = "Post", Schema = "dbo" },
@@ -2048,7 +2050,7 @@ mb.DropTable(
                 Assert.Equal("dbo", o.Schema);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropUniqueConstraintOperation_required_args()
         => Test(
             new DropUniqueConstraintOperation { Name = "AK_Post_AltId", Table = "Post" },
@@ -2063,7 +2065,7 @@ mb.DropUniqueConstraint(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropUniqueConstraintOperation_all_args()
         => Test(
             new DropUniqueConstraintOperation
@@ -2085,7 +2087,7 @@ mb.DropUniqueConstraint(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropCheckConstraintOperation_required_args()
         => Test(
             new DropCheckConstraintOperation { Name = "CK_Post_AltId1_AltId2", Table = "Post" },
@@ -2100,7 +2102,7 @@ mb.DropCheckConstraint(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DropCheckConstraintOperation_all_args()
         => Test(
             new DropCheckConstraintOperation
@@ -2122,7 +2124,7 @@ mb.DropCheckConstraint(
                 Assert.Equal("Post", o.Table);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RenameColumnOperation_required_args()
         => Test(
             new RenameColumnOperation
@@ -2144,7 +2146,7 @@ mb.RenameColumn(
                 Assert.Equal("PostId", o.NewName);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RenameColumnOperation_all_args()
         => Test(
             new RenameColumnOperation
@@ -2169,7 +2171,7 @@ mb.RenameColumn(
                 Assert.Equal("PostId", o.NewName);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RenameIndexOperation_required_args()
         => Test(
             new RenameIndexOperation { Name = "IX_Post_Title", NewName = "IX_Post_PostTitle" },
@@ -2184,7 +2186,7 @@ mb.RenameIndex(
                 Assert.Equal("IX_Post_PostTitle", o.NewName);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RenameIndexOperation_all_args()
         => Test(
             new RenameIndexOperation
@@ -2209,7 +2211,7 @@ mb.RenameIndex(
                 Assert.Equal("IX_dbo.Post_PostTitle", o.NewName);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RenameSequenceOperation_required_args()
         => Test(
             new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
@@ -2219,7 +2221,7 @@ mb.RenameSequence(
 """,
             o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
 
-    [ConditionalFact]
+    [Fact]
     public void RenameSequenceOperation_all_args()
         => Test(
             new RenameSequenceOperation
@@ -2244,7 +2246,7 @@ mb.RenameSequence(
                 Assert.Equal("my", o.NewSchema);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RenameTableOperation_required_args()
         => Test(
             new RenameTableOperation { Name = "Post" },
@@ -2254,7 +2256,7 @@ mb.RenameTable(
 """,
             o => Assert.Equal("Post", o.Name));
 
-    [ConditionalFact]
+    [Fact]
     public void RenameTableOperation_all_args()
         => Test(
             new RenameTableOperation
@@ -2279,7 +2281,7 @@ mb.RenameTable(
                 Assert.Equal("my", o.NewSchema);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RestartSequenceOperation_required_args()
         => Test(
             new RestartSequenceOperation { Name = "EntityFrameworkHiLoSequence", StartValue = 1 },
@@ -2294,7 +2296,7 @@ mb.RestartSequence(
                 Assert.Equal(1, o.StartValue);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void RestartSequenceOperation_all_args()
         => Test(
             new RestartSequenceOperation
@@ -2316,12 +2318,38 @@ mb.RestartSequence(
                 Assert.Equal(1, o.StartValue);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void SqlOperation_required_args()
         => Test(
             new SqlOperation { Sql = "-- I <3 DDL" },
             "mb.Sql(\"-- I <3 DDL\");",
             o => Assert.Equal("-- I <3 DDL", o.Sql));
+
+    [Fact]
+    public void SqlOperation_suppressTransaction_true()
+        => Test(
+            new SqlOperation
+            {
+                Sql = "ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;",
+                SuppressTransaction = true
+            },
+            "mb.Sql(\"ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;\", suppressTransaction: true);",
+            o =>
+            {
+                Assert.Equal("ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;", o.Sql);
+                Assert.True(o.SuppressTransaction);
+            });
+
+    [Fact]
+    public void SqlOperation_suppressTransaction_false_omits_argument()
+        => Test(
+            new SqlOperation { Sql = "SELECT 1" },
+            "mb.Sql(\"SELECT 1\");",
+            o =>
+            {
+                Assert.Equal("SELECT 1", o.Sql);
+                Assert.False(o.SuppressTransaction);
+            });
 
     private static readonly LineString _lineString1 = new(
         [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
@@ -2354,7 +2382,7 @@ mb.RestartSequence(
     private static readonly GeometryCollection _geometryCollection = new(
         [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon]) { SRID = 4326 };
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_all_args()
         => Test(
             new InsertDataOperation
@@ -2408,7 +2436,7 @@ mb.InsertData(
                 Assert.Equal(_geometryCollection, o.Values[7, 2]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_required_args()
         => Test(
             new InsertDataOperation
@@ -2432,7 +2460,7 @@ mb.InsertData(
                 Assert.Equal(_point1, o.Values[0, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_required_empty_array()
         => Test(
             new InsertDataOperation
@@ -2453,10 +2481,10 @@ mb.InsertData(
                 Assert.Single(o.Columns);
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(1, o.Values.GetLength(1));
-                Assert.Equal([], (string[])o.Values[0, 0]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_required_empty_array_composite()
         => Test(
             new InsertDataOperation
@@ -2478,10 +2506,10 @@ mb.InsertData(
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(3, o.Values.GetLength(1));
                 Assert.Null(o.Values[0, 1]);
-                Assert.Equal([], (string[])o.Values[0, 2]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 2]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_required_args_composite()
         => Test(
             new InsertDataOperation
@@ -2506,7 +2534,7 @@ mb.InsertData(
                 Assert.Equal(_polygon1, o.Values[0, 2]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_required_args_multiple_rows()
         => Test(
             new InsertDataOperation
@@ -2535,7 +2563,7 @@ mb.InsertData(
                 Assert.Equal(_multiPoint, o.Values[1, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_args_with_linebreaks()
         => Test(
             new InsertDataOperation
@@ -2574,7 +2602,7 @@ mb.InsertData(
                 Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_all_args()
         => Test(
             new DeleteDataOperation
@@ -2610,7 +2638,7 @@ mb.DeleteData(
                 Assert.Equal("John", o.KeyValues[2, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_all_args_composite()
         => Test(
             new DeleteDataOperation
@@ -2646,7 +2674,7 @@ mb.DeleteData(
                 Assert.Equal("Snow", o.KeyValues[2, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_required_args()
         => Test(
             new DeleteDataOperation
@@ -2670,7 +2698,7 @@ mb.DeleteData(
                 Assert.Equal("Snow", o.KeyValues[0, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_required_args_composite()
         => Test(
             new DeleteDataOperation
@@ -2694,7 +2722,7 @@ mb.DeleteData(
                 Assert.Equal("Snow", o.KeyValues[0, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_args_with_linebreaks()
         => Test(
             new DeleteDataOperation
@@ -2730,7 +2758,7 @@ mb.DeleteData(
                 Assert.Equal("Contains a single Backslash r,\rjust in case", operation.KeyValues[2, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_all_args()
         => Test(
             new UpdateDataOperation
@@ -2773,7 +2801,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[1, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_all_args_composite()
         => Test(
             new UpdateDataOperation
@@ -2813,7 +2841,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[1, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_all_args_composite_multi()
         => Test(
             new UpdateDataOperation
@@ -2853,7 +2881,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[1, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_all_args_multi()
         => Test(
             new UpdateDataOperation
@@ -2888,7 +2916,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[0, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_required_args()
         => Test(
             new UpdateDataOperation
@@ -2920,7 +2948,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[0, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_required_args_multiple_rows()
         => Test(
             new UpdateDataOperation
@@ -2960,7 +2988,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[1, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_required_args_composite()
         => Test(
             new UpdateDataOperation
@@ -2992,7 +3020,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[0, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_required_args_composite_multi()
         => Test(
             new UpdateDataOperation
@@ -3024,7 +3052,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[0, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_required_args_multi()
         => Test(
             new UpdateDataOperation
@@ -3056,7 +3084,7 @@ mb.UpdateData(
                 Assert.Equal("Targaryen", o.Values[0, 1]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_with_linebreaks()
         => Test(
             new UpdateDataOperation
@@ -3107,7 +3135,7 @@ mb.UpdateData(
                 Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 0]);
             });
 
-    [ConditionalFact]
+    [Fact]
     public void AlterTableOperation_annotation_set_to_null()
     {
         var oldTable = new CreateTableOperation { Name = "Customer", };
@@ -3146,13 +3174,11 @@ mb.AlterTable(
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         new RelationalTypeMappingSourceDependencies(
-                            new IRelationalTypeMappingSourcePlugin[]
-                            {
-                                new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                            })))));
+                            [new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)]),
+                        new SqlServerSingletonOptions()))));
 
         var builder = new IndentedStringBuilder();
-        generator.Generate("mb", new[] { operation }, builder);
+        generator.Generate("mb", [operation], builder);
         var code = builder.ToString();
 
         Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);

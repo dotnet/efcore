@@ -11,8 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class EntityQueryProvider : IAsyncQueryProvider
 {
-    private static MethodInfo? _genericCreateQueryMethod;
-    private MethodInfo? _genericExecuteMethod;
     private readonly IQueryCompiler _queryCompiler;
 
     /// <summary>
@@ -24,12 +22,14 @@ public class EntityQueryProvider : IAsyncQueryProvider
     public EntityQueryProvider(IQueryCompiler queryCompiler)
         => _queryCompiler = queryCompiler;
 
+    [field: AllowNull, MaybeNull]
     private static MethodInfo GenericCreateQueryMethod
-        => _genericCreateQueryMethod ??= typeof(EntityQueryProvider)
+        => field ??= typeof(EntityQueryProvider)
             .GetMethod("CreateQuery", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
+    [field: AllowNull, MaybeNull]
     private MethodInfo GenericExecuteMethod
-        => _genericExecuteMethod ??= _queryCompiler.GetType()
+        => field ??= _queryCompiler.GetType()
             .GetMethod("Execute", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class PartitionKeyBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Add_expected_value_types()
     {
         using var context = new PartitionKeyContext();
@@ -44,7 +44,7 @@ public class PartitionKeyBuilderExtensionsTest
         builder.Add(null, FindProperty(context, typeof(Customer4), nameof(Customer4.NullableLong)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throw_for_unexpected_types()
     {
         using var context = new PartitionKeyContext();
@@ -53,23 +53,23 @@ public class PartitionKeyBuilderExtensionsTest
 
         Assert.Equal(
             CosmosStrings.PartitionKeyBadValueType("string", nameof(Customer1), nameof(Customer1.String), "int"),
-            Assert.Throws<InvalidOperationException>(
-                () => builder.Add(1, FindProperty(context, typeof(Customer1), nameof(Customer1.String)))).Message);
+            Assert.Throws<InvalidOperationException>(() => builder.Add(
+                1, FindProperty(context, typeof(Customer1), nameof(Customer1.String)))).Message);
 
         Assert.Equal(
             CosmosStrings.PartitionKeyBadValueType("bool", nameof(Customer2), nameof(Customer2.Bool), "int"),
-            Assert.Throws<InvalidOperationException>(
-                () => builder.Add(1, FindProperty(context, typeof(Customer2), nameof(Customer2.Bool)))).Message);
+            Assert.Throws<InvalidOperationException>(() => builder.Add(1, FindProperty(context, typeof(Customer2), nameof(Customer2.Bool))))
+                .Message);
 
         Assert.Equal(
             CosmosStrings.PartitionKeyBadValueType("double", nameof(Customer1), nameof(Customer1.Double), "string"),
-            Assert.Throws<InvalidOperationException>(
-                () => builder.Add("1", FindProperty(context, typeof(Customer1), nameof(Customer1.Double)))).Message);
+            Assert.Throws<InvalidOperationException>(() => builder.Add(
+                "1", FindProperty(context, typeof(Customer1), nameof(Customer1.Double)))).Message);
 
         Assert.Equal(
             CosmosStrings.PartitionKeyBadValueType("int", nameof(Customer1), nameof(Customer1.Int), "string"),
-            Assert.Throws<InvalidOperationException>(
-                () => builder.Add("1", FindProperty(context, typeof(Customer1), nameof(Customer1.Int)))).Message);
+            Assert.Throws<InvalidOperationException>(() => builder.Add(
+                "1", FindProperty(context, typeof(Customer1), nameof(Customer1.Int)))).Message);
     }
 
     private static IProperty FindProperty(PartitionKeyContext context, Type type, string name)
@@ -79,55 +79,48 @@ public class PartitionKeyBuilderExtensionsTest
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer1>(
-                cb =>
+            modelBuilder.Entity<Customer1>(cb =>
+            {
+                cb.ToContainer("C1");
+                cb.HasPartitionKey(c => new
                 {
-                    cb.ToContainer("C1");
-                    cb.HasPartitionKey(
-                        c => new
-                        {
-                            PartitionKey1 = c.String,
-                            PartitionKey2 = c.Double,
-                            PartitionKey3 = c.Int
-                        });
+                    PartitionKey1 = c.String,
+                    PartitionKey2 = c.Double,
+                    PartitionKey3 = c.Int
                 });
+            });
 
-            modelBuilder.Entity<Customer2>(
-                cb =>
+            modelBuilder.Entity<Customer2>(cb =>
+            {
+                cb.ToContainer("C2");
+                cb.HasPartitionKey(c => new
                 {
-                    cb.ToContainer("C2");
-                    cb.HasPartitionKey(
-                        c => new
-                        {
-                            PartitionKey4 = c.Bool,
-                            PartitionKey5 = c.NullableString,
-                            PartitionKey6 = c.NullableDouble
-                        });
+                    PartitionKey4 = c.Bool,
+                    PartitionKey5 = c.NullableString,
+                    PartitionKey6 = c.NullableDouble
                 });
+            });
 
-            modelBuilder.Entity<Customer3>(
-                cb =>
+            modelBuilder.Entity<Customer3>(cb =>
+            {
+                cb.ToContainer("C3");
+                cb.HasPartitionKey(c => new
                 {
-                    cb.ToContainer("C3");
-                    cb.HasPartitionKey(
-                        c => new
-                        {
-                            PartitionKey7 = c.NullableInt,
-                            PartitionKey8 = c.NullableBool,
-                            PartitionKey9 = c.Guid
-                        });
+                    PartitionKey7 = c.NullableInt,
+                    PartitionKey8 = c.NullableBool,
+                    PartitionKey9 = c.Guid
                 });
+            });
 
-            modelBuilder.Entity<Customer4>(
-                cb =>
-                {
-                    cb.ToContainer("C4");
-                    cb.HasPartitionKey(c => new { PartitionKey7 = c.NullableGuid });
-                });
+            modelBuilder.Entity<Customer4>(cb =>
+            {
+                cb.ToContainer("C4");
+                cb.HasPartitionKey(c => new { PartitionKey7 = c.NullableGuid });
+            });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseCosmos("localhost", "_", "_");
+            => optionsBuilder.UseCosmos("https://localhost:8081", "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==", "_");
     }
 
     public class Customer1

@@ -732,6 +732,8 @@ public class JsonQueryData : ISetSource
             TestCharacter = 'a',
             TestSignedByte = -128,
             TestNullableInt32 = 78,
+            TestNullableDateTime = new DateTime(2000, 1, 1, 12, 34, 56),
+            TestNullableDateOnly = new DateOnly(2023, 10, 10),
             TestEnum = JsonEnum.One,
             TestEnumWithIntConverter = JsonEnum.Two,
             TestNullableEnum = JsonEnum.One,
@@ -744,7 +746,7 @@ public class JsonQueryData : ISetSource
                 "S2",
                 "S3"
             ]),
-            TestBooleanCollection = new[] { true, false },
+            TestBooleanCollection = [true, false],
             TestCharacterCollection =
             [
                 'A',
@@ -752,11 +754,11 @@ public class JsonQueryData : ISetSource
                 '\"'
             ],
             TestDateTimeCollection = [DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56")],
-            TestDateTimeOffsetCollection = new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
-            TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+            TestDateTimeOffsetCollection = [new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0))],
+            TestDoubleCollection = [-1.23456789, 1.23456789, 0.0],
             TestDecimalCollection = [-1234567890.01M],
             TestGuidCollection = [new Guid("12345678-1234-4321-7777-987654321000")],
-            TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+            TestInt16Collection = [short.MinValue, 0, short.MaxValue],
             TestInt32Collection = [int.MinValue, 0, int.MaxValue],
             TestInt64Collection =
             [
@@ -785,7 +787,7 @@ public class JsonQueryData : ISetSource
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -796,7 +798,7 @@ public class JsonQueryData : ISetSource
                 int.MaxValue,
                 null
             ],
-            TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+            TestEnumCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestEnumWithIntConverterCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestNullableEnumCollection =
             [
@@ -873,7 +875,7 @@ public class JsonQueryData : ISetSource
                 "S2",
                 "S3"
             ]),
-            TestBooleanCollection = new[] { true, false },
+            TestBooleanCollection = [true, false],
             TestCharacterCollection =
             [
                 'A',
@@ -881,11 +883,11 @@ public class JsonQueryData : ISetSource
                 '\"'
             ],
             TestDateTimeCollection = [DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56")],
-            TestDateTimeOffsetCollection = new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
-            TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+            TestDateTimeOffsetCollection = [new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0))],
+            TestDoubleCollection = [-1.23456789, 1.23456789, 0.0],
             TestDecimalCollection = [-1234567890.01M],
             TestGuidCollection = [new Guid("12345678-1234-4321-7777-987654321000")],
-            TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+            TestInt16Collection = [short.MinValue, 0, short.MaxValue],
             TestInt32Collection = [int.MinValue, 0, int.MaxValue],
             TestInt64Collection =
             [
@@ -903,13 +905,13 @@ public class JsonQueryData : ISetSource
             TestTimeSpanCollection = [new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7)],
             TestDateOnlyCollection = [new DateOnly(2234, 1, 23), new DateOnly(5321, 1, 21)],
             TestTimeOnlyCollection = [new TimeOnly(21, 42, 23), new TimeOnly(17, 17, 27)],
-            TestUnsignedInt16Collection = new[] { ushort.MinValue, (ushort)0, ushort.MaxValue },
+            TestUnsignedInt16Collection = [ushort.MinValue, 0, ushort.MaxValue],
             TestUnsignedInt32Collection = [uint.MinValue, 0, uint.MaxValue],
             TestUnsignedInt64Collection =
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -920,7 +922,7 @@ public class JsonQueryData : ISetSource
                 int.MaxValue,
                 null
             ],
-            TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+            TestEnumCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestEnumWithIntConverterCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestNullableEnumCollection =
             [
@@ -985,6 +987,8 @@ public class JsonQueryData : ISetSource
             TestCharacter = 'h',
             TestSignedByte = -18,
             TestNullableInt32 = 90,
+            TestNullableDateTime = new DateTime(2100, 11, 11, 12, 34, 56),
+            TestNullableDateOnly = new DateOnly(2323, 4, 3),
             TestEnum = JsonEnum.One,
             TestEnumWithIntConverter = JsonEnum.Two,
             TestNullableEnum = JsonEnum.One,
@@ -997,7 +1001,7 @@ public class JsonQueryData : ISetSource
                 "S2",
                 "S3"
             ]),
-            TestBooleanCollection = new[] { true, false },
+            TestBooleanCollection = [true, false],
             TestCharacterCollection =
             [
                 'A',
@@ -1005,11 +1009,11 @@ public class JsonQueryData : ISetSource
                 '\"'
             ],
             TestDateTimeCollection = [DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56")],
-            TestDateTimeOffsetCollection = new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
-            TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+            TestDateTimeOffsetCollection = [new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0))],
+            TestDoubleCollection = [-1.23456789, 1.23456789, 0.0],
             TestDecimalCollection = [-1234567890.01M],
             TestGuidCollection = [new Guid("12345678-1234-4321-7777-987654321000")],
-            TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+            TestInt16Collection = [short.MinValue, 0, short.MaxValue],
             TestInt32Collection = [int.MinValue, 0, int.MaxValue],
             TestInt64Collection =
             [
@@ -1027,13 +1031,13 @@ public class JsonQueryData : ISetSource
             TestTimeSpanCollection = [new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7)],
             TestDateOnlyCollection = [new DateOnly(3234, 1, 23), new DateOnly(4331, 1, 21)],
             TestTimeOnlyCollection = [new TimeOnly(13, 42, 23), new TimeOnly(7, 17, 25)],
-            TestUnsignedInt16Collection = new[] { ushort.MinValue, (ushort)0, ushort.MaxValue },
+            TestUnsignedInt16Collection = [ushort.MinValue, 0, ushort.MaxValue],
             TestUnsignedInt32Collection = [uint.MinValue, 0, uint.MaxValue],
             TestUnsignedInt64Collection =
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -1044,7 +1048,7 @@ public class JsonQueryData : ISetSource
                 int.MaxValue,
                 null
             ],
-            TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+            TestEnumCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestEnumWithIntConverterCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestNullableEnumCollection = new ObservableCollection<JsonEnum?>
             {
@@ -1121,7 +1125,7 @@ public class JsonQueryData : ISetSource
                 "S2",
                 "S3"
             ]),
-            TestBooleanCollection = new[] { true, false },
+            TestBooleanCollection = [true, false],
             TestCharacterCollection =
             [
                 'A',
@@ -1129,11 +1133,11 @@ public class JsonQueryData : ISetSource
                 '\"'
             ],
             TestDateTimeCollection = [DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56")],
-            TestDateTimeOffsetCollection = new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
-            TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+            TestDateTimeOffsetCollection = [new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0))],
+            TestDoubleCollection = [-1.23456789, 1.23456789, 0.0],
             TestDecimalCollection = [-1234567890.01M],
             TestGuidCollection = [new Guid("12345678-1234-4321-7777-987654321000")],
-            TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+            TestInt16Collection = [short.MinValue, 0, short.MaxValue],
             TestInt32Collection = [int.MinValue, 0, int.MaxValue],
             TestInt64Collection =
             [
@@ -1151,13 +1155,13 @@ public class JsonQueryData : ISetSource
             TestTimeSpanCollection = [new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7)],
             TestDateOnlyCollection = [new DateOnly(1638, 1, 23), new DateOnly(4321, 1, 21)],
             TestTimeOnlyCollection = [new TimeOnly(8, 22, 23), new TimeOnly(7, 27, 37)],
-            TestUnsignedInt16Collection = new[] { ushort.MinValue, (ushort)0, ushort.MaxValue },
+            TestUnsignedInt16Collection = [ushort.MinValue, 0, ushort.MaxValue],
             TestUnsignedInt32Collection = [uint.MinValue, 0, uint.MaxValue],
             TestUnsignedInt64Collection =
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -1168,7 +1172,7 @@ public class JsonQueryData : ISetSource
                 int.MaxValue,
                 null
             ],
-            TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+            TestEnumCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestEnumWithIntConverterCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
             TestNullableEnumCollection = new ObservableCollection<JsonEnum?>
             {
@@ -1222,7 +1226,7 @@ public class JsonQueryData : ISetSource
                     "S2",
                     "S3"
                 ],
-                TestBooleanCollection = new[] { true, false },
+                TestBooleanCollection = [true, false],
                 TestByteCollection = [],
                 TestCharacterCollection =
                 [
@@ -1233,11 +1237,11 @@ public class JsonQueryData : ISetSource
                 TestDateTimeCollection =
                     [DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56")],
                 TestDateTimeOffsetCollection =
-                    new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
-                TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+                    [new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0))],
+                TestDoubleCollection = [-1.23456789, 1.23456789, 0.0],
                 TestDecimalCollection = [-1234567890.01M],
                 TestGuidCollection = new ReadOnlyCollection<Guid>([new Guid("12345678-1234-4321-7777-987654321000")]),
-                TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+                TestInt16Collection = [short.MinValue, 0, short.MaxValue],
                 TestInt32Collection = [int.MinValue, 0, int.MaxValue],
                 TestInt64Collection = new ReadOnlyCollection<long>(
                 [
@@ -1264,7 +1268,7 @@ public class JsonQueryData : ISetSource
                 [
                     ulong.MinValue,
                     0,
-                    ulong.MaxValue
+                    ulong.MaxValue >> 1
                 ],
                 TestNullableInt32Collection =
                 [
@@ -1275,7 +1279,7 @@ public class JsonQueryData : ISetSource
                     int.MaxValue,
                     null
                 ],
-                TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+                TestEnumCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
                 TestEnumWithIntConverterCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
                 TestNullableEnumCollection =
                 [
@@ -1333,7 +1337,7 @@ public class JsonQueryData : ISetSource
                     "S2",
                     "S3"
                 ],
-                TestBooleanCollection = new[] { true, false },
+                TestBooleanCollection = [true, false],
                 TestByteCollection = [],
                 TestCharacterCollection =
                 [
@@ -1344,11 +1348,11 @@ public class JsonQueryData : ISetSource
                 TestDateTimeCollection =
                     [DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56")],
                 TestDateTimeOffsetCollection =
-                    new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
-                TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+                    [new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0))],
+                TestDoubleCollection = [-1.23456789, 1.23456789, 0.0],
                 TestDecimalCollection = [-1234567890.01M],
                 TestGuidCollection = new ReadOnlyCollection<Guid>([new Guid("12345678-1234-4321-7777-987654321000")]),
-                TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+                TestInt16Collection = [short.MinValue, 0, short.MaxValue],
                 TestInt32Collection = [int.MinValue, 0, int.MaxValue],
                 TestInt64Collection = new ReadOnlyCollection<long>(
                 [
@@ -1375,7 +1379,7 @@ public class JsonQueryData : ISetSource
                 [
                     ulong.MinValue,
                     0,
-                    ulong.MaxValue
+                    ulong.MaxValue >> 1
                 ],
                 TestNullableInt32Collection =
                 [
@@ -1386,7 +1390,7 @@ public class JsonQueryData : ISetSource
                     int.MaxValue,
                     null
                 ],
-                TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+                TestEnumCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
                 TestEnumWithIntConverterCollection = [JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7)],
                 TestNullableEnumCollection =
                 [

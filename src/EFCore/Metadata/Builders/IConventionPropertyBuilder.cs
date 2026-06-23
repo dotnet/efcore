@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -105,6 +103,29 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the property can be configured as a concurrency token.</returns>
     bool CanSetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures whether this property is automatically loaded when the entity is queried from the database.
+    /// </summary>
+    /// <param name="autoLoaded">
+    ///     A value indicating whether this property is automatically loaded.
+    ///     <see langword="null" /> to reset to default.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionPropertyBuilder? IsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the property can be configured as auto-loaded
+    ///     from the current configuration source.
+    /// </summary>
+    /// <param name="autoLoaded">A value indicating whether this property is auto-loaded.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the auto-loaded can be configured for this property.</returns>
+    bool CanSetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Configures the value that will be used to determine if the property has been set or not. If the property is set to the

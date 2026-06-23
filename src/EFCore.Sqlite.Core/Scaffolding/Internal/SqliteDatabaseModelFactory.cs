@@ -2,11 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using static SQLitePCL.raw;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
@@ -258,7 +260,7 @@ WHERE "name" = 'geometry_columns' AND "type" = 'table'
 SELECT "name", "type"
 FROM "sqlite_master"
 WHERE "type" IN ('table', 'view') AND instr("name", 'sqlite_') <> 1 AND "name" NOT IN (
-'{HistoryRepository.DefaultTableName}',
+'{HistoryRepository.DefaultTableName}', '{SqliteHistoryRepository.DefaultLockTableName}',
 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth',
 'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time',
 'spatial_ref_sys', 'spatial_ref_sys_aux', 'SpatialIndex', 'spatialite_history',
@@ -429,7 +431,7 @@ ORDER BY "cid"
             {
                 try
                 {
-                    column.DefaultValue = Convert.ChangeType(defaultValueSql, type);
+                    column.DefaultValue = Convert.ChangeType(defaultValueSql, type, CultureInfo.InvariantCulture);
                 }
                 catch
                 {
@@ -471,7 +473,7 @@ ORDER BY "cid"
                     column.DefaultValue = dateTimeOffset;
                 }
                 else if (type == typeof(decimal)
-                         && decimal.TryParse(defaultValueSql, out var decimalValue))
+                         && decimal.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var decimalValue))
                 {
                     column.DefaultValue = decimalValue;
                 }
@@ -988,8 +990,7 @@ ORDER BY "seqno"
                 {
                     var columnName = reader2.GetString(0);
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? table.Columns.FirstOrDefault(
-                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Check.DebugAssert(column != null, "column is null.");
 
                     uniqueConstraint.Columns.Add(column);
@@ -1082,8 +1083,7 @@ ORDER BY "id"
             var principalTableName = reader1.GetString(1);
             var onDelete = reader1.GetString(2);
             var principalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
-                ?? tables.FirstOrDefault(
-                    t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                ?? tables.FirstOrDefault(t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
 
             _logger.ForeignKeyFound(table.Name, id, principalTableName, onDelete);
 
@@ -1128,8 +1128,7 @@ ORDER BY "seq"
                 {
                     var columnName = reader2.GetString(1);
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? table.Columns.FirstOrDefault(
-                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Check.DebugAssert(column != null, "column is null.");
 
                     var principalColumnName = reader2.IsDBNull(2) ? null : reader2.GetString(2);
@@ -1138,8 +1137,8 @@ ORDER BY "seq"
                     {
                         principalColumn =
                             foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
-                            ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
-                                c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                            ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(
+                                principalColumnName, StringComparison.OrdinalIgnoreCase));
                     }
                     else if (principalTable?.PrimaryKey != null)
                     {

@@ -26,7 +26,7 @@ public class StateManager : IStateManager
     private IChangeDetector? _changeDetector;
 
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
-    private readonly IInternalEntityEntrySubscriber _internalEntityEntrySubscriber;
+    private readonly IInternalEntrySubscriber _internalEntityEntrySubscriber;
     private readonly IModel _model;
     private readonly IDatabase _database;
     private readonly IConcurrencyDetector? _concurrencyDetector;
@@ -174,7 +174,7 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
+    public virtual IStructuralTypeMaterializerSource EntityMaterializerSource { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -272,7 +272,25 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete("Use the overload that accepts a dictionary keyed by " + nameof(IProperty) + " instead.")]
     public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        UpdateReferenceMaps(entry, EntityState.Detached, null);
+
+        return entry;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry CreateEntry(IReadOnlyDictionary<IProperty, object?> values, IEntityType entityType)
     {
         var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
 
@@ -599,6 +617,27 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalComplexEntry StartTracking(InternalComplexEntry entry)
+    {
+        if (entry.StateManager != this)
+        {
+            throw new InvalidOperationException(CoreStrings.WrongStateManager(entry.StructuralType.DisplayName()));
+        }
+
+        if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(entry))
+        {
+            _needsUnsubscribe = true;
+        }
+
+        return entry;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual void StopTracking(InternalEntityEntry entry, EntityState oldState)
     {
         if (_needsUnsubscribe)
@@ -642,6 +681,20 @@ public class StateManager : IStateManager
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void StopTracking(InternalComplexEntry entry, EntityState oldState)
+    {
+        if (_needsUnsubscribe)
+        {
+            _internalEntityEntrySubscriber.Unsubscribe(entry);
         }
     }
 
@@ -900,7 +953,7 @@ public class StateManager : IStateManager
             return danglers;
         }
 
-        return Enumerable.Empty<Tuple<INavigationBase, InternalEntityEntry>>();
+        return [];
     }
 
     /// <summary>
@@ -1007,7 +1060,7 @@ public class StateManager : IStateManager
         var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
         return dependentIdentityMap != null && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
             ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry)
-            : Enumerable.Empty<IUpdateEntry>();
+            : [];
     }
 
     /// <summary>
@@ -1020,7 +1073,7 @@ public class StateManager : IStateManager
     {
         var identityMap = FindIdentityMap(key);
         return identityMap == null
-            ? Enumerable.Empty<InternalEntityEntry>()
+            ? []
             : identityMap.All();
     }
 
@@ -1052,7 +1105,7 @@ public class StateManager : IStateManager
         var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
         return dependentIdentityMap != null
             ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependentsUsingRelationshipSnapshot(principalEntry)
-            : Enumerable.Empty<IUpdateEntry>();
+            : [];
     }
 
     /// <summary>
@@ -1075,7 +1128,7 @@ public class StateManager : IStateManager
         var navigationValue = ((InternalEntityEntry)principalEntry)[navigation];
         if (navigationValue == null)
         {
-            return Enumerable.Empty<InternalEntityEntry>();
+            return [];
         }
 
         if (foreignKey.IsUnique)
@@ -1128,7 +1181,7 @@ public class StateManager : IStateManager
 
         foreach (var entry in GetEntriesForState(added: true, modified: true, deleted: true))
         {
-            toSave.Add(entry.PrepareToSave());
+            toSave.Add((IUpdateEntry)entry.PrepareToSave());
         }
 
         return toSave;
@@ -1173,6 +1226,14 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey>? foreignKeys = null)
     {
+        // When an owned entity is replaced (e.g., via record 'with' expression), the old entry is
+        // marked Deleted and a new entry with the same key is linked via SharedIdentityEntry.
+        // Skip cascade from the old entry since the replacement handles its own dependents.
+        if (entry.SharedIdentityEntry != null)
+        {
+            return;
+        }
+
         var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
         var principalIsDetached = entry.EntityState == EntityState.Detached;
 
@@ -1232,8 +1293,12 @@ public class StateManager : IStateManager
 
                         foreach (var dependentProperty in fkProperties)
                         {
+                            var valueToSet = fk.DeleteBehavior is DeleteBehavior.SetDefault or DeleteBehavior.ClientSetDefault
+                                ? dependentProperty.Sentinel
+                                : null;
+
                             dependent.SetProperty(
-                                dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
+                                dependentProperty, valueToSet, isMaterialization: false, setModified: true, isCascadeDelete: true);
                         }
 
                         if (dependent.HasConceptualNull)

@@ -44,17 +44,16 @@ public class SqliteMultiLineStringMemberTranslator : IMemberTranslator
             && instance != null)
         {
             return _sqlExpressionFactory.Case(
-                new[]
-                {
+                [
                     new CaseWhenClause(
                         _sqlExpressionFactory.IsNotNull(instance),
                         _sqlExpressionFactory.Function(
                             "IsClosed",
-                            new[] { instance },
+                            [instance],
                             nullable: false,
                             argumentsPropagateNullability: Statics.FalseArrays[1],
                             returnType))
-                },
+                ],
                 null);
         }
 

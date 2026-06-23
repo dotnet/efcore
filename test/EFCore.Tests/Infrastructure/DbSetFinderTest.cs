@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class DbSetFinderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void All_non_static_DbSet_properties_are_discovered()
     {
         using var context = new The();

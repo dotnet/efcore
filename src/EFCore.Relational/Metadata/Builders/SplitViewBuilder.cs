@@ -77,7 +77,7 @@ public class SplitViewBuilder : IInfrastructure<EntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual SplitViewBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         ((EntityTypeMappingFragment)MappingFragment).Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

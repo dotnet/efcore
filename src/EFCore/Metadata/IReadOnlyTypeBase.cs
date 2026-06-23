@@ -1,7 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -23,6 +24,12 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// </summary>
     IReadOnlyEntityType ContainingEntityType
         => (IReadOnlyEntityType)this;
+
+    /// <summary>
+    ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a
+    ///     derived type in an inheritance hierarchy.
+    /// </summary>
+    IReadOnlyTypeBase? BaseType { get; }
 
     /// <summary>
     ///     Gets the name of this type.
@@ -80,14 +87,16 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     {
         if (!HasSharedClrType)
         {
-            return ClrType.ShortDisplayName();
+            return StripFileScopedTypePrefixes(ClrType.ShortDisplayName());
         }
+
+        var clrTypeDisplayName = StripFileScopedTypePrefixes(ClrType.ShortDisplayName());
 
         var shortName = Name;
         var hashIndex = shortName.IndexOf("#", StringComparison.Ordinal);
         if (hashIndex == -1)
         {
-            return Name + " (" + ClrType.ShortDisplayName() + ")";
+            return Name + " (" + clrTypeDisplayName + ")";
         }
 
         var plusIndex = shortName.LastIndexOf("+", StringComparison.Ordinal);
@@ -109,7 +118,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         }
 
         return shortName == Name
-            ? shortName + " (" + ClrType.ShortDisplayName() + ")"
+            ? shortName + " (" + clrTypeDisplayName + ")"
             : shortName;
     }
 
@@ -125,16 +134,20 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
             var name = ClrType.ShortDisplayName();
             if (name.StartsWith("<>", StringComparison.Ordinal))
             {
+                // Anonymous and closure types: <>f__AnonymousType0, <>c__DisplayClass0_0, ...
                 name = name[2..];
             }
-
-            var lessIndex = name.IndexOf("<", StringComparison.Ordinal);
-            if (lessIndex == -1)
+            else
             {
-                return name;
+                // File-scoped types: Roslyn synthesizes the metadata name
+                // <FileName>F<hex>__UserTypeName for `file class` / `file record` declarations.
+                // Strip these sentinels wherever they appear (top-level or nested in generic args),
+                // so e.g. List<<File>F1234__Inner> becomes List<Inner>.
+                name = StripFileScopedTypePrefixes(name);
             }
 
-            return name[..lessIndex];
+            var lessIndex = name.IndexOf('<', StringComparison.Ordinal);
+            return lessIndex == -1 ? name : name[..lessIndex];
         }
 
         var hashIndex = Name.LastIndexOf("#", StringComparison.Ordinal);
@@ -156,15 +169,84 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     }
 
     /// <summary>
-    ///     Determines if this type derives from (or is the same as) a given type.
+    ///     Strips Roslyn's synthesized file-scoped type prefix (<c>&lt;FileName&gt;F&lt;hex&gt;__</c>)
+    ///     from a CLR display name, including occurrences nested inside generic argument lists.
+    ///     For example <c>List&lt;&lt;Program&gt;F1234__Inner&gt;</c> becomes <c>List&lt;Inner&gt;</c>.
     /// </summary>
-    /// <param name="derivedType">The type to check whether it derives from this type.</param>
+    /// <remarks>
+    ///     The <c>&gt;F</c> signature distinguishes file-scoped types from other compiler-generated
+    ///     types whose names begin with <c>&lt;</c> (async state machines <c>&lt;Method&gt;d__0</c>,
+    ///     local function host classes <c>&lt;Method&gt;g__Local|0_0</c>, anonymous types
+    ///     <c>&lt;&gt;f__AnonymousType</c>, closure display classes <c>&lt;&gt;c__DisplayClass</c>).
+    ///     Roslyn's synthesized metadata pattern uses the literal <c>&lt;filename&gt;F&lt;hex&gt;__</c>
+    ///     shape; the filename portion does not contain <c>&lt;</c>, so the closing <c>&gt;</c> of a
+    ///     sentinel is always the next <c>&gt;</c> after the opening <c>&lt;</c> with no
+    ///     intervening <c>&lt;</c>.
+    /// </remarks>
+    private static string StripFileScopedTypePrefixes(string name)
+    {
+        if (name.IndexOf('<', StringComparison.Ordinal) == -1)
+        {
+            return name;
+        }
+
+        StringBuilder? sb = null;
+        var i = 0;
+        while (i < name.Length)
+        {
+            if (name[i] == '<')
+            {
+                // Look for the immediately-following `>F<hex>__` sentinel:
+                //   - the next `>` must come without any nested `<` in between (filenames have neither)
+                //   - the char right after `>` must be `F`
+                //   - a `__` must follow (the prefix terminator)
+                var closeAngle = name.IndexOf('>', i + 1);
+                if (closeAngle != -1
+                    && closeAngle + 1 < name.Length
+                    && name[closeAngle + 1] == 'F')
+                {
+                    var nestedLt = name.IndexOf('<', i + 1, closeAngle - i - 1);
+                    if (nestedLt == -1)
+                    {
+                        var separator = name.IndexOf("__", closeAngle + 1, StringComparison.Ordinal);
+                        if (separator != -1)
+                        {
+                            sb ??= new StringBuilder(name.Length).Append(name, 0, i);
+                            i = separator + 2;
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            sb?.Append(name[i]);
+            i++;
+        }
+
+        return sb?.ToString() ?? name;
+    }
+
+    /// <summary>
+    ///     Determines whether the current type can be assigned to the specified type, i.e. is derived from or identical to it.
+    /// </summary>
+    /// <param name="targetType">The type to check.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="derivedType" /> derives from (or is the same as) this type,
+    ///     <see langword="true" /> if the current type is assignable to <paramref name="targetType" />,
+    ///     otherwise <see langword="false" />.
+    /// </returns>
+    bool IsAssignableTo(IReadOnlyTypeBase targetType)
+        => this == targetType || targetType.GetDerivedTypes().Contains(this);
+
+    /// <summary>
+    ///     Determines whether the current type can be assigned from the specified type, i.e. is a base type of or identical to it.
+    /// </summary>
+    /// <param name="derivedType">The type to check.</param>
+    /// <returns>
+    ///     <see langword="true" /> if the current type is assignable from <paramref name="derivedType" />,
     ///     otherwise <see langword="false" />.
     /// </returns>
     bool IsAssignableFrom(IReadOnlyTypeBase derivedType)
-        => this == derivedType;
+        => this == derivedType || GetDerivedTypes().Contains(derivedType);
 
     /// <summary>
     ///     Determines if this type derives from (but is not the same as) a given type.
@@ -175,7 +257,73 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     otherwise <see langword="false" />.
     /// </returns>
     bool IsStrictlyDerivedFrom(IReadOnlyTypeBase baseType)
-        => this != Check.NotNull(baseType, nameof(baseType)) && baseType.IsAssignableFrom(this);
+        => this != Check.NotNull(baseType) && baseType.IsAssignableFrom(this);
+
+    /// <summary>
+    ///     Gets all types in the model that derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    IEnumerable<IReadOnlyTypeBase> GetDerivedTypes();
+
+    /// <summary>
+    ///     Returns all derived types of this type, including the type itself.
+    /// </summary>
+    /// <returns>Derived types.</returns>
+    IEnumerable<IReadOnlyTypeBase> GetDerivedTypesInclusive()
+        => new[] { this }.Concat(GetDerivedTypes());
+
+    /// <summary>
+    ///     Gets all types in the model that directly derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    IEnumerable<IReadOnlyTypeBase> GetDirectlyDerivedTypes();
+
+    /// <summary>
+    ///     Gets the root base type for a given entity type.
+    /// </summary>
+    /// <returns>
+    ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+    /// </returns>
+    IReadOnlyTypeBase GetRootType()
+        => BaseType?.GetRootType() ?? this;
+
+    /// <summary>
+    ///     Returns the property that will be used for storing a discriminator value.
+    /// </summary>
+    /// <returns>The property that will be used for storing a discriminator value.</returns>
+    IReadOnlyProperty? FindDiscriminatorProperty()
+    {
+        var propertyName = GetDiscriminatorPropertyName();
+        return propertyName == null ? null : FindProperty(propertyName);
+    }
+
+    /// <summary>
+    ///     Returns the name of the property that will be used for storing a discriminator value.
+    /// </summary>
+    /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
+    string? GetDiscriminatorPropertyName();
+
+    /// <summary>
+    ///     Returns the discriminator value for this type.
+    /// </summary>
+    /// <returns>The discriminator value for this type.</returns>
+    object? GetDiscriminatorValue()
+    {
+        var annotation = FindAnnotation(CoreAnnotationNames.DiscriminatorValue);
+        return annotation != null
+            ? annotation.Value
+            : !ClrType.IsInstantiable()
+            || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
+                ? null
+                : (object?)GetDefaultDiscriminatorValue();
+    }
+
+    /// <summary>
+    ///     Returns the default discriminator value that would be used for this type.
+    /// </summary>
+    /// <returns>The default discriminator value for this type.</returns>
+    string GetDefaultDiscriminatorValue()
+        => !HasSharedClrType ? ClrType.ShortDisplayName() : ShortName();
 
     /// <summary>
     ///     Gets the property with the given name. Returns <see langword="null" /> if no property with the given name is defined.
@@ -196,7 +344,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <param name="memberInfo">The member on the class.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyProperty? FindProperty(MemberInfo memberInfo)
-        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+        => (Check.NotNull(memberInfo) as PropertyInfo)?.IsIndexerProperty() == true
             ? null
             : FindProperty(memberInfo.GetSimpleMemberName());
 
@@ -228,7 +376,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <returns>The property.</returns>
     IReadOnlyProperty GetProperty(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var property = FindProperty(name);
         return property == null
@@ -286,7 +434,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <param name="memberInfo">The member on the class.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyComplexProperty? FindComplexProperty(MemberInfo memberInfo)
-        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+        => (Check.NotNull(memberInfo) as PropertyInfo)?.IsIndexerProperty() == true
             ? null
             : FindComplexProperty(memberInfo.GetSimpleMemberName());
 
@@ -374,4 +522,22 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// </summary>
     /// <returns>The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.</returns>
     PropertyInfo? FindIndexerPropertyInfo();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source);
 }

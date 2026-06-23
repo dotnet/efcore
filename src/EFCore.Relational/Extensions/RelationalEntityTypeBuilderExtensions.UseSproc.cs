@@ -908,7 +908,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         StoreObjectType sprocType,
         Action<StoredProcedureBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             entityTypeBuilder.Metadata, sprocType, name, schema);
@@ -925,7 +925,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<StoredProcedureBuilder<TEntity>> buildAction)
         where TEntity : class
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         var entityType = entityTypeBuilder.Metadata;
         if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
@@ -949,7 +949,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         StoreObjectType sprocType,
         Action<OwnedNavigationStoredProcedureBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             ownedNavigationBuilder.OwnedEntityType, sprocType, name, schema);
@@ -967,7 +967,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             ownedNavigationBuilder.OwnedEntityType, sprocType, name, schema);

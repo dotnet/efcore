@@ -41,8 +41,14 @@ public class BytesToStringConverter : ValueConverter<byte[]?, string?>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static BytesToStringConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(byte[]), typeof(string), i => new BytesToStringConverter(i.MappingHints));
+        = new(typeof(byte[]), typeof(string),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new BytesToStringConverter(i.MappingHints));
 }

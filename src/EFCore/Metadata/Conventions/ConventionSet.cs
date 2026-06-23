@@ -142,6 +142,11 @@ public class ConventionSet
     public virtual List<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; } = [];
 
     /// <summary>
+    ///     Conventions to run when the constrainedness of a foreign key is changed.
+    /// </summary>
+    public virtual List<IForeignKeyConstrainednessChangedConvention> ForeignKeyConstrainednessChangedConventions { get; } = [];
+
+    /// <summary>
     ///     Conventions to run when the requiredness of a foreign key is changed.
     /// </summary>
     public virtual List<IForeignKeyDependentRequirednessChangedConvention> ForeignKeyDependentRequirednessChangedConventions { get; }
@@ -261,6 +266,11 @@ public class ConventionSet
     ///     Conventions to run when the nullability of a property is changed.
     /// </summary>
     public virtual List<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; } = [];
+
+    /// <summary>
+    ///     Conventions to run when the auto-load value of a property is changed.
+    /// </summary>
+    public virtual List<IPropertyAutoLoadChangedConvention> PropertyAutoLoadChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the field of a property is changed.
@@ -458,6 +468,12 @@ public class ConventionSet
             ForeignKeyRequirednessChangedConventions.Add(foreignKeyRequirednessChangedConvention);
         }
 
+        if (newConvention is IForeignKeyConstrainednessChangedConvention foreignKeyConstrainednessChangedConvention
+            && !Replace(ForeignKeyConstrainednessChangedConventions, foreignKeyConstrainednessChangedConvention, oldConventionType))
+        {
+            ForeignKeyConstrainednessChangedConventions.Add(foreignKeyConstrainednessChangedConvention);
+        }
+
         if (newConvention is IForeignKeyDependentRequirednessChangedConvention foreignKeyDependentRequirednessChangedConvention
             && !Replace(
                 ForeignKeyDependentRequirednessChangedConventions, foreignKeyDependentRequirednessChangedConvention, oldConventionType))
@@ -603,6 +619,12 @@ public class ConventionSet
             PropertyNullabilityChangedConventions.Add(propertyNullabilityChangedConvention);
         }
 
+        if (newConvention is IPropertyAutoLoadChangedConvention propertyAutoLoadChangedConvention
+            && !Replace(PropertyAutoLoadChangedConventions, propertyAutoLoadChangedConvention, oldConventionType))
+        {
+            PropertyAutoLoadChangedConventions.Add(propertyAutoLoadChangedConvention);
+        }
+
         if (newConvention is IPropertyFieldChangedConvention propertyFieldChangedConvention
             && !Replace(PropertyFieldChangedConventions, propertyFieldChangedConvention, oldConventionType))
         {
@@ -653,8 +675,8 @@ public class ConventionSet
         TImplementation newConvention)
         where TImplementation : TConvention
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         return Replace(conventionsList, newConvention, typeof(TImplementation));
     }
@@ -664,8 +686,8 @@ public class ConventionSet
         TConvention newConvention,
         Type oldConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         var replaced = false;
         for (var i = 0; i < conventionsList.Count; i++)
@@ -817,6 +839,11 @@ public class ConventionSet
             ForeignKeyRequirednessChangedConventions.Add(foreignKeyRequirednessChangedConvention);
         }
 
+        if (convention is IForeignKeyConstrainednessChangedConvention foreignKeyConstrainednessChangedConvention)
+        {
+            ForeignKeyConstrainednessChangedConventions.Add(foreignKeyConstrainednessChangedConvention);
+        }
+
         if (convention is IForeignKeyDependentRequirednessChangedConvention foreignKeyDependentRequirednessChangedConvention)
         {
             ForeignKeyDependentRequirednessChangedConventions.Add(foreignKeyDependentRequirednessChangedConvention);
@@ -937,6 +964,11 @@ public class ConventionSet
             PropertyNullabilityChangedConventions.Add(propertyNullabilityChangedConvention);
         }
 
+        if (convention is IPropertyAutoLoadChangedConvention propertyAutoLoadChangedConvention)
+        {
+            PropertyAutoLoadChangedConventions.Add(propertyAutoLoadChangedConvention);
+        }
+
         if (convention is IPropertyFieldChangedConvention propertyFieldChangedConvention)
         {
             PropertyFieldChangedConventions.Add(propertyFieldChangedConvention);
@@ -981,8 +1013,8 @@ public class ConventionSet
         TConvention newConvention,
         Type existingConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         for (var i = 0; i < conventionsList.Count; i++)
         {
@@ -1009,8 +1041,8 @@ public class ConventionSet
         TConvention newConvention,
         Type existingConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         for (var i = 0; i < conventionsList.Count; i++)
         {
@@ -1160,6 +1192,11 @@ public class ConventionSet
             Remove(ForeignKeyRequirednessChangedConventions, conventionType);
         }
 
+        if (typeof(IForeignKeyConstrainednessChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ForeignKeyConstrainednessChangedConventions, conventionType);
+        }
+
         if (typeof(IForeignKeyDependentRequirednessChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(ForeignKeyDependentRequirednessChangedConventions, conventionType);
@@ -1280,6 +1317,11 @@ public class ConventionSet
             Remove(PropertyNullabilityChangedConventions, conventionType);
         }
 
+        if (typeof(IPropertyAutoLoadChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(PropertyAutoLoadChangedConventions, conventionType);
+        }
+
         if (typeof(IPropertyFieldChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(PropertyFieldChangedConventions, conventionType);
@@ -1322,7 +1364,7 @@ public class ConventionSet
         List<TConvention> conventionsList,
         Type existingConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
+        Check.NotNull(conventionsList);
 
         var removed = false;
         for (var i = 0; i < conventionsList.Count; i++)

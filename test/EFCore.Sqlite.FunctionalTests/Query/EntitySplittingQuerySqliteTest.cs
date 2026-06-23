@@ -5,9 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class EntitySplittingQuerySqliteTest : EntitySplittingQueryTestBase
+public class EntitySplittingQuerySqliteTest(NonSharedFixture fixture) : EntitySplittingQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     public override async Task Normal_entity_owning_a_split_reference_with_main_fragment_not_sharing(bool async)

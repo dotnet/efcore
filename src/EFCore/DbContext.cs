@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -80,11 +79,10 @@ public class DbContext :
     ///     for more information and examples.
     /// </remarks>
     [RequiresUnreferencedCode(
-        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
-        + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
-        + "more details.")]
-    [RequiresDynamicCode(
-        "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
+         "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
+         + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
+         + "more details."), RequiresDynamicCode(
+         "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
     protected DbContext()
         : this(new DbContextOptions<DbContext>())
     {
@@ -101,14 +99,13 @@ public class DbContext :
     /// </remarks>
     /// <param name="options">The options for this context.</param>
     [RequiresUnreferencedCode(
-        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
-        + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
-        + "more details.")]
-    [RequiresDynamicCode(
-        "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
+         "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
+         + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
+         + "more details."), RequiresDynamicCode(
+         "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
     public DbContext(DbContextOptions options)
     {
-        Check.NotNull(options, nameof(options));
+        Check.NotNull(options);
 
         if (!options.ContextType.IsAssignableFrom(GetType()))
         {
@@ -213,6 +210,16 @@ public class DbContext :
     [EntityFrameworkInternal]
     IEntityFinderFactory IDbContextDependencies.EntityFinderFactory
         => DbContextDependencies.EntityFinderFactory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    IManyToManyLoaderFactory IDbContextDependencies.ManyToManyLoaderFactory
+        => DbContextDependencies.ManyToManyLoaderFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1061,7 +1068,7 @@ public class DbContext :
     public virtual void Dispose()
     {
         var lease = _lease;
-        var contextShouldBeDisposed = lease.IsActive && _lease.IsStandalone;
+        var contextShouldBeDisposed = lease.IsActive && lease.IsStandalone;
 
         if (DisposeSync(lease.IsActive, contextShouldBeDisposed))
         {
@@ -1156,7 +1163,7 @@ public class DbContext :
     public virtual EntityEntry<TEntity> Entry<TEntity>(TEntity entity)
         where TEntity : class
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1189,7 +1196,7 @@ public class DbContext :
     /// <returns>The entry for the given entity.</returns>
     public virtual EntityEntry Entry(object entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1262,7 +1269,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        return SetEntityState(Check.NotNull(entity), EntityState.Added);
     }
 
     /// <summary>
@@ -1303,7 +1310,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+        var entry = EntryWithoutDetectChanges(Check.NotNull(entity));
 
         await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
             .ConfigureAwait(false);
@@ -1354,7 +1361,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        return SetEntityState(Check.NotNull(entity), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -1400,7 +1407,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        return SetEntityState(Check.NotNull(entity), EntityState.Modified);
     }
 
     /// <summary>
@@ -1434,7 +1441,7 @@ public class DbContext :
     public virtual EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
         where TEntity : class
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1489,7 +1496,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        return SetEntityState(Check.NotNull(entity), EntityState.Added);
     }
 
     /// <summary>
@@ -1531,7 +1538,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+        var entry = EntryWithoutDetectChanges(Check.NotNull(entity));
 
         await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
             .ConfigureAwait(false);
@@ -1580,7 +1587,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        return SetEntityState(Check.NotNull(entity), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -1624,7 +1631,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        return SetEntityState(Check.NotNull(entity), EntityState.Modified);
     }
 
     /// <summary>
@@ -1656,7 +1663,7 @@ public class DbContext :
     /// </returns>
     public virtual EntityEntry Remove(object entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1875,7 +1882,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+        SetEntityStates(Check.NotNull(entities), EntityState.Added);
     }
 
     /// <summary>
@@ -1965,7 +1972,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged);
+        SetEntityStates(Check.NotNull(entities), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -2007,7 +2014,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+        SetEntityStates(Check.NotNull(entities), EntityState.Modified);
     }
 
     /// <summary>
@@ -2034,7 +2041,7 @@ public class DbContext :
     /// <param name="entities">The entities to remove.</param>
     public virtual void RemoveRange(IEnumerable<object> entities)
     {
-        Check.NotNull(entities, nameof(entities));
+        Check.NotNull(entities);
         CheckDisposed();
 
         var stateManager = DbContextDependencies.StateManager;
@@ -2258,7 +2265,7 @@ public class DbContext :
     /// <returns>An <see cref="IQueryable{T}" /> representing the query.</returns>
     public virtual IQueryable<TResult> FromExpression<TResult>(Expression<Func<IQueryable<TResult>>> expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         return DbContextDependencies.QueryProvider.CreateQuery<TResult>(expression.Body);
     }

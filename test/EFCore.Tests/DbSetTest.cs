@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DbSetTest
 {
-    [ConditionalFact]
+    [Fact]
     public void DbSets_are_cached()
     {
         DbSet<Category> set;
@@ -30,7 +30,7 @@ public class DbSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Use_of_set_throws_if_context_is_disposed()
     {
         DbSet<Category> set;
@@ -77,7 +77,7 @@ public class DbSetTest
             (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Use_of_set_throws_if_obtained_from_disposed_context()
     {
         var context = new EarlyLearningCenter();
@@ -122,7 +122,7 @@ public class DbSetTest
             (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Direct_use_of_Set_throws_if_context_disposed()
     {
         var context = new EarlyLearningCenter();
@@ -133,7 +133,7 @@ public class DbSetTest
             Assert.Throws<ObjectDisposedException>(() => context.Set<Category>()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Use_of_LocalView_throws_if_context_is_disposed()
     {
         LocalView<Category> view;
@@ -168,7 +168,7 @@ public class DbSetTest
             Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
     {
         using var context = new IgnoredCntext();
@@ -196,23 +196,23 @@ public class DbSetTest
         public int Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_existing_entities_to_context_to_be_deleted()
         => TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_new_entities_to_context_graph()
         => TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_new_entities_to_context_graph_async()
         => TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_existing_entities_to_context_to_be_attached_graph()
         => TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_existing_entities_to_context_to_be_updated_graph()
         => TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
 
@@ -272,35 +272,35 @@ public class DbSetTest
         Assert.Same(productEntry2.GetInfrastructure(), context.Entry(product2).GetInfrastructure());
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Categories.AddRange(e[0], e[1]),
             (c, e) => c.Products.AddRange(e[0], e[1]),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set_async()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Categories.AddRangeAsync(e[0], e[1]),
             (c, e) => c.Products.AddRangeAsync(e[0], e[1]),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_attached()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Categories.AttachRange(e[0], e[1]),
             (c, e) => c.Products.AttachRange(e[0], e[1]),
             EntityState.Unchanged);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_updated()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Categories.UpdateRange(e[0], e[1]),
             (c, e) => c.Products.UpdateRange(e[0], e[1]),
             EntityState.Modified);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_deleted()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Categories.RemoveRange(e[0], e[1]),
@@ -364,11 +364,11 @@ public class DbSetTest
         Assert.Equal(expectedState, context.Entry(product2).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_new_entities_to_set()
         => TrackNoEntitiesTest(c => c.Categories.AddRange(), c => c.Products.AddRange());
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_no_new_entities_to_set_async()
     {
         using var context = new EarlyLearningCenter();
@@ -377,15 +377,15 @@ public class DbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_attached()
         => TrackNoEntitiesTest(c => c.Categories.AttachRange(), c => c.Products.AttachRange());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_updated()
         => TrackNoEntitiesTest(c => c.Categories.UpdateRange(), c => c.Products.UpdateRange());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_deleted()
         => TrackNoEntitiesTest(c => c.Categories.RemoveRange(), c => c.Products.RemoveRange());
 
@@ -397,35 +397,35 @@ public class DbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Categories.RemoveRange(e),
             (c, e) => c.Products.RemoveRange(e),
             EntityState.Deleted);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set_Enumerable_graph()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Categories.AddRange(e),
             (c, e) => c.Products.AddRange(e),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set_Enumerable_graph_async()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Categories.AddRangeAsync(e),
             (c, e) => c.Products.AddRangeAsync(e),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Categories.AttachRange(e),
             (c, e) => c.Products.AttachRange(e),
             EntityState.Unchanged);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Categories.UpdateRange(e),
@@ -491,15 +491,15 @@ public class DbSetTest
         Assert.Equal(expectedState, context.Entry(product2).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_deleted_Enumerable()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_new_entities_to_set_Enumerable_graph()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_no_new_entities_to_set_Enumerable_graph_async()
     {
         using var context = new EarlyLearningCenter();
@@ -508,11 +508,11 @@ public class DbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable_graph()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable_graph()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
 
@@ -526,7 +526,7 @@ public class DbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Add_to_change_entity_state()
     {
         await ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Detached, EntityState.Added);
@@ -536,7 +536,7 @@ public class DbSetTest
         await ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Added, EntityState.Added);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Add_to_change_entity_state_async()
     {
         await ChangeStateWithMethod(async (c, e) => await c.Categories.AddAsync(e), EntityState.Detached, EntityState.Added);
@@ -546,7 +546,7 @@ public class DbSetTest
         await ChangeStateWithMethod(async (c, e) => await c.Categories.AddAsync(e), EntityState.Added, EntityState.Added);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Attach_to_change_entity_state()
     {
         await ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Detached, EntityState.Unchanged);
@@ -556,7 +556,7 @@ public class DbSetTest
         await ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Added, EntityState.Unchanged);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Update_to_change_entity_state()
     {
         await ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Detached, EntityState.Modified);
@@ -566,7 +566,7 @@ public class DbSetTest
         await ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Added, EntityState.Modified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Remove_to_change_entity_state()
     {
         await ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Detached, EntityState.Deleted);
@@ -605,9 +605,7 @@ public class DbSetTest
         Assert.Equal(expectedState, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Can_add_new_entities_to_context_with_key_generation(bool async)
     {
         using var context = new EarlyLearningCenter();
@@ -638,7 +636,7 @@ public class DbSetTest
         Assert.Equal(EntityState.Added, categoryEntry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_scoped_service_provider()
     {
         using var context = new EarlyLearningCenter();
@@ -647,7 +645,7 @@ public class DbSetTest
             ((IInfrastructure<IServiceProvider>)context.Products).Instance);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_using_with_IListSource()
     {
         using var context = new EarlyLearningCenter();
@@ -656,7 +654,7 @@ public class DbSetTest
             Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus).GetList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_using_query_with_IListSource()
     {
         using var context = new EarlyLearningCenter();
@@ -665,7 +663,7 @@ public class DbSetTest
             Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Distinct()).GetList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_using_Local_with_IListSource()
     {
         using var context = new EarlyLearningCenter();
@@ -674,7 +672,7 @@ public class DbSetTest
             Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_enumerate_with_foreach()
     {
         using var context = new EarlyLearningCenter();
@@ -684,7 +682,7 @@ public class DbSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_enumerate_with_await_foreach()
     {
         using var context = new EarlyLearningCenter();
@@ -694,7 +692,7 @@ public class DbSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_enumerate_with_await_foreach_with_cancellation()
     {
         using var context = new EarlyLearningCenter();

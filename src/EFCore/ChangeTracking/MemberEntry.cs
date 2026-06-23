@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///         examples.
 ///     </para>
 /// </remarks>
-public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
+public abstract class MemberEntry : IInfrastructure<IInternalEntry>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +34,7 @@ public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected MemberEntry(InternalEntityEntry internalEntry, IPropertyBase metadata)
+    protected MemberEntry(IInternalEntry internalEntry, IPropertyBase metadata)
     {
         InternalEntry = internalEntry;
         Metadata = metadata;
@@ -47,7 +47,7 @@ public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual InternalEntityEntry InternalEntry { get; }
+    protected virtual IInternalEntry InternalEntry { get; }
 
     /// <summary>
     ///     For non-navigation properties, gets or sets a value indicating whether the value of this
@@ -97,7 +97,7 @@ public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     /// </remarks>
     /// <value> An entry for the entity that owns this member. </value>
     public virtual EntityEntry EntityEntry
-        => new(InternalEntry);
+        => new(InternalEntry.EntityEntry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,7 +106,7 @@ public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
+    IInternalEntry IInfrastructure<IInternalEntry>.Instance
         => InternalEntry;
 
     #region Hidden System.Object members

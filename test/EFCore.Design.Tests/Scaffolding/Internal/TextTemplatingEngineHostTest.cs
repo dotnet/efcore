@@ -1,20 +1,19 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.CodeDom.Compiler;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.VisualStudio.TextTemplating;
 using Engine = Mono.TextTemplating.TemplatingEngine;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "CI time out")]
+[SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS")]
 public class TextTemplatingEngineHostTest
 {
     public static readonly Engine _engine = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Service_works()
     {
         var host = new TextTemplatingEngineHost(
@@ -30,7 +29,7 @@ public class TextTemplatingEngineHostTest
         Assert.Equal("Hello, Services!", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Session_works()
     {
         var host = new TextTemplatingEngineHost { Session = new TextTemplatingSession { ["Value"] = "Hello, Session!" } };
@@ -43,7 +42,7 @@ public class TextTemplatingEngineHostTest
         Assert.Equal("Hello, Session!", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Session_works_with_parameter()
     {
         var host = new TextTemplatingEngineHost { Session = new TextTemplatingSession { ["Value"] = "Hello, Session!" } };
@@ -56,7 +55,7 @@ public class TextTemplatingEngineHostTest
         Assert.Equal("Hello, Session!", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Include_works()
     {
         using var dir = new TempDirectory();
@@ -74,7 +73,7 @@ public class TextTemplatingEngineHostTest
         Assert.Equal("Hello, Include!", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Error_works()
     {
         var host = new TextTemplatingEngineHost();
@@ -87,20 +86,19 @@ public class TextTemplatingEngineHostTest
         Assert.Equal("Hello, Error!", error.ErrorText);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Directive_throws_when_processor_unknown()
     {
         var host = new TextTemplatingEngineHost();
 
-        var ex = Assert.Throws<FileNotFoundException>(
-            () => _engine.ProcessTemplateAsync(
-                @"<#@ test processor=""TestDirectiveProcessor"" #>",
-                host).GetAwaiter().GetResult());
+        var ex = Assert.Throws<FileNotFoundException>(() => _engine.ProcessTemplateAsync(
+            @"<#@ test processor=""TestDirectiveProcessor"" #>",
+            host).GetAwaiter().GetResult());
 
         Assert.Equal(DesignStrings.UnknownDirectiveProcessor("TestDirectiveProcessor"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ResolvePath_work()
     {
         using var dir = new TempDirectory();
@@ -115,7 +113,7 @@ public class TextTemplatingEngineHostTest
         Assert.Equal(Path.Combine(dir, "data.json"), result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Output_works()
     {
         var host = new TextTemplatingEngineHost();
@@ -129,7 +127,7 @@ public class TextTemplatingEngineHostTest
         Assert.Equal(Encoding.ASCII, host.OutputEncoding);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Assembly_works()
     {
         var host = new TextTemplatingEngineHost();

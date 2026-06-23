@@ -12,7 +12,7 @@ public class PrecompiledQuerySqlServerTest(
         IClassFixture<PrecompiledQuerySqlServerTest.PrecompiledQuerySqlServerFixture>
 {
     protected override bool AlwaysPrintGeneratedSources
-        => true;
+        => false;
 
     #region Expression types
 
@@ -269,7 +269,159 @@ WHERE CAST([b].[Id] AS smallint) = CAST(8 AS smallint)
         AssertSql();
     }
 
+    public override async Task RuntimeConstantExpression()
+    {
+        await base.RuntimeConstantExpression();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
     #endregion Expression types
+
+    #region Regular operators
+
+    public override async Task OrderBy()
+    {
+        await base.OrderBy();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+""");
+    }
+
+    public override async Task Skip_with_constant()
+    {
+        await base.Skip_with_constant();
+
+        AssertSql(
+            """
+@p='1'
+
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+OFFSET @p ROWS
+""");
+    }
+
+    public override async Task Skip_with_parameter()
+    {
+        await base.Skip_with_parameter();
+
+        AssertSql(
+            """
+@p='1'
+
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+OFFSET @p ROWS
+""");
+    }
+
+    public override async Task Take_with_constant()
+    {
+        await base.Take_with_constant();
+
+        AssertSql(
+            """
+@p='1'
+
+SELECT TOP(@p) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+""");
+    }
+
+    public override async Task Take_with_parameter()
+    {
+        await base.Take_with_parameter();
+
+        AssertSql(
+            """
+@p='1'
+
+SELECT TOP(@p) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+""");
+    }
+
+    public override async Task Select_changes_type()
+    {
+        await base.Select_changes_type();
+
+        AssertSql(
+            """
+SELECT [b].[Name]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Select_anonymous_object()
+    {
+        await base.Select_anonymous_object();
+
+        AssertSql(
+            """
+SELECT COALESCE([b].[Name], N'') + N'Foo' AS [Foo]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Include_single()
+    {
+        await base.Include_single();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json], [p].[Id], [p].[BlogId], [p].[Title]
+FROM [Blogs] AS [b]
+LEFT JOIN [Posts] AS [p] ON [b].[Id] = [p].[BlogId]
+WHERE [b].[Id] > 8
+ORDER BY [b].[Id]
+""");
+    }
+
+    public override async Task Include_split()
+    {
+        await base.Include_split();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Id]
+""",
+            //
+            """
+SELECT [p].[Id], [p].[BlogId], [p].[Title], [b].[Id]
+FROM [Blogs] AS [b]
+INNER JOIN [Posts] AS [p] ON [b].[Id] = [p].[BlogId]
+ORDER BY [b].[Id]
+""");
+    }
+
+    public override async Task Final_GroupBy()
+    {
+        await base.Final_GroupBy();
+
+        AssertSql(
+            """
+SELECT [b].[Name], [b].[Id], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+""");
+    }
+
+    #endregion Regular operators
 
     #region Terminating operators
 
@@ -1312,12 +1464,12 @@ WHERE [b].[Id] = 7
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1328,12 +1480,12 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1344,6 +1496,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1361,6 +1514,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1372,14 +1526,15 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    public override async Task Terminating_ExecuteUpdate()
+    public override async Task Terminating_ExecuteUpdate_with_lambda()
     {
-        await base.Terminating_ExecuteUpdate();
+        await base.Terminating_ExecuteUpdate_with_lambda();
 
         AssertSql(
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1393,14 +1548,37 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
 """);
     }
 
-    public override async Task Terminating_ExecuteUpdateAsync()
+    public override async Task Terminating_ExecuteUpdate_without_lambda()
     {
-        await base.Terminating_ExecuteUpdateAsync();
+        await base.Terminating_ExecuteUpdate_without_lambda();
+
+        AssertSql(
+            """
+@newValue='NewValue' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [b]
+SET [b].[Name] = @newValue
+FROM [Blogs] AS [b]
+WHERE [b].[Id] > 8
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
+""");
+    }
+
+    public override async Task Terminating_ExecuteUpdateAsync_with_lambda()
+    {
+        await base.Terminating_ExecuteUpdateAsync_with_lambda();
 
         AssertSql(
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1411,6 +1589,46 @@ WHERE [b].[Id] > 8
 SELECT COUNT(*)
 FROM [Blogs] AS [b]
 WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
+""");
+    }
+
+    public override async Task Terminating_ExecuteUpdateAsync_without_lambda()
+    {
+        await base.Terminating_ExecuteUpdateAsync_without_lambda();
+
+        AssertSql(
+            """
+@newValue='NewValue' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [b]
+SET [b].[Name] = @newValue
+FROM [Blogs] AS [b]
+WHERE [b].[Id] > 8
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
+""");
+    }
+
+    public override async Task Terminating_with_cancellation_token()
+    {
+        await base.Terminating_with_cancellation_token();
+
+        AssertSql(
+            """
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8
+""",
+            //
+            """
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 7
 """);
     }
 
@@ -1599,14 +1817,13 @@ WHERE (
 
         AssertSql(
             """
-@ids='[1,2,3]' (Size = 4000)
+@p1='1'
+@p2='2'
+@p3='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Id] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
+WHERE [b].[Id] IN (@p1, @p2, @p3)
 """);
     }
 
@@ -1641,8 +1858,7 @@ ORDER BY [m].[Id]
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task SqlServerAggregateFunctionExpression()
     {
         await Test(
@@ -1663,7 +1879,7 @@ GROUP BY [b].[Id]
 
     // SqlServerOpenJsonExpression is covered by PrecompiledQueryRelationalTestBase.Contains_with_parameterized_collection
 
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task TableValuedFunctionExpression_toplevel()
 //         => Test(
 //             "_ = context.GetBlogsWithAtLeast(9).ToList();",
@@ -1701,7 +1917,7 @@ GROUP BY [b].[Id]
 // """,
 //             cleanupSql: "DROP FUNCTION dbo.GetBlogsWithAtLeast;");
 //
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task TableValuedFunctionExpression_non_toplevel()
 //         => Test(
 //             "_ = context.Blogs.Where(b => context.GetPosts(b.Id).Count() == 2).ToList();",
@@ -1808,126 +2024,7 @@ FROM [Blogs] AS [b]
 
     #endregion Different query roots
 
-    #region Negative cases
-
-    public override async Task Dynamic_query_does_not_get_precompiled()
-    {
-        await base.Dynamic_query_does_not_get_precompiled();
-
-        AssertSql();
-    }
-
-    public override async Task ToList_over_objects_does_not_get_precompiled()
-    {
-        await base.ToList_over_objects_does_not_get_precompiled();
-
-        AssertSql();
-    }
-
-    public override async Task Query_compilation_failure()
-    {
-        await base.Query_compilation_failure();
-
-        AssertSql();
-    }
-
-    public override async Task EF_Constant_is_not_supported()
-    {
-        await base.EF_Constant_is_not_supported();
-
-        AssertSql();
-    }
-
-    public override async Task NotParameterizedAttribute_with_constant()
-    {
-        await base.NotParameterizedAttribute_with_constant();
-
-        AssertSql(
-            """
-SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
-FROM [Blogs] AS [b]
-WHERE [b].[Name] = N'Blog2'
-""");
-    }
-
-    public override async Task NotParameterizedAttribute_is_not_supported_with_non_constant_argument()
-    {
-        await base.NotParameterizedAttribute_is_not_supported_with_non_constant_argument();
-
-        AssertSql();
-    }
-
-    public override async Task Query_syntax_is_not_supported()
-    {
-        await base.Query_syntax_is_not_supported();
-
-        AssertSql();
-    }
-
-    #endregion Negative cases
-
-    public override async Task Select_changes_type()
-    {
-        await base.Select_changes_type();
-
-        AssertSql(
-            """
-SELECT [b].[Name]
-FROM [Blogs] AS [b]
-""");
-    }
-
-    public override async Task OrderBy()
-    {
-        await base.OrderBy();
-
-        AssertSql(
-            """
-SELECT [b].[Id], [b].[Name], [b].[Json]
-FROM [Blogs] AS [b]
-ORDER BY [b].[Name]
-""");
-    }
-
-    public override async Task Skip()
-    {
-        await base.Skip();
-
-        AssertSql(
-            """
-@p='1'
-
-SELECT [b].[Id], [b].[Name], [b].[Json]
-FROM [Blogs] AS [b]
-ORDER BY [b].[Name]
-OFFSET @p ROWS
-""");
-    }
-
-    public override async Task Take()
-    {
-        await base.Take();
-
-        AssertSql(
-            """
-@p='1'
-
-SELECT TOP(@p) [b].[Id], [b].[Name], [b].[Json]
-FROM [Blogs] AS [b]
-ORDER BY [b].[Name]
-""");
-    }
-
-    public override async Task Project_anonymous_object()
-    {
-        await base.Project_anonymous_object();
-
-        AssertSql(
-            """
-SELECT COALESCE([b].[Name], N'') + N'Foo' AS [Foo]
-FROM [Blogs] AS [b]
-""");
-    }
+    #region Captured variable handling
 
     public override async Task Two_captured_variables_in_same_lambda()
     {
@@ -1991,51 +2088,6 @@ WHERE [b].[Name] LIKE @foo_startswith ESCAPE N'\' AND [b].[Name] LIKE @foo_endsw
 """);
     }
 
-    public override async Task Include_single()
-    {
-        await base.Include_single();
-
-        AssertSql(
-            """
-SELECT [b].[Id], [b].[Name], [b].[Json], [p].[Id], [p].[BlogId], [p].[Title]
-FROM [Blogs] AS [b]
-LEFT JOIN [Posts] AS [p] ON [b].[Id] = [p].[BlogId]
-WHERE [b].[Id] > 8
-ORDER BY [b].[Id]
-""");
-    }
-
-    public override async Task Include_split()
-    {
-        await base.Include_split();
-
-        AssertSql(
-            """
-SELECT [b].[Id], [b].[Name], [b].[Json]
-FROM [Blogs] AS [b]
-ORDER BY [b].[Id]
-""",
-            //
-            """
-SELECT [p].[Id], [p].[BlogId], [p].[Title], [b].[Id]
-FROM [Blogs] AS [b]
-INNER JOIN [Posts] AS [p] ON [b].[Id] = [p].[BlogId]
-ORDER BY [b].[Id]
-""");
-    }
-
-    public override async Task Final_GroupBy()
-    {
-        await base.Final_GroupBy();
-
-        AssertSql(
-            """
-SELECT [b].[Name], [b].[Id], [b].[Json]
-FROM [Blogs] AS [b]
-ORDER BY [b].[Name]
-""");
-    }
-
     public override async Task Multiple_queries_with_captured_variables()
     {
         await base.Multiple_queries_with_captured_variables();
@@ -2059,6 +2111,66 @@ WHERE [b].[Id] = @id1
 """);
     }
 
+    #endregion Captured variable handling
+
+    #region Negative cases
+
+    public override async Task Dynamic_query_does_not_get_precompiled()
+    {
+        await base.Dynamic_query_does_not_get_precompiled();
+
+        AssertSql();
+    }
+
+    public override async Task ToList_over_objects_does_not_get_precompiled()
+    {
+        await base.ToList_over_objects_does_not_get_precompiled();
+
+        AssertSql();
+    }
+
+    public override async Task Query_compilation_failure()
+    {
+        await base.Query_compilation_failure();
+
+        AssertSql();
+    }
+
+    public override async Task EF_Constant_is_not_supported()
+    {
+        await base.EF_Constant_is_not_supported();
+
+        AssertSql();
+    }
+
+    public override async Task NotParameterizedAttribute_with_constant()
+    {
+        await base.NotParameterizedAttribute_with_constant();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Name] = N'Blog2'
+""");
+    }
+
+    public override async Task NotParameterizedAttribute_is_not_supported_with_non_constant_argument()
+    {
+        await base.NotParameterizedAttribute_is_not_supported_with_non_constant_argument();
+
+        AssertSql();
+    }
+
+    public override async Task Query_syntax_is_not_supported()
+    {
+        await base.Query_syntax_is_not_supported();
+
+        AssertSql();
+    }
+
+    #endregion Negative cases
+
     public override async Task Unsafe_accessor_gets_generated_once_for_multiple_queries()
     {
         await base.Unsafe_accessor_gets_generated_once_for_multiple_queries();
@@ -2075,7 +2187,7 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

@@ -11,12 +11,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.EntityFrameworkCore;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider))]
-[Shared]
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider)), Shared]
 public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds
-        => ImmutableArray.Create(EFDiagnostics.InterpolatedStringUsageInRawQueries);
+        => [EFDiagnostics.InterpolatedStringUsageInRawQueries];
 
     public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;
@@ -47,7 +46,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var foundInterpolation = false;
 
         // Not all reported by analyzer cases are fixable. If there is a mix of interpolated arguments and normal ones, e.g. `FromSqlRaw($"SELECT * FROM [Users] WHERE [Id] = {id}", id)`,
-        // then replacing `FromSqlRaw` to `FromSqlInterpolated` creates compiler error since there is no overload for this.
+        // then replacing `FromSqlRaw` to `FromSql` creates compiler error since there is no overload for this.
         // We find such cases by walking through syntaxes of each argument and searching for first interpolated string. If there are arguments after it, we consider such case unfixable.
         foreach (var argument in invocationSyntax.ArgumentList.Arguments)
         {
@@ -78,7 +77,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var oldNameToken = oldName.Identifier;
         var oldMethodName = oldNameToken.ValueText;
 
-        var replacementMethodName = InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer.GetReplacementMethodName(oldMethodName);
+        var replacementMethodName = StringsUsageInRawQueriesDiagnosticAnalyzer.GetReplacementMethodName(oldMethodName);
         Debug.Assert(replacementMethodName != oldMethodName, "At this point we must find correct replacement name");
 
         var replacementToken = SyntaxFactory.Identifier(replacementMethodName).WithTriviaFrom(oldNameToken);

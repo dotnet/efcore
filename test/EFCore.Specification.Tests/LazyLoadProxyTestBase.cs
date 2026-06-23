@@ -17,9 +17,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory] // Issue #32390
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)] // Issue #32390
     public virtual void Can_use_proxies_from_multiple_threads_when_navigations_already_loaded(bool noTracking)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -67,7 +65,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Task.WaitAll(tests.Select(Task.Run).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detected_principal_reference_navigation_changes_are_detected_and_marked_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -81,7 +79,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(parent).Reference(e => e.Single).IsLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detected_dependent_reference_navigation_changes_are_detected_and_marked_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -95,12 +93,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(single).Reference(e => e.Parent).IsLoaded);
     }
 
-    [ConditionalTheory] // Issue #13138
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)] // Issue #13138
     public virtual void Lazy_load_one_to_one_reference_with_recursive_property(EntityState state)
     {
         using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
@@ -136,13 +130,9 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Added, true)]
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Added, true)]
     public virtual void Attached_references_to_principal_are_marked_as_loaded(EntityState state, bool lazy)
     {
         using var context = CreateContext(lazy);
@@ -193,13 +183,9 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(parent).Reference(e => e.SingleCompositeKey).IsLoaded);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Added, true)]
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Added, true)]
     public virtual void Attached_references_to_dependents_are_marked_as_loaded(EntityState state, bool lazy)
     {
         using var context = CreateContext(lazy);
@@ -250,13 +236,9 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(parent.SingleCompositeKey).Reference(e => e.Parent).IsLoaded);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Added, true)]
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Added, true)]
     public virtual void Attached_collections_are_not_marked_as_loaded(EntityState state, bool lazy)
     {
         using var context = CreateContext(lazy);
@@ -313,22 +295,13 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.False(context.Entry(parent).Collection(e => e.ChildrenCompositeKey!).IsLoaded);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false, false)]
-    [InlineData(EntityState.Added, false, false)]
-    [InlineData(EntityState.Modified, false, false)]
-    [InlineData(EntityState.Deleted, false, false)]
-    [InlineData(EntityState.Detached, false, false)]
-    [InlineData(EntityState.Unchanged, true, false)]
-    [InlineData(EntityState.Added, true, false)]
-    [InlineData(EntityState.Modified, true, false)]
-    [InlineData(EntityState.Deleted, true, false)]
-    [InlineData(EntityState.Detached, true, false)]
-    [InlineData(EntityState.Unchanged, true, true)]
-    [InlineData(EntityState.Added, true, true)]
-    [InlineData(EntityState.Modified, true, true)]
-    [InlineData(EntityState.Deleted, true, true)]
-    [InlineData(EntityState.Detached, true, true)]
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+     InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
+     InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
+     InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
+     InlineData(EntityState.Deleted, true, false), InlineData(EntityState.Detached, true, false),
+     InlineData(EntityState.Unchanged, true, true), InlineData(EntityState.Added, true, true), InlineData(EntityState.Modified, true, true),
+     InlineData(EntityState.Deleted, true, true), InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_collection(EntityState state, bool useAttach, bool useDetach)
     {
         Parent? parent = null;
@@ -397,22 +370,13 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false, false)]
-    [InlineData(EntityState.Added, false, false)]
-    [InlineData(EntityState.Modified, false, false)]
-    [InlineData(EntityState.Deleted, false, false)]
-    [InlineData(EntityState.Detached, false, false)]
-    [InlineData(EntityState.Unchanged, true, false)]
-    [InlineData(EntityState.Added, true, false)]
-    [InlineData(EntityState.Modified, true, false)]
-    [InlineData(EntityState.Deleted, true, false)]
-    [InlineData(EntityState.Detached, true, false)]
-    [InlineData(EntityState.Unchanged, true, true)]
-    [InlineData(EntityState.Added, true, true)]
-    [InlineData(EntityState.Modified, true, true)]
-    [InlineData(EntityState.Deleted, true, true)]
-    [InlineData(EntityState.Detached, true, true)]
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+     InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
+     InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
+     InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
+     InlineData(EntityState.Deleted, true, false), InlineData(EntityState.Detached, true, false),
+     InlineData(EntityState.Unchanged, true, true), InlineData(EntityState.Added, true, true), InlineData(EntityState.Modified, true, true),
+     InlineData(EntityState.Deleted, true, true), InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_many_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
     {
         Child? child = null;
@@ -506,22 +470,13 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false, false)]
-    [InlineData(EntityState.Added, false, false)]
-    [InlineData(EntityState.Modified, false, false)]
-    [InlineData(EntityState.Deleted, false, false)]
-    [InlineData(EntityState.Detached, false, false)]
-    [InlineData(EntityState.Unchanged, true, false)]
-    [InlineData(EntityState.Added, true, false)]
-    [InlineData(EntityState.Modified, true, false)]
-    [InlineData(EntityState.Deleted, true, false)]
-    [InlineData(EntityState.Detached, true, false)]
-    [InlineData(EntityState.Unchanged, true, true)]
-    [InlineData(EntityState.Added, true, true)]
-    [InlineData(EntityState.Modified, true, true)]
-    [InlineData(EntityState.Deleted, true, true)]
-    [InlineData(EntityState.Detached, true, true)]
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+     InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
+     InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
+     InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
+     InlineData(EntityState.Deleted, true, false), InlineData(EntityState.Detached, true, false),
+     InlineData(EntityState.Unchanged, true, true), InlineData(EntityState.Added, true, true), InlineData(EntityState.Modified, true, true),
+     InlineData(EntityState.Deleted, true, true), InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_one_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
     {
         Single? single = null;
@@ -615,22 +570,13 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false, false)]
-    [InlineData(EntityState.Added, false, false)]
-    [InlineData(EntityState.Modified, false, false)]
-    [InlineData(EntityState.Deleted, false, false)]
-    [InlineData(EntityState.Detached, false, false)]
-    [InlineData(EntityState.Unchanged, true, false)]
-    [InlineData(EntityState.Added, true, false)]
-    [InlineData(EntityState.Modified, true, false)]
-    [InlineData(EntityState.Deleted, true, false)]
-    [InlineData(EntityState.Detached, true, false)]
-    [InlineData(EntityState.Unchanged, true, true)]
-    [InlineData(EntityState.Added, true, true)]
-    [InlineData(EntityState.Modified, true, true)]
-    [InlineData(EntityState.Deleted, true, true)]
-    [InlineData(EntityState.Detached, true, true)]
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+     InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
+     InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
+     InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
+     InlineData(EntityState.Deleted, true, false), InlineData(EntityState.Detached, true, false),
+     InlineData(EntityState.Unchanged, true, true), InlineData(EntityState.Added, true, true), InlineData(EntityState.Modified, true, true),
+     InlineData(EntityState.Deleted, true, true), InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent(EntityState state, bool useAttach, bool useDetach)
     {
         Parent? parent = null;
@@ -705,12 +651,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -771,12 +713,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -822,7 +760,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_one_non_virtual_reference_to_owned_type()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -835,7 +773,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("Paradise Alley", owner.Address!.Street);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_one_virtual_reference_to_owned_type()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -848,7 +786,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("Dead End", owner.Address!.Street);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_non_virtual_collection_of_owned_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -861,7 +799,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(owner.Addresses!);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_virtual_collection_of_owned_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -874,7 +812,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, owner.Addresses!.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_non_virtual_collection_of_owned_types_with_explicit_lazy_load()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -887,7 +825,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(owner.Addresses);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_virtual_collection_of_owned_types_with_explicit_lazy_load()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -901,7 +839,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
     }
 
     // Tests issue https://github.com/dotnet/efcore/issues/19847 (non-virtual)
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_reference_to_owned_type_to_null_is_allowed_on_non_virtual_navigation()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -919,7 +857,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
     }
 
     // Tests issue https://github.com/dotnet/efcore/issues/19847 (virtual)
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_reference_to_owned_type_to_null_is_allowed_on_virtual_navigation()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -936,7 +874,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(owner.Address);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_one_to_one_reference_to_principal_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -953,7 +891,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.SingleParent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_one_to_many_reference_to_principal_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -970,7 +908,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.CollectionParent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_reference_to_dependent_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -987,7 +925,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Child);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_collection_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -1004,12 +942,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(parent.Children);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1046,12 +980,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1089,12 +1019,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_changed_non_found_FK(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1176,12 +1102,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_changed_found_FK(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1261,12 +1183,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_not_found(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1304,12 +1222,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_not_found(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1347,12 +1261,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_not_found(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1391,12 +1301,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_not_found(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1435,22 +1341,14 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
-    [InlineData(EntityState.Added, CascadeTiming.Never)]
-    [InlineData(EntityState.Modified, CascadeTiming.Never)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Never)]
-    [InlineData(EntityState.Detached, CascadeTiming.Never)]
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges), InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges), InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate), InlineData(EntityState.Added, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate), InlineData(EntityState.Deleted, CascadeTiming.Immediate),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, CascadeTiming.Never),
+     InlineData(EntityState.Added, CascadeTiming.Never), InlineData(EntityState.Modified, CascadeTiming.Never),
+     InlineData(EntityState.Deleted, CascadeTiming.Never), InlineData(EntityState.Detached, CascadeTiming.Never)]
     public virtual void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1497,12 +1395,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_already_partially_loaded(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -1547,9 +1441,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(QueryTrackingBehavior.NoTracking)]
-    [InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [Theory, InlineData(QueryTrackingBehavior.NoTracking), InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_partially_loaded_no_tracking(QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -1592,19 +1484,13 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
-    [InlineData(EntityState.Added, CascadeTiming.Never)]
-    [InlineData(EntityState.Modified, CascadeTiming.Never)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Never)]
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges), InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges), InlineData(EntityState.Unchanged, CascadeTiming.Immediate),
+     InlineData(EntityState.Added, CascadeTiming.Immediate), InlineData(EntityState.Modified, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, CascadeTiming.Never),
+     InlineData(EntityState.Added, CascadeTiming.Never), InlineData(EntityState.Modified, CascadeTiming.Never),
+     InlineData(EntityState.Deleted, CascadeTiming.Never)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded(
         EntityState state,
         CascadeTiming cascadeDeleteTiming)
@@ -1654,12 +1540,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_already_loaded(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1705,19 +1587,13 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
-    [InlineData(EntityState.Added, CascadeTiming.Never)]
-    [InlineData(EntityState.Modified, CascadeTiming.Never)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Never)]
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges), InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges), InlineData(EntityState.Unchanged, CascadeTiming.Immediate),
+     InlineData(EntityState.Added, CascadeTiming.Immediate), InlineData(EntityState.Modified, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, CascadeTiming.Never),
+     InlineData(EntityState.Added, CascadeTiming.Never), InlineData(EntityState.Modified, CascadeTiming.Never),
+     InlineData(EntityState.Deleted, CascadeTiming.Never)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
         EntityState state,
         CascadeTiming cascadeDeleteTiming)
@@ -1777,12 +1653,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1828,12 +1700,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1879,12 +1747,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_alternate_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1939,12 +1803,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_alternate_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -1999,12 +1859,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_alternate_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2044,12 +1900,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2080,12 +1932,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2117,12 +1965,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_shadow_fk(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2152,12 +1996,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_shadow_fk(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2215,12 +2055,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_shadow_fk(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2278,12 +2114,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_shadow_fk(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2323,12 +2155,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2360,12 +2188,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2398,12 +2222,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_composite_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2433,12 +2253,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_composite_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2493,12 +2309,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_composite_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2553,12 +2365,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_composite_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2598,12 +2406,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2635,12 +2439,8 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Detached)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
     {
         using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
@@ -2673,7 +2473,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_collection_for_detached_is_no_op()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2684,7 +2484,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Children);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_principal_for_detached_is_no_op()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2695,7 +2495,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_dependent_for_detached_is_no_op()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2706,7 +2506,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Single);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_collection_for_no_tracking_does_not_throw_if_populated()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2719,7 +2519,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(parent.Children);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_principal_for_no_tracking_does_not_throw_if_populated()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2732,7 +2532,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_dependent_for_no_tracking_does_not_throw_if_populated()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2745,15 +2545,9 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false), InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection(EntityState state, bool async)
     {
         using var context = CreateContext(tracking: state != EntityState.Detached);
@@ -2790,12 +2584,12 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_serialize_proxies_to_JSON()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
 
-        var blogs = context.Set<Blog>().OrderBy(e => e.Host!.HostName).ToList();
+        var blogs = context.Set<Blog>().OrderBy(e => e.Id).ToList();
 
         VerifyBlogs(blogs);
         foreach (var blog in blogs)
@@ -2834,6 +2628,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         VerifyBlogs(newBlogs);
     }
 
+    // TODO: Complex types on owned types, #33170
     protected virtual string SerializedBlogs2
         => """
 {
@@ -2846,195 +2641,18 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         "$id": "3",
         "FirstName": "firstNameWriter0",
         "LastName": "lastNameWriter0",
-        "Alive": false,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "4",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "5",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "6",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "7",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "8",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "9",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "10",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Alive": false
       },
       "Reader": {
-        "$id": "11",
+        "$id": "4",
         "FirstName": "firstNameReader0",
         "LastName": "lastNameReader0",
-        "Alive": false,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "12",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "13",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "14",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "15",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "16",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "17",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "18",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Alive": false
       },
       "Host": {
-        "$id": "19",
+        "$id": "5",
         "HostName": "127.0.0.1",
-        "Rating": 0,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "20",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "21",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "22",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "23",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "24",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "25",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "26",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Rating": 0
       },
       "Culture": {
         "Species": "S1",
@@ -3042,11 +2660,11 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         "Rating": 8,
         "Validation": false,
         "Manufacturer": {
-          "$id": "27",
+          "$id": "6",
           "Name": "M1",
           "Rating": 7,
           "Tag": {
-            "$id": "28",
+            "$id": "7",
             "Text": "Ta2"
           },
           "Tog": {
@@ -3057,7 +2675,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
           "Title": "Ti1",
           "Charge": 1.00,
           "Tag": {
-            "$id": "29",
+            "$id": "8",
             "Text": "Ta1"
           },
           "Tog": {
@@ -3066,17 +2684,17 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
       },
       "Milk": {
-        "$id": "30",
+        "$id": "9",
         "Species": "S1",
         "Subspecies": null,
         "Rating": 8,
         "Validation": false,
         "Manufacturer": {
-          "$id": "31",
+          "$id": "10",
           "Name": "M1",
           "Rating": 7,
           "Tag": {
-            "$id": "32",
+            "$id": "11",
             "Text": "Ta2"
           },
           "Tog": {
@@ -3087,7 +2705,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
           "Title": "Ti1",
           "Charge": 1.00,
           "Tag": {
-            "$id": "33",
+            "$id": "12",
             "Text": "Ta1"
           },
           "Tog": {
@@ -3097,201 +2715,24 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
       }
     },
     {
-      "$id": "34",
+      "$id": "13",
       "Id": 2,
       "Writer": {
-        "$id": "35",
+        "$id": "14",
         "FirstName": "firstNameWriter1",
         "LastName": "lastNameWriter1",
-        "Alive": false,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "36",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "37",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "38",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "39",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "40",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "41",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "42",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Alive": false
       },
       "Reader": {
-        "$id": "43",
+        "$id": "15",
         "FirstName": "firstNameReader1",
         "LastName": "lastNameReader1",
-        "Alive": false,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "44",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "45",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "46",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "47",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "48",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "49",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "50",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Alive": false
       },
       "Host": {
-        "$id": "51",
+        "$id": "16",
         "HostName": "127.0.0.2",
-        "Rating": 0,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "52",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "53",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "54",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "55",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "56",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "57",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "58",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Rating": 0
       },
       "Culture": {
         "Species": "S1",
@@ -3299,11 +2740,11 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         "Rating": 8,
         "Validation": false,
         "Manufacturer": {
-          "$id": "59",
+          "$id": "17",
           "Name": "M1",
           "Rating": 7,
           "Tag": {
-            "$id": "60",
+            "$id": "18",
             "Text": "Ta2"
           },
           "Tog": {
@@ -3314,7 +2755,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
           "Title": "Ti1",
           "Charge": 1.00,
           "Tag": {
-            "$id": "61",
+            "$id": "19",
             "Text": "Ta1"
           },
           "Tog": {
@@ -3323,17 +2764,17 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
       },
       "Milk": {
-        "$id": "62",
+        "$id": "20",
         "Species": "S1",
         "Subspecies": null,
         "Rating": 8,
         "Validation": false,
         "Manufacturer": {
-          "$id": "63",
+          "$id": "21",
           "Name": "M1",
           "Rating": 7,
           "Tag": {
-            "$id": "64",
+            "$id": "22",
             "Text": "Ta2"
           },
           "Tog": {
@@ -3344,7 +2785,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
           "Title": "Ti1",
           "Charge": 1.00,
           "Tag": {
-            "$id": "65",
+            "$id": "23",
             "Text": "Ta1"
           },
           "Tog": {
@@ -3354,201 +2795,24 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
       }
     },
     {
-      "$id": "66",
+      "$id": "24",
       "Id": 3,
       "Writer": {
-        "$id": "67",
+        "$id": "25",
         "FirstName": "firstNameWriter2",
         "LastName": "lastNameWriter2",
-        "Alive": false,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "68",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "69",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "70",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "71",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "72",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "73",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "74",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Alive": false
       },
       "Reader": {
-        "$id": "75",
+        "$id": "26",
         "FirstName": "firstNameReader2",
         "LastName": "lastNameReader2",
-        "Alive": false,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "76",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "77",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "78",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "79",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "80",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "81",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "82",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Alive": false
       },
       "Host": {
-        "$id": "83",
+        "$id": "27",
         "HostName": "127.0.0.3",
-        "Rating": 0,
-        "Culture": {
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "84",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "85",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "86",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        },
-        "Milk": {
-          "$id": "87",
-          "Species": "S1",
-          "Subspecies": null,
-          "Rating": 8,
-          "Validation": false,
-          "Manufacturer": {
-            "$id": "88",
-            "Name": "M1",
-            "Rating": 7,
-            "Tag": {
-              "$id": "89",
-              "Text": "Ta2"
-            },
-            "Tog": {
-              "Text": "To2"
-            }
-          },
-          "License": {
-            "Title": "Ti1",
-            "Charge": 1.00,
-            "Tag": {
-              "$id": "90",
-              "Text": "Ta1"
-            },
-            "Tog": {
-              "Text": "To1"
-            }
-          }
-        }
+        "Rating": 0
       },
       "Culture": {
         "Species": "S1",
@@ -3556,11 +2820,11 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         "Rating": 8,
         "Validation": false,
         "Manufacturer": {
-          "$id": "91",
+          "$id": "28",
           "Name": "M1",
           "Rating": 7,
           "Tag": {
-            "$id": "92",
+            "$id": "29",
             "Text": "Ta2"
           },
           "Tog": {
@@ -3571,7 +2835,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
           "Title": "Ti1",
           "Charge": 1.00,
           "Tag": {
-            "$id": "93",
+            "$id": "30",
             "Text": "Ta1"
           },
           "Tog": {
@@ -3580,17 +2844,17 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
       },
       "Milk": {
-        "$id": "94",
+        "$id": "31",
         "Species": "S1",
         "Subspecies": null,
         "Rating": 8,
         "Validation": false,
         "Manufacturer": {
-          "$id": "95",
+          "$id": "32",
           "Name": "M1",
           "Rating": 7,
           "Tag": {
-            "$id": "96",
+            "$id": "33",
             "Text": "Ta2"
           },
           "Tog": {
@@ -3601,7 +2865,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
           "Title": "Ti1",
           "Charge": 1.00,
           "Tag": {
-            "$id": "97",
+            "$id": "34",
             "Text": "Ta1"
           },
           "Tog": {
@@ -3614,177 +2878,22 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
 }
 """;
 
+    // TODO: Complex types on owned types, #33170
     protected virtual string SerializedBlogs1
         => """
 [
   {
     "Writer": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "FirstName": "firstNameWriter0",
       "LastName": "lastNameWriter0",
       "Alive": false
     },
     "Reader": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "FirstName": "firstNameReader0",
       "LastName": "lastNameReader0",
       "Alive": false
     },
     "Host": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "HostName": "127.0.0.1",
       "Rating": 0.0
     },
@@ -3844,172 +2953,16 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
   },
   {
     "Writer": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "FirstName": "firstNameWriter1",
       "LastName": "lastNameWriter1",
       "Alive": false
     },
     "Reader": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "FirstName": "firstNameReader1",
       "LastName": "lastNameReader1",
       "Alive": false
     },
     "Host": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "HostName": "127.0.0.2",
       "Rating": 0.0
     },
@@ -4069,172 +3022,16 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
   },
   {
     "Writer": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "FirstName": "firstNameWriter2",
       "LastName": "lastNameWriter2",
       "Alive": false
     },
     "Reader": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "FirstName": "firstNameReader2",
       "LastName": "lastNameReader2",
       "Alive": false
     },
     "Host": {
-      "Culture": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
-      "Milk": {
-        "Species": "S1",
-        "Subspecies": null,
-        "Rating": 8,
-        "Validation": false,
-        "Manufacturer": {
-          "Name": "M1",
-          "Rating": 7,
-          "Tag": {
-            "Text": "Ta2"
-          },
-          "Tog": {
-            "Text": "To2"
-          }
-        },
-        "License": {
-          "Title": "Ti1",
-          "Charge": 1.00,
-          "Tag": {
-            "Text": "Ta1"
-          },
-          "Tog": {
-            "Text": "To1"
-          }
-        }
-      },
       "HostName": "127.0.0.3",
       "Rating": 0.0
     },
@@ -4295,7 +3092,1470 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
 ]
 """;
 
-    [ConditionalFact]
+    // TODO: Complex types on owned types, #33170
+//     protected virtual string SerializedBlogs2
+//         => """
+// {
+//   "$id": "1",
+//   "$values": [
+//     {
+//       "$id": "2",
+//       "Id": 1,
+//       "Writer": {
+//         "$id": "3",
+//         "FirstName": "firstNameWriter0",
+//         "LastName": "lastNameWriter0",
+//         "Alive": false,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "4",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "5",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "6",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "7",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "8",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "9",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "10",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Reader": {
+//         "$id": "11",
+//         "FirstName": "firstNameReader0",
+//         "LastName": "lastNameReader0",
+//         "Alive": false,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "12",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "13",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "14",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "15",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "16",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "17",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "18",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Host": {
+//         "$id": "19",
+//         "HostName": "127.0.0.1",
+//         "Rating": 0,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "20",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "21",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "22",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "23",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "24",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "25",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "26",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "$id": "27",
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "$id": "28",
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "$id": "29",
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "$id": "30",
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "$id": "31",
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "$id": "32",
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "$id": "33",
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       }
+//     },
+//     {
+//       "$id": "34",
+//       "Id": 2,
+//       "Writer": {
+//         "$id": "35",
+//         "FirstName": "firstNameWriter1",
+//         "LastName": "lastNameWriter1",
+//         "Alive": false,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "36",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "37",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "38",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "39",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "40",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "41",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "42",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Reader": {
+//         "$id": "43",
+//         "FirstName": "firstNameReader1",
+//         "LastName": "lastNameReader1",
+//         "Alive": false,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "44",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "45",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "46",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "47",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "48",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "49",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "50",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Host": {
+//         "$id": "51",
+//         "HostName": "127.0.0.2",
+//         "Rating": 0,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "52",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "53",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "54",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "55",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "56",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "57",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "58",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "$id": "59",
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "$id": "60",
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "$id": "61",
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "$id": "62",
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "$id": "63",
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "$id": "64",
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "$id": "65",
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       }
+//     },
+//     {
+//       "$id": "66",
+//       "Id": 3,
+//       "Writer": {
+//         "$id": "67",
+//         "FirstName": "firstNameWriter2",
+//         "LastName": "lastNameWriter2",
+//         "Alive": false,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "68",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "69",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "70",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "71",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "72",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "73",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "74",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Reader": {
+//         "$id": "75",
+//         "FirstName": "firstNameReader2",
+//         "LastName": "lastNameReader2",
+//         "Alive": false,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "76",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "77",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "78",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "79",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "80",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "81",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "82",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Host": {
+//         "$id": "83",
+//         "HostName": "127.0.0.3",
+//         "Rating": 0,
+//         "Culture": {
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "84",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "85",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "86",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         },
+//         "Milk": {
+//           "$id": "87",
+//           "Species": "S1",
+//           "Subspecies": null,
+//           "Rating": 8,
+//           "Validation": false,
+//           "Manufacturer": {
+//             "$id": "88",
+//             "Name": "M1",
+//             "Rating": 7,
+//             "Tag": {
+//               "$id": "89",
+//               "Text": "Ta2"
+//             },
+//             "Tog": {
+//               "Text": "To2"
+//             }
+//           },
+//           "License": {
+//             "Title": "Ti1",
+//             "Charge": 1.00,
+//             "Tag": {
+//               "$id": "90",
+//               "Text": "Ta1"
+//             },
+//             "Tog": {
+//               "Text": "To1"
+//             }
+//           }
+//         }
+//       },
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "$id": "91",
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "$id": "92",
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "$id": "93",
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "$id": "94",
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "$id": "95",
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "$id": "96",
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "$id": "97",
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       }
+//     }
+//   ]
+// }
+// """;
+
+    // TODO: Complex types on owned types, #33170
+//     protected virtual string SerializedBlogs1
+//         => """
+// [
+//   {
+//     "Writer": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "FirstName": "firstNameWriter0",
+//       "LastName": "lastNameWriter0",
+//       "Alive": false
+//     },
+//     "Reader": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "FirstName": "firstNameReader0",
+//       "LastName": "lastNameReader0",
+//       "Alive": false
+//     },
+//     "Host": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "HostName": "127.0.0.1",
+//       "Rating": 0.0
+//     },
+//     "Culture": {
+//       "Species": "S1",
+//       "Subspecies": null,
+//       "Rating": 8,
+//       "Validation": false,
+//       "Manufacturer": {
+//         "Name": "M1",
+//         "Rating": 7,
+//         "Tag": {
+//           "Text": "Ta2"
+//         },
+//         "Tog": {
+//           "Text": "To2"
+//         }
+//       },
+//       "License": {
+//         "Title": "Ti1",
+//         "Charge": 1.00,
+//         "Tag": {
+//           "Text": "Ta1"
+//         },
+//         "Tog": {
+//           "Text": "To1"
+//         }
+//       }
+//     },
+//     "Milk": {
+//       "Species": "S1",
+//       "Subspecies": null,
+//       "Rating": 8,
+//       "Validation": false,
+//       "Manufacturer": {
+//         "Name": "M1",
+//         "Rating": 7,
+//         "Tag": {
+//           "Text": "Ta2"
+//         },
+//         "Tog": {
+//           "Text": "To2"
+//         }
+//       },
+//       "License": {
+//         "Title": "Ti1",
+//         "Charge": 1.00,
+//         "Tag": {
+//           "Text": "Ta1"
+//         },
+//         "Tog": {
+//           "Text": "To1"
+//         }
+//       }
+//     },
+//     "Id": 1
+//   },
+//   {
+//     "Writer": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "FirstName": "firstNameWriter1",
+//       "LastName": "lastNameWriter1",
+//       "Alive": false
+//     },
+//     "Reader": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "FirstName": "firstNameReader1",
+//       "LastName": "lastNameReader1",
+//       "Alive": false
+//     },
+//     "Host": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "HostName": "127.0.0.2",
+//       "Rating": 0.0
+//     },
+//     "Culture": {
+//       "Species": "S1",
+//       "Subspecies": null,
+//       "Rating": 8,
+//       "Validation": false,
+//       "Manufacturer": {
+//         "Name": "M1",
+//         "Rating": 7,
+//         "Tag": {
+//           "Text": "Ta2"
+//         },
+//         "Tog": {
+//           "Text": "To2"
+//         }
+//       },
+//       "License": {
+//         "Title": "Ti1",
+//         "Charge": 1.00,
+//         "Tag": {
+//           "Text": "Ta1"
+//         },
+//         "Tog": {
+//           "Text": "To1"
+//         }
+//       }
+//     },
+//     "Milk": {
+//       "Species": "S1",
+//       "Subspecies": null,
+//       "Rating": 8,
+//       "Validation": false,
+//       "Manufacturer": {
+//         "Name": "M1",
+//         "Rating": 7,
+//         "Tag": {
+//           "Text": "Ta2"
+//         },
+//         "Tog": {
+//           "Text": "To2"
+//         }
+//       },
+//       "License": {
+//         "Title": "Ti1",
+//         "Charge": 1.00,
+//         "Tag": {
+//           "Text": "Ta1"
+//         },
+//         "Tog": {
+//           "Text": "To1"
+//         }
+//       }
+//     },
+//     "Id": 2
+//   },
+//   {
+//     "Writer": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "FirstName": "firstNameWriter2",
+//       "LastName": "lastNameWriter2",
+//       "Alive": false
+//     },
+//     "Reader": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "FirstName": "firstNameReader2",
+//       "LastName": "lastNameReader2",
+//       "Alive": false
+//     },
+//     "Host": {
+//       "Culture": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "Milk": {
+//         "Species": "S1",
+//         "Subspecies": null,
+//         "Rating": 8,
+//         "Validation": false,
+//         "Manufacturer": {
+//           "Name": "M1",
+//           "Rating": 7,
+//           "Tag": {
+//             "Text": "Ta2"
+//           },
+//           "Tog": {
+//             "Text": "To2"
+//           }
+//         },
+//         "License": {
+//           "Title": "Ti1",
+//           "Charge": 1.00,
+//           "Tag": {
+//             "Text": "Ta1"
+//           },
+//           "Tog": {
+//             "Text": "To1"
+//           }
+//         }
+//       },
+//       "HostName": "127.0.0.3",
+//       "Rating": 0.0
+//     },
+//     "Culture": {
+//       "Species": "S1",
+//       "Subspecies": null,
+//       "Rating": 8,
+//       "Validation": false,
+//       "Manufacturer": {
+//         "Name": "M1",
+//         "Rating": 7,
+//         "Tag": {
+//           "Text": "Ta2"
+//         },
+//         "Tog": {
+//           "Text": "To2"
+//         }
+//       },
+//       "License": {
+//         "Title": "Ti1",
+//         "Charge": 1.00,
+//         "Tag": {
+//           "Text": "Ta1"
+//         },
+//         "Tog": {
+//           "Text": "To1"
+//         }
+//       }
+//     },
+//     "Milk": {
+//       "Species": "S1",
+//       "Subspecies": null,
+//       "Rating": 8,
+//       "Validation": false,
+//       "Manufacturer": {
+//         "Name": "M1",
+//         "Rating": 7,
+//         "Tag": {
+//           "Text": "Ta2"
+//         },
+//         "Tog": {
+//           "Text": "To2"
+//         }
+//       },
+//       "License": {
+//         "Title": "Ti1",
+//         "Charge": 1.00,
+//         "Tag": {
+//           "Text": "Ta1"
+//         },
+//         "Tog": {
+//           "Text": "To1"
+//         }
+//       }
+//     },
+//     "Id": 3
+//   }
+// ]
+// """;
+
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_already_loaded_owned_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4320,7 +4580,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4333,7 +4593,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(12, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_opaque_predicate_and_multiple_queries()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4351,7 +4611,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(12, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4364,33 +4624,33 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
-    public virtual void Lazy_loading_shares_service__property_on_derived_types()
+    [Fact]
+    public virtual void Lazy_loading_shares_service_property_on_derived_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
         var parson = context.Set<Parson>().Single();
 
         Assert.Equal(2, parson.ParsonNoses!.Count);
         Assert.Equal(
-            new[] { "Large", "Medium" },
+            ["Large", "Medium"],
             parson.ParsonNoses.Select(b => b.Size).OrderBy(h => h));
 
         var company = context.Set<Company>().Single();
 
         Assert.Equal(2, company.CompanyNoses!.Count);
         Assert.Equal(
-            new[] { "Large", "Small" },
+            ["Large", "Small"],
             company.CompanyNoses.Select(b => b.Size).OrderBy(h => h));
 
-        var entity = context.Set<Entity>().ToList().Except(new Entity[] { parson, company }).Single();
+        var entity = context.Set<Entity>().ToList().Except([parson, company]).Single();
 
         Assert.Equal(3, entity.BaseNoses!.Count);
         Assert.Equal(
-            new[] { "Large", "Medium", "Small" },
+            ["Large", "Medium", "Small"],
             entity.BaseNoses.Select(b => b.Size).OrderBy(h => h));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_handles_shadow_nullable_GUID_FK_in_TPH_model()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4402,7 +4662,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(new DateTime(1973, 9, 3), ((Quest)tribes[0]).Birthday);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_alternate_model()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4424,7 +4684,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Same(address, person.Address);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Top_level_projection_track_entities_before_passing_to_client_method()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4437,9 +4697,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.NotNull(((dynamic)query!).Single);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Entity_equality_with_proxy_parameter(bool async)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4809,8 +5067,9 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         public string? LastName { get; set; }
         public bool Alive { get; set; }
 
-        public virtual Culture Culture { get; set; }
-        public virtual Milk Milk { get; set; } = null!;
+        // TODO: Complex types on owned types, #33170
+        // public virtual Culture Culture { get; set; }
+        // public virtual Milk Milk { get; set; } = null!;
     }
 
     public class Entity
@@ -4840,8 +5099,9 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         public string? HostName { get; set; }
         public double Rating { get; set; }
 
-        public virtual Culture Culture { get; set; }
-        public virtual Milk Milk { get; set; } = null!;
+        // TODO: Complex types on owned types, #33170
+        // public virtual Culture Culture { get; set; }
+        // public virtual Milk Milk { get; set; } = null!;
     }
 
     public abstract class Tribe
@@ -5055,133 +5315,124 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
             modelBuilder.Entity<SingleShadowFk>()
                 .Property<int?>("ParentId");
 
-            modelBuilder.Entity<Parent>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
 
-                    b.HasMany(e => e.Children)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId);
+                b.HasMany(e => e.Children)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId);
 
-                    b.HasOne(e => e.SinglePkToPk)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey<SinglePkToPk>(e => e.Id)
-                        .IsRequired();
+                b.HasOne(e => e.SinglePkToPk)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey<SinglePkToPk>(e => e.Id)
+                    .IsRequired();
 
-                    b.HasOne(e => e.Single)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey<Single>(e => e.ParentId);
+                b.HasOne(e => e.Single)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey<Single>(e => e.ParentId);
 
-                    b.HasMany(e => e.ChildrenAk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId);
+                b.HasMany(e => e.ChildrenAk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId);
 
-                    b.HasOne(e => e.SingleAk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey<Parent>(e => e.AlternateId)
-                        .HasForeignKey<SingleAk>(e => e.ParentId);
+                b.HasOne(e => e.SingleAk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey<Parent>(e => e.AlternateId)
+                    .HasForeignKey<SingleAk>(e => e.ParentId);
 
-                    b.HasMany(e => e.ChildrenShadowFk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.Id)
-                        .HasForeignKey("ParentId");
+                b.HasMany(e => e.ChildrenShadowFk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.Id)
+                    .HasForeignKey("ParentId");
 
-                    b.HasOne(e => e.SingleShadowFk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey<Parent>(e => e.Id)
-                        .HasForeignKey<SingleShadowFk>("ParentId");
+                b.HasOne(e => e.SingleShadowFk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey<Parent>(e => e.Id)
+                    .HasForeignKey<SingleShadowFk>("ParentId");
 
-                    b.HasMany(e => e.ChildrenCompositeKey)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(
-                            e => new { e.AlternateId, e.Id })
-                        .HasForeignKey(
-                            e => new { e.ParentAlternateId, e.ParentId });
+                b.HasMany(e => e.ChildrenCompositeKey)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => new { e.AlternateId, e.Id })
+                    .HasForeignKey(e => new { e.ParentAlternateId, e.ParentId });
 
-                    b.HasOne(e => e.SingleCompositeKey)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey<Parent>(
-                            e => new { e.AlternateId, e.Id })
-                        .HasForeignKey<SingleCompositeKey>(
-                            e => new { e.ParentAlternateId, e.ParentId });
+                b.HasOne(e => e.SingleCompositeKey)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey<Parent>(e => new { e.AlternateId, e.Id })
+                    .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
 
-                    b.HasMany(e => e.ManyChildren).WithMany(e => e.ManyParents);
-                });
+                b.HasMany(e => e.ManyChildren).WithMany(e => e.ManyParents);
+            });
 
             modelBuilder.Entity<Mother>();
             modelBuilder.Entity<Father>();
 
-            modelBuilder.Entity<Blog>(
-                e =>
-                {
-                    e.OwnsOne(x => x.Writer);
-                    e.OwnsOne(x => x.Reader);
-                    e.OwnsOne(x => x.Host);
-                });
+            modelBuilder.Entity<Blog>(e =>
+            {
+                e.OwnsOne(x => x.Writer);
+                e.OwnsOne(x => x.Reader);
+                e.OwnsOne(x => x.Host);
+            });
 
-            modelBuilder.Entity<Address>(
-                builder =>
-                {
-                    builder.HasKey(prop => prop.AddressId);
+            modelBuilder.Entity<Address>(builder =>
+            {
+                builder.HasKey(prop => prop.AddressId);
 
-                    builder.Property(prop => prop.Line1)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                builder.Property(prop => prop.Line1)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    builder.Property(prop => prop.Line2)
-                        .IsRequired(false)
-                        .HasMaxLength(50);
-                });
+                builder.Property(prop => prop.Line2)
+                    .IsRequired(false)
+                    .HasMaxLength(50);
+            });
 
-            modelBuilder.Entity<Applicant>(
-                builder =>
-                {
-                    builder.HasKey(prop => prop.ApplicantId);
+            modelBuilder.Entity<Applicant>(builder =>
+            {
+                builder.HasKey(prop => prop.ApplicantId);
 
-                    builder.OwnsOne(
-                        prop => prop.Name, name =>
-                        {
-                            name
-                                .OwnsOne(prop => prop.FirstName)
-                                .Property("_value")
-                                .HasMaxLength(50)
-                                .IsRequired();
+                builder.OwnsOne(
+                    prop => prop.Name, name =>
+                    {
+                        name
+                            .OwnsOne(prop => prop.FirstName)
+                            .Property("_value")
+                            .HasMaxLength(50)
+                            .IsRequired();
 
-                            name
-                                .OwnsOne(prop => prop.LastName)
-                                .Property("_value")
-                                .HasMaxLength(50)
-                                .IsRequired();
-                        });
-                });
+                        name
+                            .OwnsOne(prop => prop.LastName)
+                            .Property("_value")
+                            .HasMaxLength(50)
+                            .IsRequired();
+                    });
+            });
 
-            modelBuilder.Entity<Pyrson>(
-                builder =>
-                {
-                    builder.HasKey(prop => prop.PyrsonId);
+            modelBuilder.Entity<Pyrson>(builder =>
+            {
+                builder.HasKey(prop => prop.PyrsonId);
 
-                    builder.OwnsOne(
-                        prop => prop.Name, name =>
-                        {
-                            name
-                                .OwnsOne(prop => prop.FirstName)
-                                .Property("_value")
-                                .HasMaxLength(50)
-                                .IsRequired();
+                builder.OwnsOne(
+                    prop => prop.Name, name =>
+                    {
+                        name
+                            .OwnsOne(prop => prop.FirstName)
+                            .Property("_value")
+                            .HasMaxLength(50)
+                            .IsRequired();
 
-                            name
-                                .OwnsOne(prop => prop.LastName)
-                                .Property("_value")
-                                .HasMaxLength(50)
-                                .IsRequired();
-                        });
+                        name
+                            .OwnsOne(prop => prop.LastName)
+                            .Property("_value")
+                            .HasMaxLength(50)
+                            .IsRequired();
+                    });
 
-                    builder.HasOne(prop => prop.Address)
-                        .WithOne()
-                        .HasForeignKey<Address>(prop => prop.PyrsonId);
-                });
+                builder.HasOne(prop => prop.Address)
+                    .WithOne()
+                    .HasForeignKey<Address>(prop => prop.PyrsonId);
+            });
 
             modelBuilder.Entity<NonVirtualOneToOneOwner>();
             modelBuilder.Entity<VirtualOneToOneOwner>();
@@ -5197,12 +5448,11 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
             modelBuilder.Entity<ExplicitLazyLoadVirtualOneToManyOwner>()
                 .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
 
-            modelBuilder.Entity<NonVirtualParent>(
-                b =>
-                {
-                    b.HasOne(e => e.Child).WithOne(e => e.SingleParent).HasPrincipalKey<NonVirtualChild>();
-                    b.HasMany(e => e.Children).WithOne(e => e.CollectionParent);
-                });
+            modelBuilder.Entity<NonVirtualParent>(b =>
+            {
+                b.HasOne(e => e.Child).WithOne(e => e.SingleParent).HasPrincipalKey<NonVirtualChild>();
+                b.HasMany(e => e.Children).WithOne(e => e.CollectionParent);
+            });
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -5342,21 +5592,24 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
                     {
                         FirstName = "firstNameWriter0",
                         LastName = "lastNameWriter0",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Reader = new Person
                     {
                         FirstName = "firstNameReader0",
                         LastName = "lastNameReader0",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Host = new Host
                     {
                         HostName = "127.0.0.1",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Culture = CreateCulture(),
                     Milk = CreateMilk()
@@ -5369,21 +5622,24 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
                     {
                         FirstName = "firstNameWriter1",
                         LastName = "lastNameWriter1",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Reader = new Person
                     {
                         FirstName = "firstNameReader1",
                         LastName = "lastNameReader1",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Host = new Host
                     {
                         HostName = "127.0.0.2",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Culture = CreateCulture(),
                     Milk = CreateMilk()
@@ -5396,21 +5652,24 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
                     {
                         FirstName = "firstNameWriter2",
                         LastName = "lastNameWriter2",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Reader = new Person
                     {
                         FirstName = "firstNameReader2",
                         LastName = "lastNameReader2",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Host = new Host
                     {
                         HostName = "127.0.0.3",
-                        Culture = CreateCulture(),
-                        Milk = CreateMilk()
+                        // TODO: Complex types on owned types, #33170
+                        // Culture = CreateCulture(),
+                        // Milk = CreateMilk()
                     },
                     Culture = CreateCulture(),
                     Milk = CreateMilk()
@@ -5506,7 +5765,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
                 new NonVirtualOneToManyOwner
                 {
                     Id = 300,
-                    Addresses = new List<OwnedAddress> { new() { Street = "4 Privet Drive", PostalCode = "SURREY" } },
+                    Addresses = [new() { Street = "4 Privet Drive", PostalCode = "SURREY" }],
                     Culture = CreateCulture(),
                     Milk = CreateMilk()
                 });
@@ -5515,12 +5774,12 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
                 new VirtualOneToManyOwner
                 {
                     Id = 400,
-                    Addresses = new List<OwnedAddress>
-                    {
+                    Addresses =
+                    [
                         new() { Street = "The Ministry", PostalCode = "MAG1C" },
                         new() { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
                         new() { Street = "Shell Cottage", PostalCode = "THE SEA" }
-                    },
+                    ],
                     Culture = CreateCulture(),
                     Milk = CreateMilk()
                 });
@@ -5553,15 +5812,15 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
                         Culture = CreateCulture(),
                         Milk = CreateMilk()
                     },
-                    Children = new List<NonVirtualChild>
-                    {
+                    Children =
+                    [
                         new()
                         {
                             Id = 101,
                             Culture = CreateCulture(),
                             Milk = CreateMilk()
                         }
-                    },
+                    ],
                     Culture = CreateCulture(),
                     Milk = CreateMilk()
                 });

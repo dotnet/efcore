@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionSqlServerTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionSqlServerTest.SqlServerLibraryContext>
+public class MaterializationInterceptionSqlServerTest(NonSharedFixture fixture) :
+    MaterializationInterceptionTestBase<MaterializationInterceptionSqlServerTest.SqlServerLibraryContext>(fixture)
 {
     public class SqlServerLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
@@ -16,6 +16,10 @@ public class MaterializationInterceptionSqlServerTest :
         }
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 }

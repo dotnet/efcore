@@ -58,6 +58,13 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <summary>
     ///     Generates code to create the given annotations.
     /// </summary>
+    /// <param name="elementType">The element type to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Generate(IElementType elementType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
     /// <param name="key">The key to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(IKey key, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
@@ -121,15 +128,9 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// </summary>
     /// <param name="typeMapping">The type mapping to create.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
-    /// <param name="valueComparer">The value comparer that should be used instead of the one in the type mapping.</param>
-    /// <param name="keyValueComparer">The key value comparer that should be used instead of the one in the type mapping.</param>
-    /// <param name="providerValueComparer">The provider value comparer that should be used instead of the one in the type mapping.</param>
     bool Create(
         CoreTypeMapping typeMapping,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-        ValueComparer? valueComparer = null,
-        ValueComparer? keyValueComparer = null,
-        ValueComparer? providerValueComparer = null);
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
     /// <summary>
     ///     Generates code to create the given value comparer.

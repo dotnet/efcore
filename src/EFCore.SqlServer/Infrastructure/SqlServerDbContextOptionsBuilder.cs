@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
@@ -13,8 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
-public class SqlServerDbContextOptionsBuilder
-    : RelationalDbContextOptionsBuilder<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
+public class SqlServerDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilderBase<SqlServerDbContextOptionsBuilder>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqlServerDbContextOptionsBuilder" /> class.
@@ -107,7 +104,7 @@ public class SqlServerDbContextOptionsBuilder
 
     /// <summary>
     ///     Sets the SQL Server compatibility level that EF Core will use when interacting with the database. This allows configuring EF
-    ///     Core to work with older (or newer) versions of SQL Server. Defaults to <c>150</c> (SQL Server 2019).
+    ///     Core to work with older (or newer) versions of SQL Server. Defaults to <c>160</c> (SQL Server 2022).
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -117,15 +114,8 @@ public class SqlServerDbContextOptionsBuilder
     ///     </see>
     ///     for more information and examples.
     /// </remarks>
-    /// <param name="compatibilityLevel"><see langword="false" /> to have null resource</param>
+    /// <param name="compatibilityLevel">The compatibility level to use for the database.</param>
     public virtual SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)
         => WithOption(e => e.WithSqlServerCompatibilityLevel(compatibilityLevel));
 
-    /// <summary>
-    ///     Configures the context to use defaults optimized for Azure SQL, including retries on errors.
-    /// </summary>
-    /// <param name="enable">Whether the defaults should be enabled.</param>
-    [Obsolete("Use UseAzureSql instead of UseSqlServer with UseAzureSqlDefaults.")]
-    public virtual SqlServerDbContextOptionsBuilder UseAzureSqlDefaults(bool enable = true)
-        => WithOption(e => e.WithLegacyAzureSql(enable));
 }

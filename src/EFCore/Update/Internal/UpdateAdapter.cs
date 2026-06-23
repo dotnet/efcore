@@ -147,8 +147,22 @@ public class UpdateAdapter : IUpdateAdapter
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete("Use the overload that accepts a dictionary keyed by " + nameof(IProperty) + " instead.")]
     public virtual IUpdateEntry CreateEntry(
         IDictionary<string, object?> values,
+        IEntityType entityType)
+#pragma warning disable CS0618 // Type or member is obsolete
+        => _stateManager.CreateEntry(values, entityType);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IUpdateEntry CreateEntry(
+        IReadOnlyDictionary<IProperty, object?> values,
         IEntityType entityType)
         => _stateManager.CreateEntry(values, entityType);
 

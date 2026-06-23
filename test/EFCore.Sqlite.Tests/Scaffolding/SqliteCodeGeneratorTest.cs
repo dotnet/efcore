@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
@@ -7,12 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public class SqliteCodeGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Use_provider_method_is_generated_correctly()
     {
         var codeGenerator = new SqliteCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions: null);
 
@@ -23,12 +23,12 @@ public class SqliteCodeGeneratorTest
         Assert.Null(result.ChainedCall);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Use_provider_method_is_generated_correctly_with_options()
     {
         var codeGenerator = new SqliteCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var providerOptions = new MethodCallCodeFragment(_setProviderOptionMethodInfo);
 
@@ -48,12 +48,12 @@ public class SqliteCodeGeneratorTest
         Assert.Null(result.ChainedCall);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Use_provider_method_is_generated_correctly_with_NetTopologySuite()
     {
         var codeGenerator = new SqliteCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                new[] { new SqliteNetTopologySuiteCodeGeneratorPlugin() }));
+                [new SqliteNetTopologySuiteCodeGeneratorPlugin()]));
 
         var result = ((IProviderConfigurationCodeGenerator)codeGenerator).GenerateUseProvider("Data Source=Test");
 

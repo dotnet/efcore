@@ -1,14 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using NameSpace1;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class AdHocMiscellaneousQueryRelationalTestBase : AdHocMiscellaneousQueryTestBase
+    public abstract class AdHocMiscellaneousQueryRelationalTestBase(NonSharedFixture fixture) : AdHocMiscellaneousQueryTestBase(fixture)
     {
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
@@ -19,16 +20,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
 
+        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(
+            DbContextOptionsBuilder optionsBuilder,
+            ParameterTranslationMode parameterizedCollectionMode);
+
         #region 2951
 
-        [ConditionalFact]
-        public async Task Query_when_null_key_in_database_should_throw()
+        [Fact]
+        public virtual async Task Query_when_null_key_in_database_should_throw()
         {
-            var contextFactory = await InitializeAsync<Context2951>(
+            var contextFactory = await InitializeNonSharedTest<Context2951>(
                 onConfiguring: o => o.EnableDetailedErrors(),
                 seed: Seed2951);
 
-            using var context = contextFactory.CreateContext();
+            using var context = contextFactory.CreateDbContext();
 
             Assert.Equal(
                 RelationalStrings.ErrorMaterializingPropertyNullReference(nameof(Context2951.ZeroKey2951), "Id", typeof(int)),
@@ -55,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 11818
 
-        [ConditionalFact]
+        [Fact]
         public virtual async Task GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination()
         {
-            var contextFactory = await InitializeAsync<Context11818>(
+            var contextFactory = await InitializeNonSharedTest<Context11818>(
                 onConfiguring:
                 o => o.ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)));
 
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 var query = (from e in context.Set<Context11818.Entity11818>()
                              join a in context.Set<Context11818.AnotherEntity11818>()
@@ -70,14 +75,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                              from a in grouping.DefaultIfEmpty()
                              select new { ename = e.Name, aname = a.Name })
                     .GroupBy(g => g.aname)
-                    .Select(
-                        g => new { g.Key, cnt = g.Count() + 5 })
+                    .Select(g => new { g.Key, cnt = g.Count() + 5 })
                     .ToList();
 
                 Assert.Empty(query);
             }
 
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 var query = (from e in context.Set<Context11818.Entity11818>()
                              join a in context.Set<Context11818.AnotherEntity11818>()
@@ -87,16 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  on e.Id equals m.Id into grouping2
                              from m in grouping2.DefaultIfEmpty()
                              select new { aname = a.Name, mname = m.Name })
-                    .GroupBy(
-                        g => new { g.aname, g.mname })
-                    .Select(
-                        g => new { MyKey = g.Key.aname, cnt = g.Count() + 5 })
+                    .GroupBy(g => new { g.aname, g.mname })
+                    .Select(g => new { MyKey = g.Key.aname, cnt = g.Count() + 5 })
                     .ToList();
 
                 Assert.Empty(query);
             }
 
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 var query = (from e in context.Set<Context11818.Entity11818>()
                              join a in context.Set<Context11818.AnotherEntity11818>()
@@ -158,12 +160,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 23981
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
+        [Theory, MemberData(nameof(IsAsyncData))]
         public virtual async Task Multiple_different_entity_type_from_different_namespaces(bool async)
         {
-            var contextFactory = await InitializeAsync<Context23981>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<Context23981>();
+            using var context = contextFactory.CreateDbContext();
             //var good1 = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
             //var good2 = context.Set<NameSpace2.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
             var bad = context.Set<TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
@@ -191,12 +192,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 27954
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
+        [Theory, MemberData(nameof(IsAsyncData))]
         public virtual async Task StoreType_for_UDF_used(bool async)
         {
-            var contextFactory = await InitializeAsync<Context27954>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<Context27954>();
+            using var context = contextFactory.CreateDbContext();
 
             var date = new DateTime(2012, 12, 12);
             var query1 = context.Set<Context27954.MyEntity>().Where(x => x.SomeDate == date);
@@ -234,6 +234,164 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public static DateTime Modify(DateTime date)
                     => throw new NotSupportedException();
+            }
+        }
+
+        #endregion
+
+        #region 34752
+
+        [Fact]
+        public virtual async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<Context34752>())).Message;
+
+            Assert.Equal(
+                CoreStrings.PropertyNotAdded(nameof(Context34752.Entity), nameof(Context34752.Entity.Json), nameof(JsonElement)),
+                message);
+        }
+
+        protected class Context34752(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Entity> Entities { get; set; }
+
+            public class Entity
+            {
+                public int Id { get; set; }
+                public JsonElement Json { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region Inlined redacting
+
+        [Theory, MemberData(nameof(InlinedRedactingData))]
+        public virtual async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
+        {
+            var contextFactory = await InitializeNonSharedTest<InlinedRedactingContext>(
+                onConfiguring: o =>
+                {
+                    SetParameterizedCollectionMode(o, ParameterTranslationMode.Constant);
+                    o.EnableSensitiveDataLogging(enableSensitiveDataLogging);
+                });
+            using var context = contextFactory.CreateDbContext();
+
+            var id = 1;
+            var ids = new[] { id, 2, 3 };
+            var query1 = context.TestEntities.Where(x => ids.Contains(x.Id));
+            var query2 = context.TestEntities.Where(x => ids.Where(y => y == x.Id).Any());
+            var query3 = context.TestEntities.Where(x => EF.Constant(id) == x.Id);
+
+            if (async)
+            {
+                await query1.ToListAsync();
+                await query2.ToListAsync();
+                await query3.ToListAsync();
+            }
+            else
+            {
+                query1.ToList();
+                query2.ToList();
+                query3.ToList();
+            }
+        }
+
+        protected class InlinedRedactingContext(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<TestEntity> TestEntities { get; set; }
+
+            public class TestEntity
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+            }
+        }
+
+        public static readonly IEnumerable<object[]> InlinedRedactingData = [[true, true], [true, false], [false, true], [false, false]];
+
+        #endregion
+
+        #region 36311
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Entity_equality_with_Contains_and_Parameter(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context36311>(
+                onConfiguring: o => SetParameterizedCollectionMode(o, ParameterTranslationMode.Parameter));
+            using var context = contextFactory.CreateDbContext();
+
+            List<Context36311.BlogDetails> details = [new() { Id = 1 }, new() { Id = 2 }];
+            var query = context.Blogs.Where(b => details.Contains(b.Details));
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context36311(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Blog> Blogs { get; set; }
+
+            public class Blog
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+
+                public BlogDetails Details { get; set; }
+            }
+
+            public class BlogDetails
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 36247
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context36247>(
+                seed: async ctx =>
+                {
+                    ctx.Users.AddRange(
+                        new Context36247.User { Name = new Context36247.FullName("Name1") },
+                        new Context36247.User { Name = new Context36247.FullName("Name2") });
+                    await ctx.SaveChangesAsync();
+                });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Users.Where(x => EF.Functions.Like(x.Name, "Name%"));
+
+            var result = async
+                ? await query.ToListAsync()
+                : [.. query];
+
+            Assert.Equal(2, result.Count);
+        }
+
+        protected class Context36247(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<User> Users { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<User>().Property(e => e.Name)
+                    .HasConversion(v => v.Value, v => new FullName(v));
+
+            public class User
+            {
+                public int Id { get; set; }
+                public FullName Name { get; set; }
+            }
+
+            public readonly record struct FullName(string Value)
+            {
+                public static implicit operator string(FullName fullName)
+                    => fullName.Value;
             }
         }
 

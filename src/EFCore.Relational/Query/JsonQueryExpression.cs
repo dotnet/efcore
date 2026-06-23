@@ -19,19 +19,22 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="JsonQueryExpression" /> class.
     /// </summary>
-    /// <param name="entityType">An entity type being represented by this expression.</param>
-    /// <param name="jsonColumn">A column containing JSON value.</param>
-    /// <param name="keyPropertyMap">A map of key properties and columns they map to in the database.</param>
-    /// <param name="type">A type of the element represented by this expression.</param>
-    /// <param name="collection">A value indicating whether this expression represents a collection or not.</param>
+    /// <param name="structuralType">The structural type represented by this expression.</param>
+    /// <param name="jsonColumn">A column containing the JSON value.</param>
+    /// <param name="keyPropertyMap">
+    ///     For owned entities, a map of key properties and columns they map to in the database. For complex types,
+    ///     <see langword="null" />.
+    /// </param>
+    /// <param name="type">The CLR represented by this expression.</param>
+    /// <param name="collection">Whether this expression represents a collection.</param>
     public JsonQueryExpression(
-        IEntityType entityType,
+        ITypeBase structuralType,
         ColumnExpression jsonColumn,
-        IReadOnlyDictionary<IProperty, ColumnExpression> keyPropertyMap,
+        IReadOnlyDictionary<IProperty, ColumnExpression>? keyPropertyMap,
         Type type,
         bool collection)
         : this(
-            entityType,
+            structuralType,
             jsonColumn,
             keyPropertyMap,
             path: [],
@@ -41,18 +44,33 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     {
     }
 
-    private JsonQueryExpression(
-        IEntityType entityType,
+    /// <summary>
+    ///     Creates a new instance of the <see cref="JsonQueryExpression" /> class.
+    /// </summary>
+    /// <param name="structuralType">The structural type represented by this expression.</param>
+    /// <param name="jsonColumn">A column containing the JSON value.</param>
+    /// <param name="keyPropertyMap">
+    ///     For owned entities, a map of key properties and columns they map to in the database. For complex types,
+    ///     <see langword="null" />.
+    /// </param>
+    /// <param name="path">The list of path segments leading to the entity from the root of the JSON stored in the column.</param>
+    /// <param name="type">The CLR represented by this expression.</param>
+    /// <param name="collection">Whether this expression represents a collection.</param>
+    /// <param name="nullable">Whether this expression is nullable.</param>
+    public JsonQueryExpression(
+        ITypeBase structuralType,
         ColumnExpression jsonColumn,
-        IReadOnlyDictionary<IProperty, ColumnExpression> keyPropertyMap,
+        IReadOnlyDictionary<IProperty, ColumnExpression>? keyPropertyMap,
         IReadOnlyList<PathSegment> path,
         Type type,
         bool collection,
         bool nullable)
     {
-        Check.DebugAssert(entityType.FindPrimaryKey() != null, "primary key is null.");
+        Check.DebugAssert(
+            structuralType is not IEntityType entityType || entityType.FindPrimaryKey() is not null,
+            "JsonQueryExpression over keyless entity type");
 
-        EntityType = entityType;
+        StructuralType = structuralType;
         JsonColumn = jsonColumn;
         IsCollection = collection;
         KeyPropertyMap = keyPropertyMap;
@@ -62,17 +80,17 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     }
 
     /// <summary>
-    ///     The entity type being represented by this expression.
+    ///     The structural type represented by this expression.
     /// </summary>
-    public virtual IEntityType EntityType { get; }
+    public virtual ITypeBase StructuralType { get; }
 
     /// <summary>
-    ///     The column containing JSON value.
+    ///     The column containing the JSON value.
     /// </summary>
     public virtual ColumnExpression JsonColumn { get; }
 
     /// <summary>
-    ///     The value indicating whether this expression represents a collection.
+    ///     Whether this expression represents a collection.
     /// </summary>
     public virtual bool IsCollection { get; }
 
@@ -82,7 +100,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     public virtual IReadOnlyList<PathSegment> Path { get; }
 
     /// <summary>
-    ///     The value indicating whether this expression is nullable.
+    ///     Whether this expression is nullable.
     /// </summary>
     public virtual bool IsNullable { get; }
 
@@ -93,7 +111,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual IReadOnlyDictionary<IProperty, ColumnExpression> KeyPropertyMap { get; }
+    public virtual IReadOnlyDictionary<IProperty, ColumnExpression>? KeyPropertyMap { get; }
 
     /// <inheritdoc />
     public override ExpressionType NodeType
@@ -107,66 +125,104 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual SqlExpression BindProperty(IProperty property)
     {
-        if (!EntityType.IsAssignableFrom(property.DeclaringType)
-            && !property.DeclaringType.IsAssignableFrom(EntityType))
+        if (!StructuralType.IsAssignableFrom(property.DeclaringType)
+            && !property.DeclaringType.IsAssignableFrom(StructuralType))
         {
             throw new InvalidOperationException(
-                RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
+                RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, StructuralType.DisplayName()));
         }
 
-        if (KeyPropertyMap.TryGetValue(property, out var match))
+        if (KeyPropertyMap?.TryGetValue(property, out var match) == true)
         {
             return match;
         }
 
-        var newPath = Path.ToList();
-        newPath.Add(new PathSegment(property.GetJsonPropertyName()!));
+        var element = GetJsonElement(property);
 
         return new JsonScalarExpression(
             JsonColumn,
-            newPath,
+            [.. Path, new PathSegment(element.PropertyName!)],
             property.ClrType.UnwrapNullableType(),
-            property.FindRelationalTypeMapping()!,
+            element.StoreTypeMapping!,
             IsNullable || property.IsNullable);
     }
 
     /// <summary>
-    ///     Binds a navigation with this JSON query expression to get the SQL representation.
+    ///     Binds a navigation or complex property with this JSON query expression to get the SQL representation.
     /// </summary>
-    /// <param name="navigation">The navigation to bind.</param>
-    /// <returns>An JSON query expression for the target entity type of the navigation.</returns>
-    public virtual JsonQueryExpression BindNavigation(INavigation navigation)
+    /// <param name="structuralProperty">The navigation or complex property to bind.</param>
+    /// <returns>An JSON query expression for the target entity or complex type.</returns>
+    public virtual JsonQueryExpression BindStructuralProperty(IPropertyBase structuralProperty)
     {
-        if (navigation.ForeignKey.DependentToPrincipal == navigation)
+        switch (structuralProperty)
         {
-            // issue #28645
-            throw new InvalidOperationException(
-                RelationalStrings.JsonCantNavigateToParentEntity(
-                    navigation.ForeignKey.DeclaringEntityType.DisplayName(),
-                    navigation.ForeignKey.PrincipalEntityType.DisplayName(),
-                    navigation.Name));
+            case INavigation navigation:
+            {
+                if (StructuralType is not IEntityType entityType)
+                {
+                    throw new UnreachableException("Navigation on complex JSON type");
+                }
+
+                Check.DebugAssert(KeyPropertyMap is not null);
+
+                if (navigation.ForeignKey.DependentToPrincipal == navigation)
+                {
+                    // issue #28645
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonCantNavigateToParentEntity(
+                            navigation.ForeignKey.DeclaringEntityType.DisplayName(),
+                            navigation.ForeignKey.PrincipalEntityType.DisplayName(),
+                            navigation.Name));
+                }
+
+                var targetEntityType = navigation.TargetEntityType;
+                var newPath = Path.ToList();
+                newPath.Add(new PathSegment(GetJsonElement(navigation).PropertyName!));
+
+                var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
+                var targetPrimaryKeyProperties = targetEntityType.FindPrimaryKey()!.Properties.Take(KeyPropertyMap.Count);
+                var sourcePrimaryKeyProperties = entityType.FindPrimaryKey()!.Properties.Take(KeyPropertyMap.Count);
+                foreach (var (target, source) in targetPrimaryKeyProperties.Zip(sourcePrimaryKeyProperties, (t, s) => (t, s)))
+                {
+                    newKeyPropertyMap[target] = KeyPropertyMap[source];
+                }
+
+                return new JsonQueryExpression(
+                    targetEntityType,
+                    JsonColumn,
+                    newKeyPropertyMap,
+                    newPath,
+                    navigation.ClrType,
+                    navigation.IsCollection,
+                    IsNullable || !navigation.ForeignKey.IsRequiredDependent);
+            }
+
+            case IComplexProperty complexProperty:
+            {
+                if (StructuralType is not IComplexType complexType)
+                {
+                    throw new UnreachableException("Non-root complex property on entity type");
+                }
+
+                Check.DebugAssert(KeyPropertyMap is null);
+
+                var targetComplexType = complexProperty.ComplexType;
+                var newPath = Path.ToList();
+                newPath.Add(new PathSegment(GetJsonElement(complexProperty).PropertyName!));
+
+                return new JsonQueryExpression(
+                    targetComplexType,
+                    JsonColumn,
+                    keyPropertyMap: null,
+                    newPath,
+                    complexProperty.ClrType,
+                    complexProperty.IsCollection,
+                    IsNullable || complexProperty.IsNullable);
+            }
+
+            default:
+                throw new UnreachableException("Unexpected structural property type.");
         }
-
-        var targetEntityType = navigation.TargetEntityType;
-        var newPath = Path.ToList();
-        newPath.Add(new PathSegment(targetEntityType.GetJsonPropertyName()!));
-
-        var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-        var targetPrimaryKeyProperties = targetEntityType.FindPrimaryKey()!.Properties.Take(KeyPropertyMap.Count);
-        var sourcePrimaryKeyProperties = EntityType.FindPrimaryKey()!.Properties.Take(KeyPropertyMap.Count);
-        foreach (var (target, source) in targetPrimaryKeyProperties.Zip(sourcePrimaryKeyProperties, (t, s) => (t, s)))
-        {
-            newKeyPropertyMap[target] = KeyPropertyMap[source];
-        }
-
-        return new JsonQueryExpression(
-            targetEntityType,
-            JsonColumn,
-            newKeyPropertyMap,
-            newPath,
-            navigation.ClrType,
-            navigation.IsCollection,
-            IsNullable || !navigation.ForeignKey.IsRequiredDependent);
     }
 
     /// <summary>
@@ -183,11 +239,11 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         newPath.Add(new PathSegment(collectionIndexExpression));
 
         return new JsonQueryExpression(
-            EntityType,
+            StructuralType,
             JsonColumn,
             KeyPropertyMap,
             newPath,
-            EntityType.ClrType,
+            StructuralType.ClrType,
             collection: false,
             // TODO: computing nullability might be more complicated when we allow strict mode
             // see issue #28656
@@ -199,22 +255,14 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     /// <returns>A new expression which has <see cref="IsNullable" /> property set to true.</returns>
     public virtual JsonQueryExpression MakeNullable()
-    {
-        var keyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-        foreach (var (property, columnExpression) in KeyPropertyMap)
-        {
-            keyPropertyMap[property] = columnExpression.MakeNullable();
-        }
-
-        return new JsonQueryExpression(
-            EntityType,
+        => new(
+            StructuralType,
             JsonColumn.MakeNullable(),
-            keyPropertyMap,
+            KeyPropertyMap?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.MakeNullable()),
             Path,
             Type,
             IsCollection,
             nullable: true);
-    }
 
     /// <inheritdoc />
     public virtual void Print(ExpressionPrinter expressionPrinter)
@@ -229,6 +277,12 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var jsonColumn = (ColumnExpression)visitor.Visit(JsonColumn);
+
+        if (KeyPropertyMap is null)
+        {
+            return Update(jsonColumn, keyPropertyMap: null);
+        }
+
         var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
         foreach (var (property, column) in KeyPropertyMap)
         {
@@ -236,6 +290,57 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         }
 
         return Update(jsonColumn, newKeyPropertyMap);
+    }
+
+    /// <summary>
+    ///     Finds the <see cref="IRelationalJsonElement" /> for the given property/navigation/complex property within the
+    ///     JSON column referenced by this expression by matching <see cref="JsonColumn" />'s underlying
+    ///     <see cref="ColumnExpression.Column" /> against <see cref="IRelationalJsonElement.ContainingColumn" />. This
+    ///     disambiguates entity-splitting, TPT and TPC scenarios where the same property has multiple JSON element
+    ///     mappings — one per concrete table.
+    ///     <see cref="IRelationalJsonElement.PropertyName" /> may be <see langword="null" /> for shadow keys that have
+    ///     no JSON representation; callers iterating over <see cref="ITypeBase.GetProperties" /> must handle that case
+    ///     and skip them.
+    /// </summary>
+    /// <param name="propertyBase">The property, navigation or complex property to look up.</param>
+    /// <returns>The JSON element mapping for <paramref name="propertyBase" />.</returns>
+    public virtual IRelationalJsonElement GetJsonElement(IPropertyBase propertyBase)
+    {
+        var column = JsonColumn.Column
+            ?? throw new InvalidOperationException(
+                RelationalStrings.JsonQueryExpressionWithoutUnderlyingColumn(StructuralType.DisplayName()));
+        return FindJsonElement(propertyBase)
+            ?? throw new InvalidOperationException(
+                RelationalStrings.JsonElementMappingNotFound(propertyBase.DeclaringType.DisplayName(), propertyBase.Name, column.Name));
+    }
+
+    /// <summary>
+    ///     Finds the <see cref="IRelationalJsonElement" /> for the given property/navigation/complex property within the
+    ///     JSON column referenced by this expression by matching <see cref="JsonColumn" />'s underlying
+    ///     <see cref="ColumnExpression.Column" /> against <see cref="IRelationalJsonElement.ContainingColumn" />, or returns
+    ///     <see langword="null" /> if no such element exists (including when <see cref="JsonColumn" /> has no underlying
+    ///     <see cref="ColumnExpression.Column" />, e.g. for synthetic JSON expansions over OPENJSON / json_each, or for
+    ///     iterated properties such as shadow keys that have no JSON representation).
+    /// </summary>
+    /// <param name="propertyBase">The property, navigation or complex property to look up.</param>
+    /// <returns>The JSON element mapping for <paramref name="propertyBase" />, or <see langword="null" /> if not found.</returns>
+    public virtual IRelationalJsonElement? FindJsonElement(IPropertyBase propertyBase)
+    {
+        var containingColumn = JsonColumn.Column;
+        if (containingColumn is null)
+        {
+            return null;
+        }
+
+        foreach (var mapping in propertyBase.GetJsonElementMappings())
+        {
+            if (ReferenceEquals(mapping.Element.ContainingColumn, containingColumn))
+            {
+                return mapping.Element;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -247,12 +352,15 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual JsonQueryExpression Update(
         ColumnExpression jsonColumn,
-        IReadOnlyDictionary<IProperty, ColumnExpression> keyPropertyMap)
-        => jsonColumn != JsonColumn
-            || keyPropertyMap.Count != KeyPropertyMap.Count
-            || keyPropertyMap.Zip(KeyPropertyMap, (n, o) => n.Value != o.Value).Any(x => x)
-                ? new JsonQueryExpression(EntityType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable)
-                : this;
+        IReadOnlyDictionary<IProperty, ColumnExpression>? keyPropertyMap)
+        => (jsonColumn == JsonColumn
+            && ((keyPropertyMap is null && KeyPropertyMap is null)
+                || (keyPropertyMap is not null
+                    && KeyPropertyMap is not null
+                    && keyPropertyMap.Count == KeyPropertyMap.Count
+                    && KeyPropertyMapEquals(keyPropertyMap))))
+            ? this
+            : new JsonQueryExpression(StructuralType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
@@ -262,16 +370,21 @@ public class JsonQueryExpression : Expression, IPrintableExpression
                 && Equals(jsonQueryExpression));
 
     private bool Equals(JsonQueryExpression jsonQueryExpression)
-        => EntityType.Equals(jsonQueryExpression.EntityType)
+        => StructuralType.Equals(jsonQueryExpression.StructuralType)
             && JsonColumn.Equals(jsonQueryExpression.JsonColumn)
             && IsCollection.Equals(jsonQueryExpression.IsCollection)
             && IsNullable == jsonQueryExpression.IsNullable
             && Path.SequenceEqual(jsonQueryExpression.Path)
             && KeyPropertyMapEquals(jsonQueryExpression.KeyPropertyMap);
 
-    private bool KeyPropertyMapEquals(IReadOnlyDictionary<IProperty, ColumnExpression> other)
+    private bool KeyPropertyMapEquals(IReadOnlyDictionary<IProperty, ColumnExpression>? other)
     {
-        if (KeyPropertyMap.Count != other.Count)
+        if (KeyPropertyMap is null && other is null)
+        {
+            return true;
+        }
+
+        if (KeyPropertyMap is null || other is null || KeyPropertyMap.Count != other.Count)
         {
             return false;
         }
@@ -290,5 +403,5 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     public override int GetHashCode()
         // not incorporating _keyPropertyMap into the hash, too much work
-        => HashCode.Combine(EntityType, JsonColumn, IsCollection, Path, IsNullable);
+        => HashCode.Combine(StructuralType, JsonColumn, IsCollection, Path, IsNullable);
 }

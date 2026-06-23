@@ -7,18 +7,18 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
+public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "StoredProcedureUpdateTest";
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_output_parameter(bool async);
 
     protected async Task Insert_with_output_parameter(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .InsertUsingStoredProcedure(
                     nameof(Entity) + "_Insert",
@@ -27,7 +27,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasParameter(w => w.Id, pb => pb.IsOutput())),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var newEntity1 = new Entity { Name = "New" };
         context.Set<Entity>().Add(newEntity1);
@@ -39,13 +39,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_twice_with_output_parameter(bool async);
 
     protected async Task Insert_twice_with_output_parameter(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .InsertUsingStoredProcedure(
                     nameof(Entity) + "_Insert",
@@ -54,7 +53,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasParameter(w => w.Id, pb => pb.IsOutput())),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var (newEntity1, newEntity2) = (new Entity { Name = "New1" }, new Entity { Name = "New2" });
 
@@ -68,20 +67,19 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_result_column(bool async);
 
     protected async Task Insert_with_result_column(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>().InsertUsingStoredProcedure(
                 nameof(Entity) + "_Insert", spb => spb
                     .HasParameter(w => w.Name)
                     .HasResultColumn(w => w.Id)),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Foo" };
         context.Set<Entity>().Add(entity);
@@ -93,27 +91,25 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_two_result_columns(bool async);
 
     protected async Task Insert_with_two_result_columns(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
-                b =>
-                {
-                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(b =>
+            {
+                b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
 
-                    b.InsertUsingStoredProcedure(
-                        nameof(EntityWithAdditionalProperty) + "_Insert", spb => spb
-                            .HasParameter(w => w.Name)
-                            .HasResultColumn(w => w.AdditionalProperty)
-                            .HasResultColumn(w => w.Id));
-                }),
+                b.InsertUsingStoredProcedure(
+                    nameof(EntityWithAdditionalProperty) + "_Insert", spb => spb
+                        .HasParameter(w => w.Name)
+                        .HasResultColumn(w => w.AdditionalProperty)
+                        .HasResultColumn(w => w.Id));
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo" };
         context.Set<EntityWithAdditionalProperty>().Add(entity);
@@ -128,27 +124,25 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_output_parameter_and_result_column(bool async);
 
     protected async Task Insert_with_output_parameter_and_result_column(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
-                b =>
-                {
-                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(b =>
+            {
+                b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
 
-                    b.InsertUsingStoredProcedure(
-                        nameof(EntityWithAdditionalProperty) + "_Insert", spb => spb
-                            .HasParameter(w => w.Id, pb => pb.IsOutput())
-                            .HasParameter(w => w.Name)
-                            .HasResultColumn(w => w.AdditionalProperty));
-                }),
+                b.InsertUsingStoredProcedure(
+                    nameof(EntityWithAdditionalProperty) + "_Insert", spb => spb
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())
+                        .HasParameter(w => w.Name)
+                        .HasResultColumn(w => w.AdditionalProperty));
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo" };
         context.Set<EntityWithAdditionalProperty>().Add(entity);
@@ -162,13 +156,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update(bool async);
 
     protected async Task Update(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>().UpdateUsingStoredProcedure(
                 nameof(Entity) + "_Update",
                 spb => spb
@@ -176,7 +169,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                     .HasParameter(w => w.Name)),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Initial" };
         context.Set<Entity>().Add(entity);
@@ -193,13 +186,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update_partial(bool async);
 
     protected async Task Update_partial(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>().UpdateUsingStoredProcedure(
                 nameof(EntityWithAdditionalProperty) + "_Update", spb => spb
                     .HasOriginalValueParameter(w => w.Id)
@@ -207,7 +199,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                     .HasParameter(w => w.AdditionalProperty)),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo", AdditionalProperty = 8 };
         context.Set<EntityWithAdditionalProperty>().Add(entity);
@@ -228,29 +220,27 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update_with_output_parameter_and_rows_affected_result_column(bool async);
 
     protected async Task Update_with_output_parameter_and_rows_affected_result_column(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
-                b =>
-                {
-                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(b =>
+            {
+                b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
 
-                    b.UpdateUsingStoredProcedure(
-                        nameof(EntityWithAdditionalProperty) + "_Update",
-                        spb => spb
-                            .HasOriginalValueParameter(w => w.Id)
-                            .HasParameter(w => w.Name)
-                            .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
-                            .HasRowsAffectedResultColumn());
-                }),
+                b.UpdateUsingStoredProcedure(
+                    nameof(EntityWithAdditionalProperty) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
+                        .HasRowsAffectedResultColumn());
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo" };
         context.Set<EntityWithAdditionalProperty>().Add(entity);
@@ -271,35 +261,33 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async);
 
     protected async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
-                b =>
-                {
-                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(b =>
+            {
+                b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
 
-                    b.UpdateUsingStoredProcedure(
-                        nameof(EntityWithAdditionalProperty) + "_Update",
-                        spb => spb
-                            .HasOriginalValueParameter(w => w.Id)
-                            .HasParameter(w => w.Name)
-                            .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
-                            .HasRowsAffectedResultColumn());
-                }),
+                b.UpdateUsingStoredProcedure(
+                    nameof(EntityWithAdditionalProperty) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
+                        .HasRowsAffectedResultColumn());
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context1 = contextFactory.CreateContext();
+        await using var context1 = contextFactory.CreateDbContext();
 
         var entity1 = new EntityWithAdditionalProperty { Name = "Initial" };
         context1.Set<EntityWithAdditionalProperty>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = contextFactory.CreateContext())
+        await using (var context2 = contextFactory.CreateDbContext())
         {
             var entity2 = await context2.Set<EntityWithAdditionalProperty>().SingleAsync(w => w.Name == "Initial");
             context2.Set<EntityWithAdditionalProperty>().Remove(entity2);
@@ -315,20 +303,19 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Delete(bool async);
 
     protected async Task Delete(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .DeleteUsingStoredProcedure(
                     nameof(Entity) + "_Delete",
                     spb => spb.HasOriginalValueParameter(w => w.Id)),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Initial" };
         context.Set<Entity>().Add(entity);
@@ -345,13 +332,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Delete_and_insert(bool async);
 
     protected async Task Delete_and_insert(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .InsertUsingStoredProcedure(
                     nameof(Entity) + "_Insert",
@@ -363,7 +349,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                     spb => spb.HasOriginalValueParameter(w => w.Id)),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity1 = new Entity { Name = "Entity1" };
         context.Set<Entity>().Add(entity1);
@@ -382,13 +368,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_parameter(bool async);
 
     protected async Task Rows_affected_parameter(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .UpdateUsingStoredProcedure(
                     nameof(Entity) + "_Update",
@@ -398,7 +383,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasRowsAffectedParameter()),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Initial" };
         context.Set<Entity>().Add(entity);
@@ -416,13 +401,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_parameter_and_concurrency_failure(bool async);
 
     protected async Task Rows_affected_parameter_and_concurrency_failure(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .UpdateUsingStoredProcedure(
                     nameof(Entity) + "_Update",
@@ -432,13 +416,13 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasRowsAffectedParameter()),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context1 = contextFactory.CreateContext();
+        await using var context1 = contextFactory.CreateDbContext();
 
         var entity1 = new Entity { Name = "Initial" };
         context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = contextFactory.CreateContext())
+        await using (var context2 = contextFactory.CreateDbContext())
         {
             var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
             context2.Set<Entity>().Remove(entity2);
@@ -454,13 +438,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_result_column(bool async);
 
     protected async Task Rows_affected_result_column(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .UpdateUsingStoredProcedure(
                     nameof(Entity) + "_Update",
@@ -470,7 +453,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasRowsAffectedResultColumn()),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Initial" };
         context.Set<Entity>().Add(entity);
@@ -488,13 +471,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_result_column_and_concurrency_failure(bool async);
 
     protected async Task Rows_affected_result_column_and_concurrency_failure(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .UpdateUsingStoredProcedure(
                     nameof(Entity) + "_Update",
@@ -504,13 +486,13 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasRowsAffectedResultColumn()),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context1 = contextFactory.CreateContext();
+        await using var context1 = contextFactory.CreateDbContext();
 
         var entity1 = new Entity { Name = "Initial" };
         context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = contextFactory.CreateContext())
+        await using (var context2 = contextFactory.CreateDbContext())
         {
             var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
             context2.Set<Entity>().Remove(entity2);
@@ -526,13 +508,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_return_value(bool async);
 
     protected async Task Rows_affected_return_value(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .UpdateUsingStoredProcedure(
                     nameof(Entity) + "_Update",
@@ -542,7 +523,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasRowsAffectedReturnValue()),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Initial" };
         context.Set<Entity>().Add(entity);
@@ -560,13 +541,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_return_value_and_concurrency_failure(bool async);
 
     protected async Task Rows_affected_return_value_and_concurrency_failure(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .UpdateUsingStoredProcedure(
                     nameof(Entity) + "_Update",
@@ -576,13 +556,13 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasRowsAffectedReturnValue()),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context1 = contextFactory.CreateContext();
+        await using var context1 = contextFactory.CreateDbContext();
 
         var entity1 = new Entity { Name = "Initial" };
         context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = contextFactory.CreateContext())
+        await using (var context2 = contextFactory.CreateDbContext())
         {
             var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
             context2.Set<Entity>().Remove(entity2);
@@ -598,35 +578,33 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Store_generated_concurrency_token_as_in_out_parameter(bool async);
 
     protected async Task Store_generated_concurrency_token_as_in_out_parameter(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<Entity>(
-                b =>
-                {
-                    ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(b =>
+            {
+                ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
 
-                    b.UpdateUsingStoredProcedure(
-                        nameof(Entity) + "_Update",
-                        spb => spb
-                            .HasOriginalValueParameter(w => w.Id)
-                            .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
-                            .HasParameter(w => w.Name)
-                            .HasRowsAffectedParameter());
-                }),
+                b.UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
+                        .HasParameter(w => w.Name)
+                        .HasRowsAffectedParameter());
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context1 = contextFactory.CreateContext();
+        await using var context1 = contextFactory.CreateDbContext();
 
         var entity1 = new Entity { Name = "Initial" };
         context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = contextFactory.CreateContext())
+        await using (var context2 = contextFactory.CreateDbContext())
         {
             var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
             entity2.Name = "Preempted";
@@ -642,39 +620,37 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Store_generated_concurrency_token_as_two_parameters(bool async);
 
     protected async Task Store_generated_concurrency_token_as_two_parameters(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<Entity>(
-                b =>
-                {
-                    ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(b =>
+            {
+                ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
 
-                    b.UpdateUsingStoredProcedure(
-                        nameof(Entity) + "_Update",
-                        spb => spb
-                            .HasOriginalValueParameter(w => w.Id)
-                            .HasOriginalValueParameter("ConcurrencyToken", pb => pb.HasName("ConcurrencyTokenIn"))
-                            .HasParameter(w => w.Name)
-                            .HasParameter(
-                                "ConcurrencyToken", pb => pb
-                                    .HasName("ConcurrencyTokenOut")
-                                    .IsOutput())
-                            .HasRowsAffectedParameter());
-                }),
+                b.UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasOriginalValueParameter("ConcurrencyToken", pb => pb.HasName("ConcurrencyTokenIn"))
+                        .HasParameter(w => w.Name)
+                        .HasParameter(
+                            "ConcurrencyToken", pb => pb
+                                .HasName("ConcurrencyTokenOut")
+                                .IsOutput())
+                        .HasRowsAffectedParameter());
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context1 = contextFactory.CreateContext();
+        await using var context1 = contextFactory.CreateDbContext();
 
         var entity1 = new Entity { Name = "Initial" };
         context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = contextFactory.CreateContext())
+        await using (var context2 = contextFactory.CreateDbContext())
         {
             var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
             entity2.Name = "Preempted";
@@ -690,30 +666,28 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task User_managed_concurrency_token(bool async);
 
     protected async Task User_managed_concurrency_token(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
-                b =>
-                {
-                    b.Property(e => e.AdditionalProperty).IsConcurrencyToken();
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(b =>
+            {
+                b.Property(e => e.AdditionalProperty).IsConcurrencyToken();
 
-                    b.UpdateUsingStoredProcedure(
-                        nameof(EntityWithAdditionalProperty) + "_Update",
-                        spb => spb
-                            .HasOriginalValueParameter(w => w.Id)
-                            .HasOriginalValueParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenOriginal"))
-                            .HasParameter(w => w.Name)
-                            .HasParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenCurrent"))
-                            .HasRowsAffectedParameter());
-                }),
+                b.UpdateUsingStoredProcedure(
+                    nameof(EntityWithAdditionalProperty) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasOriginalValueParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenOriginal"))
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenCurrent"))
+                        .HasRowsAffectedParameter());
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context1 = contextFactory.CreateContext();
+        await using var context1 = contextFactory.CreateDbContext();
 
         var entity1 = new EntityWithAdditionalProperty
         {
@@ -726,7 +700,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         entity1.Name = "Updated";
         entity1.AdditionalProperty = 9;
 
-        await using (var context2 = contextFactory.CreateContext())
+        await using (var context2 = contextFactory.CreateDbContext())
         {
             var entity2 = await context2.Set<EntityWithAdditionalProperty>().SingleAsync(w => w.Name == "Initial");
             entity2.Name = "Preempted";
@@ -740,13 +714,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         Assert.Same(entity1, Assert.Single(exception.Entries).Entity);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Original_and_current_value_on_non_concurrency_token(bool async);
 
     protected async Task Original_and_current_value_on_non_concurrency_token(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>()
                 .UpdateUsingStoredProcedure(
                     nameof(Entity) + "_Update",
@@ -756,7 +729,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                         .HasOriginalValueParameter(w => w.Name, pb => pb.HasName("NameOriginal"))),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Initial" };
 
@@ -777,27 +750,25 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Input_or_output_parameter_with_input(bool async);
 
     protected async Task Input_or_output_parameter_with_input(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<Entity>(
-                b =>
-                {
-                    b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(b =>
+            {
+                b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
 
-                    b.InsertUsingStoredProcedure(
-                        nameof(Entity) + "_Insert",
-                        spb => spb
-                            .HasParameter(w => w.Id, pb => pb.IsOutput())
-                            .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
-                }),
+                b.InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())
+                        .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity { Name = "Initial" };
         context.Set<Entity>().Add(entity);
@@ -812,27 +783,25 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Input_or_output_parameter_with_output(bool async);
 
     protected async Task Input_or_output_parameter_with_output(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<Entity>(
-                b =>
-                {
-                    b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(b =>
+            {
+                b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
 
-                    b.InsertUsingStoredProcedure(
-                        nameof(Entity) + "_Insert",
-                        spb => spb
-                            .HasParameter(w => w.Id, pb => pb.IsOutput())
-                            .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
-                }),
+                b.InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())
+                        .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
+            }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = new Entity();
         context.Set<Entity>().Add(entity);
@@ -847,44 +816,41 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tph(bool async);
 
     protected async Task Tph(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder =>
             {
                 modelBuilder.Entity<Child1>();
 
-                modelBuilder.Entity<Child2>(
-                    b =>
-                    {
-                        b.Property(w => w.Child2OutputParameterProperty).HasDefaultValue(8);
-                        b.Property(w => w.Child2ResultColumnProperty).HasDefaultValue(9);
-                    });
+                modelBuilder.Entity<Child2>(b =>
+                {
+                    b.Property(w => w.Child2OutputParameterProperty).HasDefaultValue(8);
+                    b.Property(w => w.Child2ResultColumnProperty).HasDefaultValue(9);
+                });
 
-                modelBuilder.Entity<Parent>(
-                    b =>
-                    {
-                        b.ToTable("Tph");
+                modelBuilder.Entity<Parent>(b =>
+                {
+                    b.ToTable("Tph");
 
-                        b.InsertUsingStoredProcedure(
-                            "Tph_Insert",
-                            spb => spb
-                                .HasParameter(w => w.Id, pb => pb.IsOutput())
-                                .HasParameter("Discriminator")
-                                .HasParameter(w => w.Name)
-                                .HasParameter(nameof(Child2.Child2InputProperty))
-                                .HasParameter(nameof(Child2.Child2OutputParameterProperty), o => o.IsOutput())
-                                .HasParameter(nameof(Child1.Child1Property))
-                                .HasResultColumn(nameof(Child2.Child2ResultColumnProperty)));
-                    });
+                    b.InsertUsingStoredProcedure(
+                        "Tph_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter("Discriminator")
+                            .HasParameter(w => w.Name)
+                            .HasParameter(nameof(Child2.Child2InputProperty))
+                            .HasParameter(nameof(Child2.Child2OutputParameterProperty), o => o.IsOutput())
+                            .HasParameter(nameof(Child1.Child1Property))
+                            .HasResultColumn(nameof(Child2.Child2ResultColumnProperty)));
+                });
             },
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
         context.Set<Child1>().Add(entity1);
@@ -901,26 +867,24 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tpt(bool async);
 
     protected async Task Tpt(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder =>
             {
-                modelBuilder.Entity<Parent>(
-                    b =>
-                    {
-                        b.UseTptMappingStrategy();
+                modelBuilder.Entity<Parent>(b =>
+                {
+                    b.UseTptMappingStrategy();
 
-                        b.InsertUsingStoredProcedure(
-                            "Parent_Insert",
-                            spb => spb
-                                .HasParameter(w => w.Id, pb => pb.IsOutput())
-                                .HasParameter(w => w.Name));
-                    });
+                    b.InsertUsingStoredProcedure(
+                        "Parent_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter(w => w.Name));
+                });
 
                 modelBuilder.Entity<Child1>()
                     .InsertUsingStoredProcedure(
@@ -931,7 +895,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
             },
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
         context.Set<Child1>().Add(entity1);
@@ -948,33 +912,31 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tpt_mixed_sproc_and_non_sproc(bool async);
 
     protected async Task Tpt_mixed_sproc_and_non_sproc(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder =>
             {
-                modelBuilder.Entity<Parent>(
-                    b =>
-                    {
-                        b.UseTptMappingStrategy();
+                modelBuilder.Entity<Parent>(b =>
+                {
+                    b.UseTptMappingStrategy();
 
-                        b.InsertUsingStoredProcedure(
-                            nameof(Parent) + "_Insert",
-                            spb => spb
-                                .HasParameter(w => w.Id, pb => pb.IsOutput())
-                                .HasParameter(w => w.Name));
-                    });
+                    b.InsertUsingStoredProcedure(
+                        nameof(Parent) + "_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter(w => w.Name));
+                });
 
                 // No sproc mapping for Child1, use regular SQL
                 modelBuilder.Entity<Child1>();
             },
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
         context.Set<Child1>().Add(entity1);
@@ -991,13 +953,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tpc(bool async);
 
     protected async Task Tpc(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder =>
             {
                 modelBuilder.Entity<Parent>().UseTpcMappingStrategy();
@@ -1013,7 +974,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
             },
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
         context.Set<Child1>().Add(entity1);
@@ -1030,13 +991,12 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async);
 
     protected async Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async, string createSprocSql)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>()
                 .InsertUsingStoredProcedure(
                     nameof(EntityWithAdditionalProperty) + "_Insert",
@@ -1047,7 +1007,7 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
                 .Property(e => e.AdditionalProperty).IsConcurrencyToken(),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         // Prepare by adding an entity
         var entity1 = new EntityWithAdditionalProperty { Name = "Entity1", AdditionalProperty = 1 };

@@ -7,13 +7,12 @@ using Identity30.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
-using Newtonsoft.Json.Linq;
 using static Microsoft.EntityFrameworkCore.Migrations.MigrationsInfrastructureFixtureBase;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    [SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.IsNotCI)]
+    [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql)), SkipOnCI("Flaky on CI")]
     public class MigrationsInfrastructureSqlServerTest(
         MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Can_apply_range_of_migrations();
 
-            var sql = @"CREATE DATABASE TransactionSuppressed;
-";
+            var sql = @"CREATE DATABASE TransactionSuppressed;" + Environment.NewLine;
+
             Assert.Equal(
                 RelationalResources.LogNonTransactionalMigrationOperationWarning(new TestLogger<TestRelationalLoggingDefinitions>())
                     .GenerateMessage(sql, "Migration3"),
@@ -101,6 +100,10 @@ CREATE TABLE [Table1] (
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -141,10 +144,10 @@ BEGIN
 END;
 
 GO
-
 SELECT GetDate();
 --GO
 SELECT GetDate()
+GO
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -159,6 +162,10 @@ Empty Lines')
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000005_Migration5', N'7.0.0-test');
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
@@ -167,6 +174,10 @@ Empty Lines')
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000006_Migration6', N'7.0.0-test');
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '--Start
 GO
 Value With
@@ -187,23 +198,47 @@ BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000007_Migration7';
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000006_Migration6';
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000005_Migration5';
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000004_Migration4';
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000003_Migration3';
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000002_Migration2';
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 DROP TABLE [Table1];
 
 DELETE FROM [__EFMigrationsHistory]
@@ -285,10 +320,10 @@ BEGIN
 END;
 
 GO
-
 SELECT GetDate();
 --GO
 SELECT GetDate()
+GO
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -468,6 +503,10 @@ BEGIN
     VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 END;
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2'
@@ -506,6 +545,10 @@ BEGIN
     WHERE [MigrationId] = N'00000000000002_Migration2';
 END;
 
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
 IF EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1'
@@ -642,13 +685,12 @@ GO
             Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", ActiveProvider);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Throws_when_no_migrations()
         {
             using var context = new DbContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
-                        .ConfigureWarnings(e => e.Throw(RelationalEventId.MigrationsNotFound))).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
@@ -662,13 +704,12 @@ GO
                 (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_when_no_migrations_async()
         {
             using var context = new DbContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
-                        .ConfigureWarnings(e => e.Throw(RelationalEventId.MigrationsNotFound))).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             await context.Database.EnsureDeletedAsync();
             await GiveMeSomeTimeAsync(context);
@@ -682,7 +723,7 @@ GO
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Throws_when_no_snapshot()
         {
             using var context = new MigrationsContext(
@@ -702,7 +743,7 @@ GO
                 (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_when_no_snapshot_async()
         {
             using var context = new MigrationsContext(
@@ -722,7 +763,49 @@ GO
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
+        public void Throws_for_old_migration_version()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
+                        .ConfigureWarnings(e => e.Throw(RelationalEventId.OldMigrationVersionWarning))).Options,
+                randomData: false);
+
+            context.Database.EnsureDeleted();
+            GiveMeSomeTime(context);
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    RelationalEventId.OldMigrationVersionWarning.ToString(),
+                    RelationalResources.LogOldMigrationVersion(new TestLogger<TestRelationalLoggingDefinitions>())
+                        .GenerateMessage(nameof(BloggingContext), "9.0.0"),
+                    "RelationalEventId.OldMigrationVersionWarning"),
+                (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
+        }
+
+        [Fact]
+        public async Task Throws_for_old_migration_version_async()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
+                        .ConfigureWarnings(e => e.Throw(RelationalEventId.OldMigrationVersionWarning))).Options,
+                randomData: false);
+
+            await context.Database.EnsureDeletedAsync();
+            await GiveMeSomeTimeAsync(context);
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    RelationalEventId.OldMigrationVersionWarning.ToString(),
+                    RelationalResources.LogOldMigrationVersion(new TestLogger<TestRelationalLoggingDefinitions>())
+                        .GenerateMessage(nameof(BloggingContext), "9.0.0"),
+                    "RelationalEventId.OldMigrationVersionWarning"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
+        }
+
+        [Fact]
         public void Throws_for_nondeterministic_HasData()
         {
             using var context = new BloggingContext(
@@ -742,7 +825,7 @@ GO
                 (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_for_nondeterministic_HasData_async()
         {
             using var context = new BloggingContext(
@@ -762,52 +845,12 @@ GO
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
 
-        [ConditionalFact]
-        public void Throws_for_pending_model_changes()
-        {
-            using var context = new BloggingContext(
-                Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options,
-                randomData: false);
-
-            context.Database.EnsureDeleted();
-            GiveMeSomeTime(context);
-
-            Assert.Equal(
-                CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.PendingModelChangesWarning.ToString(),
-                    RelationalResources.LogPendingModelChanges(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(nameof(BloggingContext)),
-                    "RelationalEventId.PendingModelChangesWarning"),
-                (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
-        }
-
-        [ConditionalFact]
-        public async Task Throws_for_pending_model_changes_async()
-        {
-            using var context = new BloggingContext(
-                Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options,
-                randomData: false);
-
-            await context.Database.EnsureDeletedAsync();
-            await GiveMeSomeTimeAsync(context);
-
-            Assert.Equal(
-                CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.PendingModelChangesWarning.ToString(),
-                    RelationalResources.LogPendingModelChanges(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(nameof(BloggingContext)),
-                    "RelationalEventId.PendingModelChangesWarning"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
-        }
-
-        [ConditionalFact]
+        [Fact]
         public async Task Empty_Migration_Creates_Database()
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
-                        new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
@@ -820,15 +863,14 @@ GO
             Assert.True(creator.Exists());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Non_transactional_migration_is_retried()
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
                         new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                    .ConfigureWarnings(
-                        e => e.Log(
-                            RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
+                    .ConfigureWarnings(e => e.Log(
+                        RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
                     .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
 
             context.Database.EnsureDeleted();
@@ -932,15 +974,14 @@ SELECT @result
                 ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Non_transactional_migration_is_retried_async()
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
                         new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                    .ConfigureWarnings(
-                        e => e.Log(
-                            RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
+                    .ConfigureWarnings(e => e.Log(
+                        RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
                     .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
 
             context.Database.EnsureDeleted();
@@ -1070,7 +1111,7 @@ SELECT @result
         }
 
         [DbContext(typeof(BloggingContext))]
-        partial class BloggingContextSnapshot : ModelSnapshot
+        private class BloggingContextSnapshot : ModelSnapshot
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
             {
@@ -1079,29 +1120,29 @@ SELECT @result
                     .HasAnnotation("ProductVersion", "9.0.0")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-                SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+                modelBuilder.UseIdentityColumns();
 
-                modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.MigrationsInfrastructureSqlServerTest+BloggingContext+Blog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                modelBuilder.Entity(
+                    "Microsoft.EntityFrameworkCore.Migrations.MigrationsInfrastructureSqlServerTest+BloggingContext+Blog", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        b.Property<int>("Id").UseIdentityColumn();
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        b.Property<string>("Name")
+                            .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                        b.HasKey("Id");
 
-                    b.ToTable("Blogs");
-                });
+                        b.ToTable("Blogs");
+                    });
 #pragma warning restore 612, 618
             }
         }
 
-        [DbContext(typeof(BloggingContext))]
-        [Migration("00000000000000_Empty")]
+        [DbContext(typeof(BloggingContext)), Migration("00000000000000_Empty")]
         private class EmptyMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -1109,8 +1150,7 @@ SELECT @result
             }
         }
 
-        [DbContext(typeof(BloggingContext))]
-        [Migration("00000000000001_Migration1")]
+        [DbContext(typeof(BloggingContext)), Migration("00000000000001_Migration1")]
         private class BloggingMigration1 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -1136,8 +1176,7 @@ END
             }
         }
 
-        [DbContext(typeof(BloggingContext))]
-        [Migration("00000000000002_Migration2")]
+        [DbContext(typeof(BloggingContext)), Migration("00000000000002_Migration2")]
         private class BloggingMigration2 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -1989,7 +2028,7 @@ END
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
 
-            public override async Task InitializeAsync()
+            public override async ValueTask InitializeAsync()
             {
                 await base.InitializeAsync();
                 await ((SqlServerTestStore)TestStore).ExecuteNonQueryAsync(
@@ -2001,8 +2040,9 @@ DROP DATABASE TransactionSuppressed");
             public override MigrationsContext CreateContext()
             {
                 var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
-                    .UseSqlServer(TestStore.ConnectionString, b => b
-                        .ApplyConfiguration())
+                    .UseSqlServer(
+                        TestStore.ConnectionString, b => b
+                            .ApplyConfiguration())
                     .UseInternalServiceProvider(ServiceProvider)
                     .Options;
                 return new MigrationsContext(options);
@@ -2058,50 +2098,43 @@ namespace Identity30.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<IdentityUser>(
-                b =>
-                {
-                    b.HasIndex(u => u.NormalizedUserName).HasDatabaseName("UserNameIndex").IsUnique();
-                    b.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
-                    b.ToTable("AspNetUsers");
-                });
+            builder.Entity<IdentityUser>(b =>
+            {
+                b.HasIndex(u => u.NormalizedUserName).HasDatabaseName("UserNameIndex").IsUnique();
+                b.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
+                b.ToTable("AspNetUsers");
+            });
 
-            builder.Entity<IdentityUserClaim<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserClaims");
-                });
+            builder.Entity<IdentityUserClaim<string>>(b =>
+            {
+                b.ToTable("AspNetUserClaims");
+            });
 
-            builder.Entity<IdentityUserLogin<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserLogins");
-                });
+            builder.Entity<IdentityUserLogin<string>>(b =>
+            {
+                b.ToTable("AspNetUserLogins");
+            });
 
-            builder.Entity<IdentityUserToken<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserTokens");
-                });
+            builder.Entity<IdentityUserToken<string>>(b =>
+            {
+                b.ToTable("AspNetUserTokens");
+            });
 
-            builder.Entity<IdentityRole>(
-                b =>
-                {
-                    b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
-                    b.ToTable("AspNetRoles");
-                });
+            builder.Entity<IdentityRole>(b =>
+            {
+                b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
+                b.ToTable("AspNetRoles");
+            });
 
-            builder.Entity<IdentityRoleClaim<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetRoleClaims");
-                });
+            builder.Entity<IdentityRoleClaim<string>>(b =>
+            {
+                b.ToTable("AspNetRoleClaims");
+            });
 
-            builder.Entity<IdentityUserRole<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserRoles");
-                });
+            builder.Entity<IdentityUserRole<string>>(b =>
+            {
+                b.ToTable("AspNetUserRoles");
+            });
         }
     }
 }

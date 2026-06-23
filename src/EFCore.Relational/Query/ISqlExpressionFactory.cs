@@ -432,6 +432,25 @@ public interface ISqlExpressionFactory
     SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
+    ///     Creates a new <see cref="SqlExpression" /> which represents a constant in a SQL tree.
+    /// </summary>
+    /// <param name="value">A value.</param>
+    /// <param name="sensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    /// <returns>An expression representing a constant in a SQL tree.</returns>
+    SqlExpression Constant(object value, bool sensitive, RelationalTypeMapping? typeMapping = null);
+
+    /// <summary>
+    ///     Creates a new <see cref="SqlExpression" /> which represents a constant in a SQL tree.
+    /// </summary>
+    /// <param name="value">A value.</param>
+    /// <param name="type">The type for the constant. Useful when value is null.</param>
+    /// <param name="sensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    /// <returns>An expression representing a constant in a SQL tree.</returns>
+    SqlExpression Constant(object? value, Type type, bool sensitive, RelationalTypeMapping? typeMapping = null);
+
+    /// <summary>
     ///     Creates a new <see cref="SqlExpression" /> which represents a SQL token.
     /// </summary>
     /// <param name="sql">A string token to print in SQL tree.</param>

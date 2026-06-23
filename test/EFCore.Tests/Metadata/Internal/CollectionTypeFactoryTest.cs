@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class CollectionTypeFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Returns_given_type_if_public_parameterless_constructor_available()
     {
         var factory = CollectionTypeFactory.Instance;
@@ -25,19 +25,19 @@ public class CollectionTypeFactoryTest
             factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableHashSet<Random>), false));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_ObservableHashSet_if_notifying_and_assignable()
         => Assert.Same(
             typeof(ObservableHashSet<Random>),
             CollectionTypeFactory.Instance.TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>), false));
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_ObservableHashSet_if_full_notification_required()
         => Assert.Same(
             typeof(ObservableHashSet<Random>),
             CollectionTypeFactory.Instance.TryFindTypeToInstantiate(typeof(object), typeof(ICollection<Random>), true));
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_HashSet_if_assignable()
     {
         var factory = CollectionTypeFactory.Instance;
@@ -47,13 +47,13 @@ public class CollectionTypeFactoryTest
         Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(IEnumerable<Random>), false));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_List_if_assignable()
         => Assert.Same(
             typeof(List<Random>),
             CollectionTypeFactory.Instance.TryFindTypeToInstantiate(typeof(object), typeof(IList<Random>), false));
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_null_when_no_usable_concrete_type_found()
     {
         var factory = CollectionTypeFactory.Instance;

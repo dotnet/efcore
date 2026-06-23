@@ -419,7 +419,9 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
     /// <returns>The newly created mapping.</returns>
     public virtual RelationalTypeMapping WithStoreTypeAndSize(string storeType, int? size)
-        => Clone(Parameters.WithStoreTypeAndSize(storeType, size));
+        => storeType == StoreType && size == Size
+            ? this
+            : Clone(Parameters.WithStoreTypeAndSize(storeType, size));
 
     /// <summary>
     ///     Creates a copy of this mapping.
@@ -428,7 +430,9 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
     /// <returns>The newly created mapping.</returns>
     public virtual RelationalTypeMapping WithPrecisionAndScale(int? precision, int? scale)
-        => Clone(Parameters.WithPrecisionAndScale(precision, scale));
+        => precision == Precision && scale == Scale
+            ? this
+            : Clone(Parameters.WithPrecisionAndScale(precision, scale));
 
     /// <inheritdoc />
     public override CoreTypeMapping WithComposedConverter(
@@ -446,24 +450,33 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
     public virtual RelationalTypeMapping WithTypeMappingInfo(
         in RelationalTypeMappingInfo mappingInfo)
-        => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
+        => (mappingInfo.StoreTypeName == null || mappingInfo.StoreTypeName == StoreType)
+            && (mappingInfo.DbType == null || mappingInfo.DbType == DbType)
+            && (mappingInfo.IsUnicode == null || mappingInfo.IsUnicode == IsUnicode)
+            && (mappingInfo.Size == null || mappingInfo.Size == Size)
+            && (mappingInfo.IsFixedLength == null || mappingInfo.IsFixedLength == IsFixedLength)
+            && (mappingInfo.Precision == null || mappingInfo.Precision == Precision)
+            && (mappingInfo.Scale == null || mappingInfo.Scale == Scale)
+                ? this
+                : Clone(Parameters.WithTypeMappingInfo(mappingInfo));
 
     /// <summary>
     ///     Clones the type mapping to update any parameter if needed.
     /// </summary>
     /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
     /// <param name="storeTypePostfix">The new postfix, or <see langword="null" /> to leave unchanged.</param>
-    /// <param name="clrType">The .NET type used in the EF model, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="converter">The value converter, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="comparer">The value comparer, or <see langword="null" /> to leave unchanged.</param>
-    /// <param name="keyComparer">The key value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="keyComparer">
+    ///     The key value comparer, or <see langword="null" /> to use <paramref name="comparer" /> when supplied, otherwise leave
+    ///     unchanged.
+    /// </param>
     /// <param name="providerValueComparer">The provider value comparer, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="elementMapping">The element mapping, or <see langword="null" /> to leave unchanged.</param>
     /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
     /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
     public virtual RelationalTypeMapping Clone(
         in RelationalTypeMappingInfo? mappingInfo = null,
-        Type? clrType = null,
         ValueConverter? converter = null,
         ValueComparer? comparer = null,
         ValueComparer? keyComparer = null,
@@ -478,8 +491,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
             parameters = parameters.WithTypeMappingInfo(mappingInfo.Value, storeTypePostfix);
         }
 
-        if (clrType != null
-            || converter != null
+        if (converter != null
             || comparer != null
             || keyComparer != null
             || providerValueComparer != null
@@ -488,10 +500,10 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         {
             parameters = parameters.WithCoreParameters(
                 new CoreTypeMappingParameters(
-                    clrType ?? Parameters.CoreParameters.ClrType,
+                    Parameters.CoreParameters.ClrType,
                     converter ?? Parameters.CoreParameters.Converter,
                     comparer ?? Parameters.CoreParameters.Comparer,
-                    keyComparer ?? Parameters.CoreParameters.KeyComparer,
+                    keyComparer ?? comparer ?? Parameters.CoreParameters.KeyComparer,
                     providerValueComparer ?? Parameters.CoreParameters.ProviderValueComparer,
                     Parameters.CoreParameters.ValueGeneratorFactory,
                     elementMapping ?? Parameters.CoreParameters.ElementTypeMapping,
@@ -572,12 +584,6 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         if (nullable.HasValue)
         {
-            Check.DebugAssert(
-                nullable.Value
-                || !direction.HasFlag(ParameterDirection.Input)
-                || value != null,
-                "Null value in a non-nullable input parameter");
-
             parameter.IsNullable = nullable.Value;
         }
 
@@ -661,6 +667,32 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </returns>
     protected virtual string GenerateNonNullSqlLiteral(object value)
         => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
+
+    /// <summary>
+    ///     Creates the provider value used to populate a newly added, required column for existing rows when generating a migration.
+    /// </summary>
+    /// <remarks>
+    ///     Type mappings whose facets (such as size) are required to produce a usable value should override this to supply
+    ///     a provider value built from the configured mapping.
+    /// </remarks>
+    /// <returns>The default provider value.</returns>
+    public virtual object? GetDefaultProviderValue()
+    {
+        if (ElementTypeMapping is not null
+            && Converter?.GetType() is { IsGenericType: true } converterType
+            && converterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>))
+        {
+            return "[]";
+        }
+
+        var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
+
+        return providerType == typeof(string)
+            ? string.Empty
+            : providerType.IsArray
+                ? Array.CreateInstance(providerType.GetElementType()!, 0)
+                : providerType.GetDefaultValue();
+    }
 
     /// <summary>
     ///     The method to use when reading values of the given type. The method must be defined

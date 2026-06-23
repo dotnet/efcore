@@ -11,20 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class NonNullableNavigationConvention :
-    NonNullableConventionBase,
+public class NonNullableNavigationConvention(ProviderConventionSetBuilderDependencies dependencies) :
+    NonNullableConventionBase(dependencies),
     INavigationAddedConvention,
     IForeignKeyPrincipalEndChangedConvention
 {
-    /// <summary>
-    ///     Creates a new instance of <see cref="NonNullableNavigationConvention" />.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public NonNullableNavigationConvention(ProviderConventionSetBuilderDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     /// <inheritdoc />
     public virtual void ProcessNavigationAdded(
         IConventionNavigationBuilder navigationBuilder,
@@ -67,11 +58,10 @@ public class NonNullableNavigationConvention :
 
         if (navigation.IsOnDependent)
         {
-            if (foreignKey.Properties.All(
-                    p =>
-                        !p.IsNullable
-                        || (p.IsShadowProperty()
-                            && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
+            if (foreignKey.Properties.All(p =>
+                    !p.IsNullable
+                    || (p.IsShadowProperty()
+                        && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
             {
                 foreignKey.Builder.IsRequired(true);
             }
@@ -83,7 +73,7 @@ public class NonNullableNavigationConvention :
     }
 
     private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
-        => navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
+        => navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is { } propertyInfo
             && TryGetNullabilityInfo(modelBuilder, propertyInfo, out var nullabilityInfo)
             && nullabilityInfo.ReadState == NullabilityState.NotNull;
 }

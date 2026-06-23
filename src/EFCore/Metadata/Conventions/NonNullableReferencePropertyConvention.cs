@@ -11,25 +11,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
+public class NonNullableReferencePropertyConvention(ProviderConventionSetBuilderDependencies dependencies)
+    : NonNullableConventionBase(dependencies),
     IPropertyAddedConvention,
     IPropertyFieldChangedConvention,
     IPropertyElementTypeChangedConvention,
     IComplexPropertyAddedConvention,
     IComplexPropertyFieldChangedConvention
 {
-    /// <summary>
-    ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public NonNullableReferencePropertyConvention(ProviderConventionSetBuilderDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     private void Process(IConventionPropertyBuilder propertyBuilder)
     {
-        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
+        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is { } memberInfo
             && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo))
         {
             if (nullabilityInfo.ReadState == NullabilityState.NotNull)
@@ -38,7 +30,7 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
             }
 
             // If there's an element type, this is a primitive collection; check and apply the element's nullability as well.
-            if (propertyBuilder.Metadata.GetElementType() is IConventionElementType elementType
+            if (propertyBuilder.Metadata.GetElementType() is { } elementType
                 && nullabilityInfo is
                     { ElementType.ReadState: NullabilityState.NotNull } or
                     { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] })
@@ -50,7 +42,7 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
 
     private void Process(IConventionComplexPropertyBuilder propertyBuilder)
     {
-        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
+        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is { } memberInfo
             && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo)
             && nullabilityInfo.ReadState == NullabilityState.NotNull)
         {

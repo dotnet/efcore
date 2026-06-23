@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -10,10 +10,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class QueryTest
 {
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task AsSplitQuery_does_not_throw_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -28,8 +27,7 @@ public class QueryTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task AsSingleQuery_does_not_throw_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -44,8 +42,7 @@ public class QueryTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task FromSqlRaw_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -58,8 +55,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(FromSqlQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Cosmos_FromSqlRaw_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -72,8 +68,8 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(FromSqlQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+#pragma warning disable CS0618 // FromSqlInterpolated is obsolete
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task FromSqlInterpolated_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -85,9 +81,9 @@ public class QueryTest
 
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(FromSqlQueryRootExpression)), message);
     }
+#pragma warning restore CS0618
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task FromSql_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -100,8 +96,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(FromSqlQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalAsOf_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -114,8 +109,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalAsOfQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalAll_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -128,8 +122,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalAllQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalBetween_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -142,8 +135,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalBetweenQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalContainedIn_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -156,8 +148,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalContainedInQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalFromTo_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
@@ -170,8 +161,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalFromToQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalAsOf_throws_for_Sqlite(bool async)
     {
         using var context = new SqliteQueryContext();
@@ -184,8 +174,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalAsOfQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalAll_throws_for_Sqlite(bool async)
     {
         using var context = new SqliteQueryContext();
@@ -198,8 +187,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalAllQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalBetween_throws_for_Sqlite(bool async)
     {
         using var context = new SqliteQueryContext();
@@ -212,8 +200,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalBetweenQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalContainedIn_throws_for_Sqlite(bool async)
     {
         using var context = new SqliteQueryContext();
@@ -226,8 +213,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(TemporalContainedInQueryRootExpression)), message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task TemporalFromTo_throws_for_Sqlite(bool async)
     {
         using var context = new SqliteQueryContext();

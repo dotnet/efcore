@@ -44,8 +44,15 @@ public class GuidToStringConverter : StringGuidConverter<Guid, string>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static GuidToStringConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(Guid), typeof(string), i => new GuidToStringConverter(i.MappingHints), DefaultHints);
+        = new(typeof(Guid), typeof(string),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new GuidToStringConverter(i.MappingHints),
+            DefaultHints);
 }

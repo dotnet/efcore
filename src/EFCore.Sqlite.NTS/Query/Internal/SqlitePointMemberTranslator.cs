@@ -47,7 +47,7 @@ public class SqlitePointMemberTranslator : IMemberTranslator
         => MemberToFunctionName.TryGetValue(member, out var functionName)
             ? _sqlExpressionFactory.Function(
                 functionName,
-                new[] { instance! },
+                [instance!],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 returnType)

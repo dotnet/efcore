@@ -80,9 +80,9 @@ public partial class ConventionDispatcher
             return name;
         }
 
-        public override string? OnDiscriminatorPropertySet(IConventionEntityTypeBuilder entityTypeBuilder, string? name)
+        public override string? OnDiscriminatorPropertySet(IConventionTypeBaseBuilder structuralTypeBuilder, string? name)
         {
-            Add(new OnDiscriminatorPropertySetNode(entityTypeBuilder, name));
+            Add(new OnDiscriminatorPropertySetNode(structuralTypeBuilder, name));
             return name;
         }
 
@@ -369,6 +369,13 @@ public partial class ConventionDispatcher
             return relationshipBuilder.Metadata.IsRequired;
         }
 
+        public override bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
+        {
+            Add(new OnForeignKeyConstrainednessChangedNode(relationshipBuilder));
+            return relationshipBuilder.Metadata.IsConstrained;
+        }
+
         public override bool? OnForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder)
         {
@@ -400,6 +407,12 @@ public partial class ConventionDispatcher
         {
             Add(new OnPropertyNullabilityChangedNode(propertyBuilder));
             return propertyBuilder.Metadata.IsNullable;
+        }
+
+        public override bool? OnPropertyAutoLoadChanged(IConventionPropertyBuilder propertyBuilder)
+        {
+            Add(new OnPropertyAutoLoadChangedNode(propertyBuilder));
+            return propertyBuilder.Metadata.IsAutoLoaded;
         }
 
         public override bool? OnElementTypeNullabilityChanged(IConventionElementTypeBuilder builder)
@@ -523,13 +536,13 @@ public partial class ConventionDispatcher
             => dispatcher._immediateConventionScope.OnEntityTypeMemberIgnored(EntityTypeBuilder, Name);
     }
 
-    private sealed class OnDiscriminatorPropertySetNode(IConventionEntityTypeBuilder entityTypeBuilder, string? name) : ConventionNode
+    private sealed class OnDiscriminatorPropertySetNode(IConventionTypeBaseBuilder structuralTypeBuilder, string? name) : ConventionNode
     {
-        public IConventionEntityTypeBuilder EntityTypeBuilder { get; } = entityTypeBuilder;
+        public IConventionTypeBaseBuilder StructuralTypeBuilder { get; } = structuralTypeBuilder;
         public string? Name { get; } = name;
 
         public override void Run(ConventionDispatcher dispatcher)
-            => dispatcher._immediateConventionScope.OnDiscriminatorPropertySet(EntityTypeBuilder, Name);
+            => dispatcher._immediateConventionScope.OnDiscriminatorPropertySet(StructuralTypeBuilder, Name);
     }
 
     private sealed class OnEntityTypeBaseTypeChangedNode(
@@ -711,6 +724,14 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnForeignKeyRequirednessChanged(RelationshipBuilder);
+    }
+
+    private sealed class OnForeignKeyConstrainednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder) : ConventionNode
+    {
+        public IConventionForeignKeyBuilder RelationshipBuilder { get; } = relationshipBuilder;
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnForeignKeyConstrainednessChanged(RelationshipBuilder);
     }
 
     private sealed class OnForeignKeyDependentRequirednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder) : ConventionNode
@@ -990,6 +1011,14 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnPropertyNullabilityChanged(PropertyBuilder);
+    }
+
+    private sealed class OnPropertyAutoLoadChangedNode(IConventionPropertyBuilder propertyBuilder) : ConventionNode
+    {
+        public IConventionPropertyBuilder PropertyBuilder { get; } = propertyBuilder;
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnPropertyAutoLoadChanged(PropertyBuilder);
     }
 
     private sealed class OnElementTypeNullabilityChangedNode(IConventionElementTypeBuilder builder) : ConventionNode

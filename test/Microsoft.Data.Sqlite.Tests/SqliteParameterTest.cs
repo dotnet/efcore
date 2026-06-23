@@ -5,8 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
-using Microsoft.Data.Sqlite.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite;
@@ -86,8 +87,7 @@ public class SqliteParameterTest
     public void SqliteType_defaults_to_text()
         => Assert.Equal(SqliteType.Text, new SqliteParameter().SqliteType);
 
-    [Theory]
-    [MemberData(nameof(TypesData))]
+    [Theory, MemberData(nameof(TypesData))]
     public void SqliteType_is_inferred_from_value(object value, SqliteType expectedType)
     {
         var parameter = new SqliteParameter { Value = value };
@@ -190,26 +190,26 @@ public class SqliteParameterTest
         }
     }
 
-    [Theory]
-    [InlineData(true, 1L)]
-    [InlineData((byte)1, 1L)]
-    [InlineData('A', 65L, SqliteType.Integer)]
-    [InlineData('A', "A")]
-    [InlineData(3.14, 3.14)]
-    [InlineData(3f, 3.0)]
-    [InlineData(1, 1L)]
-    [InlineData(1L, 1L)]
-    [InlineData((sbyte)1, 1L)]
-    [InlineData((short)1, 1L)]
-    [InlineData("test", "test")]
-    [InlineData(1u, 1L)]
-    [InlineData(1ul, 1L)]
-    [InlineData((ushort)1, 1L)]
-    [InlineData("测试测试测试", "测试测试测试")]
-    [InlineData(double.NegativeInfinity, double.NegativeInfinity)]
-    [InlineData(double.PositiveInfinity, double.PositiveInfinity)]
-    [InlineData(float.NegativeInfinity, double.NegativeInfinity)]
-    [InlineData(float.PositiveInfinity, double.PositiveInfinity)]
+    [Theory,
+     InlineData(true, 1L),
+     InlineData((byte)1, 1L),
+     InlineData('A', 65L, SqliteType.Integer),
+     InlineData('A', "A"),
+     InlineData(3.14, 3.14),
+     InlineData(3f, 3.0),
+     InlineData(1, 1L),
+     InlineData(1L, 1L),
+     InlineData((sbyte)1, 1L),
+     InlineData((short)1, 1L),
+     InlineData("test", "test"),
+     InlineData(1u, 1L),
+     InlineData(1ul, 1L),
+     InlineData((ushort)1, 1L),
+     InlineData("测试测试测试", "测试测试测试"),
+     InlineData(double.NegativeInfinity, double.NegativeInfinity),
+     InlineData(double.PositiveInfinity, double.PositiveInfinity),
+     InlineData(float.NegativeInfinity, double.NegativeInfinity),
+     InlineData(float.PositiveInfinity, double.PositiveInfinity)]
     public void Bind_works(object value, object coercedValue, SqliteType? sqliteType = null)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -230,9 +230,9 @@ public class SqliteParameterTest
         }
     }
 
-    [Theory]
-    [InlineData(double.NaN)]
-    [InlineData(float.NaN)]
+    [Theory,
+     InlineData(double.NaN),
+     InlineData(float.NaN)]
     public void Bind_throws_for_nan(object value)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -255,6 +255,24 @@ public class SqliteParameterTest
     }
 
     [Fact]
+    public void Bind_works_when_read_only_memory_bytes()
+    {
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((ReadOnlyMemory<byte>)buffer).Slice(1, 2);
+        var expected = new byte[] { 0x7E, 0x57 };
+        Bind_works(input, expected);
+    }
+
+    [Fact]
+    public void Bind_works_when_memory_bytes()
+    {
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((Memory<byte>)buffer).Slice(1, 2);
+        var expected = new byte[] { 0x7E, 0x57 };
+        Bind_works(input, expected);
+    }
+
+    [Fact]
     public void Bind_works_when_DateTime()
         => Bind_works(new DateTime(2014, 4, 14, 11, 13, 59), "2014-04-14 11:13:59");
 
@@ -264,13 +282,13 @@ public class SqliteParameterTest
 
     [Fact]
     public void Bind_works_when_DateTimeOffset()
-        => Bind_works(new DateTimeOffset(2014, 4, 14, 11, 13, 59, new TimeSpan(-8, 0, 0)), "2014-04-14 11:13:59-08:00");
+        => Bind_works(new DateTimeOffset(2014, 4, 14, 11, 13, 59, TimeSpan.FromHours(-8)), "2014-04-14 11:13:59-08:00");
 
     [Fact]
     public void Bind_works_when_DateTimeOffset_with_SqliteType_Real()
         => Bind_works(
-            new DateTimeOffset(new DateTime(2014, 4, 14, 11, 13, 59)),
-            2456761.9680439816,
+            new DateTimeOffset(2014, 4, 14, 11, 13, 59, TimeSpan.FromHours(-8)),
+            2456762.3013773146,
             SqliteType.Real);
 
 #if NET6_0_OR_GREATER
@@ -432,10 +450,10 @@ public class SqliteParameterTest
         }
     }
 
-    [Theory]
-    [InlineData("@Parameter")]
-    [InlineData("$Parameter")]
-    [InlineData(":Parameter")]
+    [Theory,
+     InlineData("@Parameter"),
+     InlineData("$Parameter"),
+     InlineData(":Parameter")]
     public void Bind_does_not_require_prefix(string parameterName)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -489,8 +507,7 @@ public class SqliteParameterTest
         }
     }
 
-    [Fact]
-    [UseCulture("ar-SA")]
+    [Fact, UseCulture("ar-SA")]
     public void Bind_DateTime_with_Arabic_Culture()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -517,8 +534,7 @@ public class SqliteParameterTest
         }
     }
 
-    [Fact]
-    [UseCulture("ar-SA")]
+    [Fact, UseCulture("ar-SA")]
     public void Bind_DateTimeOffset_with_Arabic_Culture()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -573,6 +589,86 @@ public class SqliteParameterTest
         }
     }
 
+#if NET7_0_OR_GREATER
+    [Fact]
+    public void Bind_UInt128_zero_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = (UInt128)0;
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("000000000000000000000000000000000000000", result);
+        }
+    }
+
+    [Fact]
+    public void Bind_UInt128_max_value_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = UInt128.MaxValue;
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("340282366920938463463374607431768211455", result);
+        }
+    }
+
+    [Fact]
+    public void Bind_UInt128_ordering_works()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                CREATE TABLE TestOrdering (Value TEXT);
+                INSERT INTO TestOrdering VALUES (@A);
+                INSERT INTO TestOrdering VALUES (@B);
+                INSERT INTO TestOrdering VALUES (@C);
+                SELECT Value FROM TestOrdering ORDER BY Value;
+                """;
+            command.Parameters.AddWithValue("@A", (UInt128)500);
+            command.Parameters.AddWithValue("@B", UInt128.MaxValue);
+            command.Parameters.AddWithValue("@C", (UInt128)1);
+
+            var results = new List<string>();
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(reader.GetString(0));
+            }
+
+            Assert.Equal(3, results.Count);
+            Assert.Equal("000000000000000000000000000000000000001", results[0]);
+            Assert.Equal("000000000000000000000000000000000000500", results[1]);
+            Assert.Equal("340282366920938463463374607431768211455", results[2]);
+        }
+    }
+
+    [Fact]
+    public void Bind_UInt128_concatenation_works()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter || '_suffix';";
+            var value = (UInt128)42;
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("000000000000000000000000000000000000042_suffix", result);
+        }
+    }
+#endif
+
     public static IEnumerable<object[]> TypesData
         => new List<object[]>
         {
@@ -601,6 +697,8 @@ public class SqliteParameterTest
             new object[] { 0.0, SqliteType.Real },
             new object[] { 0f, SqliteType.Real },
             new object[] { Array.Empty<byte>(), SqliteType.Blob },
+            new object[] { new Memory<byte>([]), SqliteType.Blob },
+            new object[] { new ReadOnlyMemory<byte>([]), SqliteType.Blob },
         };
 
     private enum MyEnum

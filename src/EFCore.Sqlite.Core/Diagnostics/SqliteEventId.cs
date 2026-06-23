@@ -28,8 +28,9 @@ public static class SqliteEventId
     {
         // Model validation events
         SchemaConfiguredWarning = CoreEventId.ProviderBaseId,
-        SequenceConfiguredWarning,
-        CompositeKeyWithValueGeneration,
+        SequenceConfiguredWarning = CoreEventId.ProviderBaseId + 1,
+        CompositeKeyWithValueGeneration = CoreEventId.ProviderBaseId + 2,
+        ConflictingValueGenerationStrategiesWarning = CoreEventId.ProviderBaseId + 3,
 
         // Infrastructure events
         UnexpectedConnectionTypeWarning = CoreEventId.ProviderBaseId + 100,
@@ -39,18 +40,18 @@ public static class SqliteEventId
 
         // Scaffolding events
         ColumnFound = CoreEventId.ProviderDesignBaseId,
-        ForeignKeyFound,
-        ForeignKeyPrincipalColumnMissingWarning,
-        ForeignKeyReferencesMissingTableWarning,
-        IndexFound,
-        MissingTableWarning,
-        PrimaryKeyFound,
-        SchemasNotSupportedWarning,
-        TableFound,
-        UniqueConstraintFound,
-        InferringTypes,
-        OutOfRangeWarning,
-        FormatWarning
+        ForeignKeyFound = CoreEventId.ProviderDesignBaseId + 1,
+        ForeignKeyPrincipalColumnMissingWarning = CoreEventId.ProviderDesignBaseId + 2,
+        ForeignKeyReferencesMissingTableWarning = CoreEventId.ProviderDesignBaseId + 3,
+        IndexFound = CoreEventId.ProviderDesignBaseId + 4,
+        MissingTableWarning = CoreEventId.ProviderDesignBaseId + 5,
+        PrimaryKeyFound = CoreEventId.ProviderDesignBaseId + 6,
+        SchemasNotSupportedWarning = CoreEventId.ProviderDesignBaseId + 7,
+        TableFound = CoreEventId.ProviderDesignBaseId + 8,
+        UniqueConstraintFound = CoreEventId.ProviderDesignBaseId + 9,
+        InferringTypes = CoreEventId.ProviderDesignBaseId + 10,
+        OutOfRangeWarning = CoreEventId.ProviderDesignBaseId + 11,
+        FormatWarning = CoreEventId.ProviderDesignBaseId + 12
     }
 
     private static readonly string ValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -97,6 +98,20 @@ public static class SqliteEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId CompositeKeyWithValueGeneration = MakeValidationId(Id.CompositeKeyWithValueGeneration);
+
+    /// <summary>
+    ///     Both the SqliteValueGenerationStrategy and another value generation configuration have been set on a property. 
+    ///     Configuring two strategies is usually unintentional and will likely result in a database error.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConflictingValueGenerationStrategiesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConflictingValueGenerationStrategiesWarning = MakeValidationId(Id.ConflictingValueGenerationStrategiesWarning);
 
     private static readonly string InfraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 

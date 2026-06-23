@@ -1,7 +1,8 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class SqlServerAnnotationCodeGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_when_clustered()
     {
         var generator = CreateGenerator();
@@ -34,7 +35,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(0, result.Arguments.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_when_nonclustered()
     {
         var generator = CreateGenerator();
@@ -57,7 +58,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IKey_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -79,7 +80,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(80, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IUniqueConstraint_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -102,7 +103,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(80, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_when_clustered()
     {
         var generator = CreateGenerator();
@@ -125,7 +126,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(0, result.Arguments.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_when_nonclustered()
     {
         var generator = CreateGenerator();
@@ -149,7 +150,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(false, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_with_fillfactor()
     {
         var generator = CreateGenerator();
@@ -172,7 +173,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal(90, result.Arguments[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IIndex_works_with_includes()
     {
         var generator = CreateGenerator();
@@ -195,10 +196,54 @@ public class SqlServerAnnotationCodeGeneratorTest
 
         Assert.Equal(1, result.Arguments.Count);
         var properties = Assert.IsType<string[]>(result.Arguments[0]);
-        Assert.Equal(new[] { "FirstName" }, properties.AsEnumerable());
+        Assert.Equal(["FirstName"], properties.AsEnumerable());
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void GenerateFluentApi_IModel_works_with_full_text_catalog()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.HasFullTextCatalog("MyCatalog").IsDefault().IsAccentSensitive(false);
+
+        var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations);
+
+        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        Assert.Equal(1, catalogResult.Arguments.Count);
+        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
+
+        var isDefaultChain = catalogResult.ChainedCall;
+        Assert.NotNull(isDefaultChain);
+        Assert.Equal("IsDefault", isDefaultChain.Method);
+        Assert.Equal(0, isDefaultChain.Arguments.Count);
+
+        var accentChain = isDefaultChain.ChainedCall;
+        Assert.NotNull(accentChain);
+        Assert.Equal("IsAccentSensitive", accentChain.Method);
+        Assert.Equal(1, accentChain.Arguments.Count);
+        Assert.Equal(false, accentChain.Arguments[0]);
+    }
+
+    [Fact]
+    public void GenerateFluentApi_IModel_works_with_full_text_catalog_defaults()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.HasFullTextCatalog("MyCatalog");
+
+        var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations);
+
+        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        Assert.Equal(1, catalogResult.Arguments.Count);
+        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
+
+        // No chained calls when using defaults
+        Assert.Null(catalogResult.ChainedCall);
+    }
+
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_identity()
     {
         var generator = CreateGenerator();
@@ -217,7 +262,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             increment => Assert.Equal(10, increment));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_identity()
     {
         var generator = CreateGenerator();
@@ -237,7 +282,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             increment => Assert.Equal(10, increment));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_identity_default_seed_increment()
     {
         var generator = CreateGenerator();
@@ -254,7 +299,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Empty(result.Arguments);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_HiLo()
     {
         var generator = CreateGenerator();
@@ -273,7 +318,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("HiLoIndexSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_HiLo()
     {
         var generator = CreateGenerator();
@@ -293,7 +338,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("HiLoIndexSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_KeySequence()
     {
         var generator = CreateGenerator();
@@ -312,7 +357,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("KeySequenceSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_KeySequence()
     {
         var generator = CreateGenerator();
@@ -332,7 +377,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             schema => Assert.Equal("KeySequenceSchema", schema));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_IsSparse()
     {
         var generator = CreateGenerator();
@@ -363,7 +408,34 @@ public class SqlServerAnnotationCodeGeneratorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void GenerateFluentApi_IProperty_with_DefaultConstraintName_and_no_DefaultValue_does_not_throw()
+    {
+        // Reproduces https://github.com/dotnet/efcore/issues/37175
+        // When a property has a named default constraint but no DefaultValue or DefaultValueSql annotation,
+        // GenerateFluentApiCalls should not throw a NullReferenceException
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity("Post", x => x.Property<int>("Id"));
+        var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
+
+        // Create annotations dictionary with only DefaultConstraintName (simulating the scenario where
+        // DefaultValue was already removed but DefaultConstraintName wasn't)
+        var constraintNameAnnotation = RelationalAnnotationNames.DefaultConstraintName;
+        var annotations = new Dictionary<string, IAnnotation>
+        {
+            { constraintNameAnnotation, new Annotation(constraintNameAnnotation, "DF_Post_Id") }
+        };
+
+        // This should not throw - it should simply skip generating code for the constraint name
+        // since there's no default value to associate with it
+        var result = generator.GenerateFluentApiCalls((IProperty)property, annotations);
+
+        // No method calls should be generated for the constraint name alone
+        Assert.Empty(result);
+    }
+
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_DatabaseMaxSize()
     {
         var generator = CreateGenerator();
@@ -377,7 +449,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("100", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_ServiceTier()
     {
         var generator = CreateGenerator();
@@ -391,7 +463,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("'foo'", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_PerformanceLevel()
     {
         var generator = CreateGenerator();
@@ -405,7 +477,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("'foo'", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IEntityType_works_when_IsMemoryOptimized()
     {
         var generator = CreateGenerator();
@@ -423,9 +495,13 @@ public class SqlServerAnnotationCodeGeneratorTest
         var result = generator.GenerateFluentApiCalls(entityType, entityType.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
 
-        Assert.Equal(nameof(SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized), result.Method);
-
-        Assert.Equal(0, result.Arguments.Count);
+        Assert.Equal(nameof(RelationalEntityTypeBuilderExtensions.ToTable), result.Method);
+        Assert.Single(result.Arguments);
+        var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(result.Arguments[0]);
+        Assert.Equal("tb", nestedClosure.Parameter);
+        var memoryOptimizedCall = Assert.Single(nestedClosure.MethodCalls);
+        Assert.Equal(nameof(SqlServerTableBuilderExtensions.IsMemoryOptimized), memoryOptimizedCall.Method);
+        Assert.Equal(0, memoryOptimizedCall.Arguments.Count);
     }
 
     private SqlServerAnnotationCodeGenerator CreateGenerator()
@@ -437,6 +513,6 @@ public class SqlServerAnnotationCodeGeneratorTest
                             new ValueConverterSelectorDependencies()),
                         new JsonValueReaderWriterSource(new JsonValueReaderWriterSourceDependencies()),
                         []),
-                    new RelationalTypeMappingSourceDependencies(
-                        []))));
+                    new RelationalTypeMappingSourceDependencies([]),
+                    new SqlServerSingletonOptions())));
 }

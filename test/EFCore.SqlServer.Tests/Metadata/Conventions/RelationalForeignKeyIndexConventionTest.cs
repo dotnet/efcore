@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class RelationalForeignKeyIndexConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Removing_relationship_removes_unused_conventional_index()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -19,13 +19,13 @@ public class RelationalForeignKeyIndexConventionTest
 
         var relationshipBuilder = dependentEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
             ConfigurationSource.DataAnnotation);
         Assert.NotNull(relationshipBuilder);
 
         var relationshipBuilder2 = dependentEntityBuilder.HasRelationship(
             derivedPrincipalEntityBuilder.Metadata,
-            new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
             ConfigurationSource.DataAnnotation);
         Assert.NotNull(relationshipBuilder2);
         Assert.NotSame(relationshipBuilder, relationshipBuilder2);
@@ -44,7 +44,7 @@ public class RelationalForeignKeyIndexConventionTest
         Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_relationship_does_not_remove_conventional_index_if_in_use()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -53,10 +53,10 @@ public class RelationalForeignKeyIndexConventionTest
 
         var relationshipBuilder = dependentEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
             ConfigurationSource.Convention);
         Assert.NotNull(relationshipBuilder);
-        dependentEntityBuilder.HasIndex(new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit);
+        dependentEntityBuilder.HasIndex([Order.CustomerIdProperty], ConfigurationSource.Explicit);
 
         Assert.NotNull(dependentEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
 

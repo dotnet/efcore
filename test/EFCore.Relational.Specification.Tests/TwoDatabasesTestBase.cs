@@ -11,7 +11,7 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
 {
     protected FixtureBase Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_from_one_connection_string_and_save_changes_to_another()
     {
         using var context1 = CreateBackingContext("TwoDatabasesOne");
@@ -42,7 +42,7 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
         Assert.Equal(new[] { "Modified One", "Modified Two" }, context2.Foos.Select(e => e.Bar).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_from_one_connection_and_save_changes_to_another()
     {
         using var context1 = CreateBackingContext("TwoDatabasesOneB");
@@ -70,9 +70,7 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
         Assert.Equal(new[] { "Modified One", "Modified Two" }, context2.Foos.Select(e => e.Bar).ToList());
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [Theory, InlineData(true, false), InlineData(true, true)]
     public virtual void Can_set_connection_string_in_interceptor(bool withConnectionString, bool withNullConnectionString)
     {
         using var context1 = CreateBackingContext("TwoDatabasesIntercept");

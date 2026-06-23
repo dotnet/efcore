@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionSqliteTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>
+public class MaterializationInterceptionSqliteTest(NonSharedFixture fixture) :
+    MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>(fixture)
 {
     public override async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Intercept_query_materialization_with_owned_types_projecting_collection(async, usePooling)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Intercept_query_materialization_with_owned_types_projecting_collection(async, usePooling)))
             .Message);
 
     public class SqliteLibraryContext(DbContextOptions options) : LibraryContext(options)
@@ -25,6 +25,10 @@ public class MaterializationInterceptionSqliteTest :
         }
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
+
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 }

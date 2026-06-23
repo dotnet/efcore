@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class PropertyEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Setting_IsModified_should_not_be_dependent_on_other_properties()
     {
         Guid id;
@@ -54,7 +54,7 @@ public class PropertyEntryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SetValues_with_IsModified_can_mark_a_set_of_values_as_changed()
     {
         Guid id;
@@ -69,7 +69,12 @@ public class PropertyEntryTest
 
         using (var context = new UserContext())
         {
-            var disconnectedEntity = new User { Id = id, LongName = "NewLongName" };
+            var disconnectedEntity = new User
+            {
+                Id = id,
+                Name = "",
+                LongName = "NewLongName"
+            };
             var trackedEntity = context.Find<User>(id)!;
 
             Assert.Equal("A", trackedEntity.Name);
@@ -79,7 +84,7 @@ public class PropertyEntryTest
 
             entry.CurrentValues.SetValues(disconnectedEntity);
 
-            Assert.Null(trackedEntity.Name);
+            Assert.Equal("", trackedEntity.Name);
             Assert.Equal("NewLongName", trackedEntity.LongName);
 
             Assert.False(entry.Property(e => e.Id).IsModified);
@@ -124,15 +129,14 @@ public class PropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<User>(
-                b =>
-                {
-                    b.Property(e => e.Name).IsRequired();
-                    b.Property(e => e.LongName).IsRequired();
-                });
+            => modelBuilder.Entity<User>(b =>
+            {
+                b.Property(e => e.Name).IsRequired();
+                b.Property(e => e.LongName).IsRequired();
+            });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_IsModified_is_not_reset_by_OriginalValues()
     {
         Guid id;
@@ -152,7 +156,12 @@ public class PropertyEntryTest
         using (var context = new UserContext())
         {
             var user = context.Update(
-                new User { Id = id }).Entity;
+                new User
+                {
+                    Id = id,
+                    Name = "A1",
+                    LongName = "B1"
+                }).Entity;
 
             user.Name = "A2";
             user.LongName = "B2";
@@ -172,11 +181,11 @@ public class PropertyEntryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_name()
         => Can_get_name_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_name_with_object_field()
         => Can_get_name_helper<ObjectWotty>();
 
@@ -199,11 +208,11 @@ public class PropertyEntryTest
         Assert.Equal("Primate", new PropertyEntry(entry, entry.EntityType.FindProperty("Primate")!).Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_current_value()
         => Can_get_current_value_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_current_value_with_object_field()
         => Can_get_current_value_helper<ObjectWotty>();
 
@@ -227,11 +236,11 @@ public class PropertyEntryTest
         Assert.Equal("Tarsier", new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value()
         => Can_set_current_value_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_with_object_field()
         => Can_set_current_value_helper<ObjectWotty>();
 
@@ -260,11 +269,11 @@ public class PropertyEntryTest
         Assert.Equal("Bushbaby", entity.RequiredPrimate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_to_null()
         => Can_set_current_value_to_null_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_to_null_with_object_field()
         => Can_set_current_value_to_null_helper<ObjectWotty>();
 
@@ -293,11 +302,11 @@ public class PropertyEntryTest
         Assert.Null(entity.RequiredPrimate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value()
         => Can_set_and_get_original_value_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_with_object_field()
         => Can_set_and_get_original_value_helper<ObjectWotty>();
 
@@ -335,11 +344,11 @@ public class PropertyEntryTest
         Assert.Equal("Tarsier", entity.RequiredPrimate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_starting_null()
         => Can_set_and_get_original_value_starting_null_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_starting_null_with_object_field()
         => Can_set_and_get_original_value_starting_null_helper<ObjectWotty>();
 
@@ -372,11 +381,11 @@ public class PropertyEntryTest
         Assert.Null(entity.RequiredPrimate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_original_value_to_null()
         => Can_set_original_value_to_null_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_original_value_to_null_with_object_field()
         => Can_set_original_value_to_null_helper<ObjectWotty>();
 
@@ -405,11 +414,11 @@ public class PropertyEntryTest
         Assert.Null(new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!).OriginalValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_clear_modified_on_Modified_entity()
         => Can_set_and_clear_modified_on_Modified_entity_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_clear_modified_on_Modified_entity_with_object_field()
         => Can_set_and_clear_modified_on_Modified_entity_helper<ObjectWotty>();
 
@@ -452,15 +461,11 @@ public class PropertyEntryTest
         Assert.True(new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!).IsModified);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Deleted)]
     public void Can_set_and_clear_modified_on_Added_or_Deleted_entity(EntityState initialState)
         => Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<Wotty>(initialState);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Deleted)]
     public void Can_set_and_clear_modified_on_Added_or_Deleted_entity_with_object_field(EntityState initialState)
         => Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<ObjectWotty>(initialState);
 
@@ -494,15 +499,11 @@ public class PropertyEntryTest
         Assert.False(new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!).IsModified);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Detached)]
-    [InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Detached), InlineData(EntityState.Unchanged)]
     public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity(EntityState initialState)
         => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<Wotty>(initialState);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Detached)]
-    [InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Detached), InlineData(EntityState.Unchanged)]
     public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_with_object_field(EntityState initialState)
         => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<ObjectWotty>(initialState);
 
@@ -536,11 +537,11 @@ public class PropertyEntryTest
         Assert.False(new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_reject_changes_when_clearing_modified_flag()
         => Can_reject_changes_when_clearing_modified_flag_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_reject_changes_when_clearing_modified_flag_with_object_field()
         => Can_reject_changes_when_clearing_modified_flag_helper<ObjectWotty>();
 
@@ -618,11 +619,11 @@ public class PropertyEntryTest
         Assert.Equal("Bushbaby", entity.RequiredPrimate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_name_generic()
         => Can_get_name_generic_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_name_generic_with_object_field()
         => Can_get_name_generic_helper<ObjectWotty>();
 
@@ -637,11 +638,11 @@ public class PropertyEntryTest
         Assert.Equal("Primate", new PropertyEntry<Wotty, string>(entry, entry.EntityType.FindProperty("Primate")!).Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_current_value_generic()
         => Can_get_current_value_generic_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_current_value_generic_with_object_field()
         => Can_get_current_value_generic_helper<ObjectWotty>();
 
@@ -656,11 +657,11 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", new PropertyEntry<Wotty, string>(entry, entry.EntityType.FindProperty("Primate")!).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_generic()
         => Can_set_current_value_generic_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_generic_with_object_field()
         => Can_set_current_value_generic_helper<ObjectWotty>();
 
@@ -679,11 +680,11 @@ public class PropertyEntryTest
         Assert.Equal("Chimp", entity.Primate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_to_null_generic()
         => Can_set_current_value_to_null_generic_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_to_null_generic_with_object_field()
         => Can_set_current_value_to_null_generic_helper<ObjectWotty>();
 
@@ -702,11 +703,11 @@ public class PropertyEntryTest
         Assert.Null(entity.Primate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_generic()
         => Can_set_and_get_original_value_generic_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_generic_with_object_field()
         => Can_set_and_get_original_value_generic_helper<ObjectWotty>();
 
@@ -728,11 +729,11 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", entity.Primate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_original_value_to_null_generic()
         => Can_set_original_value_to_null_generic_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_original_value_to_null_generic_with_object_field()
         => Can_set_original_value_to_null_generic_helper<ObjectWotty>();
 
@@ -749,11 +750,11 @@ public class PropertyEntryTest
         Assert.Null(new PropertyEntry<Wotty, string>(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_clear_modified_generic()
         => Can_set_and_clear_modified_generic_helper<Wotty>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_clear_modified_generic_with_object_field()
         => Can_set_and_clear_modified_generic_helper<ObjectWotty>();
 
@@ -778,7 +779,7 @@ public class PropertyEntryTest
         Assert.False(new PropertyEntry<Wotty, string>(entry, entry.EntityType.FindProperty("Primate")!).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_notifying_entities()
     {
         var entity = new NotifyingWotty { Id = 1, Primate = "Monkey" };
@@ -796,7 +797,7 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", entity.Primate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_original_value_to_null_notifying_entities()
     {
         var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -809,7 +810,7 @@ public class PropertyEntryTest
         Assert.Null(new PropertyEntry(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_generic_notifying_entities()
     {
         var entity = new NotifyingWotty { Id = 1, Primate = "Monkey" };
@@ -827,7 +828,7 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", entity.Primate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_original_value_to_null_generic_notifying_entities()
     {
         var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -840,7 +841,7 @@ public class PropertyEntryTest
         Assert.Null(new PropertyEntry<NotifyingWotty, string>(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_concurrency_token_original_value_full_notification_entities()
     {
         var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
@@ -858,7 +859,7 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", entity.ConcurrentPrimate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_concurrency_token_original_value_to_null_full_notification_entities()
     {
         var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -871,7 +872,7 @@ public class PropertyEntryTest
         Assert.Null(new PropertyEntry(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_concurrency_token_original_value_generic_full_notification_entities()
     {
         var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
@@ -893,7 +894,7 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", entity.ConcurrentPrimate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_concurrency_token_original_value_to_null_generic_full_notification_entities()
     {
         var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -907,7 +908,7 @@ public class PropertyEntryTest
             new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_set_or_get_original_value_when_not_tracked()
     {
         var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
@@ -928,7 +929,7 @@ public class PropertyEntryTest
             Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue = "Chimp").Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_set_or_get_original_value_when_not_tracked_generic()
     {
         var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
@@ -949,7 +950,7 @@ public class PropertyEntryTest
             Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue = "Chimp").Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_or_get_original_value_when_property_explicitly_marked_to_be_tracked()
     {
         var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
@@ -967,7 +968,7 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", entity.Primate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_or_get_original_value_when_property_explicitly_marked_to_be_tracked_generic()
     {
         var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
@@ -987,7 +988,7 @@ public class PropertyEntryTest
         Assert.Equal("Monkey", entity.Primate);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_name_for_complex_property()
     {
         using var context = new YogurtContext();
@@ -1171,7 +1172,7 @@ public class PropertyEntryTest
         Assert.Equal("Text", fieldMilkLicTagEntry.Property(e => e.Text).Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_current_value_for_complex_property()
     {
         using var context = new YogurtContext();
@@ -1375,7 +1376,7 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.FieldMilk.License.Tag.Text, fieldMilkLicTagEntry.Property(e => e.Text).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_for_complex_property()
     {
         using var context = new YogurtContext();
@@ -1713,7 +1714,7 @@ public class PropertyEntryTest
         Assert.Equal("Tag2", fieldMilkLicTagEntry.Property(e => e.Text).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_for_complex_property_using_complex_type()
     {
         using var context = new YogurtContext();
@@ -2331,7 +2332,7 @@ public class PropertyEntryTest
         Assert.Equal("Tag2c", fieldMilkLicTagEntry.Property(e => e.Text).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_current_value_for_property_of_complex_type_to_null()
     {
         using var context = new YogurtContext();
@@ -2553,7 +2554,7 @@ public class PropertyEntryTest
         Assert.Null(fieldMilkLicTagEntry.Property(e => e.Text).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_original_value_for_complex_property()
     {
         using var context = new YogurtContext();
@@ -2991,7 +2992,7 @@ public class PropertyEntryTest
         Assert.Equal("Ta1", fieldMilkLicTagEntry.Property(e => e.Text).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_clear_modified_on_Modified_entity_for_complex_property()
     {
         using var context = new YogurtContext();
@@ -3751,7 +3752,7 @@ public class PropertyEntryTest
         Assert.False(fieldMilkLicTagEntry.Property(e => e.Text).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_clear_modified_on_Modified_using_complex_type()
     {
         using var context = new YogurtContext();
@@ -4665,29 +4666,25 @@ public class PropertyEntryTest
 
         builder.HasChangeTrackingStrategy(fullNotificationStrategy);
 
-        builder.Entity<Wotty>(
-            b =>
-            {
-                b.Property(e => e.RequiredPrimate).IsRequired();
-                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-            });
+        builder.Entity<Wotty>(b =>
+        {
+            b.Property(e => e.RequiredPrimate).IsRequired();
+            b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+        });
 
-        builder.Entity<ObjectWotty>(
-            b =>
-            {
-                b.Property(e => e.RequiredPrimate).IsRequired();
-                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-            });
+        builder.Entity<ObjectWotty>(b =>
+        {
+            b.Property(e => e.RequiredPrimate).IsRequired();
+            b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+        });
 
-        builder.Entity<NotifyingWotty>(
-            b => b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications));
+        builder.Entity<NotifyingWotty>(b => b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications));
 
-        builder.Entity<FullyNotifyingWotty>(
-            b =>
-            {
-                b.HasChangeTrackingStrategy(fullNotificationStrategy);
-                b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
-            });
+        builder.Entity<FullyNotifyingWotty>(b =>
+        {
+            b.HasChangeTrackingStrategy(fullNotificationStrategy);
+            b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
+        });
 
         return finalize ? builder.Model.FinalizeModel() : (IModel)builder.Model;
     }
@@ -4709,77 +4706,76 @@ public class PropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Yogurt>(
-                b =>
-                {
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+            => modelBuilder.Entity<Yogurt>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.Culture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.Milk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+                b.ComplexProperty(
+                    e => e.Milk, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.FieldCulture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+                b.ComplexProperty(
+                    e => e.FieldCulture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.FieldMilk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-                });
+                b.ComplexProperty(
+                    e => e.FieldMilk, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
+            });
     }
 
     private class PrimateContext(ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications)
@@ -4887,4 +4883,381 @@ public class PropertyEntryTest
     {
         public string? Text;
     }
+
+    #region IsAutoLoaded / IsLoaded change tracking tests
+
+    public static IEnumerable<object[]> TrackingMethodData
+        => [[EntityState.Added], [EntityState.Unchanged], [EntityState.Modified], [EntityState.Deleted]];
+
+    private static void TrackEntity(DbContext context, object entity, EntityState state)
+        => context.Entry(entity).State = state;
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Not_auto_loaded_property_initial_state(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var nameEntry = entry.Property(e => e.Name);
+        var descEntry = entry.Property(e => e.Description);
+
+        // Normal property is always loaded
+        Assert.True(nameEntry.IsLoaded);
+
+        // Not-auto-loaded property with sentinel value is not loaded for all tracking methods
+        Assert.False(descEntry.IsLoaded);
+        Assert.False(descEntry.IsModified);
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Setting_value_on_not_loaded_property_marks_loaded_and_modified(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var descEntry = entry.Property(e => e.Description);
+
+        Assert.False(descEntry.IsLoaded);
+
+        descEntry.CurrentValue = "Updated description";
+
+        if (state == EntityState.Deleted)
+        {
+            // PropertyChanged skips SetPropertyModified for Deleted entities
+            Assert.False(descEntry.IsLoaded);
+            Assert.False(descEntry.IsModified);
+        }
+        else
+        {
+            Assert.True(descEntry.IsLoaded);
+
+            // In Added state, IsModified is always false
+            Assert.Equal(state != EntityState.Added, descEntry.IsModified);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void DetectChanges_skips_not_loaded_property_detects_loaded_change(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        if (state is EntityState.Added or EntityState.Deleted)
+        {
+            // In Added/Deleted state, DetectChanges doesn't flag properties as modified
+            return;
+        }
+
+        // Modify the loaded property directly
+        entity.Name = "Updated Blog";
+
+        context.ChangeTracker.DetectChanges();
+
+        var entry = context.Entry(entity);
+        Assert.True(entry.Property(e => e.Name).IsModified);
+        Assert.False(entry.Property(e => e.Description).IsModified);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+        Assert.Equal(EntityState.Modified, entry.State);
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void DetectChanges_marks_not_loaded_property_as_loaded_when_value_is_no_longer_sentinel(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        if (state is EntityState.Added or EntityState.Deleted)
+        {
+            return;
+        }
+
+        var entry = context.Entry(entity);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+
+        // Set the unloaded property to a non-sentinel value directly on the entity
+        entity.Description = "Now has a value";
+
+        context.ChangeTracker.DetectChanges();
+
+        Assert.True(entry.Property(e => e.Description).IsLoaded);
+        Assert.True(entry.Property(e => e.Description).IsModified);
+        Assert.Equal(EntityState.Modified, entry.State);
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void SetEntityState_Modified_skips_not_loaded_properties(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        entry.State = EntityState.Modified;
+
+        // Loaded properties should be flagged as modified
+        Assert.True(entry.Property(e => e.Name).IsModified);
+
+        // Not-loaded properties (sentinel value) should NOT be flagged as modified
+        Assert.False(entry.Property(e => e.Description).IsModified);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Not_auto_loaded_property_starts_unloaded(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+
+        // Entity where the not-auto-loaded property has sentinel (null)
+        var entity1 = new AutoLoadBlog { Id = 1, Name = "Blog1" };
+        TrackEntity(context, entity1, state);
+        Assert.False(context.Entry(entity1).Property(e => e.Description).IsLoaded);
+        Assert.False(context.Entry(entity1).Property(e => e.Description).IsModified);
+
+        // Entity where the not-auto-loaded property has a non-sentinel value
+        var entity2 = new AutoLoadBlog { Id = 2, Name = "Blog2", Description = "Has value" };
+        TrackEntity(context, entity2, state);
+
+        // Non-sentinel value: sentinel check detects a real value, so property is loaded
+        Assert.True(context.Entry(entity2).Property(e => e.Description).IsLoaded);
+        Assert.Equal(state == EntityState.Modified, context.Entry(entity2).Property(e => e.Description).IsModified);
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void AcceptChanges_preserves_not_loaded_flag(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+
+        context.ChangeTracker.AcceptAllChanges();
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Equal(EntityState.Detached, entry.State);
+        }
+        else
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            Assert.False(entry.Property(e => e.Description).IsLoaded);
+            Assert.False(entry.Property(e => e.Description).IsModified);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void PropertyEntry_IsLoaded_setter_controls_loaded_state(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var descEntry = entry.Property(e => e.Description);
+
+        Assert.False(descEntry.IsLoaded);
+        descEntry.IsLoaded = true;
+        Assert.True(descEntry.IsLoaded);
+        descEntry.IsLoaded = false;
+        Assert.False(descEntry.IsLoaded);
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Setting_IsModified_true_on_not_loaded_marks_loaded(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var descEntry = entry.Property(e => e.Description);
+
+        Assert.False(descEntry.IsLoaded);
+
+        descEntry.IsModified = true;
+
+        Assert.True(descEntry.IsLoaded);
+        Assert.Equal(state is not EntityState.Added and not EntityState.Deleted, descEntry.IsModified);
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Shadow_property_not_auto_loaded_tracked_correctly(EntityState state)
+    {
+        using var context = new AutoLoadShadowContext();
+        var entity = new AutoLoadShadowEntity { Id = 1, Name = "Test" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var shadowEntry = entry.Property("ShadowDesc");
+
+        Assert.False(shadowEntry.IsLoaded);
+        Assert.False(shadowEntry.IsModified);
+
+        shadowEntry.CurrentValue = "Shadow value";
+
+        if (state == EntityState.Deleted)
+        {
+            // PropertyChanged skips SetPropertyModified for Deleted entities
+            Assert.False(shadowEntry.IsLoaded);
+            Assert.False(shadowEntry.IsModified);
+        }
+        else
+        {
+            Assert.True(shadowEntry.IsLoaded);
+
+            // In Added state, IsModified is always false
+            Assert.Equal(state != EntityState.Added, shadowEntry.IsModified);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Reject_changes_with_not_loaded_property(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+
+        // Reject changes by reverting to Unchanged (or Detached for Added)
+        entry.State = state == EntityState.Added ? EntityState.Detached : EntityState.Unchanged;
+
+        if (state == EntityState.Added)
+        {
+            Assert.Equal(EntityState.Detached, entry.State);
+        }
+        else
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            Assert.False(entry.Property(e => e.Description).IsLoaded);
+            Assert.False(entry.Property(e => e.Description).IsModified);
+        }
+    }
+
+    private class AutoLoadBlog
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
+    private class AutoLoadContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(GetType().FullName!);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<AutoLoadBlog>(
+                b =>
+                {
+                    b.Property(e => e.Name);
+                    b.Property(e => e.Description).Metadata.IsAutoLoaded = false;
+                });
+    }
+
+    private class AutoLoadShadowEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+    }
+
+    private class AutoLoadShadowContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(GetType().FullName!);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<AutoLoadShadowEntity>(
+                b =>
+                {
+                    b.Property(e => e.Name);
+                    b.Property<string?>("ShadowDesc").Metadata.IsAutoLoaded = false;
+                });
+    }
+
+    [Fact]
+    public void DetectComplexPropertyChange_skips_not_loaded_inner_properties()
+    {
+        using var context = new AutoLoadComplexContext();
+        var entity = new AutoLoadComplexEntity { Id = 1, Name = "Test" };
+        context.Attach(entity);
+
+        var entry = context.Entry(entity);
+
+        // Address is a nullable complex property, initially null
+        Assert.Null(entry.ComplexProperty(e => e.Address).CurrentValue);
+
+        // Set the complex property to a non-null value, triggering DetectComplexPropertyChange
+        entity.Address = new Address { Street = "123 Main St", ZipCode = null };
+        context.ChangeTracker.DetectChanges();
+
+        // Street is auto-loaded, so it should be modified
+        var streetProperty = entry.ComplexProperty(e => e.Address).Property(e => e.Street);
+        Assert.True(streetProperty.IsModified);
+
+        // ZipCode is not auto-loaded and has sentinel value, so it should NOT be modified
+        var zipProperty = entry.ComplexProperty(e => e.Address).Property(e => e.ZipCode);
+        Assert.False(zipProperty.IsModified);
+        Assert.False(zipProperty.IsLoaded);
+    }
+
+    private class Address
+    {
+        public string? Street { get; set; }
+        public string? ZipCode { get; set; }
+    }
+
+    private class AutoLoadComplexEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public Address? Address { get; set; }
+    }
+
+    private class AutoLoadComplexContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(GetType().FullName!);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<AutoLoadComplexEntity>(
+                b =>
+                {
+                    b.Property(e => e.Name);
+                    b.ComplexProperty(
+                        e => e.Address, ab =>
+                        {
+                            ab.IsRequired(false);
+                            ab.Property(a => a.Street);
+                            ab.Property(a => a.ZipCode).Metadata.IsAutoLoaded = false;
+                        });
+                });
+    }
+
+    #endregion
 }

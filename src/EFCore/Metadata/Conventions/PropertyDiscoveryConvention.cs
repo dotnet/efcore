@@ -117,6 +117,6 @@ public class PropertyDiscoveryConvention :
         MemberInfo memberInfo,
         IConventionTypeBase structuralType,
         out CoreTypeMapping? mapping)
-        => Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(memberInfo, structuralType.Model, UseAttributes, out mapping)
+        => Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(memberInfo, structuralType.Model, UseAttributes, out mapping, out _)
             && ((Model)structuralType.Model).FindIsComplexConfigurationSource(memberInfo.GetMemberType().UnwrapNullableType()) == null;
 }

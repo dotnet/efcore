@@ -88,11 +88,11 @@ public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
                 {
                     var pk = entityType.FindPrimaryKey();
                     if (pk != null
+                        && pk.Properties.All(p => p.DeclaringType is IConventionEntityType)
                         && !entityType.FindDeclaredForeignKeys(pk.Properties)
-                            .Any(
-                                fk => fk.PrincipalKey.IsPrimaryKey()
-                                    && fk.PrincipalEntityType.IsAssignableFrom(entityType)
-                                    && fk.PrincipalEntityType != entityType))
+                            .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                                && fk.PrincipalEntityType.IsAssignableFrom(entityType)
+                                && fk.PrincipalEntityType != entityType))
                     {
                         var closestMappedType = entityType.BaseType;
                         while (closestMappedType != null

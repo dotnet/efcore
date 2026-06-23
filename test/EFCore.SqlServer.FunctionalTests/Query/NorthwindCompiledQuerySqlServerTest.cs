@@ -16,7 +16,7 @@ public class NorthwindCompiledQuerySqlServerTest : NorthwindCompiledQueryTestBas
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -178,25 +178,19 @@ WHERE [c].[CustomerID] = @customerID
 
         AssertSql(
             """
-@args='["ALFKI"]' (Size = 4000)
+@args1='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [a].[value]
-    FROM OPENJSON(@args) WITH ([value] nchar(5) '$') AS [a]
-)
+WHERE [c].[CustomerID] = @args1
 """,
             //
             """
-@args='["ANATR"]' (Size = 4000)
+@args1='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [a].[value]
-    FROM OPENJSON(@args) WITH ([value] nchar(5) '$') AS [a]
-)
+WHERE [c].[CustomerID] = @args1
 """);
     }
 
@@ -399,44 +393,88 @@ WHERE [c].[CustomerID] = @s1 OR [c].[CustomerID] = @s2 OR [c].[CustomerID] = @s3
     {
         base.Query_with_array_parameter();
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@args='["ALFKI"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""",
+                //
+                """
+@args='["ANATR"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @args='["ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """,
-            //
-            """
+                //
+                """
 @args='["ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """);
+        }
     }
 
     public override async Task Query_with_array_parameter_async()
     {
         await base.Query_with_array_parameter_async();
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@args='["ALFKI"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""",
+                //
+                """
+@args='["ANATR"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @args='["ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """,
-            //
-            """
+                //
+                """
 @args='["ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """);
+        }
     }
 
     public override void Multiple_queries()
@@ -764,6 +802,12 @@ WHERE [c].[CustomerID] = @customerID
 ORDER BY [c].[CustomerID]
 """);
     }
+
+    public override void Compiled_query_with_EF_Constant_throws()
+        => base.Compiled_query_with_EF_Constant_throws();
+
+    public override void Compiled_query_with_EF_Parameter_throws()
+        => base.Compiled_query_with_EF_Parameter_throws();
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

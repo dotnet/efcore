@@ -41,6 +41,8 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         {
             GlobExpression globExpression => VisitGlob(globExpression, allowOptimizedExpansion, out nullable),
             RegexpExpression regexpExpression => VisitRegexp(regexpExpression, allowOptimizedExpansion, out nullable),
+            SqliteAggregateFunctionExpression aggregateFunctionExpression
+                => VisitAggregateFunction(aggregateFunctionExpression, allowOptimizedExpansion, out nullable),
             _ => base.VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -74,7 +76,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        Check.NotNull(regexpExpression, nameof(regexpExpression));
+        Check.NotNull(regexpExpression);
 
         var match = Visit(regexpExpression.Match, out var matchNullable);
         var pattern = Visit(regexpExpression.Pattern, out var patternNullable);
@@ -82,6 +84,67 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         nullable = matchNullable || patternNullable;
 
         return regexpExpression.Update(match, pattern);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual SqlExpression VisitAggregateFunction(
+        SqliteAggregateFunctionExpression aggregateFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        nullable = aggregateFunctionExpression.IsNullable;
+
+        SqlExpression[]? arguments = null;
+        for (var i = 0; i < aggregateFunctionExpression.Arguments.Count; i++)
+        {
+            var visitedArgument = Visit(aggregateFunctionExpression.Arguments[i], out _);
+            if (visitedArgument != aggregateFunctionExpression.Arguments[i] && arguments is null)
+            {
+                arguments = new SqlExpression[aggregateFunctionExpression.Arguments.Count];
+
+                for (var j = 0; j < i; j++)
+                {
+                    arguments[j] = aggregateFunctionExpression.Arguments[j];
+                }
+            }
+
+            if (arguments is not null)
+            {
+                arguments[i] = visitedArgument;
+            }
+        }
+
+        OrderingExpression[]? orderings = null;
+        for (var i = 0; i < aggregateFunctionExpression.Orderings.Count; i++)
+        {
+            var ordering = aggregateFunctionExpression.Orderings[i];
+            var visitedOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            if (visitedOrdering != aggregateFunctionExpression.Orderings[i] && orderings is null)
+            {
+                orderings = new OrderingExpression[aggregateFunctionExpression.Orderings.Count];
+
+                for (var j = 0; j < i; j++)
+                {
+                    orderings[j] = aggregateFunctionExpression.Orderings[j];
+                }
+            }
+
+            if (orderings is not null)
+            {
+                orderings[i] = visitedOrdering;
+            }
+        }
+
+        return arguments is not null || orderings is not null
+            ? aggregateFunctionExpression.Update(
+                arguments ?? aggregateFunctionExpression.Arguments,
+                orderings ?? aggregateFunctionExpression.Orderings)
+            : aggregateFunctionExpression;
     }
 
     /// <inheritdoc />
@@ -136,7 +199,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         TableExpressionBase table,
         SqlParameterExpression newCollectionParameter)
         => table is TableValuedFunctionExpression { Arguments: [SqlParameterExpression] } jsonEachExpression
-            ? jsonEachExpression.Update(new[] { newCollectionParameter })
+            ? jsonEachExpression.Update([newCollectionParameter])
             : base.UpdateParameterCollection(table, newCollectionParameter);
 #pragma warning restore EF1001
 }

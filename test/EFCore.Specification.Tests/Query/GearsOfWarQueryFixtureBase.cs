@@ -7,15 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsOfWarContext>, IQueryFixtureBase
+public abstract class GearsOfWarQueryFixtureBase : QueryFixtureBase<GearsOfWarContext>
 {
     protected override string StoreName
         => "GearsOfWarQueryTest";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => GearsOfWarData.Instance;
 
     public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
@@ -28,7 +25,7 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
             },
         };
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(City), e => ((City)e)?.Name },
         { typeof(CogTag), e => ((CogTag)e)?.Id },
@@ -45,7 +42,7 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
         { typeof(LocustHighCommand), e => ((LocustHighCommand)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(City), (e, a) =>
@@ -301,59 +298,49 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.Entity<City>(
-            b =>
-            {
-                b.HasKey(c => c.Name);
-            });
+        modelBuilder.Entity<City>(b =>
+        {
+            b.HasKey(c => c.Name);
+        });
 
-        modelBuilder.Entity<Gear>(
-            b =>
-            {
-                b.HasKey(
-                    g => new { g.Nickname, g.SquadId });
+        modelBuilder.Entity<Gear>(b =>
+        {
+            b.HasKey(g => new { g.Nickname, g.SquadId });
 
-                b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOfBirthName).IsRequired();
-                b.HasOne(g => g.Tag).WithOne(t => t.Gear).HasForeignKey<CogTag>(
-                    t => new { t.GearNickName, t.GearSquadId });
-                b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
-            });
+            b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOfBirthName).IsRequired();
+            b.HasOne(g => g.Tag).WithOne(t => t.Gear).HasForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+            b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
+        });
 
-        modelBuilder.Entity<Officer>().HasMany(o => o.Reports).WithOne().HasForeignKey(
-            o => new { o.LeaderNickname, o.LeaderSquadId });
+        modelBuilder.Entity<Officer>().HasMany(o => o.Reports).WithOne().HasForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
 
-        modelBuilder.Entity<Squad>(
-            b =>
-            {
-                b.HasKey(s => s.Id);
-                b.Property(s => s.Id).ValueGeneratedNever();
-                b.Property(s => s.Banner5).HasMaxLength(5);
-                b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
-            });
+        modelBuilder.Entity<Squad>(b =>
+        {
+            b.HasKey(s => s.Id);
+            b.Property(s => s.Id).ValueGeneratedNever();
+            b.Property(s => s.Banner5).HasMaxLength(5);
+            b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
+        });
 
-        modelBuilder.Entity<Weapon>(
-            b =>
-            {
-                b.Property(w => w.Id).ValueGeneratedNever();
-                b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);
-                b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
-            });
+        modelBuilder.Entity<Weapon>(b =>
+        {
+            b.Property(w => w.Id).ValueGeneratedNever();
+            b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);
+            b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
+        });
 
-        modelBuilder.Entity<Mission>(
-            b =>
-            {
-                b.Property(m => m.Id).ValueGeneratedNever();
-                b.Property(m => m.Difficulty).HasConversion<string>();
-            });
+        modelBuilder.Entity<Mission>(b =>
+        {
+            b.Property(m => m.Id).ValueGeneratedNever();
+            b.Property(m => m.Difficulty).HasConversion<string>();
+        });
 
-        modelBuilder.Entity<SquadMission>(
-            b =>
-            {
-                b.HasKey(
-                    sm => new { sm.SquadId, sm.MissionId });
-                b.HasOne(sm => sm.Mission).WithMany(m => m.ParticipatingSquads).HasForeignKey(sm => sm.MissionId);
-                b.HasOne(sm => sm.Squad).WithMany(s => s.Missions).HasForeignKey(sm => sm.SquadId);
-            });
+        modelBuilder.Entity<SquadMission>(b =>
+        {
+            b.HasKey(sm => new { sm.SquadId, sm.MissionId });
+            b.HasOne(sm => sm.Mission).WithMany(m => m.ParticipatingSquads).HasForeignKey(sm => sm.MissionId);
+            b.HasOne(sm => sm.Squad).WithMany(s => s.Missions).HasForeignKey(sm => sm.SquadId);
+        });
 
         modelBuilder.Entity<Faction>().HasKey(f => f.Id);
         modelBuilder.Entity<Faction>().Property(f => f.Id).ValueGeneratedNever();
@@ -365,8 +352,8 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
 
         modelBuilder.Entity<LocustLeader>().HasKey(l => l.Name);
         modelBuilder.Entity<LocustCommander>().HasBaseType<LocustLeader>();
-        modelBuilder.Entity<LocustCommander>().HasOne(c => c.DefeatedBy).WithOne().HasForeignKey<LocustCommander>(
-            c => new { c.DefeatedByNickname, c.DefeatedBySquadId });
+        modelBuilder.Entity<LocustCommander>().HasOne(c => c.DefeatedBy).WithOne()
+            .HasForeignKey<LocustCommander>(c => new { c.DefeatedByNickname, c.DefeatedBySquadId });
 
         modelBuilder.Entity<LocustHighCommand>().HasKey(l => l.Id);
         modelBuilder.Entity<LocustHighCommand>().Property(l => l.Id).ValueGeneratedNever();
@@ -376,9 +363,8 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
         => GearsOfWarContext.SeedAsync(context);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            w =>
-                w.Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning));
+        => base.AddOptions(builder).ConfigureWarnings(w =>
+            w.Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning));
 
     public override GearsOfWarContext CreateContext()
     {

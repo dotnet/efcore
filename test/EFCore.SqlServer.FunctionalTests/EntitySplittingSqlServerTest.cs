@@ -5,9 +5,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class EntitySplittingSqlServerTest(ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(testOutputHelper)
+public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : EntitySplittingTestBase(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_roundtrip_with_triggers()
     {
         await InitializeAsync(
@@ -15,15 +16,14 @@ public class EntitySplittingSqlServerTest(ITestOutputHelper testOutputHelper) : 
             {
                 OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<MeterReading>(
-                    ob =>
-                    {
-                        ob.SplitToTable(
-                            "MeterReadingDetails", t =>
-                            {
-                                t.HasTrigger("MeterReadingsDetails_Trigger");
-                            });
-                    });
+                modelBuilder.Entity<MeterReading>(ob =>
+                {
+                    ob.SplitToTable(
+                        "MeterReadingDetails", t =>
+                        {
+                            t.HasTrigger("MeterReadingsDetails_Trigger");
+                        });
+                });
             },
             sensitiveLogEnabled: false,
             seed: c => c.Database.ExecuteSqlRawAsync(
@@ -91,6 +91,6 @@ INNER JOIN [MeterReadingDetails] AS [m0] ON [m].[Id] = [m0].[Id]
 """);
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

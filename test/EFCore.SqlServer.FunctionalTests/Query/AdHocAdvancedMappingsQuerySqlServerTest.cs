@@ -5,9 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocAdvancedMappingsQuerySqlServerTest : AdHocAdvancedMappingsQueryRelationalTestBase
+public class AdHocAdvancedMappingsQuerySqlServerTest(NonSharedFixture fixture) : AdHocAdvancedMappingsQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     public override async Task Setting_IsUnicode_generates_unicode_literal_in_SQL()
@@ -314,7 +314,7 @@ ORDER BY [s].[Id]
         await base.Projecting_property_with_converter_with_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT [b].[PublishDate]
 FROM [Books] AS [b]
 """);
@@ -325,7 +325,7 @@ FROM [Books] AS [b]
         await base.Projecting_expression_with_converter_with_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT MIN([b].[PublishDate]) AS [Day]
 FROM [Books] AS [b]
 GROUP BY [b].[Id]
@@ -337,7 +337,7 @@ GROUP BY [b].[Id]
         await base.Projecting_property_with_converter_without_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT MIN([b].[AudiobookDate]) AS [Day]
 FROM [Books] AS [b]
 GROUP BY [b].[Id]

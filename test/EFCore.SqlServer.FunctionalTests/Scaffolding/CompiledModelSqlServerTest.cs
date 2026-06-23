@@ -4,6 +4,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -12,7 +13,7 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
+public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -22,57 +23,53 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             .UseCollation("Latin1_General_CS_AS")
             .UseIdentityColumns(3, 2);
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            if (!jsonColumns)
             {
-                if (!jsonColumns)
+                eb.Property(e => e.Id).UseIdentityColumn(2, 3).ValueGeneratedOnAdd();
+            }
+
+            eb.HasKey(e => new { e.Id, e.AlternateId })
+                .IsClustered();
+
+            eb.OwnsOne(
+                e => e.Owned, ob =>
                 {
-                    eb.Property(e => e.Id).UseIdentityColumn(2, 3).ValueGeneratedOnAdd();
-                }
+                    ob.Property(e => e.Details)
+                        .IsSparse()
+                        .UseCollation("Latin1_General_CI_AI");
 
-                eb.HasKey(e => new { e.Id, e.AlternateId })
-                    .IsClustered();
-
-                eb.OwnsOne(
-                    e => e.Owned, ob =>
+                    if (!jsonColumns)
                     {
-                        ob.Property(e => e.Details)
-                            .IsSparse()
-                            .UseCollation("Latin1_General_CI_AI");
+                        ob.ToTable(
+                            "PrincipalBase", "mySchema",
+                            t => t.Property("PrincipalBaseId").UseIdentityColumn(2, 3));
+                    }
+                });
+        });
 
-                        if (!jsonColumns)
-                        {
-                            ob.ToTable(
-                                "PrincipalBase", "mySchema",
-                                t => t.Property("PrincipalBaseId").UseIdentityColumn(2, 3));
-                        }
-                    });
-            });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
+                .UsingEntity(jb =>
+                {
+                    jb.ToTable(tb => tb.IsMemoryOptimized());
+                });
+        });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            eb =>
-            {
-                eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
-                    .UsingEntity(
-                        jb =>
-                        {
-                            jb.ToTable(tb => tb.IsMemoryOptimized());
-                        });
-            });
-
-        modelBuilder.Entity<ManyTypes>(
-            eb =>
-            {
-                eb.Property(m => m.CharToStringConverterProperty)
-                    .IsFixedLength();
-            });
+        modelBuilder.Entity<ManyTypes>(eb =>
+        {
+            eb.Property(m => m.CharToStringConverterProperty)
+                .IsFixedLength();
+        });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
     {
         base.AssertBigModel(model, jsonColumns);
         Assert.Equal(
-            new[] { RelationalAnnotationNames.MaxIdentifierLength, SqlServerAnnotationNames.ValueGenerationStrategy },
+            [RelationalAnnotationNames.MaxIdentifierLength, SqlServerAnnotationNames.ValueGenerationStrategy],
             model.GetAnnotations().Select(a => a.Name));
         Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.GetValueGenerationStrategy());
         Assert.Equal(
@@ -93,14 +90,14 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         if (jsonColumns)
         {
             Assert.Equal(
-                new[] { SqlServerAnnotationNames.ValueGenerationStrategy },
+                [SqlServerAnnotationNames.ValueGenerationStrategy],
                 principalId.GetAnnotations().Select(a => a.Name));
             Assert.Equal(SqlServerValueGenerationStrategy.None, principalId.GetValueGenerationStrategy());
         }
         else
         {
             Assert.Equal(
-                new[] { RelationalAnnotationNames.RelationalOverrides, SqlServerAnnotationNames.ValueGenerationStrategy },
+                [RelationalAnnotationNames.RelationalOverrides, SqlServerAnnotationNames.ValueGenerationStrategy],
                 principalId.GetAnnotations().Select(a => a.Name));
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, principalId.GetValueGenerationStrategy());
         }
@@ -182,8 +179,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         var dependentMoney = dependentDerived.GetDeclaredProperties().Last();
         Assert.Equal("decimal(9,3)", dependentMoney.GetColumnType());
         Assert.Equal(
-            new[]
-            {
+            [
                 dependentBase,
                 dependentDerived,
                 manyTypesType,
@@ -192,9 +188,68 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                 principalDerived,
                 collectionOwnedType,
                 joinType
-            },
+            ],
             model.GetEntityTypes());
     }
+
+    [Fact]
+    public virtual Task Vector_index()
+        => Test(
+            modelBuilder =>
+            {
+#pragma warning disable EF9105
+                modelBuilder.Entity<VectorIndexEntity>(b =>
+                {
+                    b.Property(e => e.Vector).HasColumnType("vector(3)");
+                    b.HasVectorIndex(e => e.Vector)
+                        .HasMetric("cosine")
+                        .HasType("DiskANN");
+                });
+#pragma warning restore EF9105
+            },
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(VectorIndexEntity))!;
+                var vectorProperty = entityType.FindProperty(nameof(VectorIndexEntity.Vector))!;
+                Assert.False(vectorProperty.IsAutoLoaded);
+
+                var index = entityType.GetIndexes().Single();
+                Assert.Equal("cosine", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
+            },
+            useContext: null,
+            additionalSourceFiles: []);
+
+    [Fact]
+    public virtual Task Full_text_index()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.HasFullTextCatalog("MyCatalog");
+
+                modelBuilder.Entity<FullTextEntity>(b =>
+                {
+                    b.HasFullTextIndex(e => e.Title)
+                        .UseKeyIndex("PK_FullTextEntity")
+                        .UseCatalog("MyCatalog")
+                        .HasChangeTracking(FullTextChangeTracking.Manual)
+                        .UseLanguage("Title", "English");
+                });
+            },
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(FullTextEntity))!;
+                var index = entityType.GetIndexes().Single();
+                // Full-text index annotations are not used at runtime, so they are not included in the compiled model
+                Assert.Null(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextCatalog]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextChangeTracking]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextLanguages]);
+                // Full-text catalogs should also be absent at runtime
+                Assert.Null(model[SqlServerAnnotationNames.FullTextCatalogs]);
+            },
+            useContext: null,
+            additionalSourceFiles: []);
 
     protected override bool UseSprocReturnValue
         => true;
@@ -208,20 +263,19 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             .HasPerformanceLevel("High")
             .HasServiceTier("AB");
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                eb.ToTable("PrincipalBase");
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.ToTable("PrincipalBase");
 
-                eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
-                    .IsUnique()
-                    .IsClustered()
-                    .IsCreatedOnline()
-                    .HasFillFactor(40)
-                    .IncludeProperties(e => e.Id)
-                    .SortInTempDb()
-                    .UseDataCompression(DataCompressionType.Page);
-            });
+            eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
+                .IsUnique()
+                .IsClustered()
+                .IsCreatedOnline()
+                .HasFillFactor(40)
+                .IncludeProperties(e => e.Id)
+                .SortInTempDb()
+                .UseDataCompression(DataCompressionType.Page);
+        });
     }
 
     protected override void AssertTpcSprocs(IModel model)
@@ -281,26 +335,45 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(() => alternateIndex.GetDataCompression()).Message);
 
-        Assert.Equal(new[] { alternateIndex }, principalBaseId.GetContainingIndexes());
+        Assert.Equal([alternateIndex], principalBaseId.GetContainingIndexes());
+    }
+
+    // ConditionalFact does not work on overridden test methods (xunit discovers the override via
+    // the base method's [Fact] and the conditional attribute is ignored). Use [Fact] + a runtime
+    // skip so the condition is honored when the override actually runs.
+    [Fact]
+    public override Task ComplexTypes()
+    {
+        if (!SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            throw Xunit.Sdk.SkipException.ForSkip("Requires IsJsonTypeSupported");
+        }
+
+        return base.ComplexTypes();
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         base.BuildComplexTypesModel(modelBuilder);
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                eb.ComplexProperty(
-                    e => e.Owned, eb =>
-                    {
-                        eb.Ignore(c => c.Context);
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.ComplexProperty(
+                e => e.Owned, eb =>
+                {
+                    eb.Ignore(c => c.Context);
 
-                        eb.Property(c => c.Details)
-                            .IsSparse()
-                            .UseCollation("Latin1_General_CI_AI");
-                    });
-            });
+                    eb.Property(c => c.Details)
+                        .IsSparse()
+                        .UseCollation("Latin1_General_CI_AI");
+                });
+        });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.ComplexProperty(p => p.Dependent, cb => cb.HasColumnType("json"));
+            eb.ComplexCollection<IList<OwnedType>, OwnedType>("ManyOwned", cb => cb.HasColumnType("json"));
+        });
     }
 
     protected override void AssertComplexTypes(IModel model)
@@ -312,8 +385,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         var complexType = complexProperty.ComplexType;
         var detailsProperty = complexType.FindProperty(nameof(OwnedType.Details))!;
         Assert.Equal(
-            new[]
-            {
+            [
                 CoreAnnotationNames.MaxLength,
                 CoreAnnotationNames.Precision,
                 RelationalAnnotationNames.ColumnName,
@@ -322,7 +394,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                 SqlServerAnnotationNames.ValueGenerationStrategy,
                 CoreAnnotationNames.Unicode,
                 "foo"
-            },
+            ],
             detailsProperty.GetAnnotations().Select(a => a.Name));
 
         var dbFunction = model.FindDbFunction("PrincipalBaseTvf")!;
@@ -340,17 +412,16 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             Assert.Throws<InvalidOperationException>(() => detailsProperty.IsSparse()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_HiLo_sequence()
         => Test(
             modelBuilder =>
             {
-                modelBuilder.Entity<Data>(
-                    eb =>
-                    {
-                        eb.Property<int>("Id").UseHiLo("HL", "S");
-                        eb.HasKey("Id");
-                    });
+                modelBuilder.Entity<Data>(eb =>
+                {
+                    eb.Property<int>("Id").UseHiLo("HL", "S");
+                    eb.HasKey("Id");
+                });
             },
             model =>
             {
@@ -372,15 +443,14 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                 Assert.Same(hiLo, dataEntity.FindPrimaryKey()!.Properties.Single().FindHiLoSequence());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Key_sequence()
         => Test(
-            modelBuilder => modelBuilder.Entity<Data>(
-                eb =>
-                {
-                    eb.Property<int>("Id").UseSequence("KeySeq", "KeySeqSchema");
-                    eb.HasKey("Id");
-                }),
+            modelBuilder => modelBuilder.Entity<Data>(eb =>
+            {
+                eb.Property<int>("Id").UseSequence("KeySeq", "KeySeqSchema");
+                eb.HasKey("Id");
+            }),
             model =>
             {
                 Assert.Single(model.GetSequences());
@@ -401,19 +471,17 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                 Assert.Same(keySequence, dataEntity!.FindPrimaryKey()!.Properties.Single().FindSequence());
             });
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public virtual Task SpatialTypesTest()
         => Test(
-            modelBuilder => modelBuilder.Entity<SpatialTypes>(
-                eb =>
-                {
-                    eb.Property<Point>("Point")
-                        .HasColumnType("geometry")
-                        .HasDefaultValue(
-                            NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                        .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-                }),
+            modelBuilder => modelBuilder.Entity<SpatialTypes>(eb =>
+            {
+                eb.Property<Point>("Point")
+                    .HasColumnType("geometry")
+                    .HasDefaultValue(
+                        NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
+                    .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
+            }),
             model =>
             {
                 var entityType = model.FindEntityType(typeof(SpatialTypes))!;
@@ -436,12 +504,12 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
     {
-        builder = base.AddOptions(builder)
+        builder = base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w.Ignore(SqlServerEventId.DecimalTypeDefaultWarning));
         new SqlServerDbContextOptionsBuilder(builder).UseNetTopologySuite();
         return builder;
@@ -455,7 +523,20 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         base.AddReferences(build);
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite"));
+        build.References.Add(BuildReference.ByName("Microsoft.Data.SqlClient"));
         build.References.Add(BuildReference.ByName("NetTopologySuite"));
         return build;
+    }
+
+    public class VectorIndexEntity
+    {
+        public int Id { get; set; }
+        public SqlVector<float>? Vector { get; set; }
+    }
+
+    public class FullTextEntity
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
     }
 }

@@ -18,7 +18,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     private static readonly string _eol = Environment.NewLine;
 
-    private static readonly object _queryBaselineFileLock = new();
     private static readonly ConcurrentDictionary<string, QueryBaselineRewritingFileInfo> _queryBaselineRewritingFileInfos = new();
 
     public TestSqlLoggerFactory()
@@ -75,16 +74,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf(
-                        $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                        StringComparison.Ordinal)
-                    + 1)
-                + "QueryBaseline.txt";
-
-            var testInfo = testName + " : " + lineNumber + FileNewLine;
             const string indent = FileNewLine + "                ";
 
             if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
@@ -109,10 +98,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
             Logger.TestOutputHelper?.WriteLine(newBaseLine);
 
-            var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
-
-            File.AppendAllText(logFile, contents);
-
             throw;
         }
 
@@ -123,6 +108,14 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var fileInfo = _queryBaselineRewritingFileInfos.GetOrAdd(fileName, _ => new QueryBaselineRewritingFileInfo());
             lock (fileInfo.Lock)
             {
+                // Check if we've already processed this line - if so no need to do it again
+                if (fileInfo.ProcessedLines.Contains(lineNumber))
+                {
+                    return;
+                }
+
+                fileInfo.ProcessedLines.Add(lineNumber);
+
                 // First, adjust our lineNumber to take into account any baseline rewriting that already occurred in this file
                 var origLineNumber = lineNumber;
                 foreach (var displacement in fileInfo.LineDisplacements)
@@ -239,13 +232,13 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         // Skip over the invocation on the read side, and write the new baseline invocation
                         var tempBuf = new char[Math.Max(1024, invocation.Span.Length)];
                         reader.ReadBlock(tempBuf, 0, invocation.Span.Length);
-                        var numNewlinesInOrigin = tempBuf.Count(c => c is '\n' or '\r');
+                        var numNewlinesInOrigin = tempBuf.Count(c => c is '\n');
 
                         indentBuilder.Append("    ");
                         var indent = indentBuilder.ToString();
                         var newBaseLine = $@"AssertSql(
 {string.Join("," + Environment.NewLine + indent + "//" + Environment.NewLine, SqlStatements.Select(sql => indent + "\"\"\"" + Environment.NewLine + sql + Environment.NewLine + "\"\"\""))})";
-                        var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n' or '\r');
+                        var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n');
 
                         writer.Write(newBaseLine);
 
@@ -337,6 +330,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         public QueryBaselineRewritingFileInfo() { }
 
         public object Lock { get; } = new();
+
+        /// <summary>
+        ///     Contains information on which lines in the file where we've already performed baseline rewriting; we use this to
+        ///     avoid processing the same line twice (e.g. when a test is a theory that's executed multiple times).
+        /// </summary>
+        public readonly HashSet<int> ProcessedLines = [];
 
         /// <summary>
         ///     Contains information on where previous baseline rewriting caused line numbers to shift; this is used in adjusting line

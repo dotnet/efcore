@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -157,7 +156,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // Normalize x.Any(i => i == foo) to x.Contains(foo)
         // And x.All(i => i != foo) to !x.Contains(foo)
         if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo methodInfo
+            && methodCallExpression.Method.GetGenericMethodDefinition() is var methodInfo
             && (methodInfo == EnumerableMethods.AnyWithPredicate
                 || methodInfo == EnumerableMethods.All
                 || methodInfo == QueryableMethods.AnyWithPredicate
@@ -357,7 +356,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // Simplify (a != null ? new { Member = b, ... } : null).Member
         // to a != null ? b : null
         // Later null check removal will simplify it further
-        if (expression is MemberExpression { Expression: Expression inner } visitedMemberExpression)
+        if (expression is MemberExpression { Expression: { } inner } visitedMemberExpression)
         {
             var (conditional, convert) = inner switch
             {
@@ -374,16 +373,16 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                     Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest
                 } conditionalExpression
                 && !(conditionalExpression.Type.IsNullableValueType()
-                    && visitedMemberExpression.Member.Name is nameof(Nullable<int>.HasValue) or nameof(Nullable<int>.Value)))
+                    && visitedMemberExpression.Member.Name is nameof(Nullable<>.HasValue) or nameof(Nullable<>.Value)))
             {
-                var isLeftNullConstant = IsNullConstant(binaryTest.Left);
-                var isRightNullConstant = IsNullConstant(binaryTest.Right);
+                var isLeftNullConstant = binaryTest.Left is ConstantExpression { Value: null };
+                var isRightNullConstant = binaryTest.Right is ConstantExpression { Value: null };
 
                 if (isLeftNullConstant != isRightNullConstant
                     && ((binaryTest.NodeType == ExpressionType.Equal
-                            && IsNullConstant(conditionalExpression.IfTrue))
+                            && conditionalExpression.IfTrue is ConstantExpression { Value: null })
                         || (binaryTest.NodeType == ExpressionType.NotEqual
-                            && IsNullConstant(conditionalExpression.IfFalse))))
+                            && conditionalExpression.IfFalse is ConstantExpression { Value: null })))
                 {
                     var nonNullExpression = binaryTest.NodeType == ExpressionType.Equal
                         ? conditionalExpression.IfFalse
@@ -419,7 +418,4 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
         return null;
     }
-
-    private static bool IsNullConstant(Expression expression)
-        => expression is ConstantExpression { Value: null };
 }

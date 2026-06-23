@@ -12,7 +12,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
 {
     public TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address()
     {
         using var context = CreateContext();
@@ -26,7 +26,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_EF_Property()
     {
         using var context = CreateContext();
@@ -40,7 +40,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_shadow()
     {
         using var context = CreateContext();
@@ -54,7 +54,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_no_tracking()
     {
         using var context = CreateContext();
@@ -69,7 +69,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_no_tracking_EF_Property()
     {
         using var context = CreateContext();
@@ -84,7 +84,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person()
     {
         using var context = CreateContext();
@@ -98,7 +98,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_EF_Property()
     {
         using var context = CreateContext();
@@ -112,7 +112,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_shadow()
     {
         using var context = CreateContext();
@@ -126,7 +126,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_no_tracking()
     {
         using var context = CreateContext();
@@ -141,7 +141,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_no_tracking_EF_Property()
     {
         using var context = CreateContext();
@@ -156,7 +156,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_when_person_already_tracked()
     {
         using var context = CreateContext();
@@ -175,7 +175,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_when_address_already_tracked()
     {
         using var context = CreateContext();
@@ -205,16 +205,14 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder
-                .Entity<Address>(
-                    e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
-                        .HasPrincipalKey<Person>(person => person.Id));
+                .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
+                    .HasPrincipalKey<Person>(person => person.Id));
 
             modelBuilder.Entity<Address2>().Property<int>("PersonId");
 
             modelBuilder
-                .Entity<Person2>(
-                    e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
-                        .HasForeignKey<Address2>("PersonId"));
+                .Entity<Person2>(e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
+                    .HasForeignKey<Address2>("PersonId"));
         }
 
         protected override Task SeedAsync(PoolableDbContext context)

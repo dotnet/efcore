@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CompositeKeyEndToEndTest
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -54,7 +54,7 @@ public class CompositeKeyEndToEndTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_generated_values_in_composite_key_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -110,7 +110,7 @@ public class CompositeKeyEndToEndTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
     {
         var serviceProvider = new ServiceCollection()
@@ -187,35 +187,28 @@ public class CompositeKeyEndToEndTest
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Pegasus>().HasKey(
-                e => new { e.Id1, e.Id2 });
+            modelBuilder.Entity<Pegasus>().HasKey(e => new { e.Id1, e.Id2 });
             modelBuilder
-                .Entity<Pegasus>(
-                    b =>
-                    {
-                        b.HasKey(
-                            e => new { e.Id1, e.Id2 });
-                        b.Property(e => e.Id1).ValueGeneratedOnAdd();
-                        b.Property(e => e.Id2).ValueGeneratedOnAdd();
-                    });
-
-            modelBuilder.Entity<Unicorn>(
-                b =>
+                .Entity<Pegasus>(b =>
                 {
-                    b.Property(e => e.Id1).ValueGeneratedOnAdd();
-                    b.Property(e => e.Id3).ValueGeneratedOnAdd();
-                });
-
-            modelBuilder.Entity<EarthPony>().HasKey(
-                e => new { e.Id1, e.Id2 });
-            modelBuilder.Entity<EarthPony>(
-                b =>
-                {
-                    b.HasKey(
-                        e => new { e.Id1, e.Id2 });
+                    b.HasKey(e => new { e.Id1, e.Id2 });
                     b.Property(e => e.Id1).ValueGeneratedOnAdd();
                     b.Property(e => e.Id2).ValueGeneratedOnAdd();
                 });
+
+            modelBuilder.Entity<Unicorn>(b =>
+            {
+                b.Property(e => e.Id1).ValueGeneratedOnAdd();
+                b.Property(e => e.Id3).ValueGeneratedOnAdd();
+            });
+
+            modelBuilder.Entity<EarthPony>().HasKey(e => new { e.Id1, e.Id2 });
+            modelBuilder.Entity<EarthPony>(b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.Property(e => e.Id1).ValueGeneratedOnAdd();
+                b.Property(e => e.Id2).ValueGeneratedOnAdd();
+            });
         }
     }
 

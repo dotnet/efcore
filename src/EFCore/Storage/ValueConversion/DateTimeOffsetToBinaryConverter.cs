@@ -64,8 +64,14 @@ public class DateTimeOffsetToBinaryConverter : ValueConverter<DateTimeOffset, lo
         => ((v.Ticks / 1000) << 11) | ((long)v.Offset.TotalMinutes & 0x7FF);
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static DateTimeOffsetToBinaryConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateTimeOffset), typeof(long), i => new DateTimeOffsetToBinaryConverter(i.MappingHints));
+        = new(typeof(DateTimeOffset), typeof(long),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateTimeOffsetToBinaryConverter(i.MappingHints));
 }

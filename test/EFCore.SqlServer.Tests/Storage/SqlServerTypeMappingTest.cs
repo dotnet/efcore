@@ -2,9 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Globalization;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -12,13 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 {
-    [ConditionalTheory]
-    [InlineData(nameof(ChangeTracker.DetectChanges), false)]
-    [InlineData(nameof(PropertyEntry.CurrentValue), false)]
-    [InlineData(nameof(PropertyEntry.OriginalValue), false)]
-    [InlineData(nameof(ChangeTracker.DetectChanges), true)]
-    [InlineData(nameof(PropertyEntry.CurrentValue), true)]
-    [InlineData(nameof(PropertyEntry.OriginalValue), true)]
+    [Theory, InlineData(nameof(ChangeTracker.DetectChanges), false), InlineData(nameof(PropertyEntry.CurrentValue), false),
+     InlineData(nameof(PropertyEntry.OriginalValue), false), InlineData(nameof(ChangeTracker.DetectChanges), true),
+     InlineData(nameof(PropertyEntry.CurrentValue), true), InlineData(nameof(PropertyEntry.OriginalValue), true)]
     public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
     {
         using var context = new OptimisticContext();
@@ -77,15 +74,13 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     protected override DbCommand CreateTestCommand()
         => new SqlCommand();
 
-    [ConditionalTheory]
-    [InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
-    [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
-    [InlineData(typeof(SqlServerFloatTypeMapping), typeof(float))]
-    [InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
+    [Theory, InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
+     InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double)), InlineData(typeof(SqlServerFloatTypeMapping), typeof(float)),
+     InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
 
-    [ConditionalFact]
+    [Fact]
     public void Create_and_clone_SQL_Server_DateTime_mappings_with_converter()
     {
         var mapping = (RelationalTypeMapping)Activator.CreateInstance(
@@ -101,21 +96,21 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(SqlDbType.SmallDateTime, ((SqlServerDateTimeTypeMapping)clone).SqlType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_SQL_Server_sized_mappings_with_converter()
         => ConversionCloneTest(
             typeof(SqlServerByteArrayTypeMapping),
             typeof(byte[]),
             SqlDbType.Image);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_SQL_Server_unicode_sized_mappings_with_converter()
         => UnicodeConversionCloneTest(
             typeof(SqlServerStringTypeMapping),
             typeof(string),
             SqlDbType.Text);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_UDT_mapping_with_converter()
     {
         Func<object, Expression> literalGenerator = Expression.Constant;
@@ -182,7 +177,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     public static RelationalTypeMapping GetMapping(Type type)
         => new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<SqlServerSingletonOptions>())
             .FindMapping(type);
 
     public override void ByteArray_literal_generated_correctly()
@@ -209,7 +205,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             "'2015-03-12T13:36:37.1230000-07:00'"); //should this really output trailing zeros?
     }
 
-    [ConditionalFact]
+    [Fact]
     public override void TimeOnly_literal_generated_correctly()
     {
         var typeMapping = GetMapping(typeof(TimeOnly));
@@ -219,14 +215,14 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120, 20), "'13:10:15.12002'");
     }
 
-    [ConditionalFact]
+    [Fact]
     public override void DateOnly_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(DateOnly)),
             new DateOnly(2015, 3, 12),
             "'2015-03-12'");
 
-    [ConditionalFact]
+    [Fact]
     public override void Timespan_literal_generated_correctly()
     {
         Test_GenerateSqlLiteral_helper(
@@ -336,7 +332,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "CAST(32767 AS smallint)");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlVariant_literal_generated_correctly()
     {
         var typeMapping = GetMapping("sql_variant");
@@ -350,7 +346,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(GetMapping("varchar(max)"), "Text", "'Text'");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void String_Utf8()
     {
         var typeMappingSource = GetTypeMappingSource();
@@ -366,7 +362,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(DbType.String, parameter.DbType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Char_Utf8()
     {
         var typeMappingSource = GetTypeMappingSource();
@@ -382,7 +378,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(DbType.String, parameter.DbType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DateOnly_code_literal_generated_correctly()
     {
         var typeMapping = new DateOnlyTypeMapping("date");
@@ -390,7 +386,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateCodeLiteral_helper(typeMapping, new DateOnly(2020, 3, 5), "new DateOnly(2020, 3, 5)");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TimeOnly_code_literal_generated_correctly()
     {
         var typeMapping = new TimeOnlyTypeMapping("time");
@@ -408,13 +404,60 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             "new TimeOnly(12, 30, 10, 500).Add(TimeSpan.FromTicks(10))");
     }
 
+    #region Vector
+
+    [Fact]
+    public virtual void Vector_comparer_compares_Memory()
+    {
+        var typeMapping = new SqlServerVectorTypeMapping(3);
+
+        float[] array = [1, 2, 3];
+        var vector1 = new SqlVector<float>(array);
+        var vector2 = new SqlVector<float>(array);
+        var vector3 = new SqlVector<float>(new float[] { 1, 2, 3 });
+
+        Assert.True(typeMapping.Comparer.Equals(vector1, vector2));
+        Assert.False(typeMapping.Comparer.Equals(vector1, vector3));
+    }
+
+    [Fact]
+    public virtual void GenerateCodeLiteral_generates_vector_literal()
+        => Test_GenerateCodeLiteral_helper(
+            new SqlServerVectorTypeMapping(3),
+            new SqlVector<float>(new float[] { 1, 2, 3 }),
+            "new Microsoft.Data.SqlTypes.SqlVector<float>(new[] { 1f, 2f, 3f })");
+
+    [Fact]
+    public virtual void GenerateCodeLiteral_generates_null_vector_literal()
+        => Test_GenerateCodeLiteral_helper(
+            new SqlServerVectorTypeMapping(3),
+            SqlVector<float>.CreateNull(3),
+            "Microsoft.Data.SqlTypes.SqlVector<float>.CreateNull(3)");
+
+    [Fact]
+    public virtual void Vector_default_provider_value_is_zero_vector_of_configured_dimensions()
+    {
+        var value = Assert.IsType<SqlVector<float>>(new SqlServerVectorTypeMapping(3).GetDefaultProviderValue());
+
+        Assert.False(value.IsNull);
+        Assert.Equal(3, value.Length);
+        Assert.True(value.Memory.Span.TrimStart(0f).IsEmpty);
+    }
+
+    [Fact]
+    public virtual void Vector_default_provider_value_is_null_without_dimensions()
+        => Assert.Null(SqlServerVectorTypeMapping.Default.GetDefaultProviderValue());
+
+    #endregion Vector
+
     public static RelationalTypeMapping GetMapping(string type)
         => GetTypeMappingSource().FindMapping(type);
 
     public static SqlServerTypeMappingSource GetTypeMappingSource()
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
     protected virtual void Test_GenerateCodeLiteral_helper(
         RelationalTypeMapping typeMapping,
@@ -423,151 +466,12 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
         var csharpHelper = new CSharpHelper(typeMappingSource);
 
         Assert.Equal(expectedCode, csharpHelper.UnknownLiteral(value));
-    }
-
-    private class FakeType(string fullName) : Type
-    {
-        public override object[] GetCustomAttributes(bool inherit)
-            => throw new NotImplementedException();
-
-        public override bool IsDefined(Type attributeType, bool inherit)
-            => throw new NotImplementedException();
-
-        public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type GetInterface(string name, bool ignoreCase)
-            => throw new NotImplementedException();
-
-        public override Type[] GetInterfaces()
-            => throw new NotImplementedException();
-
-        public override EventInfo GetEvent(string name, BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override EventInfo[] GetEvents(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type[] GetNestedTypes(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type GetNestedType(string name, BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type GetElementType()
-            => throw new NotImplementedException();
-
-        protected override bool HasElementTypeImpl()
-            => throw new NotImplementedException();
-
-        protected override PropertyInfo GetPropertyImpl(
-            string name,
-            BindingFlags bindingAttr,
-            Binder binder,
-            Type returnType,
-            Type[] types,
-            ParameterModifier[] modifiers)
-            => throw new NotImplementedException();
-
-        public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        protected override MethodInfo GetMethodImpl(
-            string name,
-            BindingFlags bindingAttr,
-            Binder binder,
-            CallingConventions callConvention,
-            Type[] types,
-            ParameterModifier[] modifiers)
-            => throw new NotImplementedException();
-
-        public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override FieldInfo GetField(string name, BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override FieldInfo[] GetFields(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override MemberInfo[] GetMembers(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        protected override TypeAttributes GetAttributeFlagsImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsArrayImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsByRefImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsPointerImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsPrimitiveImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsCOMObjectImpl()
-            => throw new NotImplementedException();
-
-        public override object InvokeMember(
-            string name,
-            BindingFlags invokeAttr,
-            Binder binder,
-            object target,
-            object[] args,
-            ParameterModifier[] modifiers,
-            CultureInfo culture,
-            string[] namedParameters)
-            => throw new NotImplementedException();
-
-        public override Type UnderlyingSystemType { get; }
-
-        protected override ConstructorInfo GetConstructorImpl(
-            BindingFlags bindingAttr,
-            Binder binder,
-            CallingConventions callConvention,
-            Type[] types,
-            ParameterModifier[] modifiers)
-            => throw new NotImplementedException();
-
-        public override string Name
-            => throw new NotImplementedException();
-
-        public override Guid GUID
-            => throw new NotImplementedException();
-
-        public override Module Module
-            => throw new NotImplementedException();
-
-        public override Assembly Assembly
-            => throw new NotImplementedException();
-
-        public override string Namespace
-            => throw new NotImplementedException();
-
-        public override string AssemblyQualifiedName
-            => throw new NotImplementedException();
-
-        public override Type BaseType
-            => throw new NotImplementedException();
-
-        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => throw new NotImplementedException();
-
-        public override string FullName { get; } = fullName;
-
-        public override int GetHashCode()
-            => FullName.GetHashCode();
-
-        public override bool Equals(object o)
-            => ReferenceEquals(this, o);
     }
 
     protected override DbContextOptions ContextOptions { get; }

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class RelationalEntityTypeAttributeConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void TableAttribute_sets_table_name_and_schema_with_conventional_builder()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -21,7 +21,7 @@ public class RelationalEntityTypeAttributeConventionTest
         Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CommentAttribute_sets_table_comment_with_conventional_builder()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -31,7 +31,7 @@ public class RelationalEntityTypeAttributeConventionTest
         Assert.Equal("Test table comment", entityBuilder.Metadata.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TableAttribute_overrides_configuration_from_convention_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -45,7 +45,7 @@ public class RelationalEntityTypeAttributeConventionTest
         Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TableAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -59,7 +59,7 @@ public class RelationalEntityTypeAttributeConventionTest
         Assert.Equal("ExplicitName", entityBuilder.Metadata.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CommentAttribute_overrides_configuration_from_convention_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -71,7 +71,7 @@ public class RelationalEntityTypeAttributeConventionTest
         Assert.Equal("Test table comment", entityBuilder.Metadata.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CommentAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -114,8 +114,7 @@ public class RelationalEntityTypeAttributeConventionTest
     protected virtual ModelBuilder CreateConventionalModelBuilder()
         => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
-    [Table("MyTable", Schema = "MySchema")]
-    [Comment("Test table comment")]
+    [Table("MyTable", Schema = "MySchema"), Comment("Test table comment")]
     private class A
     {
         public int Id { get; set; }

@@ -2,13 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
 ///     <para>
-///         Represents the mapping between a <see cref="JsonElement" /> type and a database type.
+///         Represents the mapping between a JSON object and a database type.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -19,24 +18,24 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public abstract class JsonTypeMapping : RelationalTypeMapping
+public abstract class StructuralJsonTypeMapping : RelationalTypeMapping
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="JsonTypeMapping" /> class.
+    ///     Initializes a new instance of the <see cref="StructuralJsonTypeMapping" /> class.
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
     /// <param name="clrType">The .NET type.</param>
     /// <param name="dbType">The <see cref="DbType" /> to be used.</param>
-    protected JsonTypeMapping(string storeType, Type clrType, DbType? dbType)
+    protected StructuralJsonTypeMapping(string storeType, Type clrType, DbType? dbType)
         : base(storeType, clrType, dbType)
     {
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="JsonTypeMapping" /> class.
+    ///     Initializes a new instance of the <see cref="StructuralJsonTypeMapping" /> class.
     /// </summary>
     /// <param name="parameters">Parameter object for <see cref="RelationalTypeMapping" />.</param>
-    protected JsonTypeMapping(RelationalTypeMappingParameters parameters)
+    protected StructuralJsonTypeMapping(RelationalTypeMappingParameters parameters)
         : base(parameters)
     {
     }
@@ -46,3 +45,9 @@ public abstract class JsonTypeMapping : RelationalTypeMapping
         => throw new InvalidOperationException(
             RelationalStrings.MethodNeedsToBeImplementedInTheProvider);
 }
+
+/// <summary>
+///     Use StructuralJsonTypeMapping instead for type mappings representing JSON structural types as opposed to JSON strings.
+/// </summary>
+[Obsolete("Use StructuralJsonTypeMapping instead for type mappings representing JSON structural types as opposed to JSON strings.")]
+public class JsonTypeMapping;

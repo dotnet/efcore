@@ -1,13 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
+using Microsoft.Azure.Cosmos.Scripts;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class CosmosBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_collection_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -27,7 +29,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal("Unicorn", entityType.Metadata.GetContainer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_partition_key_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -41,13 +43,11 @@ public class CosmosBuilderExtensionsTest
             ConfigurationSource.Convention,
             ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        ((IConventionEntityType)entityType).Builder.HasPartitionKey("pk");
-        Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+        ((IConventionEntityType)entityType).Builder.HasPartitionKey(["pk"]);
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
         Assert.Equal(
             ConfigurationSource.Convention,
-            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
-#pragma warning restore CS0618 // Type or member is obsolete
+            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
         entityTypeBuilder.HasPartitionKey("pk");
 
@@ -58,27 +58,20 @@ public class CosmosBuilderExtensionsTest
 
         Assert.False(((IConventionEntityType)entityType).Builder.CanSetPartitionKey(["partition"]));
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
         Assert.Equal(
             ConfigurationSource.Explicit,
-            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
+            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
-        Assert.False(((IConventionEntityType)entityType).Builder.CanSetPartitionKey("partition"));
-#pragma warning restore CS0618 // Type or member is obsolete
+        Assert.False(((IConventionEntityType)entityType).Builder.CanSetPartitionKey(["partition"]));
 
         entityTypeBuilder.HasPartitionKey(null);
 
         Assert.Empty(entityType.GetPartitionKeyPropertyNames());
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        Assert.Null(entityType.GetPartitionKeyPropertyName());
-        Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_hierarchical_partition_key_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -107,7 +100,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_container_name_is_used_if_not_set()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -133,7 +126,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal("db1", entityType.GetContainer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_discriminator_can_be_removed()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -160,7 +153,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Null(entityType.FindDiscriminatorProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_etag_concurrency_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -173,7 +166,7 @@ public class CosmosBuilderExtensionsTest
         Assert.True(etagProperty.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_etag_concurrency_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -185,6 +178,48 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, etagProperty.ValueGenerated);
         Assert.True(etagProperty.IsConcurrencyToken);
         Assert.Equal("_etag", etagProperty.GetJsonPropertyName());
+    }
+
+    [Fact]
+    public void Can_use_convention_trigger_builder()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entityType = modelBuilder.Entity<Customer>().Metadata;
+
+        var trigger = entityType.AddTrigger("TestTrigger");
+        var conventionTrigger = (IConventionTrigger)trigger;
+
+        var triggerBuilder = conventionTrigger.Builder;
+
+        Assert.NotNull(triggerBuilder.HasTriggerType(TriggerType.Pre, fromDataAnnotation: true));
+        Assert.Equal(TriggerType.Pre, trigger.GetTriggerType());
+        Assert.Equal(ConfigurationSource.DataAnnotation, conventionTrigger.GetTriggerTypeConfigurationSource());
+
+        Assert.Null(triggerBuilder.HasTriggerType(TriggerType.Post, fromDataAnnotation: false));
+        Assert.Equal(TriggerType.Pre, trigger.GetTriggerType());
+        Assert.Equal(ConfigurationSource.DataAnnotation, conventionTrigger.GetTriggerTypeConfigurationSource());
+
+        Assert.NotNull(triggerBuilder.HasTriggerType(TriggerType.Post, fromDataAnnotation: true));
+        Assert.Equal(TriggerType.Post, trigger.GetTriggerType());
+        Assert.Equal(ConfigurationSource.DataAnnotation, conventionTrigger.GetTriggerTypeConfigurationSource());
+    }
+
+    [Fact]
+    public void Can_create_trigger()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        TriggerBuilder triggerBuilder = null!;
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            triggerBuilder = entity.HasTrigger("TestTrigger", TriggerType.Pre, TriggerOperation.Create);
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
+        var trigger = entityType.FindDeclaredTrigger("TestTrigger")!;
+
+        Assert.Equal(TriggerType.Pre, trigger.GetTriggerType());
+        Assert.Equal(TriggerOperation.Create, trigger.GetTriggerOperation());
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()

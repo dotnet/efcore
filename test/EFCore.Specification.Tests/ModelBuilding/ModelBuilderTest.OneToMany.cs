@@ -11,7 +11,7 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class OneToManyTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -61,30 +61,28 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
 
-            modelBuilder.Entity<OneToManyPrincipalWithField>(
-                e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.AlternateKey);
-                    e.Property(p => p.Name);
-                    e.HasKey(p => p.Id);
-                });
-            modelBuilder.Entity<DependentWithField>(
-                e =>
-                {
-                    e.Property(d => d.DependentWithFieldId);
-                    e.Property(d => d.OneToManyPrincipalId);
-                    e.Property(d => d.AnotherOneToManyPrincipalId);
-                    e.Ignore(d => d.ManyToManyPrincipals);
-                    e.Ignore(d => d.OneToOnePrincipal);
-                    e.HasKey(d => d.DependentWithFieldId);
-                });
+            modelBuilder.Entity<OneToManyPrincipalWithField>(e =>
+            {
+                e.Property(p => p.Id);
+                e.Property(p => p.AlternateKey);
+                e.Property(p => p.Name);
+                e.HasKey(p => p.Id);
+            });
+            modelBuilder.Entity<DependentWithField>(e =>
+            {
+                e.Property(d => d.DependentWithFieldId);
+                e.Property(d => d.OneToManyPrincipalId);
+                e.Property(d => d.AnotherOneToManyPrincipalId);
+                e.Ignore(d => d.ManyToManyPrincipals);
+                e.Ignore(d => d.OneToOnePrincipal);
+                e.HasKey(d => d.DependentWithFieldId);
+            });
 
             modelBuilder.Entity<DependentWithField>()
                 .HasOne(d => d.OneToManyPrincipal)
@@ -129,7 +127,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Finds_existing_navigation_to_principal_and_uses_associated_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -172,7 +170,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Finds_existing_navigation_to_dependent_and_uses_associated_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -216,7 +214,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_uses_existing_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -263,7 +261,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_with_both_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -311,7 +309,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_with_navigation_to_dependent()
         {
             var modelBuilder = CreateModelBuilder();
@@ -351,7 +349,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_with_navigation_to_principal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -392,7 +390,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_with_no_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -439,7 +437,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_uses_specified_FK_even_if_found_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -489,7 +487,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_uses_existing_FK_not_found_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -536,7 +534,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_creates_FK_specified()
         {
             var modelBuilder = CreateModelBuilder();
@@ -583,7 +581,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_specified_FK_with_navigation_to_dependent()
         {
             var modelBuilder = CreateModelBuilder();
@@ -627,7 +625,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_specified_FK_with_navigation_to_principal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -669,7 +667,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_with_no_navigations_and_specified_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -715,7 +713,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_creates_shadow_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -763,7 +761,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_shadow_FK_with_navigation_to_dependent()
         {
             var modelBuilder = CreateModelBuilder();
@@ -807,7 +805,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_shadow_FK_with_navigation_to_principal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -852,7 +850,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_shadow_FK_with_no_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -898,7 +896,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_matches_shadow_FK_property_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -943,7 +941,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_overrides_existing_FK_when_uniqueness_does_not_match()
         {
             var modelBuilder = CreateModelBuilder();
@@ -992,7 +990,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Resolves_ambiguous_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1006,7 +1004,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, model.FindEntityType(typeof(Friendship)).GetNavigations().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_explicitly_specified_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1059,7 +1057,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_non_PK_principal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1116,7 +1114,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_on_keyless_type_as_principal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1128,14 +1126,13 @@ public abstract partial class ModelBuilderTest
                     nameof(Customer),
                     nameof(Customer) + "." + nameof(Customer.Orders),
                     nameof(Order)),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        modelBuilder.Entity<Customer>().HasNoKey()
-                            .HasMany(c => c.Orders)
-                            .WithOne(o => o.Customer)).Message);
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity<Customer>().HasNoKey()
+                        .HasMany(c => c.Orders)
+                        .WithOne(o => o.Customer)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Keyless_type_with_unmapped_collection_navigations_does_not_throw()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1152,7 +1149,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(Order)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Keyless_type_discovered_before_referenced_entity_type_does_not_leave_temp_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1174,7 +1171,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(keyless, customerNavigation.ForeignKey.DeclaringEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_both_convention_properties_specified()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1227,7 +1224,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_both_convention_properties_specified_in_any_order()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1280,7 +1277,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_FK_by_convention_specified_with_explicit_principal_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1335,7 +1332,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_FK_by_convention_specified_with_explicit_principal_key_in_any_order()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1390,7 +1387,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_FK_semi_specified_with_explicit_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1448,7 +1445,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_specify_requiredness_after_OnDelete()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1502,7 +1499,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_principal_key_by_convention_specified_with_explicit_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1557,7 +1554,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_principal_key_by_convention_specified_with_explicit_PK_in_any_order()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1612,7 +1609,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_have_principal_key_by_convention_replaced_with_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1665,7 +1662,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Principal_key_by_convention_is_not_replaced_with_new_incompatible_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1719,7 +1716,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Explicit_principal_key_is_not_replaced_with_new_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1767,7 +1764,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_uses_existing_composite_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1813,13 +1810,12 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_both_navigations_and_creates_composite_FK_specified()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>(
-                b => b.HasKey(c => new { c.Id1, c.Id2 }));
+            modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
@@ -1864,13 +1860,12 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_alternate_composite_key()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>(
-                b => b.HasKey(c => new { c.Id1, c.Id2 }));
+            modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
@@ -1925,13 +1920,12 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_alternate_composite_key_in_any_order()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>(
-                b => b.HasKey(c => new { c.Id1, c.Id2 }));
+            modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
@@ -1986,18 +1980,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_specified_composite_FK_with_navigation_to_dependent()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
             modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
-            modelBuilder.Entity<Tomato>(
-                b =>
-                {
-                    b.Property(e => e.BurgerId1);
-                    b.Property(e => e.BurgerId2);
-                });
+            modelBuilder.Entity<Tomato>(b =>
+            {
+                b.Property(e => e.BurgerId1);
+                b.Property(e => e.BurgerId2);
+            });
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
 
@@ -2038,7 +2031,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_specified_composite_FK_with_navigation_to_principal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2083,7 +2076,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_with_no_navigations_and_specified_composite_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2133,7 +2126,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_on_existing_FK_is_using_different_principal_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2187,7 +2180,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_relationship_on_existing_FK_is_using_different_principal_key_different_order()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2233,32 +2226,30 @@ public abstract partial class ModelBuilderTest
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_overlapping_foreign_keys_with_different_nullability()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Entity<Customer>();
-            modelBuilder.Entity<Order>(
-                eb =>
-                {
-                    eb.HasKey(c => new { c.OrderId, c.CustomerId });
-                });
+            modelBuilder.Entity<Order>(eb =>
+            {
+                eb.HasKey(c => new { c.OrderId, c.CustomerId });
+            });
 
             modelBuilder.Ignore<ProductCategory>();
             modelBuilder.Entity<Category>(eb => { eb.HasKey(c => new { c.Id, c.Name }); });
 
-            modelBuilder.Entity<Product>(
-                eb =>
-                {
-                    eb.Ignore(p => p.Categories);
-                    eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
-                    eb.HasOne<Category>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
+            modelBuilder.Entity<Product>(eb =>
+            {
+                eb.Ignore(p => p.Categories);
+                eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
+                eb.HasOne<Category>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
 
-                    eb.HasIndex("Id", "OrderId").IsUnique();
-                    eb.HasKey("Id", "CommonId");
-                });
+                eb.HasIndex("Id", "OrderId").IsUnique();
+                eb.HasKey("Id", "CommonId");
+            });
 
             modelBuilder.FinalizeModel();
 
@@ -2275,11 +2266,11 @@ public abstract partial class ModelBuilderTest
             var dependentKey = dependentType.FindPrimaryKey();
             Assert.True(dependentKey.Properties.All(p => p.ValueGenerated == ValueGenerated.Never));
 
-            var index = dependentType.FindIndex(new[] { dependentKey.Properties[0], optionalFk.Properties[1] });
+            var index = dependentType.FindIndex([dependentKey.Properties[0], optionalFk.Properties[1]]);
             Assert.True(index.IsUnique);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_on_existing_many_to_many()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2295,12 +2286,11 @@ public abstract partial class ModelBuilderTest
                     nameof(Product),
                     nameof(Category) + "." + nameof(Category.Products),
                     nameof(Product) + "." + nameof(Product.Categories)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<Category>()
-                        .HasMany(o => o.Products).WithOne()).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Category>()
+                    .HasMany(o => o.Products).WithOne()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_on_existing_one_to_one_relationship()
         {
             var modelBuilder = HobNobBuilder();
@@ -2325,12 +2315,11 @@ public abstract partial class ModelBuilderTest
                     dependentType.DisplayName() + "." + nameof(Hob.Nob),
                     dependentType.DisplayName() + "." + nameof(Hob.Nob),
                     principalType.DisplayName() + "." + nameof(Nob.Hob)),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)).Message);
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasMany_with_a_collection_navigation_CLR_property_to_derived_type_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2340,7 +2329,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dr>().HasMany<Dre>(d => d.Jrs)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Removes_existing_unidirectional_one_to_one_relationship()
         {
             var modelBuilder = HobNobBuilder();
@@ -2387,7 +2376,7 @@ public abstract partial class ModelBuilderTest
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_annotations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2407,7 +2396,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Ro", fk["Fus"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Annotations_are_preserved_when_rebuilding()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2423,15 +2412,14 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Ro", builder.Metadata["Fus"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Nullable_FK_are_optional_by_default()
         {
             var modelBuilder = HobNobBuilder();
 
             modelBuilder
                 .Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob)
-                .HasForeignKey(
-                    e => new { e.HobId1, e.HobId2 });
+                .HasForeignKey(e => new { e.HobId1, e.HobId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -2446,15 +2434,14 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fkProperty2, fk.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Non_nullable_FK_are_required_by_default()
         {
             var modelBuilder = HobNobBuilder();
 
             modelBuilder
                 .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
-                .HasForeignKey(
-                    e => new { e.NobId1, e.NobId2 });
+                .HasForeignKey(e => new { e.NobId1, e.NobId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -2469,15 +2456,14 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fkProperty2, fk.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Nullable_FK_can_be_made_required()
         {
             var modelBuilder = HobNobBuilder();
 
             modelBuilder
                 .Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob)
-                .HasForeignKey(
-                    e => new { e.HobId1, e.HobId2 })
+                .HasForeignKey(e => new { e.HobId1, e.HobId2 })
                 .IsRequired();
 
             modelBuilder.FinalizeModel();
@@ -2493,7 +2479,7 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fkProperty2, fk.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Non_nullable_FK_can_be_made_optional()
         {
             var modelBuilder = HobNobBuilder();
@@ -2516,7 +2502,7 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fkProperty2, fk.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Non_nullable_FK_can_be_made_optional_separately()
         {
             var modelBuilder = HobNobBuilder();
@@ -2542,17 +2528,16 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fkProperty2, fk.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Nullable_FK_overrides_NRT_navigation()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<DependentEntity>(
-                eb =>
-                {
-                    eb.Property(d => d.PrincipalEntityId);
-                    eb.Ignore(d => d.Nav);
-                    eb.HasOne(d => d.Nav).WithMany(p => p.InverseNav);
-                });
+            modelBuilder.Entity<DependentEntity>(eb =>
+            {
+                eb.Property(d => d.PrincipalEntityId);
+                eb.Ignore(d => d.Nav);
+                eb.HasOne(d => d.Nav).WithMany(p => p.InverseNav);
+            });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -2564,7 +2549,7 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fkProperty, fk.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_change_delete_behavior()
         {
             var modelBuilder = HobNobBuilder();
@@ -2589,7 +2574,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(DeleteBehavior.SetNull, dependentType.GetForeignKeys().Single().DeleteBehavior);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_foreign_key_property_when_matching_property_added()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2605,7 +2590,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("PrincipalEntityId", newForeignKey.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_shadow_property_for_foreign_key_according_to_navigation_to_principal_name_when_present()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2620,7 +2605,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("SecondNavId", entityB.FindNavigation("SecondNav").ForeignKey.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void
             Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
         {
@@ -2630,19 +2615,18 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("GammaId", gamma.FindNavigation("Alphas").ForeignKey.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_shadow_FK_property_with_non_shadow_PK()
         {
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<Alpha>();
-            modelBuilder.Entity<Beta>(
-                b =>
-                {
-                    b.HasOne(e => e.FirstNav)
-                        .WithMany()
-                        .HasForeignKey("ShadowId");
-                });
+            modelBuilder.Entity<Beta>(b =>
+            {
+                b.HasOne(e => e.FirstNav)
+                    .WithMany()
+                    .HasForeignKey("ShadowId");
+            });
 
             modelBuilder.FinalizeModel();
 
@@ -2651,7 +2635,7 @@ public abstract partial class ModelBuilderTest
                 modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_shadow_FK_property_with_shadow_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2671,7 +2655,7 @@ public abstract partial class ModelBuilderTest
                 modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Handles_identity_correctly_while_removing_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2686,7 +2670,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_when_foreign_key_references_shadow_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2695,14 +2679,14 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ReferencedShadowKey(
-                    typeof(Order).Name + "." + nameof(Order.Customer),
-                    typeof(Customer).Name + "." + nameof(Customer.Orders),
+                    nameof(Order) + "." + nameof(Order.Customer),
+                    nameof(Customer) + "." + nameof(Customer.Orders),
                     "{'AnotherCustomerId' : Guid}",
                     "{'Id' : int}"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_navigation_pointed_by_foreign_key_attribute_from_explicit_configuration()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2734,7 +2718,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Id", kappaFk.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_navigation_with_foreign_key_attribute_from_explicit_configuration()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2757,7 +2741,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Alpha) + nameof(Alpha.Id), etasFk.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_exclude_navigation_with_foreign_key_attribute_on_principal_type_from_explicit_configuration()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2782,23 +2766,21 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Alpha) + nameof(Alpha.Id), alphaFk.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void
             Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_no_matching_properties_either_side()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<OneToOnePrincipalEntity>(
-                b =>
-                {
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                    b.Ignore(e => e.OneToOneDependentEntityId);
-                });
-            modelBuilder.Entity<OneToOneDependentEntity>(
-                b =>
-                {
-                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                });
+            modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+            {
+                b.Ignore(e => e.NavOneToOneDependentEntityId);
+                b.Ignore(e => e.OneToOneDependentEntityId);
+            });
+            modelBuilder.Entity<OneToOneDependentEntity>(b =>
+            {
+                b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                b.Ignore(e => e.OneToOnePrincipalEntityId);
+            });
 
             modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2814,17 +2796,16 @@ public abstract partial class ModelBuilderTest
             Assert.True(fk.Properties.Single().IsShadowProperty());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void
             Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_navigation_name_properties_are_on_navigation_side()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<OneToOnePrincipalEntity>(
-                b =>
-                {
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                    b.Ignore(e => e.OneToOneDependentEntityId);
-                });
+            modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+            {
+                b.Ignore(e => e.NavOneToOneDependentEntityId);
+                b.Ignore(e => e.OneToOneDependentEntityId);
+            });
             modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.OneToOnePrincipalEntityId));
 
             modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
@@ -2842,17 +2823,16 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(OneToOneDependentEntity.NavigationMatchingProperty.Name, fk.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void
             Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_entity_name_properties_are_on_navigation_side()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<OneToOnePrincipalEntity>(
-                b =>
-                {
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                    b.Ignore(e => e.OneToOneDependentEntityId);
-                });
+            modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+            {
+                b.Ignore(e => e.NavOneToOneDependentEntityId);
+                b.Ignore(e => e.OneToOneDependentEntityId);
+            });
             modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.NavOneToOnePrincipalEntityId));
 
             modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
@@ -2870,7 +2850,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(OneToOneDependentEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void
             Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_properties_are_on_both_sides()
         {
@@ -2892,7 +2872,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(fk.Properties.Single().IsShadowProperty());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Ambiguous_relationship_candidate_does_not_block_creating_further_relationships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2903,7 +2883,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(theta.FindNavigation("NavTheta").ForeignKey, theta.FindNavigation("InverseNavThetas").ForeignKey);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Shadow_property_created_for_foreign_key_is_nullable()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2913,7 +2893,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(typeof(int?), modelBuilder.Model.FindEntityType(typeof(Order)).FindProperty("MyShadowFk").ClrType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void One_to_many_relationship_has_no_ambiguity_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2926,7 +2906,7 @@ public abstract partial class ModelBuilderTest
                     .Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void One_to_many_relationship_has_no_ambiguity_explicit()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2942,7 +2922,7 @@ public abstract partial class ModelBuilderTest
                     .Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void RemoveKey_does_not_add_back_foreign_key_pointing_to_the_same_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2959,7 +2939,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Alpha.AnotherId), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Creates_shadow_fk_configuring_using_ForeignKeyAttribute()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2972,7 +2952,7 @@ public abstract partial class ModelBuilderTest
                 modelBuilder.Model.FindEntityType(typeof(DependentShadowFk)).GetForeignKeys().Single().Properties[0].Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Do_not_match_non_unique_FK_when_overlap_with_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2987,7 +2967,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("ParentId", fk.Properties[0].Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Navigation_properties_can_set_access_mode()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3012,7 +2992,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Attempt_to_configure_Navigation_property_which_is_actually_a_Property_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3024,14 +3004,13 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.CanOnlyConfigureExistingNavigations("Name", "NavDependent"),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<NavDependent>()
-                        .Navigation(e => e.Name)
-                        .UsePropertyAccessMode(PropertyAccessMode.Property)
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<NavDependent>()
+                    .Navigation(e => e.Name)
+                    .UsePropertyAccessMode(PropertyAccessMode.Property)
                 ).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Navigation_to_shared_type_is_not_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3043,7 +3022,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void WithMany_call_on_keyless_entity_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3053,11 +3032,11 @@ public abstract partial class ModelBuilderTest
                     nameof(KeylessCollectionNavigation),
                     nameof(KeylessCollectionNavigation) + "." + nameof(KeylessCollectionNavigation.Stores),
                     nameof(Store)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey().HasMany(e => e.Stores)).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey().HasMany(e => e.Stores)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void WithMany_pointing_to_keyless_entity_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3066,12 +3045,11 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.NavigationToKeylessType(
                     nameof(KeylessReferenceNavigation.Collection),
                     nameof(KeylessCollectionNavigation)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()
-                        .HasOne(e => e.Reference).WithMany(e => e.Collection)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()
+                    .HasOne(e => e.Reference).WithMany(e => e.Collection)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasNoKey_call_on_principal_entity_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3081,11 +3059,10 @@ public abstract partial class ModelBuilderTest
                     nameof(KeylessCollectionNavigation),
                     nameof(KeylessCollectionNavigation) + "." + nameof(KeylessCollectionNavigation.Stores),
                     nameof(Store)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasNoKey_call_on_principal_with_navigation_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3098,22 +3075,20 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.NavigationToKeylessType(
                     nameof(KeylessReferenceNavigation.Collection),
                     nameof(KeylessCollectionNavigation)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Reference_navigation_from_keyless_entity_type_works()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Discount>(
-                entity =>
-                {
-                    entity.HasNoKey();
+            modelBuilder.Entity<Discount>(entity =>
+            {
+                entity.HasNoKey();
 
-                    entity.HasOne(d => d.Store).WithMany();
-                });
+                entity.HasOne(d => d.Store).WithMany();
+            });
 
             var model = modelBuilder.FinalizeModel();
 

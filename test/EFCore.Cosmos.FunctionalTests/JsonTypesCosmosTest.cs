@@ -3,13 +3,60 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesCosmosTest : JsonTypesTestBase
+public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(fixture)
 {
+    public override Task Can_read_write_TimeSpan_JSON_values(string value, string json)
+        => base.Can_read_write_TimeSpan_JSON_values(
+            value, value switch
+            {
+                "-10675199.02:48:05.4775808" => """{"Prop":"-10675199.02:48:05.4775808"}""",
+                "10675199.02:48:05.4775807" => """{"Prop":"10675199.02:48:05.4775807"}""",
+                "00:00:00" => """{"Prop":"00:00:00"}""",
+                _ => json,
+            });
+
+    public override Task Can_read_write_TimeOnly_JSON_values(string value, string json)
+        => base.Can_read_write_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                _ => json,
+            });
+
+    public override Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
+        => base.Can_read_write_nullable_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                _ => json,
+            });
+
+    public override Task Can_read_write_nullable_TimeSpan_JSON_values(string? value, string json)
+        => base.Can_read_write_nullable_TimeSpan_JSON_values(
+            value, value switch
+            {
+                "-10675199.02:48:05.4775808" => """{"Prop":"-10675199.02:48:05.4775808"}""",
+                "10675199.02:48:05.4775807" => """{"Prop":"10675199.02:48:05.4775807"}""",
+                "00:00:00" => """{"Prop":"00:00:00"}""",
+                _ => json,
+            });
+
+    public override Task Can_read_write_collection_of_TimeOnly_JSON_values(string _)
+        => base.Can_read_write_collection_of_TimeOnly_JSON_values("""{"Prop":["00:00:00","11:05:02.003004","23:59:59.9999999"]}""");
+
+    public override Task Can_read_write_collection_of_TimeSpan_JSON_values(string _)
+        => base.Can_read_write_collection_of_TimeSpan_JSON_values("""{"Prop":["-10675199.02:48:05.4775808","1.02:03:04.0050000","10675199.02:48:05.4775807"]}""");
+
+    public override Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string _)
+        => base.Can_read_write_collection_of_nullable_TimeOnly_JSON_values("""{"Prop":[null,"00:00:00","11:05:02.003004","23:59:59.9999999"]}""");
+
+    public override Task Can_read_write_collection_of_nullable_TimeSpan_JSON_values(string _)
+        => base.Can_read_write_collection_of_nullable_TimeSpan_JSON_values("""{"Prop":["-10675199.02:48:05.4775808","1.02:03:04.0050000","10675199.02:48:05.4775807",null]}""");
+
     public override Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-        => Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(
-                """{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD\u002BOIEqL6JjHwarevQ==","/////////////////////w=="]}"""));
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(
+            """{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD\u002BOIEqL6JjHwarevQ==","/////////////////////w=="]}"""));
 
     public override Task Can_read_write_array_of_list_of_binary_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
@@ -45,8 +92,8 @@ public class JsonTypesCosmosTest : JsonTypesTestBase
 
     public override Task Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-        => Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(expected));
+        => Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(expected));
 
     public override Task Can_read_write_list_of_array_of_nullable_GUID_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
@@ -268,6 +315,6 @@ public class JsonTypesCosmosTest : JsonTypesTestBase
         // No built-in JSON support for spatial types in the Cosmos provider
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_typed_as_nullable_geometry_as_GeoJson);
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 }

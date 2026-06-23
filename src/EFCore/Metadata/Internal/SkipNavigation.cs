@@ -19,7 +19,6 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     private readonly Type _type;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
     private ICollectionLoader? _manyToManyLoader;
 
@@ -94,7 +93,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsInModel
+    public override bool IsInModel
         => _builder is not null
             && DeclaringEntityType.IsInModel;
 
@@ -163,7 +162,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsCollection { get; }
+    public override bool IsCollection { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -273,6 +272,12 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
                 : inverse;
         }
 
+        if (inverse == this)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.SkipNavigationSelfInverse(Name, DeclaringEntityType.DisplayName()));
+        }
+
         if (inverse.DeclaringEntityType != TargetEntityType)
         {
             throw new InvalidOperationException(
@@ -354,27 +359,13 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     /// </summary>
     public virtual IClrCollectionAccessor? CollectionAccessor
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _collectionAccessor,
+            ref field,
             ref _collectionAccessorInitialized,
             this,
             static navigation =>
             {
                 navigation.EnsureReadOnly();
                 return ClrCollectionAccessorFactory.Instance.Create(navigation);
-            });
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ICollectionLoader ManyToManyLoader
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _manyToManyLoader, this, static navigation =>
-            {
-                navigation.EnsureReadOnly();
-                return ManyToManyLoaderFactory.Instance.Create(navigation);
             });
 
     /// <summary>
@@ -472,15 +463,15 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
+    IClrCollectionAccessor? IPropertyBase.GetCollectionAccessor()
         => CollectionAccessor;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
-        => ManyToManyLoader;
+    /// <inheritdoc />
+    ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader(IManyToManyLoaderFactory factory)
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _manyToManyLoader, this, factory, static (navigation, factory) =>
+            {
+                navigation.EnsureReadOnly();
+                return factory.Create(navigation);
+            });
 }
