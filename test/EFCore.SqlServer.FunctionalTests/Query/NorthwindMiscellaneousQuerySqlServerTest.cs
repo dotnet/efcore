@@ -2924,6 +2924,7 @@ END, [c].[CustomerID]
             """
 SELECT ISNULL(ISNULL(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint)), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
 FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NOT NULL
 ORDER BY [e].[EmployeeID]
 """);
     }
