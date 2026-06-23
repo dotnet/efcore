@@ -35,9 +35,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
         RelationalAnnotationNames.RelationalOverrides,
-#pragma warning disable CS0618
-        RelationalAnnotationNames.ContainerColumnTypeMapping
-#pragma warning restore CS0618
+        RelationalAnnotationNames.JsonElementMappings
     };
 
     /// <summary>
@@ -54,9 +52,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations)
-        => annotations.Where(
-            a => !(CoreAnnotationNames.AllNames.Contains(a.Name)
-                || IgnoredRelationalAnnotations.Contains(a.Name)));
+        => annotations.Where(a => !(CoreAnnotationNames.AllNames.Contains(a.Name)
+            || IgnoredRelationalAnnotations.Contains(a.Name)));
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(IModel model, IDictionary<string, IAnnotation> annotations)
@@ -236,9 +233,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
                     containerColumnName));
 
             annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
-#pragma warning disable CS0618
-            annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
-#pragma warning restore CS0618
         }
 
         if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
@@ -253,6 +247,18 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
         }
 
+        if (annotations.TryGetValue(RelationalAnnotationNames.JsonPropertyName, out var jsonPropertyNameAnnotation)
+            && jsonPropertyNameAnnotation is { Value: string jsonPropertyName }
+            && entityType.IsOwned())
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalOwnedNavigationBuilderExtensions.HasJsonPropertyName),
+                    jsonPropertyName));
+
+            annotations.Remove(RelationalAnnotationNames.JsonPropertyName);
+        }
+
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;
@@ -264,6 +270,33 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         IDictionary<string, IAnnotation> annotations)
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnName, out var containerColumnNameAnnotation)
+            && containerColumnNameAnnotation is { Value: string containerColumnName })
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalComplexPropertyBuilderExtensions.ToJson),
+                    containerColumnName));
+
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
+        }
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
+            && containerColumnTypeAnnotation is { Value: string containerColumnType })
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalComplexPropertyBuilderExtensions.HasColumnType),
+                    containerColumnType));
+
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
+        }
+
+        GenerateSimpleFluentApiCall(
+            annotations,
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName),
+            methodCallCodeFragments);
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexType, annotations, GenerateFluentApi));
 
@@ -338,6 +371,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
         GenerateSimpleFluentApiCall(
             annotations,
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalPropertyBuilderExtensions.HasJsonPropertyName),
+            methodCallCodeFragments);
+
+        GenerateSimpleFluentApiCall(
+            annotations,
             RelationalAnnotationNames.Comment, nameof(RelationalPropertyBuilderExtensions.HasComment), methodCallCodeFragments);
 
         GenerateSimpleFluentApiCall(
@@ -387,6 +425,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             annotations,
             RelationalAnnotationNames.Name,
             nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName),
+            methodCallCodeFragments);
+
+        GenerateSimpleFluentApiCall(
+            annotations,
+            RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations,
+            nameof(RelationalForeignKeyBuilderExtensions.ExcludeForeignKeyFromMigrations),
             methodCallCodeFragments);
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(foreignKey, annotations, GenerateFluentApi));
@@ -1005,7 +1049,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         if (annotations.TryGetValue(annotationName, out var annotation))
         {
             annotations.Remove(annotationName);
-            if (annotation.Value is object annotationValue)
+
+            if (annotation.Value is { } annotationValue)
             {
                 methodCallCodeFragments.Add(
                     new MethodCallCodeFragment(method, annotationValue));

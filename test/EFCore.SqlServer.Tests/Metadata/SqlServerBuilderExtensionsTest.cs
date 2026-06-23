@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class SqlServerBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Setting_column_default_value_does_not_set_identity_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -24,7 +24,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_column_default_value_sql_does_not_set_identity_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -41,7 +41,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_filter()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -57,7 +57,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal("SqlServer-specific expression", index.GetFilter());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_MemoryOptimized()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -77,7 +77,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.False(entityType.IsMemoryOptimized());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_MemoryOptimized_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -97,7 +97,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.False(entityType.IsMemoryOptimized());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_clustering()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -112,7 +112,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(index.IsClustered().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_clustering()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -127,7 +127,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(key.IsClustered().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_with_fillfactor()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -142,7 +142,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(90, key.GetFillFactor());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_with_fillfactor_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -157,7 +157,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(90, key.GetFillFactor());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_include()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -175,7 +175,7 @@ public class SqlServerBuilderExtensionsTest
             c => Assert.Equal(nameof(Customer.Offset), c));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_include_after_unique_using_generic_builder()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -195,7 +195,7 @@ public class SqlServerBuilderExtensionsTest
             c => Assert.Equal(nameof(Customer.Offset), c));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_include_after_annotation_using_generic_builder()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -219,7 +219,7 @@ public class SqlServerBuilderExtensionsTest
             c => Assert.Equal(nameof(Customer.Offset), c));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_include_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -237,7 +237,7 @@ public class SqlServerBuilderExtensionsTest
             c => Assert.Equal(nameof(Customer.Offset), c));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_online()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -252,7 +252,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(index.IsCreatedOnline());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_online_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -267,7 +267,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(index.IsCreatedOnline());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_sequences_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -285,7 +285,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_sequences_with_name_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -312,7 +312,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_sequences_with_schema_and_name_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -338,7 +338,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_relational_sequence_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -363,7 +363,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_SQL_sequence_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -388,7 +388,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_sequences_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -403,7 +403,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sqlServerExtensions.GetSequenceSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_sequences_with_name_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -418,7 +418,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sqlServerExtensions.GetSequenceSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_sequences_with_schema_and_name_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -450,7 +450,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_relational_key_sequence_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -475,7 +475,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_SQL_key_sequence_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -511,7 +511,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(int), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_identities_for_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -527,19 +527,18 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_SqlServer_identities_for_model_is_lower_priority_than_relational_default_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .Entity<Customer>(
-                eb =>
-                {
-                    eb.Property(e => e.Id).HasDefaultValue(1);
-                    eb.Property(e => e.Name).HasComputedColumnSql("Default");
-                    eb.Property(e => e.Offset).HasDefaultValueSql("Now");
-                });
+            .Entity<Customer>(eb =>
+            {
+                eb.Property(e => e.Id).HasDefaultValue(1);
+                eb.Property(e => e.Name).HasComputedColumnSql("Default");
+                eb.Property(e => e.Offset).HasDefaultValueSql("Now");
+            });
 
         modelBuilder.UseIdentityColumns();
 
@@ -563,7 +562,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal("Now", offsetProperty.GetDefaultValueSql());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_sequence_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -584,7 +583,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.NotNull(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_sequences_with_name_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -615,7 +614,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_sequences_with_schema_and_name_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -645,7 +644,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_relational_sequence_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -674,7 +673,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_relational_sequence_for_property_using_nested_closure()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -697,7 +696,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_SQL_sequence_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -725,7 +724,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_SQL_sequence_for_property_using_nested_closure()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -756,7 +755,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_sequence_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -777,7 +776,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.NotNull(model.FindSequence(nameof(Customer) + SqlServerModelExtensions.DefaultSequenceNameSuffix));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_sequences_with_name_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -810,7 +809,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_key_sequences_with_schema_and_name_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -842,7 +841,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_relational_key_sequence_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -871,7 +870,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_relational_key_sequence_for_property_using_nested_closure()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -894,7 +893,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_SQL_key_sequence_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -922,7 +921,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_use_of_existing_SQL_key_sequence_for_property_using_nested_closure()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -953,7 +952,7 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_identities_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -976,7 +975,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_identities_with_seed_and_identity_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -999,7 +998,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SqlServer_property_methods_dont_break_out_of_the_generics()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1023,7 +1022,7 @@ public class SqlServerBuilderExtensionsTest
                 .UseSequence());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SqlServer_property_methods_have_non_generic_overloads()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1044,7 +1043,7 @@ public class SqlServerBuilderExtensionsTest
             .UseSequence();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_index_filter_with_where_clauses_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1061,7 +1060,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal("[Id] % 2 = 0", index.GetFilter());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_with_fillfactor()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1076,7 +1075,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(90, index.GetFillFactor());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_with_fillfactor_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1091,41 +1090,35 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(90, index.GetFillFactor());
     }
 
-    [ConditionalTheory]
-    [InlineData(0)]
-    [InlineData(101)]
+    [Theory, InlineData(0), InlineData(101)]
     public void Throws_if_attempt_to_set_key_fillfactor_with_argument_out_of_range(int fillFactor)
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () =>
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .HasKey("Id")
-                    .HasFillFactor(fillFactor);
-            });
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasKey("Id")
+                .HasFillFactor(fillFactor);
+        });
     }
 
-    [ConditionalTheory]
-    [InlineData(0)]
-    [InlineData(101)]
+    [Theory, InlineData(0), InlineData(101)]
     public void Throws_if_attempt_to_set_fillfactor_with_argument_out_of_range(int fillFactor)
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () =>
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .HasIndex("Name")
-                    .HasFillFactor(fillFactor);
-            });
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
+                .HasFillFactor(fillFactor);
+        });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_with_sortintempdb()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1140,7 +1133,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(index.GetSortInTempDb());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_with_sortintempdb_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1155,10 +1148,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(index.GetSortInTempDb());
     }
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [Theory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Can_set_index_with_datacompression(DataCompressionType dataCompression)
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1173,10 +1163,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(dataCompression, index.GetDataCompression());
     }
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [Theory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Can_set_index_with_datacompression_non_generic(DataCompressionType dataCompression)
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1193,7 +1180,7 @@ public class SqlServerBuilderExtensionsTest
 
     #region UseSqlOutputClause
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlOutputClause()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1216,7 +1203,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(entityType.IsSqlOutputClauseUsed());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlOutputClause_with_table_name_and_one_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1245,7 +1232,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(entityType.IsSqlOutputClauseUsed());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlOutputClause_with_table_name_and_two_tables()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1280,7 +1267,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(entityType.IsSqlOutputClauseUsed());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlOutputClause_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();

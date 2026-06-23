@@ -31,14 +31,14 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
 
     private static readonly MethodInfo CompareMethod = typeof(ListOfValueTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic,
-        [typeof(IEnumerable<TElement>), typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
+        [typeof(IEnumerable<TElement>), typeof(IEnumerable<TElement>), typeof(Func<TElement, TElement, bool>)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfValueTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic,
-        [typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
+        [typeof(IEnumerable<TElement>), typeof(Func<TElement, int>)])!;
 
     private static readonly MethodInfo SnapshotMethod = typeof(ListOfValueTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
+        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement>), typeof(Func<TElement, TElement>)])!;
 
     /// <summary>
     ///     Creates a new instance of the list comparer.
@@ -64,15 +64,13 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
         var prm1 = Expression.Parameter(typeof(IEnumerable<TElement>), "a");
         var prm2 = Expression.Parameter(typeof(IEnumerable<TElement>), "b");
 
-        //(a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer)
+        //(a, b) => Compare(a, b, elementComparer.Equals)
         return Expression.Lambda<Func<IEnumerable<TElement>?, IEnumerable<TElement>?, bool>>(
             Expression.Call(
                 CompareMethod,
                 prm1,
                 prm2,
-                Expression.Convert(
-                    elementComparer.ConstructorExpression,
-                    typeof(ValueComparer<TElement>))),
+                elementComparer.EqualsExpression),
             prm1,
             prm2);
     }
@@ -81,14 +79,12 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
     {
         var prm = Expression.Parameter(typeof(IEnumerable<TElement>), "o");
 
-        //o => GetHashCode(o, (ValueComparer<TElement>)elementComparer)
+        //o => GetHashCode(o, elementComparer.GetHashCode)
         return Expression.Lambda<Func<IEnumerable<TElement>, int>>(
             Expression.Call(
                 GetHashCodeMethod,
                 prm,
-                Expression.Convert(
-                    elementComparer.ConstructorExpression,
-                    typeof(ValueComparer<TElement>))),
+                elementComparer.HashCodeExpression),
             prm);
     }
 
@@ -96,18 +92,16 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
     {
         var prm = Expression.Parameter(typeof(IEnumerable<TElement>), "source");
 
-        //source => Snapshot(source, (ValueComparer<TElement>)elementComparer)
+        //source => Snapshot(source, elementComparer.Snapshot)
         return Expression.Lambda<Func<IEnumerable<TElement>, IEnumerable<TElement>>>(
             Expression.Call(
                 SnapshotMethod,
                 prm,
-                Expression.Convert(
-                    elementComparer.ConstructorExpression,
-                    typeof(ValueComparer<TElement>))),
+                elementComparer.SnapshotExpression),
             prm);
     }
 
-    private static bool Compare(IEnumerable<TElement>? a, IEnumerable<TElement>? b, ValueComparer<TElement> elementComparer)
+    private static bool Compare(IEnumerable<TElement>? a, IEnumerable<TElement>? b, Func<TElement, TElement, bool> elementCompare)
     {
         if (ReferenceEquals(a, b))
         {
@@ -134,7 +128,7 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
             for (var i = 0; i < aList.Count; i++)
             {
                 var (el1, el2) = (aList[i], bList[i]);
-                if (!elementComparer.Equals(el1, el2))
+                if (!elementCompare(el1, el2))
                 {
                     return false;
                 }
@@ -146,29 +140,29 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
         throw new InvalidOperationException(
             CoreStrings.BadListType(
                 (a is IList<TElement?> ? b : a).GetType().ShortDisplayName(),
-                typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
+                typeof(IList<>).MakeGenericType(typeof(TElement)).ShortDisplayName()));
     }
 
-    private static int GetHashCode(IEnumerable<TElement> source, ValueComparer<TElement> elementComparer)
+    private static int GetHashCode(IEnumerable<TElement> source, Func<TElement, int> elementGetHashCode)
     {
         var hash = new HashCode();
 
         foreach (var el in source)
         {
-            hash.Add(elementComparer.GetHashCode(el));
+            hash.Add(elementGetHashCode(el));
         }
 
         return hash.ToHashCode();
     }
 
-    private static IList<TElement> Snapshot(IEnumerable<TElement> source, ValueComparer<TElement> elementComparer)
+    private static IList<TElement> Snapshot(IEnumerable<TElement> source, Func<TElement, TElement> elementSnapshot)
     {
         if (source is not IList<TElement> sourceList)
         {
             throw new InvalidOperationException(
                 CoreStrings.BadListType(
                     source.GetType().ShortDisplayName(),
-                    typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
+                    typeof(IList<>).MakeGenericType(typeof(TElement).MakeNullable()).ShortDisplayName()));
         }
 
         if (IsArray)
@@ -177,7 +171,7 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
             for (var i = 0; i < sourceList.Count; i++)
             {
                 var instance = sourceList[i];
-                snapshot[i] = elementComparer.Snapshot(instance);
+                snapshot[i] = elementSnapshot(instance);
             }
 
             return snapshot;
@@ -187,7 +181,7 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
             var snapshot = IsReadOnly ? new List<TElement>() : (IList<TElement>)Activator.CreateInstance<TConcreteList>()!;
             foreach (var e in sourceList)
             {
-                snapshot.Add(elementComparer.Snapshot(e));
+                snapshot.Add(elementSnapshot(e));
             }
 
             return IsReadOnly

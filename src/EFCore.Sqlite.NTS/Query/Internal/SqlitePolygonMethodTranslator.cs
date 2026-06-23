@@ -44,7 +44,7 @@ public class SqlitePolygonMethodTranslator : IMethodCallTranslator
         {
             return _sqlExpressionFactory.Function(
                 "InteriorRingN",
-                new[] { instance!, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)) },
+                [instance!, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1))],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType);

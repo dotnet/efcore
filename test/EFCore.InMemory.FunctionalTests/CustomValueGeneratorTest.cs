@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CustomValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generators()
     {
         using var context = new CustomValueGeneratorContext();
@@ -43,21 +43,19 @@ public class CustomValueGeneratorTest
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
-                .Entity<SomeEntity>(
-                    b =>
-                    {
-                        b.HasAlternateKey(
-                            e => new { e.SpecialId, e.SpecialString });
-                        b.Property(e => e.SpecialId)
-                            .HasAnnotation("SpecialGuid", true)
-                            .ValueGeneratedOnAdd();
+                .Entity<SomeEntity>(b =>
+                {
+                    b.HasAlternateKey(e => new { e.SpecialId, e.SpecialString });
+                    b.Property(e => e.SpecialId)
+                        .HasAnnotation("SpecialGuid", true)
+                        .ValueGeneratedOnAdd();
 
-                        b.Property(e => e.SpecialString)
-                            .ValueGeneratedOnAdd();
-                    });
+                    b.Property(e => e.SpecialString)
+                        .ValueGeneratedOnAdd();
+                });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generator_from_annotated_type()
     {
         using var context = new CustomValueGeneratorContextAnnotateType();
@@ -90,16 +88,15 @@ public class CustomValueGeneratorTest
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
-                .Entity<SomeEntity>(
-                    b =>
-                    {
-                        b.Property(e => e.Id).HasValueGenerator<SequentialGuidValueGenerator>();
-                        b.Property(e => e.SpecialId).HasValueGenerator(typeof(CustomGuidValueGenerator));
-                        b.Property(e => e.SpecialString).HasValueGenerator<SomeEntityStringValueGenerator>();
-                    });
+                .Entity<SomeEntity>(b =>
+                {
+                    b.Property(e => e.Id).HasValueGenerator<SequentialGuidValueGenerator>();
+                    b.Property(e => e.SpecialId).HasValueGenerator(typeof(CustomGuidValueGenerator));
+                    b.Property(e => e.SpecialString).HasValueGenerator<SomeEntityStringValueGenerator>();
+                });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generator_from_annotated_factory()
     {
         using var context = new CustomValueGeneratorContextAnnotateFactory();
@@ -132,22 +129,21 @@ public class CustomValueGeneratorTest
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
-                .Entity<SomeEntity>(
-                    b =>
-                    {
-                        var factory = new CustomValueGeneratorFactory();
+                .Entity<SomeEntity>(b =>
+                {
+                    var factory = new CustomValueGeneratorFactory();
 
-                        b.Property(e => e.Id).HasValueGenerator(factory.Create);
+                    b.Property(e => e.Id).HasValueGenerator(factory.Create);
 
-                        b.Property(e => e.SpecialId)
-                            .Metadata.SetValueGeneratorFactory(factory.Create);
+                    b.Property(e => e.SpecialId)
+                        .Metadata.SetValueGeneratorFactory(factory.Create);
 
-                        b.Property(e => e.SpecialId)
-                            .HasAnnotation("SpecialGuid", true)
-                            .ValueGeneratedOnAdd();
+                    b.Property(e => e.SpecialId)
+                        .HasAnnotation("SpecialGuid", true)
+                        .ValueGeneratedOnAdd();
 
-                        b.Property(e => e.SpecialString).HasValueGenerator(factory.Create);
-                    });
+                    b.Property(e => e.SpecialString).HasValueGenerator(factory.Create);
+                });
     }
 
     private class SomeEntity

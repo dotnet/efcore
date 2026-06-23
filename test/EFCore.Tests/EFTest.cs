@@ -5,13 +5,13 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class EFTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Property_throws_when_invoked_outside_of_query()
         => Assert.Equal(
             CoreStrings.PropertyMethodInvoked,
             Assert.Throws<InvalidOperationException>(() => EF.Property<object>(new object(), "")).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void CompiledQuery_throws_when_used_with_different_models()
     {
         using var context1 = new SwitchContext();
@@ -24,14 +24,13 @@ public class EFTest
 
         Assert.Equal(
             CoreStrings.CompiledQueryDifferentModel("(c, p1) => c.Foos .Where(e => e.Bars.Contains(p1))"),
-            Assert.Throws<InvalidOperationException>(
-                    () => query(context2, new Bar()).ToList())
+            Assert.Throws<InvalidOperationException>(() => query(context2, new Bar()).ToList())
                 .Message.Replace("\r", "").Replace("\n", ""), ignoreWhiteSpaceDifferences: true);
 
         _ = query(context1, new Bar()).ToList();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task CompiledQueryAsync_throws_when_used_with_different_models()
     {
         using var context1 = new SwitchContext();
@@ -44,8 +43,7 @@ public class EFTest
 
         Assert.Equal(
             CoreStrings.CompiledQueryDifferentModel("c => c.Foos"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => query(context2).ToListAsync())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => query(context2).ToListAsync().AsTask())).Message);
 
         _ = await query(context1).ToListAsync();
     }
@@ -69,6 +67,7 @@ public class EFTest
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInMemoryDatabase(nameof(SwitchContext))
+                .EnableServiceProviderCaching(false)
                 .ReplaceService<IModelCacheKeyFactory, DegenerateCacheKeyFactory>();
     }
 

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -101,9 +100,40 @@ public class DbContextOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void DropDatabase(string? contextType)
+    public virtual void DropDatabase(string? contextType, string? connectionString)
     {
+        if (contextType == "*")
+        {
+            var anyContext = false;
+            
+            foreach(var contextItem in CreateAllContexts())
+            {
+                anyContext = true;
+                using (contextItem)
+                {
+                    DropDatabaseContext(contextItem, connectionString);
+                }
+            }
+
+            if (!anyContext)
+            {
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+            }
+
+            return;
+        }
+
         using var context = CreateContext(contextType);
+         DropDatabaseContext(context, connectionString);
+    }
+
+    private void DropDatabaseContext(DbContext context, string? connectionString)
+    {
+        if (connectionString is not null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
         var connection = context.Database.GetDbConnection();
         _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database, connection.DataSource));
         _reporter.WriteInformation(
@@ -254,6 +284,7 @@ public class DbContextOperations
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
 
         var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
+        var databaseProvider = context.GetService<IDatabaseProvider>();
 
         var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
 
@@ -268,6 +299,7 @@ public class DbContextOperations
                 UseNullableReferenceTypes = _nullable,
                 Suffix = suffix,
                 ForNativeAot = nativeAot,
+                ProviderName = databaseProvider.Name,
                 GeneratedFileNames = generatedFileNames
             });
 
@@ -298,15 +330,40 @@ public class DbContextOperations
     {
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? "Generated"));
 
-        if (!MSBuildLocator.IsRegistered)
+        // TODO: pass through properties
+        MSBuildWorkspace workspace = null!;
+        Project project;
+        
+        try
         {
-            MSBuildLocator.RegisterDefaults();
+            // Set _EFGenerationStage to a non-empty value so that the design-time build performed by
+            // OpenProjectAsync below doesn't re-trigger the EF file generation targets. Otherwise the
+            // generation targets would invoke this operation again, resulting in a fork bomb.
+            workspace = MSBuildWorkspace.Create(new Dictionary<string, string> { ["_EFGenerationStage"] = "build" });
+            workspace.LoadMetadataForReferencedProjects = true;
+#pragma warning disable CS0612 // Obsolete
+#pragma warning disable CS0618 // Obsolete
+            workspace.WorkspaceFailed += (_, e) =>
+            {
+                _reporter.WriteError(DesignStrings.MSBuildWorkspaceFailure(e.Diagnostic.Kind, e.Diagnostic.Message));
+            };
+#pragma warning restore CS0618 // Obsolete
+#pragma warning restore CS0612 // Obsolete
+            project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            if (workspace != null && !workspace.Diagnostics.IsEmpty)
+            {
+                var diagnosticMessages = Environment.NewLine + string.Join(Environment.NewLine, 
+                    workspace.Diagnostics.Select(d => $"  {d.Kind}: {d.Message}"));
+                _reporter.WriteVerbose(DesignStrings.MSBuildWorkspaceDiagnostics(diagnosticMessages));
+            }
+
+            throw new InvalidOperationException(
+                DesignStrings.QueryPrecompilationProjectLoadFailed(_project, ex.Message), ex);
         }
 
-        // TODO: pass through properties
-        var workspace = MSBuildWorkspace.Create();
-        workspace.LoadMetadataForReferencedProjects = true;
-        var project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
         if (!project.SupportsCompilation)
         {
             throw new NotSupportedException(DesignStrings.UncompilableProject(_project));
@@ -314,7 +371,7 @@ public class DbContextOperations
 
         var compilation = project.GetCompilationAsync().GetAwaiter().GetResult()!;
         var errorDiagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
-        if (errorDiagnostics.Any())
+        if (errorDiagnostics.Length != 0)
         {
             var errorBuilder = new StringBuilder();
             errorBuilder.AppendLine(DesignStrings.CompilationErrors);
@@ -384,7 +441,7 @@ public class DbContextOperations
             ? string.Join(
                 ".",
                 subPath.Split(
-                    new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                    [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries))
             : null;
     }
 
@@ -394,9 +451,20 @@ public class DbContextOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ContextInfo GetContextInfo(string? contextType)
+    public virtual ContextInfo GetContextInfo(string? contextType, string? connectionString = null)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = CreateContext(contextType);
+        
+        if (connectionString != null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+        
         var info = new ContextInfo { Type = context.GetType().FullName! };
 
         var provider = context.GetService<IDatabaseProvider>();
@@ -447,7 +515,7 @@ public class DbContextOperations
     public virtual IEnumerable<DbContext> CreateAllContexts()
     {
         EF.IsDesignTime = true;
-        var types = FindContextTypes();
+        var types = FindContextTypes(useServiceProvider: false);
         foreach (var contextPair in types)
         {
             yield return CreateContext(null, contextPair);
@@ -477,7 +545,7 @@ public class DbContextOperations
 
             throw new OperationException(
                 DesignStrings.CannotCreateContextInstance(
-                    contextType ?? contextPair.Key.GetType().ShortDisplayName(), ex.Message), ex);
+                    contextType ?? contextPair.Key.ShortDisplayName(), ex.Message), ex);
         }
     }
 
@@ -499,9 +567,11 @@ public class DbContextOperations
     public virtual Type GetContextType(string? name)
         => FindContextType(name).Key;
 
-    private IDictionary<Type, Func<DbContext>> FindContextTypes(string? name = null)
+    private IDictionary<Type, Func<DbContext>> FindContextTypes(string? name = null, bool useServiceProvider = true)
     {
         _reporter.WriteVerbose(DesignStrings.FindingContexts);
+
+        AppServiceProviderFactory.SetEnvironment(_reporter);
 
         var contexts = new Dictionary<Type, Func<DbContext>?>();
 
@@ -549,8 +619,7 @@ public class DbContextOperations
                 .Concat(_assembly.GetConstructibleTypes())
                 .ToList();
 
-            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(
-                    t => t.AsType())
+            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(t => t.AsType())
                 .Concat<Type>(
                     types.Where(t => typeof(Migration).IsAssignableFrom(t))
                         .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
@@ -576,7 +645,7 @@ public class DbContextOperations
             }
 
             if (contexts.Values.All(f => f != null)
-                && (string.IsNullOrEmpty(name) || contexts.Count == 1))
+                && (!useServiceProvider || contexts.Count == 1))
             {
                 return contexts!;
             }
@@ -717,9 +786,8 @@ public class DbContextOperations
         string name,
         StringComparison comparisonType)
         => types
-            .Where(
-                t => string.Equals(t.Key.Name, name, comparisonType)
-                    || string.Equals(t.Key.FullName, name, comparisonType)
-                    || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
+            .Where(t => string.Equals(t.Key.Name, name, comparisonType)
+                || string.Equals(t.Key.FullName, name, comparisonType)
+                || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
             .ToDictionary();
 }

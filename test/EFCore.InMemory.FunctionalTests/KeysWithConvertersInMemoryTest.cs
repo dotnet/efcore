@@ -7,31 +7,31 @@ public class KeysWithConvertersInMemoryTest(KeysWithConvertersInMemoryTest.KeysW
     : KeysWithConvertersTestBase<
         KeysWithConvertersInMemoryTest.KeysWithConvertersInMemoryFixture>(fixture)
 {
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact(Skip = "Issue #26238")]
     public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact(Skip = "Issue #26238")]
     public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact(Skip = "Issue #26238")]
     public override Task Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact(Skip = "Issue #26238")]
     public override Task Can_insert_and_read_back_with_struct_binary_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_required_dependents();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact(Skip = "Issue #26238")]
     public override Task Can_query_and_update_owned_entity_with_value_converter()
         => base.Can_query_and_update_owned_entity_with_value_converter();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact(Skip = "Issue #26238")]
     public override Task Can_query_and_update_owned_entity_with_int_bare_class_key()
         => base.Can_query_and_update_owned_entity_with_int_bare_class_key();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact(Skip = "Issue #26238")]
     public override Task Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents();
 

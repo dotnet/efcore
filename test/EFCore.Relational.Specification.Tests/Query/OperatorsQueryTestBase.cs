@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
+public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected OperatorsData ExpectedData { get; init; } = OperatorsData.Instance;
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "OperatorsTest";
 
     protected virtual Task Seed(OperatorsContext ctx)
@@ -26,11 +26,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         return ctx.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Bitwise_and_on_expression_with_like_and_null_check_being_compared_to_false()
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from o1 in ExpectedData.OperatorEntitiesString
                         from o2 in ExpectedData.OperatorEntitiesString
@@ -65,11 +65,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_predicate_with_bitwise_and_modulo_and_negation()
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e0 in ExpectedData.OperatorEntitiesLong
                         from e1 in ExpectedData.OperatorEntitiesLong
@@ -111,11 +111,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_predicate_with_bitwise_and_arithmetic_operations()
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e0 in ExpectedData.OperatorEntitiesInt
                         from e1 in ExpectedData.OperatorEntitiesInt
@@ -150,11 +150,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Or_on_two_nested_binaries_and_another_simple_comparison()
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e1 in ExpectedData.OperatorEntitiesString
                         from e2 in ExpectedData.OperatorEntitiesString
@@ -199,11 +199,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projection_with_not_and_negation_on_integer()
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e3 in ExpectedData.OperatorEntitiesLong
                         from e4 in ExpectedData.OperatorEntitiesLong
@@ -224,12 +224,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_column(bool async)
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e in ExpectedData.OperatorEntitiesInt
                         where e.Id == -e.Value
@@ -246,11 +245,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Double_negate_on_column()
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e in ExpectedData.OperatorEntitiesInt
                         where -(-e.Value) == e.Value
@@ -267,12 +266,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_binary_expression(bool async)
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e1 in ExpectedData.OperatorEntitiesInt
                         from e2 in ExpectedData.OperatorEntitiesInt
@@ -292,12 +290,11 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_like_expression(bool async)
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e in ExpectedData.OperatorEntitiesString
                         where !e.Value.StartsWith("A")
@@ -314,11 +311,10 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Concat_and_json_scalar(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb => mb
                 .Entity<Owner>()
                 .OwnsOne(o => o.Owned)
@@ -330,7 +326,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                     new Owner { Owned = new Owned { SomeProperty = "Baz" } });
                 return context.SaveChangesAsync();
             });
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var result = await context.Set<Owner>().SingleAsync(o => "Foo" + o.Owned.SomeProperty == "FooBar");
         Assert.Equal("Bar", result.Owned.SomeProperty);

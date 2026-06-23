@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
@@ -13,9 +13,6 @@ public abstract class ManyToManyNoTrackingQueryTestBase<TFixture>(TFixture fixtu
     private static readonly MethodInfo _asNoTrackingMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
-
-    protected override bool IgnoreEntryCount
-        => true;
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
@@ -40,20 +37,18 @@ public abstract class ManyToManyNoTrackingQueryTestBase<TFixture>(TFixture fixtu
                 source);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_skip_navigation_then_include_inverse_throws_in_no_tracking(bool async)
         => Assert.Equal(
             CoreStrings.IncludeWithCycle(nameof(EntityThree.OneSkipPayloadFullShared), nameof(EntityOne.ThreeSkipPayloadFullShared)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<EntityThree>().AsNoTracking().Include(e => e.OneSkipPayloadFullShared)
-                        .ThenInclude(e => e.ThreeSkipPayloadFullShared),
-                    elementAsserter: (e, a) => AssertInclude(
-                        e, a,
-                        new ExpectedInclude<EntityThree>(et => et.OneSkipPayloadFullShared),
-                        new ExpectedInclude<EntityOne>(et => et.ThreeSkipPayloadFullShared, "OneSkipPayloadFullShared"))))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+                async,
+                ss => ss.Set<EntityThree>().AsNoTracking().Include(e => e.OneSkipPayloadFullShared)
+                    .ThenInclude(e => e.ThreeSkipPayloadFullShared),
+                elementAsserter: (e, a) => AssertInclude(
+                    e, a,
+                    new ExpectedInclude<EntityThree>(et => et.OneSkipPayloadFullShared),
+                    new ExpectedInclude<EntityOne>(et => et.ThreeSkipPayloadFullShared, "OneSkipPayloadFullShared"))))).Message);
 
     public override Task Include_skip_navigation_then_include_inverse_works_for_tracking_query(bool async)
         => Task.CompletedTask;

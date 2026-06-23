@@ -8,15 +8,20 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 internal static class EFDiagnostics
 {
-    public const string InternalUsage = "EF1001";
-    public const string InterpolatedStringUsageInRawQueries = "EF1002";
-    public const string SuppressUninitializedDbSetRule = "EFSPR1001";
+    internal const string InternalUsage = "EF1001";
+    internal const string InterpolatedStringUsageInRawQueries = "EF1002";
+    internal const string StringConcatenationUsageInRawQueries = "EF1003";
+    internal const string ToAsyncEnumerableOnQueryable = "EF1004";
+    internal const string SuppressUninitializedDbSetRule = "EFSPR1001";
 
     // Diagnostics for [Experimental]
-    public const string ExperimentalApi = "EF9001";
-    public const string ProviderExperimentalApi = "EF9002";
-    public const string PrecompiledQueryExperimental = "EF9100";
-    public const string MetricsExperimental = "EF9101";
-    public const string PagingExperimental = "EF9102";
-    public const string CosmosVectorSearchExperimental = "EF9103";
+    internal const string ExperimentalApi = "EF9001";
+    internal const string ProviderExperimentalApi = "EF9002";
+    internal const string PrecompiledQueryExperimental = "EF9100";
+    internal const string MetricsExperimental = "EF9101";
+    internal const string PagingExperimental = "EF9102";
+    internal const string CosmosVectorSearchExperimental = "EF9103"; // No longer experimental
+    internal const string CosmosFullTextSearchExperimental = "EF9104"; // No longer experimental
+    internal const string SqlServerVectorSearch = "EF9105";
+    internal const string JsonContainsExperimental = "EF9106";
 }

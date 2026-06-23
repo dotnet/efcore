@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 #pragma warning disable CS0649, CS0414
 public class ComplexPropertyEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_obtain_underlying_state_entry()
     {
         using var context = new YogurtContext();
@@ -29,7 +29,7 @@ public class ComplexPropertyEntryTest
         Assert.Same(entry, context.Entry((object)entity).ComplexProperty("Culture").ComplexProperty("License").GetInfrastructure());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata()
     {
         using var context = new YogurtContext();
@@ -48,7 +48,7 @@ public class ComplexPropertyEntryTest
         Assert.Equal("License", context.Entry((object)entity).ComplexProperty("Culture").ComplexProperty("License").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_property_entry_by_name()
     {
         using var context = new YogurtContext();
@@ -75,7 +75,7 @@ public class ComplexPropertyEntryTest
             "Charge", context.Entry((object)entity).ComplexProperty("Culture").ComplexProperty("License").Property("Charge").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_generic_type_is_used_while_getting_property_entry_by_name()
     {
         using var context = new YogurtContext();
@@ -86,7 +86,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<ArgumentException>(() => complexEntry.Property<string>("Rating")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_property_name_is_used_while_getting_property_entry_by_name()
     {
         using var context = new YogurtContext();
@@ -103,7 +103,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<InvalidOperationException>(() => complexEntry.Property<int>("Chimp").Metadata.Name).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_modified_properties()
     {
         using var context = new YogurtContext();
@@ -121,7 +121,7 @@ public class ComplexPropertyEntryTest
         Assert.Equal(["Species", "Subspecies"], modified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_property_entries()
     {
         using var context = new YogurtContext();
@@ -137,7 +137,7 @@ public class ComplexPropertyEntryTest
             complexEntry.Properties.Select(e => e.Metadata.Name).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_generic_type_is_used_while_getting_complex_property_entry_by_name()
     {
         using var context = new YogurtContext();
@@ -154,7 +154,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<ArgumentException>(() => nestedComplexEntry.ComplexProperty<string>("Tag")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_complex_property_name_is_used_while_getting_property_entry_by_name()
     {
         using var context = new YogurtContext();
@@ -171,7 +171,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<InvalidOperationException>(() => complexEntry.ComplexProperty<int>("Chimp").Metadata.Name).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_complex_property_entries()
     {
         using var context = new YogurtContext();
@@ -188,7 +188,7 @@ public class ComplexPropertyEntryTest
             nestedComplexEntry.ComplexProperties.Select(e => e.Metadata.Name).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_obtain_underlying_state_entry_with_fields()
     {
         using var context = new YogurtContext();
@@ -209,7 +209,7 @@ public class ComplexPropertyEntryTest
         Assert.Same(entry, context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").GetInfrastructure());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_with_fields()
     {
         using var context = new YogurtContext();
@@ -229,7 +229,7 @@ public class ComplexPropertyEntryTest
         Assert.Equal("License", context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_property_entry_by_name_with_fields()
     {
         using var context = new YogurtContext();
@@ -259,7 +259,7 @@ public class ComplexPropertyEntryTest
             context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Property("Charge").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_generic_type_is_used_while_getting_property_entry_by_name_with_fields()
     {
         using var context = new YogurtContext();
@@ -270,7 +270,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<ArgumentException>(() => complexEntry.Property<string>("Rating")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_property_name_is_used_while_getting_property_entry_by_name_with_fields()
     {
         using var context = new YogurtContext();
@@ -287,7 +287,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<InvalidOperationException>(() => complexEntry.Property<int>("Chimp").Metadata.Name).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_modified_properties_with_fields()
     {
         using var context = new YogurtContext();
@@ -305,7 +305,7 @@ public class ComplexPropertyEntryTest
         Assert.Equal(["Species", "Subspecies"], modified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_property_entries_with_fields()
     {
         using var context = new YogurtContext();
@@ -321,7 +321,7 @@ public class ComplexPropertyEntryTest
             complexEntry.Properties.Select(e => e.Metadata.Name).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_generic_type_is_used_while_getting_complex_property_entry_by_name_with_fields()
     {
         using var context = new YogurtContext();
@@ -338,7 +338,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<ArgumentException>(() => nestedComplexEntry.ComplexProperty<string>("Tag")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_wrong_complex_property_name_is_used_while_getting_property_entry_by_name_with_fields()
     {
         using var context = new YogurtContext();
@@ -355,7 +355,7 @@ public class ComplexPropertyEntryTest
             Assert.Throws<InvalidOperationException>(() => complexEntry.ComplexProperty<int>("Chimp").Metadata.Name).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_complex_property_entries_with_fields()
     {
         using var context = new YogurtContext();
@@ -433,43 +433,42 @@ public class ComplexPropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Yogurt>(
-                b =>
-                {
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+            => modelBuilder.Entity<Yogurt>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.Culture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.FieldCulture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-                });
+                b.ComplexProperty(
+                    e => e.FieldCulture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
+            });
     }
 
     private struct Culture

@@ -94,6 +94,15 @@ public abstract class DbContextOptions : IDbContextOptions
         where TExtension : class, IDbContextOptionsExtension;
 
     /// <summary>
+    ///     Removes the given extension from the underlying options and creates a new
+    ///     <see cref="DbContextOptions" /> with the extension removed.
+    /// </summary>
+    /// <typeparam name="TExtension">The type of extension to be removed.</typeparam>
+    /// <returns>The new options instance with the extension removed.</returns>
+    public abstract DbContextOptions WithoutExtension<TExtension>()
+        where TExtension : class, IDbContextOptionsExtension;
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -136,9 +145,8 @@ public abstract class DbContextOptions : IDbContextOptions
     protected virtual bool Equals(DbContextOptions other)
         => _extensionsMap.Count == other._extensionsMap.Count
             && _extensionsMap.Zip(other._extensionsMap)
-                .All(
-                    p => p.First.Value.Ordinal == p.Second.Value.Ordinal
-                        && p.First.Value.Extension.Info.ShouldUseSameServiceProvider(p.Second.Value.Extension.Info));
+                .All(p => p.First.Value.Ordinal == p.Second.Value.Ordinal
+                    && p.First.Value.Extension.Info.ShouldUseSameServiceProvider(p.Second.Value.Extension.Info));
 
     /// <inheritdoc />
     public override int GetHashCode()

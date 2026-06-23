@@ -25,7 +25,7 @@ public abstract class
     protected virtual bool HasForeignKeyIndexes
         => true;
 
-    [ConditionalFact]
+    [Fact]
     public void Can_build_identity_model()
     {
         using (var context = CreateContext())
@@ -38,7 +38,7 @@ public abstract class
 
     protected abstract List<EntityTypeMapping> ExpectedMappings { get; }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_FindByNameAsync()
     {
         var user = new TUser { NormalizedUserName = "wendy" };
@@ -57,7 +57,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_FindByEmailAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -76,7 +76,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetRolesAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -98,7 +98,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_ReplaceClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -133,7 +133,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_RemoveClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -148,7 +148,7 @@ public abstract class
                 using var userStore =
                     new UserStore<TUser, TRole, TContext, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(context);
 
-                await userStore.RemoveClaimsAsync(user, new[] { new Claim("T1", "V1"), new Claim("T2", "V3") });
+                await userStore.RemoveClaimsAsync(user, [new Claim("T1", "V1"), new Claim("T2", "V3")]);
 
                 await context.SaveChangesAsync();
             },
@@ -164,7 +164,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetLoginsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -186,7 +186,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetUsersForClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -207,7 +207,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetUsersInRoleAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -228,7 +228,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_FindByNameAsync()
     {
         var user = new TUser { NormalizedUserName = "wendy" };
@@ -246,7 +246,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_FindByEmailAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -264,7 +264,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -289,7 +289,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_ReplaceClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -322,7 +322,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_RemoveClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -336,7 +336,7 @@ public abstract class
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
 
-                await userStore.RemoveClaimsAsync(user, new[] { new Claim("T1", "V1"), new Claim("T2", "V3") });
+                await userStore.RemoveClaimsAsync(user, [new Claim("T1", "V1"), new Claim("T2", "V3")]);
 
                 await context.SaveChangesAsync();
             },
@@ -351,7 +351,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetLoginsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -372,7 +372,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetUsersForClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -392,7 +392,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_RoleStore_GetClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -423,7 +423,7 @@ public abstract class
         using var roleStore = new RoleStore<TRole, TContext, TKey, TUserRole, TRoleClaim>(context);
 
         await userStore.CreateAsync(user);
-        await userStore.AddClaimsAsync(user, new[] { new Claim("T1", "V1"), new Claim("T1", "V2"), new Claim("T2", "V3") });
+        await userStore.AddClaimsAsync(user, [new Claim("T1", "V1"), new Claim("T1", "V2"), new Claim("T2", "V3")]);
 
         var adminRole = new TRole { NormalizedName = "admin", Name = "Admin" };
         await roleStore.CreateAsync(adminRole);
@@ -454,10 +454,9 @@ public abstract class
             => base.AddOptions(builder)
                 .EnableDetailedErrors()
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(
-                    b => b.Default(WarningBehavior.Throw)
-                        .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                        .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
+                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
     }
 
     protected TContext CreateContext()

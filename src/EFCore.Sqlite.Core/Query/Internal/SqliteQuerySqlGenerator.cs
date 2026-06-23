@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -11,19 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteQuerySqlGenerator : QuerySqlGenerator
+public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -44,6 +34,10 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             case JsonEachExpression jsonEachExpression:
                 GenerateJsonEach(jsonEachExpression);
+                return extensionExpression;
+
+            case SqliteAggregateFunctionExpression aggregateFunctionExpression:
+                GenerateAggregateFunction(aggregateFunctionExpression);
                 return extensionExpression;
 
             default:
@@ -97,8 +91,66 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
-        // Sqlite doesn't support parentheses around set operation operands
-        => Visit(operand);
+    {
+        // Most databases support parentheses around set operations to determine evaluation order, but SQLite does not;
+        // however, we can instead wrap the nested set operation in a SELECT * FROM () to achieve the same effect.
+        // The following is a copy-paste of the base implementation from QuerySqlGenerator, adding the SELECT.
+
+        if (
+            // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
+            // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+            // - including different distinctness.
+            // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
+            (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+                && (nestedSetOperation is ExceptExpression
+                    || nestedSetOperation.GetType() != setOperation.GetType()
+                    || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
+            ||
+            // ValuesExpression with multiple rows uses UNION ALL by default.
+            // We wrap it in a SELECT * FROM () to ensure that the rows are treated as a single set operation.
+            (operand is { Tables: [ValuesExpression { RowValues.Count: > 1 }] }))
+        {
+            Sql.AppendLine("SELECT * FROM (");
+
+            using (Sql.Indent())
+            {
+                Visit(operand);
+            }
+
+            Sql.AppendLine().Append(")");
+        }
+        else
+        {
+            Visit(operand);
+        }
+
+        static bool TryUnwrapBareSetOperation(SelectExpression selectExpression, [NotNullWhen(true)] out SetOperationBase? setOperation)
+        {
+            if (selectExpression is
+                {
+                    Tables: [SetOperationBase s],
+                    Predicate: null,
+                    Orderings: [],
+                    Offset: null,
+                    Limit: null,
+                    IsDistinct: false,
+                    Having: null,
+                    GroupBy: []
+                }
+                && selectExpression.Projection.Count == s.Source1.Projection.Count
+                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                        && column.TableAlias == s.Alias
+                        && column.Name == s.Source1.Projection[index].Alias)
+                    .All(e => e))
+            {
+                setOperation = s;
+                return true;
+            }
+
+            setOperation = null;
+            return false;
+        }
+    }
 
     private void GenerateGlob(GlobExpression globExpression, bool negated = false)
     {
@@ -126,6 +178,40 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         Visit(regexpExpression.Pattern);
     }
 
+    private void GenerateAggregateFunction(SqliteAggregateFunctionExpression aggregateFunctionExpression)
+    {
+        Sql.Append(aggregateFunctionExpression.Name).Append("(");
+
+        for (var i = 0; i < aggregateFunctionExpression.Arguments.Count; i++)
+        {
+            if (i > 0)
+            {
+                Sql.Append(", ");
+            }
+
+            Visit(aggregateFunctionExpression.Arguments[i]);
+        }
+
+        // Unlike SQL Server's "WITHIN GROUP (ORDER BY ...)", SQLite renders the ordering inside the function
+        // parentheses: group_concat(value, separator ORDER BY ...). Supported since SQLite 3.44.0.
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            Sql.Append(" ORDER BY ");
+
+            for (var i = 0; i < aggregateFunctionExpression.Orderings.Count; i++)
+            {
+                if (i > 0)
+                {
+                    Sql.Append(", ");
+                }
+
+                Visit(aggregateFunctionExpression.Orderings[i]);
+            }
+        }
+
+        Sql.Append(")");
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -141,7 +227,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // expression type for it.
         Sql.Append("json_each(");
 
-        Visit(jsonEachExpression.JsonExpression);
+        Visit(jsonEachExpression.Json);
 
         var path = jsonEachExpression.Path;
 
@@ -149,51 +235,66 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         {
             Sql.Append(", ");
 
-            // Note the difference with the JSONPATH rendering in VisitJsonScalar below, where we take advantage of SQLite's ->> operator
-            // (we can't do that here).
-            Sql.Append("'$");
-
-            var inJsonpathString = true;
-
-            for (var i = 0; i < path.Count; i++)
-            {
-                switch (path[i])
-                {
-                    case { PropertyName: string propertyName }:
-                        Sql.Append(".").Append(propertyName);
-                        break;
-
-                    case { ArrayIndex: SqlExpression arrayIndex }:
-                        Sql.Append("[");
-
-                        if (arrayIndex is SqlConstantExpression)
-                        {
-                            Visit(arrayIndex);
-                        }
-                        else
-                        {
-                            Sql.Append("' || ");
-                            Visit(arrayIndex);
-                            Sql.Append(" || '");
-                        }
-
-                        Sql.Append("]");
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            if (inJsonpathString)
-            {
-                Sql.Append("'");
-            }
+            GenerateJsonPath(path);
         }
 
         Sql.Append(")");
 
         Sql.Append(AliasSeparator).Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(jsonEachExpression.Alias));
+    }
+
+    private void GenerateJsonPath(IReadOnlyList<PathSegment> path)
+    {
+        Sql.Append("'$");
+
+        for (var i = 0; i < path.Count; i++)
+        {
+            switch (path[i])
+            {
+                case { PropertyName: { } propertyName }:
+                    Sql.Append(".").Append(propertyName);
+                    break;
+
+                case { ArrayIndex: { } arrayIndex }:
+                    Sql.Append("[");
+
+                    if (arrayIndex is SqlConstantExpression)
+                    {
+                        Visit(arrayIndex);
+                    }
+                    else
+                    {
+                        Sql.Append("' || ");
+                        Visit(arrayIndex);
+                        Sql.Append(" || '");
+                    }
+
+                    Sql.Append("]");
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        Sql.Append("'");
+    }
+
+    /// <summary>
+    ///     Generates SQL for a constant.
+    /// </summary>
+    /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        // Certain JSON functions (e.g. json_set()) accept a JSONPATH argument - this is (currently) flown here as a SqlConstantExpression
+        // over IReadOnlyList<PathSegment>. Render that to a string here.
+        if (sqlConstantExpression is { Value: IReadOnlyList<PathSegment> path })
+        {
+            GenerateJsonPath(path);
+            return sqlConstantExpression;
+        }
+
+        return base.VisitSqlConstant(sqlConstantExpression);
     }
 
     /// <summary>
@@ -217,12 +318,14 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
         for (var i = 0; i < path.Count; i++)
         {
+            // Note that we don't use GenerateJsonPath() to generate the JSONPATH string here, since we take advantage of SQLite's ->> operator
+            // for JsonScalarExpression.
             var pathSegment = path[i];
             var isLast = i == path.Count - 1;
 
             switch (pathSegment)
             {
-                case { PropertyName: string propertyName }:
+                case { PropertyName: { } propertyName }:
                     if (inJsonpathString)
                     {
                         Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
@@ -275,7 +378,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
                     Sql.Append(" ->> ");
 
-                    Check.DebugAssert(pathSegment.ArrayIndex is not null, "pathSegment.ArrayIndex is not null");
+                    Check.DebugAssert(pathSegment.ArrayIndex is not null);
 
                     var requiresParentheses = RequiresParentheses(jsonScalarExpression, pathSegment.ArrayIndex);
                     if (requiresParentheses)

@@ -3,16 +3,19 @@
 
 // ReSharper disable InconsistentNaming
 
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public class CompiledModelCosmosTest : CompiledModelTestBase
+public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task Basic_cosmos_model()
         => Test(
             modelBuilder =>
@@ -21,21 +24,20 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
 
                 modelBuilder.HasDefaultContainer("Default");
 
-                modelBuilder.Entity<Data>(
-                    eb =>
-                    {
-                        eb.Property<int>("Id");
-                        eb.Property<long?>("PartitionId").HasConversion<string>();
-                        eb.HasPartitionKey("PartitionId");
-                        eb.HasKey("Id", "PartitionId");
-                        eb.ToContainer("DataContainer");
-                        eb.Property<Dictionary<string, string[]>>("Map");
-                        eb.Property<List<Dictionary<string, int>>>("List");
-                        eb.Property<ReadOnlyMemory<byte>>("Bytes");
-                        eb.UseETagConcurrency();
-                        eb.HasNoDiscriminator();
-                        eb.Property(d => d.Blob).ToJsonProperty("JsonBlob");
-                    });
+                modelBuilder.Entity<Data>(eb =>
+                {
+                    eb.Property<int>("Id");
+                    eb.Property<long?>("PartitionId").HasConversion<string>();
+                    eb.HasPartitionKey("PartitionId");
+                    eb.HasKey("Id", "PartitionId");
+                    eb.ToContainer("DataContainer");
+                    eb.Property<Dictionary<string, string[]>>("Map");
+                    eb.Property<List<Dictionary<string, int>>>("List");
+                    eb.Property<ReadOnlyMemory<byte>>("Bytes");
+                    eb.UseETagConcurrency();
+                    eb.HasNoDiscriminator();
+                    eb.Property(d => d.Blob).ToJsonProperty("JsonBlob");
+                });
             },
             model =>
             {
@@ -119,7 +121,7 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 Assert.Null(list.FieldInfo);
                 Assert.True(list.IsNullable);
                 Assert.False(list.IsConcurrencyToken);
-                Assert.False(list.IsPrimitiveCollection);
+                Assert.True(list.IsPrimitiveCollection);
                 Assert.Equal(ValueGenerated.Never, list.ValueGenerated);
                 Assert.Equal(PropertySaveBehavior.Save, list.GetAfterSaveBehavior());
                 Assert.Equal(PropertySaveBehavior.Save, list.GetBeforeSaveBehavior());
@@ -197,166 +199,494 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 Assert.Equal([id, partitionId, blob, bytes, list, map, storeId, jObject, eTag], dataEntity.GetProperties());
             });
 
+    [Fact]
+    public virtual Task Cosmos_model_with_index_types()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+
+                modelBuilder.Entity<IndexedData>(b =>
+                {
+                    b.ToContainer("IndexedContainer");
+                    b.HasPartitionKey(e => e.PartitionId);
+                    b.HasAutomaticIndexing().Except("/Notes/?");
+                    b.HasIndex(e => new { e.Region, e.Category });
+                    b.HasIndex(e => e.Embedding).IsVectorIndex(VectorIndexType.Flat);
+                    b.Property(e => e.Embedding).IsVectorProperty(DistanceFunction.Cosine, 4);
+                    b.HasIndex(e => e.Description).IsFullTextIndex();
+                    b.Property(e => e.Description).EnableFullTextSearch();
+                });
+            },
+            model =>
+            {
+                // Index-policy and automatic-indexing annotations are design-time-only and stripped from the runtime model.
+                var entityType = model.FindEntityType(typeof(IndexedData))!;
+                Assert.Null(entityType.GetAutomaticIndexingEnabled());
+                Assert.Null(entityType.GetAutomaticIndexingExceptions());
+                Assert.Equal(3, entityType.GetIndexes().Count());
+            });
+
+    public class IndexedData
+    {
+        public int Id { get; set; }
+        public string PartitionId { get; set; } = null!;
+        public string Notes { get; set; } = null!;
+        public string Region { get; set; } = null!;
+        public string Category { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public ReadOnlyMemory<float> Embedding { get; set; }
+    }
+
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
 
-        modelBuilder.Entity<DependentBase<byte?>>(
-            eb => eb.ToContainer("Dependents"));
-        modelBuilder.Entity<DependentDerived<byte?>>(
-            eb => eb.HasDiscriminator().IsComplete(false));
+        modelBuilder.Entity<DependentBase<byte?>>(eb => eb.ToContainer("Dependents"));
+        modelBuilder.Entity<DependentDerived<byte?>>(eb => eb.HasDiscriminator().IsComplete(false));
 
-        modelBuilder.Entity<PrincipalBase>(
-            b =>
-            {
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.Ignore(e => e.RefTypeList);
-                b.Ignore(e => e.RefTypeArray);
-                b.OwnsOne(
-                    e => e.Owned, b =>
-                    {
-                        b.Ignore(e => e.RefTypeArray);
-                        b.Ignore(e => e.RefTypeList);
-                    });
-            });
+        modelBuilder.Entity<PrincipalBase>(b =>
+        {
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            b.Ignore(e => e.RefTypeList);
+            b.Ignore(e => e.RefTypeArray);
+            b.OwnsOne(
+                e => e.Owned, b =>
+                {
+                    b.Ignore(e => e.RefTypeArray);
+                    b.Ignore(e => e.RefTypeList);
+                });
+        });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            b =>
-            {
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.OwnsMany(
-                    typeof(OwnedType).FullName!, "ManyOwned", b =>
-                    {
-                        b.Ignore("RefTypeArray");
-                        b.Ignore("RefTypeList");
-                    });
-            });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(b =>
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            b.OwnsMany(
+                typeof(OwnedType).FullName!, "ManyOwned", b =>
+                {
+                    b.Ignore("RefTypeArray");
+                    b.Ignore("RefTypeList");
+                }));
 
-        modelBuilder.Entity<ManyTypes>(
-            b =>
-            {
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.Ignore(e => e.GuidArray);
-                b.Ignore(e => e.DateTimeArray);
-                b.Ignore(e => e.DateOnlyArray);
-                b.Ignore(e => e.TimeOnlyArray);
-                b.Ignore(e => e.TimeSpanArray);
-                b.Ignore(e => e.BytesArray);
-                b.Ignore(e => e.UriArray);
-                b.Ignore(e => e.IPAddressArray);
-                b.Ignore(e => e.PhysicalAddressArray);
-                b.Ignore(e => e.NullableGuidArray);
-                b.Ignore(e => e.NullableDateTimeArray);
-                b.Ignore(e => e.NullableDateOnlyArray);
-                b.Ignore(e => e.NullableTimeOnlyArray);
-                b.Ignore(e => e.NullableTimeSpanArray);
-                b.Ignore(e => e.NullableBytesArray);
-                b.Ignore(e => e.NullableUriArray);
-                b.Ignore(e => e.NullableIPAddressArray);
-                b.Ignore(e => e.NullablePhysicalAddressArray);
-                b.Ignore(e => e.Enum8Collection);
-                b.Ignore(e => e.Enum16Collection);
-                b.Ignore(e => e.Enum32Collection);
-                b.Ignore(e => e.Enum64Collection);
-                b.Ignore(e => e.EnumU8Collection);
-                b.Ignore(e => e.EnumU16Collection);
-                b.Ignore(e => e.EnumU32Collection);
-                b.Ignore(e => e.EnumU64Collection);
-                b.Ignore(e => e.Enum8AsStringCollection);
-                b.Ignore(e => e.Enum16AsStringCollection);
-                b.Ignore(e => e.Enum32AsStringCollection);
-                b.Ignore(e => e.Enum64AsStringCollection);
-                b.Ignore(e => e.EnumU8AsStringCollection);
-                b.Ignore(e => e.EnumU16AsStringCollection);
-                b.Ignore(e => e.EnumU32AsStringCollection);
-                b.Ignore(e => e.EnumU64AsStringCollection);
-                b.Ignore(e => e.NullableEnum8Collection);
-                b.Ignore(e => e.NullableEnum16Collection);
-                b.Ignore(e => e.NullableEnum32Collection);
-                b.Ignore(e => e.NullableEnum64Collection);
-                b.Ignore(e => e.NullableEnumU8Collection);
-                b.Ignore(e => e.NullableEnumU16Collection);
-                b.Ignore(e => e.NullableEnumU32Collection);
-                b.Ignore(e => e.NullableEnumU64Collection);
-                b.Ignore(e => e.NullableEnum8AsStringCollection);
-                b.Ignore(e => e.NullableEnum16AsStringCollection);
-                b.Ignore(e => e.NullableEnum32AsStringCollection);
-                b.Ignore(e => e.NullableEnum64AsStringCollection);
-                b.Ignore(e => e.NullableEnumU8AsStringCollection);
-                b.Ignore(e => e.NullableEnumU16AsStringCollection);
-                b.Ignore(e => e.NullableEnumU32AsStringCollection);
-                b.Ignore(e => e.NullableEnumU64AsStringCollection);
-                b.Ignore(e => e.Enum8Array);
-                b.Ignore(e => e.Enum16Array);
-                b.Ignore(e => e.Enum32Array);
-                b.Ignore(e => e.Enum64Array);
-                b.Ignore(e => e.EnumU8Array);
-                b.Ignore(e => e.EnumU16Array);
-                b.Ignore(e => e.EnumU32Array);
-                b.Ignore(e => e.EnumU64Array);
-                b.Ignore(e => e.Enum8AsStringArray);
-                b.Ignore(e => e.Enum16AsStringArray);
-                b.Ignore(e => e.Enum32AsStringArray);
-                b.Ignore(e => e.Enum64AsStringArray);
-                b.Ignore(e => e.EnumU8AsStringArray);
-                b.Ignore(e => e.EnumU16AsStringArray);
-                b.Ignore(e => e.EnumU32AsStringArray);
-                b.Ignore(e => e.EnumU64AsStringArray);
-                b.Ignore(e => e.NullableEnum8Array);
-                b.Ignore(e => e.NullableEnum16Array);
-                b.Ignore(e => e.NullableEnum32Array);
-                b.Ignore(e => e.NullableEnum64Array);
-                b.Ignore(e => e.NullableEnumU8Array);
-                b.Ignore(e => e.NullableEnumU16Array);
-                b.Ignore(e => e.NullableEnumU32Array);
-                b.Ignore(e => e.NullableEnumU64Array);
-                b.Ignore(e => e.NullableEnum8AsStringArray);
-                b.Ignore(e => e.NullableEnum16AsStringArray);
-                b.Ignore(e => e.NullableEnum32AsStringArray);
-                b.Ignore(e => e.NullableEnum64AsStringArray);
-                b.Ignore(e => e.NullableEnumU8AsStringArray);
-                b.Ignore(e => e.NullableEnumU16AsStringArray);
-                b.Ignore(e => e.NullableEnumU32AsStringArray);
-                b.Ignore(e => e.NullableEnumU64AsStringArray);
-                b.Ignore(e => e.BytesNestedCollection);
-                b.Ignore(e => e.NullableBytesNestedCollection);
-                b.Ignore(e => e.Enum8NestedCollection);
-                b.Ignore(e => e.Enum32NestedCollection);
-                b.Ignore(e => e.EnumU64NestedCollection);
-                b.Ignore(e => e.NullableEnum8NestedCollection);
-                b.Ignore(e => e.NullableEnum32NestedCollection);
-                b.Ignore(e => e.NullableEnumU64NestedCollection);
-                b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
-                b.Ignore(e => e.GuidNestedCollection);
-                b.Ignore(e => e.NullableGuidNestedCollection);
-                b.Ignore(e => e.UInt8NestedCollection);
-                b.Ignore(e => e.NullableUInt8NestedCollection);
-            });
+        modelBuilder.Entity<ManyTypes>(b =>
+        {
+            b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedNever();
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            b.Ignore(e => e.GuidArray);
+            b.Ignore(e => e.DateTimeArray);
+            b.Ignore(e => e.DateOnlyArray);
+            b.Ignore(e => e.TimeOnlyArray);
+            b.Ignore(e => e.TimeSpanArray);
+            b.Ignore(e => e.BytesArray);
+            b.Ignore(e => e.UriArray);
+            b.Ignore(e => e.IPAddressArray);
+            b.Ignore(e => e.PhysicalAddressArray);
+            b.Ignore(e => e.NullableGuidArray);
+            b.Ignore(e => e.NullableDateTimeArray);
+            b.Ignore(e => e.NullableDateOnlyArray);
+            b.Ignore(e => e.NullableTimeOnlyArray);
+            b.Ignore(e => e.NullableTimeSpanArray);
+            b.Ignore(e => e.NullableBytesArray);
+            b.Ignore(e => e.NullableUriArray);
+            b.Ignore(e => e.NullableIPAddressArray);
+            b.Ignore(e => e.NullablePhysicalAddressArray);
+            b.Ignore(e => e.Enum8Collection);
+            b.Ignore(e => e.Enum16Collection);
+            b.Ignore(e => e.Enum32Collection);
+            b.Ignore(e => e.Enum64Collection);
+            b.Ignore(e => e.EnumU8Collection);
+            b.Ignore(e => e.EnumU16Collection);
+            b.Ignore(e => e.EnumU32Collection);
+            b.Ignore(e => e.EnumU64Collection);
+            b.Ignore(e => e.Enum8AsStringCollection);
+            b.Ignore(e => e.Enum16AsStringCollection);
+            b.Ignore(e => e.Enum32AsStringCollection);
+            b.Ignore(e => e.Enum64AsStringCollection);
+            b.Ignore(e => e.EnumU8AsStringCollection);
+            b.Ignore(e => e.EnumU16AsStringCollection);
+            b.Ignore(e => e.EnumU32AsStringCollection);
+            b.Ignore(e => e.EnumU64AsStringCollection);
+            b.Ignore(e => e.NullableEnum8Collection);
+            b.Ignore(e => e.NullableEnum16Collection);
+            b.Ignore(e => e.NullableEnum32Collection);
+            b.Ignore(e => e.NullableEnum64Collection);
+            b.Ignore(e => e.NullableEnumU8Collection);
+            b.Ignore(e => e.NullableEnumU16Collection);
+            b.Ignore(e => e.NullableEnumU32Collection);
+            b.Ignore(e => e.NullableEnumU64Collection);
+            b.Ignore(e => e.NullableEnum8AsStringCollection);
+            b.Ignore(e => e.NullableEnum16AsStringCollection);
+            b.Ignore(e => e.NullableEnum32AsStringCollection);
+            b.Ignore(e => e.NullableEnum64AsStringCollection);
+            b.Ignore(e => e.NullableEnumU8AsStringCollection);
+            b.Ignore(e => e.NullableEnumU16AsStringCollection);
+            b.Ignore(e => e.NullableEnumU32AsStringCollection);
+            b.Ignore(e => e.NullableEnumU64AsStringCollection);
+            b.Ignore(e => e.Enum8Array);
+            b.Ignore(e => e.Enum16Array);
+            b.Ignore(e => e.Enum32Array);
+            b.Ignore(e => e.Enum64Array);
+            b.Ignore(e => e.EnumU8Array);
+            b.Ignore(e => e.EnumU16Array);
+            b.Ignore(e => e.EnumU32Array);
+            b.Ignore(e => e.EnumU64Array);
+            b.Ignore(e => e.Enum8AsStringArray);
+            b.Ignore(e => e.Enum16AsStringArray);
+            b.Ignore(e => e.Enum32AsStringArray);
+            b.Ignore(e => e.Enum64AsStringArray);
+            b.Ignore(e => e.EnumU8AsStringArray);
+            b.Ignore(e => e.EnumU16AsStringArray);
+            b.Ignore(e => e.EnumU32AsStringArray);
+            b.Ignore(e => e.EnumU64AsStringArray);
+            b.Ignore(e => e.NullableEnum8Array);
+            b.Ignore(e => e.NullableEnum16Array);
+            b.Ignore(e => e.NullableEnum32Array);
+            b.Ignore(e => e.NullableEnum64Array);
+            b.Ignore(e => e.NullableEnumU8Array);
+            b.Ignore(e => e.NullableEnumU16Array);
+            b.Ignore(e => e.NullableEnumU32Array);
+            b.Ignore(e => e.NullableEnumU64Array);
+            b.Ignore(e => e.NullableEnum8AsStringArray);
+            b.Ignore(e => e.NullableEnum16AsStringArray);
+            b.Ignore(e => e.NullableEnum32AsStringArray);
+            b.Ignore(e => e.NullableEnum64AsStringArray);
+            b.Ignore(e => e.NullableEnumU8AsStringArray);
+            b.Ignore(e => e.NullableEnumU16AsStringArray);
+            b.Ignore(e => e.NullableEnumU32AsStringArray);
+            b.Ignore(e => e.NullableEnumU64AsStringArray);
+            b.Ignore(e => e.BytesNestedCollection);
+            b.Ignore(e => e.NullableBytesNestedCollection);
+            b.Ignore(e => e.Enum8NestedCollection);
+            b.Ignore(e => e.Enum32NestedCollection);
+            b.Ignore(e => e.EnumU64NestedCollection);
+            b.Ignore(e => e.NullableEnum8NestedCollection);
+            b.Ignore(e => e.NullableEnum32NestedCollection);
+            b.Ignore(e => e.NullableEnumU64NestedCollection);
+            b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
+            b.Ignore(e => e.GuidNestedCollection);
+            b.Ignore(e => e.NullableGuidNestedCollection);
+            b.Ignore(e => e.UInt8NestedCollection);
+            b.Ignore(e => e.NullableUInt8NestedCollection);
+            b.Ignore(e => e.IPAddressReadOnlyCollection);
+        });
+    }
+
+    protected override async Task UseBigModel(DbContext context, bool jsonColumns)
+    {
+        var principalDerived = new PrincipalDerived<DependentBase<byte?>>
+        {
+            AlternateId = new Guid(),
+            Dependent = new DependentDerived<byte?>(1, "one"),
+            Owned = new OwnedType(context)
+        };
+
+        var principalId = context.Model.FindEntityType(typeof(PrincipalBase))!.FindProperty(nameof(PrincipalBase.Id))!;
+        if (principalId.ValueGenerated == ValueGenerated.Never)
+        {
+            principalDerived.Id = 10;
+        }
+
+        context.Add(principalDerived);
+
+        var types = new ManyTypes
+        {
+            Bool = true,
+            UInt8 = 1,
+            Int16 = 2,
+            Int32 = 3,
+            Int64 = 4,
+            UInt16 = 5,
+            UInt32 = 6,
+            UInt64 = 7,
+            Char = 'a',
+            Float = 8.0f,
+            Double = 9.0,
+            Decimal = 10.0m,
+            String = "11",
+            Guid = Guid.NewGuid(),
+            DateTime = new DateTime(2023, 10, 10, 10, 10, 10),
+            DateOnly = new DateOnly(2023, 10, 10),
+            TimeOnly = new TimeOnly(10, 10),
+            TimeSpan = new TimeSpan(1),
+            Bytes = [1, 2, 3],
+            Uri = new Uri("https://www.example.com"),
+            PhysicalAddress = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            IPAddress = IPAddress.Parse("127.0.0.1"),
+            NullableBool = true,
+            NullableUInt8 = 1,
+            NullableInt16 = 2,
+            NullableInt32 = 3,
+            NullableInt64 = 4,
+            NullableUInt16 = 5,
+            NullableUInt32 = 6,
+            NullableUInt64 = 7,
+            NullableChar = 'a',
+            NullableFloat = 8.0f,
+            NullableDouble = 9.0,
+            NullableDecimal = 10.0m,
+            NullableString = "11",
+            NullableGuid = Guid.NewGuid(),
+            NullableDateTime = new DateTime(2023, 10, 10, 10, 10, 10),
+            NullableDateOnly = new DateOnly(2023, 10, 10),
+            NullableTimeOnly = new TimeOnly(10, 10),
+            NullableTimeSpan = new TimeSpan(1),
+            NullableBytes = [1, 2, 3],
+            NullableUri = new Uri("https://www.example.com"),
+            BoolArray = [true],
+            Int8Array = [1],
+            Int16Array = [2],
+            Int32Array = [3],
+            Int64Array = [4],
+            UInt8Array = [1],
+            UInt16Array = [5],
+            UInt32Array = [6],
+            UInt64Array = [7],
+            CharArray = ['a'],
+            FloatArray = [8.0f],
+            DoubleArray = [9.0],
+            DecimalArray = [10.0m],
+            StringArray = ["11"],
+            GuidArray = [Guid.NewGuid()],
+            DateTimeArray = [new DateTime(2023, 10, 10, 10, 10, 10)],
+            DateOnlyArray = [new DateOnly(2023, 10, 10)],
+            TimeOnlyArray = [new TimeOnly(10, 10)],
+            TimeSpanArray = [new TimeSpan(1)],
+            BytesArray = [[1, 2, 3]],
+            UriArray = [new Uri("https://www.example.com")],
+            IPAddressArray = [IPAddress.Parse("127.0.0.1")],
+            PhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
+            NullableBoolArray = [true],
+            NullableInt8Array = [1],
+            NullableInt16Array = [2],
+            NullableInt32Array = [3],
+            NullableInt64Array = [4],
+            NullableUInt8Array = [1],
+            NullableUInt16Array = [5],
+            NullableUInt32Array = [6],
+            NullableUInt64Array = [7],
+            NullableCharArray = ['a'],
+            NullableFloatArray = [8.0f],
+            NullableDoubleArray = [9.0],
+            NullableDecimalArray = [10.0m],
+            NullableStringArray = ["11"],
+            NullableGuidArray = [Guid.NewGuid()],
+            NullableDateTimeArray = [new DateTime(2023, 10, 10, 10, 10, 10)],
+            NullableDateOnlyArray = [new DateOnly(2023, 10, 10)],
+            NullableTimeOnlyArray = [new TimeOnly(10, 10)],
+            NullableTimeSpanArray = [new TimeSpan(1)],
+            NullableBytesArray = [[1, 2, 3]],
+            NullableUriArray = [new Uri("https://www.example.com")],
+            NullableIPAddressArray = [IPAddress.Parse("127.0.0.1")],
+            NullablePhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
+            BoolReadOnlyCollection = [true],
+            UInt8ReadOnlyCollection = [1],
+            Int32ReadOnlyCollection = [2],
+            StringReadOnlyCollection = ["3"],
+            IPAddressReadOnlyCollection = [IPAddress.Parse("127.0.0.1")],
+            Enum8 = Enum8.One,
+            Enum16 = Enum16.One,
+            Enum32 = Enum32.One,
+            Enum64 = Enum64.One,
+            EnumU8 = EnumU8.One,
+            EnumU16 = EnumU16.One,
+            EnumU32 = EnumU32.One,
+            EnumU64 = EnumU64.One,
+            Enum8AsString = Enum8.One,
+            Enum16AsString = Enum16.One,
+            Enum32AsString = Enum32.One,
+            Enum64AsString = Enum64.One,
+            EnumU8AsString = EnumU8.One,
+            EnumU16AsString = EnumU16.One,
+            EnumU32AsString = EnumU32.One,
+            EnumU64AsString = EnumU64.One,
+            Enum8Collection = [Enum8.One],
+            Enum16Collection = [Enum16.One],
+            Enum32Collection = [Enum32.One],
+            Enum64Collection = [Enum64.One],
+            EnumU8Collection = [EnumU8.One],
+            EnumU16Collection = [EnumU16.One],
+            EnumU32Collection = [EnumU32.One],
+            EnumU64Collection = [EnumU64.One],
+            Enum8AsStringCollection = [Enum8.One],
+            Enum16AsStringCollection = [Enum16.One],
+            Enum32AsStringCollection = [Enum32.One],
+            Enum64AsStringCollection = [Enum64.One],
+            EnumU8AsStringCollection = [EnumU8.One],
+            EnumU16AsStringCollection = [EnumU16.One],
+            EnumU32AsStringCollection = [EnumU32.One],
+            EnumU64AsStringCollection = [EnumU64.One],
+            NullableEnum8Collection = [Enum8.One],
+            NullableEnum16Collection = [Enum16.One],
+            NullableEnum32Collection = [Enum32.One],
+            NullableEnum64Collection = [Enum64.One],
+            NullableEnumU8Collection = [EnumU8.One],
+            NullableEnumU16Collection = [EnumU16.One],
+            NullableEnumU32Collection = [EnumU32.One],
+            NullableEnumU64Collection = [EnumU64.One],
+            NullableEnum8AsStringCollection = [Enum8.One],
+            NullableEnum16AsStringCollection = [Enum16.One],
+            NullableEnum32AsStringCollection = [Enum32.One],
+            NullableEnum64AsStringCollection = [Enum64.One],
+            NullableEnumU8AsStringCollection = [EnumU8.One],
+            NullableEnumU16AsStringCollection = [EnumU16.One],
+            NullableEnumU32AsStringCollection = [EnumU32.One],
+            NullableEnumU64AsStringCollection = [EnumU64.One],
+            Enum8Array = [Enum8.One],
+            Enum16Array = [Enum16.One],
+            Enum32Array = [Enum32.One],
+            Enum64Array = [Enum64.One],
+            EnumU8Array = [EnumU8.One],
+            EnumU16Array = [EnumU16.One],
+            EnumU32Array = [EnumU32.One],
+            EnumU64Array = [EnumU64.One],
+            Enum8AsStringArray = [Enum8.One],
+            Enum16AsStringArray = [Enum16.One],
+            Enum32AsStringArray = [Enum32.One],
+            Enum64AsStringArray = [Enum64.One],
+            EnumU8AsStringArray = [EnumU8.One],
+            EnumU16AsStringArray = [EnumU16.One],
+            EnumU32AsStringArray = [EnumU32.One],
+            EnumU64AsStringArray = [EnumU64.One],
+            NullableEnum8Array = [Enum8.One],
+            NullableEnum16Array = [Enum16.One],
+            NullableEnum32Array = [Enum32.One],
+            NullableEnum64Array = [Enum64.One],
+            NullableEnumU8Array = [EnumU8.One],
+            NullableEnumU16Array = [EnumU16.One],
+            NullableEnumU32Array = [EnumU32.One],
+            NullableEnumU64Array = [EnumU64.One],
+            NullableEnum8AsStringArray = [Enum8.One],
+            NullableEnum16AsStringArray = [Enum16.One],
+            NullableEnum32AsStringArray = [Enum32.One],
+            NullableEnum64AsStringArray = [Enum64.One],
+            NullableEnumU8AsStringArray = [EnumU8.One],
+            NullableEnumU16AsStringArray = [EnumU16.One],
+            NullableEnumU32AsStringArray = [EnumU32.One],
+            NullableEnumU64AsStringArray = [EnumU64.One],
+            BoolNestedCollection = [[true]],
+            UInt8NestedCollection = [[9]],
+            Int8NestedCollection = [[[9]]],
+            Int32NestedCollection = [[9]],
+            Int64NestedCollection = [[[9L]]],
+            CharNestedCollection = [['a']],
+            StringNestedCollection = [["11"]],
+            GuidNestedCollection = [[[Guid.NewGuid()]]],
+            BytesNestedCollection = [[[1, 2, 3]]],
+            NullableUInt8NestedCollection = [[9]],
+            NullableInt32NestedCollection = [[9]],
+            NullableInt64NestedCollection = [[[9L]]],
+            NullableStringNestedCollection = [["11"]],
+            NullableGuidNestedCollection = [[Guid.NewGuid()]],
+            NullableBytesNestedCollection = [[[1, 2, 3]]],
+            NullablePhysicalAddressNestedCollection = [[[PhysicalAddress.Parse("00-00-00-00-00-01")]]],
+            Enum8NestedCollection = [[Enum8.One]],
+            Enum32NestedCollection = [[[Enum32.One]]],
+            EnumU64NestedCollection = [[EnumU64.One]],
+            NullableEnum8NestedCollection = [[Enum8.One]],
+            NullableEnum32NestedCollection = [[[Enum32.One]]],
+            NullableEnumU64NestedCollection = [[EnumU64.One]],
+            BoolToStringConverterProperty = true,
+            BoolToTwoValuesConverterProperty = true,
+            BoolToZeroOneConverterProperty = true,
+            BytesToStringConverterProperty = [1, 2, 3],
+            CastingConverterProperty = 1,
+            CharToStringConverterProperty = 'a',
+            DateOnlyToStringConverterProperty = new DateOnly(2023, 10, 10),
+            DateTimeOffsetToBinaryConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeOffsetToBytesConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeOffsetToStringConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeToBinaryConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10),
+            DateTimeToStringConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10),
+            EnumToNumberConverterProperty = Enum32.One,
+            EnumToStringConverterProperty = Enum32.One,
+            GuidToBytesConverterProperty = Guid.NewGuid(),
+            GuidToStringConverterProperty = Guid.NewGuid(),
+            IPAddressToBytesConverterProperty = IPAddress.Parse("127.0.0.1"),
+            IPAddressToStringConverterProperty = IPAddress.Parse("127.0.0.1"),
+            IntNumberToBytesConverterProperty = 1,
+            DecimalNumberToBytesConverterProperty = 1.0m,
+            DoubleNumberToBytesConverterProperty = 1.0,
+            IntNumberToStringConverterProperty = 1,
+            DecimalNumberToStringConverterProperty = 1.0m,
+            DoubleNumberToStringConverterProperty = 1.0,
+            PhysicalAddressToBytesConverterProperty = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            PhysicalAddressToStringConverterProperty = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            StringToBoolConverterProperty = "true",
+            StringToBytesConverterProperty = "1",
+            StringToCharConverterProperty = "a",
+            StringToDateOnlyConverterProperty = new DateOnly(2023, 10, 10).ToString(@"yyyy\-MM\-dd"),
+            StringToDateTimeConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10).ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF"),
+            StringToDateTimeOffsetConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.FromHours(1))
+                .ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz"),
+            StringToEnumConverterProperty = "One",
+            StringToGuidConverterProperty = Guid.NewGuid().ToString(),
+            StringToIntNumberConverterProperty = "1",
+            StringToDecimalNumberConverterProperty = "1.0",
+            StringToDoubleNumberConverterProperty = "1.0",
+            StringToTimeOnlyConverterProperty = new TimeOnly(10, 10).ToString("o"),
+            StringToTimeSpanConverterProperty = new TimeSpan(1).ToString("c"),
+            StringToUriConverterProperty = "https://www.example.com/",
+            TimeOnlyToStringConverterProperty = new TimeOnly(10, 10),
+            TimeOnlyToTicksConverterProperty = new TimeOnly(10, 10),
+            TimeSpanToStringConverterProperty = new TimeSpan(1),
+            TimeSpanToTicksConverterProperty = new TimeSpan(1),
+            UriToStringConverterProperty = new Uri("https://www.example.com/"),
+            NullIntToNullStringConverterProperty = null
+        };
+
+        var manyTypesId = context.Model.FindEntityType(typeof(ManyTypes))!.FindProperty(nameof(ManyTypes.Id))!;
+        if (manyTypesId.ValueGenerated == ValueGenerated.Never)
+        {
+            types.Id = new ManyTypesId(17);
+        }
+
+        context.Add(types);
+
+        await context.SaveChangesAsync();
+
+        var principalDerivedFromStore = await context.Set<PrincipalDerived<DependentBase<byte?>>>().IgnoreAutoIncludes().SingleAsync();
+        Assert.Equal(principalDerived.AlternateId, principalDerivedFromStore.AlternateId);
+
+        var typesFromStore = await context.Set<ManyTypes>().OrderBy(m => m.Id).FirstAsync();
+        AssertEqual(types, typesFromStore, jsonColumns);
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         base.BuildComplexTypesModel(modelBuilder);
 
-        modelBuilder.Entity<PrincipalBase>(
-            b =>
-            {
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.Ignore(e => e.RefTypeList);
-                b.Ignore(e => e.RefTypeArray);
-                b.ComplexProperty(
-                    c => c.Owned, b =>
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            eb.Ignore(e => e.RefTypeList);
+            eb.Ignore(e => e.RefTypeArray);
+            eb.ComplexProperty(
+                c => c.Owned, ob =>
+                {
+                    ob.IsRequired();
+                    ob.Ignore(e => e.RefTypeArray);
+                    ob.Ignore(e => e.RefTypeList);
+                    ob.ComplexProperty(
+                        c => c.Principal, cb =>
+                        {
+                            cb.Ignore(e => e.RefTypeList);
+                            cb.Ignore(e => e.RefTypeArray);
+                        });
+                });
+        });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
+            eb => eb.ComplexCollection<IList<OwnedType>, OwnedType>(
+                    "ManyOwned", "OwnedCollection", ob =>
                     {
-                        b.Ignore(e => e.RefTypeArray);
-                        b.Ignore(e => e.RefTypeList);
-                        b.ComplexProperty(
-                            c => c.Principal, b =>
+                        ob.Ignore(e => e.RefTypeArray);
+                        ob.Ignore(e => e.RefTypeList);
+                        ob.ComplexProperty(
+                            o => o.Principal, cb =>
                             {
-                                b.Ignore(e => e.RefTypeList);
-                                b.Ignore(e => e.RefTypeArray);
+                                cb.Ignore(e => e.RefTypeList);
+                                cb.Ignore(e => e.RefTypeArray);
                             });
-                    });
-            });
+                    }));
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -370,16 +700,23 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
     protected override int ExpectedComplexTypeProperties
         => 12;
 
+    protected override bool SupportsNonAutoLoadedProperties
+        => false;
+
+    protected override bool SupportsIndexes
+        => false;
+
     protected override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")
     {
         base.AddReferences(build);
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Cosmos"));
+        build.References.Add(BuildReference.ByName("Microsoft.Azure.Cosmos.Client"));
         build.References.Add(BuildReference.ByName("Newtonsoft.Json"));
         return build;
     }
@@ -395,6 +732,7 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         where TContext : class
         => base.Test(
@@ -412,5 +750,6 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
             additionalSourceFiles,
             assertAssembly,
             expectedExceptionMessage,
+            skipValidation,
             testName);
 }

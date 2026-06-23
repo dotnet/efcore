@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -13,9 +13,37 @@ public class ReadItemPartitionKeyQueryDiscriminatorInIdTest
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    public override async Task Key_with_special_characters_1()
+    {
+        await base.Key_with_special_characters_1();
+
+        AssertSql("""ReadItem(["Cat|1"], FancyDiscriminatorEntity|Cat^|1)""");
+    }
+
+    public override async Task Key_with_special_characters_2()
+    {
+        await base.Key_with_special_characters_2();
+
+        AssertSql("""ReadItem(["Cat2||"], FancyDiscriminatorEntity|Cat2^|^|)""");
+    }
+
+    public override async Task Key_with_special_characters_3()
+    {
+        await base.Key_with_special_characters_3();
+
+        AssertSql("""ReadItem(["Cat|3|$|5"], FancyDiscriminatorEntity|Cat^|3^|$^|5)""");
+    }
+
+    public override async Task Key_with_special_characters_4()
+    {
+        await base.Key_with_special_characters_4();
+
+        AssertSql("""ReadItem(["|Cat|"], FancyDiscriminatorEntity|^|Cat^|)""");
+    }
 
     public override async Task Predicate_with_hierarchical_partition_key()
     {
@@ -69,8 +97,11 @@ WHERE c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartition
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_hierarchical_partition_key();
 
         // Not ReadItem because no primary key value
@@ -95,8 +126,11 @@ WHERE (c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPart
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key();
 
         // Not ReadItem because part of primary key value missing
@@ -108,7 +142,7 @@ WHERE c["$type"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyHierarchi
 """);
     }
 
-    [ConditionalFact] // #33960
+    [Fact] // #33960
     public override async Task Predicate_with_hierarchical_partition_key_and_additional_things_in_predicate()
     {
         await base.Predicate_with_hierarchical_partition_key_and_additional_things_in_predicate();
@@ -122,7 +156,7 @@ WHERE (c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPart
 """);
     }
 
-    [ConditionalFact] // #33960
+    [Fact] // #33960
     public override async Task Predicate_with_only_hierarchical_partition_key_and_additional_things_in_predicate()
     {
         await base.Predicate_with_only_hierarchical_partition_key_and_additional_things_in_predicate();
@@ -188,8 +222,11 @@ WHERE c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartition
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key();
 
         AssertSql(
@@ -419,6 +456,22 @@ WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitio
 """);
     }
 
+    public override async Task WithPartitionKey_and_predicate_with_id_two_locals_same_value()
+    {
+        await base.WithPartitionKey_and_predicate_with_id_two_locals_same_value();
+
+        // Not ReadItem because pkForWith and pkForWhere are different parameter expressions (different names),
+        // so they can't be compared at translate time even though they have the same runtime value.
+        AssertSql(
+            """
+@pkForWhere='PK1'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @pkForWhere)))
+""");
+    }
+
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
     {
         await base.Multiple_incompatible_predicate_comparisons_cause_no_ReadItem();
@@ -439,11 +492,11 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1a'
+@partitionKey='PK1a'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1a") AND (c["PartitionKey"] = @__partitionKey_0)))
+WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1a") AND (c["PartitionKey"] = @partitionKey)))
 """);
     }
 
@@ -529,6 +582,19 @@ WHERE (c["$type"] IN ("SharedContainerEntity2", "SharedContainerEntity2Child") A
 """);
     }
 
+    public override async Task ReadItem_for_abstract_base_type_with_shared_container()
+    {
+        // Not ReadItem because discriminator value in the JSON id is unknown
+        await base.ReadItem_for_abstract_base_type_with_shared_container();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "SharedContainerEntity3Child") AND (c["Id"] = 6))
+""");
+    }
+
     public override async Task ReadItem_for_child_type_with_shared_container()
     {
         await base.ReadItem_for_child_type_with_shared_container();
@@ -577,8 +643,11 @@ WHERE (c["$type"] = "DerivedSinglePartitionKeyEntity")
         AssertSql("""ReadItem(["PK1c"], DerivedOnlySinglePartitionKeyEntity|PK1c)""");
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key_leaf()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_hierarchical_partition_key_leaf();
 
         // Not ReadItem because no primary key value
@@ -590,8 +659,11 @@ WHERE (c["$type"] = "DerivedHierarchicalPartitionKeyEntity")
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key_leaf()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key_leaf();
 
         // Not ReadItem because part of primary key value missing
@@ -603,7 +675,7 @@ WHERE (c["$type"] = "DerivedOnlyHierarchicalPartitionKeyEntity")
 """);
     }
 
-    [ConditionalFact] // #33960
+    [Fact] // #33960
     public override async Task Predicate_with_hierarchical_partition_key_and_additional_things_in_predicate_leaf()
     {
         await base.Predicate_with_hierarchical_partition_key_and_additional_things_in_predicate_leaf();
@@ -617,7 +689,7 @@ WHERE ((c["$type"] = "DerivedHierarchicalPartitionKeyEntity") AND CONTAINS(c["Pa
 """);
     }
 
-    [ConditionalFact] // #33960
+    [Fact] // #33960
     public override async Task Predicate_with_only_hierarchical_partition_key_and_additional_things_in_predicate_leaf()
     {
         await base.Predicate_with_only_hierarchical_partition_key_and_additional_things_in_predicate_leaf();
@@ -683,8 +755,11 @@ WHERE (c["$type"] = "DerivedOnlySinglePartitionKeyEntity")
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key_leaf()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key();
 
         AssertSql(
@@ -835,6 +910,30 @@ ReadItem(["PK1",1.0,true], DerivedHierarchicalPartitionKeyEntity|316c846c-787f-4
         AssertSql("""ReadItem(["PK1c"], DerivedOnlySinglePartitionKeyEntity|PK1c)""");
     }
 
+    public override async Task WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key()
+    {
+        await base.WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = "PK2")))
+""");
+    }
+
+    public override async Task WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key_leaf()
+    {
+        await base.WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key_leaf();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d3253-81be-4a87-b58f-a2bd07e6b98c") AND (c["PartitionKey"] = "PK2")))
+""");
+    }
+
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_leaf()
     {
         await base.Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_leaf();
@@ -855,11 +954,11 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d325
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1c'
+@partitionKey='PK1c'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1c") AND (c["PartitionKey"] = @__partitionKey_0)))
+WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1c") AND (c["PartitionKey"] = @partitionKey)))
 """);
     }
 
@@ -937,11 +1036,11 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
         // No ReadItem because discriminator check is parameterized
         AssertSql(
             """
-@__discriminator_0='SinglePartitionKeyEntity'
+@discriminator='SinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @__discriminator_0)))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @discriminator)))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -972,11 +1071,11 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d325
         // No ReadItem because discriminator check is parameterized
         AssertSql(
             """
-@__discriminator_0='DerivedSinglePartitionKeyEntity'
+@discriminator='DerivedSinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d3253-81be-4a87-b58f-a2bd07e6b98c") AND (c["$type"] = @__discriminator_0)))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d3253-81be-4a87-b58f-a2bd07e6b98c") AND (c["$type"] = @discriminator)))
 OFFSET 0 LIMIT 2
 """);
     }

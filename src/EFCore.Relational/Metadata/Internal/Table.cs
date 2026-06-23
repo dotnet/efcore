@@ -142,10 +142,11 @@ public class Table : TableBase, ITable
             .IsTableExcludedFromMigrations(StoreObjectIdentifier.Table(Name, Schema));
 
     /// <inheritdoc />
-    public override IColumnBase? FindColumn(IProperty property)
+    protected override IColumnBase? FindColumn(IProperty property)
         => property.GetTableColumnMappings()
-            .FirstOrDefault(cm => cm.TableMapping.Table == this)
-            ?.Column;
+                .FirstOrDefault(cm => cm.TableMapping.Table == this)?.Column
+            ?? property.GetJsonElementMappings()
+                .FirstOrDefault(m => m.TableMapping.Table == this)?.Element.ContainingColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -236,6 +237,6 @@ public class Table : TableBase, ITable
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IColumn? ITable.FindColumn(IProperty property)
-        => (IColumn?)FindColumn(property);
+    IColumn? ITable.FindColumn(IPropertyBase propertyBase)
+        => (IColumn?)FindColumn(propertyBase);
 }

@@ -53,6 +53,16 @@ public static class RelationalAnnotationNames
     public const string DefaultValue = Prefix + "DefaultValue";
 
     /// <summary>
+    ///     The name for default constraint annotations.
+    /// </summary>
+    public const string DefaultConstraintName = Prefix + "DefaultConstraintName";
+
+    /// <summary>
+    ///     The name for using named default constraints annotations.
+    /// </summary>
+    public const string UseNamedDefaultConstraints = Prefix + "UseNamedDefaultConstraints";
+
+    /// <summary>
     ///     The name for table name annotations.
     /// </summary>
     public const string TableName = Prefix + "TableName";
@@ -163,6 +173,11 @@ public static class RelationalAnnotationNames
     ///     The name for the annotation determining whether the table is excluded from migrations.
     /// </summary>
     public const string IsTableExcludedFromMigrations = Prefix + "IsTableExcludedFromMigrations";
+
+    /// <summary>
+    ///     The name for the annotation determining whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    public const string IsForeignKeyExcludedFromMigrations = Prefix + "IsForeignKeyExcludedFromMigrations";
 
     /// <summary>
     ///     The name for the annotation determining the mapping strategy for inherited properties.
@@ -330,12 +345,6 @@ public static class RelationalAnnotationNames
     public const string ContainerColumnType = Prefix + nameof(ContainerColumnType);
 
     /// <summary>
-    ///     The name for the annotation specifying container column type mapping.
-    /// </summary>
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public const string ContainerColumnTypeMapping = Prefix + "ContainerColumnTypeMapping";
-
-    /// <summary>
     ///     The JSON property name for the element that the property/navigation maps to.
     /// </summary>
     public const string JsonPropertyName = Prefix + "JsonPropertyName";
@@ -344,6 +353,25 @@ public static class RelationalAnnotationNames
     ///     The name for store (database) type annotations.
     /// </summary>
     public const string StoreType = Prefix + "StoreType";
+
+    /// <summary>
+    ///     The name for JSON element mappings annotations.
+    /// </summary>
+    public const string JsonElementMappings = Prefix + "JsonElementMappings";
+
+    /// <summary>
+    ///     The name for the annotation that captures the mapped JSON elements and complex-collection
+    ///     indices for a table index defined over properties contained in a JSON-mapped column.
+    /// </summary>
+    public const string JsonIndex = Prefix + nameof(JsonIndex);
+
+    /// <summary>
+    ///     The name for the annotation that captures the JSON paths of a scaffolded JSON index. The
+    ///     value is a <see cref="ValueTuple{T1, T2}" /> of the JSON container column name and the
+    ///     ordered list of indexed JSON paths (each in the SQL/JSON `$.path` form accepted by the
+    ///     provider's CREATE JSON INDEX statement).
+    /// </summary>
+    public const string JsonIndexPaths = Prefix + nameof(JsonIndexPaths);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -360,6 +388,8 @@ public static class RelationalAnnotationNames
         ComputedColumnSql,
         IsStored,
         DefaultValue,
+        DefaultConstraintName,
+        UseNamedDefaultConstraints,
         TableName,
         Schema,
         ViewName,
@@ -384,6 +414,7 @@ public static class RelationalAnnotationNames
         IsFixedLength,
         ViewDefinitionSql,
         IsTableExcludedFromMigrations,
+        IsForeignKeyExcludedFromMigrations,
         MappingStrategy,
         RelationalModel,
         RelationalModelFactory,
@@ -414,10 +445,10 @@ public static class RelationalAnnotationNames
         FieldValueGetter,
         ContainerColumnName,
         ContainerColumnType,
-#pragma warning disable CS0618 // Type or member is obsolete
-        ContainerColumnTypeMapping,
-#pragma warning restore CS0618 // Type or member is obsolete
         JsonPropertyName,
-        StoreType
+        StoreType,
+        JsonElementMappings,
+        JsonIndex,
+        JsonIndexPaths
     };
 }

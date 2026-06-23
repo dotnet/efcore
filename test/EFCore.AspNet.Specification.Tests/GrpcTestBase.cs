@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #if !EXCLUDE_ON_MAC
@@ -20,8 +20,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         => true;
 
     protected List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "PostTag",
@@ -40,6 +40,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "ForeignKey: PostTag (Dictionary<string, object>) {'TagsInPostDataTagId'} -> Tag {'TagId'} Required Cascade",
                 },
             },
+
             new EntityTypeMapping
             {
                 Name = "ProtoTest.Author",
@@ -52,6 +53,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "Property: Author.Name (name_, string)",
                 },
             },
+
             new EntityTypeMapping
             {
                 Name = "ProtoTest.Post",
@@ -67,12 +69,13 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 },
                 Indexes = HasForeignKeyIndexes ? ["{'AuthorId'} "] : [],
                 FKs = { "ForeignKey: Post {'AuthorId'} -> Author {'AuthorId'} Required Cascade ToPrincipal: PostAuthor", },
-                Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) ToPrincipal Author", },
+                Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) Required ToPrincipal Author", },
                 SkipNavigations =
                 {
                     "SkipNavigation: Post.TagsInPostData (tagsInPostData_, RepeatedField<Tag>) CollectionTag Inverse: PostsInTagData",
                 },
             },
+
             new EntityTypeMapping
             {
                 Name = "ProtoTest.Tag",
@@ -87,10 +90,11 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     "SkipNavigation: Tag.PostsInTagData (postsInTagData_, RepeatedField<Post>) CollectionPost Inverse: TagsInPostData",
                 },
-            },
-        };
+            }
 
-    [ConditionalFact]
+        ];
+
+    [Fact]
     public void Can_build_Grpc_model()
     {
         using var context = Fixture.CreateContext();
@@ -99,7 +103,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         EntityTypeMapping.AssertEqual(ExpectedMappings, entityTypeMappings);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_query_Grpc_model()
     {
         using var context = Fixture.CreateContext();

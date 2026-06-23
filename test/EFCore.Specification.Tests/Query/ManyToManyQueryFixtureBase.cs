@@ -7,17 +7,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyToManyContext>, IQueryFixtureBase
+public abstract class ManyToManyQueryFixtureBase : QueryFixtureBase<ManyToManyContext>
 {
     protected override string StoreName
         => "ManyToManyQueryTest";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
     private ManyToManyData _data;
 
-    public ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
     {
         if (_data == null)
         {
@@ -30,7 +27,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         return _data;
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(EntityOne), e => ((EntityOne)e)?.Id },
         { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
@@ -56,7 +53,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         { typeof(UnidirectionalEntityLeaf), e => ((UnidirectionalEntityLeaf)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(EntityOne), (e, a) =>
@@ -348,13 +345,12 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         modelBuilder.Entity<EntityOne>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<EntityTwo>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<EntityThree>().Property(e => e.Id).ValueGeneratedNever();
-        modelBuilder.Entity<EntityCompositeKey>().HasKey(
-            e => new
-            {
-                e.Key1,
-                e.Key2,
-                e.Key3
-            });
+        modelBuilder.Entity<EntityCompositeKey>().HasKey(e => new
+        {
+            e.Key1,
+            e.Key2,
+            e.Key3
+        });
         modelBuilder.Entity<EntityRoot>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<EntityBranch>().HasBaseType<EntityRoot>();
         modelBuilder.Entity<EntityLeaf>().HasBaseType<EntityBranch>();
@@ -366,13 +362,12 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         modelBuilder.Entity<UnidirectionalEntityOne>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<UnidirectionalEntityTwo>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<UnidirectionalEntityThree>().Property(e => e.Id).ValueGeneratedNever();
-        modelBuilder.Entity<UnidirectionalEntityCompositeKey>().HasKey(
-            e => new
-            {
-                e.Key1,
-                e.Key2,
-                e.Key3
-            });
+        modelBuilder.Entity<UnidirectionalEntityCompositeKey>().HasKey(e => new
+        {
+            e.Key1,
+            e.Key2,
+            e.Key3
+        });
         modelBuilder.Entity<UnidirectionalEntityRoot>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<UnidirectionalEntityBranch>().HasBaseType<UnidirectionalEntityRoot>();
         modelBuilder.Entity<UnidirectionalEntityLeaf>().HasBaseType<UnidirectionalEntityBranch>();
@@ -478,13 +473,12 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
             .HasMany(e => e.CompositeKeySkipFull)
             .WithMany(e => e.ThreeSkipFull)
             .UsingEntity<JoinThreeToCompositeKeyFull>(
-                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3
-                    }).IsRequired(),
+                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(e => new
+                {
+                    e.CompositeId1,
+                    e.CompositeId2,
+                    e.CompositeId3
+                }).IsRequired(),
                 r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired());
 
         // Nav:2 Payload:No Join:Shared Extra:Inheritance
@@ -503,13 +497,12 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
             .WithMany(e => e.CompositeKeySkipFull)
             .UsingEntity<JoinCompositeKeyToLeaf>(
                 r => r.HasOne(x => x.Leaf).WithMany(x => x.JoinCompositeKeyFull),
-                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3
-                    }));
+                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(e => new
+                {
+                    e.CompositeId1,
+                    e.CompositeId2,
+                    e.CompositeId3
+                }));
 
         modelBuilder.Entity<UnidirectionalEntityOne>()
             .HasMany(e => e.Collection)
@@ -600,13 +593,12 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
             .HasMany<UnidirectionalEntityCompositeKey>()
             .WithMany(e => e.ThreeSkipFull)
             .UsingEntity<UnidirectionalJoinThreeToCompositeKeyFull>(
-                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3
-                    }).IsRequired(),
+                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(e => new
+                {
+                    e.CompositeId1,
+                    e.CompositeId2,
+                    e.CompositeId3
+                }).IsRequired(),
                 r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired());
 
         // Nav:2 Payload:No Join:Shared Extra:Inheritance
@@ -625,13 +617,12 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
             .WithMany(e => e.CompositeKeySkipFull)
             .UsingEntity<UnidirectionalJoinCompositeKeyToLeaf>(
                 r => r.HasOne(x => x.Leaf).WithMany(x => x.JoinCompositeKeyFull),
-                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3
-                    }));
+                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(e => new
+                {
+                    e.CompositeId1,
+                    e.CompositeId2,
+                    e.CompositeId3
+                }));
 
         modelBuilder.SharedTypeEntity<ProxyableSharedType>(
             "PST", b =>

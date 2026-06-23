@@ -12,7 +12,7 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
 {
     private SqlServerTriggersFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_with_subqueries_run_on_insert_update_and_delete()
     {
         using var context = CreateContext();
@@ -33,7 +33,7 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
         Assert.Empty(context.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_with_subqueries_work_with_batch_operations()
     {
         using var context = CreateContext();
@@ -83,14 +83,13 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
         public virtual DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Product>(
-                eb =>
-                {
-                    eb.Property(e => e.StoreUpdated)
-                        .HasDefaultValue(0)
-                        .ValueGeneratedOnAddOrUpdate();
-                    eb.ToTable("UpdatedProducts", tb => tb.HasTrigger("TRG_InsertUpdateProduct"));
-                });
+            => modelBuilder.Entity<Product>(eb =>
+            {
+                eb.Property(e => e.StoreUpdated)
+                    .HasDefaultValue(0)
+                    .ValueGeneratedOnAddOrUpdate();
+                eb.ToTable("UpdatedProducts", tb => tb.HasTrigger("TRG_InsertUpdateProduct"));
+            });
     }
 
     protected class Product

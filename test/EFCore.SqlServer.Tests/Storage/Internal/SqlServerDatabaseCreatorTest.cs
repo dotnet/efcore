@@ -12,43 +12,43 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal;
 
 public class SqlServerDatabaseCreatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public Task Create_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(233, async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task Create_checks_for_existence_and_retries_if_timeout_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(-2, async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task Create_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(4060, async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task Create_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(1832, async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task Create_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(5120, async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task CreateAsync_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(233, async: true);
 
-    [ConditionalFact]
+    [Fact]
     public Task CreateAsync_checks_for_existence_and_retries_if_timeout_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(-2, async: true);
 
-    [ConditionalFact]
+    [Fact]
     public Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(4060, async: true);
 
-    [ConditionalFact]
+    [Fact]
     public Task CreateAsync_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(1832, async: true);
 
-    [ConditionalFact]
+    [Fact]
     public Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
         => Create_checks_for_existence_and_retries_until_it_passes(5120, async: true);
 
@@ -83,11 +83,11 @@ public class SqlServerDatabaseCreatorTest
         Assert.Equal(2, connection.OpenCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Create_checks_for_existence_and_ultimately_gives_up_waiting()
         => Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task CreateAsync_checks_for_existence_and_ultimately_gives_up_waiting()
         => Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: true);
 
@@ -191,7 +191,14 @@ public class SqlServerDatabaseCreatorTest
         public IRelationalCommand Build()
             => new FakeRelationalCommand();
 
-        public IRelationalCommandBuilder Append(string value)
+        public IRelationalCommandBuilder Append(string value, bool sensitive = false)
+        {
+            Instance.Append(value);
+
+            return this;
+        }
+
+        public IRelationalCommandBuilder Append(FormattableString value, bool sensitive = false)
         {
             Instance.Append(value);
 
@@ -226,6 +233,8 @@ public class SqlServerDatabaseCreatorTest
     private class FakeRelationalCommand : IRelationalCommand
     {
         public string CommandText { get; }
+
+        public string LogCommandText { get; }
 
         public IReadOnlyList<IRelationalParameter> Parameters { get; }
 

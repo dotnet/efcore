@@ -15,6 +15,18 @@ internal static class ExpressionExtensions
     public static bool IsNullConstantExpression(this Expression expression)
         => RemoveConvert(expression) is ConstantExpression { Value: null };
 
+    public static bool TryGetLambdaExpression(this Expression expression, [NotNullWhen(true)] out LambdaExpression? lambdaExpression)
+    {
+        lambdaExpression = expression switch
+        {
+            UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression lambda } => lambda,
+            LambdaExpression lambda => lambda,
+            _ => null
+        };
+
+        return lambdaExpression is not null;
+    }
+
     public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
         => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
             ? unary.Operand
@@ -55,15 +67,15 @@ internal static class ExpressionExtensions
             _ => throw new InvalidOperationException()
         };
 
-    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true)][MaybeNullWhen(false)]out T value)
+    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true), MaybeNullWhen(false)] out T value)
     {
         switch (expression)
         {
-            case ConstantExpression constant when constant.Value is T typedValue:
+            case ConstantExpression { Value: T typedValue }:
                 value = typedValue;
                 return true;
 #pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-            case LiftableConstantExpression liftableConstant when liftableConstant.OriginalExpression.Value is T typedValue:
+            case LiftableConstantExpression { OriginalExpression.Value: T typedValue }:
 #pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 value = typedValue;
                 return true;

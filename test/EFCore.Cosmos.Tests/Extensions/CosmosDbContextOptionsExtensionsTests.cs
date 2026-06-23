@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosDbContextOptionsExtensionsTests
 {
-    [ConditionalFact]
+    [Fact]
     public void Service_collection_extension_method_can_configure_Cosmos_options()
     {
         var serviceCollection = new ServiceCollection();
@@ -50,21 +50,25 @@ public class CosmosDbContextOptionsExtensionsTests
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_options_with_valid_values()
     {
         Test(o => o.Region(Regions.EastAsia), o => Assert.Equal(Regions.EastAsia, o.Region));
         // The region will be validated by the Cosmos SDK, because the region list is not constant
         Test(o => o.Region("FakeRegion"), o => Assert.Equal("FakeRegion", o.Region));
         Test(
-            o => o.PreferredRegions(new[] { Regions.AustraliaCentral, Regions.EastAsia }),
-            o => Assert.Equal(new[] { Regions.AustraliaCentral, Regions.EastAsia }, o.PreferredRegions));
+            o => o.PreferredRegions([Regions.AustraliaCentral, Regions.EastAsia]),
+            o => Assert.Equal([Regions.AustraliaCentral, Regions.EastAsia], o.PreferredRegions));
         Test(o => o.ConnectionMode(ConnectionMode.Direct), o => Assert.Equal(ConnectionMode.Direct, o.ConnectionMode));
         Test(o => o.GatewayModeMaxConnectionLimit(3), o => Assert.Equal(3, o.GatewayModeMaxConnectionLimit));
         Test(o => o.MaxRequestsPerTcpConnection(3), o => Assert.Equal(3, o.MaxRequestsPerTcpConnection));
         Test(o => o.MaxTcpConnectionsPerEndpoint(3), o => Assert.Equal(3, o.MaxTcpConnectionsPerEndpoint));
         Test(o => o.LimitToEndpoint(), o => Assert.True(o.LimitToEndpoint));
+#pragma warning disable CS0618 // Type or member is obsolete
         Test(o => o.ContentResponseOnWriteEnabled(), o => Assert.True(o.EnableContentResponseOnWrite));
+#pragma warning restore CS0618 // Type or member is obsolete
+        Test(o => o.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.EnforcedManual), o => Assert.Equal(Cosmos.Infrastructure.SessionTokenManagementMode.EnforcedManual, o.SessionTokenManagementMode));
+        Test(o => o.BulkExecutionAllowed(), o => Assert.True(o.EnableBulkExecution));
 
         var webProxy = new WebProxy();
         Test(o => o.WebProxy(webProxy), o => Assert.Same(webProxy, o.WebProxy));
@@ -85,7 +89,7 @@ public class CosmosDbContextOptionsExtensionsTests
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Endpoint_and_key_overrides_connection_string()
     {
         var options = new DbContextOptionsBuilder()
@@ -105,7 +109,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Connection_string_overrides_endpoint_and_key()
     {
         var options = new DbContextOptionsBuilder()
@@ -125,7 +129,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Endpoint_and_token_overrides_connection_string()
     {
         await using var testDatabase = CosmosTestStore.Create("NonExisting");
@@ -148,7 +152,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Connection_string_overrides_endpoint_and_token()
     {
         await using var testDatabase = CosmosTestStore.Create("NonExisting");
@@ -171,7 +175,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_invalid_values()
         => Throws<ArgumentOutOfRangeException>(o => o.ConnectionMode((ConnectionMode)958410610));
 
@@ -197,10 +201,9 @@ public class CosmosDbContextOptionsExtensionsTests
 
     private void Throws<T>(Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction)
         where T : Exception
-        => Assert.Throws<T>(
-            () => new DbContextOptionsBuilder().UseCosmos(
-                "serviceEndPoint",
-                "authKeyOrResourceToken",
-                "databaseName",
-                cosmosOptionsAction));
+        => Assert.Throws<T>(() => new DbContextOptionsBuilder().UseCosmos(
+            "serviceEndPoint",
+            "authKeyOrResourceToken",
+            "databaseName",
+            cosmosOptionsAction));
 }

@@ -31,7 +31,7 @@ public class ValueGeneratorConventionTest
 
     #region RequiresValueGenerator
 
-    [ConditionalFact]
+    [Fact]
     public void RequiresValueGenerator_flag_is_set_for_key_properties_that_use_value_generation()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -55,7 +55,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, keyProperties[1].ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiresValueGenerator_flag_is_not_set_for_foreign_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -82,7 +82,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiresValueGenerator_flag_is_set_for_property_which_are_not_part_of_any_foreign_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -98,7 +98,7 @@ public class ValueGeneratorConventionTest
 
         referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(new[] { properties[1] }, ConfigurationSource.Convention),
+            referencedEntityBuilder.GetOrCreateProperties([properties[1]], ConfigurationSource.Convention),
             ConfigurationSource.Convention);
 
         var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
@@ -111,7 +111,7 @@ public class ValueGeneratorConventionTest
         Assert.False(keyProperties[1].RequiresValueGenerator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiresValueGenerator_flag_is_not_set_for_properties_which_are_part_of_a_foreign_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -129,7 +129,7 @@ public class ValueGeneratorConventionTest
             referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
             ConfigurationSource.Convention);
 
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(new[] { properties[1] }, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey([properties[1]], ConfigurationSource.Convention);
 
         RunConvention(referencedEntityBuilder);
 
@@ -139,7 +139,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyConvention_does_not_override_ValueGenerated_when_configured_explicitly()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -159,7 +159,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.OnAdd, keyProperties[0].ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiresValueGenerator_flag_is_turned_off_when_foreign_key_is_added()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -190,7 +190,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiresValueGenerator_flag_is_set_when_foreign_key_is_removed()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -232,7 +232,7 @@ public class ValueGeneratorConventionTest
 
     #region Identity
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_is_set_for_primary_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -248,7 +248,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_is_not_set_for_non_primary_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -264,7 +264,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_not_set_when_composite_primary_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -281,7 +281,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, keyProperties[1].ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_not_set_when_primary_key_property_is_string()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -296,14 +296,14 @@ public class ValueGeneratorConventionTest
         Assert.False(property.RequiresValueGenerator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_not_set_when_primary_key_property_is_byte_array()
     {
         var modelBuilder = CreateInternalModelBuilder();
         var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
         entityBuilder.Property(typeof(byte[]), "binaryKey", ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(new[] { "binaryKey" }, ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(["binaryKey"], ConfigurationSource.Convention);
 
         var property = keyBuilder.Metadata.Properties.First();
 
@@ -311,14 +311,14 @@ public class ValueGeneratorConventionTest
         Assert.False(property.RequiresValueGenerator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_not_set_when_primary_key_property_is_enum()
     {
         var modelBuilder = CreateInternalModelBuilder();
         var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
         entityBuilder.Property(typeof(Eenom), "enumKey", ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(new[] { "enumKey" }, ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(["enumKey"], ConfigurationSource.Convention);
 
         var property = keyBuilder.Metadata.Properties.First();
 
@@ -326,7 +326,7 @@ public class ValueGeneratorConventionTest
         Assert.False(property.RequiresValueGenerator());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_is_recomputed_when_primary_key_is_changed()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -357,7 +357,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.OnAdd, ((IReadOnlyProperty)numberProperty).ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Convention_does_not_override_None_when_configured_explicitly()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -376,7 +376,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_is_removed_when_foreign_key_is_added()
     {
         var modelBuilder = CreateInternalModelBuilder();
@@ -403,7 +403,7 @@ public class ValueGeneratorConventionTest
         Assert.Equal(ValueGenerated.Never, ((IReadOnlyProperty)property).ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Identity_is_added_when_foreign_key_is_removed_and_key_is_primary_key()
     {
         var modelBuilder = CreateInternalModelBuilder();

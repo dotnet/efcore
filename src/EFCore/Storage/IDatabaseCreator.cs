@@ -32,7 +32,7 @@ public interface IDatabaseCreator
     ///         exist then the database is deleted.
     ///     </para>
     ///     <para>
-    ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
+    ///         Warning: The entire database is deleted and no effort is made to remove just the database objects that are used by
     ///         the model for this context.
     ///     </para>
     /// </summary>
@@ -45,7 +45,7 @@ public interface IDatabaseCreator
     ///         exist then the database is deleted.
     ///     </para>
     ///     <para>
-    ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
+    ///         Warning: The entire database is deleted and no effort is made to remove just the database objects that are used by
     ///         the model for this context.
     ///     </para>
     /// </summary>
@@ -79,7 +79,7 @@ public interface IDatabaseCreator
     Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Determines whether or not the database is available and can be connected to.
+    ///     Determines whether the database is available and can be connected to.
     /// </summary>
     /// <remarks>
     ///     Note that being able to connect to the database does not mean that it is
@@ -89,7 +89,7 @@ public interface IDatabaseCreator
     bool CanConnect();
 
     /// <summary>
-    ///     Determines whether or not the database is available and can be connected to.
+    ///     Determines whether the database is available and can be connected to.
     /// </summary>
     /// <remarks>
     ///     Note that being able to connect to the database does not mean that it is

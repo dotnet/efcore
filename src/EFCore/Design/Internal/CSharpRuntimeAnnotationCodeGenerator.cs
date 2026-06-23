@@ -42,6 +42,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         {
             annotations.Remove(CoreAnnotationNames.ModelDependencies);
             annotations.Remove(CoreAnnotationNames.ReadOnlyModel);
+            annotations.Remove(CoreAnnotationNames.DetailedErrorsEnabled);
         }
 
         GenerateSimpleAnnotations(parameters);
@@ -124,6 +125,24 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
 
     /// <inheritdoc />
     public virtual void Generate(IServiceProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key))
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
+
+        GenerateSimpleAnnotations(parameters);
+    }
+
+    /// <inheritdoc />
+    public virtual void Generate(IElementType elementType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (!parameters.IsRuntime)
         {
@@ -354,46 +373,26 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         ICSharpHelper codeHelper)
     {
+        if (TryCreateInstanceConverter(converter, parameters, codeHelper))
+        {
+            return;
+        }
+
         var mainBuilder = parameters.MainBuilder;
         var constructor = converter.GetType().GetDeclaredConstructor([typeof(JsonValueReaderWriter)]);
-        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<object>.JsonReaderWriter));
+        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<>.JsonReaderWriter));
         if (constructor == null
             || jsonReaderWriterProperty == null)
         {
-            AddNamespace(typeof(ValueConverter<,>), parameters.Namespaces);
-            AddNamespace(converter.ModelClrType, parameters.Namespaces);
-            AddNamespace(converter.ProviderClrType, parameters.Namespaces);
-
-            var unsafeAccessors = new HashSet<string>();
-
+            var missingUnsafeAccessors = new HashSet<string>();
             mainBuilder
-                .Append("new ValueConverter<")
-                .Append(codeHelper.Reference(converter.ModelClrType))
-                .Append(", ")
-                .Append(codeHelper.Reference(converter.ProviderClrType))
-                .AppendLine(">(")
-                .IncrementIndent()
                 .AppendLines(
-                    codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, unsafeAccessors),
-                    skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
+                    codeHelper.Expression(converter.ConstructorExpressionWithoutMappingHints, parameters.Namespaces, missingUnsafeAccessors),
                     skipFinalNewline: true);
 
+
             Check.DebugAssert(
-                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
-
-            if (converter.ConvertsNulls)
-            {
-                mainBuilder
-                    .AppendLine(",")
-                    .Append("convertsNulls: true");
-            }
-
-            mainBuilder
-                .Append(")")
-                .DecrementIndent();
+                missingUnsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
         }
         else
         {
@@ -404,11 +403,39 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
                 .Append(codeHelper.Reference(converter.GetType()))
                 .Append("(");
 
-            CreateJsonValueReaderWriter((JsonValueReaderWriter)jsonReaderWriterProperty.GetValue(converter)!, parameters, codeHelper);
+            CreateJsonValueReaderWriter(
+                (JsonValueReaderWriter)jsonReaderWriterProperty.GetValue(converter)!,
+                parameters,
+                codeHelper);
 
             mainBuilder
                 .Append(")");
         }
+    }
+
+    private static bool TryCreateInstanceConverter(
+        ValueConverter converter,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ICSharpHelper codeHelper)
+    {
+        // Built-in value converters expose a cached singleton via a public static Instance property. When the model uses that
+        // singleton, the generated code can simply reference it instead of reconstructing the converter from its expressions.
+        var converterType = converter.GetType();
+        var instanceProperty = converterType.GetProperty(
+            "Instance", BindingFlags.Public | BindingFlags.Static);
+        if (instanceProperty == null
+            || !converterType.IsAssignableFrom(instanceProperty.PropertyType)
+            || !ReferenceEquals(converter, instanceProperty.GetValue(null)))
+        {
+            return false;
+        }
+
+        AddNamespace(converterType, parameters.Namespaces);
+        parameters.MainBuilder
+            .Append(codeHelper.Reference(converterType))
+            .Append(".Instance");
+
+        return true;
     }
 
     /// <inheritdoc />
@@ -426,12 +453,23 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         ICSharpHelper codeHelper)
     {
+        if (TryCreateDefaultComparer(comparer, parameters, codeHelper))
+        {
+            return;
+        }
+
         var mainBuilder = parameters.MainBuilder;
 
         var comparerType = comparer.GetType();
-        var constructor = comparerType.GetDeclaredConstructor([typeof(ValueComparer)]);
-        if (constructor == null
-            || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
+        var containsNestedComparerCtor = comparerType.GetTypeInfo().DeclaredConstructors
+            .Where(x => !x.IsStatic)
+            .Select(x => x.GetParameters())
+            .Where(ps => ps.Length == 1)
+            .Select(ps => ps[0].ParameterType)
+            .Any(t => t == typeof(ValueComparer) || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ValueComparer<>)));
+
+        if (!containsNestedComparerCtor
+            || comparer is not IInfrastructure<ValueComparer> { Instance: { } underlyingValueComparer })
         {
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);
@@ -476,6 +514,46 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         }
     }
 
+    private static bool TryCreateDefaultComparer(
+        ValueComparer comparer,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ICSharpHelper codeHelper)
+    {
+        var comparerType = comparer.GetType();
+        var defaultProperty = comparerType.GetProperty(
+            nameof(ValueComparer<object>.Default), BindingFlags.Public | BindingFlags.Static);
+        var structuralProperty = comparerType.GetProperty(
+            nameof(ValueComparer<object>.DefaultWithStructuralComparisons), BindingFlags.Public | BindingFlags.Static);
+
+        if (defaultProperty == null || structuralProperty == null)
+        {
+            return false;
+        }
+
+        PropertyInfo defaultComparerProperty;
+        if (ReferenceEquals(comparer, defaultProperty.GetValue(null)))
+        {
+            defaultComparerProperty = defaultProperty;
+        }
+        else if (ReferenceEquals(comparer, structuralProperty.GetValue(null)))
+        {
+            defaultComparerProperty = structuralProperty;
+        }
+        else
+        {
+            return false;
+        }
+
+        var declaringType = defaultComparerProperty.DeclaringType!;
+        AddNamespace(declaringType, parameters.Namespaces);
+        parameters.MainBuilder
+            .Append(codeHelper.Reference(declaringType))
+            .Append('.')
+            .Append(defaultComparerProperty.Name);
+
+        return true;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -505,10 +583,8 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             mainBuilder
                 .Append(")")
                 .DecrementIndent();
-            return;
         }
-
-        if (jsonValueReaderWriter is ICompositeJsonValueReaderWriter compositeJsonValueReaderWriter)
+        else if (jsonValueReaderWriter is ICompositeJsonValueReaderWriter compositeJsonValueReaderWriter)
         {
             AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
 
@@ -521,10 +597,19 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             mainBuilder
                 .Append(")")
                 .DecrementIndent();
-            return;
         }
+        else
+        {
+            var missingUnsafeAccessors = new HashSet<string>();
 
-        CreateJsonValueReaderWriter(jsonValueReaderWriterType, parameters, codeHelper);
+            mainBuilder
+                .AppendLines(
+                    codeHelper.Expression(jsonValueReaderWriter.ConstructorExpression, parameters.Namespaces, missingUnsafeAccessors),
+                    skipFinalNewline: true);
+
+            Check.DebugAssert(
+                missingUnsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
+        }
     }
 
     /// <summary>
@@ -564,10 +649,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
     /// <inheritdoc />
     public virtual bool Create(
         CoreTypeMapping typeMapping,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-        ValueComparer? valueComparer = null,
-        ValueComparer? keyValueComparer = null,
-        ValueComparer? providerValueComparer = null)
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var mainBuilder = parameters.MainBuilder;
         var code = Dependencies.CSharpHelper;
@@ -581,50 +663,27 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             .AppendLine(".Clone(")
             .IncrementIndent();
 
-        mainBuilder
-            .Append("comparer: ");
-        Create(valueComparer ?? typeMapping.Comparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("keyComparer: ");
-        Create(keyValueComparer ?? typeMapping.KeyComparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("providerValueComparer: ");
-        Create(providerValueComparer ?? typeMapping.ProviderValueComparer, parameters, code);
+        var firstArgument = true;
+        CreateComparers(typeMapping, parameters, code, ref firstArgument);
 
         if (typeMapping.Converter != null
             && typeMapping.Converter != defaultInstance.Converter)
         {
-            mainBuilder.AppendLine(",")
-                .Append("converter: ");
-
+            AppendArgument("converter", parameters, ref firstArgument);
             Create(typeMapping.Converter, parameters, code);
-        }
-
-        var typeDifferent = typeMapping.Converter == null
-            && typeMapping.ClrType != defaultInstance.ClrType;
-        if (typeDifferent)
-        {
-            mainBuilder.AppendLine(",")
-                .Append($"clrType: {code.Literal(typeMapping.ClrType)}");
         }
 
         if (typeMapping.JsonValueReaderWriter != null
             && typeMapping.JsonValueReaderWriter != defaultInstance.JsonValueReaderWriter)
         {
-            mainBuilder.AppendLine(",")
-                .Append("jsonValueReaderWriter: ");
-
+            AppendArgument("jsonValueReaderWriter", parameters, ref firstArgument);
             CreateJsonValueReaderWriter(typeMapping.JsonValueReaderWriter, parameters, code);
         }
 
         if (typeMapping.ElementTypeMapping != null
             && typeMapping.ElementTypeMapping != defaultInstance.ElementTypeMapping)
         {
-            mainBuilder.AppendLine(",")
-                .Append("elementMapping: ");
-
+            AppendArgument("elementMapping", parameters, ref firstArgument);
             Create(typeMapping.ElementTypeMapping, parameters);
         }
 
@@ -633,6 +692,87 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             .DecrementIndent();
 
         return true;
+    }
+
+    /// <summary>
+    ///     Writes the name of an argument in a type mapping <c>Clone</c> call, prefixing it with a separator unless it is the first one.
+    /// </summary>
+    /// <param name="name">The argument name.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    /// <param name="firstArgument">Whether this is the first argument in the argument list. Set to <see langword="false" /> on return.</param>
+    protected static void AppendArgument(
+        string name,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ref bool firstArgument)
+    {
+        if (!firstArgument)
+        {
+            parameters.MainBuilder.AppendLine(",");
+        }
+
+        firstArgument = false;
+        parameters.MainBuilder.Append(name).Append(": ");
+    }
+
+    /// <summary>
+    ///     Generates code for the comparer, key comparer and provider value comparer arguments of a type mapping
+    ///     <c>Clone</c> call, unless they can be omitted because they are the defaults for the mapping's CLR type.
+    /// </summary>
+    /// <param name="typeMapping">The type mapping being generated.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    /// <param name="codeHelper">The C# helper.</param>
+    /// <param name="firstArgument">Whether the next argument to be written is the first one in the argument list.</param>
+    protected virtual void CreateComparers(
+        CoreTypeMapping typeMapping,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ICSharpHelper codeHelper,
+        ref bool firstArgument)
+    {
+        if (!(typeMapping.HasDefaultComparers && DefaultComparersAreAotSafe(typeMapping)))
+        {
+            var comparerBuilder = new IndentedStringBuilder();
+            Create(typeMapping.Comparer, parameters with { MainBuilder = comparerBuilder }, codeHelper);
+            var comparerCode = comparerBuilder.ToString();
+
+            AppendArgument("comparer", parameters, ref firstArgument);
+            parameters.MainBuilder.AppendLines(comparerCode, skipFinalNewline: true);
+
+            // The key comparer only needs to be generated when it differs from the value comparer.
+            if (!ReferenceEquals(typeMapping.Comparer, typeMapping.KeyComparer))
+            {
+                var keyComparerBuilder = new IndentedStringBuilder();
+                Create(typeMapping.KeyComparer, parameters with { MainBuilder = keyComparerBuilder }, codeHelper);
+                var keyComparerCode = keyComparerBuilder.ToString();
+
+                if (keyComparerCode != comparerCode)
+                {
+                    AppendArgument("keyComparer", parameters, ref firstArgument);
+                    parameters.MainBuilder.AppendLines(keyComparerCode, skipFinalNewline: true);
+                }
+            }
+        }
+
+        // The default provider value comparer is created reflectively when the mapping has a converter, so it must always be baked into
+        // the compiled model to remain NativeAOT-compatible. Without a converter it is the same as the key comparer, so it can be omitted
+        // whenever the key comparer is.
+        if (typeMapping.Converter is not null)
+        {
+            AppendArgument("providerValueComparer", parameters, ref firstArgument);
+            Create(typeMapping.ProviderValueComparer, parameters, codeHelper);
+        }
+    }
+
+    private static bool DefaultComparersAreAotSafe(CoreTypeMapping typeMapping)
+    {
+        // The default comparers are reconstructed at runtime without reflection only when the mapping (or one of its base types)
+        // overrides CreateDefaultComparer as a generic type whose type argument matches the mapping's CLR type
+        // (e.g. RelationalTypeMapping<int>, InMemoryTypeMapping<Guid>).
+        var declaringType = typeMapping.GetType()
+            .GetMethod("CreateDefaultComparer", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.DeclaringType;
+
+        return declaringType is { IsGenericType: true }
+            && declaringType.GetGenericArguments()[0] == typeMapping.ClrType;
     }
 
     /// <summary>

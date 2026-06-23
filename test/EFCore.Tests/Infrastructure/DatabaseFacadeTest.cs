@@ -7,9 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class DatabaseFacadeTest
 {
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Methods_delegate_to_configured_store_creator(bool async)
     {
         var creator = new FakeDatabaseCreator();
@@ -87,7 +85,7 @@ public class DatabaseFacadeTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_IServiceProvider()
     {
         using var context = InMemoryTestHelpers.Instance.CreateContext();
@@ -96,7 +94,7 @@ public class DatabaseFacadeTest
             ((IInfrastructure<IServiceProvider>)context.Database).Instance);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_DatabaseCreator()
     {
         using var context = InMemoryTestHelpers.Instance.CreateContext();
@@ -105,16 +103,14 @@ public class DatabaseFacadeTest
             context.Database.GetService<IDatabaseCreator>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_Model()
     {
         using var context = InMemoryTestHelpers.Instance.CreateContext();
         Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Can_begin_transaction(bool async)
     {
         var transaction = new FakeDbContextTransaction();
@@ -238,7 +234,7 @@ public class DatabaseFacadeTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_commit_transaction()
     {
         var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
@@ -251,7 +247,7 @@ public class DatabaseFacadeTest
         Assert.Equal(1, manager.CommitCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_commit_transaction_async()
     {
         var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
@@ -264,7 +260,7 @@ public class DatabaseFacadeTest
         Assert.Equal(1, manager.CommitCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_roll_back_transaction()
     {
         var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
@@ -277,7 +273,7 @@ public class DatabaseFacadeTest
         Assert.Equal(1, manager.RollbackCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_roll_back_transaction_async()
     {
         var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
@@ -290,7 +286,7 @@ public class DatabaseFacadeTest
         Assert.Equal(1, manager.RollbackCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_current_transaction()
     {
         var transaction = new FakeDbContextTransaction();
@@ -302,7 +298,7 @@ public class DatabaseFacadeTest
         Assert.Same(transaction, context.Database.CurrentTransaction);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_use_DatabaseFacade_after_dispose()
     {
         var context = InMemoryTestHelpers.Instance.CreateContext();

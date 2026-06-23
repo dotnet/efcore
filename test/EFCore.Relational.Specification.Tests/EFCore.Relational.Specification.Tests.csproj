@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Shared test suite for Entity Framework Core relational database providers.</Description>
@@ -8,8 +8,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <IsShipping>true</IsShipping>
+    <!-- This project contains base tests to be used by providers, but is not itself a test project with
+         tests to be executed. Disable test discovery. -->
+    <IsTestProject>false</IsTestProject>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
+    <!-- This is a test project, but we ship the package to customers. Avoid skipping in VMR builds
+         that do not build tests -->
+    <ExcludeFromDotNetBuild>false</ExcludeFromDotNetBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,7 +47,6 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Xunit" />
-    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +62,10 @@
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="BulkUpdates/Inheritance/" />
   </ItemGroup>
 
 </Project>

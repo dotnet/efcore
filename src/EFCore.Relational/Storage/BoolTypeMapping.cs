@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class BoolTypeMapping : RelationalTypeMapping
+public class BoolTypeMapping : RelationalTypeMapping<bool>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,7 +27,7 @@ public class BoolTypeMapping : RelationalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static BoolTypeMapping Default { get; } = new("bit");
+    public static BoolTypeMapping Default { get; } = new("boolean");
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BoolTypeMapping" /> class.

@@ -35,7 +35,20 @@ public static class RelationalIndexExtensions
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The name of the index in the database.</returns>
     public static string? GetDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
-        => index.GetDatabaseName(storeObject, null);
+    {
+        if (storeObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
+        var defaultName = index.GetDefaultDatabaseName(storeObject);
+        var annotation = index.FindAnnotation(RelationalAnnotationNames.Name);
+        return annotation != null && defaultName != null
+            ? (string?)annotation.Value
+            : defaultName != null
+                ? index.Name ?? defaultName
+                : defaultName;
+    }
 
     /// <summary>
     ///     Returns the default name that would be used for this index.
@@ -50,14 +63,19 @@ public static class RelationalIndexExtensions
             return null;
         }
 
+        var columnNames = index.GetColumnNames();
+        if (columnNames == null)
+        {
+            return null;
+        }
+
         var baseName = new StringBuilder()
             .Append("IX_")
             .Append(tableName)
-            .Append('_')
-            .AppendJoin(index.Properties.Select(p => p.GetColumnName()), "_")
-            .ToString();
+            .Append('_');
+        AppendProperties(index, columnNames, baseName);
 
-        return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        return Uniquifier.Truncate(baseName.ToString(), index.DeclaringEntityType.Model.GetMaxIdentifierLength());
     }
 
     /// <summary>
@@ -67,7 +85,110 @@ public static class RelationalIndexExtensions
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The default name that would be used for this index.</returns>
     public static string? GetDefaultDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
-        => index.GetDefaultDatabaseName(storeObject, null);
+    {
+        if (storeObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
+        var columnNames = index.GetColumnNames(storeObject);
+        if (columnNames == null)
+        {
+            return null;
+        }
+
+        var rootIndex = index;
+
+        // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
+        // Using a hashset is detrimental to the perf when there are no cycles
+        for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
+        {
+            IReadOnlyIndex? linkedIndex = null;
+            foreach (var otherIndex in rootIndex.DeclaringEntityType
+                         .FindRowInternalForeignKeys(storeObject)
+                         .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
+            {
+                var otherColumnNames = otherIndex.GetColumnNames(storeObject);
+                if ((otherColumnNames != null)
+                    && otherColumnNames.SequenceEqual(columnNames))
+                {
+                    linkedIndex = otherIndex;
+                    break;
+                }
+            }
+
+            if (linkedIndex == null)
+            {
+                break;
+            }
+
+            rootIndex = linkedIndex;
+        }
+
+        if (rootIndex != index)
+        {
+            return rootIndex.GetDatabaseName(storeObject);
+        }
+
+        var baseName = new StringBuilder()
+            .Append("IX_")
+            .Append(storeObject.Name)
+            .Append('_');
+        AppendProperties(index, columnNames, baseName);
+
+        return Uniquifier.Truncate(baseName.ToString(), index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+    }
+
+    private static void AppendProperties(IReadOnlyIndex index, IReadOnlyList<string> columnNames, StringBuilder builder)
+    {
+        // For an index on properties contained inside a JSON-mapped complex type, the index covers
+        // a single JSON container column, so naming purely by column would produce ambiguous default
+        // names when multiple JSON-path indexes share a column. Use the property path through the
+        // complex-type chain (e.g. "Items_Value") instead so each path gets a distinct default name.
+        var startLength = builder.Length;
+        var first = true;
+        foreach (var property in index.Properties)
+        {
+            IReadOnlyTypeBase current;
+            string leafName;
+            switch (property)
+            {
+                case IReadOnlyProperty scalar
+                    when scalar.DeclaringType is IReadOnlyComplexType complexType && complexType.IsMappedToJson():
+                    leafName = scalar.Name;
+                    current = scalar.DeclaringType;
+                    break;
+
+                case IReadOnlyComplexProperty { ComplexType: var ct } complexProperty when ct.IsMappedToJson():
+                    leafName = complexProperty.Name;
+                    current = complexProperty.DeclaringType;
+                    break;
+
+                default:
+                    // If any property in the index isn't inside a JSON-mapped complex type, fall back to the
+                    // column names provided by the caller.
+                    builder.Length = startLength;
+                    builder.AppendJoin(columnNames, "_");
+                    return;
+            }
+
+            if (!first)
+            {
+                builder.Append('_');
+            }
+
+            first = false;
+
+            var pathStart = builder.Length;
+            builder.Append(leafName);
+            while (current is IReadOnlyComplexType parent)
+            {
+                builder.Insert(pathStart, '_');
+                builder.Insert(pathStart, parent.ComplexProperty.Name);
+                current = parent.ComplexProperty.DeclaringType;
+            }
+        }
+    }
 
     /// <summary>
     ///     Sets the name of the index in the database.
@@ -77,7 +198,7 @@ public static class RelationalIndexExtensions
     public static void SetDatabaseName(this IMutableIndex index, string? name)
         => index.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the index in the database.
@@ -92,7 +213,7 @@ public static class RelationalIndexExtensions
         bool fromDataAnnotation = false)
         => (string?)index.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -137,7 +258,7 @@ public static class RelationalIndexExtensions
     public static void SetFilter(this IMutableIndex index, string? value)
         => index.SetAnnotation(
             RelationalAnnotationNames.Filter,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the index filter expression.
@@ -149,7 +270,7 @@ public static class RelationalIndexExtensions
     public static string? SetFilter(this IConventionIndex index, string? value, bool fromDataAnnotation = false)
         => (string?)index.SetAnnotation(
             RelationalAnnotationNames.Filter,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -170,7 +291,7 @@ public static class RelationalIndexExtensions
         index.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableIndexMappings)
-            ?? Enumerable.Empty<ITableIndex>();
+            ?? [];
     }
 
     /// <summary>
@@ -187,7 +308,7 @@ public static class RelationalIndexExtensions
     /// <returns>The index found, or <see langword="null" /> if none was found.</returns>
     public static IReadOnlyIndex? FindSharedObjectRootIndex(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
-        Check.NotNull(index, nameof(index));
+        Check.NotNull(index);
 
         var indexName = index.GetDatabaseName(storeObject);
         var rootIndex = index;

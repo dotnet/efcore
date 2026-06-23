@@ -7,7 +7,7 @@ public class CharToStringConverterTest
 {
     private static readonly CharToStringConverter _charToString = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_chars_to_strings()
     {
         var converter = _charToString.ConvertToProviderExpression.Compile();
@@ -16,7 +16,7 @@ public class CharToStringConverterTest
         Assert.Equal("!", converter('!'));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_chars_to_strings_object()
     {
         var converter = _charToString.ConvertToProvider;
@@ -28,7 +28,7 @@ public class CharToStringConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_chars()
     {
         var converter = _charToString.ConvertFromProviderExpression.Compile();
@@ -41,7 +41,7 @@ public class CharToStringConverterTest
         Assert.Throws<NullReferenceException>(() => converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_chars_object()
     {
         var converter = _charToString.ConvertFromProvider;

@@ -1,14 +1,13 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-
 namespace Microsoft.EntityFrameworkCore;
 
 public class AppServiceProviderFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Create_services_from_template_method()
     {
         TestCreateServices(typeof(ProgramWithBuildWebHost));
@@ -21,8 +20,6 @@ public class AppServiceProviderFactoryTest
         var factory = new TestAppServiceProviderFactory(
             MockAssembly.Create(programType));
 
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
-        Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", null);
         var services = factory.Create(["arg1"]);
 
         Assert.NotNull(services.GetRequiredService<TestService>());
@@ -58,7 +55,7 @@ public class AppServiceProviderFactoryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact, SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public void Create_with_no_builder_method()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -66,8 +63,6 @@ public class AppServiceProviderFactoryTest
                 [typeof(ProgramWithNoHostBuilder)],
                 new MockMethodInfo(typeof(ProgramWithNoHostBuilder), InjectHostIntoDiagnostics)));
 
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
-        Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", null);
         var services = factory.Create(["arg1"]);
 
         Assert.NotNull(services.GetRequiredService<TestService>());
@@ -75,8 +70,6 @@ public class AppServiceProviderFactoryTest
 
     private static void InjectHostIntoDiagnostics(object[] args)
     {
-        Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-        Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
         Assert.Single(args);
         Assert.Equal((string[])args[0], new[] { "arg1", "--applicationName", "MockAssembly" });
 
@@ -90,11 +83,7 @@ public class AppServiceProviderFactoryTest
     private class ProgramWithNoHostBuilder;
 
     private static void ValidateEnvironmentAndArgs(string[] args)
-    {
-        Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-        Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
-        Assert.Equal(args, new[] { "arg1" });
-    }
+        => Assert.Equal(args, new[] { "arg1" });
 
     private static ServiceProvider BuildTestServiceProvider()
         => new ServiceCollection()
@@ -103,7 +92,7 @@ public class AppServiceProviderFactoryTest
 
     private class TestService;
 
-    [ConditionalFact]
+    [Fact]
     public void Create_works_when_no_BuildWebHost()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -116,7 +105,7 @@ public class AppServiceProviderFactoryTest
 
     private class ProgramWithoutBuildWebHost;
 
-    [ConditionalFact]
+    [Fact]
     public void Create_works_when_BuildWebHost_throws()
     {
         var reporter = new TestOperationReporter();

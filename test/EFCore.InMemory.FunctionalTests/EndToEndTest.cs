@@ -9,7 +9,7 @@ public class EndToEndInMemoryTest(InMemoryFixture fixture) : IClassFixture<InMem
 {
     protected InMemoryFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_different_entity_types_end_to_end()
     {
         Can_add_update_delete_end_to_end<Private>();
@@ -28,12 +28,11 @@ public class EndToEndInMemoryTest(InMemoryFixture fixture) : IClassFixture<InMem
         where T : class, new()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<T>(
-            eb =>
-            {
-                eb.Property<int>("Id");
-                eb.Property<string>("Name");
-            });
+        modelBuilder.Entity<T>(eb =>
+        {
+            eb.Property<int>("Id");
+            eb.Property<string>("Name");
+        });
 
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseModel(modelBuilder.FinalizeModel())

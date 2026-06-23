@@ -190,7 +190,7 @@ public sealed partial class SelectExpression
             [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
-                if (expression is SqlExpression sqlExpression)
+                if (expression is SqlExpression sqlExpression and not SqlFragmentExpression)
                 {
                     if (correlatedTerms.Contains(sqlExpression)
                         || sqlExpression is SqlConstantExpression or SqlParameterExpression)
@@ -278,9 +278,18 @@ public sealed partial class SelectExpression
                     };
                 }
 
-                case CollectionResultExpression collectionResultExpression:
+                case CollectionResultExpression
                 {
-                    var innerProjectionBindingExpression = collectionResultExpression.ProjectionBindingExpression;
+                    QueryExpression: ProjectionBindingExpression innerProjectionBindingExpression
+                } collectionResultExpression:
+                {
+                    var navigation = collectionResultExpression.StructuralProperty switch
+                    {
+                        INavigationBase n => n,
+                        null or IComplexProperty => null,
+                        _ => throw new UnreachableException()
+                    };
+
                     var value = clientProjectionIndexMap[innerProjectionBindingExpression.Index!.Value];
                     return value switch
                     {
@@ -289,18 +298,18 @@ public sealed partial class SelectExpression
                                 singleCollectionInfo.ParentIdentifier, singleCollectionInfo.OuterIdentifier,
                                 singleCollectionInfo.SelfIdentifier, singleCollectionInfo.ParentIdentifierValueComparers,
                                 singleCollectionInfo.OuterIdentifierValueComparers, singleCollectionInfo.SelfIdentifierValueComparers,
-                                singleCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                                singleCollectionInfo.ShaperExpression, navigation,
                                 collectionResultExpression.ElementType),
 
                         SplitCollectionInfo splitCollectionInfo
                             => new RelationalSplitCollectionShaperExpression(
                                 splitCollectionInfo.ParentIdentifier, splitCollectionInfo.ChildIdentifier,
                                 splitCollectionInfo.IdentifierValueComparers, splitCollectionInfo.SelectExpression,
-                                splitCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                                splitCollectionInfo.ShaperExpression, navigation,
                                 collectionResultExpression.ElementType),
 
                         int => collectionResultExpression.Update(
-                            (ProjectionBindingExpression)Visit(collectionResultExpression.ProjectionBindingExpression)),
+                            (ProjectionBindingExpression)Visit(innerProjectionBindingExpression)),
 
                         _ => throw new InvalidOperationException()
                     };
@@ -351,27 +360,7 @@ public sealed partial class SelectExpression
                 }
 
                 case ColumnExpression column when _tableAliasMap.TryGetValue(column.TableAlias, out var newTableAlias):
-                    return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
-
-                case StructuralTypeProjectionExpression:
-                    var result = (StructuralTypeProjectionExpression)base.Visit(expression);
-
-                    // TableMap aliases are not stored in form of expression so we need to update them manually
-                    var tableMapChanged = false;
-                    var newTableMap = result.TableMap.ToDictionary(x => x.Key, x => x.Value);
-                    foreach (var (oldAlias, newAlias) in _tableAliasMap)
-                    {
-                        var match = newTableMap.FirstOrDefault(x => x.Value == oldAlias).Key;
-                        if (match != null)
-                        {
-                            newTableMap[match] = newAlias;
-                            tableMapChanged = true;
-                        }
-                    }
-
-                    return tableMapChanged
-                        ? result.UpdateTableMap(newTableMap)
-                        : result;
+                    return new ColumnExpression(column.Name, newTableAlias, column.Column, column.Type, column.TypeMapping, column.IsNullable);
 
                 default:
                     return base.Visit(expression);
@@ -379,7 +368,7 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class TpcTableExpressionRemovingExpressionVisitor : ExpressionVisitor
+    private sealed class TpcTableExpressionRemovingExpressionVisitor(SqlAliasManager sqlAliasManager) : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression expression)
         {
@@ -445,8 +434,8 @@ public sealed partial class SelectExpression
                     var identityMap = true;
                     for (var j = 0; j < selectExpression.Projection.Count; j++)
                     {
-                        var newIndex = innerProjections.FindIndex(
-                            e => string.Equals(e, selectExpression.Projection[j].Alias, StringComparison.Ordinal));
+                        var newIndex = innerProjections.FindIndex(e => string.Equals(
+                            e, selectExpression.Projection[j].Alias, StringComparison.Ordinal));
                         if (newIndex == -1)
                         {
                             // If for whatever reason outer has additional projection which cannot be remapped we avoid lift
@@ -485,7 +474,7 @@ public sealed partial class SelectExpression
                                 CreateColumnExpression(projection, tpcTablesExpression.Alias), projection.Alias));
                     }
 
-                    result = CreateImmutable(alias: null!, tables: [unionExpression], projections);
+                    result = CreateImmutable(alias: null!, tables: [unionExpression], projections, sqlAliasManager);
                 }
 
                 if (identitySelect)

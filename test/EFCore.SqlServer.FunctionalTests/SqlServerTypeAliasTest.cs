@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,7 +11,7 @@ public class SqlServerTypeAliasTest(SqlServerFixture fixture) : IClassFixture<Sq
 
     protected SqlServerFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_create_database_with_alias_columns()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -117,17 +117,16 @@ CREATE TYPE stringAlias FROM nvarchar(50);
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TypeAliasEntity>();
-            modelBuilder.Entity<TypeAliasEntityWithFacets>(
-                b =>
-                {
-                    b.Property(e => e.DateTimeAlias).HasPrecision(6);
-                    b.Property(e => e.DateTimeOffsetAlias).HasPrecision(6);
-                    b.Property(e => e.TimeAlias).HasPrecision(6);
-                    b.Property(e => e.DecimalAlias).HasPrecision(10, 6);
-                    b.Property(e => e.DoubleAlias).HasPrecision(26);
-                    b.Property(e => e.BinaryAlias).HasMaxLength(50);
-                    b.Property(e => e.StringAlias).HasMaxLength(50);
-                });
+            modelBuilder.Entity<TypeAliasEntityWithFacets>(b =>
+            {
+                b.Property(e => e.DateTimeAlias).HasPrecision(6);
+                b.Property(e => e.DateTimeOffsetAlias).HasPrecision(6);
+                b.Property(e => e.TimeAlias).HasPrecision(6);
+                b.Property(e => e.DecimalAlias).HasPrecision(10, 6);
+                b.Property(e => e.DoubleAlias).HasPrecision(26);
+                b.Property(e => e.BinaryAlias).HasMaxLength(50);
+                b.Property(e => e.StringAlias).HasMaxLength(50);
+            });
         }
     }
 

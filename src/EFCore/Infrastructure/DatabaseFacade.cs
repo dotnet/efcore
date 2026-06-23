@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Data.Common;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -15,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacadeDependenciesAccessor, IResettableService
 {
     private readonly DbContext _context;
-    private IDatabaseFacadeDependencies? _dependencies;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DatabaseFacade" /> class. Instances of this class are typically
@@ -26,8 +24,9 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     public DatabaseFacade(DbContext context)
         => _context = context;
 
+    [field: AllowNull, MaybeNull]
     private IDatabaseFacadeDependencies Dependencies
-        => _dependencies ??= _context.GetService<IDatabaseFacadeDependencies>();
+        => field ??= _context.GetService<IDatabaseFacadeDependencies>();
 
     /// <summary>
     ///     Ensures that the database for the context exists.
@@ -204,7 +203,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
         => Dependencies.DatabaseCreator.EnsureDeletedAsync(cancellationToken);
 
     /// <summary>
-    ///     Determines whether or not the database is available and can be connected to.
+    ///     Determines whether the database is available and can be connected to.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -227,7 +226,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
         => Dependencies.DatabaseCreator.CanConnect();
 
     /// <summary>
-    ///     Determines whether or not the database is available and can be connected to.
+    ///     Determines whether the database is available and can be connected to.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -387,48 +386,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
         => Dependencies.TransactionManager.CurrentTransaction;
 
     /// <summary>
-    ///     Gets or sets a value indicating whether or not a transaction will be created automatically by
-    ///     <see cref="DbContext.SaveChanges()" /> if none of the 'BeginTransaction' or 'UseTransaction' methods have been called.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Setting this value to <see langword="false" /> will also disable the <see cref="IExecutionStrategy" /> for
-    ///         <see cref="DbContext.SaveChanges()" />
-    ///     </para>
-    ///     <para>
-    ///         The default value is <see langword="true" />, meaning that <see cref="DbContext.SaveChanges()" /> will always use a
-    ///         transaction when saving changes.
-    ///     </para>
-    ///     <para>
-    ///         Setting this value to <see langword="false" /> should only be done with caution, since the database could be left in an
-    ///         inconsistent state if failure occurs.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
-    ///     </para>
-    /// </remarks>
-    [Obsolete("Use " + nameof(AutoTransactionBehavior) + " instead")]
-    public virtual bool AutoTransactionsEnabled
-    {
-        get => AutoTransactionBehavior is AutoTransactionBehavior.Always or AutoTransactionBehavior.WhenNeeded;
-        set
-        {
-            if (value)
-            {
-                if (AutoTransactionBehavior == AutoTransactionBehavior.Never)
-                {
-                    AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
-                }
-            }
-            else
-            {
-                AutoTransactionBehavior = AutoTransactionBehavior.Never;
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Gets or sets a value indicating whether or not a transaction will be created automatically by
+    ///     Gets or sets a value indicating whether a transaction will be created automatically by
     ///     <see cref="DbContext.SaveChanges()" /> if neither 'BeginTransaction' nor 'UseTransaction' has been called.
     /// </summary>
     /// <remarks>

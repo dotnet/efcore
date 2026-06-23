@@ -47,6 +47,35 @@ public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvide
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
             }
         }
+
+        if (column[RelationalAnnotationNames.DefaultConstraintName] is string defaultConstraintName)
+        {
+            yield return new Annotation(RelationalAnnotationNames.DefaultConstraintName, defaultConstraintName);
+        }
+    }
+
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRemove(ITableIndex index)
+    {
+        if (index[SqlServerAnnotationNames.FullTextIndex] is string keyIndex)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.FullTextIndex, keyIndex);
+
+            if (index[SqlServerAnnotationNames.FullTextCatalog] is string catalog)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextCatalog, catalog);
+            }
+
+            if (index[SqlServerAnnotationNames.FullTextChangeTracking] is FullTextChangeTracking changeTracking)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextChangeTracking, changeTracking);
+            }
+
+            if (index.FindAnnotation(SqlServerAnnotationNames.FullTextLanguages) is IAnnotation languagesAnnotation)
+            {
+                yield return languagesAnnotation;
+            }
+        }
     }
 
     /// <inheritdoc />

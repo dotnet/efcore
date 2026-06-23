@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Transactions;
 
@@ -116,7 +117,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     ///     to incrementally update the schema. It is assumed that none of the tables exist in the database.
     /// </summary>
     public virtual void CreateTables()
-        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true);
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(
+            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true);
 
     /// <summary>
     ///     Asynchronously creates all tables for the current model in the database. No attempt is made
@@ -129,7 +131,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default)
         => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
-            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken);
+            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true,
+            cancellationToken: cancellationToken);
 
     /// <summary>
     ///     Gets the commands that will create all tables from the model.
@@ -235,6 +238,12 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         using var transactionScope = new TransactionScope(
             TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
+        }
+
         var operationsPerformed = false;
         if (!Exists())
         {
@@ -248,24 +257,34 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
             operationsPerformed = true;
         }
 
-        var coreOptionsExtension =
-            Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
+        return Dependencies.ExecutionStrategy.Execute(
+            (Creator: this, Created: operationsPerformed, Seeded: new StrongBox<bool>(false)),
+            static (context, state) =>
+            {
+                if (state.Seeded.Value)
+                {
+                    return state.Created;
+                }
 
-        var seed = coreOptionsExtension.Seeder;
-        if (seed != null)
-        {
-            var context = Dependencies.CurrentContext.Context;
-            using var transaction = context.Database.BeginTransaction();
-            seed(context, operationsPerformed);
-            transaction.Commit();
-        }
-        else if (coreOptionsExtension.AsyncSeeder != null)
-        {
-            throw new InvalidOperationException(CoreStrings.MissingSeeder);
-        }
+                var coreOptionsExtension =
+                    state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
-        return operationsPerformed;
+                var seed = coreOptionsExtension?.Seeder;
+                if (seed != null)
+                {
+                    using var transaction = context.Database.BeginTransaction();
+                    seed(context, state.Created);
+                    transaction.Commit();
+                }
+                else if (coreOptionsExtension?.AsyncSeeder != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.MissingSeeder);
+                }
+
+                state.Seeded.Value = true;
+
+                return state.Created;
+            }, verifySucceeded: null);
     }
 
     /// <summary>
@@ -283,6 +302,12 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
+        }
+
         var operationsPerformed = false;
         if (!await ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -298,25 +323,35 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
             operationsPerformed = true;
         }
 
-        var coreOptionsExtension =
-            Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
+        return await Dependencies.ExecutionStrategy.ExecuteAsync(
+            (Creator: this, Created: operationsPerformed, Seeded: new StrongBox<bool>(false)),
+            static async (context, state, ct) =>
+            {
+                if (state.Seeded.Value)
+                {
+                    return state.Created;
+                }
 
-        var seedAsync = coreOptionsExtension.AsyncSeeder;
-        if (seedAsync != null)
-        {
-            var context = Dependencies.CurrentContext.Context;
-            var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-            await using var _ = transaction.ConfigureAwait(false);
-            await seedAsync(context, operationsPerformed, cancellationToken).ConfigureAwait(false);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-        }
-        else if (coreOptionsExtension.Seeder != null)
-        {
-            throw new InvalidOperationException(CoreStrings.MissingSeeder);
-        }
+                var coreOptionsExtension =
+                    state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
-        return operationsPerformed;
+                var seedAsync = coreOptionsExtension?.AsyncSeeder;
+                if (seedAsync != null)
+                {
+                    var transaction = await context.Database.BeginTransactionAsync(ct).ConfigureAwait(false);
+                    await using var _ = transaction.ConfigureAwait(false);
+                    await seedAsync(context, state.Created, ct).ConfigureAwait(false);
+                    await transaction.CommitAsync(ct).ConfigureAwait(false);
+                }
+                else if (coreOptionsExtension?.Seeder != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.MissingSeeder);
+                }
+
+                state.Seeded.Value = true;
+
+                return state.Created;
+            }, verifySucceeded: null, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -362,7 +397,7 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         {
             return Exists();
         }
-        catch
+        catch (Exception ex) when (!ex.IsCritical())
         {
             return false;
         }
@@ -373,7 +408,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
+    ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application,
+    ///         except for the ones indicating cancellation.
     ///     </para>
     ///     <para>
     ///         The configured connection string is used to create the connection in the normal way, so all
@@ -386,12 +422,15 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </remarks>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
-    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             return await ExistsAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
+        {
+            throw;
         }
         catch
         {

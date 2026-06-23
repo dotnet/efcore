@@ -58,7 +58,7 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                         sqlExpressionFactory.Subtract(
                             sqlExpressionFactory.Function(
                                 "julianday",
-                                new[] { instance! },
+                                [instance!],
                                 nullable: true,
                                 argumentsPropagateNullability: Statics.TrueArrays[1],
                                 typeof(double)),
@@ -77,6 +77,10 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                             typeof(double)),
                         sqlExpressionFactory.Constant(1000)),
                     sqlExpressionFactory.Constant(1000));
+
+            case nameof(DateTime.Microsecond):
+            case nameof(DateTime.Nanosecond):
+                return null;
         }
 
         var format = "%Y-%m-%d %H:%M:%f";
@@ -118,24 +122,22 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
 
         return sqlExpressionFactory.Function(
             "rtrim",
-            new[]
-            {
+            [
                 sqlExpressionFactory.Function(
                     "rtrim",
-                    new[]
-                    {
+                    [
                         sqlExpressionFactory.Strftime(
                             returnType,
                             format,
                             timestring,
                             modifiers),
                         sqlExpressionFactory.Constant("0")
-                    },
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueFalse,
                     returnType),
                 sqlExpressionFactory.Constant(".")
-            },
+            ],
             nullable: true,
             argumentsPropagateNullability: Statics.TrueFalse,
             returnType);

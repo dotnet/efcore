@@ -5,8 +5,6 @@ using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -23,7 +21,7 @@ public class NorthwindAggregateOperatorsQueryCosmosTest
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -61,11 +59,11 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = 10248))
 
                 AssertSql(
                     """
-@__Select_0='["ABCDE","ALFKI"]'
+@Select='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
+WHERE ARRAY_CONTAINS(@Select, c["id"])
 """);
             });
 
@@ -77,19 +75,19 @@ WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
 
                 AssertSql(
                     """
-@__Select_0='["ABCDE","ALFKI"]'
+@Select='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
+WHERE ARRAY_CONTAINS(@Select, c["id"])
 """,
                     //
                     """
-@__Select_0='["ABCDE","ANATR"]'
+@Select='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
+WHERE ARRAY_CONTAINS(@Select, c["id"])
 """);
             });
 
@@ -438,22 +436,33 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Sum_with_division_on_decimal(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_with_division_on_decimal(async));
+    public override Task Sum_with_division_on_decimal(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Sum_with_division_on_decimal(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM((c["Quantity"] / 2.09))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
-    public override async Task Sum_with_division_on_decimal_no_significant_digits(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Sum_with_division_on_decimal_no_significant_digits(async));
+    public override Task Sum_with_division_on_decimal_no_significant_digits(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Sum_with_division_on_decimal_no_significant_digits(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM((c["Quantity"] / 2.0))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
     public override Task Sum_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -555,49 +564,33 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         }
     }
 
-    public override async Task Average_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_nullable(a))).Message);
+    public override Task Average_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Average_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_cast_to_nullable(a))).Message);
+    public override Task Average_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override async Task Min_no_data(bool async)
     {
@@ -647,48 +640,176 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         AssertSql();
     }
 
-    public override async Task Max_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_nullable(a))).Message);
+    public override Task Max_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MAX(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Max_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_cast_to_nullable(a))).Message);
+    public override Task Max_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MAX(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
+            });
+
+    public override async Task MaxBy_no_data_value_type(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MaxBy_no_data_value_type(async);
+
+            AssertSql(
+"""
+SELECT VALUE c["OrderID"]
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"] DESC
+OFFSET 0 LIMIT 1
+""");
         }
+    }
+
+    public override async Task MaxBy_no_data_nullable_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_no_data_nullable_source(async));
+
+            AssertSql(
+"""
+SELECT VALUE c["SupplierID"]
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY ((c["SupplierID"] != null) ? c["SupplierID"] : 0) DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_no_data_reference_type_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MaxBy_no_data_reference_type_source(async);
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY c["ProductID"] DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_no_data_nullable_selector(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MaxBy_no_data_nullable_selector(async);
+
+            AssertSql(
+"""
+SELECT VALUE c["OrderID"]
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"] DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_no_data_subquery_reference_type(bool async)
+    {
+        await AssertTranslationFailed(() => base.MaxBy_no_data_subquery_reference_type(async));
+
+        AssertSql();
+    }
+
+    public override async Task MaxBy_no_data_subquery_value_type(bool async)
+    {
+        await AssertTranslationFailed(() => base.MaxBy_no_data_subquery_value_type(async));
+
+        AssertSql();
+    }
+
+    public override Task MaxBy(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.MaxBy(a);
+
+                AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] = "Order")
+ORDER BY c["OrderID"] DESC
+OFFSET 0 LIMIT 1
+""");
+            });
+
+    public override async Task MaxBy_with_coalesce(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_with_coalesce(async));
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
+ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0) DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_over_subquery(bool async)
+    {
+        //Cosmos subqueries must be correlated, referencing values from the outer query
+        await AssertTranslationFailed(() => base.MaxBy_over_subquery(async));
+
+        AssertSql();
+    }
+    
+    public override async Task MaxBy_over_nested_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
+        await AssertTranslationFailed(() => base.MaxBy_over_nested_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task MaxBy_over_sum_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos
+        await AssertTranslationFailed(() => base.MaxBy_over_sum_subquery(async));
+
+        AssertSql();
     }
 
     public override async Task Min_no_data_subquery(bool async)
@@ -699,22 +820,163 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         AssertSql();
     }
 
-    public override async Task Average_with_no_arg(bool async)
+    public override Task MinBy(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.MinBy(a);
+
+                AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] = "Order")
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+            });
+
+    public override async Task MinBy_no_data_value_type(bool async)
     {
         // Always throws for sync.
         if (async)
         {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_no_arg(async));
+            await base.MinBy_no_data_value_type(async);
 
             AssertSql(
-                """
+"""
+SELECT VALUE c["OrderID"]
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_nullable_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_no_data_nullable_source(async));
+
+            AssertSql(
+"""
+SELECT VALUE c["SupplierID"]
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY ((c["SupplierID"] != null) ? c["SupplierID"] : 0)
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_reference_type_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MinBy_no_data_reference_type_source(async);
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY c["ProductID"]
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_nullable_selector(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MinBy_no_data_nullable_selector(async);
+
+            AssertSql(
+"""
+SELECT VALUE c["OrderID"]
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_subquery_reference_type(bool async)
+    {
+        await AssertTranslationFailed(() => base.MinBy_no_data_subquery_reference_type(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_no_data_subquery_value_type(bool async)
+    {
+        await AssertTranslationFailed(() => base.MinBy_no_data_subquery_value_type(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_with_coalesce(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_with_coalesce(async));
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
+ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_over_subquery(bool async)
+    {
+        // Cosmos subqueries must be correlated, referencing values from the outer query.
+        await AssertTranslationFailed(() => base.MinBy_over_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_over_nested_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
+        await AssertTranslationFailed(() => base.MinBy_over_nested_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_over_max_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
+        await AssertTranslationFailed(() => base.MinBy_over_max_subquery(async));
+
+        AssertSql();
+    }
+
+    public override Task Average_with_no_arg(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_no_arg(a);
+
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
-        }
-    }
+            });
 
     public override Task Average_with_binary_expression(bool async)
         => Fixture.NoSyncTest(
@@ -730,22 +992,19 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Average_with_arg(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_arg(async));
+    public override Task Average_with_arg(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_arg(a);
 
-            AssertSql(
-                """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
-        }
-    }
+            });
 
     public override Task Average_with_arg_expression(bool async)
         => Fixture.NoSyncTest(
@@ -761,22 +1020,33 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Average_with_division_on_decimal(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Average_with_division_on_decimal(async));
+    public override Task Average_with_division_on_decimal(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_division_on_decimal(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE AVG((c["Quantity"] / 2.09))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
-    public override async Task Average_with_division_on_decimal_no_significant_digits(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Average_with_division_on_decimal_no_significant_digits(async));
+    public override Task Average_with_division_on_decimal_no_significant_digits(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_division_on_decimal_no_significant_digits(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE AVG((c["Quantity"] / 2.0))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
     public override Task Average_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -874,49 +1144,33 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Min_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_nullable(a))).Message);
+    public override Task Min_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MIN(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Min_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_cast_to_nullable(a))).Message);
+    public override Task Min_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MIN(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override Task Min_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -1190,17 +1444,16 @@ WHERE (((c["$type"] = "Order") AND (c["OrderID"] > 10)) AND (c["CustomerID"] != 
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_client_Take(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_client_Take(async));
 
             AssertSql(
                 """
-@__p_0='10'
+@p='10'
 
 SELECT VALUE c
 FROM root c
 ORDER BY 42
-OFFSET 0 LIMIT @__p_0
+OFFSET 0 LIMIT @p
 """);
         }
     }
@@ -1218,7 +1471,8 @@ FROM root c
 """);
             });
 
-    [ConditionalTheory(Skip = "Fails on CI #27688")]
+    // Tracked in #27688
+    [Theory, SkipOnCI("Test does not run on CI")]
     public override Task Distinct_Scalar(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1227,13 +1481,12 @@ FROM root c
 
                 AssertSql(
                     """
-SELECT DISTINCT c[""City""]
+SELECT DISTINCT VALUE c["City"]
 FROM root c
-WHERE (c[""$type""] = ""Customer"")
 """);
             });
 
-    [ConditionalTheory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
+    [Theory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
     public override Task OrderBy_Distinct(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1448,19 +1701,19 @@ OFFSET 0 LIMIT 1
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1480,19 +1733,19 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[0,1]'
+@ids='[0,1]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """,
                     //
                     """
-@__ids_0='[0]'
+@ids='[0]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """);
             });
 
@@ -1504,19 +1757,19 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
 
                 AssertSql(
                     """
-@__ids_0='[0,1]'
+@ids='[0,1]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """,
                     //
                     """
-@__ids_0='[0]'
+@ids='[0]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """);
             });
 
@@ -1542,11 +1795,11 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1558,11 +1811,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1574,11 +1827,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[null,null]'
+@ids='[null,null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1604,19 +1857,19 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__p_0='["ABCDE","ALFKI"]'
+@p='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__p_0, c["id"])
+WHERE ARRAY_CONTAINS(@p, c["id"])
 """,
                     //
                     """
-@__p_0='["ABCDE","ANATR"]'
+@p='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__p_0, c["id"])
+WHERE ARRAY_CONTAINS(@p, c["id"])
 """);
             });
 
@@ -1627,19 +1880,19 @@ WHERE ARRAY_CONTAINS(@__p_0, c["id"])
                 await base.Contains_with_local_enumerable_closure(a);
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1651,11 +1904,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1667,11 +1920,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[]'
+@ids='[]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1700,24 +1953,24 @@ WHERE EXISTS (
 
                 AssertSql(
                     """
-@__p_0='["ABCDE","ALFKI"]'
+@p='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
     SELECT 1
-    FROM p IN (SELECT VALUE @__p_0)
+    FROM p IN (SELECT VALUE @p)
     WHERE ((p != null) AND (p = c["id"])))
 """,
                     //
                     """
-@__p_0='["ABCDE","ANATR"]'
+@p='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
     SELECT 1
-    FROM p IN (SELECT VALUE @__p_0)
+    FROM p IN (SELECT VALUE @p)
     WHERE ((p != null) AND (p = c["id"])))
 """);
             });
@@ -1730,19 +1983,19 @@ WHERE EXISTS (
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1754,11 +2007,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1770,11 +2023,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[null,null]'
+@ids='[null,null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1800,19 +2053,19 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__Order_0='["ABCDE","ALFKI"]'
+@Order='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Order_0, c["id"])
+WHERE ARRAY_CONTAINS(@Order, c["id"])
 """,
                     //
                     """
-@__Order_0='["ABCDE","ANATR"]'
+@Order='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Order_0, c["id"])
+WHERE ARRAY_CONTAINS(@Order, c["id"])
 """);
             });
 
@@ -1824,19 +2077,19 @@ WHERE ARRAY_CONTAINS(@__Order_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1848,11 +2101,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1864,11 +2117,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[null,null]'
+@ids='[null,null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1894,19 +2147,19 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__AsReadOnly_0='["ABCDE","ALFKI"]'
+@AsReadOnly='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
+WHERE ARRAY_CONTAINS(@AsReadOnly, c["id"])
 """,
                     //
                     """
-@__AsReadOnly_0='["ABCDE","ANATR"]'
+@AsReadOnly='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
+WHERE ARRAY_CONTAINS(@AsReadOnly, c["id"])
 """);
             });
 
@@ -1918,11 +2171,11 @@ WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -1934,11 +2187,11 @@ WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) AND ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) AND ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -1950,11 +2203,11 @@ WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) AND ARRAY_CONTAINS(@__ids_0,
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
+WHERE (ARRAY_CONTAINS(@ids, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
 """);
             });
 
@@ -1966,11 +2219,11 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) OR NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
+WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) OR NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """);
             });
 
@@ -1982,11 +2235,11 @@ WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) OR NOT(ARRAY_CONTAINS(@__ids
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] != "ABCDE")))
+WHERE (ARRAY_CONTAINS(@ids, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] != "ABCDE")))
 """);
             });
 
@@ -1998,11 +2251,11 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] 
 
                 AssertSql(
                     """
-@__ids_0='["ALFKI","ABC')); GO; DROP TABLE Orders; GO; --"]'
+@ids='["ALFKI","ABC')); GO; DROP TABLE Orders; GO; --"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
+WHERE (ARRAY_CONTAINS(@ids, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
 """);
             });
 
@@ -2014,11 +2267,11 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "
 
                 AssertSql(
                     """
-@__ids_0='[]'
+@ids='[]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2036,27 +2289,22 @@ WHERE NOT(false)
 """);
             });
 
-    public override async Task Contains_top_level(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Contains_top_level(async));
+    public override Task Contains_top_level(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_top_level(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+                AssertSql(
+                    """
+@p='ALFKI'
 
-            AssertSql(
-                """
-@__p_0='ALFKI'
-
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE (c["id"] = @__p_0))
+SELECT VALUE true
+FROM root c
+WHERE (c["id"] = @p)
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Contains_with_local_tuple_array_closure(bool async)
     {
@@ -2090,36 +2338,47 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    public override async Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
+    public override Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE AVG(c["OrderID"])
+FROM root c
+WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
+""");
+            });
 
-    public override async Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Aggregate selecting non-mapped type. Issue #20677.
-            await Assert.ThrowsAsync<KeyNotFoundException>(
-                async () => await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+    public override Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(a);
 
-            AssertSql();
-        }
-    }
+                AssertSql(
+                    """
+SELECT VALUE MAX(c["OrderID"])
+FROM root c
+WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
+""");
+            });
 
-    public override async Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+    public override Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE MIN(c["OrderID"])
+FROM root c
+WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
+""");
+            });
 
     public override async Task OrderBy_Take_Last_gives_correct_result(bool async)
     {
@@ -2128,8 +2387,8 @@ SELECT VALUE EXISTS (
         {
             Assert.Equal(
                 CosmosStrings.ReverseAfterSkipTakeNotSupported,
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () => await base.OrderBy_Take_Last_gives_correct_result(async))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.OrderBy_Take_Last_gives_correct_result(async)))
+                .Message);
 
             AssertSql();
         }
@@ -2139,8 +2398,8 @@ SELECT VALUE EXISTS (
     {
         Assert.Equal(
             CosmosStrings.ReverseAfterSkipTakeNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await base.OrderBy_Skip_Last_gives_correct_result(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.OrderBy_Skip_Last_gives_correct_result(async)))
+            .Message);
 
         AssertSql();
     }
@@ -2232,9 +2491,11 @@ WHERE ((c["$type"] = "Order") AND c["OrderID"] IN (10248, 10249))
 
                 AssertSql(
                     """
+@ids='["ALFKI"]'
+
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = "ALFKI")
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2246,9 +2507,11 @@ WHERE (c["id"] = "ALFKI")
 
                 AssertSql(
                     """
+@ids='["ALFKI"]'
+
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = "ALFKI")
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2260,11 +2523,11 @@ WHERE (c["id"] = "ALFKI")
 
                 AssertSql(
                     """
-@__ids_0='["ALFKI"]'
+@ids='["ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2276,36 +2539,30 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ALFKI"]'
+@ids='["ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
-    public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception =
-                await Assert.ThrowsAsync<CosmosException>(() => base.Contains_over_entityType_with_null_should_rewrite_to_false(async));
+    public override Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_over_entityType_with_null_should_rewrite_to_false(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+                AssertSql(
+                    """
+@entity_equality_p_OrderID=null
 
-            AssertSql(
-                """
-@__entity_equality_p_0_OrderID=null
-
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @__entity_equality_p_0_OrderID)))
+SELECT VALUE true
+FROM root c
+WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @entity_equality_p_OrderID))
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Contains_over_entityType_with_null_in_projection(bool async)
     {
@@ -2349,11 +2606,11 @@ FROM root c
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2379,35 +2636,38 @@ WHERE c["id"] IN ("ABCDE", "ALFKI", "ANATR")
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
     public override Task Where_subquery_where_any(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_any(a);
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
 """,
                     //
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -2419,11 +2679,11 @@ WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -2449,35 +2709,38 @@ WHERE c["id"] NOT IN ("ABCDE", "ALFKI", "ANATR")
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
     public override Task Where_subquery_where_all(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Where_subquery_where_all(a);
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
+WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """,
                     //
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
+WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """);
             });
 
@@ -2542,19 +2805,24 @@ FROM root c
         AssertSql();
     }
 
-    public override async Task Sum_over_explicit_cast_over_column(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_over_explicit_cast_over_column(async));
+    public override Task Sum_over_explicit_cast_over_column(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Sum_over_explicit_cast_over_column(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM(c["OrderID"])
+FROM root c
+WHERE (c["$type"] = "Order")
+""");
+            });
 
     public override async Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(async));
+        await AssertTranslationFailed(() => base.Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(async));
 
         AssertSql();
     }
@@ -2562,8 +2830,7 @@ FROM root c
     public override async Task Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(async));
+        await AssertTranslationFailed(() => base.Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(async));
 
         AssertSql();
     }
@@ -2571,8 +2838,7 @@ FROM root c
     public override async Task Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(async));
+        await AssertTranslationFailed(() => base.Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(async));
 
         AssertSql();
     }
@@ -2580,8 +2846,7 @@ FROM root c
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(async));
+        await AssertTranslationFailed(() => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(async));
 
         AssertSql();
     }
@@ -2589,8 +2854,8 @@ FROM root c
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(async));
+        await AssertTranslationFailed(()
+            => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(async));
 
         AssertSql();
     }
@@ -2598,8 +2863,8 @@ FROM root c
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(async));
+        await AssertTranslationFailed(()
+            => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(async));
 
         AssertSql();
     }
@@ -2620,26 +2885,42 @@ FROM root c
         AssertSql();
     }
 
-    public override async Task Average_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Average_after_DefaultIfEmpty_does_not_throw(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Average_after_default_if_empty_does_not_throw(async));
+        await AssertTranslationFailed(() => base.Average_after_DefaultIfEmpty_does_not_throw(async));
 
         AssertSql();
     }
 
-    public override async Task Max_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Max_after_DefaultIfEmpty_does_not_throw(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Max_after_default_if_empty_does_not_throw(async));
+        await AssertTranslationFailed(() => base.Max_after_DefaultIfEmpty_does_not_throw(async));
 
         AssertSql();
     }
 
-    public override async Task Min_after_default_if_empty_does_not_throw(bool async)
+    public override async Task MaxBy_after_DefaultIfEmpty_does_not_throw(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Min_after_default_if_empty_does_not_throw(async));
+        await AssertTranslationFailed(() => base.MaxBy_after_DefaultIfEmpty_does_not_throw(async));
+
+        AssertSql();
+    }
+
+    public override async Task Min_after_DefaultIfEmpty_does_not_throw(bool async)
+    {
+        // Contains over subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.Min_after_DefaultIfEmpty_does_not_throw(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_after_DefaultIfEmpty_does_not_throw(bool async)
+    {
+        // Contains over subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.MinBy_after_DefaultIfEmpty_does_not_throw(async));
 
         AssertSql();
     }
@@ -2647,11 +2928,10 @@ FROM root c
     public override async Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
     {
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            () => AssertAverage(
-                async,
-                ss => ss.Set<Order>(),
-                selector: c => c.ShipVia));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => AssertAverage(
+            async,
+            ss => ss.Set<Order>(),
+            selector: c => c.ShipVia));
 
         AssertSql();
     }
@@ -2696,9 +2976,9 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE AVG((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1.0 : 0.0))
+SELECT VALUE AVG((ARRAY_CONTAINS(@cities, c["City"]) ? 1.0 : 0.0))
 FROM root c
 """);
             });
@@ -2711,9 +2991,9 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE SUM((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1 : 0))
+SELECT VALUE SUM((ARRAY_CONTAINS(@cities, c["City"]) ? 1 : 0))
 FROM root c
 """);
             });
@@ -2726,11 +3006,11 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
+WHERE ARRAY_CONTAINS(@cities, c["City"])
 """);
             });
 
@@ -2742,11 +3022,11 @@ WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
+WHERE ARRAY_CONTAINS(@cities, c["City"])
 """);
             });
 
@@ -2758,9 +3038,9 @@ WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE MAX((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1 : 0))
+SELECT VALUE MAX((ARRAY_CONTAINS(@cities, c["City"]) ? 1 : 0))
 FROM root c
 """);
             });
@@ -2773,9 +3053,9 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE MIN((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1 : 0))
+SELECT VALUE MIN((ARRAY_CONTAINS(@cities, c["City"]) ? 1 : 0))
 FROM root c
 """);
             });
@@ -2832,13 +3112,19 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    [ConditionalTheory(Skip = "Issue #20677")]
-    public override async Task Type_casting_inside_sum(bool async)
-    {
-        await base.Type_casting_inside_sum(async);
+    public override Task Type_casting_inside_sum(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Type_casting_inside_sum(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM(c["Discount"])
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

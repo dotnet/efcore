@@ -1,13 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+
+
 // ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class RelationalModelValidatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_added_property_is_not_mapped_to_store()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -23,7 +25,38 @@ public partial class RelationalModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void Throws_spatial_message_when_geometry_property_is_not_mapped()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
+        entityTypeBuilder.Property(typeof(NetTopologySuite.Geometries.FakePoint), "Location");
+        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
+
+        Assert.Equal(
+            RelationalStrings.PropertyNotMappedSpatial(
+                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                "Location"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [Fact]
+    public void Throws_spatial_message_when_declaring_type_is_geometry()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NetTopologySuite.Geometries.FakePoint));
+        entityTypeBuilder.Property(typeof(Tuple<long>), "SomeProperty");
+
+        Assert.Equal(
+            RelationalStrings.PropertyNotMappedSpatial(
+                typeof(Tuple<long>).ShortDisplayName(),
+                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                "SomeProperty"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [Fact]
     public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -38,5 +71,58 @@ public partial class RelationalModelValidatorTest
                 "LongProperty",
                 "some_int_mapping"),
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [Fact]
+    public override void Detects_non_list_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithReadOnlyCollection>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.ComplexCollection(
+                e => e.Tags,
+                cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(p => p.Key).IsRequired();
+                });
+        });
+
+        VerifyError(
+            CoreStrings.NonListCollection(
+                nameof(WithReadOnlyCollection), nameof(WithReadOnlyCollection.Tags), "IReadOnlyCollection<JsonbField>",
+                "IList<JsonbField>"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_collection_is_not_mapped_to_json()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity<ComplexCollectionEntity>();
+        entityTypeBuilder.Property(e => e.Id);
+        entityTypeBuilder.HasKey(e => e.Id);
+
+        var complexCollectionBuilder = entityTypeBuilder.ComplexCollection(e => e.Tags);
+
+        Assert.Equal(
+            RelationalStrings.ComplexCollectionNotMappedToJson(
+                typeof(ComplexCollectionEntity).Name,
+                nameof(ComplexCollectionEntity.Tags)),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    protected class ComplexCollectionEntity
+    {
+        public int Id { get; set; }
+        public List<ComplexTag> Tags { get; set; } = [];
+    }
+
+    protected class ComplexTag
+    {
+        public string Name { get; set; } = "";
+        public int Value { get; set; }
     }
 }

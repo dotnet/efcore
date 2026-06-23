@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
 public class MigrationsIdGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void CreateId_works()
     {
         var id = new MigrationsIdGenerator().GenerateId("Twilight");
@@ -16,7 +16,7 @@ public class MigrationsIdGeneratorTest
         Assert.Matches("[0-9]{14}_Twilight", id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateId_always_increments_timestamp()
     {
         var generator = new MigrationsIdGenerator();
@@ -27,8 +27,7 @@ public class MigrationsIdGeneratorTest
         Assert.NotEqual(id1, id2);
     }
 
-    [ConditionalFact]
-    [UseCulture("fa")]
+    [Fact, UseCulture("fa")]
     public void CreateId_uses_invariant_calendar()
     {
         var invariantYear = CultureInfo.InvariantCulture.Calendar.GetYear(DateTime.Today).ToString();
@@ -38,7 +37,7 @@ public class MigrationsIdGeneratorTest
         Assert.StartsWith(invariantYear, id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetName_works()
     {
         var name = new MigrationsIdGenerator().GetName("20150302100620_Apple");
@@ -46,7 +45,7 @@ public class MigrationsIdGeneratorTest
         Assert.Equal("Apple", name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsValidId_returns_true_when_valid()
     {
         var valid = new MigrationsIdGenerator().IsValidId("20150302100930_Rarity");
@@ -54,7 +53,7 @@ public class MigrationsIdGeneratorTest
         Assert.True(valid);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsValidId_returns_false_when_invalid()
     {
         var valid = new MigrationsIdGenerator().IsValidId("Rarity");
@@ -62,7 +61,7 @@ public class MigrationsIdGeneratorTest
         Assert.False(valid);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsValidId_returns_false_when_supplied_format_is_too_long()
     {
         var valid = new MigrationsIdGenerator().IsValidId("123456789012345_InitialCreate");
@@ -70,7 +69,7 @@ public class MigrationsIdGeneratorTest
         Assert.False(valid);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsValidId_returns_false_when_supplied_format_is_too_short()
     {
         var valid = new MigrationsIdGenerator().IsValidId("1234567890123_InitialCreate");

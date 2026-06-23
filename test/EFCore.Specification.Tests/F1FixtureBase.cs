@@ -17,30 +17,27 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
             .UseModel(CreateModelExternal())
-            .UseSeeding(
-                (c, _) =>
+            .UseSeeding((c, _) =>
+            {
+                if (!ShouldSeed((F1Context)c))
                 {
-                    if (!ShouldSeed((F1Context)c))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    F1Context.AddSeedData((F1Context)c);
-                    c.SaveChanges();
-                })
-            .UseAsyncSeeding(
-                async (c, _, t) =>
+                F1Context.AddSeedData((F1Context)c);
+                c.SaveChanges();
+            })
+            .UseAsyncSeeding(async (c, _, t) =>
+            {
+                if (!await ShouldSeedAsync((F1Context)c))
                 {
-                    if (!await ShouldSeedAsync((F1Context)c))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    F1Context.AddSeedData((F1Context)c);
-                    await c.SaveChangesAsync(t);
-                })
-            .ConfigureWarnings(
-                w => w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
+                F1Context.AddSeedData((F1Context)c);
+                await c.SaveChangesAsync(t);
+            })
+            .ConfigureWarnings(w => w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
 
     protected virtual bool ShouldSeed(F1Context context)
         => context.EngineSuppliers.Count() == 0;
@@ -72,139 +69,129 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
 
     protected virtual void BuildModelExternal(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Chassis>(
-            b =>
-            {
-                b.HasKey(c => c.TeamId);
-                ConfigureConstructorBinding<Chassis>(b.Metadata, nameof(Chassis.TeamId), nameof(Chassis.Name));
-            });
+        modelBuilder.Entity<Chassis>(b =>
+        {
+            b.HasKey(c => c.TeamId);
+            ConfigureConstructorBinding<Chassis>(b.Metadata, nameof(Chassis.TeamId), nameof(Chassis.Name));
+        });
 
-        modelBuilder.Entity<Engine>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
-                b.Property(e => e.Name).IsConcurrencyToken();
-                b.OwnsOne(
-                    e => e.StorageLocation, lb =>
-                    {
-                        lb.Property(l => l.Latitude).IsConcurrencyToken();
-                        lb.Property(l => l.Longitude).IsConcurrencyToken();
-                    });
-                ConfigureConstructorBinding<Engine>(b.Metadata, nameof(Engine.Id), nameof(Engine.Name));
-            });
+        modelBuilder.Entity<Engine>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
+            b.Property(e => e.Name).IsConcurrencyToken();
+            b.OwnsOne(
+                e => e.StorageLocation, lb =>
+                {
+                    lb.Property(l => l.Latitude).IsConcurrencyToken();
+                    lb.Property(l => l.Longitude).IsConcurrencyToken();
+                });
+            ConfigureConstructorBinding<Engine>(b.Metadata, nameof(Engine.Id), nameof(Engine.Name));
+        });
 
-        modelBuilder.Entity<EngineSupplier>(
-            b =>
-            {
-                b.HasKey(e => e.Name);
-                ConfigureConstructorBinding<EngineSupplier>(b.Metadata, nameof(EngineSupplier.Name));
-            });
+        modelBuilder.Entity<EngineSupplier>(b =>
+        {
+            b.HasKey(e => e.Name);
+            ConfigureConstructorBinding<EngineSupplier>(b.Metadata, nameof(EngineSupplier.Name));
+        });
 
-        modelBuilder.Entity<Gearbox>(
-            b =>
-            {
-                ConfigureConstructorBinding<Gearbox>(b.Metadata, nameof(Gearbox.Id), nameof(Gearbox.Name));
-            });
+        modelBuilder.Entity<Gearbox>(b =>
+        {
+            ConfigureConstructorBinding<Gearbox>(b.Metadata, nameof(Gearbox.Id), nameof(Gearbox.Name));
+        });
 
-        modelBuilder.Entity<Sponsor>(
-            b =>
-            {
-                b.Property<int?>(Sponsor.ClientTokenPropertyName)
-                    .IsConcurrencyToken();
-            });
+        modelBuilder.Entity<Sponsor>(b =>
+        {
+            b.Property<int?>(Sponsor.ClientTokenPropertyName)
+                .IsConcurrencyToken();
+        });
 
-        modelBuilder.Entity<Team>(
-            b =>
-            {
-                b.HasOne(e => e.Gearbox).WithOne().HasForeignKey<Team>(e => e.GearboxId);
-                b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
+        modelBuilder.Entity<Team>(b =>
+        {
+            b.HasOne(e => e.Gearbox).WithOne().HasForeignKey<Team>(e => e.GearboxId);
+            b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
 
-                b.HasMany(t => t.Sponsors)
-                    .WithMany(s => s.Teams)
-                    .UsingEntity<TeamSponsor>(
-                        ts => ts
-                            .HasOne(t => t.Sponsor)
-                            .WithMany(),
-                        ts => ts
-                            .HasOne(t => t.Team)
-                            .WithMany())
-                    .HasKey(ts => new { ts.SponsorId, ts.TeamId });
+            b.HasMany(t => t.Sponsors)
+                .WithMany(s => s.Teams)
+                .UsingEntity<TeamSponsor>(
+                    ts => ts
+                        .HasOne(t => t.Sponsor)
+                        .WithMany(),
+                    ts => ts
+                        .HasOne(t => t.Team)
+                        .WithMany())
+                .HasKey(ts => new { ts.SponsorId, ts.TeamId });
 
-                ConfigureConstructorBinding<Team>(
-                    b.Metadata,
-                    nameof(Team.Id),
-                    nameof(Team.Name),
-                    nameof(Team.Constructor),
-                    nameof(Team.Tire),
-                    nameof(Team.Principal),
-                    nameof(Team.ConstructorsChampionships),
-                    nameof(Team.DriversChampionships),
-                    nameof(Team.Races),
-                    nameof(Team.Victories),
-                    nameof(Team.Poles),
-                    nameof(Team.FastestLaps),
-                    nameof(Team.GearboxId)
-                );
-            });
+            ConfigureConstructorBinding<Team>(
+                b.Metadata,
+                nameof(Team.Id),
+                nameof(Team.Name),
+                nameof(Team.Constructor),
+                nameof(Team.Tire),
+                nameof(Team.Principal),
+                nameof(Team.ConstructorsChampionships),
+                nameof(Team.DriversChampionships),
+                nameof(Team.Races),
+                nameof(Team.Victories),
+                nameof(Team.Poles),
+                nameof(Team.FastestLaps),
+                nameof(Team.GearboxId)
+            );
+        });
 
-        modelBuilder.Entity<Driver>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                ConfigureConstructorBinding<Driver>(
-                    b.Metadata,
-                    nameof(Driver.Id),
-                    nameof(Driver.Name),
-                    nameof(Driver.CarNumber),
-                    nameof(Driver.Championships),
-                    nameof(Driver.Races),
-                    nameof(Driver.Wins),
-                    nameof(Driver.Podiums),
-                    nameof(Driver.Poles),
-                    nameof(Driver.FastestLaps),
-                    nameof(Driver.TeamId)
-                );
-            });
+        modelBuilder.Entity<Driver>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            ConfigureConstructorBinding<Driver>(
+                b.Metadata,
+                nameof(Driver.Id),
+                nameof(Driver.Name),
+                nameof(Driver.CarNumber),
+                nameof(Driver.Championships),
+                nameof(Driver.Races),
+                nameof(Driver.Wins),
+                nameof(Driver.Podiums),
+                nameof(Driver.Poles),
+                nameof(Driver.FastestLaps),
+                nameof(Driver.TeamId)
+            );
+        });
 
-        modelBuilder.Entity<TestDriver>(
-            b =>
-            {
-                ConfigureConstructorBinding<TestDriver, Driver>(
-                    b.Metadata,
-                    nameof(Driver.Id),
-                    nameof(Driver.Name),
-                    nameof(Driver.CarNumber),
-                    nameof(Driver.Championships),
-                    nameof(Driver.Races),
-                    nameof(Driver.Wins),
-                    nameof(Driver.Podiums),
-                    nameof(Driver.Poles),
-                    nameof(Driver.FastestLaps),
-                    nameof(Driver.TeamId)
-                );
-            });
+        modelBuilder.Entity<TestDriver>(b =>
+        {
+            ConfigureConstructorBinding<TestDriver, Driver>(
+                b.Metadata,
+                nameof(Driver.Id),
+                nameof(Driver.Name),
+                nameof(Driver.CarNumber),
+                nameof(Driver.Championships),
+                nameof(Driver.Races),
+                nameof(Driver.Wins),
+                nameof(Driver.Podiums),
+                nameof(Driver.Poles),
+                nameof(Driver.FastestLaps),
+                nameof(Driver.TeamId)
+            );
+        });
 
-        modelBuilder.Entity<Sponsor>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+        modelBuilder.Entity<Sponsor>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+        });
 
-        modelBuilder.Entity<TitleSponsor>(
-            b =>
-            {
-                // TODO: Configure as ComplexProperty when optional complex types are supported
-                // Issue #31376
-                b.OwnsOne(
-                    s => s.Details, eb =>
-                    {
-                        eb.Property(d => d.Space);
-                        eb.Property<TRowVersion>("Version").IsRowVersion();
-                        eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
-                    });
-                ConfigureConstructorBinding<TitleSponsor>(b.Metadata);
-            });
+        modelBuilder.Entity<TitleSponsor>(b =>
+        {
+            // TODO: Configure as ComplexProperty when optional complex types are supported
+            // Issue #31376
+            b.OwnsOne(
+                s => s.Details, eb =>
+                {
+                    eb.Property(d => d.Space);
+                    eb.Property<TRowVersion>("Version").IsRowVersion();
+                    eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
+                });
+            ConfigureConstructorBinding<TitleSponsor>(b.Metadata);
+        });
 
         modelBuilder.Entity<Chassis>().Property<TRowVersion>("Version").IsRowVersion();
         modelBuilder.Entity<Driver>().Property<TRowVersion>("Version").IsRowVersion();
@@ -213,12 +200,11 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
             .ValueGeneratedOnAddOrUpdate()
             .IsConcurrencyToken();
 
-        modelBuilder.Entity<Sponsor>(
-            eb =>
-            {
-                eb.Property<TRowVersion>("Version").IsRowVersion();
-                eb.Property<int?>(Sponsor.ClientTokenPropertyName);
-            });
+        modelBuilder.Entity<Sponsor>(eb =>
+        {
+            eb.Property<TRowVersion>("Version").IsRowVersion();
+            eb.Property<int?>(Sponsor.ClientTokenPropertyName);
+        });
 
         modelBuilder.Entity<Fan>();
         modelBuilder.Entity<SuperFan>();

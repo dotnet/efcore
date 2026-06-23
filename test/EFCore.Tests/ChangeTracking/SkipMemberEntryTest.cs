@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class SkipMemberEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_collection()
     {
         using var context = new FreezerContext();
@@ -17,7 +17,7 @@ public class SkipMemberEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Member("Chunkies").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_collection()
     {
         using var context = new FreezerContext();
@@ -27,7 +27,7 @@ public class SkipMemberEntryTest
         Assert.Equal("Chunkies", entityEntry.Member("Chunkies").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_collection()
     {
         using var context = new FreezerContext();
@@ -57,7 +57,7 @@ public class SkipMemberEntryTest
         Assert.Null(collection.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_skip_collection_entry_by_name_using_Member()
     {
         using var context = new FreezerContext();
@@ -72,7 +72,7 @@ public class SkipMemberEntryTest
         Assert.IsType<CollectionEntry>(entry);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_skip_collection_entry_by_IPropertyBase_using_Member()
     {
         using var context = new FreezerContext();
@@ -88,7 +88,7 @@ public class SkipMemberEntryTest
         Assert.IsType<CollectionEntry>(entry);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_skip_collection_entry_by_name_using_Collection()
     {
         using var context = new FreezerContext();
@@ -103,7 +103,7 @@ public class SkipMemberEntryTest
         Assert.IsType<CollectionEntry>(entry);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_skip_collection_entry_by_INavigationBase_using_Collection()
     {
         using var context = new FreezerContext();

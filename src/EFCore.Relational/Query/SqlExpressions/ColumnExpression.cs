@@ -31,10 +31,31 @@ public class ColumnExpression : SqlExpression
         Type type,
         RelationalTypeMapping? typeMapping,
         bool nullable)
+        : this(name, tableAlias, column: null, type, typeMapping, nullable)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="ColumnExpression" /> class.
+    /// </summary>
+    /// <param name="name">The name of the column.</param>
+    /// <param name="tableAlias">The alias of the table to which this column refers.</param>
+    /// <param name="column">An optional <see cref="IColumnBase" /> associated with this column expression.</param>
+    /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    /// <param name="nullable">Whether this expression represents a nullable column.</param>
+    public ColumnExpression(
+        string name,
+        string tableAlias,
+        IColumnBase? column,
+        Type type,
+        RelationalTypeMapping? typeMapping,
+        bool nullable)
         : base(type, typeMapping)
     {
         Name = name;
         TableAlias = tableAlias;
+        Column = column;
         IsNullable = nullable;
     }
 
@@ -53,6 +74,11 @@ public class ColumnExpression : SqlExpression
     /// </summary>
     public virtual bool IsNullable { get; }
 
+    /// <summary>
+    ///     The <see cref="IColumnBase" /> associated with this column expression.
+    /// </summary>
+    public virtual IColumnBase? Column { get; }
+
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => this;
@@ -62,7 +88,7 @@ public class ColumnExpression : SqlExpression
     /// </summary>
     /// <returns>A new expression which has <see cref="IsNullable" /> property set to true.</returns>
     public virtual ColumnExpression MakeNullable()
-        => IsNullable ? this : new ColumnExpression(Name, TableAlias, Type, TypeMapping, true);
+        => IsNullable ? this : new ColumnExpression(Name, TableAlias, Column, Type, TypeMapping, true);
 
     /// <summary>
     ///     Applies supplied type mapping to this expression.
@@ -70,7 +96,7 @@ public class ColumnExpression : SqlExpression
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new ColumnExpression(Name, TableAlias, Type, typeMapping, IsNullable);
+        => new ColumnExpression(Name, TableAlias, Column, Type, typeMapping, IsNullable);
 
     /// <inheritdoc />
     public override Expression Quote()

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class DecimalTypeMapping : RelationalTypeMapping
+public class DecimalTypeMapping : RelationalTypeMapping<decimal>
 {
     private const string DecimalFormatConst = "{0:0.0###########################}";
 

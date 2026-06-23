@@ -12,22 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
+public class SqlExpressionSimplifyingExpressionVisitor(
+    ISqlExpressionFactory _sqlExpressionFactory,
+    bool _useRelationalNulls) : ExpressionVisitor
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly bool _useRelationalNulls;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlExpressionSimplifyingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-        _useRelationalNulls = useRelationalNulls;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,50 +25,65 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+        switch (extensionExpression)
         {
-            var newQueryExpression = Visit(shapedQueryExpression.QueryExpression);
-            var newShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
-
-            return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
-        }
-
-        if (extensionExpression is SqlBinaryExpression sqlBinaryExpression)
-        {
-            return SimplifySqlBinary(sqlBinaryExpression);
-        }
-
-        if (extensionExpression is SqlFunctionExpression sqlFunctionExpression
-            && IsCoalesce(sqlFunctionExpression))
-        {
-            var arguments = new List<SqlExpression>();
-            foreach (var argument in sqlFunctionExpression.Arguments!)
+            case ShapedQueryExpression shapedQueryExpression:
             {
-                var newArgument = (SqlExpression)Visit(argument);
-                if (IsCoalesce(newArgument))
-                {
-                    arguments.AddRange(((SqlFunctionExpression)newArgument).Arguments!);
-                }
-                else
-                {
-                    arguments.Add(newArgument);
-                }
+                var newQueryExpression = Visit(shapedQueryExpression.QueryExpression);
+                var newShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
+
+                return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
             }
 
-            var distinctArguments = arguments.Distinct().ToList();
+            // Strip no-op SQL CASTs: when the Convert's store type matches the operand's store type,
+            // the CAST would be a no-op in SQL (e.g. CAST(column AS nvarchar(max)) when column is already nvarchar(max)).
+            // This can occur in various situations, e.g. when a C# implicit conversion exists for a value-converted type
+            // (see #36247 for more context on why we don't refrain from creating the CAST node during translation).
+            // However, CASTs around constants are preserved: they serve to explicitly type the constant in SQL
+            // (e.g. CAST(100 AS int)), which is important for some queries.
+            case SqlUnaryExpression
+            {
+                OperatorType: ExpressionType.Convert,
+                Operand: not SqlConstantExpression and { TypeMapping.StoreType: var operandStoreType } operand,
+                TypeMapping.StoreType: var convertStoreType
+            } when convertStoreType == operandStoreType:
+                return Visit(operand);
 
-            return distinctArguments.Count > 1
-                ? new SqlFunctionExpression(
-                    sqlFunctionExpression.Name,
-                    distinctArguments,
-                    sqlFunctionExpression.IsNullable,
-                    argumentsPropagateNullability: distinctArguments.Select(_ => false).ToArray(),
-                    sqlFunctionExpression.Type,
-                    sqlFunctionExpression.TypeMapping)
-                : distinctArguments[0];
+            case SqlBinaryExpression sqlBinaryExpression:
+                return SimplifySqlBinary(sqlBinaryExpression);
+
+            case SqlFunctionExpression sqlFunctionExpression when IsCoalesce(sqlFunctionExpression):
+            {
+                var arguments = new List<SqlExpression>();
+                foreach (var argument in sqlFunctionExpression.Arguments!)
+                {
+                    var newArgument = (SqlExpression)Visit(argument);
+                    if (IsCoalesce(newArgument))
+                    {
+                        arguments.AddRange(((SqlFunctionExpression)newArgument).Arguments!);
+                    }
+                    else
+                    {
+                        arguments.Add(newArgument);
+                    }
+                }
+
+                var distinctArguments = arguments.Distinct().ToList();
+
+                return distinctArguments.Count > 1
+                    ? new SqlFunctionExpression(
+                        sqlFunctionExpression.Name,
+                        distinctArguments,
+                        sqlFunctionExpression.IsNullable,
+                        argumentsPropagateNullability: distinctArguments.Select(_ => false).ToArray(),
+                        sqlFunctionExpression.Type,
+                        sqlFunctionExpression.TypeMapping)
+                    : distinctArguments[0];
+            }
+
+            default:
+                return base.VisitExtension(extensionExpression);
         }
-
-        return base.VisitExtension(extensionExpression);
 
         static bool IsCoalesce(SqlExpression sqlExpression)
             => sqlExpression is SqlFunctionExpression { IsBuiltIn: true, Instance: null } sqlFunctionExpression
@@ -93,8 +96,8 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         if (caseExpression is { Operand: null, ElseResult: null, WhenClauses.Count: 3 }
             && caseExpression.WhenClauses.All(c => c is { Test: SqlBinaryExpression, Result: SqlConstantExpression { Value: int } }))
         {
-            var whenClauses = caseExpression.WhenClauses.Select(
-                c => new { Test = (SqlBinaryExpression)c.Test, ResultValue = (int)((SqlConstantExpression)c.Result).Value! }).ToList();
+            var whenClauses = caseExpression.WhenClauses.Select(c
+                => new { Test = (SqlBinaryExpression)c.Test, ResultValue = (int)((SqlConstantExpression)c.Result).Value! }).ToList();
 
             if (whenClauses[0].Test.Left.Equals(whenClauses[1].Test.Left)
                 && whenClauses[1].Test.Left.Equals(whenClauses[2].Test.Left)
@@ -222,55 +225,55 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         var left = (SqlExpression)Visit(sqlBinaryExpression.Left);
         var right = (SqlExpression)Visit(sqlBinaryExpression.Right);
 
-        if (sqlBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse)
+        if (sqlBinaryExpression.OperatorType is not (ExpressionType.AndAlso or ExpressionType.OrElse)
+            || !TryGetInExpressionCandidateInfo(left, out var leftCandidateInfo)
+            || !TryGetInExpressionCandidateInfo(right, out var rightCandidateInfo)
+            || leftCandidateInfo.ColumnExpression != rightCandidateInfo.ColumnExpression
+            || leftCandidateInfo.OperationType != rightCandidateInfo.OperationType)
         {
-            if (TryGetInExpressionCandidateInfo(left, out var leftCandidateInfo)
-                && TryGetInExpressionCandidateInfo(right, out var rightCandidateInfo)
-                && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
-                && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
+            return sqlBinaryExpression.Update(left, right);
+        }
+
+        // for relational nulls we can't combine comparisons that contain null
+        // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
+        // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
+        // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
+        var leftValues = leftCandidateInfo.ValueOrValues switch
+        {
+            IReadOnlyList<SqlExpression> v => v,
+            SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => [c],
+            _ => null
+        };
+
+        var rightValues = rightCandidateInfo.ValueOrValues switch
+        {
+            IReadOnlyList<SqlExpression> v => v,
+            SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => [c],
+            _ => null
+        };
+
+        if (leftValues is not null && rightValues is not null)
+        {
+            // Union:
+            // a IN (1, 2) || a IN (2, 3) -> a IN (1, 2, 3)
+            // a IN (1, 2) || a = 3 -> a IN (1, 2, 3)
+            // a NOT IN (1, 2) && a <> 3 -> a NOT IN (1, 2, 3)
+
+            // Intersection:
+            // a IN (1, 2, 3) && a IN (2, 3, 4) -> a IN (2, 3)
+            var inExpression = _sqlExpressionFactory.In(
+                leftCandidateInfo.ColumnExpression,
+                (leftCandidateInfo.OperationType, sqlBinaryExpression.OperatorType) is
+                (ExpressionType.Equal, ExpressionType.OrElse) or (ExpressionType.NotEqual, ExpressionType.AndAlso)
+                    ? leftValues.Union(rightValues).ToArray()
+                    : leftValues.Intersect(rightValues).ToArray());
+
+            return leftCandidateInfo.OperationType switch
             {
-                // for relational nulls we can't combine comparisons that contain null
-                // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
-                // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
-                // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
-                var leftValues = leftCandidateInfo.ValueOrValues switch
-                {
-                    IReadOnlyList<SqlExpression> v => v,
-                    SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => new[] { c },
-                    _ => null
-                };
-
-                var rightValues = rightCandidateInfo.ValueOrValues switch
-                {
-                    IReadOnlyList<SqlExpression> v => v,
-                    SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => new[] { c },
-                    _ => null
-                };
-
-                if (leftValues is not null && rightValues is not null)
-                {
-                    // Union:
-                    // a IN (1, 2) || a IN (2, 3) -> a IN (1, 2, 3)
-                    // a IN (1, 2) || a = 3 -> a IN (1, 2, 3)
-                    // a NOT IN (1, 2) && a <> 3 -> a NOT IN (1, 2, 3)
-
-                    // Intersection:
-                    // a IN (1, 2, 3) && a IN (2, 3, 4) -> a IN (2, 3)
-                    var inExpression = _sqlExpressionFactory.In(
-                        leftCandidateInfo.ColumnExpression,
-                        (leftCandidateInfo.OperationType, sqlBinaryExpression.OperatorType) is
-                        (ExpressionType.Equal, ExpressionType.OrElse) or (ExpressionType.NotEqual, ExpressionType.AndAlso)
-                            ? leftValues.Union(rightValues).ToArray()
-                            : leftValues.Intersect(rightValues).ToArray());
-
-                    return leftCandidateInfo.OperationType switch
-                    {
-                        ExpressionType.Equal => inExpression,
-                        ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
-                        _ => throw new UnreachableException()
-                    };
-                }
-            }
+                ExpressionType.Equal => inExpression,
+                ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
+                _ => throw new UnreachableException()
+            };
         }
 
         return sqlBinaryExpression.Update(left, right);

@@ -27,7 +27,7 @@ public static class RelationalPropertyBuilderExtensions
         this PropertyBuilder propertyBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         propertyBuilder.Metadata.SetColumnName(name);
 
@@ -214,7 +214,7 @@ public static class RelationalPropertyBuilderExtensions
         this PropertyBuilder propertyBuilder,
         string? typeName)
     {
-        Check.NullButNotEmpty(typeName, nameof(typeName));
+        Check.NullButNotEmpty(typeName);
 
         propertyBuilder.Metadata.SetColumnType(typeName);
 
@@ -393,7 +393,7 @@ public static class RelationalPropertyBuilderExtensions
         this PropertyBuilder propertyBuilder,
         string? sql)
     {
-        Check.NullButNotEmpty(sql, nameof(sql));
+        Check.NullButNotEmpty(sql);
 
         propertyBuilder.Metadata.SetDefaultValueSql(sql);
 
@@ -537,7 +537,7 @@ public static class RelationalPropertyBuilderExtensions
         string? sql,
         bool? stored)
     {
-        Check.NullButNotEmpty(sql, nameof(sql));
+        Check.NullButNotEmpty(sql);
 
         propertyBuilder.Metadata.SetComputedColumnSql(sql);
 
@@ -920,7 +920,7 @@ public static class RelationalPropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder UseCollation(this PropertyBuilder propertyBuilder, string? collation)
     {
-        Check.NullButNotEmpty(collation, nameof(collation));
+        Check.NullButNotEmpty(collation);
 
         propertyBuilder.Metadata.SetCollation(collation);
 
@@ -998,7 +998,7 @@ public static class RelationalPropertyBuilderExtensions
         this PropertyBuilder propertyBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         propertyBuilder.Metadata.SetJsonPropertyName(name);
 

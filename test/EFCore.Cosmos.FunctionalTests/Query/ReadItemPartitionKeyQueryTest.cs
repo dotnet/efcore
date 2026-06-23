@@ -13,9 +13,40 @@ public class ReadItemPartitionKeyQueryTest : ReadItemPartitionKeyQueryTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    public override async Task Key_with_special_characters_1()
+    {
+        await base.Key_with_special_characters_1();
+
+        AssertSql("""ReadItem(["Cat|1"], Cat|1)""");
+    }
+
+    public override async Task Key_with_special_characters_2()
+    {
+        await base.Key_with_special_characters_2();
+
+        AssertSql("""ReadItem(["Cat2||"], Cat2||)""");
+    }
+
+    public override async Task Key_with_special_characters_3()
+    {
+        await base.Key_with_special_characters_3();
+
+        AssertSql("""ReadItem(["Cat|3|$|5"], Cat|3|$|5)""");
+    }
+
+    public override async Task Key_with_special_characters_4()
+    {
+        await base.Key_with_special_characters_4();
+
+        AssertSql(
+            """
+ReadItem(["|Cat|"], |Cat|)
+""");
+    }
 
     public override async Task Predicate_with_hierarchical_partition_key()
     {
@@ -56,8 +87,11 @@ FROM root c
         AssertSql("""ReadItem(["PK1a"], PK1a)""");
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_hierarchical_partition_key();
 
         // Not ReadItem because no primary key value, but partial partition key value is extracted
@@ -82,9 +116,12 @@ WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND c["PartitionKey3"])
 """);
     }
 
-    [ConditionalFact]
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key();
 
         // Not ReadItem because part of primary key value missing
@@ -172,8 +209,11 @@ FROM root c
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key();
 
         AssertSql(
@@ -321,6 +361,35 @@ WHERE (c["PartitionKey"] = "PK1")
         AssertSql("""ReadItem(["PK1a"], PK1a)""");
     }
 
+    public override async Task WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key()
+    {
+        await base.WithPartitionKey_and_predicate_with_id_and_conflicting_partition_key();
+
+        // Not ReadItem because partition key values were provided both via WithPartitionKey and in the predicate (see #38238).
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = "PK2"))
+""");
+    }
+
+    public override async Task WithPartitionKey_and_predicate_with_id_two_locals_same_value()
+    {
+        await base.WithPartitionKey_and_predicate_with_id_two_locals_same_value();
+
+        // Not ReadItem because pkForWith and pkForWhere are different parameter expressions (different names),
+        // so they can't be compared at translate time even though they have the same runtime value.
+        AssertSql(
+            """
+@pkForWhere='PK1'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["PartitionKey"] = @pkForWhere))
+""");
+    }
+
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
     {
         await base.Multiple_incompatible_predicate_comparisons_cause_no_ReadItem();
@@ -341,11 +410,11 @@ WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["id"] = "3307a3
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1a'
+@partitionKey='PK1a'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["id"] = "PK1a") AND (c["id"] = @__partitionKey_0))
+WHERE ((c["id"] = "PK1a") AND (c["id"] = @partitionKey))
 """);
     }
 
@@ -404,6 +473,13 @@ WHERE (c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34")
         AssertSql("""ReadItem(["PK2"], 4)""");
     }
 
+    public override async Task ReadItem_for_abstract_base_type_with_shared_container()
+    {
+        await base.ReadItem_for_abstract_base_type_with_shared_container();
+
+        AssertSql("""ReadItem(["PK2"], 6)""");
+    }
+
     public override async Task ReadItem_for_child_type_with_shared_container()
     {
         await base.ReadItem_for_child_type_with_shared_container();
@@ -437,11 +513,11 @@ WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = "Der
 
         AssertSql(
             """
-@__discriminator_0='SinglePartitionKeyEntity'
+@discriminator='SinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @__discriminator_0))
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @discriminator))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -456,7 +532,6 @@ OFFSET 0 LIMIT 2
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(
-                builder.ConfigureWarnings(
-                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+                builder.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
     }
 }

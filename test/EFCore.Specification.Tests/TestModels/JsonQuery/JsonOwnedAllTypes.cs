@@ -42,6 +42,8 @@ public class JsonOwnedAllTypes
     public char TestCharacter { get; set; }
     public sbyte TestSignedByte { get; set; }
     public int? TestNullableInt32 { get; set; }
+    public DateTime? TestNullableDateTime { get; set; }
+    public DateOnly? TestNullableDateOnly { get; set; }
     public JsonEnum TestEnum { get; set; }
     public JsonEnum TestEnumWithIntConverter { get; set; }
     public JsonEnum? TestNullableEnum { get; set; }
@@ -49,8 +51,8 @@ public class JsonOwnedAllTypes
     public JsonEnum? TestNullableEnumWithConverterThatHandlesNulls { get; set; }
 
     public List<List<long>> TestInt64CollectionCollection { get; set; } = [];
-    public List<double[]> TestDoubleCollectionCollection { get; set; } = new();
-    public List<float[]> TestSingleCollectionCollection { get; set; } = new([( [1.1f, 1.2f])]);
+    public List<double[]> TestDoubleCollectionCollection { get; set; } = [];
+    public List<float[]> TestSingleCollectionCollection { get; set; } = [( [1.1f, 1.2f])];
     public bool[][] TestBooleanCollectionCollection { get; set; } = [];
     public ObservableCollection<IReadOnlyCollection<char>> TestCharacterCollectionCollection { get; set; } = [];
 
@@ -83,7 +85,7 @@ public class JsonOwnedAllTypes
     public decimal[] TestDecimalCollection { get; set; }
     public List<DateTime> TestDateTimeCollection { get; set; }
     public IList<DateTimeOffset> TestDateTimeOffsetCollection { get; set; }
-    public TimeSpan[] TestTimeSpanCollection { get; set; } = [new TimeSpan(1, 1, 1)];
+    public TimeSpan[] TestTimeSpanCollection { get; set; } = [new(1, 1, 1)];
     public DateOnly[] TestDateOnlyCollection { get; set; }
     public TimeOnly[] TestTimeOnlyCollection { get; set; }
 

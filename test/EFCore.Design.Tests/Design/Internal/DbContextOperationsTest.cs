@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -8,26 +8,35 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class DbContextOperationsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void CreateContext_gets_service()
-        => CreateOperations(typeof(TestProgram)).CreateContext(typeof(TestContext).FullName.ToLower());
+        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(typeof(TestContext).FullName.ToLower());
 
-    [ConditionalFact]
+    [Fact]
+    public void CreateContext_gets_service_without_name()
+        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(null);
+
+    [Fact]
     public void CreateContext_gets_service_without_AddDbContext()
         => CreateOperations(typeof(TestProgramWithoutAddDbContext)).CreateContext(typeof(TestContext).FullName);
 
-    [ConditionalFact]
+    [Fact]
     public void CreateContext_gets_service_when_context_factory_used()
-        => CreateOperations(typeof(TestProgramWithContextFactory)).CreateContext(typeof(TestContextFromFactory).FullName);
+        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false)
+            .CreateContext(typeof(TestContextFromFactory).FullName);
 
-    [ConditionalFact]
+    [Fact]
+    public void CreateContext_gets_service_when_context_factory_used_without_name()
+        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false).CreateContext(null);
+
+    [Fact]
     public void CreateContext_throws_if_context_type_not_found()
         => Assert.Equal(
             DesignStrings.NoContextWithName(typeof(TestContextFromFactory).FullName),
-            Assert.Throws<OperationException>(
-                () => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
+            Assert.Throws<OperationException>(()
+                => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void CreateContext_throws_if_ambiguous_context_type_by_case()
     {
         var assembly = MockAssembly.Create(typeof(TestContext), typeof(Testcontext));
@@ -53,7 +62,7 @@ public class DbContextOperationsTest
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateContext_throws_if_ambiguous_context_type_by_namespace()
     {
         var assembly = MockAssembly.Create(typeof(TestContext), typeof(DatabaseOperationsTest.TestContext));
@@ -79,7 +88,7 @@ public class DbContextOperationsTest
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateContext_throws_if_ambiguous_context_type()
     {
         var assembly = MockAssembly.Create(typeof(TestContext), typeof(Testcontext));
@@ -105,7 +114,7 @@ public class DbContextOperationsTest
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateContext_throws_if_no_context_type()
     {
         var assembly = MockAssembly.Create();
@@ -131,7 +140,7 @@ public class DbContextOperationsTest
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_pass_null_args()
     {
         // Even though newer versions of the tools will pass an empty array
@@ -155,7 +164,7 @@ public class DbContextOperationsTest
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateContext_uses_exact_factory_method()
     {
         var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
@@ -183,7 +192,7 @@ public class DbContextOperationsTest
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateAllContexts_creates_all_contexts()
     {
         var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
@@ -211,7 +220,7 @@ public class DbContextOperationsTest
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Optimize_throws_when_no_contexts()
     {
         var assembly = MockAssembly.Create();
@@ -230,17 +239,16 @@ public class DbContextOperationsTest
 
         Assert.Equal(
             DesignStrings.NoContextsToOptimize,
-            Assert.Throws<OperationException>(
-                () =>
-                    operations.Optimize(
-                        null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false)).Message);
+            Assert.Throws<OperationException>(() =>
+                operations.Optimize(
+                    null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false)).Message);
 
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Optimize_shows_warning_when_nothing_was_generated()
     {
         var assembly = MockAssembly.Create(typeof(DerivedContext));
@@ -264,10 +272,10 @@ public class DbContextOperationsTest
 
         Assert.Equal(
             DesignStrings.OptimizeNoFilesGenerated,
-            Assert.Single(reporter.Messages.Where(m => m.Level == LogLevel.Warning)).Message);
+            Assert.Single(reporter.Messages, m => m.Level == LogLevel.Warning).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetContextInfo_returns_correct_info()
     {
         var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(nameof(TestContext));
@@ -278,7 +286,7 @@ public class DbContextOperationsTest
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetContextInfo_does_not_throw_if_DbConnection_cannot_be_created()
     {
         Exception expected = null;
@@ -299,23 +307,23 @@ public class DbContextOperationsTest
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetContextInfo_does_not_throw_if_provider_not_relational()
     {
         var info = CreateOperations(typeof(TestProgram)).GetContextInfo(nameof(TestContext));
 
         Assert.Equal(DesignStrings.NoRelationalConnection, info.DatabaseName);
         Assert.Equal(DesignStrings.NoRelationalConnection, info.DataSource);
-        Assert.Equal("StoreName=In-memory test database", info.Options);
+        Assert.Equal("StoreName=In-memory test database NullabilityChecksEnabled", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.InMemory", info.ProviderName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Useful_exception_if_finding_context_types_throws()
         => Assert.Equal(
             DesignStrings.CannotFindDbContextTypes("Bang!"),
-            Assert.Throws<OperationException>(
-                () => CreateOperations(typeof(ThrowingTestProgram)).CreateContext(typeof(TestContext).FullName)).Message);
+            Assert.Throws<OperationException>(()
+                => CreateOperations(typeof(ThrowingTestProgram)).CreateContext(typeof(TestContext).FullName)).Message);
 
     private static class ThrowingTestProgram
     {
@@ -364,9 +372,15 @@ public class DbContextOperationsTest
             => CreateWebHost(b => b.UseSqlServer(@"Cake=None"));
     }
 
-    private static TestDbContextOperations CreateOperations(Type testProgramType)
+    private static TestDbContextOperations CreateOperations(Type testProgramType, bool includeContext = true)
     {
-        var assembly = MockAssembly.Create(testProgramType, typeof(TestContext));
+        List<Type> types = [testProgramType];
+        if (includeContext)
+        {
+            types.Add(typeof(TestContext));
+        }
+
+        var assembly = MockAssembly.Create([.. types]);
         var reporter = new TestOperationReporter();
         var operations = new TestDbContextOperations(
             reporter,
@@ -390,8 +404,7 @@ public class DbContextOperationsTest
     private static TestWebHost CreateWebHost(Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureProvider)
         => new(
             new ServiceCollection()
-                .AddDbContext<TestContext>(
-                    b => configureProvider(b.EnableServiceProviderCaching(false)))
+                .AddDbContext<TestContext>(b => configureProvider(b.EnableServiceProviderCaching(false)))
                 .BuildServiceProvider(validateScopes: true));
 
     private class TestContext : DbContext
@@ -402,6 +415,8 @@ public class DbContextOperationsTest
         public TestContext(DbContextOptions<TestContext> options)
             : base(options)
         {
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
         }
     }
 
@@ -413,6 +428,8 @@ public class DbContextOperationsTest
         public TestContextFromFactory(DbContextOptions<TestContextFromFactory> options)
             : base(options)
         {
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
         }
     }
 

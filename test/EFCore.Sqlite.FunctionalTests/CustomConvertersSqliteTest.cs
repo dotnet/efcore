@@ -15,39 +15,39 @@ public class CustomConvertersSqliteTest : CustomConvertersTestBase<CustomConvert
     public override Task Can_insert_and_read_back_with_case_insensitive_string_key()
         => Task.CompletedTask;
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Value_conversion_is_appropriately_used_for_join_condition()
     {
         await base.Value_conversion_is_appropriately_used_for_join_condition();
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT "b"."Url"
 FROM "Blog" AS "b"
-INNER JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @__blogId_0
+INNER JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @blogId
 WHERE "b"."IsVisible" = 'Y'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Value_conversion_is_appropriately_used_for_left_join_condition()
     {
         await base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT "b"."Url"
 FROM "Blog" AS "b"
-LEFT JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @__blogId_0
+LEFT JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @blogId
 WHERE "b"."IsVisible" = 'Y'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -60,7 +60,7 @@ WHERE "b"."IsVisible" = 'Y'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         await base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -102,7 +102,7 @@ FROM "Blog" AS "b"
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
@@ -115,7 +115,7 @@ WHERE "b"."IsVisible" = 'Y'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();

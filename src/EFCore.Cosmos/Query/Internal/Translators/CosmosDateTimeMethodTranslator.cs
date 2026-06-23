@@ -13,32 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosDateTimeMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> MethodInfoDatePartMapping = new()
-    {
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), [typeof(int)])!, "yyyy" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), [typeof(int)])!, "mm" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), [typeof(double)])!, "dd" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), [typeof(double)])!, "hh" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), [typeof(double)])!, "mi" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), [typeof(double)])!, "ss" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), [typeof(double)])!, "ms" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMicroseconds), [typeof(double)])!, "mcs" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddYears), [typeof(int)])!, "yyyy" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), [typeof(int)])!, "mm" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), [typeof(double)])!, "dd" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), [typeof(double)])!, "hh" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), [typeof(double)])!, "mi" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), [typeof(double)])!, "ss" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), [typeof(double)])!, "ms" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMicroseconds), [typeof(double)])!, "mcs" }
-    };
-
-    private static readonly Dictionary<MethodInfo, string> MethodInfoDateDiffMapping = new()
-    {
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeSeconds), Type.EmptyTypes)!, "second" },
-        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeMilliseconds), Type.EmptyTypes)!, "millisecond" }
-    };
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -56,16 +30,30 @@ public class CosmosDateTimeMethodTranslator(ISqlExpressionFactory sqlExpressionF
             return null;
         }
 
-        if (MethodInfoDatePartMapping.TryGetValue(method, out var datePart)
-            && instance != null)
+        if (instance is null || arguments is not [var arg])
         {
-            return sqlExpressionFactory.Function(
-                "DateTimeAdd",
-                arguments: [sqlExpressionFactory.Constant(datePart), arguments[0], instance],
-                instance.Type,
-                instance.TypeMapping);
+            return null;
         }
 
-        return null;
+        var datePart = method.Name switch
+        {
+            nameof(DateTime.AddYears) => "yyyy",
+            nameof(DateTime.AddMonths) => "mm",
+            nameof(DateTime.AddDays) => "dd",
+            nameof(DateTime.AddHours) => "hh",
+            nameof(DateTime.AddMinutes) => "mi",
+            nameof(DateTime.AddSeconds) => "ss",
+            nameof(DateTime.AddMilliseconds) => "ms",
+            nameof(DateTime.AddMicroseconds) => "mcs",
+            _ => (string?)null
+        };
+
+        return datePart is not null
+            ? sqlExpressionFactory.Function(
+                "DateTimeAdd",
+                arguments: [sqlExpressionFactory.Constant(datePart), arg, instance],
+                instance.Type,
+                instance.TypeMapping)
+            : null;
     }
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public partial class EntityTypeTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_base_type()
     {
         var model = (IConventionModel)CreateModel();
@@ -21,7 +21,7 @@ public partial class EntityTypeTest
         Assert.Same(finalModel.FindEntityType(typeof(A).Name), finalModel.FindEntityType(typeof(B).Name).BaseType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Circular_inheritance_should_throw()
     {
         var model = CreateModel();
@@ -54,7 +54,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => a.BaseType = d).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_CLR_base_for_shadow_entity_type_should_throw()
     {
         var model = CreateModel();
@@ -68,7 +68,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_shadow_base_for_CLR_entity_type_should_throw()
     {
         var model = CreateModel();
@@ -82,7 +82,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_not_assignable_base_should_throw()
     {
         var model = CreateModel();
@@ -95,7 +95,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => a.BaseType = b).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_for_owned_throws()
     {
         var model = CreateModel();
@@ -105,12 +105,11 @@ public partial class EntityTypeTest
         Assert.Equal(
             CoreStrings.DerivedEntityOwnershipMismatch(
                 nameof(BaseType), nameof(Customer), nameof(Customer), nameof(BaseType)),
-            Assert.Throws<InvalidOperationException>(
-                    () => entityType.BaseType = baseType)
+            Assert.Throws<InvalidOperationException>(() => entityType.BaseType = baseType)
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_root_type()
     {
         var model = CreateEmptyModel();
@@ -125,7 +124,7 @@ public partial class EntityTypeTest
         Assert.Same(a, c.GetRootType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_derived_types()
     {
         var model = CreateEmptyModel();
@@ -142,7 +141,7 @@ public partial class EntityTypeTest
         Assert.Equal([b, d], a.GetDirectlyDerivedTypes().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_determine_whether_IsAssignableFrom()
     {
         var model = CreateEmptyModel();
@@ -162,7 +161,7 @@ public partial class EntityTypeTest
         Assert.False(b.IsAssignableFrom(d));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_discriminator_on_non_root_type_throws()
     {
         var modelBuilder = new ModelBuilder();
@@ -182,7 +181,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => derivedType.SetDiscriminatorProperty(property)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_discriminator_from_different_entity_type_throws()
     {
         var modelBuilder = new ModelBuilder();
@@ -202,7 +201,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => otherType.SetDiscriminatorProperty(property)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_discriminator_value()
     {
         var modelBuilder = new ModelBuilder();
@@ -225,7 +224,7 @@ public partial class EntityTypeTest
         Assert.Null(entityType.GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_on_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -260,12 +259,12 @@ public partial class EntityTypeTest
         Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "H", "I" }, c.GetProperties().Select(p => p.Name).ToArray());
-        Assert.Equal(new[] { 0, 1, 2, 3 }, b.GetProperties().Select(p => p.GetIndex()));
-        Assert.Equal(new[] { 0, 1, 2, 3 }, c.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1, 2, 3], b.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1, 2, 3], c.GetProperties().Select(p => p.GetIndex()));
         Assert.Same(b.FindProperty("E"), a.FindProperty("E"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_added_to_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -297,11 +296,11 @@ public partial class EntityTypeTest
         Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "H", "I" }, c.GetProperties().Select(p => p.Name).ToArray());
-        Assert.Equal(new[] { 0, 1, 2, 3 }, b.GetProperties().Select(p => p.GetIndex()));
-        Assert.Equal(new[] { 0, 1, 2, 3 }, c.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1, 2, 3], b.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1, 2, 3], c.GetProperties().Select(p => p.GetIndex()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_on_base_type_are_listed_before_derived_properties()
     {
         var model = CreateModel();
@@ -315,10 +314,10 @@ public partial class EntityTypeTest
         var property3 = childType.AddProperty("A", typeof(int));
         childType.BaseType = parentType;
 
-        Assert.Equal(new[] { property1, property2, property3, property4 }, childType.GetProperties());
+        Assert.Equal([property1, property2, property3, property4], childType.GetProperties());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_should_be_updated_when_base_type_changes()
     {
         var model = CreateModel();
@@ -354,12 +353,12 @@ public partial class EntityTypeTest
         Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G" }, d.GetProperties().Select(p => p.Name).ToArray());
-        Assert.Equal(new[] { 0, 1 }, a.GetProperties().Select(p => p.GetIndex()));
-        Assert.Equal(new[] { 0, 1, 2, 3 }, c.GetProperties().Select(p => p.GetIndex()));
-        Assert.Equal(new[] { 0, 1 }, d.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1], a.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1, 2, 3], c.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1], d.GetProperties().Select(p => p.GetIndex()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_property_throws_when_parent_type_has_property_with_same_name()
     {
         var model = CreateModel();
@@ -371,11 +370,11 @@ public partial class EntityTypeTest
         b.BaseType = a;
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(B).Name, typeof(A).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(B).Name, "property", typeof(A).Name),
             Assert.Throws<InvalidOperationException>(() => b.AddProperty("G")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_property_throws_when_grandparent_type_has_property_with_same_name()
     {
         var model = CreateModel();
@@ -390,11 +389,11 @@ public partial class EntityTypeTest
         d.BaseType = c;
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(D).Name, typeof(A).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(D).Name, "property", typeof(A).Name),
             Assert.Throws<InvalidOperationException>(() => d.AddProperty("G")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_property_throws_when_child_type_has_property_with_same_name()
     {
         var model = CreateModel();
@@ -407,11 +406,11 @@ public partial class EntityTypeTest
         b.AddProperty(A.GProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(A).Name, typeof(B).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(A).Name, "property", typeof(B).Name),
             Assert.Throws<InvalidOperationException>(() => a.AddProperty(A.GProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_property_throws_when_grandchild_type_has_property_with_same_name()
     {
         var model = CreateModel();
@@ -427,11 +426,11 @@ public partial class EntityTypeTest
         d.AddProperty(A.GProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(A).Name, typeof(D).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(A).Name, "property", typeof(D).Name),
             Assert.Throws<InvalidOperationException>(() => a.AddProperty(A.GProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_when_parent_contains_duplicate_property()
     {
         var model = CreateModel();
@@ -447,7 +446,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_when_grandparent_contains_duplicate_property()
     {
         var model = CreateModel();
@@ -468,7 +467,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => d.BaseType = c).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_when_grandchild_contain_duplicate_property()
     {
         var model = CreateModel();
@@ -489,7 +488,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => c.BaseType = a).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Keys_on_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -509,7 +508,7 @@ public partial class EntityTypeTest
             [["E"], ["G"]],
             a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            Array.Empty<string[]>(),
+            [],
             bType.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "F" }, bType.GetProperties().Select(p => p.Name).ToArray());
@@ -527,12 +526,12 @@ public partial class EntityTypeTest
             b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
-        Assert.Equal(new[] { 0, 1, 2 }, b.GetProperties().Select(p => p.GetIndex()));
+        Assert.Equal([0, 1, 2], b.GetProperties().Select(p => p.GetIndex()));
         Assert.Same(pk, b.FindProperty("G").FindContainingPrimaryKey());
         Assert.Same(b.FindKey(b.FindProperty("G")), a.FindKey(a.FindProperty("G")));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Keys_added_to_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -561,7 +560,7 @@ public partial class EntityTypeTest
         Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Keys_should_be_updated_when_base_type_changes()
     {
         var model = CreateModel();
@@ -584,13 +583,13 @@ public partial class EntityTypeTest
             [["E"], ["G"]],
             a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            Array.Empty<string[]>(),
+            [],
             b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "F" }, b.GetProperties().Select(p => p.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_keys_throws_when_there_is_a_parent_type()
     {
         var model = CreateModel();
@@ -607,7 +606,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => b.AddKey(b.AddProperty("E"))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_when_child_contains_key()
     {
         var model = CreateModel();
@@ -632,7 +631,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_on_keyless_type()
     {
         var model = CreateModel();
@@ -646,7 +645,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HasNoKey_on_derived_type_throws()
     {
         var model = CreateModel();
@@ -660,7 +659,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => b.IsKeyless = true).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigations_on_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -677,7 +676,7 @@ public partial class EntityTypeTest
         var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
         Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
-        Assert.Equal([], specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
+        Assert.Equal(new string[0], specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
 
         specialCustomerType.BaseType = customerType;
 
@@ -695,7 +694,7 @@ public partial class EntityTypeTest
         Assert.Same(customerType.FindNavigation("Orders"), specialCustomerType.FindNavigation("Orders"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigations_added_to_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -723,7 +722,7 @@ public partial class EntityTypeTest
         Assert.Equal(new[] { "Orders", "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigations_should_be_updated_when_base_type_changes()
     {
         var model = CreateModel();
@@ -751,7 +750,7 @@ public partial class EntityTypeTest
             new[] { nameof(SpecialCustomer.DerivedOrders) }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_navigation_throws_when_parent_type_has_navigation_with_same_name()
     {
         var model = CreateModel();
@@ -772,12 +771,11 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.NavigationForWrongForeignKey(nameof(Customer.Orders), typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_navigation_throws_when_grandparent_type_has_navigation_with_same_name()
     {
         var model = CreateModel();
@@ -801,13 +799,12 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.NavigationForWrongForeignKey("Orders", typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
-            Assert.Throws<InvalidOperationException>(
-                () => specialCustomerForeignKey.SetPrincipalToDependent("Orders")).Message);
+            Assert.Throws<InvalidOperationException>(() => specialCustomerForeignKey.SetPrincipalToDependent("Orders")).Message);
 
         Assert.Equal("Orders", ((IReadOnlyEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_navigation_throws_when_child_type_has_navigation_with_same_name()
     {
         var model = CreateModel();
@@ -828,12 +825,11 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.NavigationForWrongForeignKey("Orders", typeof(SpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    customerForeignKey.SetPrincipalToDependent("Orders")).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                customerForeignKey.SetPrincipalToDependent("Orders")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_navigation_throws_when_grandchild_type_has_navigation_with_same_name()
     {
         var model = CreateModel();
@@ -858,14 +854,13 @@ public partial class EntityTypeTest
         Assert.Equal(
             CoreStrings.NavigationForWrongForeignKey(
                 nameof(Customer.Orders), typeof(VerySpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
 
         Assert.Equal(nameof(Customer.Orders), ((IReadOnlyEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_when_parent_contains_duplicate_navigation()
     {
         var model = CreateModel();
@@ -896,7 +891,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => specialOrderType.BaseType = orderType).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_when_grandparent_contains_duplicate_navigation()
     {
         var model = CreateModel();
@@ -929,7 +924,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => specialOrderType.BaseType = orderType).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_base_type_throws_when_grandchild_contain_duplicate_navigation()
     {
         var model = CreateModel();
@@ -962,7 +957,7 @@ public partial class EntityTypeTest
             Assert.Throws<InvalidOperationException>(() => verySpecialOrderType.BaseType = specialOrderType).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKeys_on_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -996,7 +991,7 @@ public partial class EntityTypeTest
         Assert.Same(customerForeignKey, specialOrderType.FindForeignKey(foreignKeyProperty, customerKey, customerType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKeys_added_to_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -1030,7 +1025,7 @@ public partial class EntityTypeTest
             specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ForeignKeys_should_be_updated_when_base_type_changes()
     {
         var model = CreateModel();
@@ -1058,7 +1053,7 @@ public partial class EntityTypeTest
             specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_a_foreign_key_targeting_different_entity_type()
     {
         var model = CreateModel();
@@ -1083,7 +1078,7 @@ public partial class EntityTypeTest
         Assert.Equal([fk1, fk2], orderType.GetForeignKeys().ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_foreignKey_throws_when_parent_type_has_foreignKey_on_same_properties()
     {
         var model = CreateModel();
@@ -1105,11 +1100,11 @@ public partial class EntityTypeTest
                 typeof(Order).Name,
                 customerKey.Properties.Format(),
                 typeof(Customer).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+            Assert.Throws<InvalidOperationException>(() => specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType))
+                .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_foreignKey_throws_when_grandparent_type_has_foreignKey_on_same_properties()
     {
         var model = CreateModel();
@@ -1134,11 +1129,12 @@ public partial class EntityTypeTest
                 typeof(Order).Name,
                 customerKey.Properties.Format(),
                 typeof(Customer).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+            Assert
+                .Throws<InvalidOperationException>(() => verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType))
+                .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_foreignKey_throws_when_child_type_has_foreignKey_on_same_properties()
     {
         var model = CreateModel();
@@ -1160,11 +1156,10 @@ public partial class EntityTypeTest
                 typeof(SpecialOrder).Name,
                 customerKey.Properties.Format(),
                 typeof(Customer).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+            Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_foreignKey_throws_when_grandchild_type_has_foreignKey_on_same_properties()
     {
         var model = CreateModel();
@@ -1189,41 +1184,40 @@ public partial class EntityTypeTest
                 typeof(VerySpecialOrder).Name,
                 customerKey.Properties.Format(),
                 typeof(Customer).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+            Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_a_key_if_any_properties_are_part_of_derived_foreign_key()
     {
         var model = CreateModel();
         var baseType = model.AddEntityType(typeof(BaseType));
         var idProperty = baseType.AddProperty(Customer.IdProperty);
         var fkProperty = baseType.AddProperty("fk", typeof(int));
-        var key = baseType.AddKey(new[] { idProperty });
+        var key = baseType.AddKey([idProperty]);
         var entityType = model.AddEntityType(typeof(Customer));
         entityType.BaseType = baseType;
-        entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
+        entityType.AddForeignKey([fkProperty], key, entityType);
 
-        Assert.NotNull(baseType.AddKey(new[] { fkProperty }));
+        Assert.NotNull(baseType.AddKey([fkProperty]));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key()
     {
         var model = CreateModel();
         var baseType = model.AddEntityType(typeof(BaseType));
         var idProperty = baseType.AddProperty(Customer.IdProperty);
         var idProperty2 = baseType.AddProperty("id2", typeof(int));
-        var key = baseType.AddKey(new[] { idProperty, idProperty2 });
+        var key = baseType.AddKey([idProperty, idProperty2]);
         var entityType = model.AddEntityType(typeof(Customer));
         entityType.BaseType = baseType;
         var fkProperty = entityType.AddProperty("fk", typeof(int));
 
-        Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
+        Assert.NotNull(entityType.AddForeignKey([fkProperty, idProperty], key, entityType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key_with_value_generation()
     {
         var model = CreateModel();
@@ -1231,15 +1225,15 @@ public partial class EntityTypeTest
         var idProperty = baseType.AddProperty(Customer.IdProperty);
         idProperty.ValueGenerated = ValueGenerated.OnAdd;
         var idProperty2 = baseType.AddProperty("id2", typeof(int));
-        var key = baseType.AddKey(new[] { idProperty, idProperty2 });
+        var key = baseType.AddKey([idProperty, idProperty2]);
         var entityType = model.AddEntityType(typeof(Customer));
         entityType.BaseType = baseType;
         var fkProperty = entityType.AddProperty("fk", typeof(int));
 
-        Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
+        Assert.NotNull(entityType.AddForeignKey([fkProperty, idProperty], key, entityType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_on_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -1270,7 +1264,7 @@ public partial class EntityTypeTest
         Assert.Same(index, specialOrderType.FindIndex(indexProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_added_to_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -1301,7 +1295,7 @@ public partial class EntityTypeTest
             specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Indexes_should_be_updated_when_base_type_changes()
     {
         var model = CreateModel();
@@ -1326,7 +1320,7 @@ public partial class EntityTypeTest
             specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_an_index_throws_if_properties_were_removed()
     {
         var model = CreateModel();
@@ -1336,10 +1330,10 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.IndexPropertiesWrongEntity("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).Name),
-            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { idProperty })).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex([idProperty])).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_an_index_throws_if_duplicate_properties()
     {
         var model = CreateModel();
@@ -1349,10 +1343,10 @@ public partial class EntityTypeTest
         Assert.Equal(
             CoreStrings.DuplicatePropertyInIndex(
                 "{'" + Customer.IdProperty.Name + "', '" + Customer.IdProperty.Name + "'}", Customer.IdProperty.Name),
-            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { idProperty, idProperty })).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex([idProperty, idProperty])).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_an_index_throws_when_parent_type_has_index_on_same_properties()
     {
         var model = CreateModel();
@@ -1366,11 +1360,10 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(SpecialOrder).Name, typeof(Order).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => specialOrderType.AddIndex(indexProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() => specialOrderType.AddIndex(indexProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_an_index_throws_when_grandparent_type_has_index_on_same_properties()
     {
         var model = CreateModel();
@@ -1387,11 +1380,10 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(VerySpecialOrder).Name, typeof(Order).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => verySpecialOrderType.AddIndex(indexProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() => verySpecialOrderType.AddIndex(indexProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_an_index_throws_when_child_type_has_index_on_same_properties()
     {
         var model = CreateModel();
@@ -1405,11 +1397,10 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(Order).Name, typeof(SpecialOrder).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => orderType.AddIndex(indexProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() => orderType.AddIndex(indexProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_an_index_throws_when_grandchild_type_has_index_on_same_properties()
     {
         var model = CreateModel();
@@ -1426,8 +1417,7 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(Order).Name, typeof(VerySpecialOrder).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => orderType.AddIndex(indexProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() => orderType.AddIndex(indexProperty)).Message);
     }
 
     private static IMutableModel CreateModel()

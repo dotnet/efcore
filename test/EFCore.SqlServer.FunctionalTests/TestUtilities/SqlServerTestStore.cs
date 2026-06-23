@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
 #pragma warning disable IDE0022 // Use block body for methods
@@ -36,8 +35,11 @@ public class SqlServerTestStore : RelationalTestStore
         bool shared = true)
         => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets, shared: shared);
 
-    public static SqlServerTestStore Create(string name, bool useFileName = false)
-        => new(name, useFileName, shared: false);
+    public static SqlServerTestStore Create(
+        string name,
+        bool useFileName = false,
+        bool? multipleActiveResultSets = null)
+        => new(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets);
 
     public static async Task<SqlServerTestStore> CreateInitializedAsync(
         string name,
@@ -86,44 +88,50 @@ public class SqlServerTestStore : RelationalTestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        if (await CreateDatabaseAsync(clean))
+        if (!await CleanDatabaseAsync(clean))
         {
-            if (_scriptPath != null)
+            return;
+        }
+
+        if (_scriptPath != null)
+        {
+            ExecuteScript(await File.ReadAllTextAsync(_scriptPath));
+        }
+        else
+        {
+            using var context = createContext();
+            await context.Database.EnsureCreatedResilientlyAsync();
+
+            if (_initScript != null)
             {
-                ExecuteScript(await File.ReadAllTextAsync(_scriptPath));
+                ExecuteScript(_initScript);
             }
-            else
+
+            if (seed != null)
             {
-                using var context = createContext();
-                await context.Database.EnsureCreatedResilientlyAsync();
-
-                if (_initScript != null)
-                {
-                    ExecuteScript(_initScript);
-                }
-
-                if (seed != null)
-                {
-                    await seed(context);
-                }
+                await seed(context);
             }
         }
     }
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => (UseConnectionString
-                ? builder.UseSqlServer(ConnectionString, b => b.ApplyConfiguration())
-                : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
+                ? SqlServerTestEnvironment.IsAzureSql
+                    ? builder.UseAzureSql(ConnectionString, b => b.ApplyConfiguration())
+                    : builder.UseSqlServer(ConnectionString, b => b.ApplyConfiguration())
+                : SqlServerTestEnvironment.IsAzureSql
+                    ? builder.UseAzureSql(Connection, b => b.ApplyConfiguration())
+                    : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
-    private async Task<bool> CreateDatabaseAsync(Func<DbContext, Task>? clean)
+    private async Task<bool> CleanDatabaseAsync(Func<DbContext, Task>? clean)
     {
         await using var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false));
 
         if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
         {
             // Only reseed scripted databases during CI runs
-            if (_scriptPath != null && !TestEnvironment.IsCI)
+            if (_scriptPath != null && !SqlServerTestEnvironment.IsCI)
             {
                 return false;
             }
@@ -152,9 +160,9 @@ public class SqlServerTestStore : RelationalTestStore
         return true;
     }
 
-    public override Task CleanAsync(DbContext context)
+    public override Task CleanAsync(DbContext context, bool createTables = true)
     {
-        context.Database.EnsureClean();
+        context.Database.EnsureClean(createTables);
         return Task.CompletedTask;
     }
 
@@ -162,9 +170,7 @@ public class SqlServerTestStore : RelationalTestStore
         => Execute(
             Connection, command =>
             {
-                foreach (var batch in
-                         new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                             .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+                foreach (var batch in RelationalDatabaseCleaner.SplitBatches(script))
                 {
                     command.CommandText = batch;
                     command.ExecuteNonQuery();
@@ -211,9 +217,9 @@ public class SqlServerTestStore : RelationalTestStore
     {
         var result = $"CREATE DATABASE [{name}]";
 
-        if (TestEnvironment.IsSqlAzure)
+        if (SqlServerTestEnvironment.IsAzureSql)
         {
-            var elasticGroupName = TestEnvironment.ElasticPoolName;
+            var elasticGroupName = SqlServerTestEnvironment.ElasticPoolName;
             result += Environment.NewLine
                 + (string.IsNullOrEmpty(elasticGroupName)
                     ? " ( Edition = 'basic' )"
@@ -291,7 +297,7 @@ END
                 var results = Enumerable.Empty<T>();
                 while (dataReader.Read())
                 {
-                    results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
+                    results = results.Concat([dataReader.GetFieldValue<T>(0)]);
                 }
 
                 return results;
@@ -308,7 +314,7 @@ END
                 var results = Enumerable.Empty<T>();
                 while (await dataReader.ReadAsync())
                 {
-                    results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                    results = results.Concat([await dataReader.GetFieldValueAsync<T>(0)]);
                 }
 
                 return results;
@@ -338,16 +344,20 @@ END
         bool useTransaction,
         object[]? parameters)
     {
+        var wasOpen = false;
+
         if (connection.State != ConnectionState.Closed)
         {
+            wasOpen = true;
             connection.Close();
         }
+
+        T result;
 
         connection.Open();
         try
         {
             using var transaction = useTransaction ? connection.BeginTransaction() : null;
-            T result;
             using (var command = CreateCommand(connection, sql, parameters))
             {
                 command.Transaction = transaction;
@@ -355,8 +365,6 @@ END
             }
 
             transaction?.Commit();
-
-            return result;
         }
         finally
         {
@@ -365,6 +373,13 @@ END
                 connection.Close();
             }
         }
+
+        if (wasOpen)
+        {
+            connection.Open();
+        }
+
+        return result;
     }
 
     private static Task<T> ExecuteAsync<T>(
@@ -391,16 +406,20 @@ END
         bool useTransaction,
         IReadOnlyList<object>? parameters)
     {
+        var wasOpen = false;
+
         if (connection.State != ConnectionState.Closed)
         {
+            wasOpen = true;
             await connection.CloseAsync();
         }
+
+        T result;
 
         await connection.OpenAsync();
         try
         {
             using var transaction = useTransaction ? await connection.BeginTransactionAsync() : null;
-            T result;
             using (var command = CreateCommand(connection, sql, parameters))
             {
                 result = await executeAsync(command);
@@ -410,8 +429,6 @@ END
             {
                 await transaction.CommitAsync();
             }
-
-            return result;
         }
         finally
         {
@@ -420,6 +437,13 @@ END
                 await connection.CloseAsync();
             }
         }
+
+        if (wasOpen)
+        {
+            await connection.OpenAsync();
+        }
+
+        return result;
     }
 
     private static DbCommand CreateCommand(
@@ -448,7 +472,7 @@ END
         await base.DisposeAsync();
 
         if (_fileName != null // Clean up the database using a local file, as it might get deleted later
-            || (TestEnvironment.IsSqlAzure && !Shared))
+            || (SqlServerTestEnvironment.IsAzureSql && !Shared))
         {
             await DeleteDatabaseAsync();
         }
@@ -462,7 +486,7 @@ END
 
     public static string CreateConnectionString(string name, string? fileName = null, bool? multipleActiveResultSets = null)
     {
-        var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
+        var builder = new SqlConnectionStringBuilder(SqlServerTestEnvironment.DefaultConnection)
         {
             MultipleActiveResultSets = multipleActiveResultSets ?? Random.Shared.Next(0, 2) == 1, InitialCatalog = name
         };

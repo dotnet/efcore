@@ -23,7 +23,7 @@ public abstract class QueryLoggingCosmosTestBase
     protected virtual bool ExpectSensitiveData
         => true;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Queryable_simple()
     {
         using var context = CreateContext();
@@ -44,10 +44,7 @@ public abstract class QueryLoggingCosmosTestBase
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "Customers", "None", "", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-"""),
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c"),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
         else
@@ -55,15 +52,12 @@ FROM root c
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "Customers", "?", "", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-"""),
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c"),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Queryable_with_parameter_outputs_parameter_value_logging_warning()
     {
         using var context = CreateContext();
@@ -87,29 +81,21 @@ FROM root c
         {
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
-                    "Customers", "None", "@__city_0='Redmond'", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["City"] = @__city_0)
-"""),
+                    "Customers", "None", "@city='Redmond'", Environment.NewLine,
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c" + Environment.NewLine + """WHERE (c["City"] = @city)"""),
                 Fixture.TestSqlLoggerFactory.Log[3].Message);
         }
         else
         {
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
-                    "Customers", "?", "@__city_0=?", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["City"] = @__city_0)
-"""),
+                    "Customers", "?", "@city=?", Environment.NewLine,
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c" + Environment.NewLine + """WHERE (c["City"] = @city)"""),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Skip_without_order_by()
     {
         using var context = CreateContext();
@@ -122,7 +108,7 @@ WHERE (c["City"] = @__city_0)
             Fixture.TestSqlLoggerFactory.Log[1].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Take_without_order_by()
     {
         using var context = CreateContext();

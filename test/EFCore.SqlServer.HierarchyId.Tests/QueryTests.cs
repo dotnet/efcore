@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer;
 
-[SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
 public class QueryTests : IDisposable
 {
     private readonly AbrahamicContext _db;
@@ -20,7 +20,7 @@ public class QueryTests : IDisposable
         _db.ClearSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetLevel_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -34,7 +34,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { "Abraham" }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsDescendantOf_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -49,7 +49,7 @@ public class QueryTests : IDisposable
         Assert.All(results, b => Assert.True(b));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsDescendantOf_can_translate_when_constant()
     {
         var results = (from p in _db.Patriarchy
@@ -64,7 +64,7 @@ public class QueryTests : IDisposable
         Assert.All(results, b => Assert.True(b));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetAncestor_0_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -78,7 +78,7 @@ public class QueryTests : IDisposable
         Assert.All(results, h => Assert.Equal(HierarchyId.GetRoot(), h));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetAncestor_1_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -92,7 +92,7 @@ public class QueryTests : IDisposable
         Assert.All(results, h => Assert.Equal(HierarchyId.GetRoot(), h));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetAncestor_2_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -106,7 +106,7 @@ public class QueryTests : IDisposable
         Assert.All(results, h => Assert.Equal(HierarchyId.GetRoot(), h));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetAncestor_3_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -120,7 +120,7 @@ public class QueryTests : IDisposable
         Assert.All(results, h => Assert.Equal(HierarchyId.GetRoot(), h));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetAncestor_of_root_returns_null()
     {
         var results = (from p in _db.Patriarchy
@@ -134,7 +134,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new HierarchyId[] { null }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetDescendent_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -148,7 +148,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { HierarchyId.Parse("/1/") }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetDescendent_can_translate_when_one_argument()
     {
         var results = (from p in _db.Patriarchy
@@ -162,7 +162,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { HierarchyId.Parse("/1/") }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HierarchyId_can_be_sent_as_parameter()
     {
         var results = (from p in _db.Patriarchy
@@ -176,7 +176,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { "Isaac" }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Converted_HierarchyId_can_be_sent_as_parameter()
     {
         var results = (from p in _db.ConvertedPatriarchy
@@ -190,7 +190,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { "Isaac" }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_insert_HierarchyId()
     {
         using (_db.Database.BeginTransaction())
@@ -221,7 +221,7 @@ public class QueryTests : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_insert_and_update_converted_HierarchyId()
     {
         using (_db.Database.BeginTransaction())
@@ -270,7 +270,7 @@ public class QueryTests : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HierarchyId_get_ancestor_of_level_is_root()
     {
         var results = (from p in _db.Patriarchy
@@ -291,7 +291,7 @@ public class QueryTests : IDisposable
         Assert.Equal(all, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void HierarchyId_can_call_method_on_parameter()
     {
         var isaac = HierarchyId.Parse("/1/");
@@ -302,19 +302,19 @@ public class QueryTests : IDisposable
 
         Assert.Equal(
             """
-            @__isaac_0='?' (DbType = Object)
+@isaac='?' (DbType = Object)
 
-            SELECT [p].[Name]
-            FROM [Patriarchy] AS [p]
-            WHERE @__isaac_0.IsDescendantOf([p].[Id]) = CAST(1 AS bit)
-            """,
+SELECT [p].[Name]
+FROM [Patriarchy] AS [p]
+WHERE @isaac.IsDescendantOf([p].[Id]) = CAST(1 AS bit)
+""",
             _db.Sql,
             ignoreLineEndingDifferences: true);
 
         Assert.Equal(new[] { "Abraham", "Isaac" }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ToString_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -328,7 +328,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { "/1/" }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ToString_can_translate_redux()
     {
         var results = (from p in _db.Patriarchy
@@ -342,7 +342,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { "Isaac", "Jacob", "Reuben" }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Parse_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -356,7 +356,7 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { HierarchyId.Parse("/") }, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Contains_with_parameter_list_can_translate()
     {
         var ids = new[] { HierarchyId.Parse("/1/1/7/"), HierarchyId.Parse("/1/1/99/") };
@@ -366,14 +366,12 @@ public class QueryTests : IDisposable
 
         Assert.Equal(
             """
-@__ids_0='?' (Size = 4000)
+@ids1='?' (DbType = Object)
+@ids2='?' (DbType = Object)
 
 SELECT TOP(2) [p].[Name]
 FROM [Patriarchy] AS [p]
-WHERE [p].[Id] IN (
-    SELECT CAST([i].[value] AS hierarchyid) AS [value]
-    FROM OPENJSON(@__ids_0) AS [i]
-)
+WHERE [p].[Id] IN (@ids1, @ids2)
 """,
             _db.Sql,
             ignoreLineEndingDifferences: true);

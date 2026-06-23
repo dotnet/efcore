@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NameSpace1;
@@ -10,24 +11,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalModelTest
     {
-        [ConditionalFact]
+        [Fact]
         public void GetRelationalModel_throws_if_convention_has_not_run()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             Assert.Equal(
                 CoreStrings.ModelNotFinalized("GetRelationalModel"),
-                Assert.Throws<InvalidOperationException>(
-                    () => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
+                Assert.Throws<InvalidOperationException>(() => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
         }
 
-        [ConditionalFact]
+        [Theory]
+        [InlineData(DeleteBehavior.Cascade, ReferentialAction.Cascade)]
+        [InlineData(DeleteBehavior.SetNull, ReferentialAction.SetNull)]
+        [InlineData(DeleteBehavior.SetDefault, ReferentialAction.SetDefault)]
+        [InlineData(DeleteBehavior.Restrict, ReferentialAction.Restrict)]
+        [InlineData(DeleteBehavior.NoAction, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientSetNull, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientCascade, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientNoAction, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientSetDefault, ReferentialAction.NoAction)]
+        public void ToReferentialAction_maps_DeleteBehavior_correctly(DeleteBehavior deleteBehavior, ReferentialAction expected)
+        {
+            Assert.Equal(expected, RelationalModel.ToReferentialAction(deleteBehavior));
+        }
+
+        [Fact]
         public void Both_design_and_runtime_RelationalModels_are_built_for_external_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Ignore<DateDetails>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
             modelBuilder.Entity<Order>().ToTable(tb => tb.HasCheckConstraint("OrderCK", "[Id] > 0"));
 
             var options = FakeRelationalTestHelpers.Instance.CreateOptions((IModel)modelBuilder.Model);
@@ -47,13 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(((Table)runtimeRelationalModel.Tables.Single()).CheckConstraints);
         }
 
-        [ConditionalTheory]
-        [InlineData(true, Mapping.TPH)]
-        [InlineData(true, Mapping.TPT)]
-        [InlineData(true, Mapping.TPC)]
-        [InlineData(false, Mapping.TPH)]
-        [InlineData(false, Mapping.TPT)]
-        [InlineData(false, Mapping.TPC)]
+        [Theory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
+         InlineData(false, Mapping.TPH), InlineData(false, Mapping.TPT), InlineData(false, Mapping.TPC)]
         public void Can_use_relational_model_with_tables(bool useExplicitMapping, Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: useExplicitMapping, mapping: mapping);
@@ -73,10 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertTables(model, mapping);
         }
 
-        [ConditionalTheory]
-        [InlineData(Mapping.TPH)]
-        [InlineData(Mapping.TPT)]
-        [InlineData(Mapping.TPC)]
+        [Theory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: false, mapToViews: true, mapping: mapping);
@@ -96,13 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertViews(model, mapping);
         }
 
-        [ConditionalTheory]
-        [InlineData(true, Mapping.TPH)]
-        [InlineData(true, Mapping.TPT)]
-        [InlineData(true, Mapping.TPC)]
-        [InlineData(false, Mapping.TPH)]
-        [InlineData(false, Mapping.TPT)]
-        [InlineData(false, Mapping.TPC)]
+        [Theory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
+         InlineData(false, Mapping.TPH), InlineData(false, Mapping.TPT), InlineData(false, Mapping.TPC)]
         public void Can_use_relational_model_with_sprocs(bool mapToTables, Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: mapToTables, mapToSprocs: true, mapping: mapping);
@@ -132,10 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertSprocs(model, mapping, mappedToTables: true);
         }
 
-        [ConditionalTheory(Skip = "#28703")]
-        [InlineData(Mapping.TPH)]
-        [InlineData(Mapping.TPT)]
-        [InlineData(Mapping.TPC)]
+        [Theory(Skip = "#28703"), InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_sprocs_and_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToViews: true, mapToSprocs: true, mapping: mapping);
@@ -163,10 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertSprocs(model, mapping);
         }
 
-        [ConditionalTheory]
-        [InlineData(Mapping.TPH)]
-        [InlineData(Mapping.TPT)]
-        [InlineData(Mapping.TPC)]
+        [Theory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_tables_and_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: true, mapToViews: true, mapping: mapping);
@@ -199,13 +196,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderMapping = orderType.GetDefaultMappings().Single();
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                [nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersTable = orderMapping.Table;
-            Assert.Equal(new[] { nameof(Order) }, ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
+            Assert.Equal([nameof(Order), nameof(OrderDetails)], ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), "OrderDate" },
+                [
+                    nameof(OrderDetails.Active), nameof(Order.AlternateId), nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number), nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value), nameof(Order.CustomerId), nameof(Order.Id),
+                    nameof(OrderDetails.OrderDate), nameof(OrderDetails.OrderId)
+                ],
                 ordersTable.Columns.Select(m => m.Name));
             Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.RelationalModelTest+Order", ordersTable.Name);
             Assert.Null(ordersTable.Schema);
@@ -225,24 +225,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             var orderDetailsTable = orderDetailsType.GetDefaultMappings().Single().Table;
-            Assert.NotEqual(ordersTable, orderDetailsTable);
+            Assert.Same(ordersTable, orderDetailsTable);
             Assert.Empty(ordersTable.GetReferencingRowInternalForeignKeys(orderType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersTable.IsOptional(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersTable.IsOptional(specialCustomerType)).Message);
 
+            var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
             var orderDateColumn = orderDateMapping.Column;
             Assert.Same(orderDateColumn, ordersTable.FindColumn("OrderDate"));
             Assert.Same(orderDateColumn, ordersTable.FindColumn(orderDate));
-            Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDetailsTable.FindColumn("OrderDate").PropertyMappings.Select(m => m.Property));
             Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersTable, orderDateColumn.Table);
-
-            var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.Equal(new[] { orderDetailsDate }, orderDetailsTable.FindColumn("OrderDate").PropertyMappings.Select(m => m.Property));
 
             var customerTable = customerType.GetDefaultMappings().Last().Table;
             Assert.False(customerTable.IsOptional(customerType));
@@ -250,8 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Equal(
                     RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerTable.Name),
-                    Assert.Throws<InvalidOperationException>(
-                        () => customerTable.IsOptional(specialCustomerType)).Message);
+                    Assert.Throws<InvalidOperationException>(() => customerTable.IsOptional(specialCustomerType)).Message);
             }
             else
             {
@@ -271,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 var specialCustomerTable = specialCustomerType.GetDefaultMappings().Last().Table;
                 Assert.Null(specialCustomerTable.Schema);
-                Assert.Equal(4, specialCustomerTable.Columns.Count());
+                Assert.Equal(7, specialCustomerTable.Columns.Count());
 
                 Assert.Null(
                     specialCustomerTable.EntityTypeMappings.Single(m => m.TypeBase == specialCustomerType).IsSharedTablePrincipal);
@@ -299,10 +296,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.True(specialCustomerTableMapping.IncludesDerivedTypes);
                     Assert.Same(customerTable, specialCustomerTable);
 
-                    Assert.Equal(5, specialCustomerTable.EntityTypeMappings.Count());
+                    Assert.Equal(6, specialCustomerTable.EntityTypeMappings.Count());
                     Assert.All(specialCustomerTable.EntityTypeMappings, t => Assert.Null(t.IsSharedTablePrincipal));
 
-                    Assert.Equal(10, specialCustomerTable.Columns.Count());
+                    Assert.Equal(14, specialCustomerTable.Columns.Count());
 
                     Assert.True(specialtyColumn.IsNullable);
                 }
@@ -327,24 +324,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var orderType = model.Model.FindEntityType(typeof(Order))!;
             var orderMapping = orderType.GetViewMappings().Single();
-            Assert.Equal(orderType.GetViewMappings(), orderType.GetViewOrTableMappings());
+            Assert.Equal(orderType.GetViewMappings(), orderType.GetQueryMappings());
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                [nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersView = orderMapping.View;
             Assert.Same(ordersView, model.FindView(ordersView.Name, ordersView.Schema));
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
-                },
+                ],
                 ordersView.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(Order.AlternateId),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value),
                     nameof(Order.CustomerId),
                     "Details_Active",
                     "Details_BillingAddress_City",
@@ -353,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     "Details_ShippingAddress_Street",
                     nameof(Order.Id),
                     "OrderDate"
-                },
+                ],
                 ordersView.Columns.Select(m => m.Name));
             Assert.Equal("OrderView", ordersView.Name);
             Assert.Equal("viewSchema", ordersView.Schema);
@@ -379,18 +376,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ordersView.GetReferencingRowInternalForeignKeys(orderType), ordersView.GetRowInternalForeignKeys(orderDetailsType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.SchemaQualifiedName),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersView.GetReferencingRowInternalForeignKeys(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersView.GetReferencingRowInternalForeignKeys(specialCustomerType))
+                    .Message);
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.SchemaQualifiedName),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersView.GetRowInternalForeignKeys(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersView.GetRowInternalForeignKeys(specialCustomerType)).Message);
             Assert.False(ordersView.IsOptional(orderType));
             Assert.True(ordersView.IsOptional(orderDetailsType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.SchemaQualifiedName),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersView.IsOptional(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersView.IsOptional(specialCustomerType)).Message);
 
             var orderDateColumn = orderDateMapping.Column;
             Assert.Same(orderDateColumn, ordersView.FindColumn("OrderDate"));
@@ -398,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderDateColumn, ordersView.FindColumn(orderDate));
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDateColumn.PropertyMappings.Select(m => m.Property));
             Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
@@ -410,8 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Equal(
                     RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerView.SchemaQualifiedName),
-                    Assert.Throws<InvalidOperationException>(
-                        () => customerView.IsOptional(specialCustomerType)).Message);
+                    Assert.Throws<InvalidOperationException>(() => customerView.IsOptional(specialCustomerType)).Message);
             }
             else
             {
@@ -495,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("viewSchema", customerView.Schema);
                 Assert.Equal(3, specialCustomerType.GetViewMappings().Count());
                 Assert.Null(specialCustomerType.GetViewMappings().First().IsSplitEntityTypePrincipal);
-                Assert.False(specialCustomerType.GetViewMappings().First().IncludesDerivedTypes);
+                Assert.True(specialCustomerType.GetViewMappings().First().IncludesDerivedTypes);
                 Assert.Null(specialCustomerType.GetViewMappings().Last().IsSplitEntityTypePrincipal);
                 Assert.True(specialCustomerType.GetViewMappings().Last().IncludesDerivedTypes);
 
@@ -534,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.True(specialCustomerViewMapping.IncludesDerivedTypes);
                     Assert.Same(customerView, specialCustomerView);
 
-                    Assert.Equal(12, specialCustomerView.Columns.Count());
+                    Assert.Equal(13, specialCustomerView.Columns.Count());
 
                     Assert.Equal(6, specialCustomerView.EntityTypeMappings.Count());
                     Assert.True(specialCustomerView.EntityTypeMappings.First().IsSharedTablePrincipal);
@@ -576,22 +570,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderMapping = orderType.GetTableMappings().Single();
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                [nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersTable = orderMapping.Table;
             Assert.Same(ordersTable, model.FindTable(ordersTable.Name, ordersTable.Schema));
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
-                },
+                ],
                 ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(Order.Id),
                     nameof(Order.AlternateId),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value),
                     nameof(Order.CustomerId),
                     "Details_Active",
                     "Details_BillingAddress_City",
@@ -599,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     "Details_ShippingAddress_City",
                     "Details_ShippingAddress_Street",
                     nameof(Order.OrderDate)
-                },
+                ],
                 ordersTable.Columns.Select(m => m.Name));
             Assert.Equal("Order", ordersTable.Name);
             Assert.Null(ordersTable.Schema);
@@ -686,25 +680,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ordersTable.GetReferencingRowInternalForeignKeys(orderType), ordersTable.GetRowInternalForeignKeys(orderDetailsType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersTable.GetReferencingRowInternalForeignKeys(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersTable.GetReferencingRowInternalForeignKeys(specialCustomerType))
+                    .Message);
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersTable.GetRowInternalForeignKeys(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersTable.GetRowInternalForeignKeys(specialCustomerType)).Message);
             Assert.False(ordersTable.IsOptional(orderType));
             Assert.True(ordersTable.IsOptional(orderDetailsType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersTable.IsOptional(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersTable.IsOptional(specialCustomerType)).Message);
             Assert.Empty(orderDetailsOwnership.GetMappedConstraints());
             Assert.Equal(2, orderDetailsType.GetForeignKeys().Count());
 
             var orderDetailsDateIndex = orderDetailsType.GetIndexes().Single(i => i.Properties.Any(p => p.Name == nameof(Order.OrderDate)));
             var orderDetailsDateTableIndex = orderDetailsDateIndex.GetMappedTableIndexes().Single();
             Assert.Same(orderDateTableIndex, orderDetailsDateTableIndex);
-            Assert.Equal(new[] { orderDateIndex, orderDetailsDateIndex }, orderDateTableIndex.MappedIndexes);
+            Assert.Equal([orderDateIndex, orderDetailsDateIndex], orderDateTableIndex.MappedIndexes);
 
             var orderDetailsPk = orderDetailsType.FindPrimaryKey();
             Assert.Same(orderPkConstraint, orderDetailsPk.GetMappedConstraints().Single());
@@ -723,21 +715,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var shippingAddressType = shippingAddressOwnership.DeclaringEntityType;
 
             Assert.Equal(
-                new[] { orderPk, billingAddressType.FindPrimaryKey(), shippingAddressType.FindPrimaryKey(), orderDetailsPk },
+                [orderPk, billingAddressType.FindPrimaryKey(), shippingAddressType.FindPrimaryKey(), orderDetailsPk],
                 orderPkConstraint.MappedKeys);
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDateColumn.PropertyMappings.Select(m => m.Property));
 
             var orderDetailsAk = orderDetailsType.GetKeys().Single(k => k != orderDetailsPk);
             var orderDetailsAkConstraint = orderDetailsAk.GetMappedConstraints().Single();
             Assert.Same(orderAkConstraint, orderDetailsAkConstraint);
-            Assert.Equal(new[] { orderAk, orderDetailsAk }, orderAkConstraint.MappedKeys);
+            Assert.Equal([orderAk, orderDetailsAk], orderAkConstraint.MappedKeys);
 
             var orderDetailsDateFk = orderDetailsType.GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(DateDetails));
             var orderDetailsDateFkConstraint = orderDateFk.GetMappedConstraints().Single();
             Assert.Same(orderDateFkConstraint, orderDetailsDateFkConstraint);
-            Assert.Equal(new[] { orderDateFk, orderDetailsDateFk }, orderDateFkConstraint.MappedForeignKeys);
+            Assert.Equal([orderDateFk, orderDetailsDateFk], orderDateFkConstraint.MappedForeignKeys);
 
             Assert.Equal("FK_DateDetails", orderDateFkConstraint.Name);
 
@@ -778,8 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Equal(
                     RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerTable.Name),
-                    Assert.Throws<InvalidOperationException>(
-                        () => customerTable.IsOptional(specialCustomerType)).Message);
+                    Assert.Throws<InvalidOperationException>(() => customerTable.IsOptional(specialCustomerType)).Message);
             }
             else
             {
@@ -794,6 +785,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var customerPk = specialCustomerType.FindPrimaryKey();
 
+            var complexType = abstractBaseType.GetComplexProperties().Single().ComplexType;
+
             if (mapping == Mapping.TPT)
             {
                 var baseTable = abstractBaseType.GetTableMappings().Single().Table;
@@ -801,6 +794,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(nameof(Customer), customerTable.Name);
                 Assert.Null(abstractCustomerType.GetTableName());
                 Assert.Equal(nameof(SpecialCustomer), specialCustomerType.GetTableName());
+
+                Assert.Same(baseTable, complexType.GetTableMappings().Single().Table);
+
                 Assert.Equal(3, specialCustomerType.GetTableMappings().Count());
                 Assert.Null(specialCustomerType.GetTableMappings().First().IsSplitEntityTypePrincipal);
                 Assert.True(specialCustomerType.GetTableMappings().First().IncludesDerivedTypes);
@@ -816,18 +812,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var specialtyColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Specialty));
                 Assert.False(specialtyColumn.IsNullable);
 
-                var addressColumn = specialCustomerTable.Columns.Single(
-                    c =>
-                        c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
+                var addressColumn = specialCustomerTable.Columns.Single(c =>
+                    c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
                 Assert.False(addressColumn.IsNullable);
                 var specialtyProperty = specialtyColumn.PropertyMappings.First().Property;
 
                 Assert.Equal(
                     RelationalStrings.PropertyNotMappedToTable(
                         nameof(SpecialCustomer.Specialty), nameof(SpecialCustomer), "Customer"),
-                    Assert.Throws<InvalidOperationException>(
-                            () =>
-                                specialtyProperty.IsColumnNullable(StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema)))
+                    Assert.Throws<InvalidOperationException>(() =>
+                            specialtyProperty.IsColumnNullable(StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema)))
                         .Message);
 
                 var abstractStringColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(AbstractCustomer.AbstractString));
@@ -837,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var abstractStringProperty = abstractStringColumn.PropertyMappings.First().Property;
                 Assert.Equal(2, abstractStringProperty.GetTableColumnMappings().Count());
                 Assert.Equal(
-                    new[] { StoreObjectIdentifier.Table(specialCustomerTable.Name, specialCustomerTable.Schema) },
+                    [StoreObjectIdentifier.Table(specialCustomerTable.Name, specialCustomerTable.Schema)],
                     abstractStringProperty.GetMappedStoreObjects(StoreObjectType.Table));
 
                 var extraSpecialCustomerTable =
@@ -855,13 +849,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var idProperty = customerPk.Properties.Single();
                 Assert.Equal(10, idProperty.GetTableColumnMappings().Count());
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         StoreObjectIdentifier.Table(baseTable.Name, baseTable.Schema),
                         StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema),
                         StoreObjectIdentifier.Table(specialCustomerTable.Name, specialCustomerTable.Schema),
                         StoreObjectIdentifier.Table(extraSpecialCustomerTable.Name, extraSpecialCustomerTable.Schema)
-                    },
+                    ],
                     idProperty.GetMappedStoreObjects(StoreObjectType.Table));
 
                 var customerFk = customerTable.ForeignKeyConstraints.Single();
@@ -878,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("Customer", orderCustomerFkConstraint.PrincipalTable.Name);
                 Assert.Equal(ReferentialAction.Cascade, orderCustomerFkConstraint.OnDeleteAction);
                 Assert.Equal(orderCustomerFk, orderCustomerFkConstraint.MappedForeignKeys.Single());
-                Assert.Equal(new[] { orderDateFkConstraint, orderCustomerFkConstraint }, ordersTable.ForeignKeyConstraints);
+                Assert.Equal([orderDateFkConstraint, orderCustomerFkConstraint], ordersTable.ForeignKeyConstraints);
                 Assert.Empty(ordersTable.ReferencingForeignKeyConstraints);
 
                 Assert.Equal(orderCustomerFkConstraint.Name, orderCustomerFk.GetConstraintName());
@@ -918,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(ReferentialAction.Cascade, specialCustomerTptFkConstraint.OnDeleteAction);
 
                 Assert.Equal(
-                    new[] { orderCustomerFkConstraint, specialCustomerTptFkConstraint }, customerTable.ReferencingForeignKeyConstraints);
+                    [orderCustomerFkConstraint, specialCustomerTptFkConstraint], customerTable.ReferencingForeignKeyConstraints);
 
                 var specialCustomerDbIndex = specialCustomerTable.Indexes.Last();
                 Assert.Equal("IX_SpecialCustomer_RelatedCustomerSpecialty", specialCustomerDbIndex.Name);
@@ -956,6 +949,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(baseTable.Name, abstractCustomerType.GetTableName());
                     Assert.Equal(baseTable.Name, specialCustomerType.GetTableName());
 
+                    Assert.Same(baseTable, complexType.GetTableMappings().Single().Table);
+
                     Assert.True(specialCustomerTypeMapping.IncludesDerivedTypes);
                     Assert.Same(customerTable, specialCustomerTable);
 
@@ -963,11 +958,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.True(specialCustomerTable.EntityTypeMappings.First().IsSharedTablePrincipal);
                     Assert.False(specialCustomerTable.EntityTypeMappings.Last().IsSharedTablePrincipal);
 
-                    Assert.Equal(12, specialCustomerTable.Columns.Count());
+                    Assert.Equal(13, specialCustomerTable.Columns.Count());
 
-                    var addressColumn = specialCustomerTable.Columns.Single(
-                        c =>
-                            c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
+                    var addressColumn = specialCustomerTable.Columns.Single(c =>
+                        c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
 
                     Assert.True(specialtyColumn.IsNullable);
                     Assert.True(addressColumn.IsNullable);
@@ -979,12 +973,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     var abstractStringProperty = abstractStringColumn.PropertyMappings.First().Property;
                     Assert.Equal(3, abstractStringProperty.GetTableColumnMappings().Count());
                     Assert.Equal(
-                        new[] { StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema) },
+                        [StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema)],
                         abstractStringProperty.GetMappedStoreObjects(StoreObjectType.Table));
 
                     Assert.Equal(5, idProperty.GetTableColumnMappings().Count());
                     Assert.Equal(
-                        new[] { StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema) },
+                        [StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema)],
                         idProperty.GetMappedStoreObjects(StoreObjectType.Table));
 
                     var orderCustomerFkConstraint = orderCustomerFk.GetMappedConstraints().Single();
@@ -996,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(baseTable.Name, orderCustomerFkConstraint.PrincipalTable.Name);
                     Assert.Equal(ReferentialAction.Cascade, orderCustomerFkConstraint.OnDeleteAction);
                     Assert.Equal(orderCustomerFk, orderCustomerFkConstraint.MappedForeignKeys.Single());
-                    Assert.Equal(new[] { orderDateFkConstraint, orderCustomerFkConstraint }, ordersTable.ForeignKeyConstraints);
+                    Assert.Equal([orderDateFkConstraint, orderCustomerFkConstraint], ordersTable.ForeignKeyConstraints);
                     Assert.Empty(ordersTable.ReferencingForeignKeyConstraints);
 
                     Assert.Equal(orderCustomerFkConstraint.Name, orderCustomerFk.GetConstraintName());
@@ -1022,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.NotNull(anotherSpecialCustomerFkConstraint.MappedForeignKeys.Single());
 
                     Assert.Equal(
-                        new[] { anotherSpecialCustomerFkConstraint, specialCustomerFkConstraint, orderCustomerFkConstraint },
+                        [anotherSpecialCustomerFkConstraint, specialCustomerFkConstraint, orderCustomerFkConstraint],
                         customerTable.ReferencingForeignKeyConstraints);
 
                     Assert.Equal("IX_AbstractBase_RelatedCustomerSpecialty", specialCustomerDbIndex.Name);
@@ -1035,6 +1029,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Null(abstractCustomerType.GetTableName());
                     Assert.Equal(nameof(SpecialCustomer), specialCustomerType.GetTableName());
 
+                    Assert.Equal(idProperty.GetTableColumnMappings().Select(m => m.TableMapping.Table).OrderBy(t => t.Name),
+                        complexType.GetTableMappings().Select(m => m.Table).OrderBy(t => t.Name));
+
                     Assert.False(specialCustomerTypeMapping.IncludesDerivedTypes);
                     Assert.NotSame(customerTable, specialCustomerTable);
 
@@ -1042,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Empty(customerTable.ReferencingForeignKeyConstraints);
 
                     Assert.Null(customerTable.EntityTypeMappings.Single().IsSharedTablePrincipal);
-                    Assert.Equal(5, customerTable.Columns.Count());
+                    Assert.Equal(6, customerTable.Columns.Count());
 
                     Assert.Single(specialCustomerTable.EntityTypeMappings);
 
@@ -1054,29 +1051,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Equal(2, extraSpecialCustomerTable.EntityTypeMappings.Count());
 
-                    var addressColumn = extraSpecialCustomerTable.Columns.Single(
-                        c =>
-                            c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
+                    var addressColumn = extraSpecialCustomerTable.Columns.Single(c =>
+                        c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
                     Assert.False(addressColumn.IsNullable);
 
                     var abstractStringProperty = abstractStringColumn.PropertyMappings.Single().Property;
                     Assert.Equal(2, abstractStringProperty.GetTableColumnMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             StoreObjectIdentifier.Table(specialCustomerTable.Name, specialCustomerTable.Schema),
                             StoreObjectIdentifier.Table(extraSpecialCustomerTable.Name, extraSpecialCustomerTable.Schema)
-                        },
+                        ],
                         abstractStringProperty.GetMappedStoreObjects(StoreObjectType.Table));
 
                     Assert.Equal(3, idProperty.GetTableColumnMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema),
                             StoreObjectIdentifier.Table(specialCustomerTable.Name, specialCustomerTable.Schema),
                             StoreObjectIdentifier.Table(extraSpecialCustomerTable.Name, extraSpecialCustomerTable.Schema)
-                        },
+                        ],
                         idProperty.GetMappedStoreObjects(StoreObjectType.Table));
 
                     // Derived principal entity types are mapped to different tables, so the constraint is not enforceable
@@ -1119,11 +1113,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderType.GetInsertStoredProcedure(), orderInsertMapping.StoredProcedure);
 
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
                 orderInsertMapping.ParameterMappings.Select(m => m.Property.Name));
 
             Assert.Equal(
-                new[] { nameof(Order.Id) },
+                [nameof(Order.Id)],
                 orderInsertMapping.ResultColumnMappings.Select(m => m.Property.Name));
             Assert.Equal(orderInsertMapping.ResultColumnMappings, orderInsertMapping.ColumnMappings);
 
@@ -1134,19 +1128,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(ordersInsertSproc.IsShared);
             Assert.Same(ordersInsertSproc, model.FindStoredProcedure(ordersInsertSproc.Name, ordersInsertSproc.Schema));
             Assert.Equal(
-                new[] { nameof(Order) },
+                [nameof(Order)],
                 ordersInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
                 ordersInsertSproc.Parameters.Select(m => m.Name));
 
             Assert.Equal(
-                new[] { 0, 1, 2 },
+                [0, 1, 2],
                 ordersInsertSproc.Parameters.Select(m => m.Position));
 
             Assert.Equal(
-                new[] { nameof(Order.Id) },
+                [nameof(Order.Id)],
                 ordersInsertSproc.ResultColumns.Select(m => m.Name));
             Assert.Equal(ordersInsertSproc.ResultColumns, ordersInsertSproc.Columns);
 
@@ -1180,21 +1174,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(ordersInsertSproc.GetReferencingRowInternalForeignKeys(orderType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersInsertSproc.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersInsertSproc.GetReferencingRowInternalForeignKeys(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersInsertSproc.GetReferencingRowInternalForeignKeys(specialCustomerType))
+                    .Message);
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersInsertSproc.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersInsertSproc.GetRowInternalForeignKeys(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersInsertSproc.GetRowInternalForeignKeys(specialCustomerType)).Message);
             Assert.False(ordersInsertSproc.IsOptional(orderType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(OrderDetails), ordersInsertSproc.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersInsertSproc.IsOptional(orderDetailsType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersInsertSproc.IsOptional(orderDetailsType)).Message);
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersInsertSproc.Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => ordersInsertSproc.IsOptional(specialCustomerType)).Message);
+                Assert.Throws<InvalidOperationException>(() => ordersInsertSproc.IsOptional(specialCustomerType)).Message);
 
             var tableMapping = orderInsertMapping.TableMapping;
             if (mappedToTables)
@@ -1223,11 +1214,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("BillingAddress_Insert", billingAddressInsertSproc.Name);
             Assert.Null(billingAddressInsertSproc.Schema);
             Assert.Equal(
-                new[] { "OrderDetails.BillingAddress#Address" },
+                ["OrderDetails.BillingAddress#Address"],
                 billingAddressInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
-                new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId" },
+                [nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId"],
                 billingAddressInsertSproc.Parameters.Select(m => m.Name));
 
             Assert.Empty(billingAddressInsertSproc.ResultColumns.Select(m => m.Name));
@@ -1240,11 +1231,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("BillingAddress_Update", billingAddressUpdateSproc.Name);
             Assert.Null(billingAddressUpdateSproc.Schema);
             Assert.Equal(
-                new[] { "OrderDetails.BillingAddress#Address" },
+                ["OrderDetails.BillingAddress#Address"],
                 billingAddressUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
-                new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId_Original" },
+                [nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId_Original"],
                 billingAddressUpdateSproc.Parameters.Select(m => m.Name));
 
             Assert.Empty(billingAddressUpdateSproc.ResultColumns.Select(m => m.Name));
@@ -1257,16 +1248,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("BillingAddress_Delete", billingAddressDeleteSproc.Name);
             Assert.Null(billingAddressDeleteSproc.Schema);
             Assert.Equal(
-                new[] { "OrderDetails.BillingAddress#Address" },
+                ["OrderDetails.BillingAddress#Address"],
                 billingAddressDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
-                new[] { "OrderDetailsOrderId_Original" },
+                ["OrderDetailsOrderId_Original"],
                 billingAddressDeleteSproc.Parameters.Select(m => m.Name));
 
             Assert.Empty(billingAddressDeleteSproc.ResultColumns.Select(m => m.Name));
 
-            Assert.Equal(new[] { orderDate }, orderDateParameter.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate], orderDateParameter.PropertyMappings.Select(m => m.Property));
 
             var specialCustomerInsertSproc =
                 specialCustomerType.GetInsertStoredProcedureMappings().Last().StoreStoredProcedure;
@@ -1281,8 +1272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Equal(
                     RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerInsertSproc.Name),
-                    Assert.Throws<InvalidOperationException>(
-                        () => customerInsertSproc.IsOptional(specialCustomerType)).Message);
+                    Assert.Throws<InvalidOperationException>(() => customerInsertSproc.IsOptional(specialCustomerType)).Message);
             }
             else
             {
@@ -1296,8 +1286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Equal(
                     RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerUpdateSproc.Name),
-                    Assert.Throws<InvalidOperationException>(
-                        () => customerUpdateSproc.IsOptional(specialCustomerType)).Message);
+                    Assert.Throws<InvalidOperationException>(() => customerUpdateSproc.IsOptional(specialCustomerType)).Message);
             }
             else
             {
@@ -1311,8 +1300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Equal(
                     RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerDeleteSproc.Name),
-                    Assert.Throws<InvalidOperationException>(
-                        () => customerDeleteSproc.IsOptional(specialCustomerType)).Message);
+                    Assert.Throws<InvalidOperationException>(() => customerDeleteSproc.IsOptional(specialCustomerType)).Message);
             }
             else
             {
@@ -1330,7 +1318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Same(abstractBaseType.GetInsertStoredProcedure(), baseInsertMapping.StoredProcedure);
 
                 Assert.Equal(
-                    new[] { nameof(AbstractBase.Id), "SpecialtyAk" },
+                    [nameof(AbstractBase.Id), "SpecialtyAk"],
                     baseInsertMapping.ParameterMappings.Select(m => m.Property.Name));
 
                 Assert.Empty(baseInsertMapping.ResultColumnMappings.Select(m => m.Property.Name));
@@ -1346,18 +1334,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         .Name);
                 Assert.Null(baseInsertSproc.Schema);
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         nameof(AbstractBase),
                         nameof(AbstractCustomer),
                         nameof(Customer),
                         nameof(SpecialCustomer),
                         nameof(ExtraSpecialCustomer)
-                    },
+                    ],
                     baseInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                 Assert.Equal(
-                    new[] { "InsertId", "SpecialtyAk" },
+                    ["InsertId", "SpecialtyAk"],
                     baseInsertSproc.Parameters.Select(m => m.Name));
 
                 Assert.Empty(baseInsertSproc.ResultColumns.Select(m => m.Name));
@@ -1368,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Same(abstractBaseType.GetUpdateStoredProcedure(), baseUpdateMapping.StoredProcedure);
 
                 Assert.Equal(
-                    new[] { nameof(AbstractBase.Id), "SpecialtyAk" },
+                    [nameof(AbstractBase.Id), "SpecialtyAk"],
                     baseUpdateMapping.ParameterMappings.Select(m => m.Property.Name));
 
                 Assert.Empty(
@@ -1386,18 +1373,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Null(baseUpdateSproc.Schema);
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         nameof(AbstractBase),
                         nameof(AbstractCustomer),
                         nameof(Customer),
                         nameof(SpecialCustomer),
                         nameof(ExtraSpecialCustomer)
-                    },
+                    ],
                     baseUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                 Assert.Equal(
-                    new[] { "UpdateId", "SpecialtyAk_Original" },
+                    ["UpdateId", "SpecialtyAk_Original"],
                     baseUpdateSproc.Parameters.Select(m => m.Name));
 
                 Assert.Empty(baseUpdateSproc.ResultColumns.Select(m => m.Name));
@@ -1408,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Same(abstractBaseType.GetDeleteStoredProcedure(), baseDeleteMapping.StoredProcedure);
 
                 Assert.Equal(
-                    new[] { nameof(AbstractBase.Id) },
+                    [nameof(AbstractBase.Id)],
                     baseDeleteMapping.ParameterMappings.Select(m => m.Property.Name));
 
                 Assert.Empty(
@@ -1426,18 +1412,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Null(baseDeleteSproc.Schema);
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         nameof(AbstractBase),
                         nameof(AbstractCustomer),
                         nameof(Customer),
                         nameof(SpecialCustomer),
                         nameof(ExtraSpecialCustomer)
-                    },
+                    ],
                     baseDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                 Assert.Equal(
-                    new[] { "DeleteId" },
+                    ["DeleteId"],
                     baseDeleteSproc.Parameters.Select(m => m.Name));
 
                 Assert.Empty(baseDeleteSproc.ResultColumns.Select(m => m.Name));
@@ -1466,10 +1451,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(
                     RelationalStrings.PropertyNotMappedToTable(
                         nameof(SpecialCustomer.Specialty), nameof(SpecialCustomer), "Customer_Insert"),
-                    Assert.Throws<InvalidOperationException>(
-                            () =>
-                                specialtyProperty.IsColumnNullable(
-                                    StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema)))
+                    Assert.Throws<InvalidOperationException>(() =>
+                            specialtyProperty.IsColumnNullable(
+                                StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema)))
                         .Message);
 
                 var abstractStringParameter =
@@ -1480,10 +1464,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var abstractStringProperty = abstractStringParameter.PropertyMappings.First().Property;
                 Assert.Equal(2, abstractStringProperty.GetInsertStoredProcedureParameterMappings().Count());
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         StoreObjectIdentifier.InsertStoredProcedure(specialCustomerInsertSproc.Name, specialCustomerInsertSproc.Schema)
-                    },
+                    ],
                     abstractStringProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
 
                 var extraSpecialCustomerInsertSproc =
@@ -1504,14 +1487,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(2, idProperty.GetInsertStoredProcedureResultColumnMappings().Count());
                 Assert.Equal(10, idProperty.GetInsertStoredProcedureParameterMappings().Count());
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         StoreObjectIdentifier.InsertStoredProcedure(baseInsertSproc.Name, baseInsertSproc.Schema),
                         StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema),
                         StoreObjectIdentifier.InsertStoredProcedure(specialCustomerInsertSproc.Name, specialCustomerInsertSproc.Schema),
                         StoreObjectIdentifier.InsertStoredProcedure(
                             extraSpecialCustomerInsertSproc.Name, extraSpecialCustomerInsertSproc.Schema)
-                    },
+                    ],
                     idProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
 
                 var extraSpecialCustomerUpdateSproc =
@@ -1533,14 +1515,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Empty(idProperty.GetUpdateStoredProcedureResultColumnMappings());
                 Assert.Equal(12, idProperty.GetUpdateStoredProcedureParameterMappings().Count());
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         StoreObjectIdentifier.UpdateStoredProcedure(baseUpdateSproc.Name, baseUpdateSproc.Schema),
                         StoreObjectIdentifier.UpdateStoredProcedure(customerUpdateSproc.Name, customerUpdateSproc.Schema),
                         StoreObjectIdentifier.UpdateStoredProcedure(specialCustomerUpdateSproc.Name, specialCustomerUpdateSproc.Schema),
                         StoreObjectIdentifier.UpdateStoredProcedure(
                             extraSpecialCustomerUpdateSproc.Name, extraSpecialCustomerUpdateSproc.Schema)
-                    },
+                    ],
                     idProperty.GetMappedStoreObjects(StoreObjectType.UpdateStoredProcedure));
 
                 var extraSpecialCustomerDeleteSproc =
@@ -1561,14 +1542,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Equal(12, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
                 Assert.Equal(
-                    new[]
-                    {
+                    [
                         StoreObjectIdentifier.DeleteStoredProcedure(baseDeleteSproc.Name, baseDeleteSproc.Schema),
                         StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema),
                         StoreObjectIdentifier.DeleteStoredProcedure(specialCustomerDeleteSproc.Name, specialCustomerDeleteSproc.Schema),
                         StoreObjectIdentifier.DeleteStoredProcedure(
                             extraSpecialCustomerDeleteSproc.Name, extraSpecialCustomerDeleteSproc.Schema)
-                    },
+                    ],
                     idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
             }
             else // Non-TPT
@@ -1585,11 +1565,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(abstractBaseType.GetInsertStoredProcedure(), baseInsertMapping.StoredProcedure);
 
                     Assert.Equal(
-                        new[] { "Discriminator", "SpecialtyAk" },
+                        ["Discriminator", "SpecialtyAk"],
                         baseInsertMapping.ParameterMappings.Select(m => m.Property.Name));
 
                     Assert.Equal(
-                        new[] { nameof(AbstractBase.Id) },
+                        [nameof(AbstractBase.Id)],
                         baseInsertMapping.ResultColumnMappings.Select(m => m.Property.Name));
                     Assert.Equal(baseInsertMapping.ResultColumnMappings, baseInsertMapping.ColumnMappings);
 
@@ -1602,19 +1582,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(baseInsertSproc, baseInsertMapping.Table);
                     Assert.Null(baseInsertSproc.Schema);
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             nameof(AbstractBase),
                             nameof(AbstractCustomer),
                             nameof(Customer),
                             nameof(SpecialCustomer),
                             nameof(ExtraSpecialCustomer)
-                        },
+                        ],
                         baseInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             "Discriminator",
                             nameof(SpecialCustomer.Specialty),
                             nameof(SpecialCustomer.RelatedCustomerSpecialty),
@@ -1623,11 +1601,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(Customer.EnumValue),
                             nameof(Customer.Name),
                             nameof(Customer.SomeShort),
-                            nameof(AbstractCustomer.AbstractString),
-                        },
+                            nameof(AbstractCustomer.AbstractString)
+                        ],
                         baseInsertSproc.Parameters.Select(m => m.Name));
 
-                    Assert.Equal(new[] { "InsertId" }, baseInsertSproc.ResultColumns.Select(m => m.Name));
+                    Assert.Equal(["InsertId"], baseInsertSproc.ResultColumns.Select(m => m.Name));
                     Assert.Equal(baseInsertSproc.ResultColumns, baseInsertSproc.Columns);
 
                     Assert.True(specialCustomerInsertMapping.IncludesDerivedTypes);
@@ -1645,7 +1623,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(abstractBaseType.GetUpdateStoredProcedure(), baseUpdateMapping.StoredProcedure);
 
                     Assert.Equal(
-                        new[] { nameof(AbstractBase.Id) },
+                        [nameof(AbstractBase.Id)],
                         baseUpdateMapping.ParameterMappings.Select(m => m.Property.Name));
 
                     Assert.Empty(
@@ -1661,19 +1639,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(baseUpdateSproc, baseUpdateMapping.Table);
                     Assert.Null(baseUpdateSproc.Schema);
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             nameof(AbstractBase),
                             nameof(AbstractCustomer),
                             nameof(Customer),
                             nameof(SpecialCustomer),
                             nameof(ExtraSpecialCustomer)
-                        },
+                        ],
                         baseUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             "UpdateId",
                             nameof(SpecialCustomer.Specialty),
                             nameof(SpecialCustomer.RelatedCustomerSpecialty),
@@ -1681,8 +1657,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(Customer.EnumValue),
                             nameof(Customer.Name),
                             nameof(Customer.SomeShort),
-                            nameof(AbstractCustomer.AbstractString),
-                        },
+                            nameof(AbstractCustomer.AbstractString)
+                        ],
                         baseUpdateSproc.Parameters.Select(m => m.Name));
 
                     Assert.Empty(baseUpdateSproc.ResultColumns.Select(m => m.Name));
@@ -1693,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(abstractBaseType.GetDeleteStoredProcedure(), baseDeleteMapping.StoredProcedure);
 
                     Assert.Equal(
-                        new[] { nameof(AbstractBase.Id) },
+                        [nameof(AbstractBase.Id)],
                         baseDeleteMapping.ParameterMappings.Select(m => m.Property.Name));
 
                     Assert.Empty(
@@ -1709,18 +1685,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(baseDeleteSproc, baseDeleteMapping.Table);
                     Assert.Null(baseDeleteSproc.Schema);
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             nameof(AbstractBase),
                             nameof(AbstractCustomer),
                             nameof(Customer),
                             nameof(SpecialCustomer),
                             nameof(ExtraSpecialCustomer)
-                        },
+                        ],
                         baseDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                     Assert.Equal(
-                        new[] { "DeleteId" },
+                        ["DeleteId"],
                         baseDeleteSproc.Parameters.Select(m => m.Name));
 
                     Assert.Empty(baseDeleteSproc.ResultColumns.Select(m => m.Name));
@@ -1746,7 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     var abstractStringProperty = abstractStringColumn.PropertyMappings.First().Property;
                     Assert.Equal(3, abstractStringProperty.GetInsertStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[] { StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema) },
+                        [StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema)],
                         abstractStringProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
 
                     var idPropertyInsertColumn = baseInsertSproc.FindResultColumn(idProperty)!;
@@ -1763,7 +1738,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Empty(idProperty.GetInsertStoredProcedureParameterMappings());
                     Assert.Equal(5, idProperty.GetInsertStoredProcedureResultColumnMappings().Count());
                     Assert.Equal(
-                        new[] { StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema) },
+                        [StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema)],
                         idProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
 
                     var idPropertyUpdateParameter = baseUpdateSproc.FindParameter(idProperty)!;
@@ -1781,7 +1756,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Empty(idProperty.GetUpdateStoredProcedureResultColumnMappings());
                     Assert.Equal(5, idProperty.GetUpdateStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[] { StoreObjectIdentifier.UpdateStoredProcedure(customerUpdateSproc.Name, customerUpdateSproc.Schema) },
+                        [StoreObjectIdentifier.UpdateStoredProcedure(customerUpdateSproc.Name, customerUpdateSproc.Schema)],
                         idProperty.GetMappedStoreObjects(StoreObjectType.UpdateStoredProcedure));
 
                     var idPropertyDeleteParameter = baseDeleteSproc.FindParameter(idProperty)!;
@@ -1798,7 +1773,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Equal(5, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[] { StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema) },
+                        [StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema)],
                         idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
                 }
                 else // TPC
@@ -1823,13 +1798,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Null(customerInsertSproc.Schema);
                     Assert.Equal(
-                        new[] { nameof(Customer) },
+                        [nameof(Customer)],
                         customerInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
                     Assert.Null(customerInsertSproc.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerInsertSproc.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
 
                     Assert.Equal(
-                        new[] { "InsertId", nameof(Customer.EnumValue), nameof(Customer.Name), nameof(Customer.SomeShort), "SpecialtyAk" },
+                        ["InsertId", nameof(Customer.EnumValue), nameof(Customer.Name), nameof(Customer.SomeShort), "SpecialtyAk"],
                         customerInsertSproc.Parameters.Select(m => m.Name));
 
                     Assert.Empty(customerInsertSproc.ResultColumns.Select(m => m.Name));
@@ -1842,13 +1817,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             .Name);
                     Assert.Null(customerUpdateSproc.Schema);
                     Assert.Equal(
-                        new[] { nameof(Customer) },
+                        [nameof(Customer)],
                         customerUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
                     Assert.Null(customerUpdateSproc.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerUpdateSproc.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
 
                     Assert.Equal(
-                        new[] { "UpdateId", nameof(Customer.EnumValue), nameof(Customer.Name), nameof(Customer.SomeShort) },
+                        ["UpdateId", nameof(Customer.EnumValue), nameof(Customer.Name), nameof(Customer.SomeShort)],
                         customerUpdateSproc.Parameters.Select(m => m.Name));
 
                     Assert.Empty(customerUpdateSproc.ResultColumns.Select(m => m.Name));
@@ -1861,13 +1836,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             .Name);
                     Assert.Null(customerDeleteSproc.Schema);
                     Assert.Equal(
-                        new[] { nameof(Customer) },
+                        [nameof(Customer)],
                         customerDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
                     Assert.Null(customerDeleteSproc.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerDeleteSproc.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
 
                     Assert.Equal(
-                        new[] { "DeleteId" },
+                        ["DeleteId"],
                         customerDeleteSproc.Parameters.Select(m => m.Name));
 
                     Assert.Empty(customerDeleteSproc.ResultColumns.Select(m => m.Name));
@@ -1898,14 +1873,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Empty(idProperty.GetInsertStoredProcedureResultColumnMappings());
                     Assert.Equal(3, idProperty.GetInsertStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema),
                             StoreObjectIdentifier.InsertStoredProcedure(
                                 specialCustomerInsertSproc.Name, specialCustomerInsertSproc.Schema),
                             StoreObjectIdentifier.InsertStoredProcedure(
                                 extraSpecialCustomerInsertSproc.Name, extraSpecialCustomerInsertSproc.Schema)
-                        },
+                        ],
                         idProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
 
                     var extraSpecialCustomerUpdateSproc =
@@ -1929,14 +1903,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Empty(idProperty.GetUpdateStoredProcedureResultColumnMappings());
                     Assert.Equal(3, idProperty.GetUpdateStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             StoreObjectIdentifier.UpdateStoredProcedure(customerUpdateSproc.Name, customerUpdateSproc.Schema),
                             StoreObjectIdentifier.UpdateStoredProcedure(
                                 specialCustomerUpdateSproc.Name, specialCustomerUpdateSproc.Schema),
                             StoreObjectIdentifier.UpdateStoredProcedure(
                                 extraSpecialCustomerUpdateSproc.Name, extraSpecialCustomerUpdateSproc.Schema)
-                        },
+                        ],
                         idProperty.GetMappedStoreObjects(StoreObjectType.UpdateStoredProcedure));
 
                     var extraSpecialCustomerDeleteSproc =
@@ -1959,14 +1932,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Equal(3, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
+                        [
                             StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema),
                             StoreObjectIdentifier.DeleteStoredProcedure(
                                 specialCustomerDeleteSproc.Name, specialCustomerDeleteSproc.Schema),
                             StoreObjectIdentifier.DeleteStoredProcedure(
                                 extraSpecialCustomerDeleteSproc.Name, extraSpecialCustomerDeleteSproc.Schema)
-                        },
+                        ],
                         idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
                 }
             }
@@ -1980,148 +1952,253 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Entity<AbstractBase>(
-                cb =>
+            modelBuilder.Entity<AbstractBase>(cb =>
+            {
+                if (mapping != Mapping.TPC)
                 {
-                    if (mapping != Mapping.TPC)
+                    if (mapToViews)
                     {
-                        if (mapToViews)
-                        {
-                            cb.ToView("BaseView", "viewSchema");
-                        }
-
-                        if (mapToTables)
-                        {
-                            cb.ToTable(_ => { });
-                        }
-
-                        if (mapToSprocs)
-                        {
-                            if (mapping == Mapping.TPH)
-                            {
-                                cb
-                                    .InsertUsingStoredProcedure(
-                                        s => s
-                                            .HasResultColumn(b => b.Id, p => p.HasName("InsertId"))
-                                            .HasParameter("Discriminator")
-                                            .HasParameter((SpecialCustomer c) => c.Specialty)
-                                            .HasParameter((SpecialCustomer c) => c.RelatedCustomerSpecialty)
-                                            .HasParameter("SpecialtyAk")
-                                            .HasParameter("AnotherRelatedCustomerId")
-                                            .HasParameter((Customer c) => c.EnumValue)
-                                            .HasParameter((Customer c) => c.Name)
-                                            .HasParameter((Customer c) => c.SomeShort)
-                                            .HasParameter((AbstractCustomer c) => c.AbstractString))
-                                    .UpdateUsingStoredProcedure(
-                                        s => s
-                                            .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
-                                            .HasParameter((SpecialCustomer c) => c.Specialty)
-                                            .HasParameter((SpecialCustomer c) => c.RelatedCustomerSpecialty)
-                                            .HasParameter("AnotherRelatedCustomerId")
-                                            .HasParameter((Customer c) => c.EnumValue)
-                                            .HasParameter((Customer c) => c.Name)
-                                            .HasParameter((Customer c) => c.SomeShort)
-                                            .HasParameter((AbstractCustomer c) => c.AbstractString))
-                                    .DeleteUsingStoredProcedure(
-                                        s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
-                            }
-                            else
-                            {
-                                cb
-                                    .InsertUsingStoredProcedure(
-                                        s => s
-                                            .HasParameter(b => b.Id, p => p.IsOutput().HasName("InsertId"))
-                                            .HasParameter("SpecialtyAk"))
-                                    .UpdateUsingStoredProcedure(
-                                        s => s
-                                            .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
-                                            .HasOriginalValueParameter("SpecialtyAk"))
-                                    .DeleteUsingStoredProcedure(
-                                        s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
-                            }
-                        }
+                        cb.ToView("BaseView", "viewSchema");
                     }
 
-                    if (mapping == Mapping.TPC)
+                    if (mapToTables)
                     {
-                        cb.UseTpcMappingStrategy();
-                    }
-                    else if (mapping == Mapping.TPT
-                             && !mapToTables
-                             && !mapToViews)
-                    {
-                        cb.UseTptMappingStrategy();
+                        cb.ToTable(_ => { });
                     }
 
-                    // TODO: Don't map it on the base #19811
-                    cb.Property<string>("SpecialtyAk");
-                });
-
-            modelBuilder.Entity<Customer>(
-                cb =>
-                {
-                    if (mapping != Mapping.TPH)
+                    if (mapToSprocs)
                     {
-                        if (mapToViews)
-                        {
-                            cb.ToView("CustomerView", "viewSchema");
-                        }
-
-                        if (mapToTables)
-                        {
-                            cb.ToTable("Customer");
-                        }
-
-                        if (mapToSprocs)
+                        if (mapping == Mapping.TPH)
                         {
                             cb
-                                .InsertUsingStoredProcedure(
-                                    s => s
-                                        .HasParameter(c => c.Id, p => p.HasName("InsertId"))
-                                        .HasParameter(c => c.EnumValue)
-                                        .HasParameter(c => c.Name)
-                                        .HasParameter(c => c.SomeShort))
-                                .UpdateUsingStoredProcedure(
-                                    s => s
-                                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
-                                        .HasParameter(c => c.EnumValue)
-                                        .HasParameter(c => c.Name)
-                                        .HasParameter(c => c.SomeShort))
-                                .DeleteUsingStoredProcedure(
-                                    s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
-
-                            if (mapping == Mapping.TPC)
-                            {
-                                cb.InsertUsingStoredProcedure(s => s.HasParameter("SpecialtyAk"));
-                            }
+                                .InsertUsingStoredProcedure(s => s
+                                    .HasResultColumn(b => b.Id, p => p.HasName("InsertId"))
+                                    .HasParameter("Discriminator")
+                                    .HasParameter((SpecialCustomer c) => c.Specialty)
+                                    .HasParameter((SpecialCustomer c) => c.RelatedCustomerSpecialty)
+                                    .HasParameter("SpecialtyAk")
+                                    .HasParameter("AnotherRelatedCustomerId")
+                                    .HasParameter((Customer c) => c.EnumValue)
+                                    .HasParameter((Customer c) => c.Name)
+                                    .HasParameter((Customer c) => c.SomeShort)
+                                    .HasParameter((AbstractCustomer c) => c.AbstractString))
+                                .UpdateUsingStoredProcedure(s => s
+                                    .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                    .HasParameter((SpecialCustomer c) => c.Specialty)
+                                    .HasParameter((SpecialCustomer c) => c.RelatedCustomerSpecialty)
+                                    .HasParameter("AnotherRelatedCustomerId")
+                                    .HasParameter((Customer c) => c.EnumValue)
+                                    .HasParameter((Customer c) => c.Name)
+                                    .HasParameter((Customer c) => c.SomeShort)
+                                    .HasParameter((AbstractCustomer c) => c.AbstractString))
+                                .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
+                        }
+                        else
+                        {
+                            cb
+                                .InsertUsingStoredProcedure(s => s
+                                    .HasParameter(b => b.Id, p => p.IsOutput().HasName("InsertId"))
+                                    .HasParameter("SpecialtyAk"))
+                                .UpdateUsingStoredProcedure(s => s
+                                    .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                    .HasOriginalValueParameter("SpecialtyAk"))
+                                .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
                         }
                     }
-                });
+                }
 
-            modelBuilder.Entity<AbstractCustomer>(
-                cb =>
+                if (mapping == Mapping.TPC)
                 {
-                    if (mapping == Mapping.TPT)
+                    cb.UseTpcMappingStrategy();
+                }
+                else if (mapping == Mapping.TPT
+                         && !mapToTables
+                         && !mapToViews)
+                {
+                    cb.UseTptMappingStrategy();
+                }
+
+                cb.ComplexProperty(c => c.Tag).IsRequired();
+
+                // TODO: Don't map it on the base #19811
+                cb.Property<string>("SpecialtyAk");
+            });
+
+            modelBuilder.Entity<Customer>(cb =>
+            {
+                if (mapping != Mapping.TPH)
+                {
+                    if (mapToViews)
                     {
-                        cb.ToView(null);
-                        cb.ToTable((string)null);
+                        cb.ToView("CustomerView", "viewSchema");
                     }
-                });
 
-            modelBuilder.Entity<SpecialCustomer>(
-                cb =>
+                    if (mapToTables)
+                    {
+                        cb.ToTable("Customer");
+                    }
+
+                    if (mapToSprocs)
+                    {
+                        cb
+                            .InsertUsingStoredProcedure(s => s
+                                .HasParameter(c => c.Id, p => p.HasName("InsertId"))
+                                .HasParameter(c => c.EnumValue)
+                                .HasParameter(c => c.Name)
+                                .HasParameter(c => c.SomeShort))
+                            .UpdateUsingStoredProcedure(s => s
+                                .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                .HasParameter(c => c.EnumValue)
+                                .HasParameter(c => c.Name)
+                                .HasParameter(c => c.SomeShort))
+                            .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
+
+                        if (mapping == Mapping.TPC)
+                        {
+                            cb.InsertUsingStoredProcedure(s => s.HasParameter("SpecialtyAk"));
+                        }
+                    }
+                }
+            });
+
+            modelBuilder.Entity<AbstractCustomer>(cb =>
+            {
+                if (mapping == Mapping.TPT)
                 {
-                    if (mapping != Mapping.TPH)
+                    cb.ToView(null);
+                    cb.ToTable((string)null);
+                }
+            });
+
+            modelBuilder.Entity<SpecialCustomer>(cb =>
+            {
+                if (mapping != Mapping.TPH)
+                {
+                    if (mapToViews)
+                    {
+                        cb.ToView("SpecialCustomerView");
+                    }
+
+                    if (mapToTables)
+                    {
+                        cb.ToTable("SpecialCustomer", "SpecialSchema");
+                    }
+                }
+
+                if (mapToSprocs)
+                {
+                    if (mapping == Mapping.TPC)
+                    {
+                        cb
+                            .InsertUsingStoredProcedure(s => s
+                                .HasParameter(b => b.Id, p => p.HasName("InsertId"))
+                                .HasParameter(c => c.Specialty)
+                                .HasParameter(c => c.RelatedCustomerSpecialty)
+                                .HasParameter("AnotherRelatedCustomerId")
+                                .HasParameter("SpecialtyAk")
+                                .HasParameter(c => c.EnumValue)
+                                .HasParameter(c => c.Name)
+                                .HasParameter(c => c.SomeShort)
+                                .HasParameter(c => c.AbstractString))
+                            .UpdateUsingStoredProcedure(s => s
+                                .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                .HasParameter(c => c.Specialty)
+                                .HasParameter(c => c.RelatedCustomerSpecialty)
+                                .HasParameter("AnotherRelatedCustomerId")
+                                .HasParameter(c => c.EnumValue)
+                                .HasParameter(c => c.Name)
+                                .HasParameter(c => c.SomeShort)
+                                .HasParameter(c => c.AbstractString))
+                            .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
+                    }
+                    else if (mapping == Mapping.TPT)
+                    {
+                        cb
+                            .InsertUsingStoredProcedure(s => s
+                                .HasResultColumn(b => b.Id, p => p.HasName("InsertId"))
+                                .HasParameter(c => c.Specialty)
+                                .HasParameter(c => c.RelatedCustomerSpecialty)
+                                .HasParameter("AnotherRelatedCustomerId")
+                                .HasParameter(c => c.AbstractString))
+                            .UpdateUsingStoredProcedure(s => s
+                                .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                .HasParameter(c => c.Specialty)
+                                .HasParameter(c => c.RelatedCustomerSpecialty)
+                                .HasParameter("AnotherRelatedCustomerId")
+                                .HasParameter(c => c.AbstractString))
+                            .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
+                    }
+                }
+
+                cb.Property(s => s.Specialty).IsRequired();
+
+                if (cb.Metadata.GetTableName() != null)
+                {
+                    cb.ToTable(tb => tb.HasCheckConstraint("Specialty", "[Specialty] IN ('Specialist', 'Generalist')"));
+                }
+
+                cb.HasOne(c => c.RelatedCustomer).WithOne()
+                    .HasForeignKey<SpecialCustomer>(c => c.RelatedCustomerSpecialty)
+                    .HasPrincipalKey<SpecialCustomer>("SpecialtyAk"); // TODO: Use the derived one, #2611
+
+                cb.HasOne<SpecialCustomer>().WithOne()
+                    .HasForeignKey<SpecialCustomer>("AnotherRelatedCustomerId");
+
+                if (mapping == Mapping.TPC)
+                {
+                    cb.Ignore(c => c.Details);
+                }
+                else
+                {
+                    cb.OwnsOne(c => c.Details).Property(d => d.Address).IsRequired();
+                    cb.Navigation(c => c.Details).IsRequired();
+
+                    if (mapping == Mapping.TPT)
                     {
                         if (mapToViews)
                         {
-                            cb.ToView("SpecialCustomerView");
+                            cb.OwnsOne(c => c.Details, cdb => cdb.ToView("SpecialCustomerView"));
                         }
 
                         if (mapToTables)
                         {
-                            cb.ToTable("SpecialCustomer", "SpecialSchema");
+                            cb.OwnsOne(c => c.Details, cdb => cdb.ToTable("SpecialCustomer", "SpecialSchema"));
                         }
+                    }
+
+                    if (mapToSprocs)
+                    {
+                        cb.OwnsOne(
+                            c => c.Details, cdb => cdb
+                                .InsertUsingStoredProcedure(
+                                    "CustomerDetailsInsert", s => s
+                                        .HasParameter("SpecialCustomerId")
+                                        .HasParameter(b => b.BirthDay)
+                                        .HasParameter(b => b.Address))
+                                .UpdateUsingStoredProcedure(
+                                    "CustomerDetailsUpdate", s => s
+                                        .HasOriginalValueParameter("SpecialCustomerId")
+                                        .HasParameter(b => b.BirthDay)
+                                        .HasParameter(b => b.Address))
+                                .DeleteUsingStoredProcedure(
+                                    "CustomerDetailsDelete", s => s
+                                        .HasOriginalValueParameter("SpecialCustomerId")));
+                    }
+                }
+            });
+
+            modelBuilder.Entity<ExtraSpecialCustomer>(cb =>
+            {
+                if (mapping != Mapping.TPH)
+                {
+                    if (mapToViews)
+                    {
+                        cb.ToView("ExtraSpecialCustomerView");
+                    }
+
+                    if (mapToTables)
+                    {
+                        cb.ToTable("ExtraSpecialCustomer", "ExtraSpecialSchema");
                     }
 
                     if (mapToSprocs)
@@ -2129,411 +2206,286 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         if (mapping == Mapping.TPC)
                         {
                             cb
-                                .InsertUsingStoredProcedure(
-                                    s => s
-                                        .HasParameter(b => b.Id, p => p.HasName("InsertId"))
-                                        .HasParameter(c => c.Specialty)
-                                        .HasParameter(c => c.RelatedCustomerSpecialty)
-                                        .HasParameter("AnotherRelatedCustomerId")
-                                        .HasParameter("SpecialtyAk")
-                                        .HasParameter(c => c.EnumValue)
-                                        .HasParameter(c => c.Name)
-                                        .HasParameter(c => c.SomeShort)
-                                        .HasParameter(c => c.AbstractString))
-                                .UpdateUsingStoredProcedure(
-                                    s => s
-                                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
-                                        .HasParameter(c => c.Specialty)
-                                        .HasParameter(c => c.RelatedCustomerSpecialty)
-                                        .HasParameter("AnotherRelatedCustomerId")
-                                        .HasParameter(c => c.EnumValue)
-                                        .HasParameter(c => c.Name)
-                                        .HasParameter(c => c.SomeShort)
-                                        .HasParameter(c => c.AbstractString))
-                                .DeleteUsingStoredProcedure(
-                                    s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                .InsertUsingStoredProcedure(s => s
+                                    .HasParameter(b => b.Id, p => p.HasName("InsertId"))
+                                    .HasParameter(c => c.Specialty)
+                                    .HasParameter(c => c.RelatedCustomerSpecialty)
+                                    .HasParameter("AnotherRelatedCustomerId")
+                                    .HasParameter("SpecialtyAk")
+                                    .HasParameter(c => c.EnumValue)
+                                    .HasParameter(c => c.Name)
+                                    .HasParameter(c => c.SomeShort)
+                                    .HasParameter(c => c.AbstractString))
+                                .UpdateUsingStoredProcedure(s => s
+                                    .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                    .HasParameter(c => c.Specialty)
+                                    .HasParameter(c => c.RelatedCustomerSpecialty)
+                                    .HasParameter("AnotherRelatedCustomerId")
+                                    .HasParameter(c => c.EnumValue)
+                                    .HasParameter(c => c.Name)
+                                    .HasParameter(c => c.SomeShort)
+                                    .HasParameter(c => c.AbstractString))
+                                .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
                         }
                         else if (mapping == Mapping.TPT)
                         {
                             cb
-                                .InsertUsingStoredProcedure(
-                                    s => s
-                                        .HasResultColumn(b => b.Id, p => p.HasName("InsertId"))
-                                        .HasParameter(c => c.Specialty)
-                                        .HasParameter(c => c.RelatedCustomerSpecialty)
-                                        .HasParameter("AnotherRelatedCustomerId")
-                                        .HasParameter(c => c.AbstractString))
-                                .UpdateUsingStoredProcedure(
-                                    s => s
-                                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
-                                        .HasParameter(c => c.Specialty)
-                                        .HasParameter(c => c.RelatedCustomerSpecialty)
-                                        .HasParameter("AnotherRelatedCustomerId")
-                                        .HasParameter(c => c.AbstractString))
-                                .DeleteUsingStoredProcedure(
-                                    s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                .InsertUsingStoredProcedure(s => s.HasParameter(b => b.Id))
+                                .UpdateUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id))
+                                .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id));
                         }
                     }
+                }
 
-                    cb.Property(s => s.Specialty).IsRequired();
-
-                    if (cb.Metadata.GetTableName() != null)
-                    {
-                        cb.ToTable(tb => tb.HasCheckConstraint("Specialty", "[Specialty] IN ('Specialist', 'Generalist')"));
-                    }
-
-                    cb.HasOne(c => c.RelatedCustomer).WithOne()
-                        .HasForeignKey<SpecialCustomer>(c => c.RelatedCustomerSpecialty)
-                        .HasPrincipalKey<SpecialCustomer>("SpecialtyAk"); // TODO: Use the derived one, #2611
-
-                    cb.HasOne<SpecialCustomer>().WithOne()
-                        .HasForeignKey<SpecialCustomer>("AnotherRelatedCustomerId");
-
-                    if (mapping == Mapping.TPC)
-                    {
-                        cb.Ignore(c => c.Details);
-                    }
-                    else
-                    {
-                        cb.OwnsOne(c => c.Details).Property(d => d.Address).IsRequired();
-                        cb.Navigation(c => c.Details).IsRequired();
-
-                        if (mapping == Mapping.TPT)
-                        {
-                            if (mapToViews)
-                            {
-                                cb.OwnsOne(c => c.Details, cdb => cdb.ToView("SpecialCustomerView"));
-                            }
-
-                            if (mapToTables)
-                            {
-                                cb.OwnsOne(c => c.Details, cdb => cdb.ToTable("SpecialCustomer", "SpecialSchema"));
-                            }
-                        }
-
-                        if (mapToSprocs)
-                        {
-                            cb.OwnsOne(
-                                c => c.Details, cdb => cdb
-                                    .InsertUsingStoredProcedure(
-                                        "CustomerDetailsInsert", s => s
-                                            .HasParameter("SpecialCustomerId")
-                                            .HasParameter(b => b.BirthDay)
-                                            .HasParameter(b => b.Address))
-                                    .UpdateUsingStoredProcedure(
-                                        "CustomerDetailsUpdate", s => s
-                                            .HasOriginalValueParameter("SpecialCustomerId")
-                                            .HasParameter(b => b.BirthDay)
-                                            .HasParameter(b => b.Address))
-                                    .DeleteUsingStoredProcedure(
-                                        "CustomerDetailsDelete", s => s
-                                            .HasOriginalValueParameter("SpecialCustomerId")));
-                        }
-                    }
-                });
-
-            modelBuilder.Entity<ExtraSpecialCustomer>(
-                cb =>
+                if (mapping == Mapping.TPC)
                 {
-                    if (mapping != Mapping.TPH)
+                    cb.OwnsOne(c => c.Details).Property(d => d.Address).IsRequired();
+                    cb.Navigation(c => c.Details).IsRequired();
+
+                    if (mapToViews)
                     {
-                        if (mapToViews)
-                        {
-                            cb.ToView("ExtraSpecialCustomerView");
-                        }
-
-                        if (mapToTables)
-                        {
-                            cb.ToTable("ExtraSpecialCustomer", "ExtraSpecialSchema");
-                        }
-
-                        if (mapToSprocs)
-                        {
-                            if (mapping == Mapping.TPC)
-                            {
-                                cb
-                                    .InsertUsingStoredProcedure(
-                                        s => s
-                                            .HasParameter(b => b.Id, p => p.HasName("InsertId"))
-                                            .HasParameter(c => c.Specialty)
-                                            .HasParameter(c => c.RelatedCustomerSpecialty)
-                                            .HasParameter("AnotherRelatedCustomerId")
-                                            .HasParameter("SpecialtyAk")
-                                            .HasParameter(c => c.EnumValue)
-                                            .HasParameter(c => c.Name)
-                                            .HasParameter(c => c.SomeShort)
-                                            .HasParameter(c => c.AbstractString))
-                                    .UpdateUsingStoredProcedure(
-                                        s => s
-                                            .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
-                                            .HasParameter(c => c.Specialty)
-                                            .HasParameter(c => c.RelatedCustomerSpecialty)
-                                            .HasParameter("AnotherRelatedCustomerId")
-                                            .HasParameter(c => c.EnumValue)
-                                            .HasParameter(c => c.Name)
-                                            .HasParameter(c => c.SomeShort)
-                                            .HasParameter(c => c.AbstractString))
-                                    .DeleteUsingStoredProcedure(
-                                        s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
-                            }
-                            else if (mapping == Mapping.TPT)
-                            {
-                                cb
-                                    .InsertUsingStoredProcedure(s => s.HasParameter(b => b.Id))
-                                    .UpdateUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id))
-                                    .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id));
-                            }
-                        }
+                        cb.OwnsOne(c => c.Details, cdb => cdb.ToView("ExtraSpecialCustomerView"));
                     }
 
-                    if (mapping == Mapping.TPC)
+                    if (mapToTables)
                     {
-                        cb.OwnsOne(c => c.Details).Property(d => d.Address).IsRequired();
-                        cb.Navigation(c => c.Details).IsRequired();
-
-                        if (mapToViews)
-                        {
-                            cb.OwnsOne(c => c.Details, cdb => cdb.ToView("ExtraSpecialCustomerView"));
-                        }
-
-                        if (mapToTables)
-                        {
-                            cb.OwnsOne(c => c.Details, cdb => cdb.ToTable("ExtraSpecialCustomer", "ExtraSpecialSchema"));
-                        }
-
-                        if (mapToSprocs)
-                        {
-                            cb.OwnsOne(
-                                c => c.Details, cdb => cdb
-                                    .InsertUsingStoredProcedure(
-                                        "CustomerDetailsInsert", s => s
-                                            .HasParameter("ExtraSpecialCustomerId")
-                                            .HasParameter(b => b.BirthDay)
-                                            .HasParameter(b => b.Address))
-                                    .UpdateUsingStoredProcedure(
-                                        "CustomerDetailsUpdate", s => s
-                                            .HasOriginalValueParameter("ExtraSpecialCustomerId")
-                                            .HasParameter(b => b.BirthDay)
-                                            .HasParameter(b => b.Address))
-                                    .DeleteUsingStoredProcedure(
-                                        "CustomerDetailsDelete", s => s
-                                            .HasOriginalValueParameter("ExtraSpecialCustomerId")));
-                        }
+                        cb.OwnsOne(c => c.Details, cdb => cdb.ToTable("ExtraSpecialCustomer", "ExtraSpecialSchema"));
                     }
-                });
-
-            modelBuilder.Entity<Order>(
-                ob =>
-                {
-                    ob.Property(o => o.OrderDate).HasColumnName("OrderDate");
-                    ob.Property(o => o.AlternateId).HasColumnName("AlternateId");
-
-                    ob.HasAlternateKey(o => o.AlternateId).HasName("AK_AlternateId");
-                    ob.HasOne(o => o.DateDetails).WithOne()
-                        .HasForeignKey<Order>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date)
-                        .HasConstraintName("FK_DateDetails");
-
-                    ob.HasIndex(o => o.OrderDate).HasDatabaseName("IX_OrderDate");
 
                     if (mapToSprocs)
                     {
-                        ob
-                            .InsertUsingStoredProcedure(
-                                s => s
-                                    .HasResultColumn(c => c.Id)
-                                    .HasParameter(c => c.AlternateId)
-                                    .HasParameter(c => c.CustomerId)
-                                    .HasParameter(c => c.OrderDate))
-                            .UpdateUsingStoredProcedure(
-                                s => s
-                                    .HasOriginalValueParameter(c => c.Id)
-                                    .HasParameter(c => c.CustomerId)
-                                    .HasParameter(c => c.OrderDate))
-                            .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id));
+                        cb.OwnsOne(
+                            c => c.Details, cdb => cdb
+                                .InsertUsingStoredProcedure(
+                                    "CustomerDetailsInsert", s => s
+                                        .HasParameter("ExtraSpecialCustomerId")
+                                        .HasParameter(b => b.BirthDay)
+                                        .HasParameter(b => b.Address))
+                                .UpdateUsingStoredProcedure(
+                                    "CustomerDetailsUpdate", s => s
+                                        .HasOriginalValueParameter("ExtraSpecialCustomerId")
+                                        .HasParameter(b => b.BirthDay)
+                                        .HasParameter(b => b.Address))
+                                .DeleteUsingStoredProcedure(
+                                    "CustomerDetailsDelete", s => s
+                                        .HasOriginalValueParameter("ExtraSpecialCustomerId")));
                     }
+                }
+            });
 
-                    ob.OwnsOne(
-                        o => o.Details, odb =>
-                        {
-                            odb.Property(od => od.OrderDate).HasColumnName("OrderDate");
-                            var alternateId = odb.Property(o => o.AlternateId).HasColumnName("AlternateId").Metadata;
+            modelBuilder.Entity<Order>(ob =>
+            {
+                ob.Ignore(o => o.Addresses);
+                ob.Property(o => o.OrderDate).HasColumnName("OrderDate");
+                ob.Property(o => o.AlternateId).HasColumnName("AlternateId");
 
-                            odb.OwnedEntityType.AddKey(new[] { alternateId });
-                            // Issue #20948
-                            //odb.HasAlternateKey(o => o.AlternateId);
-                            odb.HasOne(od => od.DateDetails).WithOne()
-                                .HasForeignKey<OrderDetails>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date);
+                ob.HasAlternateKey(o => o.AlternateId).HasName("AK_AlternateId");
+                ob.HasOne(o => o.DateDetails).WithOne()
+                    .HasForeignKey<Order>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date)
+                    .HasConstraintName("FK_DateDetails");
 
-                            if (mapToSprocs)
-                            {
-                                odb
-                                    .InsertUsingStoredProcedure(
-                                        "OrderDetails_Insert", s => s
-                                            .HasParameter(c => c.OrderId)
-                                            .HasParameter(c => c.AlternateId)
-                                            .HasParameter(c => c.Active)
-                                            .HasParameter(c => c.OrderDate))
-                                    .UpdateUsingStoredProcedure(
-                                        "OrderDetails_Update", s => s
-                                            .HasOriginalValueParameter(c => c.OrderId)
-                                            .HasParameter(c => c.Active)
-                                            .HasParameter(c => c.OrderDate))
-                                    .DeleteUsingStoredProcedure(
-                                        "OrderDetails_Delete", s => s
-                                            .HasOriginalValueParameter(b => b.OrderId));
-
-                                odb.OwnsOne(
-                                    od => od.BillingAddress, bab => bab
-                                        .InsertUsingStoredProcedure(
-                                            "BillingAddress_Insert", s => s
-                                                .HasParameter(c => c.City)
-                                                .HasParameter(c => c.Street)
-                                                .HasParameter("OrderDetailsOrderId"))
-                                        .UpdateUsingStoredProcedure(
-                                            "BillingAddress_Update", s => s
-                                                .HasParameter(c => c.City)
-                                                .HasParameter(c => c.Street)
-                                                .HasOriginalValueParameter("OrderDetailsOrderId"))
-                                        .DeleteUsingStoredProcedure(
-                                            "BillingAddress_Delete", s => s
-                                                .HasOriginalValueParameter("OrderDetailsOrderId")));
-
-                                odb.OwnsOne(
-                                    od => od.ShippingAddress, sab => sab
-                                        .InsertUsingStoredProcedure(
-                                            "ShippingAddress_Insert", s => s
-                                                .HasParameter("OrderDetailsOrderId")
-                                                .HasParameter(c => c.City)
-                                                .HasParameter(c => c.Street))
-                                        .UpdateUsingStoredProcedure(
-                                            "ShippingAddress_Update", s => s
-                                                .HasOriginalValueParameter("OrderDetailsOrderId")
-                                                .HasParameter(c => c.City)
-                                                .HasParameter(c => c.Street))
-                                        .DeleteUsingStoredProcedure(
-                                            "ShippingAddress_Delete", s => s
-                                                .HasOriginalValueParameter("OrderDetailsOrderId")));
-                            }
-                            else
-                            {
-                                odb.OwnsOne(od => od.BillingAddress);
-                                odb.OwnsOne(od => od.ShippingAddress);
-                            }
-
-                            odb.Navigation(od => od.BillingAddress).IsRequired();
-                            odb.Navigation(od => od.ShippingAddress).IsRequired();
-                        });
-
-                    if (mapToViews)
-                    {
-                        ob.ToView("OrderView", "viewSchema");
-                    }
-
-                    if (mapToTables)
-                    {
-                        ob.ToTable("Order");
-                    }
-
-                    if (mapToTables || !mapToViews)
-                    {
-                        ob.ToTable(o => o.HasTrigger("Order_Trigger"));
-                    }
-                });
-
-            modelBuilder.Entity<DateDetails>(
-                db =>
+                ob.ComplexProperty(c => c.ComplexProperty, b =>
                 {
-                    db.HasKey(d => d.Date);
-
-                    if (mapToViews)
-                    {
-                        db.ToView("DateDetailsView", "viewSchema");
-                    }
-
-                    if (mapToTables)
-                    {
-                        db.ToTable("DateDetails");
-                    }
+                    b.Property(c => c.Number).HasColumnName("ComplexProperty_Number");
+                    b.Property(c => c.Value).HasColumnName("ComplexProperty_Value");
                 });
+
+                ob.HasIndex(o => o.OrderDate).HasDatabaseName("IX_OrderDate");
+
+                if (mapToSprocs)
+                {
+                    ob
+                        .InsertUsingStoredProcedure(s => s
+                            .HasResultColumn(c => c.Id)
+                            .HasParameter(c => c.AlternateId)
+                            .HasParameter(c => c.CustomerId)
+                            .HasParameter(c => c.OrderDate))
+                        .UpdateUsingStoredProcedure(s => s
+                            .HasOriginalValueParameter(c => c.Id)
+                            .HasParameter(c => c.CustomerId)
+                            .HasParameter(c => c.OrderDate))
+                        .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id));
+                }
+
+                ob.OwnsOne(
+                    o => o.Details, odb =>
+                    {
+                        odb.Property(od => od.OrderDate).HasColumnName("OrderDate");
+                        var alternateId = odb.Property(o => o.AlternateId).HasColumnName("AlternateId").Metadata;
+
+                        odb.OwnedEntityType.AddKey([alternateId]);
+                        // Issue #20948
+                        //odb.HasAlternateKey(o => o.AlternateId);
+                        odb.HasOne(od => od.DateDetails).WithOne()
+                            .HasForeignKey<OrderDetails>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date);
+
+                        if (mapToSprocs)
+                        {
+                            odb
+                                .InsertUsingStoredProcedure(
+                                    "OrderDetails_Insert", s => s
+                                        .HasParameter(c => c.OrderId)
+                                        .HasParameter(c => c.AlternateId)
+                                        .HasParameter(c => c.Active)
+                                        .HasParameter(c => c.OrderDate))
+                                .UpdateUsingStoredProcedure(
+                                    "OrderDetails_Update", s => s
+                                        .HasOriginalValueParameter(c => c.OrderId)
+                                        .HasParameter(c => c.Active)
+                                        .HasParameter(c => c.OrderDate))
+                                .DeleteUsingStoredProcedure(
+                                    "OrderDetails_Delete", s => s
+                                        .HasOriginalValueParameter(b => b.OrderId));
+
+                            odb.OwnsOne(
+                                od => od.BillingAddress, bab => bab
+                                    .InsertUsingStoredProcedure(
+                                        "BillingAddress_Insert", s => s
+                                            .HasParameter(c => c.City)
+                                            .HasParameter(c => c.Street)
+                                            .HasParameter("OrderDetailsOrderId"))
+                                    .UpdateUsingStoredProcedure(
+                                        "BillingAddress_Update", s => s
+                                            .HasParameter(c => c.City)
+                                            .HasParameter(c => c.Street)
+                                            .HasOriginalValueParameter("OrderDetailsOrderId"))
+                                    .DeleteUsingStoredProcedure(
+                                        "BillingAddress_Delete", s => s
+                                            .HasOriginalValueParameter("OrderDetailsOrderId")));
+
+                            odb.OwnsOne(
+                                od => od.ShippingAddress, sab => sab
+                                    .InsertUsingStoredProcedure(
+                                        "ShippingAddress_Insert", s => s
+                                            .HasParameter("OrderDetailsOrderId")
+                                            .HasParameter(c => c.City)
+                                            .HasParameter(c => c.Street))
+                                    .UpdateUsingStoredProcedure(
+                                        "ShippingAddress_Update", s => s
+                                            .HasOriginalValueParameter("OrderDetailsOrderId")
+                                            .HasParameter(c => c.City)
+                                            .HasParameter(c => c.Street))
+                                    .DeleteUsingStoredProcedure(
+                                        "ShippingAddress_Delete", s => s
+                                            .HasOriginalValueParameter("OrderDetailsOrderId")));
+                        }
+                        else
+                        {
+                            odb.OwnsOne(od => od.BillingAddress);
+                            odb.OwnsOne(od => od.ShippingAddress);
+                        }
+
+                        odb.Navigation(od => od.BillingAddress).IsRequired();
+                        odb.Navigation(od => od.ShippingAddress).IsRequired();
+                    });
+
+                if (mapToViews)
+                {
+                    ob.ToView("OrderView", "viewSchema");
+                }
+
+                if (mapToTables)
+                {
+                    ob.ToTable("Order");
+                }
+
+                if (mapToTables || !mapToViews)
+                {
+                    ob.ToTable(o => o.HasTrigger("Order_Trigger"));
+                }
+            });
+
+            modelBuilder.Entity<DateDetails>(db =>
+            {
+                db.HasKey(d => d.Date);
+
+                if (mapToViews)
+                {
+                    db.ToView("DateDetailsView", "viewSchema");
+                }
+
+                if (mapToTables)
+                {
+                    db.ToTable("DateDetails");
+                }
+            });
 
             return Finalize(modelBuilder);
         }
 
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
+        [Theory, InlineData(true), InlineData(false)]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_both_fragments(bool mapToViews)
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder.Ignore<AbstractCustomer>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Tag>(); //#31248
 
-            modelBuilder.Entity<SpecialCustomer>(
-                cb =>
+            modelBuilder.Entity<SpecialCustomer>(cb =>
+            {
+                cb.Ignore(c => c.Orders);
+                cb.Ignore(c => c.RelatedCustomer);
+
+                if (mapToViews)
                 {
-                    cb.Ignore(c => c.Orders);
-                    cb.Ignore(c => c.RelatedCustomer);
-
-                    if (mapToViews)
-                    {
-                        cb.ToView(
-                            "CustomerView", tb =>
-                            {
-                                tb.Property(c => c.AbstractString);
-                            });
-
-                        cb.SplitToView(
-                            "CustomerDetailsView", tb =>
-                            {
-                                tb.Property(c => c.AbstractString);
-                                tb.Property(c => c.Specialty);
-                                tb.Property(c => c.RelatedCustomerSpecialty);
-                            });
-                    }
-                    else
-                    {
-                        cb.ToTable(
-                            "Customer", tb =>
-                            {
-                                tb.Property(c => c.AbstractString);
-                            });
-
-                        cb.SplitToTable(
-                            "CustomerDetails", tb =>
-                            {
-                                tb.Property(c => c.AbstractString);
-                                tb.Property(c => c.Specialty);
-                                tb.Property(c => c.RelatedCustomerSpecialty);
-                            });
-                    }
-
-                    cb.OwnsOne(
-                        c => c.Details, db =>
+                    cb.ToView(
+                        "CustomerView", tb =>
                         {
-                            if (mapToViews)
-                            {
-                                db.ToView("CustomerView");
-
-                                db.SplitToView(
-                                    "CustomerDetailsView", tb =>
-                                    {
-                                        tb.Property(d => d.BirthDay);
-                                    });
-                            }
-                            else
-                            {
-                                db.SplitToTable(
-                                    "CustomerDetails", tb =>
-                                    {
-                                        tb.Property(d => d.BirthDay);
-                                    });
-                            }
-
-                            db.Property("SpecialCustomerId").HasColumnName("Id");
+                            tb.Property(c => c.AbstractString);
                         });
-                    cb.Navigation(c => c.Details).IsRequired();
-                });
+
+                    cb.SplitToView(
+                        "CustomerDetailsView", tb =>
+                        {
+                            tb.Property(c => c.AbstractString);
+                            tb.Property(c => c.Specialty);
+                            tb.Property(c => c.RelatedCustomerSpecialty);
+                        });
+                }
+                else
+                {
+                    cb.ToTable(
+                        "Customer", tb =>
+                        {
+                            tb.Property(c => c.AbstractString);
+                        });
+
+                    cb.SplitToTable(
+                        "CustomerDetails", tb =>
+                        {
+                            tb.Property(c => c.AbstractString);
+                            tb.Property(c => c.Specialty);
+                            tb.Property(c => c.RelatedCustomerSpecialty);
+                        });
+                }
+
+                cb.OwnsOne(
+                    c => c.Details, db =>
+                    {
+                        if (mapToViews)
+                        {
+                            db.ToView("CustomerView");
+
+                            db.SplitToView(
+                                "CustomerDetailsView", tb =>
+                                {
+                                    tb.Property(d => d.BirthDay);
+                                });
+                        }
+                        else
+                        {
+                            db.SplitToTable(
+                                "CustomerDetails", tb =>
+                                {
+                                    tb.Property(d => d.BirthDay);
+                                });
+                        }
+
+                        db.Property("SpecialCustomerId").HasColumnName("Id");
+                    });
+                cb.Navigation(c => c.Details).IsRequired();
+            });
 
             var model = Finalize(modelBuilder);
             var customerType = model.Model.FindEntityType(typeof(SpecialCustomer));
@@ -2561,7 +2513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var customerDetailsView = model.Views.Single(t => t.Name == "CustomerDetailsView");
 
                 Assert.Equal(
-                    new[] { customerView, customerDetailsView },
+                    [customerView, customerDetailsView],
                     customerType.GetViewMappings().Select(m => m.View));
 
                 Assert.Equal(2, customerDetailsView.EntityTypeMappings.Count());
@@ -2574,15 +2526,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(detailsSplitMapping.IsSplitEntityTypePrincipal);
 
                 Assert.Equal(
-                    new[] { customerView, customerDetailsView },
+                    [customerView, customerDetailsView],
                     detailsType.GetViewMappings().Select(m => m.View));
 
                 Assert.Equal(
-                    new[] { "AbstractString", "Details_Address", "EnumValue", "Id", "Name", "SomeShort" },
+                    ["AbstractString", "Details_Address", "EnumValue", "Id", "Name", "SomeShort"],
                     customerView.Columns.Select(t => t.Name));
 
                 Assert.Equal(
-                    new[] { "AbstractString", "Details_BirthDay", "Id", "RelatedCustomerSpecialty", "Specialty" },
+                    ["AbstractString", "Details_BirthDay", "Id", "RelatedCustomerSpecialty", "Specialty"],
                     customerDetailsView.Columns.Select(t => t.Name));
             }
             else
@@ -2604,7 +2556,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var customerDetailsTable = model.Tables.Single(t => t.Name == "CustomerDetails");
 
                 Assert.Equal(
-                    new[] { customerTable, customerDetailsTable },
+                    [customerTable, customerDetailsTable],
                     customerType.GetTableMappings().Select(m => m.Table));
 
                 Assert.Equal(2, customerDetailsTable.EntityTypeMappings.Count());
@@ -2617,7 +2569,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(detailsSplitMapping.IsSplitEntityTypePrincipal);
 
                 Assert.Equal(
-                    new[] { customerTable, customerDetailsTable },
+                    [customerTable, customerDetailsTable],
                     detailsType.GetTableMappings().Select(m => m.Table));
 
                 Assert.Single(customerTable.UniqueConstraints);
@@ -2626,7 +2578,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Empty(customerTable.GetRowInternalForeignKeys(customerType));
                 Assert.Single(customerTable.GetRowInternalForeignKeys(detailsType));
                 Assert.Equal(
-                    new[] { "Id", "AbstractString", "Details_Address", "EnumValue", "Name", "SomeShort" },
+                    ["Id", "AbstractString", "Details_Address", "EnumValue", "Name", "SomeShort"],
                     customerTable.Columns.Select(t => t.Name));
 
                 Assert.Single(customerDetailsTable.UniqueConstraints);
@@ -2635,7 +2587,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Empty(customerDetailsTable.GetRowInternalForeignKeys(customerType));
                 Assert.Single(customerDetailsTable.GetRowInternalForeignKeys(detailsType));
                 Assert.Equal(
-                    new[] { "Id", "AbstractString", "Details_BirthDay", "RelatedCustomerSpecialty", "Specialty" },
+                    ["Id", "AbstractString", "Details_BirthDay", "RelatedCustomerSpecialty", "Specialty"],
                     customerDetailsTable.Columns.Select(t => t.Name));
 
                 Assert.Equal(2, fkConstraint.MappedForeignKeys.Count());
@@ -2650,46 +2602,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_main_fragments()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder.Ignore<AbstractCustomer>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Tag>(); //#31248
 
-            modelBuilder.Entity<SpecialCustomer>(
-                cb =>
-                {
-                    cb.Ignore(c => c.Orders);
-                    cb.Ignore(c => c.RelatedCustomer);
+            modelBuilder.Entity<SpecialCustomer>(cb =>
+            {
+                cb.Ignore(c => c.Orders);
+                cb.Ignore(c => c.RelatedCustomer);
 
-                    cb.ToTable(
-                        "Customer", tb =>
-                        {
-                            tb.Property(c => c.AbstractString);
-                        });
+                cb.ToTable(
+                    "Customer", tb =>
+                    {
+                        tb.Property(c => c.AbstractString);
+                    });
 
-                    cb.SplitToTable(
-                        "CustomerSpecialty", tb =>
-                        {
-                            tb.Property(c => c.AbstractString);
-                            tb.Property(c => c.Specialty);
-                            tb.Property(c => c.RelatedCustomerSpecialty);
-                        });
+                cb.SplitToTable(
+                    "CustomerSpecialty", tb =>
+                    {
+                        tb.Property(c => c.AbstractString);
+                        tb.Property(c => c.Specialty);
+                        tb.Property(c => c.RelatedCustomerSpecialty);
+                    });
 
-                    cb.OwnsOne(
-                        c => c.Details, db =>
-                        {
-                            db.SplitToTable(
-                                "CustomerDetails", tb =>
-                                {
-                                    tb.Property(d => d.BirthDay);
-                                });
-                            db.Property("SpecialCustomerId").HasColumnName("Id");
-                        });
-                    cb.Navigation(c => c.Details).IsRequired();
-                });
+                cb.OwnsOne(
+                    c => c.Details, db =>
+                    {
+                        db.SplitToTable(
+                            "CustomerDetails", tb =>
+                            {
+                                tb.Property(d => d.BirthDay);
+                            });
+                        db.Property("SpecialCustomerId").HasColumnName("Id");
+                    });
+                cb.Navigation(c => c.Details).IsRequired();
+            });
 
             var model = Finalize(modelBuilder);
             var customerType = model.Model.FindEntityType(typeof(SpecialCustomer));
@@ -2715,7 +2667,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var customerDetailsTable = model.Tables.Single(t => t.Name == "CustomerDetails");
 
             Assert.Equal(
-                new[] { customerTable, customerDetailsTable },
+                [customerTable, customerDetailsTable],
                 detailsType.GetTableMappings().Select(m => m.Table));
 
             var detailsSplitMapping = customerDetailsTable.EntityTypeMappings.Single();
@@ -2725,7 +2677,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var customerSpecialtyTable = model.Tables.Single(t => t.Name == "CustomerSpecialty");
 
             Assert.Equal(
-                new[] { customerTable, customerSpecialtyTable },
+                [customerTable, customerSpecialtyTable],
                 customerType.GetTableMappings().Select(m => m.Table));
 
             var customerSplitMapping = customerSpecialtyTable.EntityTypeMappings.Single();
@@ -2738,7 +2690,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(customerTable.GetRowInternalForeignKeys(customerType));
             Assert.Single(customerTable.GetRowInternalForeignKeys(detailsType));
             Assert.Equal(
-                new[] { "Id", "AbstractString", "Details_Address", "EnumValue", "Name", "SomeShort" },
+                ["Id", "AbstractString", "Details_Address", "EnumValue", "Name", "SomeShort"],
                 customerTable.Columns.Select(t => t.Name));
 
             Assert.Single(customerDetailsTable.UniqueConstraints);
@@ -2746,7 +2698,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(customerDetailsTable.Indexes);
             Assert.Empty(customerDetailsTable.GetRowInternalForeignKeys(detailsType));
             Assert.Equal(
-                new[] { "Id", "BirthDay" },
+                ["Id", "BirthDay"],
                 customerDetailsTable.Columns.Select(t => t.Name));
 
             var detailsFk = detailsFkConstraint.MappedForeignKeys.Single();
@@ -2760,7 +2712,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(customerSpecialtyTable.Indexes);
             Assert.Empty(customerSpecialtyTable.GetRowInternalForeignKeys(customerType));
             Assert.Equal(
-                new[] { "Id", "AbstractString", "RelatedCustomerSpecialty", "Specialty" },
+                ["Id", "AbstractString", "RelatedCustomerSpecialty", "Specialty"],
                 customerSpecialtyTable.Columns.Select(t => t.Name));
 
             var specialtyFk = specialtyFkConstraint.MappedForeignKeys.Single();
@@ -2770,48 +2722,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(specialtyFk.IsRequiredDependent);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_leaf_and_main_fragments()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder.Ignore<AbstractCustomer>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Tag>(); //#31248
 
-            modelBuilder.Entity<SpecialCustomer>(
-                cb =>
-                {
-                    cb.Ignore(c => c.Orders);
-                    cb.Ignore(c => c.RelatedCustomer);
+            modelBuilder.Entity<SpecialCustomer>(cb =>
+            {
+                cb.Ignore(c => c.Orders);
+                cb.Ignore(c => c.RelatedCustomer);
 
-                    cb.ToTable(
-                        "Customer", tb =>
-                        {
-                            tb.Property(c => c.AbstractString);
-                        });
+                cb.ToTable(
+                    "Customer", tb =>
+                    {
+                        tb.Property(c => c.AbstractString);
+                    });
 
-                    cb.SplitToTable(
-                        "CustomerDetails", tb =>
-                        {
-                            tb.Property(c => c.AbstractString);
-                            tb.Property(c => c.Specialty);
-                            tb.Property(c => c.RelatedCustomerSpecialty);
-                        });
+                cb.SplitToTable(
+                    "CustomerDetails", tb =>
+                    {
+                        tb.Property(c => c.AbstractString);
+                        tb.Property(c => c.Specialty);
+                        tb.Property(c => c.RelatedCustomerSpecialty);
+                    });
 
-                    cb.OwnsOne(
-                        c => c.Details, db =>
-                        {
-                            db.ToTable("CustomerDetails");
+                cb.OwnsOne(
+                    c => c.Details, db =>
+                    {
+                        db.ToTable("CustomerDetails");
 
-                            db.SplitToTable(
-                                "Details", tb =>
-                                {
-                                    tb.Property(d => d.BirthDay);
-                                });
-                            db.Property("SpecialCustomerId").HasColumnName("Id");
-                        });
-                    cb.Navigation(c => c.Details).IsRequired();
-                });
+                        db.SplitToTable(
+                            "Details", tb =>
+                            {
+                                tb.Property(d => d.BirthDay);
+                            });
+                        db.Property("SpecialCustomerId").HasColumnName("Id");
+                    });
+                cb.Navigation(c => c.Details).IsRequired();
+            });
 
             var model = Finalize(modelBuilder);
             var customerType = model.Model.FindEntityType(typeof(SpecialCustomer));
@@ -2832,7 +2784,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var customerDetailsTable = model.Tables.Single(t => t.Name == "CustomerDetails");
 
             Assert.Equal(
-                new[] { customerTable, customerDetailsTable },
+                [customerTable, customerDetailsTable],
                 customerType.GetTableMappings().Select(m => m.Table));
 
             Assert.Equal(2, customerDetailsTable.EntityTypeMappings.Count());
@@ -2847,7 +2799,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var detailsTable = model.Tables.Single(t => t.Name == "Details");
 
             Assert.Equal(
-                new[] { customerDetailsTable, detailsTable },
+                [customerDetailsTable, detailsTable],
                 detailsType.GetTableMappings().Select(m => m.Table));
 
             var detailsSplitMapping = detailsTable.EntityTypeMappings.Single();
@@ -2859,7 +2811,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(customerTable.Indexes);
             Assert.Empty(customerTable.GetRowInternalForeignKeys(customerType));
             Assert.Equal(
-                new[] { "Id", "AbstractString", "EnumValue", "Name", "SomeShort" },
+                ["Id", "AbstractString", "EnumValue", "Name", "SomeShort"],
                 customerTable.Columns.Select(t => t.Name));
 
             Assert.Single(customerDetailsTable.UniqueConstraints);
@@ -2868,7 +2820,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(customerDetailsTable.GetRowInternalForeignKeys(customerType));
             Assert.Single(customerDetailsTable.GetRowInternalForeignKeys(detailsType));
             Assert.Equal(
-                new[] { "Id", "AbstractString", "Details_Address", "RelatedCustomerSpecialty", "Specialty" },
+                ["Id", "AbstractString", "Details_Address", "RelatedCustomerSpecialty", "Specialty"],
                 customerDetailsTable.Columns.Select(t => t.Name));
 
             Assert.Equal(2, customerDetailsFkConstraint.MappedForeignKeys.Count());
@@ -2892,7 +2844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(detailsTable.Indexes);
             Assert.Empty(detailsTable.GetRowInternalForeignKeys(detailsType));
             Assert.Equal(
-                new[] { "Id", "BirthDay" },
+                ["Id", "BirthDay"],
                 detailsTable.Columns.Select(t => t.Name));
 
             var detailsFk = detailsFkConstraint.MappedForeignKeys.Last();
@@ -2903,24 +2855,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(detailsType, detailsFk.DeclaringEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_keyless_TPH()
         {
             var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<Tag>();
 
-            modelBuilder.Entity<Customer>(
-                cb =>
-                {
-                    cb.Ignore(c => c.Orders);
-                    cb.ToView("CustomerView");
-                });
+            modelBuilder.Entity<Customer>(cb =>
+            {
+                cb.Ignore(c => c.Orders);
+                cb.ToView("CustomerView");
+            });
 
-            modelBuilder.Entity<SpecialCustomer>(
-                cb =>
-                {
-                    cb.Ignore(c => c.Details);
-                    cb.Property(s => s.Specialty).IsRequired();
-                });
+            modelBuilder.Entity<SpecialCustomer>(cb =>
+            {
+                cb.Ignore(c => c.Details);
+                cb.Property(s => s.Specialty).IsRequired();
+            });
 
             var model = Finalize(modelBuilder);
 
@@ -2950,20 +2901,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(specialtyColumn.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_tables_in_different_schemas()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder.Ignore<Order>();
-            modelBuilder.Entity<OrderDetails>(
-                cb =>
-                {
-                    cb.HasKey(b => b.OrderId);
-                    cb.OwnsOne(d => d.BillingAddress, a => a.ToTable("Details", "Billing"));
-                    cb.OwnsOne(d => d.ShippingAddress, a => a.ToTable("Details", "Shipping"));
-                    cb.OwnsOne(d => d.DateDetails, a => a.ToTable("Details", "Date"));
-                });
+            modelBuilder.Entity<OrderDetails>(cb =>
+            {
+                cb.HasKey(b => b.OrderId);
+                cb.OwnsOne(d => d.BillingAddress, a => a.ToTable("Details", "Billing"));
+                cb.OwnsOne(d => d.ShippingAddress, a => a.ToTable("Details", "Shipping"));
+                cb.OwnsOne(d => d.DateDetails, a => a.ToTable("Details", "Date"));
+            });
 
             var model = Finalize(modelBuilder);
 
@@ -2975,21 +2925,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(3, orderDetailsTable.ReferencingForeignKeyConstraints.Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_SQL_queries()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            modelBuilder.Entity<Order>(
-                cb =>
-                {
-                    cb.ToSqlQuery("GetOrders()");
-                    cb.Ignore(c => c.Customer);
-                    cb.Ignore(c => c.Details);
-                    cb.Ignore(c => c.DateDetails);
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.ToSqlQuery("GetOrders()");
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.DateDetails);
+                cb.Ignore(c => c.Addresses);
 
-                    cb.Property(c => c.AlternateId).HasColumnName("SomeName");
-                    cb.HasNoKey();
-                });
+                cb.Property(c => c.AlternateId).HasColumnName("SomeName");
+                cb.HasNoKey();
+            });
 
             var model = Finalize(modelBuilder);
 
@@ -3008,15 +2958,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate) },
+                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate)],
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersQuery = orderMapping.SqlQuery;
             Assert.Equal(
-                new[] { orderType },
+                [orderType],
                 ordersQuery.EntityTypeMappings.Select(m => m.TypeBase));
             Assert.Equal(
-                new[] { nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName" },
+                [nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName"],
                 ordersQuery.Columns.Select(m => m.Name));
             Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.RelationalModelTest+Order.MappedSqlQuery", ordersQuery.Name);
             Assert.Null(ordersQuery.Schema);
@@ -3034,7 +2984,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderDateColumn, ordersQuery.FindColumn(nameof(Order.OrderDate)));
             Assert.Same(orderDateColumn, orderDate.FindColumn(StoreObjectIdentifier.SqlQuery(orderType)));
             Assert.Same(orderDateColumn, ordersQuery.FindColumn(orderDate));
-            Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate], orderDateColumn.PropertyMappings.Select(m => m.Property));
             Assert.Equal(nameof(Order.OrderDate), orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
@@ -3049,25 +2999,135 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private static IQueryable<Order> GetOrdersForCustomer(string name)
             => throw new NotImplementedException();
 
-        [ConditionalFact]
+        [Fact]
+        public void Complex_property_container_column_type_is_used_in_relational_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexProperty>(eb =>
+            {
+                eb.ComplexProperty(
+                    e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson("complex_data");
+                        cb.HasColumnType("some_json_mapping");
+                    });
+            });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "complex_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [Fact]
+        public void Complex_collection_container_column_type_is_used_in_relational_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexCollection>(eb =>
+            {
+                eb.ComplexCollection(
+                    e => e.ComplexCollection, cb =>
+                    {
+                        cb.ToJson("collection_data");
+                        cb.HasColumnType("some_json_mapping");
+                    });
+            });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexCollection));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "collection_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [Fact]
+        public void Complex_property_gets_default_container_column_type_when_not_set_explicitly()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexProperty>(eb =>
+            {
+                eb.ComplexProperty(
+                    e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson("complex_data");
+                    });
+            });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "complex_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [Fact]
+        public void Complex_collection_gets_default_container_column_type_when_not_set_explicitly()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexCollection>(eb =>
+            {
+                eb.ComplexCollection(
+                    e => e.ComplexCollection, cb =>
+                    {
+                        cb.ToJson("collection_data");
+                    });
+            });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexCollection));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "collection_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [Fact]
         public void Can_use_relational_model_with_functions()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            modelBuilder.Entity<Order>(
-                cb =>
-                {
-                    cb.ToFunction("GetOrders");
-                    cb.Ignore(c => c.Customer);
-                    cb.Ignore(c => c.Details);
-                    cb.Ignore(c => c.DateDetails);
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.ToFunction("GetOrders");
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.DateDetails);
+                cb.Ignore(c => c.Addresses);
 
-                    cb.Property(c => c.AlternateId).HasColumnName("SomeName");
-                    cb.HasNoKey();
-                });
+                cb.Property(c => c.AlternateId).HasColumnName("SomeName");
+                cb.HasNoKey();
+            });
 
             modelBuilder.HasDbFunction(
                 typeof(RelationalModelTest).GetMethod(
-                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static, [typeof(int)] ));
+                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static, [typeof(int)]));
 
             modelBuilder.HasDbFunction(
                 typeof(RelationalModelTest).GetMethod(
@@ -3168,7 +3228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(tvfDbFunction2.Parameters.Single().Name, tvfFunction2.Parameters.Single().DbFunctionParameters.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Default_mappings_does_not_share_tableBase()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3195,16 +3255,781 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(defaultMapping2.Table.Columns.Single().IsNullable);
         }
 
+        [Fact]
+        public void GetQueryMappings_returns_in_priority_order_sql_query_function_view_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.DateDetails);
+                cb.Ignore(c => c.Addresses);
+                cb.HasNoKey();
+            });
+
+            var sqlQueryOnly = (IEntityType)modelBuilder.Model.AddEntityType(typeof(NameSpace1.SameEntityType));
+            modelBuilder.Entity(sqlQueryOnly.ClrType).HasNoKey().ToSqlQuery("SELECT 1 AS Id");
+
+            // Table + view: view wins (table mappings are not returned).
+            var viewAndTable = modelBuilder.Entity<NameSpace2.SameEntityType>(b => b.HasNoKey().ToView("V").ToTable("T"));
+
+            // Function + view + table: function wins.
+            modelBuilder.Ignore<Tag>();
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.Ignore(c => c.Orders);
+                b.HasNoKey();
+                b.ToFunction("GetCustomers");
+                b.ToView("CustomersView");
+                b.ToTable("Customers");
+            });
+
+            // Table-only.
+            modelBuilder.Entity<Order>(b => b.ToTable("Orders"));
+
+            var model = Finalize(modelBuilder);
+
+            // Table-only -> table mappings.
+            var orderType = model.Model.FindEntityType(typeof(Order));
+            var orderMappings = orderType.GetQueryMappings().ToList();
+            Assert.Single(orderMappings);
+            Assert.IsAssignableFrom<ITableMapping>(orderMappings[0]);
+
+            // SqlQuery-only -> SQL query mappings.
+            var sqlQueryEntity = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
+            var sqlQueryMappings = sqlQueryEntity.GetQueryMappings().ToList();
+            Assert.Single(sqlQueryMappings);
+            Assert.IsAssignableFrom<ISqlQueryMapping>(sqlQueryMappings[0]);
+
+            // Table + view -> view mappings win (lower-priority table mappings are not returned).
+            var viewAndTableEntity = model.Model.FindEntityType(typeof(NameSpace2.SameEntityType));
+            var viewAndTableMappings = viewAndTableEntity.GetQueryMappings().ToList();
+            Assert.Single(viewAndTableMappings);
+            Assert.IsAssignableFrom<IViewMapping>(viewAndTableMappings[0]);
+
+            // Function + view + table -> function mappings win (lower-priority view/table mappings are not returned).
+            var customerType = model.Model.FindEntityType(typeof(Customer));
+            var customerMappings = customerType.GetQueryMappings().ToList();
+            Assert.Single(customerMappings);
+            Assert.IsAssignableFrom<IFunctionMapping>(customerMappings[0]);
+        }
+
+        [Fact]
+        public void Container_column_type_is_used_for_complex_property_json_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexProperty>()
+                .ComplexProperty(
+                    e => e.ComplexProperty, b =>
+                    {
+                        b.ToJson("complex_data");
+                        b.HasColumnType("some_json_mapping");
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "complex_data");
+
+            Assert.Equal("some_json_mapping", jsonColumn.StoreType);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
+        [Fact]
+        public void Container_column_type_is_used_for_complex_collection_json_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexCollection>()
+                .ComplexCollection(
+                    e => e.ComplexCollection, b =>
+                    {
+                        b.ToJson("collection_data");
+                        b.HasColumnType("some_json_mapping");
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "collection_data");
+
+            Assert.Equal("some_json_mapping", jsonColumn.StoreType);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
+        [Fact]
+        public void Complex_property_json_column_is_nullable_in_TPH_hierarchy()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TphBaseEntity>();
+            modelBuilder.Entity<EntityWithoutComplexProperty>();
+            modelBuilder.Entity<TphEntityWithComplexProperty>()
+                .ComplexProperty(e => e.ComplexProperty, b => b.ToJson());
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "ComplexProperty");
+
+            Assert.True(jsonColumn.IsNullable);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
+        [Fact]
+        public void Complex_property_json_column_is_not_duplicated_in_TPT_child_tables()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>()
+                .UseTptMappingStrategy()
+                .ComplexProperty(e => e.ComplexProperty, b => b.ToJson());
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TptBaseEntityWithComplexProperty));
+            var childTable = relationalModel.Tables.Single(t => t.Name == nameof(TptDerivedEntityWithoutComplexProperty));
+
+            // The JSON column for the base complex property must appear only in the base table
+            Assert.Contains(baseTable.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+            Assert.DoesNotContain(childTable.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+        }
+
+        [Fact]
+        public void Complex_property_columns_are_not_duplicated_in_TPT_child_tables()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>()
+                .UseTptMappingStrategy()
+                .ComplexProperty(e => e.ComplexProperty);
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TptBaseEntityWithComplexProperty));
+            var childTable = relationalModel.Tables.Single(t => t.Name == nameof(TptDerivedEntityWithoutComplexProperty));
+
+            // Non-JSON complex property columns appear only on the base table.
+            var valueColumnName = nameof(TptBaseEntityWithComplexProperty.ComplexProperty) + "_" + nameof(ComplexData.Value);
+            var numberColumnName = nameof(TptBaseEntityWithComplexProperty.ComplexProperty) + "_" + nameof(ComplexData.Number);
+            Assert.Contains(baseTable.Columns, c => c.Name == valueColumnName);
+            Assert.Contains(baseTable.Columns, c => c.Name == numberColumnName);
+            Assert.DoesNotContain(childTable.Columns, c => c.Name == valueColumnName);
+            Assert.DoesNotContain(childTable.Columns, c => c.Name == numberColumnName);
+        }
+
+        [Fact]
+        public void Complex_property_json_column_is_created_in_every_TPC_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TpcBaseEntityWithComplexProperty>(b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            });
+            modelBuilder.Entity<TpcDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TpcBaseEntityWithComplexProperty));
+            var derivedTable = relationalModel.Tables.Single(t => t.Name == nameof(TpcDerivedEntityWithoutComplexProperty));
+
+            // In TPC the JSON container column appears on every concrete table.
+            Assert.Contains(baseTable.Columns, c => c.Name == nameof(TpcBaseEntityWithComplexProperty.ComplexProperty));
+            Assert.Contains(derivedTable.Columns, c => c.Name == nameof(TpcBaseEntityWithComplexProperty.ComplexProperty));
+        }
+
+        [Fact]
+        public void GetContainerColumnName_with_StoreObjectIdentifier_resolves_per_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>()
+                .UseTptMappingStrategy()
+                .ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var baseEntity = model.FindEntityType(typeof(TptBaseEntityWithComplexProperty))!;
+            var complexProperty = baseEntity.FindComplexProperty(nameof(TptBaseEntityWithComplexProperty.ComplexProperty))!;
+            var complexType = complexProperty.ComplexType;
+
+            var baseTable = StoreObjectIdentifier.Table(nameof(TptBaseEntityWithComplexProperty));
+            var childTable = StoreObjectIdentifier.Table(nameof(TptDerivedEntityWithoutComplexProperty));
+            var unrelatedTable = StoreObjectIdentifier.Table("SomeOtherTable");
+
+            Assert.Equal(nameof(TptBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(baseTable));
+            Assert.Null(complexType.GetContainerColumnName(childTable));
+            Assert.Null(complexType.GetContainerColumnName(unrelatedTable));
+        }
+
+        [Fact]
+        public void GetContainerColumnName_with_StoreObjectIdentifier_returns_column_for_every_TPC_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TpcBaseEntityWithComplexProperty>(b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            });
+            modelBuilder.Entity<TpcDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var baseEntity = model.FindEntityType(typeof(TpcBaseEntityWithComplexProperty))!;
+            var complexProperty = baseEntity.FindComplexProperty(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty))!;
+            var complexType = complexProperty.ComplexType;
+
+            var baseTable = StoreObjectIdentifier.Table(nameof(TpcBaseEntityWithComplexProperty));
+            var derivedTable = StoreObjectIdentifier.Table(nameof(TpcDerivedEntityWithoutComplexProperty));
+            var unrelatedTable = StoreObjectIdentifier.Table("SomeOtherTable");
+
+            Assert.Equal(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(baseTable));
+            Assert.Equal(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(derivedTable));
+            Assert.Null(complexType.GetContainerColumnName(unrelatedTable));
+        }
+
+        [Fact]
+        public void Complex_type_with_PK_property_creates_column_mapping_in_TPT_child_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseWithComplexTypePK>(b =>
+            {
+                b.UseTptMappingStrategy();
+                b.ComplexProperty(e => e.Key);
+                b.HasKey(e => e.Key.Id);
+                b.Property(e => e.Key.Id).ValueGeneratedNever();
+            });
+            modelBuilder.Entity<TptDerivedWithComplexTypePK>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TptBaseWithComplexTypePK));
+            var childTable = relationalModel.Tables.Single(t => t.Name == nameof(TptDerivedWithComplexTypePK));
+
+            // The PK column for the complex-typed key must appear in both the base table and the child table.
+            Assert.Contains(baseTable.Columns, c => c.Name == "Key_Id");
+            Assert.Contains(childTable.Columns, c => c.Name == "Key_Id");
+
+            // Non-key properties of the derived entity stay on the child table.
+            Assert.Contains(childTable.Columns, c => c.Name == nameof(TptDerivedWithComplexTypePK.Extra));
+            Assert.DoesNotContain(baseTable.Columns, c => c.Name == nameof(TptDerivedWithComplexTypePK.Extra));
+        }
+
+        [Fact]
+        public void Complex_property_json_column_is_not_duplicated_in_TPT_child_views()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>(b =>
+            {
+                b.UseTptMappingStrategy();
+                b.ToTable(nameof(TptBaseEntityWithComplexProperty));
+                b.ToView(nameof(TptBaseEntityWithComplexProperty) + "View");
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            });
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>(b =>
+            {
+                b.ToTable(nameof(TptDerivedEntityWithoutComplexProperty));
+                b.ToView(nameof(TptDerivedEntityWithoutComplexProperty) + "View");
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseView = relationalModel.Views.Single(v => v.Name == nameof(TptBaseEntityWithComplexProperty) + "View");
+            var childView = relationalModel.Views.Single(v => v.Name == nameof(TptDerivedEntityWithoutComplexProperty) + "View");
+
+            // The JSON column for the base complex property must appear only in the base view.
+            Assert.Contains(baseView.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+            Assert.DoesNotContain(childView.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+        }
+
+        [Fact]
+        public void Json_element_tree_is_built_for_owned_entity_json_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.ComplexProperty);
+                cb.Ignore(c => c.Details);
+
+                cb.OwnsOne(c => c.DateDetails, o => o.ToJson("date_details"));
+                cb.OwnsMany(c => c.Addresses, o => o.ToJson("addresses"));
+            });
+
+            var model = Finalize(modelBuilder);
+            var table = model.Tables.Single();
+
+            // Validate JSON columns have JsonElement set
+            var dateDetailsColumn = table.FindColumn("date_details")!;
+            Assert.NotNull(dateDetailsColumn.JsonElement);
+            var addressesColumnObj = table.FindColumn("addresses")!;
+            Assert.NotNull(addressesColumnObj.JsonElement);
+
+            // Validate date_details is a JSON object (reference navigation)
+            var dateDetailsRoot = dateDetailsColumn.JsonElement!;
+            Assert.IsType<RelationalJsonObject>(dateDetailsRoot);
+            var dateDetailsObject = (IRelationalJsonObject)dateDetailsRoot;
+            Assert.Null(dateDetailsRoot.PropertyName);
+            Assert.True(dateDetailsRoot.IsNullable);
+            Assert.Null(dateDetailsRoot.ParentElement);
+            Assert.NotNull(dateDetailsRoot.ContainingColumn);
+            Assert.Null(dateDetailsRoot.StoreTypeMapping);
+            Assert.Equal("date_details", dateDetailsRoot.ContainingColumn.Name);
+            Assert.Empty(dateDetailsRoot.Path);
+
+            // Validate date_details has a Date property
+            var dateProperty = dateDetailsObject.FindProperty("Date");
+            Assert.NotNull(dateProperty);
+            Assert.IsType<RelationalJsonScalar>(dateProperty);
+            Assert.Equal("Date", dateProperty.PropertyName);
+            Assert.False(dateProperty.IsNullable);
+            Assert.Single(dateProperty.Path);
+            Assert.Equal("Date", dateProperty.Path[0].PropertyName);
+            Assert.Same(dateDetailsRoot, dateProperty.ParentElement);
+
+            // Validate addresses is a JSON array (collection navigation)
+            var addressesRoot = addressesColumnObj.JsonElement!;
+            Assert.IsType<RelationalJsonArray>(addressesRoot);
+            var addressesArray = (IRelationalJsonArray)addressesRoot;
+            Assert.Null(addressesRoot.PropertyName);
+            Assert.True(addressesRoot.IsNullable);
+            Assert.Null(addressesRoot.ParentElement);
+            Assert.Empty(addressesRoot.Path);
+
+            // Validate element type is an object with Street and City properties (plus shadow key/FK properties)
+            var addressElement = addressesArray.ElementType;
+            Assert.IsType<RelationalJsonObject>(addressElement);
+            var addressObject = (IRelationalJsonObject)addressElement;
+            Assert.True(addressObject.Properties.Count >= 2);
+
+            var streetProperty = addressObject.FindProperty("Street");
+            Assert.NotNull(streetProperty);
+            Assert.IsType<RelationalJsonScalar>(streetProperty);
+
+            var cityProperty = addressObject.FindProperty("City");
+            Assert.NotNull(cityProperty);
+            Assert.IsType<RelationalJsonScalar>(cityProperty);
+
+            // Path through array should have 2 segments: ArrayIndex, PropertyName
+            Assert.Equal(2, streetProperty.Path.Count);
+            Assert.True(streetProperty.Path[0].IsArray);
+            Assert.Equal("Street", streetProperty.Path[1].PropertyName);
+
+            // Validate FindColumn with IPropertyBase
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var dateDetailsNavigation = orderType.FindNavigation(nameof(Order.DateDetails))!;
+            var dateDetailsCol = table.FindColumn(dateDetailsNavigation);
+            Assert.NotNull(dateDetailsCol);
+            Assert.Equal("date_details", dateDetailsCol.Name);
+
+            var addressesNavigation = orderType.FindNavigation(nameof(Order.Addresses))!;
+            var addressesCol = table.FindColumn(addressesNavigation);
+            Assert.NotNull(addressesCol);
+            Assert.Equal("addresses", addressesCol.Name);
+
+            // Validate GetJsonElementMappings
+            var dateDetailsMappings = dateDetailsNavigation.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(dateDetailsMappings);
+            Assert.Contains(dateDetailsMappings, m => m.Element == dateDetailsRoot);
+            Assert.All(dateDetailsMappings, m =>
+            {
+                Assert.Same(dateDetailsNavigation, m.Property);
+                Assert.NotNull(m.TableMapping);
+                Assert.Same(dateDetailsNavigation.TargetEntityType, m.TableMapping.TypeBase);
+            });
+
+            // Validate scalar property has JSON element mappings
+            var dateDetailsEntityType = dateDetailsNavigation.TargetEntityType;
+            var datePropertyModel = dateDetailsEntityType.FindProperty("Date")!;
+            Assert.Same((RelationalTypeMapping)datePropertyModel.GetTypeMapping(), dateProperty.StoreTypeMapping);
+            var datePropertyMappings = datePropertyModel.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(datePropertyMappings);
+            Assert.All(datePropertyMappings, m => Assert.Equal("Date", m.Element.PropertyName));
+        }
+
+        [Fact]
+        public void Json_element_tree_is_merged_for_existing_json_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithNestedComplexProperty>()
+                .ComplexProperty(
+                    e => e.ComplexProperty,
+                    b => b.ToJson("complex_data"));
+
+            var model = Finalize(modelBuilder);
+            var table = model.Tables.Single();
+            var jsonColumn = table.FindColumn("complex_data")!;
+
+            var jsonObject = Assert.IsAssignableFrom<IRelationalJsonObject>(jsonColumn.JsonElement);
+            var nestedObject = Assert.IsAssignableFrom<IRelationalJsonObject>(jsonObject.FindProperty("Nested"));
+            Assert.NotNull(nestedObject.FindProperty("Number"));
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithNestedComplexProperty))!;
+            var complexProperty = entityType.FindComplexProperty(nameof(EntityWithNestedComplexProperty.ComplexProperty))!;
+            var nestedComplexProperty = complexProperty.ComplexType.FindComplexProperty(nameof(OuterComplexData.Nested))!;
+
+            Assert.Same(jsonColumn, table.FindColumn(complexProperty));
+            Assert.Same(jsonColumn, table.FindColumn(nestedComplexProperty));
+
+            var numberProperty = nestedComplexProperty.ComplexType.FindProperty(nameof(NestedComplexData.Number))!;
+            var numberMappings = numberProperty.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(numberMappings);
+            Assert.All(numberMappings, m => Assert.Equal("Number", m.Element.PropertyName));
+        }
+
+        [Fact]
+        public void Json_element_tree_is_built_for_complex_property_json_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexProperty>()
+                .ComplexProperty(
+                    e => e.ComplexProperty, b =>
+                    {
+                        b.ToJson("complex_data");
+                    });
+
+            var model = Finalize(modelBuilder);
+            var table = model.Tables.Single();
+
+            // Validate JsonElement on column
+            var jsonColumn = table.FindColumn("complex_data")!;
+            Assert.NotNull(jsonColumn.JsonElement);
+            var root = jsonColumn.JsonElement!;
+            Assert.IsType<RelationalJsonObject>(root);
+            var jsonObject = (IRelationalJsonObject)root;
+            Assert.Null(root.PropertyName);
+            Assert.True(root.IsNullable);
+            Assert.Null(root.StoreTypeMapping);
+
+            // Validate complex type properties are represented as JSON properties
+            Assert.Equal(2, jsonObject.Properties.Count);
+
+            // Check order preservation
+            var firstProp = jsonObject.Properties[0];
+            Assert.IsType<RelationalJsonScalar>(firstProp);
+            var secondProp = jsonObject.Properties[1];
+            Assert.IsType<RelationalJsonScalar>(secondProp);
+
+            // Check value types
+            var valueProp = jsonObject.FindProperty("Value");
+            Assert.NotNull(valueProp);
+            Assert.True(valueProp.IsNullable);
+
+            var numberProp = jsonObject.FindProperty("Number");
+            Assert.NotNull(numberProp);
+            Assert.False(numberProp.IsNullable);
+
+            // Validate FindColumn(IPropertyBase) with complex property
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty))!;
+            var complexProperty = entityType.FindComplexProperty(nameof(EntityWithComplexProperty.ComplexProperty))!;
+            var column = table.FindColumn(complexProperty);
+            Assert.NotNull(column);
+            Assert.Equal("complex_data", column.Name);
+            Assert.Same(root, column.JsonElement);
+
+            // Validate GetJsonElementMappings for complex property
+            var complexMappings = complexProperty.GetJsonElementMappings().ToList();
+            Assert.Single(complexMappings);
+            Assert.Same(root, complexMappings[0].Element);
+
+            // Validate scalar properties have mappings
+            var valueProperty = complexProperty.ComplexType.FindProperty("Value")!;
+            var valueMappings = valueProperty.GetJsonElementMappings().ToList();
+            Assert.Single(valueMappings);
+            Assert.Equal("Value", valueMappings[0].Element.PropertyName);
+            Assert.Same((RelationalTypeMapping)valueProperty.GetTypeMapping(), valueMappings[0].Element.StoreTypeMapping);
+        }
+
+        [Fact]
+        public void Json_element_tree_is_built_for_primitive_collection_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithJsonOwnedWithCollection>(eb =>
+            {
+                eb.OwnsOne(
+                    e => e.OwnedWithTags,
+                    b =>
+                    {
+                        b.ToJson("owned_with_tags");
+
+                        var tags = b.PrimitiveCollection(e => e.Tags);
+                        tags.Metadata.SetTypeMapping(
+                            (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
+                                converter: new ValueConverter<List<string>, string>(v => null!, v => null!),
+                                elementMapping: new StringTypeMapping("nvarchar(max)", null)));
+
+                        var enumValues = b.PrimitiveCollection(e => e.EnumValues);
+                        enumValues.Metadata.SetTypeMapping(
+                            (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
+                                converter: new ValueConverter<List<PrimitiveCollectionEnum>, string>(v => null!, v => null!),
+                                elementMapping: new IntTypeMapping("int")));
+                        enumValues.ElementType(b => b.HasConversion<int>());
+                    });
+            });
+
+            var model = Finalize(modelBuilder);
+            var entityType = model.Model.FindEntityType(typeof(EntityWithJsonOwnedWithCollection))!;
+            var ownedNavigation = entityType.FindNavigation(nameof(EntityWithJsonOwnedWithCollection.OwnedWithTags))!;
+            var ownedType = ownedNavigation.TargetEntityType;
+            var table = model.Tables.Single();
+            var column = table.FindColumn("owned_with_tags")!;
+
+            AssertPrimitiveCollectionJsonMapping(
+                ownedType.FindProperty(nameof(JsonOwnedWithTags.Tags))!,
+                table,
+                column);
+
+            AssertPrimitiveCollectionJsonMapping(
+                ownedType.FindProperty(nameof(JsonOwnedWithTags.EnumValues))!,
+                table,
+                column);
+
+            static void AssertPrimitiveCollectionJsonMapping(
+                IProperty property,
+                ITable table,
+                IColumnBase containingColumn)
+            {
+                var column = table.FindColumn(property);
+                Assert.NotNull(column);
+                Assert.Same(containingColumn, column);
+
+                var mappings = property.GetJsonElementMappings().ToList();
+                Assert.NotEmpty(mappings);
+                Assert.All(mappings, m =>
+                {
+                    Assert.Same(property, m.Property);
+                    Assert.IsAssignableFrom<IRelationalJsonArray>(m.Element);
+                });
+
+                var mapping = Assert.Single(mappings, m => ReferenceEquals(m.TableMapping.Table, table));
+                var jsonArray = Assert.IsAssignableFrom<IRelationalJsonArray>(mapping.Element);
+                var jsonElement = Assert.IsAssignableFrom<RelationalJsonScalar>(jsonArray.ElementType);
+
+                Assert.Equal(property.Name, jsonArray.PropertyName);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping(), jsonArray.StoreTypeMapping);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping().ElementTypeMapping!, jsonElement.StoreTypeMapping);
+                Assert.NotEmpty(jsonArray.Path);
+                Assert.Equal(property.Name, jsonArray.Path[^1].PropertyName);
+                Assert.NotEmpty(jsonElement.Path);
+                Assert.True(jsonElement.Path[^1].IsArray);
+            }
+        }
+
+        [Fact]
+        public void Can_use_relational_model_with_functions_and_json_owned_types()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.ComplexProperty);
+
+                cb.OwnsOne(c => c.DateDetails, o => o.ToJson("date_details"));
+                cb.OwnsMany(c => c.Addresses, o => o.ToJson("addresses"));
+            });
+
+            modelBuilder.HasDbFunction(
+                typeof(RelationalModelTest).GetMethod(
+                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static, [typeof(int)]));
+
+            var model = Finalize(modelBuilder);
+
+            var orderType = model.Model.FindEntityType(typeof(Order));
+
+            var functionMappings = orderType.GetFunctionMappings().ToList();
+            Assert.Single(functionMappings);
+
+            var storeFunction = functionMappings[0].StoreFunction;
+            Assert.Equal(
+                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "addresses", "date_details"],
+                storeFunction.Columns.Select(m => m.Name));
+            Assert.NotNull(storeFunction.FindColumn("date_details"));
+            Assert.NotNull(storeFunction.FindColumn("addresses"));
+        }
+
+        [Fact]
+        public void Alternate_key_on_complex_property_is_mapped_to_unique_constraint()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<DateDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.HasAlternateKey("ComplexProperty.Value");
+            });
+
+            var model = Finalize(modelBuilder);
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var table = orderType.GetTableMappings().Single().Table;
+            var expectedColumnName = nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value);
+
+            var alternateKey = orderType.GetKeys().Single(k => !k.IsPrimaryKey());
+            var uniqueConstraints = (SortedSet<Microsoft.EntityFrameworkCore.Metadata.Internal.UniqueConstraint>)alternateKey
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.UniqueConstraintMappings)!;
+            var uniqueConstraint = Assert.Single(uniqueConstraints);
+            var column = Assert.Single(uniqueConstraint.Columns);
+            Assert.Equal(expectedColumnName, column.Name);
+            Assert.Same(table, column.Table);
+        }
+
+        [Fact]
+        public void Index_on_complex_property_is_mapped_to_table_index()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<DateDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.HasIndex("ComplexProperty.Number").IsUnique();
+            });
+
+            var model = Finalize(modelBuilder);
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var table = orderType.GetTableMappings().Single().Table;
+            var expectedColumnName = nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number);
+
+            var index = orderType.GetIndexes().Single();
+            var tableIndexes = (SortedSet<TableIndex>)index
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var tableIndex = Assert.Single(tableIndexes);
+            Assert.True(tableIndex.IsUnique);
+            var column = Assert.Single(tableIndex.Columns);
+            Assert.Equal(expectedColumnName, column.Name);
+            Assert.Same(table, column.Table);
+        }
+
+        [Fact]
+        public void GetIndex_resolves_index_on_json_mapped_complex_property()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<DateDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+                b.HasIndex(e => e.ComplexProperty);
+            });
+
+            var model = Finalize(modelBuilder);
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var index = orderType.GetIndexes().Single();
+            var complexProperty = orderType.FindComplexProperty(nameof(Order.ComplexProperty))!;
+
+            Assert.Same(complexProperty, Assert.Single(index.Properties));
+
+            var table = orderType.GetTableMappings().Single().Table;
+            var jsonColumn = table.FindColumn(complexProperty)!;
+            var tableIndexes = (SortedSet<TableIndex>)index
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var tableIndex = Assert.Single(tableIndexes);
+            Assert.Same(index, tableIndex.MappedIndexes.Single());
+            var jsonIndex = Assert.IsType<RelationalJsonIndex>(tableIndex[RelationalAnnotationNames.JsonIndex]);
+            var element = Assert.Single(jsonIndex.Elements);
+            Assert.Same(jsonColumn, element.ContainingColumn);
+            Assert.Null(element.PropertyName);
+            Assert.Empty(element.Path);
+            Assert.Null(jsonIndex.CollectionIndices);
+
+            // Simulates the lookup performed by compiled-model code generation, which uses property paths.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var resolved = Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalModel.GetIndex(
+                model.Model, orderType.Name, [nameof(Order.ComplexProperty)]);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            Assert.Same(index, resolved);
+        }
+
+        [Fact]
+        public void Json_index_paths_traverse_nested_complex_properties()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<EntityWithNestedComplexProperty>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson();
+                        cb.ComplexProperty(c => c.Nested, nb =>
+                        {
+                            nb.HasJsonPropertyName("nested_json");
+                            nb.Property(n => n.Number).HasJsonPropertyName("number_json");
+                        });
+                    });
+                b.HasIndex("ComplexProperty.Nested.Number");
+                b.HasIndex("ComplexProperty.Nested");
+            });
+
+            var model = Finalize(modelBuilder);
+            var entityType = model.Model.FindEntityType(typeof(EntityWithNestedComplexProperty))!;
+            var table = entityType.GetTableMappings().Single().Table;
+            var complexProperty = entityType.FindComplexProperty(nameof(EntityWithNestedComplexProperty.ComplexProperty))!;
+            var jsonColumn = table.FindColumn(complexProperty)!;
+
+            var scalarIndex = entityType.GetIndexes().Single(i => i.Properties is [IProperty]);
+            var scalarTableIndexes = (SortedSet<TableIndex>)scalarIndex
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var scalarTableIndex = Assert.Single(scalarTableIndexes);
+            var scalarJsonIndex = Assert.IsType<RelationalJsonIndex>(scalarTableIndex[RelationalAnnotationNames.JsonIndex]);
+            var scalarElement = Assert.Single(scalarJsonIndex.Elements);
+            Assert.Same(jsonColumn, scalarElement.ContainingColumn);
+            Assert.Equal("number_json", scalarElement.PropertyName);
+            Assert.Equal(
+                ["nested_json", "number_json"],
+                scalarElement.Path.Select(s => s.PropertyName));
+            Assert.All(scalarElement.Path, s => Assert.False(s.IsArray));
+            Assert.Null(scalarJsonIndex.CollectionIndices);
+
+            var nestedComplexIndex = entityType.GetIndexes().Single(i => i.Properties is [IComplexProperty]);
+            var nestedTableIndexes = (SortedSet<TableIndex>)nestedComplexIndex
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var nestedTableIndex = Assert.Single(nestedTableIndexes);
+            var nestedJsonIndex = Assert.IsType<RelationalJsonIndex>(nestedTableIndex[RelationalAnnotationNames.JsonIndex]);
+            var nestedElement = Assert.Single(nestedJsonIndex.Elements);
+            Assert.Same(jsonColumn, nestedElement.ContainingColumn);
+            Assert.Equal("nested_json", nestedElement.PropertyName);
+            Assert.Equal(
+                ["nested_json"],
+                nestedElement.Path.Select(s => s.PropertyName));
+            Assert.Null(nestedJsonIndex.CollectionIndices);
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
         protected virtual TestHelpers.TestModelBuilder CreateConventionModelBuilder()
             => FakeRelationalTestHelpers.Instance.CreateConventionBuilder(
                 configureContext: b =>
-                    b.ConfigureWarnings(
-                        w => w.Default(WarningBehavior.Throw)
-                            .Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning)
-                            .Ignore(RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable)));
+                    b.ConfigureWarnings(w => w.Default(WarningBehavior.Throw)
+                        .Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning)
+                        .Ignore(RelationalEventId.AllIndexPropertiesNotMappedToAnyTable)
+                        .Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning)));
 
         public static void AssertEqual(IRelationalModel expectedModel, IRelationalModel actualModel)
             => RelationalModelAsserter.Instance.AssertEqual(expectedModel, actualModel);
@@ -3226,6 +4051,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private abstract class AbstractBase
         {
             public int Id { get; set; }
+            public Tag Tag { get; set; }
+        }
+
+        public class Tag
+        {
+            public string Name { get; set; }
         }
 
         private class Customer : AbstractBase
@@ -3274,6 +4105,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public Customer Customer { get; set; }
 
             public OrderDetails Details { get; set; }
+
+            public ComplexData ComplexProperty { get; set; }
+
+            public List<Address> Addresses { get; set; }
         }
 
         private class OrderDetails
@@ -3299,6 +4134,106 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public string Street { get; set; }
             public string City { get; set; }
+        }
+
+        private class EntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class EntityWithComplexCollection
+        {
+            public int Id { get; set; }
+            public List<ComplexData> ComplexCollection { get; set; }
+        }
+
+        private class EntityWithNestedComplexProperty
+        {
+            public int Id { get; set; }
+            public OuterComplexData ComplexProperty { get; set; }
+        }
+
+        private abstract class TphBaseEntity
+        {
+            public int Id { get; set; }
+        }
+
+        private class EntityWithoutComplexProperty : TphBaseEntity;
+
+        private class TphEntityWithComplexProperty : TphBaseEntity
+        {
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private abstract class TptBaseEntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class TptDerivedEntityWithoutComplexProperty : TptBaseEntityWithComplexProperty;
+
+        private class TpcBaseEntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class TpcDerivedEntityWithoutComplexProperty : TpcBaseEntityWithComplexProperty;
+
+        private abstract class TptBaseWithComplexTypePK
+        {
+            public TptComplexKey Key { get; set; } = null!;
+        }
+
+        private class TptComplexKey
+        {
+            public int Id { get; set; }
+        }
+
+        private class TptDerivedWithComplexTypePK : TptBaseWithComplexTypePK
+        {
+            public int Extra { get; set; }
+        }
+
+        private class EntityWithJsonOwnedWithCollection
+        {
+            public int Id { get; set; }
+            public JsonOwnedWithTags OwnedWithTags { get; set; }
+        }
+
+        private enum PrimitiveCollectionEnum
+        {
+            One,
+            Two
+        }
+
+        private class JsonOwnedWithTags
+        {
+            public string Label { get; set; }
+            public List<string> Tags { get; set; }
+            public List<PrimitiveCollectionEnum> EnumValues { get; set; }
+        }
+
+        [ComplexType]
+        private class ComplexData
+        {
+            public string Value { get; set; }
+            public int Number { get; set; }
+        }
+
+        [ComplexType]
+        private class OuterComplexData
+        {
+            public string Value { get; set; }
+            public NestedComplexData Nested { get; set; }
+        }
+
+        [ComplexType]
+        private class NestedComplexData
+        {
+            public int Number { get; set; }
         }
     }
 }

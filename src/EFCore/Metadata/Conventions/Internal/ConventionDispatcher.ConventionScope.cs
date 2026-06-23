@@ -70,7 +70,7 @@ public partial class ConventionDispatcher
             string name);
 
         public abstract string? OnDiscriminatorPropertySet(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder structuralTypeBuilder,
             string? name);
 
         public abstract IConventionKey? OnEntityTypePrimaryKeyChanged(
@@ -137,6 +137,9 @@ public partial class ConventionDispatcher
             IConventionForeignKey foreignKey);
 
         public abstract bool? OnForeignKeyRequirednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder);
+
+        public abstract bool? OnForeignKeyConstrainednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder);
 
         public abstract bool? OnForeignKeyDependentRequirednessChanged(
@@ -240,6 +243,9 @@ public partial class ConventionDispatcher
             FieldInfo? oldFieldInfo);
 
         public abstract bool? OnPropertyNullabilityChanged(
+            IConventionPropertyBuilder propertyBuilder);
+
+        public abstract bool? OnPropertyAutoLoadChanged(
             IConventionPropertyBuilder propertyBuilder);
 
         public abstract IConventionProperty? OnPropertyRemoved(

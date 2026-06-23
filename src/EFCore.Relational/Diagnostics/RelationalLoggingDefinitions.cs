@@ -140,6 +140,15 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
+    public EventDefinitionBase? LogConnectionCanceled;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
     public EventDefinitionBase? LogBeginningTransaction;
 
     /// <summary>
@@ -509,7 +518,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public EventDefinitionBase? LogNamedIndexAllPropertiesNotToMappedToAnyTable;
+    public EventDefinitionBase? LogNamedIndexAllPropertiesNotMappedToAnyTable;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -518,7 +527,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public EventDefinitionBase? LogUnnamedIndexAllPropertiesNotToMappedToAnyTable;
+    public EventDefinitionBase? LogUnnamedIndexAllPropertiesNotMappedToAnyTable;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -591,6 +600,15 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     /// </summary>
     [EntityFrameworkInternal]
     public EventDefinitionBase? LogTpcStoreGeneratedIdentity;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public EventDefinitionBase? LogOwnedEntityMappedToJsonCollection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -672,6 +690,33 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     /// </summary>
     [EntityFrameworkInternal]
     public EventDefinitionBase? LogPendingModelChanges;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public EventDefinitionBase? LogNonDeterministicModel;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public EventDefinitionBase? LogNoModelSnapshotFound;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public EventDefinitionBase? LogOldMigrationVersion;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

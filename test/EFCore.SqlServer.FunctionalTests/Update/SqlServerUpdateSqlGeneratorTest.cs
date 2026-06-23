@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -22,13 +23,14 @@ public class SqlServerUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<SqlServerSingletonOptions>())));
     }
 
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public void AppendBatchHeader_should_append_SET_NOCOUNT_ON()
     {
         var sb = new StringBuilder();
@@ -85,14 +87,14 @@ DEFAULT VALUES;
 """,
             stringBuilder.ToString());
 
-    [ConditionalFact]
+    [Fact]
     public void AppendBulkInsertOperation_appends_merge_if_store_generated_columns_exist()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand();
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         AssertBaseline(
             """
@@ -108,14 +110,14 @@ OUTPUT INSERTED.[Id], INSERTED.[Computed], i._Position;
         Assert.Equal(ResultSetMapping.NotLastInResultSet | ResultSetMapping.IsPositionalResultMappingEnabled, grouping);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AppendBulkInsertOperation_appends_insert_if_no_store_generated_columns_exist()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand(identityKey: false, isComputed: false);
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         AssertBaseline(
             """
@@ -127,14 +129,14 @@ VALUES (@p0, @p1, @p2, @p3),
         Assert.Equal(ResultSetMapping.NoResults, grouping);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AppendBulkInsertOperation_appends_insert_if_store_generated_columns_exist_default_values_only()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand(identityKey: true, isComputed: true, defaultsOnly: true);
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         AssertBaseline(
             """
@@ -151,14 +153,14 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);
         Assert.Equal(ResultSetMapping.NotLastInResultSet, grouping);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AppendBulkInsertOperation_appends_insert_if_no_store_generated_columns_exist_default_values_only()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand(identityKey: false, isComputed: false, defaultsOnly: true);
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         var expectedText =
             """

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
@@ -9,18 +9,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocAdvancedMappingsQueryTests";
 
     #region 9582
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Setting_IsUnicode_generates_unicode_literal_in_SQL()
     {
-        var contextFactory = await InitializeAsync<Context9582>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context9582>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context9582.TipoServicio>().Where(xx => xx.Nombre.Contains("lla")).ToList();
     }
 
@@ -29,14 +30,13 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TipoServicio>(
-                builder =>
-                {
-                    builder.HasKey(ts => ts.Id);
+            modelBuilder.Entity<TipoServicio>(builder =>
+            {
+                builder.HasKey(ts => ts.Id);
 
-                    builder.Property(ts => ts.Id).IsRequired();
-                    builder.Property(ts => ts.Nombre).IsRequired().HasMaxLength(20);
-                });
+                builder.Property(ts => ts.Id).IsRequired();
+                builder.Property(ts => ts.Nombre).IsRequired().HasMaxLength(20);
+            });
 
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                          .SelectMany(e => e.GetProperties().Where(p => p.ClrType == typeof(string))))
@@ -56,30 +56,28 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 11835
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_correlated_collection_along_with_non_mapped_property()
     {
-        var contextFactory = await InitializeAsync<Context11835>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context11835>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
-            var result = context.Blogs.Select(
-                e => new
-                {
-                    e.Id,
-                    e.Title,
-                    FirstPostName = e.Posts.Where(i => i.Name.Contains("2")).ToList()
-                }).ToList();
+            var result = context.Blogs.Select(e => new
+            {
+                e.Id,
+                e.Title,
+                FirstPostName = e.Posts.Where(i => i.Name.Contains("2")).ToList()
+            }).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
-            var result = context.Blogs.Select(
-                e => new
-                {
-                    e.Id,
-                    e.Title,
-                    FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
-                }).ToList();
+            var result = context.Blogs.Select(e => new
+            {
+                e.Id,
+                e.Title,
+                FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
+            }).ToList();
         }
     }
 
@@ -127,11 +125,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 15684
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projection_failing_with_EnumToStringConverter()
     {
-        var contextFactory = await InitializeAsync<Context15684>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context15684>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = from p in context.Products
                     join c in context.Categories on p.CategoryId equals c.Id into grouping
                     from c in grouping.DefaultIfEmpty()
@@ -211,30 +209,30 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 17276
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Expression_tree_constructed_via_interface_works()
     {
-        var contextFactory = await InitializeAsync<Context17276>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context17276>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = Context17276.List(context.RemovableEntities);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents
                 .Where(p => EF.Property<bool>(EF.Property<Context17276.IRemovable>(p, "RemovableEntity"), "IsRemoved"))
                 .ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.RemovableEntities
                 .Where(p => EF.Property<string>(EF.Property<Context17276.IOwned>(p, "OwnedEntity"), "OwnedValue") == "Abc")
                 .ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var specification = new Context17276.Specification<Context17276.Parent>(1);
             var entities = context.Set<Context17276.Parent>().Where(specification.Criteria).ToList();
@@ -246,6 +244,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<RemovableEntity> RemovableEntities { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Parent> Parents { get; set; }
 
@@ -306,11 +305,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 17794
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Double_convert_interface_created_expression_tree()
     {
-        var contextFactory = await InitializeAsync<Context17794>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context17794>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var expression = Context17794.HasAction17794<Context17794.Offer>(Context17794.Actions.Accepted);
         var query = context.Offers.Where(expression).Count();
 
@@ -377,12 +376,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 18087
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Casts_are_removed_from_expression_tree_when_redundant()
     {
-        var contextFactory = await InitializeAsync<Context18087>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context18087>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var queryBase = (IQueryable)context.MockEntities;
             var id = 1;
@@ -391,7 +390,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             Assert.Equal(1, query.Id);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var queryBase = (IQueryable)context.MockEntities;
             var query = queryBase.Cast<object>().Count();
@@ -399,17 +398,18 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             Assert.Equal(3, query);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var queryBase = (IQueryable)context.MockEntities;
             var id = 1;
 
-            var message = Assert.Throws<InvalidOperationException>(
-                () => queryBase.Cast<Context18087.IDummyEntity>().FirstOrDefault(x => x.Id == id)).Message;
+            var message = Assert
+                .Throws<InvalidOperationException>(() => queryBase.Cast<Context18087.IDummyEntity>().FirstOrDefault(x => x.Id == id))
+                .Message;
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
+                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == @id)"),
                 message.Replace("\r", "").Replace("\n", ""));
         }
     }
@@ -452,11 +452,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 18346
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_hierarchy_with_non_nullable_property_on_derived()
     {
-        var contextFactory = await InitializeAsync<Context18346>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context18346>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Businesses.ToList();
         Assert.Equal(3, query.Count);
     }
@@ -506,19 +506,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 26742
 
-    [ConditionalTheory]
-    [InlineData(null, "")]
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+     InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
-    [InlineData(1, " (Scale = 1)")]
-    [InlineData(2, " (Scale = 2)")]
-    [InlineData(3, " (Scale = 3)")]
-    [InlineData(4, " (Scale = 4)")]
-    [InlineData(5, " (Scale = 5)")]
-    [InlineData(6, " (Scale = 6)")]
-    [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_datetime2_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<Context26742>(
+        var contextFactory = await InitializeNonSharedTest<Context26742>(
             onModelCreating: modelBuilder =>
             {
                 if (fractionalSeconds.HasValue)
@@ -528,23 +521,16 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             });
 
         var parameter = new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567);
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         _ = context.Entities.Where(x => x.DateTime == parameter).Select(e => e.DateTime).FirstOrDefault();
     }
 
-    [ConditionalTheory]
-    [InlineData(null, "")]
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+     InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
-    [InlineData(1, " (Scale = 1)")]
-    [InlineData(2, " (Scale = 2)")]
-    [InlineData(3, " (Scale = 3)")]
-    [InlineData(4, " (Scale = 4)")]
-    [InlineData(5, " (Scale = 5)")]
-    [InlineData(6, " (Scale = 6)")]
-    [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_datetimeoffset_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<Context26742>(
+        var contextFactory = await InitializeNonSharedTest<Context26742>(
             onModelCreating: modelBuilder =>
             {
                 if (fractionalSeconds.HasValue)
@@ -554,23 +540,16 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             });
 
         var parameter = new DateTimeOffset(new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567), TimeSpan.FromHours(10));
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         _ = context.Entities.Where(x => x.DateTimeOffset == parameter).Select(e => e.DateTimeOffset).FirstOrDefault();
     }
 
-    [ConditionalTheory]
-    [InlineData(null, "")]
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+     InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
-    [InlineData(1, " (Scale = 1)")]
-    [InlineData(2, " (Scale = 2)")]
-    [InlineData(3, " (Scale = 3)")]
-    [InlineData(4, " (Scale = 4)")]
-    [InlineData(5, " (Scale = 5)")]
-    [InlineData(6, " (Scale = 6)")]
-    [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_timespan_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<Context26742>(
+        var contextFactory = await InitializeNonSharedTest<Context26742>(
             onModelCreating: modelBuilder =>
             {
                 if (fractionalSeconds.HasValue)
@@ -580,7 +559,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             });
 
         var parameter = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture);
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
     }
 
@@ -602,15 +581,14 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     #region 28196
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(async, null);
 
     public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder> onModelCreating)
     {
-        var contextFactory = await InitializeAsync<Context28196>(onModelCreating: onModelCreating, seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context28196>(onModelCreating: onModelCreating, seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Animals.OfType<Context28196.Pet>().Where(a => a.Species.StartsWith("F"));
         var result = async
             ? await query.ToListAsync()
@@ -688,6 +666,119 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         public class Dog : Pet
         {
             public string FavoriteToy { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 34760
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_property_with_converter_with_closure(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Books.Select(x => x.PublishDate);
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_expression_with_converter_with_closure(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Books
+            .GroupBy(t => t.Id)
+            .Select(g => new { Day = g.Min(t => t.PublishDate) });
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_property_with_converter_without_closure(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Books
+            .GroupBy(t => t.Id)
+            .Select(g => new { Day = g.Min(t => t.AudiobookDate) });
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    protected class Context34760(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Book> Books { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Book>().Property(e => e.PublishDate)
+                .HasConversion(new MyDateTimeValueConverterWithClosure(new MyDatetimeConverter()));
+            modelBuilder.Entity<Book>().Property(e => e.AudiobookDate).HasConversion(new MyDateTimeValueConverterWithoutClosure());
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Book
+                {
+                    Id = 1,
+                    Name = "The Blade Itself",
+                    PublishDate = new DateTime(2006, 5, 4, 11, 59, 59),
+                    AudiobookDate = new DateTime(2015, 9, 8, 23, 59, 59)
+                },
+                new Book
+                {
+                    Id = 2,
+                    Name = "Red Rising",
+                    PublishDate = new DateTime(2014, 1, 27, 23, 59, 59),
+                    AudiobookDate = new DateTime(2014, 1, 27, 23, 59, 59),
+                });
+
+            return SaveChangesAsync();
+        }
+
+        public class Book
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public virtual DateTime PublishDate { get; set; }
+            public virtual DateTime AudiobookDate { get; set; }
+        }
+
+        public class MyDateTimeValueConverterWithClosure : ValueConverter<DateTime, DateTime>
+        {
+            public MyDateTimeValueConverterWithClosure(MyDatetimeConverter myDatetimeConverter)
+                : base(
+                    x => myDatetimeConverter.Normalize(x),
+                    x => myDatetimeConverter.Normalize(x))
+            {
+            }
+        }
+
+        public class MyDateTimeValueConverterWithoutClosure : ValueConverter<DateTime, DateTime>
+        {
+            public MyDateTimeValueConverterWithoutClosure()
+                : base(
+                    x => new MyDatetimeConverter().Normalize(x),
+                    x => new MyDatetimeConverter().Normalize(x))
+            {
+            }
+        }
+
+        public class MyDatetimeConverter
+        {
+            public virtual DateTime Normalize(DateTime dateTime)
+                => dateTime.Date;
         }
     }
 

@@ -14,7 +14,7 @@ public class NorthwindChangeTrackingQuerySqlServerTest : NorthwindChangeTracking
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -73,20 +73,20 @@ FROM [Employees] AS [e]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
-SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
 """,
             //
             """
-@__p_0='1'
+@p='1'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
 """,
             //
             """
@@ -100,40 +100,76 @@ ORDER BY [e].[EmployeeID]
     {
         base.Entity_range_does_not_revert_when_attached_dbSet();
 
-        AssertSql(
-            """
-@__p_0='2'
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='2'
 
-SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [c0]
-ORDER BY [c0].[CustomerID]
+SELECT TOP(LEAST(@p, 1)) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 """,
-            //
-            """
-@__p_0='2'
-@__p_1='1'
+                //
+                """
+@p='2'
+@p1='1'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
-OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p1 ROWS FETCH NEXT 1 ROWS ONLY
 """,
-            //
-            """
-@__p_0='2'
+                //
+                """
+@p='2'
 
-SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+@p='2'
+
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
+""",
+                //
+                """
+@p='2'
+@p1='1'
+
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
+OFFSET @p1 ROWS FETCH NEXT 1 ROWS ONLY
+""",
+                //
+                """
+@p='2'
+
+SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+        }
     }
 
     public override void Precedence_of_tracking_modifiers5()
@@ -180,40 +216,76 @@ FROM [Employees] AS [e]
     {
         base.Entity_range_does_not_revert_when_attached_dbContext();
 
-        AssertSql(
-            """
-@__p_0='2'
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='2'
 
-SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [c0]
-ORDER BY [c0].[CustomerID]
+SELECT TOP(LEAST(@p, 1)) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 """,
-            //
-            """
-@__p_0='2'
-@__p_1='1'
+                //
+                """
+@p='2'
+@p1='1'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
-OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p1 ROWS FETCH NEXT 1 ROWS ONLY
 """,
-            //
-            """
-@__p_0='2'
+                //
+                """
+@p='2'
 
-SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+@p='2'
+
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
+""",
+                //
+                """
+@p='2'
+@p1='1'
+
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
+OFFSET @p1 ROWS FETCH NEXT 1 ROWS ONLY
+""",
+                //
+                """
+@p='2'
+
+SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+        }
     }
 
     public override void Precedence_of_tracking_modifiers()
@@ -246,20 +318,20 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
-SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
 """,
             //
             """
-@__p_0='1'
+@p='1'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
 """);
     }
 

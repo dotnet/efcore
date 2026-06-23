@@ -6,9 +6,4 @@ namespace Microsoft.EntityFrameworkCore.Query;
 #nullable disable
 
 public abstract class SpatialQueryRelationalTestBase<TFixture>(TFixture fixture) : SpatialQueryTestBase<TFixture>(fixture)
-    where TFixture : SpatialQueryFixtureBase, new()
-{
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
-}
+    where TFixture : SpatialQueryFixtureBase, new();

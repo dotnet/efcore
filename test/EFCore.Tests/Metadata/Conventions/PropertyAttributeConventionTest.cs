@@ -17,7 +17,7 @@ public class PropertyAttributeConventionTest
 {
     #region ConcurrencyCheckAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void ConcurrencyCheckAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -31,7 +31,7 @@ public class PropertyAttributeConventionTest
         Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ConcurrencyCheckAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -45,7 +45,7 @@ public class PropertyAttributeConventionTest
         Assert.False(propertyBuilder.Metadata.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ConcurrencyCheckAttribute_sets_concurrency_token_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -54,7 +54,7 @@ public class PropertyAttributeConventionTest
         Assert.True(entityTypeBuilder.Property(e => e.RowVersion).Metadata.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ConcurrencyCheckAttribute_on_field_sets_concurrency_token_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -67,7 +67,7 @@ public class PropertyAttributeConventionTest
 
     #region DatabaseGeneratedAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void DatabaseGeneratedAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -81,7 +81,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, propertyBuilder.Metadata.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DatabaseGeneratedAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -95,7 +95,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(ValueGenerated.Never, propertyBuilder.Metadata.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DatabaseGeneratedAttribute_sets_store_generated_pattern_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -104,7 +104,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, entityTypeBuilder.Property(e => e.Id).Metadata.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DatabaseGeneratedAttribute_in_field_sets_store_generated_pattern_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -117,7 +117,7 @@ public class PropertyAttributeConventionTest
 
     #region KeyAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -132,7 +132,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -147,7 +147,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_sets_primary_key_for_single_property()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -162,7 +162,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_throws_when_setting_composite_primary_key()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<B>();
@@ -188,7 +188,7 @@ public class PropertyAttributeConventionTest
             Assert.Throws<InvalidOperationException>(() => Validate(entityTypeBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_does_not_throw_when_setting_composite_primary_key_if_fluent_api_used()
     {
         var model = new MyContext().Model;
@@ -198,7 +198,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal("Id", model.FindEntityType(typeof(B)).FindPrimaryKey().Properties[1].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_does_not_throw_when_setting_composite_primary_key_with_PrimaryKey_attribute()
     {
         var model = new MyContext().Model;
@@ -208,7 +208,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal("Id", model.FindEntityType(typeof(B2)).FindPrimaryKey().Properties[1].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_throws_when_setting_key_in_derived_type()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity>();
@@ -224,7 +224,7 @@ public class PropertyAttributeConventionTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_does_not_throw_when_setting_key_in_derived_type_when_base_has_PrimaryKeyAttribute()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity2>();
@@ -236,7 +236,7 @@ public class PropertyAttributeConventionTest
         Validate(derivedEntityTypeBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_allows_composite_key_with_inheritance()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeKeyDerivedEntity>();
@@ -251,7 +251,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(2, baseEntityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void KeyAttribute_on_field_sets_primary_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -265,7 +265,7 @@ public class PropertyAttributeConventionTest
 
     #region MaxLengthAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void MaxLengthAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -279,7 +279,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(10, propertyBuilder.Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void MaxLengthAttribute_overrides_unbounded_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -293,7 +293,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(10, propertyBuilder.Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void MaxLengthAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -307,7 +307,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(100, propertyBuilder.Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void MaxLengthAttribute_sets_max_length_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -316,7 +316,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(10, entityTypeBuilder.Property(e => e.MaxLengthProperty).Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void MaxLengthAttribute_on_field_sets_max_length_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -329,7 +329,7 @@ public class PropertyAttributeConventionTest
 
     #region NotMappedAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -340,7 +340,7 @@ public class PropertyAttributeConventionTest
         Assert.DoesNotContain(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -351,7 +351,7 @@ public class PropertyAttributeConventionTest
         Assert.Contains(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_ignores_property_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -360,7 +360,7 @@ public class PropertyAttributeConventionTest
         Assert.DoesNotContain(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_on_field_does_not_ignore_property_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -371,7 +371,7 @@ public class PropertyAttributeConventionTest
         Assert.Contains(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_on_field_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<F>();
@@ -386,7 +386,7 @@ public class PropertyAttributeConventionTest
 
     #region RequiredAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -400,7 +400,7 @@ public class PropertyAttributeConventionTest
         Assert.False(propertyBuilder.Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -414,7 +414,7 @@ public class PropertyAttributeConventionTest
         Assert.True(propertyBuilder.Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_sets_is_nullable_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -423,7 +423,7 @@ public class PropertyAttributeConventionTest
         Assert.False(entityTypeBuilder.Property(e => e.Name).Metadata.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_on_field_sets_is_nullable_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -436,7 +436,7 @@ public class PropertyAttributeConventionTest
 
     #region StringLengthAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void StringLengthAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -450,7 +450,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(20, propertyBuilder.Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StringLengthAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -464,7 +464,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(100, propertyBuilder.Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StringLengthAttribute_sets_max_length_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -473,7 +473,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(20, entityTypeBuilder.Property(e => e.StringLengthProperty).Metadata.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void StringLengthAttribute_on_field_sets_max_length_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -486,10 +486,7 @@ public class PropertyAttributeConventionTest
 
     #region TimestampAttribute
 
-    [ConditionalTheory]
-    [InlineData("Timestamp")]
-    [InlineData("LongTimestamp")]
-    [InlineData("ULongTimestamp")]
+    [Theory, InlineData("Timestamp"), InlineData("LongTimestamp"), InlineData("ULongTimestamp")]
     public void TimestampAttribute_overrides_configuration_from_convention_source(string propertyName)
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -506,10 +503,7 @@ public class PropertyAttributeConventionTest
         Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
     }
 
-    [ConditionalTheory]
-    [InlineData("Timestamp")]
-    [InlineData("LongTimestamp")]
-    [InlineData("ULongTimestamp")]
+    [Theory, InlineData("Timestamp"), InlineData("LongTimestamp"), InlineData("ULongTimestamp")]
     public void TimestampAttribute_does_not_override_configuration_from_explicit_source(string propertyName)
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -526,7 +520,7 @@ public class PropertyAttributeConventionTest
         Assert.False(propertyBuilder.Metadata.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TimestampAttribute_sets_concurrency_token_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -536,7 +530,7 @@ public class PropertyAttributeConventionTest
         Assert.True(entityTypeBuilder.Property(e => e.Timestamp).Metadata.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TimestampAttribute_on_field_sets_concurrency_token_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -550,7 +544,7 @@ public class PropertyAttributeConventionTest
 
     #region BackingFieldAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void BackingFieldAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -564,7 +558,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal("_backingFieldForAttribute", propertyBuilder.Metadata.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BackingFieldAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -584,7 +578,7 @@ public class PropertyAttributeConventionTest
 
     #region UnicodeAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void UnicodeAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -598,7 +592,7 @@ public class PropertyAttributeConventionTest
         Assert.True(propertyBuilder.Metadata.IsUnicode());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UnicodeAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -612,7 +606,7 @@ public class PropertyAttributeConventionTest
         Assert.False(propertyBuilder.Metadata.IsUnicode());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UnicodeAttribute_sets_unicode_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -622,7 +616,7 @@ public class PropertyAttributeConventionTest
         Assert.False(entityTypeBuilder.Property(e => e.NonUnicodeProperty).Metadata.IsUnicode());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UnicodeAttribute_on_field_sets_unicode_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -636,7 +630,7 @@ public class PropertyAttributeConventionTest
 
     #region PrecisionAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void PrecisionAttribute_overrides_configuration_from_convention_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -652,7 +646,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(2, propertyBuilder.Metadata.GetScale());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrecisionAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -668,7 +662,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(5, propertyBuilder.Metadata.GetScale());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrecisionAttribute_sets_precision_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -678,7 +672,7 @@ public class PropertyAttributeConventionTest
         Assert.Equal(2, entityTypeBuilder.Property(e => e.DecimalProperty).Metadata.GetScale());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrecisionAttribute_on_field_sets_precision_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -690,7 +684,7 @@ public class PropertyAttributeConventionTest
 
     #endregion
 
-    [ConditionalFact]
+    [Fact]
     public void Property_attribute_convention_runs_for_private_property()
     {
         var modelBuilder = CreateModelBuilder();

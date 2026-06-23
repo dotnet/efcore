@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
 {
-    [ConditionalFact]
+    [Fact]
     public void AmbientTransactionWarning_throws_by_default()
     {
         using var context = new AmbientTransactionWarningContext(CreateOptionsBuilder(new ServiceCollection()));
@@ -27,8 +27,7 @@ public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOption
                 RelationalEventId.AmbientTransactionWarning.ToString(),
                 RelationalResources.LogAmbientTransaction(CreateTestLogger()).GenerateMessage(),
                 "RelationalEventId.AmbientTransactionWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.SaveChanges()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
     protected class AmbientTransactionWarningContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)

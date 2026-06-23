@@ -44,10 +44,17 @@ public class IPAddressToStringConverter : ValueConverter<IPAddress?, string?>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static IPAddressToStringConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(IPAddress), typeof(string), i => new IPAddressToStringConverter(i.MappingHints), DefaultHints);
+        = new(typeof(IPAddress), typeof(string),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new IPAddressToStringConverter(i.MappingHints),
+            DefaultHints);
 
     private static new Expression<Func<IPAddress?, string?>> ToString()
         => v => v!.ToString();

@@ -5,25 +5,246 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixture) : PrimitiveCollectionsQueryTestBase<TFixture>(fixture)
+public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixture) : PrimitiveCollectionsQueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Inline_collection_Count_with_zero_values(bool async)
+    protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode);
+
+    [Fact]
+    public override async Task Inline_collection_Count_with_zero_values()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_Count_with_zero_values(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_Count_with_zero_values());
 
         Assert.Equal(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot, exception.Message);
     }
 
-    public override Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Concat_parameter_collection_equality_inline_collection(async));
+    protected static IEnumerable<object[]> ParameterTranslationModeValues()
+        => Enum.GetValues<ParameterTranslationMode>().Select<ParameterTranslationMode, object[]>(x => [x]);
 
-    public override Task Column_collection_equality_inline_collection_with_parameters(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_equality_inline_collection_with_parameters(async));
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
 
-    [ConditionalFact]
+        await using var context = contextFactory.CreateDbContext();
+
+        var ids = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => ids.Count(i => i > c.Id) == 1).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 100 }, result);
+    }
+
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => ints.Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ids = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.Constant(ids).Count(i => i > c.Id) == 1).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 100 }, result);
+    }
+
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.Constant(ints).Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ids = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.Parameter(ids).Count(i => i > c.Id) == 1).Select(x => x.Id)
+            .ToListAsync();
+        Assert.Equivalent(new[] { 100 }, result);
+    }
+
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.Parameter(ints).Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
+        ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ids = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.MultipleParameters(ids).Count(i => i > c.Id) == 1).Select(x => x.Id)
+            .ToListAsync();
+        Assert.Equivalent(new[] { 100 }, result);
+    }
+
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.MultipleParameters(ints).Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    [Fact]
+    public virtual async Task Parameter_collection_Contains_parameter_bucketization()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, ParameterTranslationMode.MultipleParameters),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new[] { 2, 999, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+        var result = await context.Set<TestEntity>().Where(c => ints.Contains(c.Id)).Select(c => c.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    [Fact]
+    public virtual async Task Column_collection_inside_json_owned_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestOwner>().OwnsOne(t => t.Owned, b => b.ToJson()),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestOwner { Owned = new TestOwned { Strings = ["foo", "bar"] } },
+                    new TestOwner { Owned = new TestOwned { Strings = ["baz"] } });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<TestOwner>().SingleAsync(o => o.Owned.Strings.Count() == 2);
+        Assert.Equivalent(new[] { "foo", "bar" }, result.Owned.Strings);
+
+        result = await context.Set<TestOwner>().SingleAsync(o => o.Owned.Strings[1] == "bar");
+        Assert.Equivalent(new[] { "foo", "bar" }, result.Owned.Strings);
+    }
+
+    public override Task Column_collection_Concat_parameter_collection_equality_inline_collection()
+        => AssertTranslationFailed(base.Column_collection_Concat_parameter_collection_equality_inline_collection);
+
+    public override Task Column_collection_equality_inline_collection_with_parameters()
+        => AssertTranslationFailed(base.Column_collection_equality_inline_collection_with_parameters);
+
+    // TODO: Requires converting the results of a subquery (relational rowset) to a primitive collection for comparison,
+    // not yet supported (#33792)
+    public override async Task Column_collection_Where_equality_inline_collection()
+        => await AssertTranslationFailed(base.Column_collection_Where_equality_inline_collection);
+
+    [Fact]
     public override void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
         // The array indexing is translated as a subquery over e.g. OPENJSON with LIMIT/OFFSET.
@@ -36,24 +257,82 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixt
         Assert.Contains("in the SQL tree does not have a type mapping assigned", exception.Message);
     }
 
-    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
+    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query()
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async))).Message;
+            base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query)).Message;
 
         Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
     }
 
-    public override async Task Project_inline_collection_with_Concat(bool async)
+    public override async Task Project_inline_collection_with_Concat()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_inline_collection_with_Concat(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_inline_collection_with_Concat)).Message;
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
-    // TODO: Requires converting the results of a subquery (relational rowset) to a primitive collection for comparison,
-    // not yet supported (#33792)
-    public override async Task Column_collection_Where_equality_inline_collection(bool async)
-        => await AssertTranslationFailed(() => base.Column_collection_Where_equality_inline_collection(async));
+    // #38008
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38008>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context38008.TestEntity38008 { Id = 1, Status = Context38008.EntityEnum.Clean },
+                    new Context38008.TestEntity38008 { Id = 2, Status = Context38008.EntityEnum.Malware });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        // Cast<EntityEnum>() returns a lazy IEnumerable whose boxed values retain the ViewModelEnum runtime type.
+        var filter = new[] { Context38008.ViewModelEnum.Malware }.Cast<Context38008.EntityEnum>();
+        var result = await context.Set<Context38008.TestEntity38008>()
+            .Where(a => filter.Any(f => f == a.Status))
+            .Select(a => a.Id)
+            .ToListAsync();
+
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    protected class Context38008(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<TestEntity38008>().Property(e => e.Id).ValueGeneratedNever();
+
+        public class TestEntity38008
+        {
+            public int Id { get; set; }
+            public EntityEnum Status { get; set; }
+        }
+
+        [Flags]
+        public enum EntityEnum
+        {
+            Clean = 1,
+            Malware = 2
+        }
+
+        [Flags]
+        public enum ViewModelEnum
+        {
+            Clean = 1,
+            Malware = 2
+        }
+    }
+
+    protected class TestOwner
+    {
+        public int Id { get; set; }
+        public TestOwned Owned { get; set; } = null!;
+    }
+
+    [Owned]
+    protected class TestOwned
+    {
+        public string[] Strings { get; set; } = null!;
+    }
 }

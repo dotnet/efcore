@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -9,18 +9,18 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
+public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     #region 22054
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_dependent_is_null_when_sharing_required_column_with_principal()
     {
-        var contextFactory = await InitializeAsync<Context22054>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22054>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context22054.User22054>().OrderByDescending(e => e.Id).ToList();
         Assert.Equal(3, query.Count);
         Assert.Null(query[0].Contact);
@@ -43,36 +43,35 @@ ORDER BY [u].[Id] DESC
     protected class Context22054(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<User22054>(
-                builder =>
-                {
-                    builder.HasKey(x => x.Id);
+            => modelBuilder.Entity<User22054>(builder =>
+            {
+                builder.HasKey(x => x.Id);
 
-                    builder.OwnsOne(
-                        x => x.Contact, contact =>
-                        {
-                            contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
+                builder.OwnsOne(
+                    x => x.Contact, contact =>
+                    {
+                        contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
 
-                            contact.OwnsOne(
-                                c => c.Address, address =>
-                                {
-                                    address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
-                                });
-                        });
+                        contact.OwnsOne(
+                            c => c.Address, address =>
+                            {
+                                address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
+                            });
+                    });
 
-                    builder.OwnsOne(e => e.Data)
-                        .Property<byte[]>("RowVersion")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnType("TIMESTAMP")
-                        .HasColumnName("RowVersion");
+                builder.OwnsOne(e => e.Data)
+                    .Property<byte[]>("RowVersion")
+                    .IsRowVersion()
+                    .IsRequired()
+                    .HasColumnType("TIMESTAMP")
+                    .HasColumnName("RowVersion");
 
-                    builder.Property(x => x.RowVersion)
-                        .HasColumnType("TIMESTAMP")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnName("RowVersion");
-                });
+                builder.Property(x => x.RowVersion)
+                    .HasColumnType("TIMESTAMP")
+                    .IsRowVersion()
+                    .IsRequired()
+                    .HasColumnName("RowVersion");
+            });
 
         public Task SeedAsync()
         {
@@ -140,11 +139,11 @@ ORDER BY [u].[Id] DESC
 
     #region 22340
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_entity_mapped_to_separate_table()
     {
-        var contextFactory = await InitializeAsync<Context22340>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22340>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault();
 
         Assert.NotNull(masterTrunk);
@@ -203,8 +202,8 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
         {
             var masterTrunk = new MasterTrunk22340
             {
-                FungibleBag = new CurrencyBag22340 { Currencies = new[] { new Currency22340 { Amount = 10, Code = 999 } } },
-                StaticBag = new CurrencyBag22340 { Currencies = new[] { new Currency22340 { Amount = 555, Code = 111 } } }
+                FungibleBag = new CurrencyBag22340 { Currencies = [new Currency22340 { Amount = 10, Code = 999 }] },
+                StaticBag = new CurrencyBag22340 { Currencies = [new Currency22340 { Amount = 555, Code = 111 }] }
             };
             Add(masterTrunk);
 
@@ -236,11 +235,11 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
 
     #region 23211
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Collection_include_on_owner_with_owned_type_mapped_to_different_table()
     {
-        var contextFactory = await InitializeAsync<Context23211>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context23211>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var owner = context.Set<Context23211.Owner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
             Assert.NotNull(owner.Dependents);
@@ -273,7 +272,7 @@ ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
 """);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             ClearLog();
             var owner = context.Set<Context23211.SecondOwner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id)
@@ -485,7 +484,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
+SELECT [p].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
 FROM [Parents] AS [p]
 LEFT JOIN [Reference] AS [r] ON [p].[Id] = [r].[ParentId]
 LEFT JOIN [Collection] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -494,7 +493,7 @@ LEFT JOIN (
     FROM [JoinEntity] AS [j]
     INNER JOIN [OtherSide] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[ParentId]
-ORDER BY [p].[Id], [r].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
+ORDER BY [p].[Id], [c].[Id], [s].[ParentId]
 """,
             //
             """
@@ -550,7 +549,7 @@ ORDER BY [s].[Id], [s].[Id0], [s].[Id1]
         AssertSql(
             """
 SELECT [b].[Id], (
-    SELECT COALESCE(SUM([p].[CommentsCount]), 0)
+    SELECT ISNULL(SUM([p].[CommentsCount]), 0)
     FROM [Post] AS [p]
     WHERE [b].[Id] = [p].[BlogId]), [p0].[Title], [p0].[CommentsCount], [p0].[BlogId], [p0].[Id]
 FROM [Blog] AS [b]
@@ -597,11 +596,11 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__id_0='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
+@id='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
 
 SELECT TOP(1) [l].[Id]
 FROM [Location25680] AS [l]
-WHERE [l].[Id] = @__id_0
+WHERE [l].[Id] = @id
 ORDER BY [l].[Id]
 """);
     }
@@ -612,9 +611,9 @@ ORDER BY [l].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
+SELECT TOP(@p) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
 FROM [Companies] AS [c]
 LEFT JOIN [CustomerData] AS [c0] ON [c].[Id] = [c0].[CompanyId]
 LEFT JOIN [SupplierData] AS [s] ON [c].[Id] = [s].[CompanyId]
@@ -629,9 +628,9 @@ ORDER BY [c].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
+SELECT TOP(@p) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
 FROM [Owners] AS [o]
 LEFT JOIN [IntermediateOwnedEntity] AS [i] ON [o].[Id] = [i].[OwnerId]
 LEFT JOIN [IM_CustomerData] AS [i0] ON [i].[OwnerId] = [i0].[IntermediateOwnedEntityOwnerId]

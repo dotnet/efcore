@@ -8,7 +8,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 {
     public MismatchedKeyTypesSqlServerFixture Fixture { get; } = fixture;
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_with_bigint_FK_and_int_PK()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -81,7 +81,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_with_tinyint_FK_and_smallint_PK()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -154,7 +154,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_with_string_FK_and_GUID_PK()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -227,7 +227,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_composite_keys_mismatched_in_store()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -300,7 +300,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Queries_work_but_SaveChanges_fails_when_composite_keys_incompatible_in_store()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -328,7 +328,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Queries_work_but_SaveChanges_fails_when_keys_incompatible_in_store()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -360,75 +360,69 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PrincipalIntLong>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalIntLong>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleIntLong>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleIntLong>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyIntLong>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyIntLong>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalShortByte>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalShortByte>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleShortByte>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleShortByte>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyShortByte>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyShortByte>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalStringGuid>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalStringGuid>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleStringGuid>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleStringGuid>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyStringGuid>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyStringGuid>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalComposite>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalComposite>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleComposite>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleComposite>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyComposite>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyComposite>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalBadComposite>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                });
+            modelBuilder.Entity<PrincipalBadComposite>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+            });
 
             modelBuilder.Entity<OptionalSingleBadComposite>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalBad>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                });
+            modelBuilder.Entity<PrincipalBad>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+            });
 
             modelBuilder.Entity<OptionalSingleBad>().Ignore(e => e.Principal);
 
@@ -463,22 +457,20 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .HasValueGenerator<TemporaryByteValueGenerator>();
 
             modelBuilder.Entity<PrincipalComposite>()
-                .HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2,
-                        e.Id3
-                    });
+                .HasKey(e => new
+                {
+                    e.Id1,
+                    e.Id2,
+                    e.Id3
+                });
 
             modelBuilder.Entity<PrincipalBadComposite>()
-                .HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2,
-                        e.Id3
-                    });
+                .HasKey(e => new
+                {
+                    e.Id1,
+                    e.Id2,
+                    e.Id3
+                });
 
             modelBuilder.Entity<PrincipalBad>().Property(e => e.Id).ValueGeneratedNever();
 
@@ -503,19 +495,17 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             modelBuilder.Entity<OptionalManyComposite>().Property(e => e.PrincipalId2).HasColumnType("nvarchar(64)");
             modelBuilder.Entity<RequiredManyComposite>().Property(e => e.PrincipalId2).HasColumnType("nvarchar(64)");
 
-            modelBuilder.Entity<OptionalSingleBad>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.PrincipalId).HasConversion(v => new Guid(), v => 1);
-                });
+            modelBuilder.Entity<OptionalSingleBad>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.PrincipalId).HasConversion(v => new Guid(), v => 1);
+            });
 
-            modelBuilder.Entity<OptionalSingleBadComposite>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.PrincipalId3).HasConversion(v => new Guid(), v => 1);
-                });
+            modelBuilder.Entity<OptionalSingleBadComposite>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.PrincipalId3).HasConversion(v => new Guid(), v => 1);
+            });
         }
     }
 
@@ -784,7 +774,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 
         public SqlServerTestStore Store { get; set; } = null!;
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             Store = await SqlServerTestStore.CreateInitializedAsync("MismatchedKeyTypes");
 
@@ -796,8 +786,13 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             await SeedAsync();
         }
 
-        public async Task DisposeAsync()
-            => await Store.DisposeAsync();
+        public async ValueTask DisposeAsync()
+        {
+            if (Store != null)
+            {
+                await Store.DisposeAsync();
+            }
+        }
     }
 
     private class TemporaryByteValueGenerator : ValueGenerator<int>

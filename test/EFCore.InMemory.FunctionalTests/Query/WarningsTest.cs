@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class WarningsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Should_throw_by_default_when_transaction()
     {
         var optionsBuilder
@@ -27,11 +27,10 @@ public class WarningsTest
                 InMemoryEventId.TransactionIgnoredWarning,
                 InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                 "InMemoryEventId.TransactionIgnoredWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.BeginTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_throw_by_default_when_transaction_enlisted()
     {
         var optionsBuilder
@@ -45,11 +44,10 @@ public class WarningsTest
                 InMemoryEventId.TransactionIgnoredWarning,
                 InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                 "InMemoryEventId.TransactionIgnoredWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_not_throw_by_default_when_transaction_and_ignored()
     {
         var optionsBuilder
@@ -62,7 +60,7 @@ public class WarningsTest
         context.Database.BeginTransaction();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_by_default_for_lazy_load_with_disposed_context()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -92,11 +90,10 @@ public class WarningsTest
                 CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
                     .GenerateMessage("WarningAsErrorEntity", "Nav"),
                 "CoreEventId.LazyLoadOnDisposedContextWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => entity.Nav).Message);
+            Assert.Throws<InvalidOperationException>(() => entity.Nav).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Lazy_load_with_disposed_context_can_be_configured_to_log()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -128,16 +125,15 @@ public class WarningsTest
 
         Assert.Null(entity.Nav);
 
-        var log = loggerFactory.Log.Single(
-            l => l.Message
-                == CoreResources
-                    .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                    .GenerateMessage("WarningAsErrorEntity", "Nav"));
+        var log = loggerFactory.Log.Single(l => l.Message
+            == CoreResources
+                .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
+                .GenerateMessage("WarningAsErrorEntity", "Nav"));
 
         Assert.Equal(LogLevel.Warning, log.Level);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Lazy_load_with_disposed_context_can_be_configured_to_log_at_debug_level()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -169,16 +165,15 @@ public class WarningsTest
 
         Assert.Null(entity.Nav);
 
-        var log = loggerFactory.Log.Single(
-            l => l.Message
-                == CoreResources
-                    .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                    .GenerateMessage("WarningAsErrorEntity", "Nav"));
+        var log = loggerFactory.Log.Single(l => l.Message
+            == CoreResources
+                .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
+                .GenerateMessage("WarningAsErrorEntity", "Nav"));
 
         Assert.Equal(LogLevel.Debug, log.Level);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Lazy_loading_is_logged_only_when_actually_loading()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -218,7 +213,7 @@ public class WarningsTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void No_throw_when_event_id_not_registered()
     {
         var serviceProvider = new ServiceCollection()
@@ -254,26 +249,25 @@ public class WarningsTest
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInternalServiceProvider(_serviceProvider)
-                .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(
-                    c =>
+                .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(c =>
+                {
+                    if (_toThrow != null)
                     {
-                        if (_toThrow != null)
-                        {
-                            c.Throw(_toThrow.Value);
-                        }
-                        else if (_toLog != null)
-                        {
-                            c.Log(_toLog.Value);
-                        }
-                        else if (_toChangeLevel != null)
-                        {
-                            c.Log(_toChangeLevel.Value);
-                        }
-                        else if (_defaultThrow)
-                        {
-                            c.Default(WarningBehavior.Throw);
-                        }
-                    });
+                        c.Throw(_toThrow.Value);
+                    }
+                    else if (_toLog != null)
+                    {
+                        c.Log(_toLog.Value);
+                    }
+                    else if (_toChangeLevel != null)
+                    {
+                        c.Log(_toChangeLevel.Value);
+                    }
+                    else if (_defaultThrow)
+                    {
+                        c.Default(WarningBehavior.Throw);
+                    }
+                });
     }
 
     private class WarningAsErrorEntity

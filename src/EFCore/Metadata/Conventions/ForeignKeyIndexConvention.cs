@@ -127,7 +127,7 @@ public class ForeignKeyIndexConvention :
         var key = keyBuilder.Metadata;
         foreach (var index in key.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredIndexes())
-                     .Where(i => AreIndexedBy(i.Properties, i.IsUnique, key.Properties, true)).ToList())
+                     .Where(i => i.CollectionIndices is null && AreIndexedBy(i.Properties, i.IsUnique, key.Properties, true)).ToList())
         {
             RemoveIndex(index);
         }
@@ -176,7 +176,7 @@ public class ForeignKeyIndexConvention :
         }
 
         var baseKeys = newBaseType?.GetKeys().ToList();
-        var baseIndexes = newBaseType?.GetIndexes().ToList();
+        var baseIndexes = newBaseType?.GetIndexes().Where(i => i.CollectionIndices is null).ToList();
         foreach (var foreignKey in entityTypeBuilder.Metadata.GetDeclaredForeignKeys()
                      .Concat(entityTypeBuilder.Metadata.GetDerivedForeignKeys()))
         {
@@ -187,16 +187,16 @@ public class ForeignKeyIndexConvention :
             }
             else if (newBaseType != null)
             {
-                var coveringKey = baseKeys!.FirstOrDefault(
-                    k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUnique: true));
+                var coveringKey = baseKeys!.FirstOrDefault(k => AreIndexedBy(
+                    foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUnique: true));
                 if (coveringKey != null)
                 {
                     RemoveIndex(index);
                 }
                 else
                 {
-                    var coveringIndex = baseIndexes!.FirstOrDefault(
-                        i => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, i.Properties, i.IsUnique));
+                    var coveringIndex = baseIndexes!.FirstOrDefault(i => AreIndexedBy(
+                        foreignKey.Properties, foreignKey.IsUnique, i.Properties, i.IsUnique));
                     if (coveringIndex != null)
                     {
                         RemoveIndex(index);
@@ -214,9 +214,18 @@ public class ForeignKeyIndexConvention :
     public virtual void ProcessIndexAdded(IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
     {
         var index = indexBuilder.Metadata;
+
+        // Indexes that traverse complex properties neither cover nor are covered by others.
+        if (index.CollectionIndices is not null)
+        {
+            return;
+        }
+
         foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredIndexes())
-                     .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, index.IsUnique)).ToList())
+                     .Where(i => i != index
+                         && i.CollectionIndices is null
+                         && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, index.IsUnique)).ToList())
         {
             RemoveIndex(otherIndex);
         }
@@ -234,6 +243,12 @@ public class ForeignKeyIndexConvention :
         IConventionContext<IConventionIndex> context)
     {
         if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
+        // A removed complex index never covered any FK index, so nothing to re-create.
+        if (index.CollectionIndices is not null)
         {
             return;
         }
@@ -277,7 +292,8 @@ public class ForeignKeyIndexConvention :
                 }
 
                 var coveringIndex = foreignKey.DeclaringEntityType.GetIndexes()
-                    .FirstOrDefault(i => AreIndexedBy(foreignKey.Properties, false, i.Properties, i.IsUnique));
+                    .FirstOrDefault(i => i.CollectionIndices is null
+                        && AreIndexedBy(foreignKey.Properties, false, i.Properties, i.IsUnique));
                 if (coveringIndex != null)
                 {
                     RemoveIndex(index);
@@ -299,11 +315,18 @@ public class ForeignKeyIndexConvention :
         IConventionContext<bool?> context)
     {
         var index = indexBuilder.Metadata;
+        if (index.CollectionIndices is not null)
+        {
+            return;
+        }
+
         if (index.IsUnique)
         {
             foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
                          .SelectMany(t => t.GetDeclaredIndexes())
-                         .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUnique: true))
+                         .Where(i => i != index
+                             && i.CollectionIndices is null
+                             && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUnique: true))
                          .ToList())
             {
                 RemoveIndex(otherIndex);
@@ -313,9 +336,8 @@ public class ForeignKeyIndexConvention :
         {
             foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
                          .SelectMany(t => t.GetDeclaredForeignKeys())
-                         .Where(
-                             fk => fk.IsUnique
-                                 && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUnique: true)))
+                         .Where(fk => fk.IsUnique
+                             && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUnique: true)))
             {
                 CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
             }
@@ -344,7 +366,8 @@ public class ForeignKeyIndexConvention :
 
         foreach (var existingIndex in entityTypeBuilder.Metadata.GetIndexes())
         {
-            if (AreIndexedBy(properties, unique, existingIndex.Properties, existingIndex.IsUnique))
+            if (existingIndex.CollectionIndices is null
+                && AreIndexedBy(properties, unique, existingIndex.Properties, existingIndex.IsUnique))
             {
                 return null;
             }
@@ -368,11 +391,11 @@ public class ForeignKeyIndexConvention :
     /// <param name="coveringIndexUnique">Whether the existing index is unique.</param>
     /// <returns><see langword="true" /> if the existing index covers the given properties.</returns>
     protected virtual bool AreIndexedBy(
-        IReadOnlyList<IConventionProperty> properties,
+        IReadOnlyList<IConventionPropertyBase> properties,
         bool unique,
-        IReadOnlyList<IConventionProperty> coveringIndexProperties,
+        IReadOnlyList<IConventionPropertyBase> coveringIndexProperties,
         bool coveringIndexUnique)
-        => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
+        => (!unique && coveringIndexProperties.StartsWith(properties))
             || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));
 
     private static void RemoveIndex(IConventionIndex index)
@@ -408,7 +431,8 @@ public class ForeignKeyIndexConvention :
 
                 foreach (var existingIndex in entityType.GetIndexes())
                 {
-                    if (AreIndexedBy(
+                    if (existingIndex.CollectionIndices is null
+                        && AreIndexedBy(
                             declaredForeignKey.Properties, declaredForeignKey.IsUnique, existingIndex.Properties,
                             existingIndex.IsUnique))
                     {

@@ -57,7 +57,7 @@ public class LazyLoadingInterceptor : IInterceptor
         }
         else if (LazyLoaderSetter.Equals(invocation.Method))
         {
-            _loader = (ILazyLoader)invocation.Arguments[0];
+            _loader = (ILazyLoader)invocation.Arguments[0]!;
         }
         else
         {

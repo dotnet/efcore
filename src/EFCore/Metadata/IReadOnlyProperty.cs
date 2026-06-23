@@ -16,13 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IReadOnlyProperty : IReadOnlyPropertyBase
 {
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IReadOnlyEntityType or IReadOnlyComplexType")]
-    IReadOnlyEntityType DeclaringEntityType
-        => (IReadOnlyEntityType)DeclaringType;
-
-    /// <summary>
     ///     Gets a value indicating whether this property can contain <see langword="null" />.
     /// </summary>
     bool IsNullable { get; }
@@ -44,6 +37,14 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     changes will not be applied to the database.
     /// </summary>
     bool IsConcurrencyToken { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether this property is automatically loaded when the entity is queried from the database.
+    ///     When set to <see langword="false" />, the property value will not be read from the database and the property will be
+    ///     excluded from <c>UPDATE</c> statements unless explicitly loaded or modified.
+    /// </summary>
+    virtual bool IsAutoLoaded
+        => true;
 
     /// <summary>
     ///     Returns the <see cref="CoreTypeMapping" /> for the given property from a finalized model.
@@ -91,13 +92,13 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     int? GetScale();
 
     /// <summary>
-    ///     Gets a value indicating whether or not the property can persist Unicode characters.
+    ///     Gets a value indicating whether the property can persist Unicode characters.
     /// </summary>
     /// <returns>The Unicode setting, or <see langword="null" /> if none is defined.</returns>
     bool? IsUnicode();
 
     /// <summary>
-    ///     Gets a value indicating whether or not this property can be modified before the entity is
+    ///     Gets a value indicating whether this property can be modified before the entity is
     ///     saved to the database.
     /// </summary>
     /// <remarks>
@@ -115,7 +116,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     PropertySaveBehavior GetBeforeSaveBehavior();
 
     /// <summary>
-    ///     Gets a value indicating whether or not this property can be modified after the entity is
+    ///     Gets a value indicating whether this property can be modified after the entity is
     ///     saved to the database.
     /// </summary>
     /// <remarks>
@@ -391,6 +392,11 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
                 builder.Append(" Concurrency");
             }
 
+            if (!IsAutoLoaded)
+            {
+                builder.Append(" NoAutoLoad");
+            }
+
             if (Sentinel != null && !Equals(Sentinel, ClrType.GetDefaultValue()))
             {
                 builder.Append(" Sentinel:").Append(Sentinel);
@@ -433,7 +439,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((AnnotatableBase)this).IsReadOnly)
+                && (this is RuntimeAnnotatableBase || this is AnnotatableBase { IsReadOnly: true }))
             {
                 var indexes = ((IProperty)this).GetPropertyIndexes();
                 builder.Append(' ').Append(indexes.Index);

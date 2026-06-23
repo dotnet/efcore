@@ -7,17 +7,17 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocNavigationsQuerySqliteTest : AdHocNavigationsQueryRelationalTestBase
+public class AdHocNavigationsQuerySqliteTest(NonSharedFixture fixture) : AdHocNavigationsQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     public override async Task Projection_with_multiple_includes_and_subquery_with_set_operation()
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Projection_with_multiple_includes_and_subquery_with_set_operation())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Projection_with_multiple_includes_and_subquery_with_set_operation())).Message);
 
         AssertSql();
     }
@@ -26,8 +26,7 @@ public class AdHocNavigationsQuerySqliteTest : AdHocNavigationsQueryRelationalTe
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Let_multiple_references_with_reference_to_outer())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Let_multiple_references_with_reference_to_outer())).Message);
 
         AssertSql();
     }
@@ -36,9 +35,66 @@ public class AdHocNavigationsQuerySqliteTest : AdHocNavigationsQueryRelationalTe
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.SelectMany_and_collection_in_projection_in_FirstOrDefault())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_and_collection_in_projection_in_FirstOrDefault()))
+            .Message);
 
         AssertSql();
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "j"."Id" IS NULL, "j"."Id"
+FROM "Users" AS "u"
+LEFT JOIN "Job" AS "j" ON "u"."JobId" = "j"."Id"
+WHERE "u"."Id" = 1
+LIMIT 1
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_null_navigation_returns_null(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_null_navigation_returns_null(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "j"."Id" IS NULL, "j"."Id"
+FROM "Users" AS "u"
+LEFT JOIN "Job" AS "j" ON "u"."JobId" = "j"."Id"
+WHERE "u"."JobId" IS NULL
+LIMIT 1
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "j"."Id" IS NULL, "j"."Id", "a"."Id"
+FROM "Users" AS "u"
+LEFT JOIN "Job" AS "j" ON "u"."JobId" = "j"."Id"
+LEFT JOIN "Address" AS "a" ON "j"."AddressId" = "a"."Id"
+WHERE "u"."Id" = 1
+LIMIT 1
+""");
+    }
+
+    public override async Task Filtered_collection_through_optional_navigation_does_not_match_on_null_keys(bool async)
+    {
+        await base.Filtered_collection_through_optional_navigation_does_not_match_on_null_keys(async);
+
+        AssertSql(
+            """
+SELECT "p"."Name", "p"."PersonId", "p0"."Name", "p0"."PersonId"
+FROM "People" AS "p"
+LEFT JOIN "Employers" AS "e" ON "p"."EmployerId" = "e"."EmployerId"
+LEFT JOIN "People" AS "p0" ON "e"."EmployerId" IS NOT NULL AND "e"."EmployerId" = "p0"."EmployerId" AND "p"."PersonId" <> "p0"."PersonId"
+ORDER BY "p"."PersonId"
+""");
     }
 }

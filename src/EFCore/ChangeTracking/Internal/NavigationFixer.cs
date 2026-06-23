@@ -22,7 +22,7 @@ public class NavigationFixer : INavigationFixer
         bool SetModified)>? _danglingJoinEntities;
 
     private readonly IEntityGraphAttacher _attacher;
-    private readonly IEntityMaterializerSource _entityMaterializerSource;
+    private readonly IStructuralTypeMaterializerSource _entityMaterializerSource;
     private bool _inFixup;
     private bool _inAttachGraph;
 
@@ -34,7 +34,7 @@ public class NavigationFixer : INavigationFixer
     /// </summary>
     public NavigationFixer(
         IEntityGraphAttacher attacher,
-        IEntityMaterializerSource entityMaterializerSource)
+        IStructuralTypeMaterializerSource entityMaterializerSource)
     {
         _attacher = attacher;
         _entityMaterializerSource = entityMaterializerSource;
@@ -208,9 +208,8 @@ public class NavigationFixer : INavigationFixer
                     // Clear the inverse reference, unless it has already been changed
                     if (inverse != null
                         && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                        && (entry.EntityType.GetNavigations().All(
-                            n => n == navigation
-                                || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                        && (entry.EntityType.GetNavigations().All(n => n == navigation
+                            || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                     {
                         SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
                     }
@@ -248,6 +247,39 @@ public class NavigationFixer : INavigationFixer
         if (newValue != null
             && newTargetEntry == null)
         {
+            // The owned entity is not yet tracked under the target entity type. Check if it's tracked
+            // under a different entity type (shared CLR type) and its current owner still references it.
+            if (foreignKey.IsOwnership && !navigation.IsOnDependent)
+            {
+                var existingEntry = stateManager.TryGetEntry(newValue, throwOnNonUniqueness: false);
+                if (existingEntry != null && existingEntry.EntityState != EntityState.Detached)
+                {
+                    var existingOwnership = existingEntry.EntityType.FindOwnership();
+                    if (existingOwnership != null)
+                    {
+                        var existingNavigation = existingOwnership.PrincipalToDependent;
+                        if (existingNavigation != null)
+                        {
+                            var existingOwner = stateManager.FindPrincipal(existingEntry, existingOwnership);
+                            // Only throw if the existing owner's navigation still points to this entity.
+                            // If the navigation has already been cleared on the CLR object, this is a
+                            // legitimate move/swap rather than a duplicate reference.
+                            if (existingOwner != null
+                                && ReferenceEquals(existingOwner[existingNavigation], newValue))
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.DuplicateOwnedEntityInstance(
+                                        newValue.GetType().ShortDisplayName(),
+                                        existingNavigation.Name,
+                                        existingOwner.EntityType.DisplayName(),
+                                        navigation.Name,
+                                        entry.EntityType.DisplayName()));
+                            }
+                        }
+                    }
+                }
+            }
+
             stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
             entry.SetRelationshipSnapshotValue(navigation, newValue);
 
@@ -869,6 +901,25 @@ public class NavigationFixer : INavigationFixer
                                 }
                                 else
                                 {
+                                    // Check for duplicate owned entity instance
+                                    // This handles the case where an already-tracked owned entity is being assigned
+                                    // to a different owner during the initial tracking phase (not during DetectChanges)
+                                    if (foreignKey.IsOwnership)
+                                    {
+                                        var existingOwner = stateManager.FindPrincipal(dependentEntry, foreignKey);
+                                        if (existingOwner != null
+                                            && !ReferenceEquals(existingOwner, entry))
+                                        {
+                                            throw new InvalidOperationException(
+                                                CoreStrings.DuplicateOwnedEntityInstance(
+                                                    navigationValue.GetType().ShortDisplayName(),
+                                                    principalToDependent.Name,
+                                                    existingOwner.EntityType.DisplayName(),
+                                                    principalToDependent.Name,
+                                                    entry.EntityType.DisplayName()));
+                                        }
+                                    }
+
                                     FixupToDependent(entry, dependentEntry, foreignKey, setModified, fromQuery);
                                 }
                             }
@@ -983,9 +1034,42 @@ public class NavigationFixer : INavigationFixer
 
             // If the entity was previously referenced while it was still untracked, go back and do the fixup
             // that we would have done then now that the entity is tracked.
-            foreach (var (navigationBase, internalEntityEntry) in stateManager.GetRecordedReferrers(entry.Entity, clear: true))
+            var referrers = stateManager.GetRecordedReferrers(entry.Entity, clear: true);
+
+            // Check for duplicate owned entity instances
+            // Track the first owned navigation referrer to compare against subsequent ones
+            INavigation? firstOwnedNavigation = null;
+            InternalEntityEntry? firstOwnerEntry = null;
+            
+            foreach (var (navigationBase, ownerEntry) in referrers)
             {
-                DelayedFixup(internalEntityEntry, navigationBase, entry, fromQuery);
+                if (navigationBase is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } ownedNavigation)
+                {
+                    if (firstOwnedNavigation == null)
+                    {
+                        firstOwnedNavigation = ownedNavigation;
+                        firstOwnerEntry = ownerEntry;
+                    }
+                    else
+                    {
+                        // Throw if it's the same owner with a different navigation, or a different owner (with same or different navigation)
+                        // Both scenarios are invalid: an owned entity can only have one owner with one navigation
+                        if (!ReferenceEquals(firstOwnerEntry, ownerEntry) || firstOwnedNavigation.Name != ownedNavigation.Name)
+                        {
+                            Check.DebugAssert(firstOwnerEntry != null, "firstOwnerEntry should not be null when firstOwnedNavigation is set");
+                            
+                            throw new InvalidOperationException(
+                                CoreStrings.DuplicateOwnedEntityInstance(
+                                    entry.Entity.GetType().ShortDisplayName(),
+                                    firstOwnedNavigation.Name,
+                                    firstOwnerEntry.EntityType.DisplayName(),
+                                    ownedNavigation.Name,
+                                    ownerEntry.EntityType.DisplayName()));
+                        }
+                    }
+                }
+                
+                DelayedFixup(ownerEntry, navigationBase, entry, fromQuery);
             }
         }
     }
@@ -1204,15 +1288,14 @@ public class NavigationFixer : INavigationFixer
             IForeignKey secondForeignKey,
             out InternalEntityEntry? joinEntry)
         {
-            var key = joinEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
+            var key = joinEntityType.FindKey([firstForeignKey.Properties[0], secondForeignKey.Properties[0]]);
             if (key != null)
             {
                 joinEntry = entry.StateManager.TryGetEntry(
                     key,
-                    new[]
-                    {
+                    [
                         firstEntry[firstForeignKey.PrincipalKey.Properties[0]], secondEntry[secondForeignKey.PrincipalKey.Properties[0]]
-                    });
+                    ]);
                 return true;
             }
 

@@ -39,7 +39,7 @@ public class SqlServerLongCountMethodTranslator : IAggregateMethodCallTranslator
     {
         if (method.DeclaringType == typeof(Queryable)
             && method.IsGenericMethod
-            && method.GetGenericMethodDefinition() is MethodInfo genericMethod
+            && method.GetGenericMethodDefinition() is { } genericMethod
             && (genericMethod == QueryableMethods.LongCountWithoutPredicate
                 || genericMethod == QueryableMethods.LongCountWithPredicate))
         {
@@ -64,7 +64,7 @@ public class SqlServerLongCountMethodTranslator : IAggregateMethodCallTranslator
             return _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function(
                     "COUNT_BIG",
-                    new[] { sqlExpression },
+                    [sqlExpression],
                     nullable: false,
                     argumentsPropagateNullability: Statics.FalseArrays[1],
                     typeof(long)));

@@ -89,8 +89,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                     }
 
                     return _sqlExpressionFactory.Case(
-                        new[]
-                        {
+                        [
                             new CaseWhenClause(
                                 nullCheck,
                                 _sqlExpressionFactory.Function(
@@ -99,7 +98,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                                     nullable: false,
                                     finalArguments.Select(a => false),
                                     method.ReturnType))
-                        },
+                        ],
                         null);
                 }
 
@@ -115,13 +114,12 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     "GeometryN",
-                    new[]
-                    {
+                    [
                         instance,
                         _sqlExpressionFactory.Add(
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
-                    },
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[2],
                     method.ReturnType);
@@ -132,7 +130,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                 return _sqlExpressionFactory.LessThanOrEqual(
                     _sqlExpressionFactory.Function(
                         "Distance",
-                        new[] { instance, arguments[0] },
+                        [instance, arguments[0]],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[2],
                         typeof(double)),

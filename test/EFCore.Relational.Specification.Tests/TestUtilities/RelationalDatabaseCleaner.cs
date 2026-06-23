@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
@@ -31,7 +30,7 @@ public abstract class RelationalDatabaseCleaner
     protected virtual void OpenConnection(IRelationalConnection connection)
         => connection.Open();
 
-    public virtual void Clean(DatabaseFacade facade)
+    public virtual void Clean(DatabaseFacade facade, bool createTables = true)
     {
         var creator = facade.GetService<IRelationalDatabaseCreator>();
         var sqlGenerator = facade.GetService<IMigrationsSqlGenerator>();
@@ -103,31 +102,96 @@ public abstract class RelationalDatabaseCleaner
             }
         }
 
-        creator.CreateTables();
+        if (createTables)
+        {
+            creator.CreateTables();
+        }
     }
 
     private static void ExecuteScript(IRelationalConnection connection, IRawSqlCommandBuilder sqlBuilder, string customSql)
     {
-        var batches = Regex.Split(
-            Regex.Replace(
-                customSql,
-                @"\\\r?\n",
-                string.Empty,
-                default,
-                TimeSpan.FromMilliseconds(1000.0)),
-            @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)",
-            RegexOptions.IgnoreCase | RegexOptions.Multiline,
-            TimeSpan.FromMilliseconds(1000.0));
-        for (var i = 0; i < batches.Length; i++)
+        foreach (var batch in SplitBatches(customSql))
         {
-            if (batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase)
-                || string.IsNullOrWhiteSpace(batches[i]))
-            {
-                continue;
-            }
-
-            sqlBuilder.Build(batches[i])
+            sqlBuilder.Build(batch)
                 .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null, null));
+        }
+    }
+
+    public static IReadOnlyList<string> SplitBatches(string sql)
+    {
+        var batches = new List<string>();
+        var preBatched = sql
+            .Replace("\\\n", "")
+            .Replace("\\\r\n", "")
+            .Split(["\r\n", "\n"], StringSplitOptions.None);
+
+        var quoted = false;
+        var batchBuilder = new StringBuilder();
+        foreach (var line in preBatched)
+        {
+            var trimmed = line.TrimStart();
+            if (!quoted
+                && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+                && (trimmed.Length == 2
+                    || char.IsWhiteSpace(trimmed[2])))
+            {
+                var batch = batchBuilder.ToString();
+                batchBuilder.Clear();
+
+                var count = trimmed.Length >= 4
+                    && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
+                        ? specifiedCount
+                        : 1;
+
+                for (var j = 0; j < count; j++)
+                {
+                    AppendBatch(batch);
+                }
+            }
+            else
+            {
+                var commentStart = false;
+                foreach (var c in trimmed)
+                {
+                    switch (c)
+                    {
+                        case '\'':
+                            quoted = !quoted;
+                            commentStart = false;
+                            break;
+                        case '-':
+                            if (!quoted)
+                            {
+                                if (commentStart)
+                                {
+                                    goto LineEnd;
+                                }
+
+                                commentStart = true;
+                            }
+
+                            break;
+                        default:
+                            commentStart = false;
+                            break;
+                    }
+                }
+
+                LineEnd:
+                batchBuilder.AppendLine(line);
+            }
+        }
+
+        AppendBatch(batchBuilder.ToString());
+
+        return batches;
+
+        void AppendBatch(string batch)
+        {
+            if (!string.IsNullOrWhiteSpace(batch))
+            {
+                batches.Add(batch);
+            }
         }
     }
 

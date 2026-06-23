@@ -22,6 +22,16 @@ public static class PartitionKeyBuilderExtensions
     /// </summary>
     public static PartitionKeyBuilder Add(this PartitionKeyBuilder builder, object? value, IProperty? property)
     {
+        if (value is not null && value.GetType() is var clrType && clrType.IsInteger() && property is not null)
+        {
+            var unwrappedType = property.ClrType.UnwrapNullableType();
+            value = unwrappedType.IsEnum
+                ? Enum.ToObject(unwrappedType, value)
+                : unwrappedType == typeof(char)
+                    ? Convert.ChangeType(value, unwrappedType)
+                    : value;
+        }
+
         var converter = property?.GetTypeMapping().Converter;
         if (converter != null)
         {

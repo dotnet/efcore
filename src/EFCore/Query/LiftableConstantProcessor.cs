@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #pragma warning disable CS1591
@@ -26,7 +24,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
         Expression Expression,
         ParameterExpression? ReplacingParameter = null);
 
-    private readonly List<LiftedConstant> _liftedConstants = new();
+    private readonly List<LiftedConstant> _liftedConstants = [];
     private readonly LiftedExpressionProcessor _liftedExpressionProcessor = new();
     private readonly LiftedConstantOptimizer _liftedConstantOptimizer = new();
     private ParameterExpression? _contextParameter;
@@ -41,7 +39,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     public virtual IReadOnlyList<(ParameterExpression Parameter, Expression Expression)> LiftedConstants { get; private set; }
-        = Array.Empty<(ParameterExpression Parameter, Expression Expression)>();
+        = [];
 
     public LiftableConstantProcessor(ShapedQueryCompilingExpressionVisitorDependencies dependencies)
     {
@@ -198,7 +196,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             // Make sure there aren't any problematic un-lifted constants within the resolver expression.
             _unsupportedConstantChecker.Check(resolverExpression);
 
-            var resolver = resolverExpression.Compile(preferInterpretation: true);
+            // TODO: deep dive into this - see issue #35210
+            var resolver = resolverExpression.Compile(preferInterpretation: false);
             var value = resolver(_materializerLiftableConstantContext);
 
             return Expression.Constant(value, liftableConstant.Type);
@@ -251,16 +250,23 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 #if DEBUG
     // TODO: issue #33482 - we should properly deal with NTS types rather than disabling them here
     // especially using such a crude method
+    [EntityFrameworkInternal]
     protected override Expression VisitMember(MemberExpression memberExpression)
         => memberExpression is { Expression: ConstantExpression, Type.Name: "SqlServerBytesReader" or "GaiaGeoReader" }
             ? memberExpression
             : base.VisitMember(memberExpression);
 
-    protected override Expression VisitConstant(ConstantExpression node)
-    {
-        _unsupportedConstantChecker.Check(node);
-        return node;
-    }
+    // issue #34760 - disabling the liftable constant verification because we sometimes are forced to
+    // use them (when type mapping has custom converter but we can't reliably get the correct type mapping
+    // when building the shaper) - if that converter uses a closure, we will embed it in the shaper
+    // we don't have a reasonalbe alternative currently
+    // Once #33517 is done, we should re-enable this check
+    //protected override Expression VisitConstant(ConstantExpression node)
+    //{
+    //    _unsupportedConstantChecker.Check(node);
+
+    //    return node;
+    //}
 #endif
 
     private sealed class UnsupportedConstantChecker(LiftableConstantProcessor liftableConstantProcessor) : ExpressionVisitor
@@ -281,6 +287,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                 // without risk breaking existing scenarios
                 || node.Value is ParameterBindingInfo or RuntimeServiceProperty or IMaterializationInterceptor
                     or IInstantiationBindingInterceptor
+                // see #36898
+                || node.Value is ValueConverter
                 || node.Type.Name is "ProxyFactory" or "Point")
             {
                 return node;
@@ -328,8 +336,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                 }
 
                 Check.DebugAssert(
-                    expressionInfo.Status == ExpressionStatus.SeenMultipleTimes,
-                    "expressionInfo.Status == ExpressionStatus.SeenMultipleTimes");
+                    expressionInfo.Status == ExpressionStatus.SeenMultipleTimes);
             }
 
             // Second pass: extract common denominator tree fragments to separate variables
@@ -429,7 +436,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                         expressionInfo = _indexedExpressions[node] = new ExpressionInfo(ExpressionStatus.Extracted, parameter);
                     }
 
-                    Check.DebugAssert(expressionInfo.Parameter is not null, "expressionInfo.Parameter is not null");
+                    Check.DebugAssert(expressionInfo.Parameter is not null);
 
                     return expressionInfo.Parameter;
                 }

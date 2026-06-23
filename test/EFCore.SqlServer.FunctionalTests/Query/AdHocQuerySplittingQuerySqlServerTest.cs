@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -7,9 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTestBase
+public class AdHocQuerySplittingQuerySqlServerTest(NonSharedFixture fixture) : AdHocQuerySplittingQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     private static readonly FieldInfo _querySplittingBehaviorFieldInfo =
@@ -41,8 +41,12 @@ public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTes
         return optionsBuilder;
     }
 
-    protected override async Task<TestStore> CreateTestStore25225()
-        => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true);
+    protected override TestStore CreateTestStore25225()
+    {
+        var testStore = SqlServerTestStore.Create(NonSharedStoreName, multipleActiveResultSets: true);
+        testStore.UseConnectionString = true;
+        return testStore;
+    }
 
     public override async Task Can_configure_SingleQuery_at_context_level()
     {
@@ -266,14 +270,14 @@ ORDER BY [p1].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Using_AsSplitQuery_without_multiple_active_result_sets_works()
     {
-        var contextFactory = await InitializeAsync<Context21355>(
+        var contextFactory = await InitializeNonSharedTest<Context21355>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: false));
+            createTestStore: () => SqlServerTestStore.Create(NonSharedStoreName, multipleActiveResultSets: false));
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
         AssertSql(

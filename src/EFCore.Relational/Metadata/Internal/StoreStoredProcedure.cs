@@ -140,7 +140,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     }
 
     /// <inheritdoc />
-    public override IColumnBase? FindColumn(IProperty property)
+    protected override IColumnBase? FindColumn(IProperty property)
         => property.GetInsertStoredProcedureResultColumnMappings()
             .Concat(property.GetUpdateStoredProcedureResultColumnMappings())
             .FirstOrDefault(cm => cm.StoredProcedureMapping.StoreStoredProcedure == this)

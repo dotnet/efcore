@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -11,15 +11,9 @@ public abstract class SaveChangesInterceptionSqlServerTestBase(
     SaveChangesInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
     : SaveChangesInterceptionTestBase(fixture)
 {
-    [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
+     InlineData(true, true, true)]
     public virtual async Task Intercept_concurrency_with_relational_specific_data(bool async, bool inject, bool noAcceptChanges)
     {
         var saveChangesInterceptor = new RelationalConcurrencySaveChangesInterceptor();

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,7 +11,7 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class ManyToManyTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Discovers_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -43,7 +43,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -88,7 +88,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK_with_implicit_relationships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -132,7 +132,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -148,22 +148,20 @@ public abstract partial class ModelBuilderTest
                         .WithMany())
                 .HasKey(j => new { j.DependentWithFieldId, j.ManyToManyPrincipalWithFieldId });
 
-            modelBuilder.Entity<ManyToManyPrincipalWithField>(
-                e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.Name);
-                    e.HasKey(p => p.Id);
-                });
-            modelBuilder.Entity<DependentWithField>(
-                e =>
-                {
-                    e.Property(d => d.DependentWithFieldId);
-                    e.Property(d => d.AnotherOneToManyPrincipalId);
-                    e.Ignore(d => d.OneToManyPrincipal);
-                    e.Ignore(d => d.OneToOnePrincipal);
-                    e.HasKey(d => d.DependentWithFieldId);
-                });
+            modelBuilder.Entity<ManyToManyPrincipalWithField>(e =>
+            {
+                e.Property(p => p.Id);
+                e.Property(p => p.Name);
+                e.HasKey(p => p.Id);
+            });
+            modelBuilder.Entity<DependentWithField>(e =>
+            {
+                e.Property(d => d.DependentWithFieldId);
+                e.Property(d => d.AnotherOneToManyPrincipalId);
+                e.Ignore(d => d.OneToManyPrincipal);
+                e.Ignore(d => d.OneToOnePrincipal);
+                e.HasKey(d => d.DependentWithFieldId);
+            });
 
             var principalEntityType = model.FindEntityType(typeof(ManyToManyPrincipalWithField))!;
             var dependentEntityType = model.FindEntityType(typeof(DependentWithField))!;
@@ -197,7 +195,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(dependentToPrincipalFk, joinEntityType.GetForeignKeys().First());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Join_type_is_automatically_configured_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -230,17 +228,16 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ImplicitManyToManyB.As) + nameof(ImplicitManyToManyA.Id),
                     nameof(ImplicitManyToManyA.Bs) + nameof(ImplicitManyToManyB.Id)
-                },
+                ],
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Join_type_is_not_automatically_configured_when_navigations_are_ambiguous()
         {
             var modelBuilder = CreateModelBuilder();
@@ -261,7 +258,7 @@ public abstract partial class ModelBuilderTest
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_join_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -296,19 +293,18 @@ public abstract partial class ModelBuilderTest
 
             var key = productCategoryType.FindPrimaryKey()!;
             Assert.Equal(
-                new[] { nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId) },
+                [nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId)],
                 key.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_join_type_with_implicit_join_relationships()
         {
             var modelBuilder = CreateModelBuilder();
 
             var manyToMany = modelBuilder.Entity<Product>()
                 .HasMany(p => p.Categories).WithMany(c => c.Products)
-                .UsingEntity<ProductCategory>(
-                    pcb => pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId }));
+                .UsingEntity<ProductCategory>(pcb => pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId }));
 
             Assert.Equal(typeof(Product), manyToMany.Metadata.ClrType);
 
@@ -330,11 +326,11 @@ public abstract partial class ModelBuilderTest
 
             var key = productCategoryType.FindPrimaryKey()!;
             Assert.Equal(
-                new[] { nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId) },
+                [nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId)],
                 key.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_shared_join_type_with_implicit_join_relationships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -373,11 +369,11 @@ public abstract partial class ModelBuilderTest
 
             var key = productCategoryType.FindPrimaryKey()!;
             Assert.Equal(
-                new[] { nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId) },
+                [nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId)],
                 key.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_existing_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -399,7 +395,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(categoryType.GetSkipNavigations());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_conflicting_many_to_one_on_left()
         {
             var modelBuilder = CreateModelBuilder();
@@ -416,12 +412,11 @@ public abstract partial class ModelBuilderTest
                     nameof(Product) + "." + nameof(Product.Categories),
                     nameof(Category) + "." + nameof(Category.Products),
                     nameof(Product)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<Category>()
-                        .HasMany(o => o.Products).WithMany(c => c.Categories)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Category>()
+                    .HasMany(o => o.Products).WithMany(c => c.Categories)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_conflicting_many_to_one_on_right()
         {
             var modelBuilder = CreateModelBuilder();
@@ -438,12 +433,11 @@ public abstract partial class ModelBuilderTest
                     nameof(Category) + "." + nameof(Category.Products),
                     nameof(Category) + "." + nameof(Category.Products),
                     nameof(Product)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<Product>()
-                        .HasMany(o => o.Categories).WithMany(c => c.Products)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Product>()
+                    .HasMany(o => o.Categories).WithMany(c => c.Products)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Many_to_many_with_only_Has_navigation_configured()
         {
             var modelBuilder = CreateModelBuilder();
@@ -478,13 +472,13 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[] { "ProductsId", "UniCategoryId" },
+                ["ProductsId", "UniCategoryId"],
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Many_to_many_with_no_navigations_configured()
         {
             var modelBuilder = CreateModelBuilder();
@@ -519,13 +513,13 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[] { "NoCategoryId", "NoProductId" },
+                ["NoCategoryId", "NoProductId"],
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Many_to_many_with_a_shadow_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -566,13 +560,13 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[] { "DependentsId", "ShadowId" },
+                ["DependentsId", "ShadowId"],
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Many_to_many_with_only_With_navigation_configured()
         {
             var modelBuilder = CreateModelBuilder();
@@ -607,27 +601,26 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[] { "ProductsId", "UniCategoryId" },
+                ["ProductsId", "UniCategoryId"],
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_self_ref_with_same_navigation()
         {
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(
                 CoreStrings.ManyToManyOneNav(nameof(SelfRefManyToOne), nameof(SelfRefManyToOne.SelfRef2)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder
-                        .Entity<SelfRefManyToOne>()
-                        .HasMany(e => e.SelfRef2)
-                        .WithMany(e => e.SelfRef2)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder
+                    .Entity<SelfRefManyToOne>()
+                    .HasMany(e => e.SelfRef2)
+                    .WithMany(e => e.SelfRef2)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_self_ref_using_self()
         {
             var modelBuilder = CreateModelBuilder();
@@ -644,7 +637,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void ForeignKeyAttribute_configures_the_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -666,7 +659,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Overrides_ForeignKeyAttribute()
         {
             var modelBuilder = CreateModelBuilder();
@@ -693,7 +686,7 @@ public abstract partial class ModelBuilderTest
             var joinEntityType = categoryFk.DeclaringEntityType;
             Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
             Assert.Equal(
-                new[] { "CategoryWithAttributeId", "ProductWithAttributeId" },
+                ["CategoryWithAttributeId", "ProductWithAttributeId"],
                 joinEntityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
@@ -711,18 +704,17 @@ public abstract partial class ModelBuilderTest
             public virtual ICollection<ProductWithAttribute>? Products { get; set; }
         }
 
-        [ConditionalFact] // Issue #27990
+        [Fact] // Issue #27990
         public virtual void ForeignKeyAttribute_does_not_force_convention_join_table_inclusion_matching_key_names()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<MotorArtMatching>(
-                entity =>
-                {
-                    entity.HasMany(d => d.MotorBauArtMatching)
-                        .WithMany(p => p.MotorArtMatching)
-                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMatching");
-                });
+            modelBuilder.Entity<MotorArtMatching>(entity =>
+            {
+                entity.HasMany(d => d.MotorBauArtMatching)
+                    .WithMany(p => p.MotorArtMatching)
+                    .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMatching");
+            });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -733,7 +725,7 @@ public abstract partial class ModelBuilderTest
                 e =>
                 {
                     Assert.Equal("MotorArtMatching", e.ShortName());
-                    AssertEqual(new[] { e.FindProperty("MotorArtMatchingId")! }, e.GetProperties());
+                    AssertEqual([e.FindProperty("MotorArtMatchingId")!], e.GetProperties());
                     Assert.Empty(e.GetForeignKeys());
                     Assert.Empty(e.GetNavigations());
                     Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorBauArtMatching", n.Name));
@@ -741,7 +733,7 @@ public abstract partial class ModelBuilderTest
                 e =>
                 {
                     Assert.Equal("MotorBauartMatching", e.ShortName());
-                    AssertEqual(new[] { e.FindProperty("MotorBauartMatchingId")! }, e.GetProperties());
+                    AssertEqual([e.FindProperty("MotorBauartMatchingId")!], e.GetProperties());
                     Assert.Empty(e.GetForeignKeys());
                     Assert.Empty(e.GetNavigations());
                     Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArtMatching", n.Name));
@@ -785,18 +777,17 @@ public abstract partial class ModelBuilderTest
             public virtual ICollection<MotorArtMatching> MotorArtMatching { get; set; } = null!;
         }
 
-        [ConditionalFact] // Issue #27990
+        [Fact] // Issue #27990
         public virtual void ForeignKeyAttribute_does_not_force_convention_join_table_inclusion_mismatching_key_names()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<MotorArtMismatching>(
-                entity =>
-                {
-                    entity.HasMany(d => d.MotorBauArtMismatching)
-                        .WithMany(p => p.MotorArtMismatching)
-                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMismatching");
-                });
+            modelBuilder.Entity<MotorArtMismatching>(entity =>
+            {
+                entity.HasMany(d => d.MotorBauArtMismatching)
+                    .WithMany(p => p.MotorArtMismatching)
+                    .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMismatching");
+            });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -807,7 +798,7 @@ public abstract partial class ModelBuilderTest
                 e =>
                 {
                     Assert.Equal("MotorArtMismatching", e.ShortName());
-                    AssertEqual(new[] { e.FindProperty("MotorArtMismatchingId")! }, e.GetProperties());
+                    AssertEqual([e.FindProperty("MotorArtMismatchingId")!], e.GetProperties());
                     Assert.Empty(e.GetForeignKeys());
                     Assert.Empty(e.GetNavigations());
                     Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorBauArtMismatching", n.Name));
@@ -815,7 +806,7 @@ public abstract partial class ModelBuilderTest
                 e =>
                 {
                     Assert.Equal("MotorBauartMismatching", e.ShortName());
-                    AssertEqual(new[] { e.FindProperty("MotorBauartMismatchingId")! }, e.GetProperties());
+                    AssertEqual([e.FindProperty("MotorBauartMismatchingId")!], e.GetProperties());
                     Assert.Empty(e.GetForeignKeys());
                     Assert.Empty(e.GetNavigations());
                     Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArtMismatching", n.Name));
@@ -859,7 +850,7 @@ public abstract partial class ModelBuilderTest
             public virtual ICollection<MotorArtMismatching> MotorArtMismatching { get; set; } = null!;
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Navigation_properties_can_set_access_mode()
         {
             var modelBuilder = CreateModelBuilder();
@@ -889,7 +880,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.Property, dependent.FindSkipNavigation("ManyToManyPrincipals")!.GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Skip_navigation_field_can_be_set_via_attribute()
         {
             var modelBuilder = CreateModelBuilder();
@@ -906,7 +897,7 @@ public abstract partial class ModelBuilderTest
                 "_randomField", model.FindEntityType(typeof(ManyToManyNavPrincipal))!.FindSkipNavigation("Dependents")!.GetFieldName());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void IsRequired_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -917,13 +908,12 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.RequiredSkipNavigation(nameof(ManyToManyNavPrincipal), nameof(ManyToManyNavPrincipal.Dependents)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ManyToManyNavPrincipal>()
-                        .Navigation(p => p.Dependents)
-                        .IsRequired()).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .Navigation(p => p.Dependents)
+                    .IsRequired()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_shared_type_as_join_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -958,11 +948,10 @@ public abstract partial class ModelBuilderTest
             var shared1 = model.FindEntityType("Shared1")!;
             Assert.Equal(2, shared1.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
                     nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
-                },
+                ],
                 shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.True(shared1.HasSharedClrType);
             Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
@@ -970,11 +959,10 @@ public abstract partial class ModelBuilderTest
             var shared2 = model.FindEntityType("Shared2")!;
             Assert.Equal(2, shared2.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
                     nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
-                },
+                ],
                 shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.NotNull(shared2.FindProperty("Payload"));
             Assert.True(shared2.HasSharedClrType);
@@ -987,7 +975,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_shared_type_as_join_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1022,11 +1010,10 @@ public abstract partial class ModelBuilderTest
             var shared1 = model.FindEntityType("Shared1")!;
             Assert.Equal(2, shared1.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
                     nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
-                },
+                ],
                 shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.True(shared1.HasSharedClrType);
             Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
@@ -1034,11 +1021,10 @@ public abstract partial class ModelBuilderTest
             var shared2 = model.FindEntityType("Shared2")!;
             Assert.Equal(2, shared2.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
                     nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
-                },
+                ],
                 shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.NotNull(shared2.FindProperty("Payload"));
             Assert.True(shared2.HasSharedClrType);
@@ -1051,7 +1037,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_shared_type_with_default_name_as_join_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1085,11 +1071,10 @@ public abstract partial class ModelBuilderTest
                 .FindSkipNavigation(nameof(ManyToManyNavPrincipal.Dependents))!.JoinEntityType!;
             Assert.Equal(2, shared1.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
                     nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
-                },
+                ],
                 shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.True(shared1.HasSharedClrType);
             Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
@@ -1099,11 +1084,10 @@ public abstract partial class ModelBuilderTest
                 .FindSkipNavigation(nameof(ManyToManyPrincipalWithField.Dependents))!.JoinEntityType!;
             Assert.Equal(2, shared2.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
                     nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
-                },
+                ],
                 shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.NotNull(shared2.FindProperty("Payload"));
             Assert.True(shared2.HasSharedClrType);
@@ -1117,7 +1101,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_shared_type_with_implicit_relationships_as_join_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1147,11 +1131,10 @@ public abstract partial class ModelBuilderTest
             var shared1 = model.FindEntityType("Shared1")!;
             Assert.Equal(2, shared1.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
                     nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
-                },
+                ],
                 shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.True(shared1.HasSharedClrType);
             Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
@@ -1159,11 +1142,10 @@ public abstract partial class ModelBuilderTest
             var shared2 = model.FindEntityType("Shared2")!;
             Assert.Equal(2, shared2.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
                     nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
-                },
+                ],
                 shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.NotNull(shared2.FindProperty("Payload"));
             Assert.True(shared2.HasSharedClrType);
@@ -1176,7 +1158,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_implicit_shared_type_with_default_name_and_implicit_relationships_as_join_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1210,11 +1192,10 @@ public abstract partial class ModelBuilderTest
                 .FindSkipNavigation(nameof(ManyToManyNavPrincipal.Dependents))!.JoinEntityType!;
             Assert.Equal(2, shared1.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
                     nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
-                },
+                ],
                 shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.True(shared1.HasSharedClrType);
             Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
@@ -1225,11 +1206,10 @@ public abstract partial class ModelBuilderTest
                 .FindSkipNavigation(nameof(ManyToManyPrincipalWithField.Dependents))!.JoinEntityType!;
             Assert.Equal(2, shared2.GetForeignKeys().Count());
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
                     nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
-                },
+                ],
                 shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.NotNull(shared2.FindProperty("Payload"));
             Assert.True(shared2.HasSharedClrType);
@@ -1246,7 +1226,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(6, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void FK_properties_matching_navigations_are_discovered_on_explicit_join_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1268,7 +1248,7 @@ public abstract partial class ModelBuilderTest
                 joinType.FindPrimaryKey()!.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void FK_properties_matching_types_are_discovered_on_explicit_join_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1294,7 +1274,7 @@ public abstract partial class ModelBuilderTest
                 joinType.FindPrimaryKey()!.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void UsingEntity_with_shared_type_passed_when_marked_as_shared_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1321,7 +1301,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(typeof(ManyToManyJoinWithFields), joinEntityType.ClrType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void UsingEntity_with_shared_type_passes_when_configured_as_shared()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1348,7 +1328,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(typeof(ManyToManyJoinWithFields), joinEntityType.ClrType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Unconfigured_many_to_many_navigations_throw()
         {
             var modelBuilder = CreateModelBuilder();
