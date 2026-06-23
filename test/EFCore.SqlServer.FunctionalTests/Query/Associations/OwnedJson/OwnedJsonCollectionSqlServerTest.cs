@@ -363,7 +363,7 @@ WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[9999].Int') AS int) = 8
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE 16 IN (
-    SELECT COALESCE(SUM([a].[Int]), 0)
+    SELECT ISNULL(SUM([a].[Int]), 0)
     FROM OPENJSON([r].[AssociateCollection], '$') WITH (
         [Int] int '$.Int',
         [String] nvarchar(max) '$.String'
@@ -379,7 +379,7 @@ WHERE 16 IN (
  SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
  FROM [RootEntity] AS [r]
  WHERE 16 IN (
-     SELECT COALESCE(SUM([a].[Int]), 0)
+     SELECT ISNULL(SUM([a].[Int]), 0)
      FROM OPENJSON([r].[AssociateCollection], '$') WITH (
          [Int] int '$.Int',
          [String] nvarchar(max) '$.String'
@@ -402,7 +402,7 @@ WHERE 16 IN (
             AssertSql(
                 """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [a]
     OUTER APPLY (
         SELECT MAX([n].[Int]) AS [value]
@@ -416,7 +416,7 @@ FROM [RootEntity] AS [r]
             AssertSql(
  """
  SELECT (
-     SELECT COALESCE(SUM([s].[value]), 0)
+     SELECT ISNULL(SUM([s].[value]), 0)
      FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [a]
      OUTER APPLY (
          SELECT MAX([n].[Int]) AS [value]

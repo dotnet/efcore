@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -77,18 +76,6 @@ public partial class DbFunctionContextModel
         condition.TypeMapping = SqliteStringTypeMapping.Default;
 
         getCount.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+DbFunctionContext.GetCount(System.Guid?,string)"] = getCount;
@@ -125,18 +112,6 @@ public partial class DbFunctionContextModel
             false,
             "INTEGER");
         id0.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
 
@@ -166,18 +141,6 @@ public partial class DbFunctionContextModel
         date.TypeMapping = SqliteStringTypeMapping.Default;
 
         isDateStatic.TypeMapping = BoolTypeMapping.Default.Clone(
-            comparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            keyComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
-            providerValueComparer: new ValueComparer<bool>(
-                bool (bool v1, bool v2) => v1 == v2,
-                int (bool v) => ((object)v).GetHashCode(),
-                bool (bool v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         isDateStatic.AddAnnotation("MyGuid", new Guid("00000000-0000-0000-0000-000000000000"));

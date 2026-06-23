@@ -242,7 +242,7 @@ LEFT JOIN (
 LEFT JOIN [NestedAssociateType] AS [n6] ON [a0].[Id] = [n6].[CollectionAssociateId]
 LEFT JOIN [NestedAssociateType] AS [n7] ON [a1].[Id] = [n7].[CollectionAssociateId]
 WHERE 16 IN (
-    SELECT COALESCE(SUM([a].[Int]), 0)
+    SELECT ISNULL(SUM([a].[Int]), 0)
     FROM [AssociateType] AS [a]
     WHERE [r].[Id] = [a].[CollectionRootId]
     GROUP BY [a].[String]
@@ -260,7 +260,7 @@ ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n6].[Id]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM [AssociateType] AS [a]
     OUTER APPLY (
         SELECT MAX([n].[Int]) AS [value]

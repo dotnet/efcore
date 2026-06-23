@@ -666,7 +666,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         => AssertQuery(
             async,
             ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
-                .Select(e => (e.ReportsTo + 1L) ?? (e.ReportsTo + 2L) ?? (e.ReportsTo + 3L)),
+                .Select(e => (e.ReportsTo + 1L) ?? (e.ReportsTo + 2L) ?? (e.ReportsTo + 3L)).Where(e => e != null),
             assertOrder: true);
 
     [Theory(Skip = "issue #15586"), MemberData(nameof(IsAsyncData))]

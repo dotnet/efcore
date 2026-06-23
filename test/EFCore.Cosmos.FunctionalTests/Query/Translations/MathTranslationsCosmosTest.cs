@@ -64,13 +64,13 @@ WHERE (ABS(c["Float"]) = 9.5)
 
     public override async Task Ceiling()
     {
-        await base.Ceiling_float();
+        await base.Ceiling();
 
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE (CEILING(c["Float"]) = 9.0)
+WHERE (CEILING(c["Double"]) = 9.0)
 """);
     }
 
@@ -148,10 +148,14 @@ WHERE (EXP(c["Float"]) > 1.0)
 
     public override async Task Power()
     {
-        // Convert node. Issue #25120.
-        await AssertTranslationFailed(() => base.Power());
+        await base.Power();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (POWER(c["Int"], 2.0) = 64.0)
+""");
     }
 
     public override async Task Power_float()

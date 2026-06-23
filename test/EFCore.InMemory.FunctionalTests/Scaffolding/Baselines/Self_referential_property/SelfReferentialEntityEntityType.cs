@@ -63,20 +63,7 @@ public partial class SelfReferentialEntityEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        id.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            clrType: typeof(long),
+        id.TypeMapping = InMemoryTypeMapping<long>.Default.Clone(
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(id));
 
@@ -113,19 +100,9 @@ public partial class SelfReferentialEntityEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        collection.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>(
-                bool (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
-                int (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
-                CompiledModelInMemoryTest.SelfReferentialProperty (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
-            keyComparer: new ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>(
-                bool (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
-                int (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
-                CompiledModelInMemoryTest.SelfReferentialProperty (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        collection.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>.Default,
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(string (CompiledModelInMemoryTest.SelfReferentialProperty v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.ToProvider(v), CompiledModelInMemoryTest.SelfReferentialProperty (string v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.FromProvider(v)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(
                 JsonStringReaderWriter.Instance,

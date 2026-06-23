@@ -51,20 +51,7 @@ public partial class DependentBaseEntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        principalId.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            clrType: typeof(long),
+        principalId.TypeMapping = InMemoryTypeMapping<long>.Default.Clone(
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
 
@@ -84,20 +71,7 @@ public partial class DependentBaseEntityType
             shadowIndex: 1,
             relationshipIndex: 1,
             storeGenerationIndex: 1);
-        principalAlternateId.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            keyComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            providerValueComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            clrType: typeof(Guid),
+        principalAlternateId.TypeMapping = InMemoryTypeMapping<Guid>.Default.Clone(
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         principalAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalAlternateId));
 
@@ -118,20 +92,7 @@ public partial class DependentBaseEntityType
             shadowIndex: 2,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        enumDiscriminator.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
-            keyComparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
-            providerValueComparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
-                int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
-                CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
-            clrType: typeof(CompiledModelTestBase.Enum1),
+        enumDiscriminator.TypeMapping = InMemoryTypeMapping<CompiledModelTestBase.Enum1>.Default.Clone(
             jsonValueReaderWriter: JsonSignedEnumReaderWriter<CompiledModelTestBase.Enum1>.Instance);
 
         var id = runtimeEntityType.AddProperty(
@@ -166,23 +127,9 @@ public partial class DependentBaseEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        id.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            keyComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            providerValueComparer: new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v),
-            clrType: typeof(byte),
+        id.TypeMapping = InMemoryTypeMapping<byte>.Default.Clone(
             jsonValueReaderWriter: JsonByteReaderWriter.Instance);
         id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-        id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
 
         var key = runtimeEntityType.AddKey(
             new[] { principalId, principalAlternateId });

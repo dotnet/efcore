@@ -64,24 +64,10 @@ public partial class DependentBaseEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        id.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            clrType: typeof(long),
+        id.TypeMapping = InMemoryTypeMapping<long>.Default.Clone(
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(id));
         id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
-        id.SetKeyComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
 
         var principalId = runtimeEntityType.AddProperty(
             "PrincipalId",
@@ -99,20 +85,7 @@ public partial class DependentBaseEntityType
             shadowIndex: 0,
             relationshipIndex: 1,
             storeGenerationIndex: 1);
-        principalId.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            clrType: typeof(long),
+        principalId.TypeMapping = InMemoryTypeMapping<long>.Default.Clone(
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
 

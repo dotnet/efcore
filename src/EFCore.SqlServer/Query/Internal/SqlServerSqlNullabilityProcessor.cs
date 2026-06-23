@@ -48,7 +48,7 @@ public class SqlServerSqlNullabilityProcessor(
             parametersDecorator,
             CollectionParameterTranslationMode,
 #pragma warning disable EF1001
-            (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
+            CalculateBucketPadding);
 #pragma warning restore EF1001
         parametersCounter.Visit(queryExpression);
         _totalParameterCount = parametersCounter.Count;
@@ -509,14 +509,19 @@ public class ParametersCounter(
 
     private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
     {
-        if (!_visitedSqlParameters.Add(sqlParameterExpression))
+        // Mark the parameter as visited so the subsequent child visit on this SqlParameterExpression (which would
+        // hit the generic SqlParameterExpression branch and add 1 to Count) is suppressed.
+        var translationMode = sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode;
+        if (!_visitedSqlParameters.Add(sqlParameterExpression)
+            && translationMode != ParameterTranslationMode.MultipleParameters)
         {
             return;
         }
 
-        switch (sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode)
+        switch (translationMode)
         {
             case ParameterTranslationMode.MultipleParameters:
+                // Count expansion size per occurrence.
                 var parameters = parametersDecorator.GetAndDisableCaching();
                 var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object?>().Count() ?? 0;
                 Count += count;

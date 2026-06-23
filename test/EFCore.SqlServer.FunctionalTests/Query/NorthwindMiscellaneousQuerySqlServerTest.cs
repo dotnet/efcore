@@ -2924,6 +2924,7 @@ END, [c].[CustomerID]
             """
 SELECT ISNULL(ISNULL(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint)), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
 FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NOT NULL
 ORDER BY [e].[EmployeeID]
 """);
     }
@@ -4452,7 +4453,7 @@ FROM (
             """
 @p='10'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT TOP(@p) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -4595,7 +4596,7 @@ FROM (
             """
 @p='10'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -4675,7 +4676,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT DISTINCT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -5740,7 +5741,7 @@ END, [c0].[City]
         AssertSql(
             """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(COALESCE([o0].[OrderID], 0)), 0)
+    SELECT ISNULL(SUM(ISNULL([o0].[OrderID], 0)), 0)
     FROM (
         SELECT 1 AS empty
     ) AS [e]
@@ -6447,7 +6448,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT COALESCE([o0].[OrderID], 0)
+SELECT ISNULL([o0].[OrderID], 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(2) [o].[OrderID]

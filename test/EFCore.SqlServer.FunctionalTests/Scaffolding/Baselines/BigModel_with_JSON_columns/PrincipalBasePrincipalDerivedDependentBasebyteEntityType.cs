@@ -90,19 +90,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        derivedsId.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v));
+        derivedsId.TypeMapping = SqlServerLongTypeMapping.Default;
         derivedsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(derivedsId));
         derivedsId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -162,18 +150,6 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             relationshipIndex: 1,
             storeGenerationIndex: 1);
         derivedsAlternateId.TypeMapping = GuidTypeMapping.Default.Clone(
-            comparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            keyComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            providerValueComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         derivedsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(derivedsAlternateId));
@@ -234,19 +210,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             shadowIndex: -1,
             relationshipIndex: 2,
             storeGenerationIndex: 2);
-        principalsId.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v));
+        principalsId.TypeMapping = SqlServerLongTypeMapping.Default;
         principalsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalsId));
         principalsId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -306,18 +270,6 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             relationshipIndex: 3,
             storeGenerationIndex: 3);
         principalsAlternateId.TypeMapping = GuidTypeMapping.Default.Clone(
-            comparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            keyComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            providerValueComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "uniqueidentifier"));
         principalsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalsAlternateId));
@@ -363,14 +315,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
                 bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
                 int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
                 byte[] (byte[] v) => v.ToArray()),
-            keyComparer: new ValueComparer<byte[]>(
-                bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
-                int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
-                byte[] (byte[] source) => source.ToArray()),
-            providerValueComparer: new ValueComparer<byte[]>(
-                bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
-                int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
-                byte[] (byte[] source) => source.ToArray()),
+            keyComparer: ValueComparer<byte[]>.DefaultWithStructuralComparisons,
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "rowversion",
                 size: 8),

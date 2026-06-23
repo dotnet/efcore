@@ -65,20 +65,7 @@ public partial class DependentDerivedEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        data.TypeMapping = CosmosTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        data.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var money = runtimeEntityType.AddProperty(
@@ -98,20 +85,7 @@ public partial class DependentDerivedEntityType
             shadowIndex: 5,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        money.TypeMapping = CosmosTypeMapping.Default.Clone(
-            comparer: new ValueComparer<decimal>(
-                bool (decimal v1, decimal v2) => v1 == v2,
-                int (decimal v) => ((object)v).GetHashCode(),
-                decimal (decimal v) => v),
-            keyComparer: new ValueComparer<decimal>(
-                bool (decimal v1, decimal v2) => v1 == v2,
-                int (decimal v) => ((object)v).GetHashCode(),
-                decimal (decimal v) => v),
-            providerValueComparer: new ValueComparer<decimal>(
-                bool (decimal v1, decimal v2) => v1 == v2,
-                int (decimal v) => ((object)v).GetHashCode(),
-                decimal (decimal v) => v),
-            clrType: typeof(decimal),
+        money.TypeMapping = CosmosTypeMapping<decimal>.Default.Clone(
             jsonValueReaderWriter: JsonDecimalReaderWriter.Instance);
 
         return runtimeEntityType;

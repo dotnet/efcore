@@ -1583,6 +1583,61 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
+    public virtual void Detects_ownership_with_non_cascade_delete_behavior()
+    {
+        var builder = CreateConventionlessModelBuilder();
+        var modelBuilder = (InternalModelBuilder)builder.GetInfrastructure();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        entityTypeBuilder.PrimaryKey([nameof(SampleEntity.Id)], ConfigurationSource.Convention);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.Name), ConfigurationSource.Explicit);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.Number), ConfigurationSource.Explicit);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.OtherSamples), ConfigurationSource.Explicit);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Explicit);
+
+        var ownershipBuilder = entityTypeBuilder.HasOwnership(
+            typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+
+        var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
+        ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+        ownedTypeBuilder.Ignore(nameof(ReferencedEntity.Id), ConfigurationSource.Explicit);
+        ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
+
+        ownershipBuilder.Metadata.DeleteBehavior = DeleteBehavior.Restrict;
+
+        VerifyError(
+            CoreStrings.OwnershipNotCascadeDelete(
+                nameof(SampleEntity), nameof(ReferencedEntity), DeleteBehavior.Restrict, DeleteBehavior.Cascade),
+            builder);
+    }
+
+    [Fact]
+    public virtual void Detects_optional_ownership()
+    {
+        var builder = CreateConventionlessModelBuilder();
+        var modelBuilder = (InternalModelBuilder)builder.GetInfrastructure();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        entityTypeBuilder.PrimaryKey([nameof(SampleEntity.Id)], ConfigurationSource.Convention);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.Name), ConfigurationSource.Explicit);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.Number), ConfigurationSource.Explicit);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.OtherSamples), ConfigurationSource.Explicit);
+        entityTypeBuilder.Ignore(nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Explicit);
+
+        var ownershipBuilder = entityTypeBuilder.HasOwnership(
+            typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
+
+        var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
+        ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+        ownedTypeBuilder.Ignore(nameof(ReferencedEntity.Id), ConfigurationSource.Explicit);
+        ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
+
+        ownershipBuilder.Metadata.IsRequired = false;
+
+        VerifyError(
+            CoreStrings.OwnershipNotRequired(nameof(SampleEntity), nameof(ReferencedEntity)),
+            builder);
+    }
+
+    [Fact]
     public virtual void Detects_principal_owned_entity_type()
     {
         var builder = CreateConventionlessModelBuilder();

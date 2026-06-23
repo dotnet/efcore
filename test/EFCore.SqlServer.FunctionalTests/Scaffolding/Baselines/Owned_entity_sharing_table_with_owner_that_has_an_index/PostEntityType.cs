@@ -65,19 +65,7 @@ public partial class PostEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        id.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v));
+        id.TypeMapping = IntTypeMapping.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
         id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -96,19 +84,7 @@ public partial class PostEntityType
             shadowIndex: 0,
             relationshipIndex: 1,
             storeGenerationIndex: 1);
-        blogId.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v));
+        blogId.TypeMapping = IntTypeMapping.Default;
         blogId.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(blogId));
         blogId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 

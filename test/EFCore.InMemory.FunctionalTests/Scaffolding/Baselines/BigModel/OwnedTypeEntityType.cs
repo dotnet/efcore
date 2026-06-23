@@ -52,20 +52,7 @@ public partial class OwnedTypeEntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        principalBaseId.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            keyComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            providerValueComparer: new ValueComparer<long>(
-                bool (long v1, long v2) => v1 == v2,
-                int (long v) => ((object)v).GetHashCode(),
-                long (long v) => v),
-            clrType: typeof(long),
+        principalBaseId.TypeMapping = InMemoryTypeMapping<long>.Default.Clone(
             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
         principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalBaseId));
 
@@ -86,20 +73,7 @@ public partial class OwnedTypeEntityType
             shadowIndex: 1,
             relationshipIndex: 1,
             storeGenerationIndex: 1);
-        principalBaseAlternateId.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            keyComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            providerValueComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            clrType: typeof(Guid),
+        principalBaseAlternateId.TypeMapping = InMemoryTypeMapping<Guid>.Default.Clone(
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         principalBaseAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalBaseAlternateId));
 
@@ -136,20 +110,7 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        details.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            keyComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
-            clrType: typeof(string),
+        details.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
             jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var number = runtimeEntityType.AddProperty(
@@ -185,20 +146,7 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        number.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            clrType: typeof(int),
+        number.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
             jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
 
         var refTypeArray = runtimeEntityType.AddProperty(
@@ -234,52 +182,24 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        refTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        refTypeArray.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(ValueComparer<IPAddress>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    IPAddressToStringConverter.Instance))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                keyComparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                    IPAddressToStringConverter.Instance)),
+            elementMapping: InMemoryTypeMapping<string>.Default.Clone(
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default,
+                converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    IPAddressToStringConverter.Instance)));
         var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
         refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -316,37 +236,14 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        refTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        refTypeEnumerable.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfReferenceTypesComparer<List<string>, string>(DefaultValueComparer<string>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
+            elementMapping: InMemoryTypeMapping<string>.Default.Clone(
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance));
         var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
         refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
@@ -384,37 +281,14 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        refTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        refTypeIList.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfReferenceTypesComparer<List<string>, string>(DefaultValueComparer<string>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
+            elementMapping: InMemoryTypeMapping<string>.Default.Clone(
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance));
         var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
         refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
@@ -452,52 +326,24 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        refTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
-                bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                int (IPAddress v) => ((object)v).GetHashCode(),
-                IPAddress (IPAddress v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        refTypeList.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(ValueComparer<IPAddress>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v))))),
+                    IPAddressToStringConverter.Instance))),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                keyComparer: new ValueComparer<IPAddress>(
-                    bool (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    int (IPAddress v) => ((object)v).GetHashCode(),
-                    IPAddress (IPAddress v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                converter: new ValueConverter<IPAddress, string>(
-                    string (IPAddress v) => ((object)v).ToString(),
-                    IPAddress (string v) => IPAddress.Parse(v)),
+                    IPAddressToStringConverter.Instance)),
+            elementMapping: InMemoryTypeMapping<string>.Default.Clone(
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default,
+                converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    new ValueConverter<IPAddress, string>(
-                        string (IPAddress v) => ((object)v).ToString(),
-                        IPAddress (string v) => IPAddress.Parse(v)))));
+                    IPAddressToStringConverter.Instance)));
         var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
         refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
@@ -534,37 +380,14 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        valueTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
-                bool (DateTime v1, DateTime v2) => v1.Equals(v2),
-                int (DateTime v) => ((object)v).GetHashCode(),
-                DateTime (DateTime v) => v)),
-            keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
-                bool (DateTime v1, DateTime v2) => v1.Equals(v2),
-                int (DateTime v) => ((object)v).GetHashCode(),
-                DateTime (DateTime v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        valueTypeArray.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(DefaultValueComparer<DateTime>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                 JsonDateTimeReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                 JsonDateTimeReaderWriter.Instance),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<DateTime>(
-                    bool (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    int (DateTime v) => ((object)v).GetHashCode(),
-                    DateTime (DateTime v) => v),
-                keyComparer: new ValueComparer<DateTime>(
-                    bool (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    int (DateTime v) => ((object)v).GetHashCode(),
-                    DateTime (DateTime v) => v),
-                providerValueComparer: new ValueComparer<DateTime>(
-                    bool (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    int (DateTime v) => ((object)v).GetHashCode(),
-                    DateTime (DateTime v) => v),
-                clrType: typeof(DateTime),
+            elementMapping: InMemoryTypeMapping<DateTime>.Default.Clone(
                 jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
         var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
         valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
@@ -602,37 +425,14 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        valueTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        valueTypeEnumerable.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfValueTypesComparer<List<byte>, byte>(DefaultValueComparer<byte>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                keyComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                clrType: typeof(byte),
+            elementMapping: InMemoryTypeMapping<byte>.Default.Clone(
                 jsonValueReaderWriter: JsonByteReaderWriter.Instance));
         var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
         valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
@@ -670,37 +470,14 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        valueTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
-                bool (byte v1, byte v2) => v1 == v2,
-                int (byte v) => ((int)v),
-                byte (byte v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        valueTypeIList.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfValueTypesComparer<List<byte>, byte>(DefaultValueComparer<byte>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                keyComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                providerValueComparer: new ValueComparer<byte>(
-                    bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)v),
-                    byte (byte v) => v),
-                clrType: typeof(byte),
+            elementMapping: InMemoryTypeMapping<byte>.Default.Clone(
                 jsonValueReaderWriter: JsonByteReaderWriter.Instance));
         var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
         valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
@@ -738,37 +515,14 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        valueTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
-                bool (short v1, short v2) => v1 == v2,
-                int (short v) => ((int)v),
-                short (short v) => v)),
-            keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
-                bool (short v1, short v2) => v1 == v2,
-                int (short v) => ((int)v),
-                short (short v) => v)),
-            providerValueComparer: new ValueComparer<string>(
-                bool (string v1, string v2) => v1 == v2,
-                int (string v) => ((object)v).GetHashCode(),
-                string (string v) => v),
+        valueTypeList.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            comparer: new ListOfValueTypesComparer<List<short>, short>(DefaultValueComparer<short>.Default),
+            providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                 JsonInt16ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<short>(
-                    bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)v),
-                    short (short v) => v),
-                keyComparer: new ValueComparer<short>(
-                    bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)v),
-                    short (short v) => v),
-                providerValueComparer: new ValueComparer<short>(
-                    bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)v),
-                    short (short v) => v),
-                clrType: typeof(short),
+            elementMapping: InMemoryTypeMapping<short>.Default.Clone(
                 jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
         var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
         valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;

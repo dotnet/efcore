@@ -62,20 +62,7 @@ public partial class IndexEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        id.TypeMapping = InMemoryTypeMapping.Default.Clone(
-            comparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            keyComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            providerValueComparer: new ValueComparer<Guid>(
-                bool (Guid v1, Guid v2) => v1 == v2,
-                int (Guid v) => ((object)v).GetHashCode(),
-                Guid (Guid v) => v),
-            clrType: typeof(Guid),
+        id.TypeMapping = InMemoryTypeMapping<Guid>.Default.Clone(
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(id));
 

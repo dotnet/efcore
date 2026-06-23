@@ -369,25 +369,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             context.Attach(owner);
             context.Remove(owner);
 
-            if (Fixture.ForceClientNoAction)
-            {
-                if (async)
-                {
-                    await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
-                }
-                else
-                {
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-                }
-            }
-            else
-            {
-                Assert.Equal(
-                    CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
-                    (async
-                        ? await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())
-                        : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
-            }
+            Assert.Equal(
+                CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
+                (async
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())
+                    : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
         });
 
     [Theory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
@@ -453,30 +439,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 owner.Owned.Remove(owner.Owned.Single());
                 owner.Owned.Add(new NonCompositeOwnedCollection { Foo = "Rome" });
 
-                if (Fixture.ForceClientNoAction)
-                {
-                    await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        _ = async
-                            ? await context.SaveChangesAsync()
-                            : context.SaveChanges());
-                }
-                else
-                {
-                    _ = async
-                        ? await context.SaveChangesAsync()
-                        : context.SaveChanges();
-                }
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
             },
             async context =>
             {
-                if (!Fixture.ForceClientNoAction)
-                {
-                    var owner = async
-                        ? await context.Set<OwnerWithNonCompositeOwnedCollection>().SingleAsync()
-                        : context.Set<OwnerWithNonCompositeOwnedCollection>().Single();
+                var owner = async
+                    ? await context.Set<OwnerWithNonCompositeOwnedCollection>().SingleAsync()
+                    : context.Set<OwnerWithNonCompositeOwnedCollection>().Single();
 
-                    Assert.Equal("Rome", owner.Owned.Single().Foo);
-                }
+                Assert.Equal("Rome", owner.Owned.Single().Foo);
             });
 
     [Theory, InlineData(false), InlineData(true)] // Issue #19856
@@ -563,39 +536,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 context.Attach(owner);
                 context.Remove(owner);
 
-                if (Fixture.ForceClientNoAction)
+                if (async)
                 {
-                    if (async)
-                    {
-                        await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
-                    }
-                    else
-                    {
-                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-                    }
+                    await context.SaveChangesAsync();
                 }
                 else
                 {
-                    if (async)
-                    {
-                        await context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        context.SaveChanges();
-                    }
+                    context.SaveChanges();
                 }
             },
-            async context =>
-            {
-                if (!Fixture.ForceClientNoAction)
-                {
-                    Assert.False(
-                        async
-                            ? await context.Set<OwnerWithKeyedCollection>().AnyAsync()
-                            : context.Set<OwnerWithKeyedCollection>().Any());
-                }
-            });
+            async context => Assert.False(
+                async
+                    ? await context.Set<OwnerWithKeyedCollection>().AnyAsync()
+                    : context.Set<OwnerWithKeyedCollection>().Any()));
 
     [Theory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
      InlineData(false, true, true), InlineData(true, false, false), InlineData(true, false, true), InlineData(true, true, false),

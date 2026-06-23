@@ -66,18 +66,6 @@ public partial class PostEntityType
             relationshipIndex: 0,
             storeGenerationIndex: 0);
         id.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
@@ -98,18 +86,6 @@ public partial class PostEntityType
             relationshipIndex: 1,
             storeGenerationIndex: 1);
         blogId.TypeMapping = IntTypeMapping.Default.Clone(
-            comparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            keyComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
-            providerValueComparer: new ValueComparer<int>(
-                bool (int v1, int v2) => v1 == v2,
-                int (int v) => v,
-                int (int v) => v),
             mappingInfo: new RelationalTypeMappingInfo(
                 storeTypeName: "INTEGER"));
         blogId.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(blogId));

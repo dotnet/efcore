@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosTimeSpanTypeMapping : CosmosTypeMapping
+public class CosmosTimeSpanTypeMapping : CosmosTypeMapping<TimeSpan>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +25,7 @@ public class CosmosTimeSpanTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosTimeSpanTypeMapping() : base(typeof(TimeSpan), null, null, null, CosmosJsonTimeSpanReaderWriter.Instance)
+    public CosmosTimeSpanTypeMapping() : base(jsonValueReaderWriter: CosmosJsonTimeSpanReaderWriter.Instance)
     {
     }
 
