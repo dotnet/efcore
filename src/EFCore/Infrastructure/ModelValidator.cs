@@ -1353,7 +1353,6 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         {
             return;
         }
-        
         var typeMapping = property.GetTypeMapping();
         var actualProviderClrType = (typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType).UnwrapNullableType();
 
