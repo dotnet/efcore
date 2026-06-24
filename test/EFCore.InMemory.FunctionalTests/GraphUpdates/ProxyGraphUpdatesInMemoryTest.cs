@@ -27,6 +27,12 @@ public class ProxyGraphUpdatesInMemoryTest
                 base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming));
 
         // Cascade delete.
+        public override Task Optional_one_to_one_are_orphaned(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
         public override Task Optional_many_to_one_dependents_are_orphaned_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
@@ -37,17 +43,37 @@ public class ProxyGraphUpdatesInMemoryTest
         public override Task Required_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => (!DoesLazyLoading
-                    && DoesChangeTracking
-                    && cascadeDeleteTiming == CascadeTiming.Never
-                    && deleteOrphansTiming != CascadeTiming.OnSaveChanges)
-                || (DoesLazyLoading
-                    && DoesChangeTracking
-                    && cascadeDeleteTiming == CascadeTiming.Never
-                    && deleteOrphansTiming == CascadeTiming.OnSaveChanges)
-                    ? base.Required_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming)
-                    : Assert.ThrowsAnyAsync<Exception>(() =>
-                        base.Required_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming));
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_many_to_one_dependents_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;            
 
         // FK constraint checking.
         [Fact]
@@ -67,62 +93,12 @@ public class ProxyGraphUpdatesInMemoryTest
                 base.Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming));
 
         // Cascade delete.
-        public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => (!DoesLazyLoading
-                    && DoesChangeTracking
-                    && cascadeDeleteTiming == CascadeTiming.Never
-                    && deleteOrphansTiming == CascadeTiming.OnSaveChanges)
-                || (DoesLazyLoading
-                    && DoesChangeTracking
-                    && cascadeDeleteTiming == CascadeTiming.Never
-                    && deleteOrphansTiming == CascadeTiming.Never)
-                    ? base.Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming)
-                    : Assert.ThrowsAnyAsync<Exception>(() =>
-                        base.Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-                            cascadeDeleteTiming, deleteOrphansTiming));
-
-        // Cascade delete.
-        public override Task Required_many_to_one_dependents_are_cascade_deleted_in_store(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => Assert.ThrowsAnyAsync<Exception>(() =>
-                base.Required_many_to_one_dependents_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming));
-
-        // Cascade delete.
         public override Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => Assert.ThrowsAnyAsync<Exception>(() =>
                 base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
                     cascadeDeleteTiming, deleteOrphansTiming));
-
-        // Cascade delete.
-        public override Task Required_non_PK_one_to_one_are_cascade_detached_when_Added(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => DoesLazyLoading
-                && DoesChangeTracking
-                && cascadeDeleteTiming == CascadeTiming.Never
-                && deleteOrphansTiming != CascadeTiming.Immediate
-                    ? base.Required_non_PK_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming)
-                    : Assert.ThrowsAnyAsync<Exception>(() =>
-                        base.Required_non_PK_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming));
-
-        // Cascade delete.
-        public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => DoesLazyLoading
-                && DoesChangeTracking
-                && cascadeDeleteTiming == CascadeTiming.Never
-                && deleteOrphansTiming == CascadeTiming.Never
-                    ? base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-                        cascadeDeleteTiming, deleteOrphansTiming)
-                    : Assert.ThrowsAnyAsync<Exception>(() =>
-                        base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-                            cascadeDeleteTiming, deleteOrphansTiming));
 
         // Cascade delete.
         public override Task Can_attach_full_optional_graph_of_duplicates()
@@ -262,42 +238,6 @@ public class ProxyGraphUpdatesInMemoryTest
 
         protected override bool DoesChangeTracking
             => true;
-
-        // Cascade delete.
-        public override Task Optional_one_to_one_are_orphaned(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => Task.CompletedTask;
-
-        // Cascade delete.
-        public override Task Required_one_to_one_are_cascade_detached_when_Added(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => Task.CompletedTask;
-
-        // Cascade delete.
-        public override Task Required_non_PK_one_to_one_are_cascade_detached_when_Added(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => Task.CompletedTask;
-
-        // Cascade delete.
-        public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => Task.CompletedTask;
-
-        // Cascade delete.
-        public override Task Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => Task.CompletedTask;
-
-        // Cascade delete.
-        public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => Task.CompletedTask;
 
         public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
         {
