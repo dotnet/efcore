@@ -55,8 +55,7 @@ public partial class DependentBaseEntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        principalId.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        principalId.TypeMapping = CosmosTypeMapping<long>.Default;
         principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalId));
 
         var principalAlternateId = runtimeEntityType.AddProperty(
@@ -141,8 +140,7 @@ public partial class DependentBaseEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        id.TypeMapping = CosmosTypeMapping<byte>.Default.Clone(
-            jsonValueReaderWriter: JsonByteReaderWriter.Instance);
+        id.TypeMapping = CosmosTypeMapping<byte>.Default;
         id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
 
         var __id = runtimeEntityType.AddProperty(
@@ -161,8 +159,7 @@ public partial class DependentBaseEntityType
             shadowIndex: 3,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
         var __jObject = runtimeEntityType.AddProperty(

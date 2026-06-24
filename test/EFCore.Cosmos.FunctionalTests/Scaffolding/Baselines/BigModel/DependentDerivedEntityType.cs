@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
@@ -65,8 +64,7 @@ public partial class DependentDerivedEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        data.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        data.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var money = runtimeEntityType.AddProperty(
             "Money",
@@ -85,8 +83,7 @@ public partial class DependentDerivedEntityType
             shadowIndex: 5,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        money.TypeMapping = CosmosTypeMapping<decimal>.Default.Clone(
-            jsonValueReaderWriter: JsonDecimalReaderWriter.Instance);
+        money.TypeMapping = CosmosTypeMapping<decimal>.Default;
 
         return runtimeEntityType;
     }

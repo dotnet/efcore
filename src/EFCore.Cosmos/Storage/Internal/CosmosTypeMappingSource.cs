@@ -281,7 +281,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
         ValueComparer? keyComparer,
         CoreTypeMapping? elementMapping,
         JsonValueReaderWriter? jsonValueReaderWriter)
-        => comparer is null && keyComparer is null && elementMapping is null && jsonValueReaderWriter is null
+        => comparer is null && keyComparer is null && elementMapping is null
+            && (jsonValueReaderWriter is null || ReferenceEquals(jsonValueReaderWriter, CosmosTypeMapping<T>.Default.JsonValueReaderWriter))
             ? CosmosTypeMapping<T>.Default
             : new CosmosTypeMapping<T>(comparer, keyComparer, elementMapping, jsonValueReaderWriter);
 
