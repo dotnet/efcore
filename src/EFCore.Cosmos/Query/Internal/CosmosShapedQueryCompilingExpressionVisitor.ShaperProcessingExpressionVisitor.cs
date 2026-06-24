@@ -211,6 +211,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 processedShaperExpression = Block(shaperBlockVariables, shaperBlockExpressions);
             }
 
+            processedShaperExpression = Block(
+                [_jsonReaderDataParameter],
+                // jsonReaderData = new JsonReaderData(data)
+                Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                processedShaperExpression);
+
             var shaperLambda = Lambda(
                 typeof(Shaper<>).MakeGenericType(shaperExpression.Type),
                 processedShaperExpression,
@@ -395,7 +401,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 tupleVariable
             };
-            var shaperExpressions = new List<Expression>();
+            var shaperExpressions = new List<Expression>()
+            {
+                Assign(tupleVariable, Invoke(materializer, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter))
+            };
 
             // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
             var entityTypeVariable = Field(tupleVariable, MaterializerTupleEntityTypeField(materializer.Body.Type));
@@ -405,7 +414,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var tryGetEntryAssignment = _valueBufferToMaterializerExpressionsMapping[shaper.ValueBufferExpression].TryGetEntryAssignment;
             var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
+            var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
             shaperVariables.Add(entryVariable);
+            shaperVariables.Add(hasNullKeyVariable);
 
             var tryGetEntryPropertyMap = entityType.FindPrimaryKey()!.Properties
                 .ToDictionary<IProperty, IProperty, Expression>(
@@ -901,6 +912,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer];
                         var tryGetEntryAssignment = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer].TryGetEntryAssignment;
                         var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
+                        var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
 
                         var tryGetEntryPropertyMap = nestedEntityType.FindPrimaryKey()!.Properties
                             .ToDictionary<IProperty, IProperty, Expression>(
@@ -940,7 +952,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Call(parentTrackingActionsVariable, parentTrackingActionsVariable.Type.GetMethod(nameof(List<>.Add))!,
                                     Lambda(
                                         Block(
-                                            [entryVariable],
+                                            [entryVariable, hasNullKeyVariable],
                                             [
                                                 tryGetEntryAssignment,
                                                 IfThen(NotEqual(entryVariable, Default(entryVariable.Type)),
