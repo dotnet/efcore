@@ -377,7 +377,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var materializer = StructuralTypeJsonMaterializer(
                 shaper.StructuralType,
                 shaper.Type,
-                shaper.IsNullable);
+                shaper.IsNullable,
+                shaper.ValueBufferExpression);
 
             if (!_isTracking)
             {
@@ -402,22 +403,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return lambda;
         }
 
+        private static readonly Dictionary<Expression, (ParameterExpression InstanceVariable, ParameterExpression? ShadowSnapshotVariable, ParameterExpression TrackingActionsVariable, BinaryExpression TryGetEntryAssignment)>
+            _valueBufferToMaterializerExpressionsMapping = new();
+
         private LambdaExpression StructuralTypeJsonMaterializer(
             ITypeBase structuralType,
             Type clrType,
-            bool nullable)
+            bool nullable,
+            Expression valueBuffer)
         {
             if (_structuralTypeJsonMaterializerLambdaMapping.TryGetValue(structuralType, out var lambda)) // @TODO: We might need to cache per nullable aswell?
             {
                 return lambda;
             }
 
+            // @TODO: Nullable?
+
             var materializerVariables = new List<ParameterExpression>();
             var materializerExpressions = new List<Expression>();
 
             var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
                 structuralType,
-                Default(typeof(ValueBuffer)),
+                valueBuffer,
                 nullable);
 
             var materializerBlock =
@@ -438,7 +445,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 materializerExpressions.Add(discriminatorRead);
 
                 // Replace calls for ValueBufferTryReadValue for the discriminator property
-                materializerBlock = new ValueBufferTryReadValueRewriter(new Dictionary<IProperty, ParameterExpression>
+                materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, ParameterExpression>
                 {
                     { discriminatorProperty, discriminatorValueVariable }
                 }).Rewrite(materializerBlock);
@@ -455,6 +462,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 // @TODO: we want to store these somewhere in a mapping, and also trackingActions...?
 
+                var instanceVariable = materializerBlock.Variables.Single(x => x.Type == structuralType.ClrType);
                 var entryVariable = materializerBlock.Variables.Single(x => x.Type == typeof(InternalEntityEntry));
                 var hasNullKeyVariable = materializerBlock.Variables.Single(x => x.Type == typeof(bool));
 
@@ -469,6 +477,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var readValuesBlock = (BlockExpression)entryNotNullCheck.IfFalse;
 
                 var shadowSnapshotVariable = readValuesBlock.Variables.SingleOrDefault(x => x.Type == typeof(ISnapshot));
+
+                _valueBufferToMaterializerExpressionsMapping[valueBuffer] = (
+                    instanceVariable,
+                    shadowSnapshotVariable,
+                    trackingActions,
+                    entryAssignment);
 
                 materializerBlock = (BlockExpression)Visit(readValuesBlock); // @TODO: Visit here? How do we rewrite correctly?
             }
@@ -518,6 +532,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(body, structuralType)),
                 _ => base.VisitSwitchCase(switchCase)
             };
+
+        private static FieldInfo MaterializerTupleEntityTypeField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item1))!;
+        private static FieldInfo MaterializerTupleInstanceField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item2))!;
+        private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item3))!;
+        private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item4))!;
 
         private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
         {
@@ -602,9 +621,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             Debug.Assert(jsonStructuralTypeVariable.Type.IsAssignableFrom(structuralType.ClrType));
 
             var finalBlockVariables = new List<ParameterExpression>
-                {
-                    managerVariable, tokenTypeVariable,
-                };
+            {
+                managerVariable, tokenTypeVariable,
+            };
 
             finalBlockVariables.AddRange(jsonEntityTypeInitializerBlock.Variables);
 
@@ -641,7 +660,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // - shadow snapshot (if there was one)
             // - entity construction / property assignments
             // - entity instance variable that is returned as end result
-            var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(
+            var propertyAssignmentReplacer = new InstanceFieldAssignmentValueBufferTryReadValueMethodsReplacer(
                 jsonStructuralTypeVariable, propertyAssignmentMap);
 
             if (body.Expressions[0] is BinaryExpression
@@ -718,7 +737,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             // builds a loop that extracts values of JSON properties and assigns them into variables
-            // also injects entity shapers (generated earlier) for child navigations
+            // also creates materializers for child navigations
             // returns the loop expression and mappings for properties (so we know which calls to replace with variables)
             (LoopExpression, Dictionary<IProperty, ParameterExpression>) GenerateJsonPropertyReadLoop(
                 ParameterExpression managerVariable,
@@ -773,15 +792,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 // Go over all structural properties (complex properties and navigations - if we're an (owned) entity), which represent JSON
-                // nested types; generate shapers and fixup to wire the materialized related instance into the parent's property.
-                // Note that we need to build entity shapers and fixup separately; we don't know the order in which data comes, so
+                // nested types; generate materializers and fixup to wire the materialized related instance into the parent's property.
+                // Note that we need to build entity materializers and fixup separately; we don't know the order in which data comes, so
                 // we need to read through everything before we can do fixup safely
                 IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetComplexProperties();
 
-                if (structuralType is IEntityType entityType)
+                if (structuralType is IEntityType et)
                 {
                     nestedStructuralProperties = nestedStructuralProperties.Concat(
-                        entityType.GetNavigations()
+                        et.GetNavigations()
                             .Where(n => n.ForeignKey.IsOwnership
                                      && n == n.ForeignKey.PrincipalToDependent));
                 }
@@ -792,7 +811,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedStructuralProperty is not INavigation ownedNavigation || !ownedNavigation.IsOnDependent,
                         "JSON navigations should always be from principal do dependent");
 
-                    var (relatedStructuralType, inverseNavigation, isStructuralPropertyNullable, jsonPropertyName) = nestedStructuralProperty switch
+                    var (nestedStructuralType, inverseNavigation, isStructuralPropertyNullable, jsonPropertyName) = nestedStructuralProperty switch
                     {
                         INavigation n => ((ITypeBase)n.TargetEntityType, n.Inverse, !n.ForeignKey.IsRequiredDependent, n.TargetEntityType.GetContainingPropertyName()!),
                         IComplexProperty cp => (cp.ComplexType, null, cp.IsNullable, cp.GetJsonPropertyName()),
@@ -800,33 +819,129 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _ => throw new UnreachableException()
                     };
 
-                    var innerMaterializer = StructuralTypeJsonMaterializer(
-                        relatedStructuralType,
-                        nestedStructuralProperty.ClrType,
-                        isStructuralPropertyNullable);
+                    testExpressions.Add(JsonReaderValueTextEquals(managerVariable, jsonPropertyName));
+
+                    var nestedValueBuffer = Default(typeof(ValueBuffer));
+                    var nestedMaterializer = Invoke(
+                        StructuralTypeJsonMaterializer(
+                            nestedStructuralType,
+                            nestedStructuralProperty.ClrType,
+                            isStructuralPropertyNullable,
+                            nestedValueBuffer),
+                        QueryCompilationContext.QueryContextParameter,
+                        _jsonReaderDataParameter);
+
+                    var nestedReadVariables = new List<ParameterExpression>();
+
+                    var nestedReadExpressions = new List<Expression>()
+                    {
+                        Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod),
+                        Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                    };
+
+                    if (_queryStateManager && nestedStructuralType is IEntityType nestedEntityType)
+                    {
+                        //var (entityType, associate, associateShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
+                        //if (associate != default)
+                        //{
+                            //trackingActions.Add(() =>
+                            //{
+                            //    var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id, associate.Id }, false, out var _);
+
+                            //    if (entry != default)
+                            //    {
+                            //        foreach (var nestedTrackingAction in nestedTrackingActions)
+                            //        {
+                            //            nestedTrackingAction();
+                            //        }
+
+                            //        associateShadowSnapshot[0] = instance.Id;
+                            //        queryContext.StartTracking(entityType, associate, associateShadowSnapshot);
+                            //    }
+                            //});
+                        //}
+
+                        var tupleVariable = Variable(nestedMaterializer.Type);
+                        nestedReadVariables.Add(tupleVariable);
+
+                        var nestedEntityTypeVariable = Field(tupleVariable, MaterializerTupleEntityTypeField(nestedMaterializer.Type));
+                        var nestedInstanceVariable = Field(tupleVariable, MaterializerTupleInstanceField(nestedMaterializer.Type));
+                        var nestedShadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(nestedMaterializer.Type));
+                        var nestedTrackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(nestedMaterializer.Type));
+
+                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer];
+                        var tryGetEntryAssignment = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer].TryGetEntryAssignment;
+
+                        var tryGetEntryPropertyMap = nestedEntityType.FindPrimaryKey()!.Properties
+                            .ToDictionary<IProperty, IProperty, Expression>(
+                                p => p,
+                                property =>
+                                {
+                                    // @TODO: Ordinal key?  What about collection shaper?
+
+                                    // Check if the property must come from the parentInstanceVariable or parentShadowSnapshotVariable
+                                    if (property.FindFirstPrincipal() is { } firstPrincipalProperty)
+                                    {
+                                        if (firstPrincipalProperty.IsShadowProperty())
+                                        {
+                                            // parentShadowSnapshotVariable.GetValue<T>(1)
+                                            return Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(firstPrincipalProperty.ClrType), Constant(firstPrincipalProperty.GetShadowIndex()));
+                                        }
+
+                                        return parentInstanceVariable.MakeMemberAccess(firstPrincipalProperty.GetMemberInfo(true, false));
+                                    }
+
+                                    // Otherwise get the value by field from the nestedInstanceVariable or nestedShadowSnapshotVariable
+                                    if (property.IsShadowProperty())
+                                    {
+                                        // nestedShadowSnapshotVariable.GetValue<T>(1)
+                                        return Call(nestedShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()));
+                                    }
+
+                                    return nestedInstanceVariable.MakeMemberAccess(property.GetMemberInfo(true, false));
+                                });
+
+                        var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
+                        tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
+                            .Visit(tryGetEntryAssignment);
+
+                        nestedReadExpressions.AddRange(
+                            Assign(tupleVariable, nestedMaterializer),
+                            IfThen(NotEqual(nestedInstanceVariable, Default(nestedInstanceVariable.Type)),
+                                Call(parentTrackingActionsVariable, parentTrackingActionsVariable.Type.GetMethod(nameof(List<>.Add))!,
+                                    Lambda(
+                                        Block(
+                                            [entryVariable],
+                                            [
+                                                tryGetEntryAssignment,
+                                                IfThen(NotEqual(entryVariable, Default(entryVariable.Type)),
+                                                    Block([
+                                                        ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
+                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(x => x.FindFirstPrincipal()).Where(x => x != null).Select(principalProperty =>
+                                                            Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(principalProperty.ClrType),
+                                                                Constant(principalProperty.GetShadowIndex()),
+                                                                principalProperty.IsShadowProperty()
+                                                                    ? Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(principalProperty.ClrType), Constant(principalProperty.GetShadowIndex()))
+                                                                    : (Expression)parentInstanceVariable.MakeMemberAccess(principalProperty.GetMemberInfo(true, false))))]))])))));
+                    }
+                    else
+                    {
+                        var propertyVariable = Variable(nestedStructuralProperty.ClrType);
+                        finalBlockVariables.Add(propertyVariable);
+                        navigationVariableMap[nestedStructuralProperty] = propertyVariable;
+
+                        nestedReadExpressions.Add(Assign(propertyVariable, nestedMaterializer));
+                    }
 
                     // @TODO: Work with tuple
                     // @TODO: Add fixup and tracking stuff
 
-                    testExpressions.Add(JsonReaderValueTextEquals(managerVariable, jsonPropertyName));
+                    // @TODO: IsCollection
 
-                    var propertyVariable = Variable(nestedStructuralProperty.ClrType);
-                    finalBlockVariables.Add(propertyVariable);
+                    nestedReadExpressions.Add(NewJsonReaderManager());
+                    nestedReadExpressions.Add(Empty());
 
-                    navigationVariableMap[nestedStructuralProperty] = propertyVariable;
-
-                    var moveNext = Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod);
-                    var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
-                    var assignment = Assign(propertyVariable, innerShaperMapElement.Value);
-                    var managerRecreation = NewJsonReaderManager();
-
-                    readExpressions.Add(
-                        Block(
-                            moveNext,
-                            captureState,
-                            assignment,
-                            managerRecreation,
-                            Empty()));
+                    readExpressions.Add(Block(nestedReadVariables, nestedReadExpressions));
                 }
 
                 var switchCases = new List<SwitchCase>();
@@ -871,153 +986,61 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private sealed class ValueBufferTryReadValueMethodsFinder : ExpressionVisitor
+        private static BlockExpression ForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
         {
-            private readonly List<IProperty> _properties;
-            private readonly List<MethodCallExpression> _valueBufferTryReadValueMethods = [];
+            var itemType = list.Type.GetGenericArguments()[0];
 
-            public ValueBufferTryReadValueMethodsFinder(ITypeBase structuralType)
-                => _properties = structuralType.GetProperties().ToList();
+            var listVar = Variable(list.Type, "list");
+            var i = Variable(typeof(int), "i");
+            var count = Variable(typeof(int), "count");
+            var item = Variable(itemType, "item");
 
-            public List<MethodCallExpression> FindValueBufferTryReadValueMethods(Expression expression)
+            var breakLabel = Label("break");
+
+            var countProperty = list.Type.GetProperty(nameof(List<int>.Count))!;
+            var indexerProperty = list.Type.GetProperty("Item")!;
+
+            var body = bodyFactory(item);
+
+            if (body.Type != typeof(void))
             {
-                _valueBufferTryReadValueMethods.Clear();
-
-                Visit(expression);
-
-                return _valueBufferTryReadValueMethods;
+                body = Block(body, Empty());
             }
 
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition()
-                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property
-                    && _properties.Contains(property))
-                {
-                    _valueBufferTryReadValueMethods.Add(methodCallExpression);
-                    _properties.Remove(property);
+            return Block(
+                [listVar, i, count, item],
 
-                    return methodCallExpression;
-                }
+                Assign(listVar, list),
+                Assign(i, Constant(0)),
+                Assign(count, Property(listVar, countProperty)),
 
-                return base.VisitMethodCall(methodCallExpression);
-            }
+                Loop(
+                    IfThenElse(
+                        LessThan(i, count),
+
+                        Block(
+                            Assign(
+                                item,
+                                MakeIndex(
+                                    listVar,
+                                    indexerProperty,
+                                    new[] { i }
+                                )
+                            ),
+
+                            body,
+
+                            PostIncrementAssign(i)
+                        ),
+
+                        Break(breakLabel)
+                    ),
+                    breakLabel
+                )
+            );
         }
 
-        private sealed class ValueBufferTryReadValueMethodsReplacer(
-            Expression instance,
-            Dictionary<IProperty, ParameterExpression> propertyAssignmentMap)
-            : ExpressionVisitor
-        {
-            protected override Expression VisitBinary(BinaryExpression node)
-            {
-                if (node.Right is MethodCallExpression methodCallExpression
-                    && IsPropertyAssignment(methodCallExpression, out var property, out var parameter))
-                {
-                    if (parameter == null)
-                    {
-                        return Empty();
-                    }
-
-                    if (property!.IsPrimitiveCollection
-                        && !property.ClrType.IsArray)
-                    {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                        var genericMethod = StructuralTypeMaterializerSource.PopulateListMethod.MakeGenericMethod(
-                            property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                        var currentVariable = Variable(parameter.Type);
-                        var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
-                            ? (Expression)currentVariable
-                            : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
-                        return Block(
-                            [currentVariable],
-                            MakeMemberAccess(instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
-                                .Assign(currentVariable),
-                            IfThenElse(
-                                OrElse(
-                                    ReferenceEqual(currentVariable, Constant(null)),
-                                    ReferenceEqual(parameter, Constant(null))),
-                                node is { NodeType: ExpressionType.Assign, Left: MemberExpression leftMemberExpression }
-                                    ? leftMemberExpression.Assign(parameter)
-                                    : MakeBinary(node.NodeType, node.Left, parameter),
-                                Call(
-                                    genericMethod,
-                                    parameter,
-                                    convertedVariable)
-                            ));
-                    }
-
-                    var visitedLeft = Visit(node.Left);
-                    return node.NodeType == ExpressionType.Assign
-                        && visitedLeft is MemberExpression memberExpression
-                            ? memberExpression.Assign(parameter!)
-                            : MakeBinary(node.NodeType, visitedLeft, parameter!);
-                }
-
-                return base.VisitBinary(node);
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-                => IsPropertyAssignment(methodCallExpression, out _, out var parameter)
-                    ? parameter ?? Default(methodCallExpression.Type)
-                    : base.VisitMethodCall(methodCallExpression);
-
-            private bool IsPropertyAssignment(
-                MethodCallExpression methodCallExpression,
-                [NotNullWhen(true)] out IProperty? property,
-                out Expression? parameter)
-            {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition()
-                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty prop)
-                {
-                    property = prop;
-                    parameter = propertyAssignmentMap.TryGetValue(prop, out var param) ? param : null;
-                    return true;
-                }
-
-                property = null;
-                parameter = null;
-                return false;
-            }
-        }
-
-        //private BlockExpression Rewrite(BlockExpression materializeExpression)
-        //{
-        //    if (!_queryStateManager)
-        //    {
-        //        return (BlockExpression)Visit(materializeExpression); // @TODO: test...
-        //    }
-
-        //    var variables = new List<ParameterExpression>(materializeExpression.Variables);
-
-        //    var entryVariable = variables.Single(x => x.Type == typeof(InternalEntityEntry));
-        //    var hasNullKeyVariable = variables.Single(x => x.Type == typeof(bool));
-
-        //    variables.Remove(entryVariable);
-        //    variables.Remove(hasNullKeyVariable);
-
-        //    // @TODO: Do we want to store these somewhere?
-        //    var entryAssignment = materializeExpression.Expressions.OfType<BinaryExpression>()
-        //        .Single(x => x.NodeType == ExpressionType.Assign && x.Left == entryVariable);
-        //    var tryGetEntryCall = (MethodCallExpression)entryAssignment.Right;
-
-        //    var hasNullKeyCheck = materializeExpression.Expressions.OfType<ConditionalExpression>()
-        //        .Single(x => x.Test is UnaryExpression { NodeType: ExpressionType.Not } ue && ue.Operand == hasNullKeyVariable);
-        //    var entryNotNullCheck = (ConditionalExpression)hasNullKeyCheck.IfTrue;
-        //    var entryNotNullBlock = (BlockExpression)entryNotNullCheck.IfTrue;
-        //    var readValuesBlock = (BlockExpression)entryNotNullCheck.IfFalse;
-
-        //    var rewrittenReadValuesBlock = (BlockExpression)Visit(readValuesBlock);
-
-        //    return rewrittenReadValuesBlock;
-        //}
-
-        private Expression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
+        private BlockExpression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
         {
             // @TODO: Change serializer to put discriminator first
             // Generate a read loop to get the discriminator
@@ -1134,19 +1157,144 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Utf8JsonReaderValueTextEqualsMethod,
                 StringConstantSpan(text));
 
-
-        private class JsonStructuralTypeMaterializerRewriter(ShaperProcessingExpressionVisitor parentVisitor) : ExpressionVisitor
+        private sealed class ValueBufferTryReadValueMethodsFinder : ExpressionVisitor
         {
-            
+            private readonly List<IProperty> _properties;
+            private readonly List<MethodCallExpression> _valueBufferTryReadValueMethods = [];
+
+            public ValueBufferTryReadValueMethodsFinder(ITypeBase structuralType)
+                => _properties = structuralType.GetProperties().ToList();
+
+            public List<MethodCallExpression> FindValueBufferTryReadValueMethods(Expression expression)
+            {
+                _valueBufferTryReadValueMethods.Clear();
+
+                Visit(expression);
+
+                return _valueBufferTryReadValueMethods;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition()
+                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property
+                    && _properties.Contains(property))
+                {
+                    _valueBufferTryReadValueMethods.Add(methodCallExpression);
+                    _properties.Remove(property);
+
+                    return methodCallExpression;
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
         }
 
+        private sealed class InstanceFieldAssignmentValueBufferTryReadValueMethodsReplacer(
+            Expression instance,
+            Dictionary<IProperty, ParameterExpression> propertyAssignmentMap)
+            : ExpressionVisitor
+        {
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (node.Right is MethodCallExpression methodCallExpression
+                    && IsPropertyAssignment(methodCallExpression, out var property, out var parameter))
+                {
+                    if (parameter == null)
+                    {
+                        return Empty();
+                    }
 
+                    if (property!.IsPrimitiveCollection
+                        && !property.ClrType.IsArray)
+                    {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        var genericMethod = StructuralTypeMaterializerSource.PopulateListMethod.MakeGenericMethod(
+                            property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                        var currentVariable = Variable(parameter.Type);
+                        var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
+                            ? (Expression)currentVariable
+                            : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
+                        return Block(
+                            [currentVariable],
+                            MakeMemberAccess(instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
+                                .Assign(currentVariable),
+                            IfThenElse(
+                                OrElse(
+                                    ReferenceEqual(currentVariable, Constant(null)),
+                                    ReferenceEqual(parameter, Constant(null))),
+                                node is { NodeType: ExpressionType.Assign, Left: MemberExpression leftMemberExpression }
+                                    ? leftMemberExpression.Assign(parameter)
+                                    : MakeBinary(node.NodeType, node.Left, parameter),
+                                Call(
+                                    genericMethod,
+                                    parameter,
+                                    convertedVariable)
+                            ));
+                    }
 
+                    var visitedLeft = Visit(node.Left);
+                    return node.NodeType == ExpressionType.Assign
+                        && visitedLeft is MemberExpression memberExpression
+                            ? memberExpression.Assign(parameter!)
+                            : MakeBinary(node.NodeType, visitedLeft, parameter!);
+                }
 
+                return base.VisitBinary(node);
+            }
 
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+                => IsPropertyAssignment(methodCallExpression, out _, out var parameter)
+                    ? parameter ?? Default(methodCallExpression.Type)
+                    : base.VisitMethodCall(methodCallExpression);
 
+            private bool IsPropertyAssignment(
+                MethodCallExpression methodCallExpression,
+                [NotNullWhen(true)] out IProperty? property,
+                out Expression? parameter)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition()
+                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty prop)
+                {
+                    property = prop;
+                    parameter = propertyAssignmentMap.TryGetValue(prop, out var param) ? param : null;
+                    return true;
+                }
 
+                property = null;
+                parameter = null;
+                return false;
+            }
+        }
 
+        private sealed class ValueBufferTryReadValueMethodsReplacer(Dictionary<IProperty, Expression> mappedProperties) : ExpressionVisitor
+        {
+            public BlockExpression Rewrite(BlockExpression materializerExpression)
+                => (BlockExpression)VisitBlock(materializerExpression);
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                        && methodCallExpression.Method.GetGenericMethodDefinition()
+                        == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                        && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property)
+                {
+                    if (mappedProperties.TryGetValue(property, out var parameter))
+                    {
+                        return methodCallExpression.Type != parameter.Type
+                            ? Convert(parameter, methodCallExpression.Type)
+                            : parameter;
+                    }
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
+        }
 
 
 
@@ -1344,7 +1492,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         [managerVariable, tokenTypeVariable],
                         metadataBlockExpressions));
 
-                structuralTypeShaperMaterializer = new ValueBufferTryReadValueRewriter(propertiesToRead).Rewrite(structuralTypeShaperMaterializer);
+                structuralTypeShaperMaterializer = new ValueBufferTryReadValueMethodsReplacer(propertiesToRead).Rewrite(structuralTypeShaperMaterializer);
 
                 if (isDocumentRoot)
                 {
@@ -1790,30 +1938,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Constant(property.GetIndex())),
                             methodCall.Type)
                     : methodCallExpression;
-        }
-
-        private sealed class ValueBufferTryReadValueRewriter(Dictionary<IProperty, ParameterExpression> mappedProperties) : ExpressionVisitor
-        {
-            public BlockExpression Rewrite(BlockExpression materializerExpression)
-                => (BlockExpression)VisitBlock(materializerExpression);
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.GetGenericMethodDefinition()
-                        == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                        && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property)
-                {
-                    if (mappedProperties.TryGetValue(property, out var parameter))
-                    {
-                        return methodCallExpression.Type != parameter.Type
-                            ? Convert(parameter, methodCallExpression.Type)
-                            : parameter;
-                    }
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
         }
 
         // This is 1-1 copy from relational, except filtering out "" json properties, and using cosmos GetJsonPropertyName instead of relational.
