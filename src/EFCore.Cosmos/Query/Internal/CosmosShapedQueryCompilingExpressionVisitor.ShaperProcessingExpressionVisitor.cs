@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using Newtonsoft.Json;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -225,21 +224,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     var shaperLambda = StructuralTypeJsonShaper(shaper);
 
-                    //var (jsonReaderData, jsonReaderManager, jsonReaderInitializeExpessions) = GenerateJsonReader();
-
-                    //var shapers = CreateJsonShapers(
-                    //    shaper.StructuralType,
-                    //    shaper.Type,
-                    //    shaper.IsNullable,
-                    //    shaper.ValueBufferExpression
-                    //);
-
-                    //Expression jsonMaterializeExpression = Block(
-                    //    [jsonReaderData, jsonReaderManager],
-                    //    [ ..jsonReaderInitializeExpessions,
-                    //        Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                    //        Visit(shapers)]);
-
                     if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // Otherwise this is an inner shaper of a CollectionShaperExpression,
                     {
                         var projection = GetProjection(projectionBindingExpression);
@@ -285,7 +269,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     Expression jsonMaterializeExpression = Call(
                         ReadShapedCollectionMethod.MakeGenericMethod(collectionShaperExpression.ElementType, collectionShaperExpression.Type),
-                        CosmosQueryCompilationContext.QueryContextParameter,
+                        QueryCompilationContext.QueryContextParameter,
                         _dataParameter,
                         Constant(collectionShaperExpression.CollectionCreator),
                         innerShaper);
@@ -305,6 +289,80 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return base.VisitExtension(extensionExpression);
         }
+
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            switch (binaryExpression)
+            {
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
+                    when parameterExpression.Type == typeof(MaterializationContext):
+                {
+                    // Rewrites the materialization context instantiation to use an empty value buffer
+                    // and adds mapping between materialization context parameter and json reader data parameter,
+                    // so when we encounter an expression that tries to read from value buffer we know which json reader data to rewrite the read to instead.
+                    var newExpression = (NewExpression)binaryExpression.Right;
+                    var valueBufferExpression = newExpression.Arguments[0];
+                    _materializationContextToJsonReaderDataMapping[parameterExpression] = _valueBufferToJsonReaderDataMapping[valueBufferExpression];
+
+                    if (_valueBufferToKeyValuesMapping.TryGetValue(valueBufferExpression, out var keyValuesParameter))
+                    {
+                        _jsonMaterializationContextToKeyValuesMapping[parameterExpression] = keyValuesParameter;
+                    }
+
+                    var valueBuffer = Constant(ValueBuffer.Empty);
+                    var updatedExpression = newExpression.Update(
+                    [
+                        valueBuffer,
+                        newExpression.Arguments[1]
+                    ]);
+
+                    return Assign(binaryExpression.Left, updatedExpression);
+                }
+
+                case
+                {
+                    NodeType: ExpressionType.Assign,
+                    Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression
+                }:
+                {
+                    return memberExpression.Assign(Visit(binaryExpression.Right));
+                }
+
+                // we only have mapping between MaterializationContext and JsonReaderData, but we use JsonReaderManager to extract JSON
+                // values so we need to add mapping between JsonReaderData and JsonReaderManager parameter, so we know which parameter to
+                // use when generating actual Get* method
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression jsonReaderManagerParameter }
+                    when jsonReaderManagerParameter.Type == typeof(Utf8JsonReaderManager):
+                {
+                    var jsonReaderDataParameter = (ParameterExpression)((NewExpression)binaryExpression.Right).Arguments[0];
+                    _jsonReaderDataToJsonReaderManagerParameterMapping[jsonReaderDataParameter] = jsonReaderManagerParameter;
+                    break;
+                }
+            }
+
+            return base.VisitBinary(binaryExpression);
+        }
+
+        //protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        //{
+        //    // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+        //    if (methodCallExpression.Method.IsGenericMethod
+        //        && methodCallExpression.Method.GetGenericMethodDefinition()
+        //        == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
+        //    {
+        //        //var materializationContext = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
+        //        //var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
+
+        //        //var jsonReaderData = _materializationContextToJsonReaderDataMapping[materializationContext];
+        //        //var jsonReaderManager = _jsonReaderDataToJsonReaderManagerParameterMapping[jsonReaderData];
+
+        //        //var jsonReadPropertyValueExpression = CreateReadJsonPropertyValueExpression(jsonReaderManager, property);
+
+        //        //return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
+        //    }
+
+        //    return base.VisitMethodCall(methodCallExpression);
+        //}
 
         private LambdaExpression StructuralTypeJsonShaper(StructuralTypeShaperExpression shaper)
         {
@@ -387,18 +445,65 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     { discriminatorProperty, discriminatorValueVariable }
                 }).Rewrite(materializerBlock);
+            } // @TODO: Optimize for only 1 possible value, do check when finding property...
+
+            var requiresTracking = _queryStateManager && structuralType is IEntityType entityType;
+            var trackingActions = Variable(typeof(List<Action>), "trackingActions");
+            if (requiresTracking) // @TODO: How does this work for complex types again?
+            {
+                materializerVariables.Add(trackingActions);
+
+                // We can't do tracking till after the entity is materialized
+                // So we remove the tracking code from the materializer block and store it for later use
+
+                // @TODO: we want to store these somewhere in a mapping, and also trackingActions...?
+
+                var entryVariable = materializerBlock.Variables.Single(x => x.Type == typeof(InternalEntityEntry));
+                var hasNullKeyVariable = materializerBlock.Variables.Single(x => x.Type == typeof(bool));
+
+                var entryAssignment = materializerBlock.Expressions.OfType<BinaryExpression>()
+                    .Single(x => x.NodeType == ExpressionType.Assign && x.Left == entryVariable);
+                var tryGetEntryCall = (MethodCallExpression)entryAssignment.Right;
+
+                var hasNullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>()
+                    .Single(x => x.Test is UnaryExpression { NodeType: ExpressionType.Not } ue && ue.Operand == hasNullKeyVariable);
+                var entryNotNullCheck = (ConditionalExpression)hasNullKeyCheck.IfTrue;
+                var entryNotNullBlock = (BlockExpression)entryNotNullCheck.IfTrue;
+                var readValuesBlock = (BlockExpression)entryNotNullCheck.IfFalse;
+
+                var shadowSnapshotVariable = readValuesBlock.Variables.SingleOrDefault(x => x.Type == typeof(ISnapshot));
+
+                materializerBlock = (BlockExpression)Visit(readValuesBlock); // @TODO: Visit here? How do we rewrite correctly?
             }
+            else
+            {
+                // @TODO: Test if we can just visit the materializer block directly here or if we need some modifications as well.
+                materializerBlock = (BlockExpression)Visit(materializerBlock);
+            }
+
+            materializerVariables.AddRange(materializerBlock.Variables);
+            materializerExpressions.AddRange(materializerBlock.Expressions);
 
             // If tracking, this returns (IEntityType, RootEntity, ISnapshot, List<Action>)
             // Else this only returns RootEntity (clrType)
+            if (requiresTracking)
+            {
+                var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
+                var snapshotVariable = materializerBlock.Variables.Single(x => x.Type == typeof(ISnapshot));
+                var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type == typeof(IEntityType));
 
-            materializerBlock.Update(
-                [..materializerVariables, ..materializerBlock.Variables],
-                [..materializerExpressions, ..materializerBlock.Expressions]
-            );
+                materializerExpressions.Add(
+                    New(
+                        typeof(ValueTuple<,,,>).MakeGenericType(typeof(IEntityType), clrType, typeof(ISnapshot), typeof(List<Action>))
+                            .GetConstructor([typeof(IEntityType), clrType, typeof(ISnapshot), typeof(List<Action>)]),
+                        entityTypeVariable,
+                        instanceVariable,
+                        snapshotVariable,
+                        trackingActions));
+            }
 
             lambda = Lambda(
-                materializerBlock,
+                Block(materializerVariables, materializerExpressions),
                 QueryCompilationContext.QueryContextParameter,
                 _jsonReaderDataParameter);
 
@@ -406,7 +511,517 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return lambda;
         }
-        
+
+        protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
+            => switchCase switch
+            {
+                {
+                    Body: BlockExpression { Expressions.Count: > 0 } body,
+                    TestValues: [ConstantExpression { Value: ITypeBase structuralType }]
+                } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(body, structuralType)),
+                _ => base.VisitSwitchCase(switchCase)
+            };
+
+        private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
+        {
+            // keep track which variable corresponds to which navigation - we need that info for fixup
+            // which happens at the end (after we read everything to guarantee that we can instantiate the entity
+            var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
+
+            var valueBufferTryReadValueMethodsToProcess =
+                new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
+
+            BlockExpression jsonEntityTypeInitializerBlock;
+            //sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
+            switch (body.Expressions[^1])
+            {
+                case UnaryExpression
+                {
+                    Operand: BlockExpression innerBlock,
+                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
+                } jsonEntityTypeInitializerUnary:
+                {
+                    // in case of proxies, the entity initializer block is wrapped around Convert node
+                    // that converts from the proxy type to the actual entity type.
+                    // We normalize that into a block by pushing the convert inside the inner block. Rather than:
+                    //
+                    // return (MyEntity)
+                    // {
+                    //     ProxyEntity instance;
+                    //     (...)
+                    //     return instance;
+                    // }
+                    //
+                    // we produce:
+                    // return
+                    // {
+                    //     ProxyEntity instance;
+                    //     MyEntity actualInstance;
+                    //     (...)
+                    //     actualInstance = (MyEntity)instance;
+                    //     return actualInstance;
+                    // }
+                    var newVariables = innerBlock.Variables.ToList();
+                    var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
+                    newVariables.Add(proxyConversionVariable);
+                    var newExpressions = innerBlock.Expressions.ToList()[..^1];
+                    newExpressions.Add(
+                        Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
+                    newExpressions.Add(proxyConversionVariable);
+                    jsonEntityTypeInitializerBlock = Block(newVariables, newExpressions);
+                    break;
+                }
+
+                case BlockExpression b:
+                    jsonEntityTypeInitializerBlock = b;
+                    break;
+                // case where we don't use block but rather return construction directly, as in:
+                // return new MyEntity(...)
+                //
+                // rather than:
+                // return
+                // {
+                //    MyEntity instance;
+                //    instance = new MyEntity(...)
+                //    (...)
+                // }
+                // we normalize this into block, since we are going to be adding extra statements (i.e. loop extracting JSON
+                // property values) there anyway
+                case NewExpression jsonEntityTypeInitializerCtor:
+                    var newInstanceVariable = Variable(jsonEntityTypeInitializerCtor.Type, "instance");
+                    jsonEntityTypeInitializerBlock = Block(
+                        [newInstanceVariable],
+                        Assign(newInstanceVariable, jsonEntityTypeInitializerCtor),
+                        newInstanceVariable);
+                    break;
+                default:
+                    throw new UnreachableException();
+            }
+
+            var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+            var jsonStructuralTypeVariable = (ParameterExpression)jsonEntityTypeInitializerBlock.Expressions[^1];
+
+            Debug.Assert(jsonStructuralTypeVariable.Type.IsAssignableFrom(structuralType.ClrType));
+
+            var finalBlockVariables = new List<ParameterExpression>
+                {
+                    managerVariable, tokenTypeVariable,
+                };
+
+            finalBlockVariables.AddRange(jsonEntityTypeInitializerBlock.Variables);
+
+            var finalBlockExpressions = new List<Expression>
+                {
+                    // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
+                    Assign(
+                        managerVariable,
+                        New(
+                            JsonReaderManagerConstructor,
+                            jsonReaderDataParameter,
+                            MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                    // tokenType = jsonReaderManager.CurrentReader.TokenType
+                    Assign(
+                        tokenTypeVariable,
+                        Property(
+                            Field(
+                                managerVariable,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty)),
+                };
+
+            var (loop, propertyAssignmentMap) = GenerateJsonPropertyReadLoop(
+                managerVariable,
+                tokenTypeVariable,
+                finalBlockVariables,
+                valueBufferTryReadValueMethodsToProcess);
+
+            finalBlockExpressions.Add(loop);
+
+            var finalCaptureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
+            finalBlockExpressions.Add(finalCaptureState);
+
+            // we have the loop, now we can add code that generate the entity instance
+            // will have to replace ValueBufferTryReadValue method calls with the parameters that store the value
+            // we can't use simple ExpressionReplacingVisitor, because there could be multiple instances of MethodCallExpression for given property
+            // using dedicated mini-visitor that looks for MCEs with a given shape and compare the IProperty inside
+            // order is:
+            // - shadow snapshot (if there was one)
+            // - entity construction / property assignments
+            // - navigation fixups
+            // - entity instance variable that is returned as end result
+            var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(
+                jsonStructuralTypeVariable, propertyAssignmentMap);
+
+            if (body.Expressions[0] is BinaryExpression
+                {
+                    NodeType: ExpressionType.Assign,
+                    Right: UnaryExpression
+                    {
+                        NodeType: ExpressionType.Convert,
+                        Operand: NewExpression
+                    }
+                } shadowSnapshotAssignment
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                && shadowSnapshotAssignment.Type == typeof(ISnapshot))
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            {
+                finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(shadowSnapshotAssignment));
+            }
+
+            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.ToArray()[..^1])
+            {
+                finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(jsonEntityTypeInitializerBlockExpression));
+            }
+
+            // Fixup is only needed for non-tracking queries, in case of tracking (or NoTrackingWithIdentityResolution) - ChangeTracker does the job
+            // or for empty/null collections of a tracking queries.
+            ProcessFixup(queryStateManager ? trackingInnerFixupMap : innerFixupMap);
+
+            finalBlockExpressions.Add(jsonStructuralTypeVariable);
+
+            return Block(
+                finalBlockVariables,
+                finalBlockExpressions);
+
+            void ProcessFixup(IDictionary<IPropertyBase, LambdaExpression> fixupMap)
+            {
+                foreach (var fixup in fixupMap)
+                {
+                    if (!navigationVariableMap.TryGetValue(fixup.Key, out var navigationEntityParameter))
+                    {
+                        // The navigation was not used in this materializer, it might be used by another type.
+                        continue;
+                    }
+
+                    // Inject the fixup code for each property; we have this as a set of lambdas in the fixup map.
+                    // In the normal case, simply Invoke the lambda, passing it the structural type to be fixed up as a parameter.
+                    // This unfortunately doesn't work on value types (where a copy would be mutated), so for them,
+                    // we unwrap the lambda and integrate its body directly.
+                    // We should ideally do this for all cases (no need for the extra lambda Invoke), but there are some issues around us writing
+                    // to readonly fields.
+                    if (jsonStructuralTypeVariable.Type.IsValueType /*&& Nullable.GetUnderlyingType(fixup.Value.Parameters[1].Type) is null*/)
+                    {
+                        // No convert because it is a value type and inheritance is not supported for complex properties / value types.
+                        var fixupBody = ReplacingExpressionVisitor.Replace(
+                            originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
+                            replacements: [jsonStructuralTypeVariable, navigationEntityParameter],
+                            fixup.Value.Body);
+
+                        finalBlockExpressions.Add(fixupBody);
+                    }
+                    else
+                    {
+                        // Need to convert because fixup expects declaring type
+                        var convertedJsonStructuralTypeVariable = Convert(jsonStructuralTypeVariable, fixup.Value.Parameters[0].Type);
+
+                        // If the structural type being fixed up is nullable, then we need to add null checks before we run fixup logic.
+                        // For regular entities, whose fixup is done as part of the "Materialize*" method, the checks are done there
+                        // (the same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables).
+                        // But in this case fixups are standalone, so the null safety must be added here.
+                        finalBlockExpressions.Add(
+                            IfThen(
+                                NotEqual(convertedJsonStructuralTypeVariable, Constant(null, convertedJsonStructuralTypeVariable.Type)),
+                                Invoke(
+                                    fixup.Value,
+                                    convertedJsonStructuralTypeVariable,
+                                    navigationEntityParameter)));
+                    }
+                }
+            }
+
+            // builds a loop that extracts values of JSON properties and assigns them into variables
+            // also injects entity shapers (generated earlier) for child navigations
+            // returns the loop expression and mappings for properties (so we know which calls to replace with variables)
+            (LoopExpression, Dictionary<IProperty, ParameterExpression>) GenerateJsonPropertyReadLoop(
+                ParameterExpression managerVariable,
+                ParameterExpression tokenTypeVariable,
+                List<ParameterExpression> finalBlockVariables,
+                List<MethodCallExpression> valueBufferTryReadValueMethodsToProcess)
+            {
+                var breakLabel = Label("done");
+                var testExpressions = new List<Expression>();
+                var readExpressions = new List<Expression>();
+                var propertyAssignmentMap = new Dictionary<IProperty, ParameterExpression>();
+
+                foreach (var valueBufferTryReadValueMethodToProcess in valueBufferTryReadValueMethodsToProcess)
+                {
+                    var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
+                    var jsonPropertyName = property.GetJsonPropertyName();
+                    if (jsonPropertyName == string.Empty) // non persisted property
+                    {
+                        continue;
+                    }
+                    testExpressions.Add(
+                        Call(
+                            Field(
+                                managerVariable,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderValueTextEqualsMethod,
+                            Convert(
+                                Call(
+                                    ByteArrayAsSpanMethod,
+                                    Constant(Encoding.UTF8.GetBytes(jsonPropertyName))),
+                                typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
+
+                    var propertyVariable = Variable(valueBufferTryReadValueMethodToProcess.Type);
+
+                    finalBlockVariables.Add(propertyVariable);
+
+                    var moveNext = Call(
+                        managerVariable,
+                        Utf8JsonReaderManagerMoveNextMethod);
+
+                    var assignment = Assign(
+                        propertyVariable,
+                        valueBufferTryReadValueMethodToProcess);
+
+                    readExpressions.Add(
+                        Block(
+                            moveNext,
+                            assignment,
+                            Empty()));
+
+                    propertyAssignmentMap[property] = propertyVariable;
+                }
+
+                foreach (var innerShaperMapElement in innerShapersMap)
+                {
+                    if (!innerShaperMapElement.Key.DeclaringType.IsAssignableFrom(structuralType))
+                    {
+                        continue;
+                    }
+
+                    var propertyName = innerShaperMapElement.Key switch
+                    {
+                        IComplexProperty complexProperty => complexProperty.GetJsonPropertyName(),
+                        INavigation navigation => navigation.TargetEntityType.GetContainingPropertyName()!,
+                        _ => throw new UnreachableException()
+                    };
+                    testExpressions.Add(
+                        Call(
+                            Field(
+                                managerVariable,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderValueTextEqualsMethod,
+                            Convert(
+                                Call(
+                                    ByteArrayAsSpanMethod,
+                                    Constant(Encoding.UTF8.GetBytes(propertyName))),
+                                typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
+
+                    var propertyVariable = Variable(innerShaperMapElement.Value.Type);
+                    finalBlockVariables.Add(propertyVariable);
+
+                    navigationVariableMap[innerShaperMapElement.Key] = propertyVariable;
+
+                    var moveNext = Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod);
+                    var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
+                    var assignment = Assign(propertyVariable, innerShaperMapElement.Value);
+                    var managerRecreation = Assign(
+                        managerVariable,
+                        New(
+                            JsonReaderManagerConstructor,
+                            jsonReaderDataParameter,
+                            MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty)));
+
+                    readExpressions.Add(
+                        Block(
+                            moveNext,
+                            captureState,
+                            assignment,
+                            managerRecreation,
+                            Empty()));
+                }
+
+                var switchCases = new List<SwitchCase>();
+                var testsCount = testExpressions.Count;
+
+                // generate PropertyName switch-case code
+                if (testsCount > 0)
+                {
+                    var testExpression = IfThen(
+                        testExpressions[testsCount - 1],
+                        readExpressions[testsCount - 1]);
+
+                    for (var i = testsCount - 2; i >= 0; i--)
+                    {
+                        testExpression = IfThenElse(
+                            testExpressions[i],
+                            readExpressions[i],
+                            testExpression);
+                    }
+
+                    switchCases.Add(
+                        SwitchCase(
+                            testExpression,
+                            Constant(JsonTokenType.PropertyName)));
+                }
+
+                switchCases.Add(
+                    SwitchCase(
+                        Break(breakLabel),
+                        Constant(JsonTokenType.EndObject)));
+
+                var loopBody = Block(
+                    Assign(tokenTypeVariable, Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                    Switch(
+                        tokenTypeVariable,
+                        Block(
+                            Call(managerVariable, Utf8JsonReaderManagerSkipMethod),
+                            Default(typeof(void))),
+                        switchCases.ToArray()));
+
+                return (Loop(loopBody, breakLabel), propertyAssignmentMap);
+            }
+        }
+
+        private sealed class ValueBufferTryReadValueMethodsFinder : ExpressionVisitor
+        {
+            private readonly List<IProperty> _properties;
+            private readonly List<MethodCallExpression> _valueBufferTryReadValueMethods = [];
+
+            public ValueBufferTryReadValueMethodsFinder(ITypeBase structuralType)
+                => _properties = structuralType.GetProperties().ToList();
+
+            public List<MethodCallExpression> FindValueBufferTryReadValueMethods(Expression expression)
+            {
+                _valueBufferTryReadValueMethods.Clear();
+
+                Visit(expression);
+
+                return _valueBufferTryReadValueMethods;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition()
+                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property
+                    && _properties.Contains(property))
+                {
+                    _valueBufferTryReadValueMethods.Add(methodCallExpression);
+                    _properties.Remove(property);
+
+                    return methodCallExpression;
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
+        }
+
+        private sealed class ValueBufferTryReadValueMethodsReplacer(
+            Expression instance,
+            Dictionary<IProperty, ParameterExpression> propertyAssignmentMap)
+            : ExpressionVisitor
+        {
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (node.Right is MethodCallExpression methodCallExpression
+                    && IsPropertyAssignment(methodCallExpression, out var property, out var parameter))
+                {
+                    if (parameter == null)
+                    {
+                        return Empty();
+                    }
+
+                    if (property!.IsPrimitiveCollection
+                        && !property.ClrType.IsArray)
+                    {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        var genericMethod = StructuralTypeMaterializerSource.PopulateListMethod.MakeGenericMethod(
+                            property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                        var currentVariable = Variable(parameter.Type);
+                        var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
+                            ? (Expression)currentVariable
+                            : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
+                        return Block(
+                            [currentVariable],
+                            MakeMemberAccess(instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
+                                .Assign(currentVariable),
+                            IfThenElse(
+                                OrElse(
+                                    ReferenceEqual(currentVariable, Constant(null)),
+                                    ReferenceEqual(parameter, Constant(null))),
+                                node is { NodeType: ExpressionType.Assign, Left: MemberExpression leftMemberExpression }
+                                    ? leftMemberExpression.Assign(parameter)
+                                    : MakeBinary(node.NodeType, node.Left, parameter),
+                                Call(
+                                    genericMethod,
+                                    parameter,
+                                    convertedVariable)
+                            ));
+                    }
+
+                    var visitedLeft = Visit(node.Left);
+                    return node.NodeType == ExpressionType.Assign
+                        && visitedLeft is MemberExpression memberExpression
+                            ? memberExpression.Assign(parameter!)
+                            : MakeBinary(node.NodeType, visitedLeft, parameter!);
+                }
+
+                return base.VisitBinary(node);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+                => IsPropertyAssignment(methodCallExpression, out _, out var parameter)
+                    ? parameter ?? Default(methodCallExpression.Type)
+                    : base.VisitMethodCall(methodCallExpression);
+
+            private bool IsPropertyAssignment(
+                MethodCallExpression methodCallExpression,
+                [NotNullWhen(true)] out IProperty? property,
+                out Expression? parameter)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition()
+                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty prop)
+                {
+                    property = prop;
+                    parameter = propertyAssignmentMap.TryGetValue(prop, out var param) ? param : null;
+                    return true;
+                }
+
+                property = null;
+                parameter = null;
+                return false;
+            }
+        }
+
+        //private BlockExpression Rewrite(BlockExpression materializeExpression)
+        //{
+        //    if (!_queryStateManager)
+        //    {
+        //        return (BlockExpression)Visit(materializeExpression); // @TODO: test...
+        //    }
+
+        //    var variables = new List<ParameterExpression>(materializeExpression.Variables);
+
+        //    var entryVariable = variables.Single(x => x.Type == typeof(InternalEntityEntry));
+        //    var hasNullKeyVariable = variables.Single(x => x.Type == typeof(bool));
+
+        //    variables.Remove(entryVariable);
+        //    variables.Remove(hasNullKeyVariable);
+
+        //    // @TODO: Do we want to store these somewhere?
+        //    var entryAssignment = materializeExpression.Expressions.OfType<BinaryExpression>()
+        //        .Single(x => x.NodeType == ExpressionType.Assign && x.Left == entryVariable);
+        //    var tryGetEntryCall = (MethodCallExpression)entryAssignment.Right;
+
+        //    var hasNullKeyCheck = materializeExpression.Expressions.OfType<ConditionalExpression>()
+        //        .Single(x => x.Test is UnaryExpression { NodeType: ExpressionType.Not } ue && ue.Operand == hasNullKeyVariable);
+        //    var entryNotNullCheck = (ConditionalExpression)hasNullKeyCheck.IfTrue;
+        //    var entryNotNullBlock = (BlockExpression)entryNotNullCheck.IfTrue;
+        //    var readValuesBlock = (BlockExpression)entryNotNullCheck.IfFalse;
+
+        //    var rewrittenReadValuesBlock = (BlockExpression)Visit(readValuesBlock);
+
+        //    return rewrittenReadValuesBlock;
+        //}
+
         private (Expression, ParameterExpression) ReadDiscriminator(ITypeBase structuralType, ParameterExpression jsonReaderMangagerVariable, IProperty discriminatorProperty)
         {
             // @TODO: Change serializer to put discriminator first
@@ -510,10 +1125,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static MemberExpression StringConstantSpan(string value)
             => Property(Constant((ReadOnlyMemory<byte>)Encoding.UTF8.GetBytes(value)), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!);
 
+        private static Expression ConvertIfNotMatch(Expression expression, Type targetType)
+            => expression.Type != targetType
+                ? Convert(expression, targetType)
+                : expression;
+
         private static Expression CheckMakeNullableValueType(Expression expression)
-                        => expression.Type.IsValueType && !expression.Type.IsNullableValueType()
-                            ? Convert(expression, expression.Type.MakeNullable())
-                            : expression;
+            => expression.Type.IsValueType && !expression.Type.IsNullableValueType()
+                ? Convert(expression, expression.Type.MakeNullable())
+                : expression;
 
         private static MethodCallExpression JsonReaderValueTextEquals(ParameterExpression jsonReaderManagerVariable, string text)
             => Call(
@@ -523,10 +1143,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Utf8JsonReaderValueTextEqualsMethod,
                 StringConstantSpan(text));
 
-        private class StructuralTypeMaterializerJsonDeserializerRewriter : ExpressionVisitor
+
+        private class JsonStructuralTypeMaterializerRewriter(ShaperProcessingExpressionVisitor parentVisitor) : ExpressionVisitor
         {
             
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         private (ParameterExpression jsonReaderData, ParameterExpression jsonReaderManager, Expression[] jsonReaderInitializeExpessions) GenerateJsonReader()
@@ -1008,85 +1645,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 ReplacingExpressionVisitor.Replace(data, dataSubset, materializeExpression));
         } // @TODO: We could do this in a switch read loop aswell..
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
-        {
-            switch (binaryExpression)
-            {
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
-                    when parameterExpression.Type == typeof(MaterializationContext):
-                {
-                    // Rewrites the materialization context instantiation to use an empty value buffer
-                    // and adds mapping between materialization context parameter and json reader data parameter,
-                    // so when we encounter an expression that tries to read from value buffer we know which json reader data to rewrite the read to instead.
-                    var newExpression = (NewExpression)binaryExpression.Right;
-                    var valueBufferExpression = newExpression.Arguments[0];
-                    _materializationContextToJsonReaderDataMapping[parameterExpression] = _valueBufferToJsonReaderDataMapping[valueBufferExpression];
-
-                    if (_valueBufferToKeyValuesMapping.TryGetValue(valueBufferExpression, out var keyValuesParameter))
-                    {
-                        _jsonMaterializationContextToKeyValuesMapping[parameterExpression] = keyValuesParameter;
-                    }
-
-                    var valueBuffer = Constant(ValueBuffer.Empty);
-                    var updatedExpression = newExpression.Update(
-                    [
-                        valueBuffer,
-                        newExpression.Arguments[1]
-                    ]);
-
-                    return Assign(binaryExpression.Left, updatedExpression);
-                }
-
-                case
-                {
-                    NodeType: ExpressionType.Assign,
-                    Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression
-                }:
-                {
-                    return memberExpression.Assign(Visit(binaryExpression.Right));
-                }
-
-                // we only have mapping between MaterializationContext and JsonReaderData, but we use JsonReaderManager to extract JSON
-                // values so we need to add mapping between JsonReaderData and JsonReaderManager parameter, so we know which parameter to
-                // use when generating actual Get* method
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression jsonReaderManagerParameter }
-                    when jsonReaderManagerParameter.Type == typeof(Utf8JsonReaderManager):
-                {
-                    var jsonReaderDataParameter = (ParameterExpression)((NewExpression)binaryExpression.Right).Arguments[0];
-                    _jsonReaderDataToJsonReaderManagerParameterMapping[jsonReaderDataParameter] = jsonReaderManagerParameter;
-                    break;
-                }
-            }
-
-            return base.VisitBinary(binaryExpression);
-        }
-
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-        {
-            // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-            if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition()
-                == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
-            {
-                var materializationContext = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
-                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
-
-                var jsonReaderData = _materializationContextToJsonReaderDataMapping[materializationContext];
-                var jsonReaderManager = _jsonReaderDataToJsonReaderManagerParameterMapping[jsonReaderData];
-
-                var jsonReadPropertyValueExpression = CreateReadJsonPropertyValueExpression(jsonReaderManager, property);
-
-                return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
-            }
-
-            return base.VisitMethodCall(methodCallExpression);
-        }
-
-        private static Expression ConvertIfNotMatch(Expression expression, Type targetType)
-            => expression.Type != targetType
-                ? Convert(expression, targetType)
-                : expression;
-
         private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
         {
             var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
@@ -1269,6 +1827,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         // This is 1-1 copy from relational, except filtering out "" json properties, and using cosmos GetJsonPropertyName instead of relational.
         // And also: Allow inheritance @TODO: Improve
+
+
         private sealed class JsonEntityMaterializerRewriter(
             ITypeBase structuralBaseType,
             bool queryStateManager,
