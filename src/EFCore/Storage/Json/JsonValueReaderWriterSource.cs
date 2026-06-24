@@ -77,7 +77,9 @@ public class JsonValueReaderWriterSource : IJsonValueReaderWriterSource
     /// <inheritdoc />
     [RequiresDynamicCode("This method uses reflection to invoke the generic FindReaderWriter<T> method.")]
     public virtual JsonValueReaderWriter? FindReaderWriter(Type type)
-        => (JsonValueReaderWriter?)FindReaderWriterMethod
-            .MakeGenericMethod(type)
-            .Invoke(null, null);
+        => type.ContainsGenericParameters
+            ? null
+            : (JsonValueReaderWriter?)FindReaderWriterMethod
+                .MakeGenericMethod(type)
+                .Invoke(null, null);
 }
