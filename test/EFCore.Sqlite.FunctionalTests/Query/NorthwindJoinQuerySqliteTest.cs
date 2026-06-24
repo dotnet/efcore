@@ -94,6 +94,24 @@ INNER JOIN (SELECT @p1 AS "Value") AS "p" ON "e"."EmployeeID" = unicode("p"."Val
             ss => from e in ss.Set<Employee>()
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID);
+
+        AssertSql(
+            """
+@p1='1'
+@p2='2'
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value" UNION ALL VALUES (@p2)) AS "p" ON "e"."EmployeeID" = "p"."Value"
+""",
+            //
+            """
+@p1='3'
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value") AS "p" ON "e"."EmployeeID" = "p"."Value"
+""");
     }
 
     private void AssertSql(params string[] expected)

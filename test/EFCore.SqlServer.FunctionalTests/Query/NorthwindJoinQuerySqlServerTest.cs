@@ -1093,6 +1093,24 @@ INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value]
             ss => from e in ss.Set<Employee>()
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID);
+
+        AssertSql(
+            """
+@p1='1' (Size = 1)
+@p2='2' (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1), (@p2)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""",
+            //
+            """
+@p1='3' (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""");
     }
 
     public override async Task GroupJoin_customers_employees_shadow(bool async)

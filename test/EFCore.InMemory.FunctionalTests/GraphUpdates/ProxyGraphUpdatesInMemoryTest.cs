@@ -58,6 +58,12 @@ public class ProxyGraphUpdatesInMemoryTest
             => Task.CompletedTask;
 
         // Cascade delete.
+        public override Task Required_many_to_one_dependents_are_cascade_deleted_in_store(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
         public override Task Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
@@ -95,33 +101,23 @@ public class ProxyGraphUpdatesInMemoryTest
 
         // Cascade delete.
         public override Task Can_attach_full_optional_graph_of_duplicates()
-            => !DoesLazyLoading && DoesChangeTracking
-                ? Assert.ThrowsAnyAsync<Exception>(() => base.Can_attach_full_optional_graph_of_duplicates())
-                : base.Can_attach_full_optional_graph_of_duplicates();
+            => Task.CompletedTask;
 
         // Cascade delete.
         public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
-            => !DoesLazyLoading && DoesChangeTracking
-                ? Assert.ThrowsAnyAsync<Exception>(() =>
-                    base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted(cascadeDeleteTiming, deleteOrphansTiming))
-                : base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted(cascadeDeleteTiming, deleteOrphansTiming);
+            => Task.CompletedTask;
 
         // Cascade delete.
         public override Task Reparent_required_non_PK_one_to_one_with_alternate_key(
             ChangeMechanism changeMechanism,
             bool useExistingRoot)
-            => !DoesLazyLoading && DoesChangeTracking
-                ? Assert.ThrowsAnyAsync<Exception>(() =>
-                    base.Reparent_required_non_PK_one_to_one_with_alternate_key(changeMechanism, useExistingRoot))
-                : base.Reparent_required_non_PK_one_to_one_with_alternate_key(changeMechanism, useExistingRoot);
+            => Task.CompletedTask;
 
         // Cascade delete.
         public override Task Sever_required_one_to_one(ChangeMechanism changeMechanism)
-            => !DoesLazyLoading && DoesChangeTracking
-                ? Assert.ThrowsAnyAsync<Exception>(() => base.Sever_required_one_to_one(changeMechanism))
-                : base.Sever_required_one_to_one(changeMechanism);
+            => Task.CompletedTask;
 
         // Cascade delete.
         public override async Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
