@@ -302,6 +302,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
             if (columnInfo.Name != otherColumnInfo.Name
                 || !columnInfo.TypeMapping.Equals(otherColumnInfo.TypeMapping)
+                || columnInfo.AsJson != otherColumnInfo.AsJson
                 || columnInfo.Path is null != otherColumnInfo.Path is null
                 || (columnInfo.Path is not null
                     && otherColumnInfo.Path is not null
@@ -316,7 +317,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Json, Path?.Count ?? 0, ColumnInfos?.Count ?? 0);
+        => HashCode.Combine(base.GetHashCode(), ColumnInfos?.Count ?? 0);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
