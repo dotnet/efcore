@@ -40,6 +40,12 @@ public class ProxyGraphUpdatesInMemoryTest
                 base.Optional_many_to_one_dependents_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming));
 
         // Cascade delete.
+        public override Task Optional_many_to_one_dependents_are_orphaned_starting_detached(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
         public override Task Required_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
@@ -53,6 +59,12 @@ public class ProxyGraphUpdatesInMemoryTest
 
         // Cascade delete.
         public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_starting_detached(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => Task.CompletedTask;
