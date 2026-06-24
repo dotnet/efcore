@@ -263,6 +263,42 @@ public class ProxyGraphUpdatesInMemoryTest
         protected override bool DoesChangeTracking
             => true;
 
+        // Cascade delete.
+        public override Task Optional_one_to_one_are_orphaned(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
         public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
         {
             protected override string StoreName
