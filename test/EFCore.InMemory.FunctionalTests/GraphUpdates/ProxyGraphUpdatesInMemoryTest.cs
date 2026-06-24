@@ -107,15 +107,6 @@ public class ProxyGraphUpdatesInMemoryTest
                 : base.Can_attach_full_optional_graph_of_duplicates();
 
         // Cascade delete.
-        public override Task Optional_one_to_one_are_orphaned(
-            CascadeTiming cascadeDeleteTiming,
-            CascadeTiming deleteOrphansTiming)
-            => DoesLazyLoading && DoesChangeTracking
-                ? Assert.ThrowsAnyAsync<Exception>(() =>
-                    base.Optional_one_to_one_are_orphaned(cascadeDeleteTiming, deleteOrphansTiming))
-                : base.Optional_one_to_one_are_orphaned(cascadeDeleteTiming, deleteOrphansTiming);
-
-        // Cascade delete.
         public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
