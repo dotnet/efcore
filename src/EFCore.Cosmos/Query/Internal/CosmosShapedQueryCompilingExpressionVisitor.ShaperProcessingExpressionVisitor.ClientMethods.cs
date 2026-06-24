@@ -171,7 +171,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             QueryContext queryContext,
             ReadOnlyMemory<byte> data,
             Func<object> creator,
-            Func<QueryContext, ReadOnlyMemory<byte>, TElement> shaper)
+            Shaper<TElement> shaper)
         {
             // TODO: throw a better exception for non ICollection navigations
             var collection = (ICollection<TElement>)creator();
@@ -207,7 +207,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         public static bool TryMaterializeNextJsonCollectionItem<T>(
             QueryContext queryContext,
             ReadOnlyMemory<byte> data,
-            Func<QueryContext, ReadOnlyMemory<byte>, T> shaper,
+            Shaper<T> shaper,
             out int bytesConsumed,
             [NotNullWhen(true)] out T? result)
         {
@@ -224,25 +224,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             bytesConsumed = startLength - data.Length;
 
-            result = shaper(queryContext, data)!;
+            result = shaper(queryContext, data, out var bytesConsumedShaper)!;
 
-            // @TODO: Get BytesConsumed from shaper instead
-            var reader = new Utf8JsonReader(data.Span);
-            reader.Read();
-            // This could be a scalar or a structural type, if it is an object, we need to move past it.
-            if (reader.TokenType is JsonTokenType.StartObject or JsonTokenType.StartArray)
-            {
-                reader.Read();
-                while (reader.TokenType is not JsonTokenType.EndObject and not JsonTokenType.EndArray)
-                {
-                    reader.Skip();
-                    reader.Read();
-                }
-            }
-
-            startLength = data.Length;
-            data = data.Slice((int)reader.BytesConsumed).TrimStart(WhiteSpaceBytes);
-            bytesConsumed += startLength - data.Length;
+            data = data.Slice(bytesConsumedShaper).TrimStart(WhiteSpaceBytes);
+            bytesConsumed += bytesConsumedShaper;
 
             if (data.Span[0] == NextArrayItemByte)
             {

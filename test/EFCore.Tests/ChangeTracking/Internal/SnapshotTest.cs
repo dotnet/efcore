@@ -8,7 +8,7 @@ public class SnapshotTest
     [ConditionalFact]
     public void SetValue_sets_value()
     {
-        ISnapshot snapshot = new Snapshot<int, string>(1, "A");
+        var snapshot = new Snapshot<int, string>(1, "A");
 
         snapshot.SetValue(0, 2);
         snapshot.SetValue(1, "B");
@@ -20,7 +20,7 @@ public class SnapshotTest
     [ConditionalFact]
     public void SetValue_sets_value_on_multi_snapshot()
     {
-        ISnapshot snapshot = new MultiSnapshot(
+        var snapshot = new MultiSnapshot(
             [
                 new Snapshot<int>(1),
                 new Snapshot<string>("A")

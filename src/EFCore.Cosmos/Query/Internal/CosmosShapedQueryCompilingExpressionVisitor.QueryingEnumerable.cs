@@ -22,7 +22,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
+        private readonly Shaper<T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly string _cosmosContainer;
@@ -36,7 +36,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> shaper,
+            Shaper<T> shaper,
             Type contextType,
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
@@ -102,7 +102,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
+            private readonly Shaper<T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
@@ -200,7 +200,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
                             _cosmosQueryContext, _data.Value,
-                            (Func<QueryContext, ReadOnlyMemory<byte>, T>)_shaper,
+                            _shaper,
                             out var bytesConsumed, out _current))
                     {
                         _data = null;

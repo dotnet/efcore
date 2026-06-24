@@ -4,7 +4,6 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -22,7 +21,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
-    private delegate T Shaper<T>(CosmosQueryContext queryContext, ReadOnlyMemory<byte> data, ref int bytesConsumed);
+    private delegate T Shaper<T>(QueryContext queryContext, ReadOnlyMemory<byte> data, out int bytesConsumed);
 
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
