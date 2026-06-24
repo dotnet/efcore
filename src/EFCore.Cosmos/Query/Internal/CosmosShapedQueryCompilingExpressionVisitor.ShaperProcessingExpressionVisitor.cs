@@ -2,13 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -374,8 +377,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var materializer = StructuralTypeJsonMaterializer(
                 shaper.StructuralType,
                 shaper.Type,
-                shaper.IsNullable,
-                shaper.ValueBufferExpression);
+                shaper.IsNullable);
 
             if (!_isTracking)
             {
@@ -383,7 +385,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // We can return the materializer directly as the shaper, since we don't need to read any metadata properties from the document.
                 return materializer;
             }
-
 
             var shaperVariables = new List<ParameterExpression>();
             var shaperExpressions = new List<Expression>();
@@ -404,27 +405,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private LambdaExpression StructuralTypeJsonMaterializer(
             ITypeBase structuralType,
             Type clrType,
-            bool nullable,
-            Expression valueBufferExpression)
+            bool nullable)
         {
             if (_structuralTypeJsonMaterializerLambdaMapping.TryGetValue(structuralType, out var lambda)) // @TODO: We might need to cache per nullable aswell?
             {
                 return lambda;
             }
 
-            var jsonReaderMangagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
-            var materializerVariables = new List<ParameterExpression>()
-            {
-                jsonReaderMangagerVariable
-            };
-            var materializerExpressions = new List<Expression>()
-            {
-                Assign(jsonReaderMangagerVariable, NewJsonReaderManager()),
-            };
+            var materializerVariables = new List<ParameterExpression>();
+            var materializerExpressions = new List<Expression>();
 
             var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
                 structuralType,
-                valueBufferExpression,
+                Default(typeof(ValueBuffer)),
                 nullable);
 
             var materializerBlock =
@@ -433,19 +426,23 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
-                // We have to read the json document to find the discriminator value before we can know how to deserialize the document.
-                var (discriminatorReadLoopExpression, discriminatorValueVariable) = ReadDiscriminator(structuralType, jsonReaderMangagerVariable, discriminatorProperty);
+                // @TODO: Optimize for only 1 possible value, do check when finding property instead of scanning document.
+                //if (structuralType.GetDerivedTypesInclusive().Count() == 1)
+                //{
+                //}
 
+                // We have to read the json document to find the discriminator value before we can know how to deserialize the document.
+                var discriminatorValueVariable = Variable(discriminatorProperty.ClrType.MakeNullable(), "discriminatorValue"); // Not a local variable, but defined by the parent block.
                 materializerVariables.Add(discriminatorValueVariable);
-                materializerExpressions.Add(discriminatorReadLoopExpression);
-                materializerExpressions.Add(Assign(jsonReaderMangagerVariable, NewJsonReaderManager())); // Start reading from the beginning for the actual materializer block.
+                var discriminatorRead = ReadDiscriminator(structuralType, discriminatorProperty, discriminatorValueVariable);
+                materializerExpressions.Add(discriminatorRead);
 
                 // Replace calls for ValueBufferTryReadValue for the discriminator property
                 materializerBlock = new ValueBufferTryReadValueRewriter(new Dictionary<IProperty, ParameterExpression>
                 {
                     { discriminatorProperty, discriminatorValueVariable }
                 }).Rewrite(materializerBlock);
-            } // @TODO: Optimize for only 1 possible value, do check when finding property...
+            }
 
             var requiresTracking = _queryStateManager && structuralType is IEntityType entityType;
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
@@ -614,12 +611,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var finalBlockExpressions = new List<Expression>
                 {
                     // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
-                    Assign(
-                        managerVariable,
-                        New(
-                            JsonReaderManagerConstructor,
-                            jsonReaderDataParameter,
-                            MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                    Assign(managerVariable, NewJsonReaderManager()),
                     // tokenType = jsonReaderManager.CurrentReader.TokenType
                     Assign(
                         tokenTypeVariable,
@@ -648,7 +640,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // order is:
             // - shadow snapshot (if there was one)
             // - entity construction / property assignments
-            // - navigation fixups
             // - entity instance variable that is returned as end result
             var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(
                 jsonStructuralTypeVariable, propertyAssignmentMap);
@@ -673,10 +664,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(jsonEntityTypeInitializerBlockExpression));
             }
-
-            // Fixup is only needed for non-tracking queries, in case of tracking (or NoTrackingWithIdentityResolution) - ChangeTracker does the job
-            // or for empty/null collections of a tracking queries.
-            ProcessFixup(queryStateManager ? trackingInnerFixupMap : innerFixupMap);
 
             finalBlockExpressions.Add(jsonStructuralTypeVariable);
 
@@ -785,45 +772,53 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     propertyAssignmentMap[property] = propertyVariable;
                 }
 
-                foreach (var innerShaperMapElement in innerShapersMap)
-                {
-                    if (!innerShaperMapElement.Key.DeclaringType.IsAssignableFrom(structuralType))
-                    {
-                        continue;
-                    }
+                // Go over all structural properties (complex properties and navigations - if we're an (owned) entity), which represent JSON
+                // nested types; generate shapers and fixup to wire the materialized related instance into the parent's property.
+                // Note that we need to build entity shapers and fixup separately; we don't know the order in which data comes, so
+                // we need to read through everything before we can do fixup safely
+                IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetComplexProperties();
 
-                    var propertyName = innerShaperMapElement.Key switch
+                if (structuralType is IEntityType entityType)
+                {
+                    nestedStructuralProperties = nestedStructuralProperties.Concat(
+                        entityType.GetNavigations()
+                            .Where(n => n.ForeignKey.IsOwnership
+                                     && n == n.ForeignKey.PrincipalToDependent));
+                }
+
+                foreach (var nestedStructuralProperty in nestedStructuralProperties)
+                {
+                    Check.DebugAssert(
+                        nestedStructuralProperty is not INavigation ownedNavigation || !ownedNavigation.IsOnDependent,
+                        "JSON navigations should always be from principal do dependent");
+
+                    var (relatedStructuralType, inverseNavigation, isStructuralPropertyNullable, jsonPropertyName) = nestedStructuralProperty switch
                     {
-                        IComplexProperty complexProperty => complexProperty.GetJsonPropertyName(),
-                        INavigation navigation => navigation.TargetEntityType.GetContainingPropertyName()!,
+                        INavigation n => ((ITypeBase)n.TargetEntityType, n.Inverse, !n.ForeignKey.IsRequiredDependent, n.TargetEntityType.GetContainingPropertyName()!),
+                        IComplexProperty cp => (cp.ComplexType, null, cp.IsNullable, cp.GetJsonPropertyName()),
+
                         _ => throw new UnreachableException()
                     };
-                    testExpressions.Add(
-                        Call(
-                            Field(
-                                managerVariable,
-                                Utf8JsonReaderManagerCurrentReaderField),
-                            Utf8JsonReaderValueTextEqualsMethod,
-                            Convert(
-                                Call(
-                                    ByteArrayAsSpanMethod,
-                                    Constant(Encoding.UTF8.GetBytes(propertyName))),
-                                typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
-                    var propertyVariable = Variable(innerShaperMapElement.Value.Type);
+                    var innerMaterializer = StructuralTypeJsonMaterializer(
+                        relatedStructuralType,
+                        nestedStructuralProperty.ClrType,
+                        isStructuralPropertyNullable);
+
+                    // @TODO: Work with tuple
+                    // @TODO: Add fixup and tracking stuff
+
+                    testExpressions.Add(JsonReaderValueTextEquals(managerVariable, jsonPropertyName));
+
+                    var propertyVariable = Variable(nestedStructuralProperty.ClrType);
                     finalBlockVariables.Add(propertyVariable);
 
-                    navigationVariableMap[innerShaperMapElement.Key] = propertyVariable;
+                    navigationVariableMap[nestedStructuralProperty] = propertyVariable;
 
                     var moveNext = Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod);
                     var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
                     var assignment = Assign(propertyVariable, innerShaperMapElement.Value);
-                    var managerRecreation = Assign(
-                        managerVariable,
-                        New(
-                            JsonReaderManagerConstructor,
-                            jsonReaderDataParameter,
-                            MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty)));
+                    var managerRecreation = NewJsonReaderManager();
 
                     readExpressions.Add(
                         Block(
@@ -1022,7 +1017,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         //    return rewrittenReadValuesBlock;
         //}
 
-        private (Expression, ParameterExpression) ReadDiscriminator(ITypeBase structuralType, ParameterExpression jsonReaderMangagerVariable, IProperty discriminatorProperty)
+        private Expression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
         {
             // @TODO: Change serializer to put discriminator first
             // Generate a read loop to get the discriminator
@@ -1047,19 +1042,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // EndRead:
 
 
-            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
-            var discriminatorBlockVariables = new List<ParameterExpression>()
-            {
-                tokenTypeVariable
-            };
-            
-            var discriminatorValueVariable = Variable(discriminatorProperty.ClrType.MakeNullable(), "discriminatorValue"); // Not a local variable, but defined by the parent block.
-
-            var metadataBlockExpressions = new List<Expression>
-            {
-                 // string? discriminatorValue = defalt();
-                Assign(discriminatorValueVariable, Default(discriminatorProperty.ClrType.MakeNullable()))
-            };
+            var variables = new List<ParameterExpression>();
+            var expressions = new List<Expression>();
 
             var breakLabel = Label("EndRead");
 
@@ -1074,7 +1058,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // @TODO: throwOnLateType ? Throw(New(typeof(InvalidOperationException))) : Empty();
             var ifNotPropertyMatchThrow = Throw(New(typeof(InvalidOperationException))); // @TODO: message: Discriminator was not early in the document.
 
-            return (
+            var jsonReaderMangagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+
+            return Block(
+                [jsonReaderMangagerVariable, tokenTypeVariable],
+
+                Assign(jsonReaderMangagerVariable, NewJsonReaderManager()),
+                // string? discriminatorValue = defalt();
+                Assign(discriminatorValueVariable, Default(discriminatorProperty.ClrType.MakeNullable())),
                 Loop(
                     Block([], [
                         // tokenType = jsonReaderManager.MoveNext();
@@ -1115,8 +1107,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                 ifNotPropertyMatchThrow)
                                             : ifNotPropertyMatchThrow),
                                     Constant(JsonTokenType.PropertyName))])]),
-                    breakLabel),
-                discriminatorValueVariable);
+                    breakLabel));
         }
 
         private NewExpression NewJsonReaderManager()
