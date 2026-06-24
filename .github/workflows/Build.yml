@@ -67,7 +67,8 @@ jobs:
             | grep -v -E "$pattern"); do
             dotnet test "$proj" \
               -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
+              --coverage-settings eng/efcore.coverage.xml || failed=1
           done
           exit $failed
 
@@ -121,7 +122,8 @@ jobs:
           mkdir -p artifacts/coverage
           dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj \
             -- --coverage --coverage-output-format cobertura \
-            --coverage-output "$PWD/artifacts/coverage/EFCore.Cosmos.FunctionalTests.cobertura.xml"
+            --coverage-output "$PWD/artifacts/coverage/EFCore.Cosmos.FunctionalTests.cobertura.xml" \
+            --coverage-settings eng/efcore.coverage.xml
         env:
           Test__Cosmos__DefaultConnection: ${{ runner.os == 'Windows' && 'https://localhost:8081' || '' }}
           Test__Cosmos__SkipConnectionCheck: ${{ runner.os == 'Windows' && 'true' || '' }}
@@ -183,7 +185,8 @@ jobs:
           for proj in $SQLSERVER_TEST_PROJECTS; do
             dotnet test "$proj" \
               -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
+              --coverage-settings eng/efcore.coverage.xml || failed=1
           done
           exit $failed
 
@@ -232,7 +235,8 @@ jobs:
           for proj in test/EFCore.Sqlite.FunctionalTests test/EFCore.Sqlite.Tests test/EFCore.AspNet.Sqlite.FunctionalTests; do
             dotnet test "$proj" \
               -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
+              --coverage-settings eng/efcore.coverage.xml || failed=1
           done
           exit $failed
 
@@ -283,7 +287,8 @@ jobs:
             | if [ "$RUNNER_OS" != "Windows" ]; then grep -v winsqlite3; else cat; fi); do
             dotnet test "$proj" \
               -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" || failed=1
+              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
+              --coverage-settings eng/efcore.coverage.xml || failed=1
           done
           exit $failed
 
