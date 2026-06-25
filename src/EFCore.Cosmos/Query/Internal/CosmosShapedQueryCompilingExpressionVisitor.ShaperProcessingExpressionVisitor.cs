@@ -535,8 +535,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 materializerExpressions.AddRange(materializerBlock.Expressions);
             }
 
+            materializerBlock = Block(materializerVariables, materializerExpressions);
+
+            var nullCheck = Block(
+                [_jsonReaderManager],
+                [Assign(_jsonReaderManager, NewJsonReaderManager()),
+                Condition(
+                    NotEqual(Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod), Constant(JsonTokenType.Null)),
+                    materializerBlock,
+                    Block(
+                        Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                        Default(materializerBlock.Type)))]);
+
             lambda = Lambda(
-                Block(materializerVariables, materializerExpressions),
+                nullCheck,
                 structuralType.Name + "_Materializer",
                 [QueryCompilationContext.QueryContextParameter,
                 _jsonReaderDataParameter]);
