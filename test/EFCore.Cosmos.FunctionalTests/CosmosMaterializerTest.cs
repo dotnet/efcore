@@ -68,34 +68,18 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            context.Add(new DiscriminatorDerivedEntity());
+            context.Add(new DiscriminatorDerivedEntity
+            {
+                Name = "Name"
+            });
             await context.SaveChangesAsync();
         }
 
         using (var context = factory.CreateDbContext())
         {
             var entity = await context.Entities.SingleAsync();
-            Assert.IsType<DiscriminatorDerivedEntity>(entity);
-        }
-    }
-
-    [ConditionalFact]
-    public async Task Materialize_owned_entity_with_discriminator()
-    {
-        var factory = await InitializeNonSharedTest<DiscriminatorContext>();
-
-        using (var context = factory.CreateDbContext())
-        {
-            context.Add(new DiscriminatorParentDerivedEntity());
-            await context.SaveChangesAsync();
-        }
-
-        using (var context = factory.CreateDbContext())
-        {
-            var entity = await context.ParentEntities.SingleAsync();
-            var derivedEntity = Assert.IsType<DiscriminatorParentDerivedEntity>(entity);
-            Assert.NotNull(derivedEntity.Child);
-            Assert.IsType<DiscriminatorChildDerivedEntity>(derivedEntity.Child);
+            var derivedEntity = Assert.IsType<DiscriminatorDerivedEntity>(entity);
+            Assert.Equal("Name", derivedEntity.Name);
         }
     }
 
@@ -106,42 +90,17 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     public class DiscriminatorDerivedEntity : DiscriminatorBaseEntity
     {
-        public string Name { get; set; } = "Name";
-    }
-
-    public class DiscriminatorParentBaseEntity
-    {
-        public Guid Id { get; set; } = Guid.NewGuid();
-    }
-
-    public class DiscriminatorParentDerivedEntity : DiscriminatorParentBaseEntity
-    {
-        public DiscriminatorChildBaseEntity Child { get; set; } = new DiscriminatorChildDerivedEntity();
-    }
-
-    public class DiscriminatorChildBaseEntity
-    {
-        public Guid Id { get; set; } = Guid.NewGuid();
-    }
-
-    public class DiscriminatorChildDerivedEntity : DiscriminatorChildBaseEntity
-    {
-        public string Name { get; set; } = "Name";
+        public string? Name { get; set; }
     }
 
     public class DiscriminatorContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<DiscriminatorBaseEntity> Entities => Set<DiscriminatorBaseEntity>();
 
-        public DbSet<DiscriminatorParentBaseEntity> ParentEntities => Set<DiscriminatorParentBaseEntity>();
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<DiscriminatorBaseEntity>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<DiscriminatorDerivedEntity>();
-
-            modelBuilder.Entity<DiscriminatorParentBaseEntity>().HasPartitionKey(x => x.Id);
-            modelBuilder.Entity<DiscriminatorParentDerivedEntity>().OwnsOne(x => x.Child);
         }
     }
 

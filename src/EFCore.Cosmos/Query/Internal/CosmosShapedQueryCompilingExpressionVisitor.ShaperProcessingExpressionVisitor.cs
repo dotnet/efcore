@@ -23,11 +23,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(QueryContext).GetMethod(
                 nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
 
+        private static readonly MethodInfo CollectionAccessorCreateMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create))!;
+
         private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate))!;
 
-        private static readonly MethodInfo CollectionAccessorAddMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
+        private static readonly MethodInfo CollectionAccessorAddStandaloneMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.AddStandalone)) ?? throw new UnreachableException();
 
         private static readonly ConstructorInfo JsonReaderDataConstructor
             = typeof(JsonReaderData).GetConstructor([typeof(ReadOnlyMemory<byte>)])!;
@@ -138,8 +141,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
         }
 
-        public LambdaExpression ProcessShaper(
-            Expression shaperExpression)
+        public LambdaExpression ProcessShaper(Expression shaperExpression)
         {
             var processedShaperExpression = Visit(shaperExpression);
 
@@ -153,7 +155,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // jsonReaderData = new JsonReaderData(data)
                     Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
                     Assign(resultVarialbe, processedShaperExpression),
-                    ..AddBytesConsumedExpressions(Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                    AddBytesConsumedExpressions(Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty))[0],
                     resultVarialbe]);
             }
             else
@@ -1038,9 +1040,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         else
                         {
-                            nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)), propertyVariable.Type)));
-                            nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddMethodInfo, instanceVariable, nestedMaterializer, Constant(true)));
-                            nestedReadExpressions.Add(Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)));
+                            // @TODO: We need a null check here for the materialized collection item...?
+                            nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
+                            nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
                         }
                     }
 
