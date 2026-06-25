@@ -945,14 +945,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         //  trackingActions.Add(() =>
                         //  {
                         //      var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id, associate.Id }, false, out var _);
-
                         //      if (entry != default)
                         //      {
+                        //          associateShadowSnapshot[0] = instance.Id;
                         //          foreach (var nestedTrackingAction in nestedTrackingActions)
                         //          {
                         //              nestedTrackingAction();
                         //          }
-                        //          associateShadowSnapshot[0] = instance.Id;
                         //          queryContext.StartTracking(entityType, associate, associateShadowSnapshot);
                         //    }
                         //});
@@ -1012,9 +1011,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             [entryVariable, hasNullKeyVariable],
                                             [
                                                 tryGetEntryAssignment,
-                                                IfThen(NotEqual(entryVariable, Default(entryVariable.Type)),
+                                                IfThen(Equal(entryVariable, Default(entryVariable.Type)),
                                                     Block([
-                                                        ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
                                                         ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x != null).Select(p =>
                                                             Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.self.ClrType),
                                                                 Constant(p.self.GetShadowIndex()),
@@ -1023,6 +1021,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                                         ? Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(p.principal.ClrType), Constant(p.principal.GetShadowIndex()))
                                                                         : parentInstanceVariable.MakeMemberAccess(p.principal.GetMemberInfo(true, false)),
                                                                 p.self.ClrType))),
+                                                        ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
                                                         Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
                     }
                     else
