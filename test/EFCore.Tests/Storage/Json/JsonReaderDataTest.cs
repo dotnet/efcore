@@ -2,6 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -56,5 +59,28 @@ public class JsonReaderDataTest
 
         Assert.InRange(bytesRead, 257, json.Length - 1);
         Assert.Equal(json.Length, data.BytesConsumed);
+    }
+
+    [ConditionalFact]
+    public void CaptureState_resets_reader_to_captured_position()
+    {
+        var data = new JsonReaderData("""{"Collection":[],"Value":1}"""u8.ToArray());
+        var manager = new Utf8JsonReaderManager(data, queryLogger: null);
+
+        Assert.Equal(JsonTokenType.StartObject, manager.MoveNext());
+        Assert.Equal(JsonTokenType.PropertyName, manager.MoveNext());
+        Assert.True(manager.CurrentReader.ValueTextEquals("Collection"u8));
+        Assert.Equal(JsonTokenType.StartArray, manager.MoveNext());
+
+        manager.CaptureState();
+
+        Assert.Equal(13, data.BytesConsumed);
+        Assert.Equal(JsonTokenType.EndArray, manager.MoveNext());
+
+        manager.CaptureState();
+
+        Assert.Equal(14, data.BytesConsumed);
+        Assert.Equal(JsonTokenType.PropertyName, manager.MoveNext());
+        Assert.True(manager.CurrentReader.ValueTextEquals("Value"u8));
     }
 }

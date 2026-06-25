@@ -808,6 +808,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(jsonEntityTypeInitializerBlockExpression)));
             }
 
+            // Empty collections have not been initialized, so we double check all collection properties here
+            foreach (var collectionProperty in nestedStructuralProperties.Where(x => x.IsCollection))
+            {
+                finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
+            }
+
             finalBlockExpressions.Add(instanceVariable);
 
             return Block(

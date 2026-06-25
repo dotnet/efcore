@@ -154,18 +154,20 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     {
         var factory = await InitializeNonSharedTest<CollectionContext>();
 
-        var entity = new CollectionEntity();
         using (var context = factory.CreateDbContext())
         {
-            context.Add(entity);
+            context.Add(new CollectionEntity()
+            {
+                Entities = [new(), new()]
+            });
             await context.SaveChangesAsync();
         }
 
         using (var context = factory.CreateDbContext())
         {
-            var dbEntity = await context.Entities.SingleAsync();
-            Assert.Equal(2, dbEntity.Entities.Count);
-            foreach (var item in dbEntity.Entities)
+            var entity = await context.Entities.SingleAsync();
+            Assert.Equal(2, entity.Entities.Count);
+            foreach (var item in entity.Entities)
             {
                 Assert.Equal("Name", item.Name);
             }
@@ -177,27 +179,27 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     {
         var factory = await InitializeNonSharedTest<CollectionContext>();
 
-        var entity = new CollectionEntity()
-        {
-            Entities = []
-        };
         using (var context = factory.CreateDbContext())
         {
-            context.Add(entity);
+            context.Add(new CollectionEntity()
+            {
+                Entities = []
+            });
             await context.SaveChangesAsync();
         }
 
         using (var context = factory.CreateDbContext())
         {
-            var dbEntity = await context.Entities.SingleAsync();
-            Assert.Equal(0, dbEntity.Entities.Count);
+            var entity = await context.Entities.SingleAsync();
+            Assert.Equal(0, entity.Entities.Count);
         }
     }
 
     public class CollectionEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public List<CollectionItemEntity> Entities { get; set; } = [new(), new()];
+
+        public List<CollectionItemEntity> Entities { get; set; } = new();
     }
 
     public class CollectionItemEntity
