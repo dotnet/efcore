@@ -1016,7 +1016,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                 tryGetEntryAssignment,
                                                 IfThen(Equal(entryVariable, Default(entryVariable.Type)),
                                                     Block([
-                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x != null).Select(p =>
+                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x.principal != null).Select(p =>
                                                             Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.self.ClrType),
                                                                 Constant(p.self.GetShadowIndex()),
                                                                 ConvertIfNotMatch(
