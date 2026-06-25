@@ -1,8 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -448,6 +450,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
             materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
 
+            var materializationContextVariable = materializerBlock.Variables.Single(x => x.Type == typeof(MaterializationContext));
+            _materializationContextValueBufferMapping[materializationContextVariable] = valueBuffer;
+
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
@@ -471,6 +476,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
             var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type == typeof(IEntityType));
+            materializerVariables.AddRange(instanceVariable, entityTypeVariable);
 
             var requiresTracking = _queryStateManager && structuralType is IEntityType entityType;
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
@@ -478,9 +484,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 materializerVariables.Add(trackingActions);
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
-
-                var materializationContextVariable = materializerBlock.Variables.Single(x => x.Type == typeof(MaterializationContext));
-                _materializationContextValueBufferMapping[materializationContextVariable] = valueBuffer;
 
                 // We can't do tracking till after the entity is materialized
                 // So we remove the tracking code from the materializer block and store it for later use
@@ -503,8 +506,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     shadowSnapshotVariable,
                     trackingActions,
                     entryAssignment);
-
-                materializerVariables.AddRange(instanceVariable, entityTypeVariable);
 
                 // Remove the start tracking call...
                 var startTrackingAssignment = readValuesBlock.Expressions.OfType<BinaryExpression>()
@@ -529,8 +530,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
             else
             {
-                // @TODO: Test if we can just visit the materializer block directly here or if we need some modifications as well.
-                materializerBlock = (BlockExpression)Visit(materializerBlock);
+                var nullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>().Single();
+                var readValuesBlock = (BlockExpression)nullKeyCheck.IfTrue;
+
+                materializerBlock = (BlockExpression)Visit(readValuesBlock);
                 materializerVariables.AddRange(materializerBlock.Variables);
                 materializerExpressions.AddRange(materializerBlock.Expressions);
             }
@@ -1213,6 +1216,22 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return structuralType.MakeMemberAccess(setter).Assign(assignee);
         }
 
+        private static bool IsValueBufferTryReadValueMethod(Expression expression, [NotNullWhen(true)] out IProperty? property)
+        {
+            if (expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition()
+                == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty p)
+            {
+                property = p;
+                return true;
+            }
+
+            property = null;
+            return false;
+        }
+
         // Almost 1-1 copy from relational, but no liftable constants..
         private Expression ReadJsonPropertyValue(IProperty property)
         {
@@ -1286,11 +1305,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition()
-                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property
-                    && _properties.Contains(property))
+                if (IsValueBufferTryReadValueMethod(methodCallExpression, out var property)
+                 && _properties.Contains(property))
                 {
                     _valueBufferTryReadValueMethods.Add(methodCallExpression);
                     _properties.Remove(property);
@@ -1309,10 +1325,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.GetGenericMethodDefinition()
-                        == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                        && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property)
+                if (IsValueBufferTryReadValueMethod(methodCallExpression, out var property))
                 {
                     if (mappedProperties.TryGetValue(property, out var parameter))
                     {
