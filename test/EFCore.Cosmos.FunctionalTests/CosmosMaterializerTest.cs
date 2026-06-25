@@ -146,4 +146,54 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     }
 
     #endregion
+
+    #region Collection navigation
+
+    [ConditionalFact]
+    public async Task Materialize_entity_with_collection()
+    {
+        var factory = await InitializeNonSharedTest<CollectionContext>();
+
+        var entity = new CollectionEntity();
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(entity);
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var dbEntity = await context.Entities.SingleAsync();
+            Assert.Equal(2, dbEntity.Entities.Count);
+            foreach (var item in dbEntity.Entities)
+            {
+                Assert.Equal("Name", item.Name);
+            }
+        }
+    }
+
+    public class CollectionEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public List<CollectionItemEntity> Entities { get; set; } = [new(), new()];
+    }
+
+    public class CollectionItemEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Name { get; set; } = "Name";
+    }
+
+    public class CollectionContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<CollectionEntity> Entities => Set<CollectionEntity>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CollectionEntity>().HasPartitionKey(x => x.Id);
+            modelBuilder.Entity<CollectionEntity>().OwnsMany(x => x.Entities);
+        }
+    }
+
+    #endregion
 }

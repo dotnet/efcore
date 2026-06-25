@@ -894,7 +894,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var nestedMaterializer = Invoke(
                         StructuralTypeJsonMaterializer(
                             nestedStructuralType,
-                            nestedStructuralProperty.ClrType,
+                            nestedStructuralProperty.IsCollection ? nestedStructuralProperty.ClrType.GetSequenceType() : nestedStructuralProperty.ClrType,
                             isStructuralPropertyNullable,
                             nestedValueBuffer),
                         QueryCompilationContext.QueryContextParameter,
@@ -904,17 +904,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // Builds the expression tree for collection properties. This is a while loop around the materializer for the nested structural type
                     var nestedCollectionReadExpressions = new List<Expression>()
                     {
-                        Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)), propertyVariable.Type)),
                         Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
-                        Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod))
+                        Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                     };
 
                     // Builds the expression tree for materializing an instance of the nested structural type
                     var nestedReadVariables = new List<ParameterExpression>();
-                    var nestedReadExpressions = new List<Expression>()
+                    var nestedReadExpressions = new List<Expression>();
+
+                    if (!nestedStructuralProperty.IsCollection)
                     {
-                        Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                    };
+                        nestedReadExpressions.Add(Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod));
+                    }
 
                     if (_queryStateManager && nestedStructuralType is IEntityType nestedEntityType)
                     {
@@ -1013,12 +1014,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             nestedReadExpressions.Add(Assign(propertyVariable, nestedMaterializer));
                         }
-                    }
-
-                    if (nestedStructuralProperty.IsCollection)
-                    {
-                        nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddMethodInfo, instanceVariable, nestedMaterializer, Constant(true)));
-                        nestedReadExpressions.Add(Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)));
+                        else
+                        {
+                            nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)), propertyVariable.Type)));
+                            nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddMethodInfo, instanceVariable, nestedMaterializer, Constant(true)));
+                            nestedReadExpressions.Add(Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)));
+                        }
                     }
 
                     nestedReadExpressions.Add(Assign(_jsonReaderManager, NewJsonReaderManager()));
@@ -1030,9 +1031,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var collectionBreakLabel = Label("EndCollection");
                         readExpressions.Add(
-                            Loop(IfThenElse(Equal(tokenTypeVariable, Constant(JsonTokenType.EndArray)), Break(collectionBreakLabel),
-                                IfThenElse(Equal(tokenTypeVariable, Constant(JsonTokenType.None)), Break(collectionBreakLabel),
-                                nestedReadBlock)), collectionBreakLabel));
+                            Block([
+                                ..nestedCollectionReadExpressions,
+                                Loop(Block(
+                                    Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)),
+                                    IfThenElse(Equal(tokenTypeVariable, Constant(JsonTokenType.EndArray)), Break(collectionBreakLabel),
+                                        IfThenElse(Equal(tokenTypeVariable, Constant(JsonTokenType.None)), Break(collectionBreakLabel),
+                                            nestedReadBlock))), collectionBreakLabel)]));
                     }
                     else
                     {
