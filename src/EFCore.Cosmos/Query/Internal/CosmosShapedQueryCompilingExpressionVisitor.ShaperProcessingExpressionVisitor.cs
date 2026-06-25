@@ -295,7 +295,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var materializationContext = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
 
-                var jsonReadPropertyValueExpression = ReadJsonPropertyValue(_jsonReaderManager, property);
+                var jsonReadPropertyValueExpression = ReadJsonPropertyValue(property);
 
                 return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
             }
@@ -909,7 +909,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedReadExpressions.Add(Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)));
                     }
 
-                    nestedReadExpressions.Add(NewJsonReaderManager());
+                    nestedReadExpressions.Add(Assign(_jsonReaderManager, NewJsonReaderManager()));
                     nestedReadExpressions.Add(Empty());
 
                     var nestedReadBlock = Block(nestedReadVariables, nestedReadExpressions);
@@ -1088,7 +1088,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             Assign(
                                                 discriminatorValueVariable,
                                                 CheckMakeNullableValueType(
-                                                    ReadJsonPropertyValue(_jsonReaderManager, discriminatorProperty))),
+                                                    ReadJsonPropertyValue(discriminatorProperty))),
                                             // goto EndRead
                                             Break(breakLabel, typeof(void))),
                                         structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility.
@@ -1158,9 +1158,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         // Almost 1-1 copy from relational, but no liftable constants..
-        private Expression ReadJsonPropertyValue(
-            ParameterExpression jsonReaderManagerParameter,
-            IProperty property)
+        private Expression ReadJsonPropertyValue(IProperty property)
         {
             // jsonReaderManager.MoveNext();
             // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
@@ -1173,7 +1171,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
 
             Expression resultExpression = Convert(
-                Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object))),
+                Call(jsonValueReaderWriterConstant, fromJsonMethod, _jsonReaderManager, Default(typeof(object))),
                 property.GetTypeMapping().ClrType);
 
             if (property.IsNullable)
@@ -1189,7 +1187,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Equal(
                         Property(
                             Field(
-                                jsonReaderManagerParameter,
+                                _jsonReaderManager,
                                 Utf8JsonReaderManagerCurrentReaderField),
                             Utf8JsonReaderTokenTypeProperty),
                         Constant(JsonTokenType.Null)),
