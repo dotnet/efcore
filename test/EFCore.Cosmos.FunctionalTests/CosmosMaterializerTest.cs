@@ -27,8 +27,10 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var entities = await context.Entities.ToListAsync();
-            Assert.Equal(1, entities.Count);
+            var entity = await context.Entities.SingleAsync();
+            var entry = context.Entry(entity);
+            Assert.Equal("Name", entry.Property<string>("Name").CurrentValue);
+            Assert.Equal(1, entry.Property<int>("Id2").CurrentValue);
         }
     }
 
@@ -66,7 +68,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            context.Add(new DiscriminatorDerivedEntity { Name = "Name" });
+            context.Add(new DiscriminatorDerivedEntity());
             await context.SaveChangesAsync();
         }
 
@@ -74,6 +76,26 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         {
             var entity = await context.Entities.SingleAsync();
             Assert.IsType<DiscriminatorDerivedEntity>(entity);
+        }
+    }
+
+    [ConditionalFact]
+    public async Task Materialize_owned_entity_with_discriminator()
+    {
+        var factory = await InitializeNonSharedTest<DiscriminatorContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new DiscriminatorParentDerivedEntity());
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var entity = await context.ParentEntities.SingleAsync();
+            var derivedEntity = Assert.IsType<DiscriminatorParentDerivedEntity>(entity);
+            Assert.NotNull(derivedEntity.Child);
+            Assert.IsType<DiscriminatorChildDerivedEntity>(derivedEntity.Child);
         }
     }
 
@@ -87,14 +109,39 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         public string Name { get; set; } = "Name";
     }
 
+    public class DiscriminatorParentBaseEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+    }
+
+    public class DiscriminatorParentDerivedEntity : DiscriminatorParentBaseEntity
+    {
+        public DiscriminatorChildBaseEntity Child { get; set; } = new DiscriminatorChildDerivedEntity();
+    }
+
+    public class DiscriminatorChildBaseEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+    }
+
+    public class DiscriminatorChildDerivedEntity : DiscriminatorChildBaseEntity
+    {
+        public string Name { get; set; } = "Name";
+    }
+
     public class DiscriminatorContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<DiscriminatorBaseEntity> Entities { get; set; }
+        public DbSet<DiscriminatorBaseEntity> Entities => Set<DiscriminatorBaseEntity>();
+
+        public DbSet<DiscriminatorParentBaseEntity> ParentEntities => Set<DiscriminatorParentBaseEntity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<DiscriminatorBaseEntity>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<DiscriminatorDerivedEntity>();
+
+            modelBuilder.Entity<DiscriminatorParentBaseEntity>().HasPartitionKey(x => x.Id);
+            modelBuilder.Entity<DiscriminatorParentDerivedEntity>().OwnsOne(x => x.Child);
         }
     }
 

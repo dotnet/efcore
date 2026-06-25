@@ -100,8 +100,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, LambdaExpression Materializer)>
             _deferredProjectionBindings = new();
 
-        private readonly Dictionary<Expression, ParameterExpression>
-            _valueBufferToKeyValuesMapping = new();
+        private readonly Dictionary<ParameterExpression, Expression>
+            _materializationContextValueBufferMapping = new();
 
         private static readonly Dictionary<Expression, (
             ParameterExpression InstanceVariable,
@@ -143,11 +143,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             if (_deferredProjectionBindings.Count == 0)
             {
+                var resultVarialbe = Variable(processedShaperExpression.Type, "result");
                 processedShaperExpression = Block(
-                    [_jsonReaderDataParameter],
+                    [_jsonReaderDataParameter, resultVarialbe],
+                    // bytesConsumed = 0;
+                    [Assign(_bytesConsumedParameter, Constant(0)),
                     // jsonReaderData = new JsonReaderData(data)
                     Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                    processedShaperExpression);
+                    Assign(resultVarialbe, processedShaperExpression),
+                    ..AddBytesConsumedExpressions(Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                    resultVarialbe]);
             }
             else
             {
@@ -195,15 +200,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     ]);
                 }
 
-                Expression[] AddBytesConsumedExpressions(Expression bytesConsumedExpression) =>
-                [
-                    AddAssignChecked(_bytesConsumedParameter, bytesConsumedExpression),
-                    Assign(_dataParameter, Call(_dataParameter, ReadOnlyMemorySliceMethod, bytesConsumedExpression))
-                ];
-
                 shaperBlockExpressions.Add(processedShaperExpression);
                 processedShaperExpression = Block(shaperBlockVariables, shaperBlockExpressions);
             }
+
+            Expression[] AddBytesConsumedExpressions(Expression bytesConsumedExpression) =>
+            [
+                AddAssignChecked(_bytesConsumedParameter, bytesConsumedExpression),
+                Assign(_dataParameter, Call(_dataParameter, ReadOnlyMemorySliceMethod, bytesConsumedExpression))
+            ];
 
 
             var shaperLambda = Lambda(
@@ -467,6 +472,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 materializerVariables.Add(trackingActions);
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
 
+                var materializationContextVariable = materializerBlock.Variables.Single(x => x.Type == typeof(MaterializationContext));
+                _materializationContextValueBufferMapping[materializationContextVariable] = valueBuffer;
+
                 // We can't do tracking till after the entity is materialized
                 // So we remove the tracking code from the materializer block and store it for later use
                 var entryVariable = materializerBlock.Variables.Single(x => x.Type == typeof(InternalEntityEntry));
@@ -642,6 +650,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var valueBufferTryReadValueMethodsToProcess =
                 new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
+
+            var materializationContextVariable = (ParameterExpression?)((MethodCallExpression?)valueBufferTryReadValueMethodsToProcess.FirstOrDefault()?.Arguments[0])?.Object;
+            var valueBuffer = materializationContextVariable != null
+                ? _materializationContextValueBufferMapping[materializationContextVariable]
+                : null;
 
             BlockExpression jsonEntityTypeInitializerBlock;
             // sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
@@ -884,7 +897,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // Builds the expression tree for collection properties. This is a while loop around the materializer for the nested structural type
                     var nestedCollectionReadExpressions = new List<Expression>()
                     {
-                        Assign(propertyVariable, Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true))),
+                        Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)), propertyVariable.Type)),
                         Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
                         Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                         Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod))
@@ -924,7 +937,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var nestedShadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(nestedMaterializer.Type));
                         var nestedTrackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(nestedMaterializer.Type));
 
-                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer];
+                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = _valueBufferToMaterializerExpressionsMapping[valueBuffer];
                         var tryGetEntryAssignment = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer].TryGetEntryAssignment;
                         var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
                         var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
