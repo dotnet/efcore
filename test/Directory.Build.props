@@ -25,7 +25,7 @@
     -->
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --filter-not-trait category=failing --ignore-exit-code 8</TestingPlatformCommandLineArguments>
     <_CoverageOutputDir Condition="'$(CollectCoverage)' == 'true'">$([MSBuild]::NormalizeDirectory('$(ArtifactsDir)', 'coverage'))</_CoverageOutputDir>
-    <TestingPlatformCommandLineArguments Condition="'$(CollectCoverage)' == 'true'">$(TestingPlatformCommandLineArguments) --coverage --coverage-output-format cobertura --coverage-output $(_CoverageOutputDir)$(MSBuildProjectName).cobertura.xml --coverage-settings $(MSBuildThisFileDirectory)..\eng\efcore.coverage.xml</TestingPlatformCommandLineArguments>
+    <TestingPlatformCommandLineArguments Condition="'$(CollectCoverage)' == 'true'">$(TestingPlatformCommandLineArguments) --coverage --coverage-output-format cobertura --coverage-output $(_CoverageOutputDir)$(MSBuildProjectName).cobertura.xml --coverage-settings $([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'eng', 'efcore.coverage.xml'))</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' != 'false'">
