@@ -375,12 +375,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
     private Expression TryConvertEnumerableToQueryable(MethodCallExpression methodCallExpression)
     {
-        // TODO : CHECK if this is still needed
         if (methodCallExpression.Method.Name == nameof(Enumerable.SequenceEqual))
         {
-            // Skip SequenceEqual over enumerable since it could be over byte[] or other array properties
-            // Ideally we could make check in nav expansion about it (since it can bind to property)
-            // But since we don't translate SequenceEqual anyway, this is fine for now.
+            // SequenceEqual is skipped unconditionally because we don't translate it anyway, and it could be over
+            // byte[] or other array properties that must not be converted to IQueryable.
             return base.VisitMethodCall(methodCallExpression);
         }
 

@@ -110,7 +110,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
                         if (visitedPath is null)
                         {
                             visitedPath = new PathSegment[Path.Count];
-                            for (var j = 0; j < i; i++)
+                            for (var j = 0; j < i; j++)
                             {
                                 visitedPath[j] = Path[j];
                             }
@@ -302,10 +302,11 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
             if (columnInfo.Name != otherColumnInfo.Name
                 || !columnInfo.TypeMapping.Equals(otherColumnInfo.TypeMapping)
-                || (columnInfo.Path is null != otherColumnInfo.Path is null
-                    || (columnInfo.Path is not null
-                        && otherColumnInfo.Path is not null
-                        && columnInfo.Path.SequenceEqual(otherColumnInfo.Path))))
+                || columnInfo.AsJson != otherColumnInfo.AsJson
+                || columnInfo.Path is null != otherColumnInfo.Path is null
+                || (columnInfo.Path is not null
+                    && otherColumnInfo.Path is not null
+                    && !columnInfo.Path.SequenceEqual(otherColumnInfo.Path)))
             {
                 return false;
             }
@@ -316,7 +317,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => base.GetHashCode();
+        => HashCode.Combine(base.GetHashCode(), ColumnInfos?.Count ?? 0);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

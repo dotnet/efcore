@@ -22,4 +22,34 @@ public class CandidateNamingServiceTest
         => Assert.Equal(
             output, new CandidateNamingService().GenerateCandidateIdentifier(
                 new DatabaseColumn { Name = input }));
+
+    [Fact]
+    public void Dependent_end_navigation_name_does_not_become_empty_when_stripping_Id_leaves_no_base_name()
+    {
+        // Regression test: when every character before the "Id" suffix is non-alphanumeric (e.g. "_Id"),
+        // stripping the suffix must not yield an empty navigation name (which would silently fall back to the
+        // principal type name); the original property name is used instead.
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<NamingPrincipal>();
+        modelBuilder.Entity<NamingDependent>(
+            b =>
+            {
+                b.Property<int>("_Id");
+                b.HasOne<NamingPrincipal>().WithMany().HasForeignKey("_Id");
+            });
+
+        var foreignKey = modelBuilder.Model.FindEntityType(typeof(NamingDependent))!.GetForeignKeys().Single();
+
+        Assert.Equal("_Id", new CandidateNamingService().GetDependentEndCandidateNavigationPropertyName(foreignKey));
+    }
+
+    private class NamingPrincipal
+    {
+        public int Id { get; set; }
+    }
+
+    private class NamingDependent
+    {
+        public int Id { get; set; }
+    }
 }

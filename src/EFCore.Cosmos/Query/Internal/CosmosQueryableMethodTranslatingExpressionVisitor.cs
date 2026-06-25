@@ -678,7 +678,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -1221,7 +1221,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -1360,7 +1360,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }

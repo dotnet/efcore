@@ -66,7 +66,7 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
         // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
         for (var i = 0; i < _originals.Count; i++)
         {
-            if (expression.Equals(_originals[i]))
+            if (ReferenceEquals(expression, _originals[i]))
             {
                 return _replacements[i];
             }
