@@ -142,6 +142,7 @@ extends:
                   if ($files) {
                     $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
                     dotnet tool update --global dotnet-coverage
+                    if ($LASTEXITCODE -ne 0) { dotnet tool install --global dotnet-coverage }
                     dotnet-coverage merge -o 'artifacts\coverage\coverage.cobertura.xml' -f cobertura $files.FullName
                   }
                 displayName: Merge coverage reports
@@ -177,6 +178,7 @@ extends:
                   if ($files) {
                     $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
                     dotnet tool update --global dotnet-coverage
+                    if ($LASTEXITCODE -ne 0) { dotnet tool install --global dotnet-coverage }
                     dotnet-coverage merge -o 'artifacts\coverage\coverage.cobertura.xml' -f cobertura $files.FullName
                   }
                 displayName: Merge coverage reports
@@ -211,7 +213,7 @@ extends:
                   files=(artifacts/coverage/*.cobertura.xml)
                   if [ ${#files[@]} -gt 0 ]; then
                     export PATH="$PATH:$HOME/.dotnet/tools"
-                    dotnet tool update --global dotnet-coverage
+                    dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
                     dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
                   fi
                 displayName: Merge coverage reports
@@ -244,7 +246,7 @@ extends:
                   files=(artifacts/coverage/*.cobertura.xml)
                   if [ ${#files[@]} -gt 0 ]; then
                     export PATH="$PATH:$HOME/.dotnet/tools"
-                    dotnet tool update --global dotnet-coverage
+                    dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
                     dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
                   fi
                 displayName: Merge coverage reports
@@ -306,7 +308,7 @@ extends:
                   files=(artifacts/coverage/*.cobertura.xml)
                   if [ ${#files[@]} -gt 0 ]; then
                     export PATH="$PATH:$HOME/.dotnet/tools"
-                    dotnet tool update --global dotnet-coverage
+                    dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
                     dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
                   fi
                 displayName: Merge coverage reports
