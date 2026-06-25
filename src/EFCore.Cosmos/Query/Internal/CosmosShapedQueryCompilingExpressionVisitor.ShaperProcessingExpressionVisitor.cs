@@ -441,6 +441,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var materializerBlock =
                 (BlockExpression)_parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
 
+            // We can't know principal properties until we have fully deserialized the parent.
+            // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
+            // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
+            var principalPropertyDefaultReplacements = structuralType.GetDerivedTypesInclusive().SelectMany(x => x.GetProperties().Where(x => x.FindFirstPrincipal() != null)).Distinct()
+                .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
+            materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
+
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
@@ -758,7 +765,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 finalBlockVariables,
                 valueBufferTryReadValueMethodsToProcess);
 
-            finalBlockExpressions.Add(Visit(loop));
+            finalBlockExpressions.Add(loop);
 
             var finalCaptureState = Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod);
             finalBlockExpressions.Add(finalCaptureState);
@@ -852,7 +859,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var assignment = Assign(
                         propertyVariable,
-                        valueBufferTryReadValueMethodToProcess);
+                        Visit(valueBufferTryReadValueMethodToProcess));
 
                     readExpressions.Add(
                         Block(
@@ -899,17 +906,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)), propertyVariable.Type)),
                         Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
-                        Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                         Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod))
                     };
 
                     // Builds the expression tree for materializing an instance of the nested structural type
                     var nestedReadVariables = new List<ParameterExpression>();
-                    var nestedReadExpressions = new List<Expression>();
+                    var nestedReadExpressions = new List<Expression>()
+                    {
+                        Call(_jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                    };
 
                     if (_queryStateManager && nestedStructuralType is IEntityType nestedEntityType)
                     {
                         // Change tracker will do fixup
+                        // We also need to set any principal properties on the nested entity to the values from the parent entity, because we can only do this once the parent entity is fully materialized
                         //var (entityType, associate, associateShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
                         //if (associate != default)
                         //{
