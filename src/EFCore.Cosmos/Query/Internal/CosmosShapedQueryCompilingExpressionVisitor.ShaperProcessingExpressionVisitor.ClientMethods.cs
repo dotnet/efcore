@@ -279,5 +279,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return data.Slice((int)jsonReader.BytesConsumed);
         }
+
+        private static readonly MethodInfo NewJsonReaderInvalidTokenTypeExceptionMethodInfo
+            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(NewJsonReaderInvalidTokenTypeException), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new UnreachableException();
+
+        private static InvalidOperationException NewJsonReaderInvalidTokenTypeException(JsonTokenType jsonTokenType)
+            => new(CoreStrings.JsonReaderInvalidTokenType(jsonTokenType));
     }
 }

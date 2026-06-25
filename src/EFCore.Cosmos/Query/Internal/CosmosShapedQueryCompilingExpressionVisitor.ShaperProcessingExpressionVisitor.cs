@@ -67,6 +67,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo ReadOnlyMemorySliceMethod
             = typeof(ReadOnlyMemory<byte>).GetMethod(nameof(ReadOnlyMemory<>.Slice), [typeof(int)]) ?? throw new UnreachableException();
 
+        private static readonly ConstructorInfo InvalidOperationExceptionConstructor
+            = typeof(InvalidOperationException).GetConstructor([typeof(string)]) ?? throw new UnreachableException();
+
         private static readonly MethodInfo ByteArrayAsSpanMethod = typeof(MemoryExtensions).GetMethods()
             .Where(x => x.Name == nameof(MemoryExtensions.AsSpan) && x.GetGenericArguments().Count() == 1)
             .Select(x => new { x, prms = x.GetParameters() })
@@ -138,7 +141,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             var processedShaperExpression = Visit(shaperExpression);
 
-            if (_deferredProjectionBindings.Count != 0)
+            if (_deferredProjectionBindings.Count == 0)
+            {
+                processedShaperExpression = Block(
+                    [_jsonReaderDataParameter],
+                    // jsonReaderData = new JsonReaderData(data)
+                    Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                    processedShaperExpression);
+            }
+            else
             {
                 var tokenTypeVariable = Parameter(typeof(JsonTokenType), "tokenType");
                 var jsonReaderVariable = Parameter(typeof(Utf8JsonReader), "jsonReader");
@@ -155,7 +166,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     AssignJsonReaderVariableExpression(), // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: default);
                     Call(jsonReaderVariable, Utf8JsonReaderReadMethod), // jsonReader.Read();
                     Assign(tokenTypeVariable, Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)), // tokenType = jsonReader.TokenType;
-                    IfThen(NotEqual(tokenTypeVariable, Constant(JsonTokenType.StartObject)), Throw(New(typeof(InvalidOperationException)))), // @TODO: Invalid json exception
+                    IfThen(NotEqual(tokenTypeVariable, Constant(JsonTokenType.StartObject)), Throw(New(InvalidOperationExceptionConstructor, Constant("Invalid JSON shaper")))), // @TODO: Invalid json exception
                 };
 
                 BinaryExpression AssignJsonReaderVariableExpression()
@@ -194,11 +205,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 processedShaperExpression = Block(shaperBlockVariables, shaperBlockExpressions);
             }
 
-            processedShaperExpression = Block(
-                [_jsonReaderDataParameter],
-                // jsonReaderData = new JsonReaderData(data)
-                Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                processedShaperExpression);
 
             var shaperLambda = Lambda(
                 typeof(Shaper<>).MakeGenericType(shaperExpression.Type),
@@ -419,7 +425,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             // @TODO: Nullable?
 
-            var materializerVariables = new List<ParameterExpression>();
+            var materializerVariables = new List<ParameterExpression>() { _jsonReaderManager };
             var materializerExpressions = new List<Expression>();
 
             var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
@@ -433,7 +439,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
-                // @TODO: Optimize for only 1 possible value, do check when finding property instead of scanning document.
+                // @TODO: Optimize for only 1 possible value, do discriminator value correct check when finding property instead of scanning document.
                 //if (structuralType.GetDerivedTypesInclusive().Count() == 1)
                 //{
                 //}
@@ -459,6 +465,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (requiresTracking)
             {
                 materializerVariables.Add(trackingActions);
+                materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
 
                 // We can't do tracking till after the entity is materialized
                 // So we remove the tracking code from the materializer block and store it for later use
@@ -522,6 +529,94 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _structuralTypeJsonMaterializerLambdaMapping.Add(structuralType, lambda);
 
             return lambda;
+        }
+
+        private BlockExpression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
+        {
+            // @TODO: Change serializer to put discriminator first
+            // Generate a read loop to get the discriminator
+            // string discriminatorValue = null;
+            // while (true)
+            //  tokenType = jsonReaderManager.MoveNext();
+            //  switch($tokenType) {
+            //      case(JsonTokenType.Null):
+            //      case(JsonTokenType.EndObject):
+            //          goto EndRead;
+            //      case(JsonTokenType.PropertyName):
+            //          if (jsonReaderManager.CurrentReader.ValueTextEquals("$type"u8))
+            //              jsonReaderManager.MoveNext();
+            //              discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+            //              goto EndRead;
+            //          else if (jsonReaderManager.CurrentReader.ValueTextEquals("Id"u8))
+            //              jsonReaderManager.Skip(); // @TODO: was it 1 or 2 skips?
+            //              jsonReaderManager.Skip();
+            //          else
+            //              throw new InvalidOperationException("Discriminator was not early in the document.");
+            //      default:
+            //          throw invalid json
+            // EndRead:
+
+
+            var variables = new List<ParameterExpression>();
+            var expressions = new List<Expression>();
+
+            var breakLabel = Label("EndRead");
+
+            // @TODO: throwOnLateType ? Throw(New(typeof(InvalidOperationException))) : Empty();
+            var ifNotPropertyMatchThrow = Throw(New(InvalidOperationExceptionConstructor, Constant("Discriminator was not early in the document."))); // @TODO: message: Discriminator was not early in the document.
+
+            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+
+            return Block(
+                [_jsonReaderManager, tokenTypeVariable],
+                Assign(_jsonReaderManager, NewJsonReaderManager()),
+                // jsonReaderManager.MoveNext();
+                Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+                // string? discriminatorValue = defalt();
+                Assign(discriminatorValueVariable, Default(discriminatorProperty.ClrType.MakeNullable())),
+                Loop(
+                    Block([], [
+                        // tokenType = jsonReaderManager.MoveNext();
+                        Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)),
+                        // switch (tokenType)
+                        Switch(tokenTypeVariable,
+                            // default: throw @todo: invalid json
+                            Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
+                            [
+                                // case Null: goto EndRead
+                                SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
+                                // case EndObject: goto EndRead
+                                SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)),
+                                // case PropertyName:
+                                SwitchCase(
+                                    // if (jsonReaderManager.CurrentReader.ValueTextEquals(("$type"u8).Span))
+                                    IfThenElse(
+                                        JsonReaderValueTextEquals(_jsonReaderManager, discriminatorProperty.GetJsonPropertyName()),
+                                        Block(
+                                            // jsonReaderManager.MoveNext()
+                                            Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+                                            // discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                                            Assign(
+                                                discriminatorValueVariable,
+                                                CheckMakeNullableValueType(
+                                                    ReadJsonPropertyValue(discriminatorProperty))),
+                                            // goto EndRead
+                                            Break(breakLabel, typeof(void))),
+                                        structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility.
+                                            // else if (jsonReaderManager.CurrentReader.ValueTextEquals(("Id"u8).Span))
+                                            ? IfThenElse(
+                                                primaryKey.Properties
+                                                    .Select(p => JsonReaderValueTextEquals(_jsonReaderManager, p.GetJsonPropertyName()))
+                                                    .Aggregate<MethodCallExpression, Expression?>(
+                                                        null,
+                                                        (previous, next) => previous is null ? next : OrElse(previous, next))!,
+                                                    // jsonReaderManager.Skip() x2
+                                                    Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManager, Utf8JsonReaderManagerSkipMethod))),
+                                                // else throw new InvalidOperationException("Discriminator was not early in the document.")
+                                                ifNotPropertyMatchThrow)
+                                            : ifNotPropertyMatchThrow),
+                                    Constant(JsonTokenType.PropertyName))])]),
+                    breakLabel));
         }
 
         protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
@@ -631,14 +726,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
                 Assign(_jsonReaderManager, NewJsonReaderManager()),
-                // tokenType = jsonReaderManager.CurrentReader.TokenType
-                Assign(
-                    tokenTypeVariable,
-                    Property(
-                        Field(
-                            _jsonReaderManager,
-                            Utf8JsonReaderManagerCurrentReaderField),
-                        Utf8JsonReaderTokenTypeProperty)),
+                // jsonReaderManager.MoveNext();
+                Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
             };
 
             IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetComplexProperties();
@@ -928,15 +1017,24 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
                 }
 
-                var switchCases = new List<SwitchCase>();
+                var switchCases = new List<SwitchCase>
+                {
+                    SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
+                    SwitchCase(
+                        Break(breakLabel),
+                        Constant(JsonTokenType.EndObject))
+                };
+
                 var testsCount = testExpressions.Count;
 
                 // generate PropertyName switch-case code
                 if (testsCount > 0)
                 {
-                    var testExpression = IfThen(
+                    var testExpression = IfThenElse(
                         testExpressions[testsCount - 1],
-                        readExpressions[testsCount - 1]);
+                        readExpressions[testsCount - 1],
+                        // jsonReaderManager.Skip() x2
+                        Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManager, Utf8JsonReaderManagerSkipMethod))));
 
                     for (var i = testsCount - 2; i >= 0; i--)
                     {
@@ -952,17 +1050,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Constant(JsonTokenType.PropertyName)));
                 }
 
-                switchCases.Add(
-                    SwitchCase(
-                        Break(breakLabel),
-                        Constant(JsonTokenType.EndObject)));
-
                 var loopBody = Block(
                     Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)),
                     Switch(
                         tokenTypeVariable,
                         Block(
-                            Call(_jsonReaderManager, Utf8JsonReaderManagerSkipMethod),
+                            Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
                             Default(typeof(void))),
                         switchCases.ToArray()));
 
@@ -1022,90 +1115,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     breakLabel
                 )
             );
-        }
-
-        private BlockExpression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
-        {
-            // @TODO: Change serializer to put discriminator first
-            // Generate a read loop to get the discriminator
-            // string discriminatorValue = null;
-            // while (true)
-            //  tokenType = jsonReaderManager.MoveNext();
-            //  switch($tokenType) {
-            //      case(JsonTokenType.EndObject):
-            //          goto EndRead;
-            //      case(JsonTokenType.PropertyName):
-            //          if (jsonReaderManager.CurrentReader.ValueTextEquals("$type"u8))
-            //              jsonReaderManager.MoveNext();
-            //              discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-            //              goto EndRead;
-            //          else if (jsonReaderManager.CurrentReader.ValueTextEquals("Id"u8))
-            //              jsonReaderManager.Skip(); // @TODO: was it 1 or 2 skips?
-            //              jsonReaderManager.Skip();
-            //          else
-            //              throw new InvalidOperationException("Discriminator was not early in the document.");
-            //      default:
-            //          throw invalid json
-            // EndRead:
-
-
-            var variables = new List<ParameterExpression>();
-            var expressions = new List<Expression>();
-
-            var breakLabel = Label("EndRead");
-
-            // @TODO: throwOnLateType ? Throw(New(typeof(InvalidOperationException))) : Empty();
-            var ifNotPropertyMatchThrow = Throw(New(typeof(InvalidOperationException))); // @TODO: message: Discriminator was not early in the document.
-
-            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
-
-            return Block(
-                [_jsonReaderManager, tokenTypeVariable],
-
-                Assign(_jsonReaderManager, NewJsonReaderManager()),
-                // string? discriminatorValue = defalt();
-                Assign(discriminatorValueVariable, Default(discriminatorProperty.ClrType.MakeNullable())),
-                Loop(
-                    Block([], [
-                        // tokenType = jsonReaderManager.MoveNext();
-                        Assign(tokenTypeVariable, Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod)),
-                        // switch (tokenType)
-                        Switch(tokenTypeVariable,
-                            // default: throw @todo: invalid json
-                            Throw(New(typeof(InvalidOperationException)), typeof(void)),
-                            [
-                                // case EndObject: goto EndRead
-                                SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)),
-                                // case PropertyName:
-                                SwitchCase(
-                                    // if (jsonReaderManager.CurrentReader.ValueTextEquals(("$type"u8).Span))
-                                    IfThenElse(
-                                        JsonReaderValueTextEquals(_jsonReaderManager, discriminatorProperty.GetJsonPropertyName()),
-                                        Block(
-                                            // jsonReaderManager.MoveNext()
-                                            Call(_jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
-                                            // discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-                                            Assign(
-                                                discriminatorValueVariable,
-                                                CheckMakeNullableValueType(
-                                                    ReadJsonPropertyValue(discriminatorProperty))),
-                                            // goto EndRead
-                                            Break(breakLabel, typeof(void))),
-                                        structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility.
-                                            // else if (jsonReaderManager.CurrentReader.ValueTextEquals(("Id"u8).Span))
-                                            ? IfThenElse(
-                                                primaryKey.Properties
-                                                    .Select(p => JsonReaderValueTextEquals(_jsonReaderManager, p.GetJsonPropertyName()))
-                                                    .Aggregate<MethodCallExpression, Expression?>(
-                                                        null,
-                                                        (previous, next) => previous is null ? next : OrElse(previous, next))!,
-                                                    // jsonReaderManager.Skip() x2
-                                                    Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManager, Utf8JsonReaderManagerSkipMethod))),
-                                                // else throw new InvalidOperationException("Discriminator was not early in the document.")
-                                                ifNotPropertyMatchThrow)
-                                            : ifNotPropertyMatchThrow),
-                                    Constant(JsonTokenType.PropertyName))])]),
-                    breakLabel));
         }
 
         private NewExpression NewJsonReaderManager()
