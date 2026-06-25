@@ -344,7 +344,7 @@ jobs:
           mapfile -d '' files < <(find artifacts/coverage -name '*.cobertura.xml' -print0 2>/dev/null)
           if [ ${#files[@]} -gt 0 ]; then
             export PATH="$PATH:$HOME/.dotnet/tools"
-            dotnet tool install --global dotnet-coverage || dotnet tool update --global dotnet-coverage
+            dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
             dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
           fi
 
