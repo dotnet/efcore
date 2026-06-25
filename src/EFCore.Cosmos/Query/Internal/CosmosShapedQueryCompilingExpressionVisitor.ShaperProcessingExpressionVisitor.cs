@@ -1054,14 +1054,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var breakLabel = Label("EndRead");
 
-            var propertyJsonValueReaderWriter = discriminatorProperty.GetJsonValueReaderWriter() ?? discriminatorProperty.GetTypeMapping().JsonValueReaderWriter;
-            Debug.Assert(propertyJsonValueReaderWriter != null, "Cosmos provider should always provide a JsonValueReaderWriter for all scalar properties");
-            var propertyJsonValueReaderWriterConstant = Constant(propertyJsonValueReaderWriter);
-
-            var fromJsonMethod = propertyJsonValueReaderWriterConstant.Type.GetMethod(
-                nameof(JsonValueReaderWriter<>.FromJsonTyped),
-                [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
-
             // @TODO: throwOnLateType ? Throw(New(typeof(InvalidOperationException))) : Empty();
             var ifNotPropertyMatchThrow = Throw(New(typeof(InvalidOperationException))); // @TODO: message: Discriminator was not early in the document.
 
@@ -1096,7 +1088,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             Assign(
                                                 discriminatorValueVariable,
                                                 CheckMakeNullableValueType(
-                                                    Call(propertyJsonValueReaderWriterConstant, fromJsonMethod, _jsonReaderManager, Default(typeof(object))))),
+                                                    ReadJsonPropertyValue(_jsonReaderManager, discriminatorProperty))),
                                             // goto EndRead
                                             Break(breakLabel, typeof(void))),
                                         structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility.
