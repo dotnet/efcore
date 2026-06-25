@@ -814,15 +814,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 finalBlockExpressions.Add(valueBufferTryReadValueReplacer.Visit(shadowSnapshotAssignment));
             }
 
+            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.ToArray()[..^1])
+            {
+                finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(jsonEntityTypeInitializerBlockExpression)));
+            }
+
             foreach (var (property, variable) in navigationVariableMap)
             {
                 finalBlockExpressions.Add(
                     MakeMemberAccess(instanceVariable, property.GetMemberInfo(true, true)).Assign(variable));
-            }
-
-            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.ToArray()[..^1])
-            {
-                finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(jsonEntityTypeInitializerBlockExpression)));
             }
 
             // Empty collections have not been initialized, so we double check all collection properties here
