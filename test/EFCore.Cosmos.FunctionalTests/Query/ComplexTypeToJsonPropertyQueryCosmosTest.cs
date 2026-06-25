@@ -377,7 +377,7 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
         => AssertTranslationFailed(() => base.Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async));
 
     public override Task Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
-        => AssertTranslationFailedWithDetails(() => base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+        => AssertTranslationFailed(() => base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async));
 
 
     #region GroupBy

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -15,22 +16,21 @@ public class CustomConvertersInMemoryTest(CustomConvertersInMemoryTest.CustomCon
     public override Task Can_insert_and_read_back_with_case_insensitive_string_key()
         => Task.CompletedTask;
 
-    [Fact(Skip = "Issue#17050")]
+    // FK constraint checking
     public override void Value_conversion_with_property_named_value()
-    {
-    }
+        => Assert.ThrowsAny<XunitException>(() => base.Value_conversion_with_property_named_value());
 
-    [Fact(Skip = "Issue#17050")]
+    // FK constraint checking
     public override void Collection_property_as_scalar_Any()
-        => base.Collection_property_as_scalar_Any();
+        => Assert.ThrowsAny<XunitException>(() => base.Collection_property_as_scalar_Any());
 
-    [Fact(Skip = "Issue#17050")]
+    // FK constraint checking
     public override void Collection_property_as_scalar_Count_member()
-        => base.Collection_property_as_scalar_Count_member();
+        => Assert.ThrowsAny<XunitException>(() => base.Collection_property_as_scalar_Count_member());
 
-    [Fact(Skip = "Issue#17050")]
+    // FK constraint checking
     public override void Collection_enum_as_string_Contains()
-        => base.Collection_enum_as_string_Contains();
+        => Assert.ThrowsAny<XunitException>(() => base.Collection_enum_as_string_Contains());
 
     public override void GroupBy_converted_enum()
         => Assert.Contains(
