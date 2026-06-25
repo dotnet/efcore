@@ -997,12 +997,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                 IfThen(NotEqual(entryVariable, Default(entryVariable.Type)),
                                                     Block([
                                                         ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
-                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(x => x.FindFirstPrincipal()!).Where(x => x != null).Select(principalProperty =>
-                                                            Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(principalProperty.ClrType),
-                                                                Constant(principalProperty.GetShadowIndex()),
-                                                                principalProperty.IsShadowProperty()
-                                                                    ? Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(principalProperty.ClrType), Constant(principalProperty.GetShadowIndex()))
-                                                                    : parentInstanceVariable.MakeMemberAccess(principalProperty.GetMemberInfo(true, false)))),
+                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x != null).Select(p =>
+                                                            Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.self.ClrType),
+                                                                Constant(p.self.GetShadowIndex()),
+                                                                ConvertIfNotMatch(
+                                                                    p.principal.IsShadowProperty()
+                                                                        ? Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(p.principal.ClrType), Constant(p.principal.GetShadowIndex()))
+                                                                        : parentInstanceVariable.MakeMemberAccess(p.principal.GetMemberInfo(true, false)),
+                                                                p.self.ClrType))),
                                                         Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
                     }
                     else
