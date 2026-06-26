@@ -17,9 +17,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
 {
     protected TFixture Fixture { get; set; } = fixture;
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_can_be_used_with_AutoTransactionBehavior_Never(bool async)
     {
         using (var context = CreateContext())
@@ -54,48 +52,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-#pragma warning disable CS0618 // AutoTransactionsEnabled is obsolete
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public virtual async Task SaveChanges_can_be_used_with_AutoTransactionsEnabled_false(bool async)
-    {
-        using (var context = CreateContext())
-        {
-            context.Database.AutoTransactionsEnabled = false;
-
-            await context.AddAsync(
-                new TransactionCustomer { Id = -77, Name = "Bobble" });
-
-            context.Entry(context.Set<TransactionOrder>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
-
-            if (async)
-            {
-                await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-            }
-            else
-            {
-                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-            }
-
-            context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
-        }
-
-        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == RelationalEventId.TransactionStarted);
-        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == RelationalEventId.TransactionCommitted);
-
-        using (var context = CreateContext())
-        {
-            Assert.Equal(
-                [-77, 1, 2],
-                context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-        }
-    }
-#pragma warning restore CS0618
-
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_can_be_used_with_AutoTransactionBehavior_Always(bool async)
     {
         using (var context = CreateContext())
@@ -129,9 +86,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_implicitly_starts_transaction_when_needed(bool async)
     {
         using (var context = CreateContext())
@@ -156,13 +111,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_enlisted_transaction(bool async, AutoTransactionBehavior autoTransactionBehavior)
     {
         using (var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10)))
@@ -222,13 +173,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_enlisted_transaction_after_connection_closed(
         bool async,
         AutoTransactionBehavior autoTransactionBehavior)
@@ -273,13 +220,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_enlisted_transaction_connectionString(
         bool async,
         AutoTransactionBehavior autoTransactionBehavior)
@@ -318,13 +261,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_ambient_transaction(bool async, AutoTransactionBehavior autoTransactionBehavior)
     {
         if (TestStore.ConnectionState == ConnectionState.Closed)
@@ -385,13 +324,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_ambient_transaction_with_connectionString(
         bool async,
         AutoTransactionBehavior autoTransactionBehavior)
@@ -436,9 +371,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual void SaveChanges_throws_for_suppressed_ambient_transactions(bool connectionString)
     {
         if (!AmbientTransactionsSupported)
@@ -467,7 +400,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SaveChanges_allows_nested_ambient_transactions()
     {
         if (!AmbientTransactionsSupported)
@@ -506,7 +439,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SaveChanges_allows_independent_ambient_transaction_commits()
     {
         if (!AmbientTransactionsSupported)
@@ -544,7 +477,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SaveChanges_uses_enlisted_transaction_after_ambient_transaction()
     {
         if (!AmbientTransactionsSupported)
@@ -576,9 +509,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_does_not_close_connection_opened_by_user(bool async)
     {
         using (var context = CreateContext())
@@ -613,13 +544,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_explicit_transaction_without_committing(
         bool async,
         AutoTransactionBehavior autoTransactionBehavior)
@@ -654,13 +581,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes(
         bool async,
         AutoTransactionBehavior autoTransactionBehavior)
@@ -699,13 +622,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalTheory]
-    [InlineData(true, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(true, AutoTransactionBehavior.Never)]
-    [InlineData(true, AutoTransactionBehavior.Always)]
-    [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(false, AutoTransactionBehavior.Never)]
-    [InlineData(false, AutoTransactionBehavior.Always)]
+    [Theory, InlineData(true, AutoTransactionBehavior.WhenNeeded), InlineData(true, AutoTransactionBehavior.Never),
+     InlineData(true, AutoTransactionBehavior.Always), InlineData(false, AutoTransactionBehavior.WhenNeeded),
+     InlineData(false, AutoTransactionBehavior.Never), InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_explicit_transaction_with_failure_behavior(
         bool async,
         AutoTransactionBehavior autoTransactionBehavior)
@@ -771,10 +690,8 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(AutoTransactionBehavior.Never)]
-    [InlineData(AutoTransactionBehavior.Always)]
+    [Theory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never),
+     InlineData(AutoTransactionBehavior.Always)]
     public virtual async Task RelationalTransaction_can_be_committed(AutoTransactionBehavior autoTransactionBehavior)
     {
         using (var context = CreateContext())
@@ -797,10 +714,8 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(AutoTransactionBehavior.Never)]
-    [InlineData(AutoTransactionBehavior.Always)]
+    [Theory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never),
+     InlineData(AutoTransactionBehavior.Always)]
     public virtual async Task RelationalTransaction_can_be_committed_from_context(AutoTransactionBehavior autoTransactionBehavior)
     {
         using (var context = CreateContext())
@@ -823,10 +738,8 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(AutoTransactionBehavior.Never)]
-    [InlineData(AutoTransactionBehavior.Always)]
+    [Theory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never),
+     InlineData(AutoTransactionBehavior.Always)]
     public virtual async Task RelationalTransaction_can_be_rolled_back(AutoTransactionBehavior autoTransactionBehavior)
     {
         using var context = CreateContext();
@@ -844,10 +757,8 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
     }
 
-    [ConditionalTheory]
-    [InlineData(AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(AutoTransactionBehavior.Never)]
-    [InlineData(AutoTransactionBehavior.Always)]
+    [Theory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never),
+     InlineData(AutoTransactionBehavior.Always)]
     public virtual async Task RelationalTransaction_can_be_rolled_back_from_context(AutoTransactionBehavior autoTransactionBehavior)
     {
         using var context = CreateContext();
@@ -865,10 +776,8 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
     }
 
-    [ConditionalTheory]
-    [InlineData(AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(AutoTransactionBehavior.Never)]
-    [InlineData(AutoTransactionBehavior.Always)]
+    [Theory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never),
+     InlineData(AutoTransactionBehavior.Always)]
     public virtual void Query_uses_explicit_transaction(AutoTransactionBehavior autoTransactionBehavior)
     {
         using var context = CreateContext();
@@ -916,10 +825,8 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
     }
 
-    [ConditionalTheory]
-    [InlineData(AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(AutoTransactionBehavior.Never)]
-    [InlineData(AutoTransactionBehavior.Always)]
+    [Theory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never),
+     InlineData(AutoTransactionBehavior.Always)]
     public virtual async Task QueryAsync_uses_explicit_transaction(AutoTransactionBehavior autoTransactionBehavior)
     {
         using var context = CreateContext();
@@ -967,10 +874,8 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
     }
 
-    [ConditionalTheory]
-    [InlineData(AutoTransactionBehavior.WhenNeeded)]
-    [InlineData(AutoTransactionBehavior.Never)]
-    [InlineData(AutoTransactionBehavior.Always)]
+    [Theory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never),
+     InlineData(AutoTransactionBehavior.Always)]
     public virtual async Task Can_use_open_connection_with_started_transaction(AutoTransactionBehavior autoTransactionBehavior)
     {
         using (var transaction = TestStore.BeginTransaction())
@@ -989,20 +894,17 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UseTransaction_throws_if_mismatched_connection()
     {
         using var transaction = TestStore.BeginTransaction();
         using var context = CreateContextWithConnectionString();
-        var ex = Assert.Throws<InvalidOperationException>(
-            () =>
-                context.Database.UseTransaction(transaction));
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            context.Database.UseTransaction(transaction));
         Assert.Equal(RelationalStrings.TransactionAssociatedWithDifferentConnection, ex.Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task UseTransaction_is_no_op_if_same_DbTransaction_is_used(bool async)
     {
         using (var transaction = TestStore.BeginTransaction())
@@ -1037,7 +939,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         AssertStoreInitialState();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UseTransaction_will_not_dispose_external_transaction()
     {
         using var transaction = TestStore.BeginTransaction();
@@ -1049,7 +951,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.NotNull(transaction.Connection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UseTransaction_throws_if_ambient_transaction_started()
     {
         if (!AmbientTransactionsSupported)
@@ -1061,13 +963,12 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         {
             using var transaction = TestStore.BeginTransaction();
             using var context = CreateContextWithConnectionString();
-            var ex = Assert.Throws<InvalidOperationException>(
-                () => context.Database.UseTransaction(transaction));
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Database.UseTransaction(transaction));
             Assert.Equal(RelationalStrings.ConflictingAmbientTransaction, ex.Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UseTransaction_throws_if_enlisted_in_transaction()
     {
         if (!AmbientTransactionsSupported)
@@ -1082,25 +983,23 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
 
         context.Database.EnlistTransaction(t);
 
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => context.Database.UseTransaction(transaction));
+        var ex = Assert.Throws<InvalidOperationException>(() => context.Database.UseTransaction(transaction));
         Assert.Equal(RelationalStrings.ConflictingEnlistedTransaction, ex.Message);
         context.Database.CloseConnection();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BeginTransaction_throws_if_another_transaction_started()
     {
         using var context = CreateContextWithConnectionString();
         using (context.Database.BeginTransaction())
         {
-            var ex = Assert.Throws<InvalidOperationException>(
-                () => context.Database.BeginTransaction());
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction());
             Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BeginTransaction_throws_if_ambient_transaction_started()
     {
         if (!AmbientTransactionsSupported)
@@ -1111,13 +1010,12 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         using (TestUtilities.TestStore.CreateTransactionScope())
         {
             using var context = CreateContextWithConnectionString();
-            var ex = Assert.Throws<InvalidOperationException>(
-                () => context.Database.BeginTransaction());
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction());
             Assert.Equal(RelationalStrings.ConflictingAmbientTransaction, ex.Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BeginTransaction_throws_if_enlisted_in_transaction()
     {
         if (!AmbientTransactionsSupported)
@@ -1131,16 +1029,15 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
 
         context.Database.EnlistTransaction(transaction);
 
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => context.Database.BeginTransaction(
-                DirtyReadsOccur
-                    ? IsolationLevel.ReadUncommitted
-                    : IsolationLevel.Unspecified));
+        var ex = Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction(
+            DirtyReadsOccur
+                ? IsolationLevel.ReadUncommitted
+                : IsolationLevel.Unspecified));
         Assert.Equal(RelationalStrings.ConflictingEnlistedTransaction, ex.Message);
         context.Database.CloseConnection();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BeginTransaction_can_be_used_after_ambient_transaction_ended()
     {
         if (!AmbientTransactionsSupported)
@@ -1161,7 +1058,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         context.Database.CloseConnection();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BeginTransaction_can_be_used_after_enlisted_transaction_ended()
     {
         if (!AmbientTransactionsSupported)
@@ -1184,7 +1081,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         context.Database.CloseConnection();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BeginTransaction_can_be_used_after_another_transaction_if_connection_closed()
     {
         using var context = CreateContextWithConnectionString();
@@ -1197,7 +1094,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void BeginTransaction_can_be_used_after_enlisted_transaction_if_connection_closed()
     {
         if (!AmbientTransactionsSupported)
@@ -1218,7 +1115,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EnlistTransaction_throws_if_another_transaction_started()
     {
         if (!AmbientTransactionsSupported)
@@ -1230,12 +1127,11 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         using var context = CreateContextWithConnectionString();
         using (context.Database.BeginTransaction())
         {
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.EnlistTransaction(transaction));
+            Assert.Throws<InvalidOperationException>(() => context.Database.EnlistTransaction(transaction));
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EnlistTransaction_throws_if_ambient_transaction_started()
     {
         if (!AmbientTransactionsSupported)
@@ -1249,16 +1145,13 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             using var context = CreateContextWithConnectionString();
             context.Database.OpenConnection();
 
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.EnlistTransaction(transaction));
+            Assert.Throws<InvalidOperationException>(() => context.Database.EnlistTransaction(transaction));
 
             context.Database.CloseConnection();
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Externally_closed_connections_are_handled_correctly(bool async)
     {
         DbConnection connection;
@@ -1295,9 +1188,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(ConnectionState.Closed, connection.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_implicitly_creates_savepoint(bool async)
     {
         using (var context = CreateContext())
@@ -1340,9 +1231,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_can_be_used_with_no_savepoint(bool async)
     {
         using (var context = CreateContext())
@@ -1387,9 +1276,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Savepoint_can_be_rolled_back(bool async)
     {
         using (var context = CreateContext())
@@ -1429,9 +1316,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Savepoint_can_be_released(bool async)
     {
         using (var context = CreateContext())
@@ -1456,14 +1341,12 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             if (async)
             {
                 await transaction.ReleaseSavepointAsync("FooSavepoint");
-                await Assert.ThrowsAnyAsync<DbException>(
-                    async () => await transaction.ReleaseSavepointAsync("FooSavepoint"));
+                await Assert.ThrowsAnyAsync<DbException>(async () => await transaction.ReleaseSavepointAsync("FooSavepoint"));
             }
             else
             {
                 transaction.ReleaseSavepoint("FooSavepoint");
-                Assert.ThrowsAny<DbException>(
-                    () => transaction.ReleaseSavepoint("FooSavepoint"));
+                Assert.ThrowsAny<DbException>(() => transaction.ReleaseSavepoint("FooSavepoint"));
             }
 
             await transaction.CommitAsync();
@@ -1475,9 +1358,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Savepoint_name_is_quoted(bool async)
     {
         using (var context = CreateContext())
@@ -1552,18 +1433,16 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<TransactionCustomer>(
-                ps =>
-                {
-                    ps.Property(c => c.Id).ValueGeneratedNever();
-                    ps.ToTable("Customers");
-                });
-            modelBuilder.Entity<TransactionOrder>(
-                ps =>
-                {
-                    ps.Property(c => c.Id).ValueGeneratedNever();
-                    ps.ToTable("Orders");
-                });
+            modelBuilder.Entity<TransactionCustomer>(ps =>
+            {
+                ps.Property(c => c.Id).ValueGeneratedNever();
+                ps.ToTable("Customers");
+            });
+            modelBuilder.Entity<TransactionOrder>(ps =>
+            {
+                ps.Property(c => c.Id).ValueGeneratedNever();
+                ps.ToTable("Orders");
+            });
         }
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -1604,7 +1483,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
 
     protected class TransactionOrder : TransactionEntity;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await Fixture.ReseedAsync();
 
@@ -1616,6 +1495,6 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         Fixture.ListLoggerFactory.Log.Clear();
     }
 
-    public Task DisposeAsync()
-        => Task.CompletedTask;
+    public ValueTask DisposeAsync()
+        => ValueTask.CompletedTask;
 }

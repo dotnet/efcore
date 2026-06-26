@@ -15,11 +15,12 @@ internal class RootCommand : CommandBase
 {
     private CommandLineApplication? _command;
     private CommandOption? _project;
+    private CommandOption? _file;
     private CommandOption? _startupProject;
+    private CommandOption? _startupFile;
     private CommandOption? _framework;
     private CommandOption? _configuration;
     private CommandOption? _runtime;
-    private CommandOption? _msbuildprojectextensionspath;
     private CommandOption? _noBuild;
     private CommandOption? _help;
     private IList<string>? _args;
@@ -34,11 +35,12 @@ internal class RootCommand : CommandBase
         options.Configure(command);
 
         _project = options.Project;
+        _file = options.File;
         _startupProject = options.StartupProject;
+        _startupFile = options.StartupFile;
         _framework = options.Framework;
         _configuration = options.Configuration;
         _runtime = options.Runtime;
-        _msbuildprojectextensionspath = options.MSBuildProjectExtensionsPath;
         _noBuild = options.NoBuild;
 
         command.VersionOption("--version", GetVersion);
@@ -56,34 +58,58 @@ internal class RootCommand : CommandBase
     {
         var commands = _args!.TakeWhile(a => a[0] != '-').ToList();
         if (_help!.HasValue()
-            || ShouldHelp(commands))
+            || ShouldHelp(commands, _args!))
         {
             return ShowHelp(_help.HasValue(), commands);
         }
 
+        var config = DotNetEfConfigLoader.Load(Directory.GetCurrentDirectory());
+        var projectPath = ResolveOption(_project!, _file!, config?.Project);
+        var startupProjectPath = ResolveOption(_startupProject!, _startupFile!, config?.StartupProject);
+        var framework = _framework!.Value() ?? config?.Framework;
+        var configuration = _configuration!.Value() ?? config?.Configuration;
+        var runtime = _runtime!.Value() ?? config?.Runtime;
+        var context = ResolveContext(_args!, config?.Context);
+        var remainingArguments = CreateRemainingArguments(_args!, context);
+
+        if (config?.Verbose == true && !ContainsOption(_args!, "-v", "--verbose"))
+            Reporter.IsVerbose = true;
+
+        if (config?.NoColor == true && !ContainsOption(_args!, "--no-color"))
+            Reporter.NoColor = true;
+
+        if (config?.PrefixOutput == true && !ContainsOption(_args!, "--prefix-output"))
+            Reporter.PrefixOutput = true;
+
         var (projectFile, startupProjectFile) = ResolveProjects(
-            _project!.Value(),
-            _startupProject!.Value());
+            projectPath,
+            startupProjectPath);
 
-        Reporter.WriteVerbose(Resources.UsingProject(projectFile));
-        Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
+        Reporter.WriteVerbose(
+            IsFileBasedApp(projectFile)
+                ? Resources.UsingFileBasedApp(projectFile)
+                : Resources.UsingProject(projectFile));
+        Reporter.WriteVerbose(
+            IsFileBasedApp(startupProjectFile)
+                ? Resources.UsingStartupFileBasedApp(startupProjectFile)
+                : Resources.UsingStartupProject(startupProjectFile));
 
-        var project = Project.FromFile(projectFile, _msbuildprojectextensionspath!.Value());
+        var project = Project.FromFile(
+            projectFile,
+            framework,
+            configuration,
+            runtime);
         var startupProject = Project.FromFile(
             startupProjectFile,
-            _msbuildprojectextensionspath.Value(),
-            _framework!.Value(),
-            _configuration!.Value(),
-            _runtime!.Value());
+            framework,
+            configuration,
+            runtime);
 
         if (!_noBuild!.HasValue())
         {
             Reporter.WriteInformation(Resources.BuildStarted);
-            var skipOptimization = _args!.Count > 2
-                && _args[0] == "dbcontext"
-                && _args[1] == "optimize"
-                && !_args.Any(a => a == "--no-scaffold");
-            startupProject.Build(skipOptimization ? new[] { "/p:EFOptimizeContext=false" } : null);
+            var skipOptimization = ShouldSkipOptimization(_args!);
+            startupProject.Build(skipOptimization ? ["/p:EFScaffoldModelStage=none", "/p:EFPrecompileQueriesStage=none"] : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
 
@@ -105,39 +131,25 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
+        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier)
+            || HasPlatformInTargetFramework(startupProject.TargetFramework))
+        {
+            Reporter.WriteWarning(
+                Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetFramework));
+        }
+
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
         if (targetFramework.Identifier == ".NETFramework")
         {
-            executable = Path.Combine(
-                toolsPath,
-                "net472",
-                startupProject.PlatformTarget == "x86"
-                    ? "win-x86"
-                    : "any",
-                "ef.exe");
+            throw new CommandException(
+                Resources.NETFrameworkStartupProject(startupProject.ProjectName));
         }
         else if (targetFramework.Identifier == ".NETCoreApp")
         {
-            if (targetFramework.Version < new Version(2, 0))
+            if (targetFramework.Version < new Version(5, 0))
             {
                 throw new CommandException(
                     Resources.NETCoreApp1StartupProject(startupProject.ProjectName, targetFramework.Version));
-            }
-
-            var targetPlatformIdentifier = startupProject.TargetPlatformIdentifier!;
-            if (targetPlatformIdentifier.Length != 0
-                && !string.Equals(targetPlatformIdentifier, "Windows", StringComparison.OrdinalIgnoreCase))
-            {
-                executable = Path.Combine(
-                    toolsPath,
-                    "net472",
-                    startupProject.PlatformTarget switch
-                    {
-                        "x86" => "win-x86",
-                        "ARM64" => "win-arm64",
-                        _ => "any"
-                    },
-                    "ef.exe");
             }
 
             executable = "dotnet";
@@ -170,7 +182,7 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-            args.Add(Path.Combine(toolsPath, "netcoreapp2.0", "any", "ef.dll"));
+            args.Add(Path.Combine(toolsPath, "net", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {
@@ -182,7 +194,7 @@ internal class RootCommand : CommandBase
                 Resources.UnsupportedFramework(startupProject.ProjectName, targetFramework.Identifier));
         }
 
-        args.AddRange(_args!);
+        args.AddRange(remainingArguments);
         args.Add("--assembly");
         args.Add(targetPath);
         args.Add("--project");
@@ -200,10 +212,17 @@ internal class RootCommand : CommandBase
         args.Add("--framework");
         args.Add(startupProject.TargetFramework!);
 
-        if (_configuration.HasValue())
+        var designAssembly = startupProject.DesignAssembly;
+        if (!string.IsNullOrEmpty(designAssembly))
+        {
+            args.Add("--design-assembly");
+            args.Add(designAssembly);
+        }
+
+        if (configuration != null)
         {
             args.Add("--configuration");
-            args.Add(_configuration.Value()!);
+            args.Add(configuration);
         }
 
         if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
@@ -295,6 +314,20 @@ internal class RootCommand : CommandBase
         return (projects[0], startupProjects[0]);
     }
 
+    internal static string? ResolveOption(
+        CommandOption primary,
+        CommandOption alias,
+        string? configValue)
+    {
+        if (primary.HasValue() && alias.HasValue())
+        {
+            throw new CommandException(
+                Resources.MutuallyExclusiveOptions(primary.LongName!, alias.LongName!));
+        }
+
+        return alias.Value() ?? primary.Value() ?? configValue;
+    }
+
     private static List<string> ResolveProjects(string? path)
     {
         if (path == null)
@@ -318,13 +351,85 @@ internal class RootCommand : CommandBase
         return projectFiles;
     }
 
+    private static bool IsFileBasedApp(string file)
+        => string.Equals(Path.GetExtension(file), ".cs", StringComparison.OrdinalIgnoreCase);
+
+    internal static string? ResolveContext(IList<string> args, string? configValue)
+        => configValue != null
+            && AppliesToContext(args)
+            && !ContainsOption(args, "-c", "--context")
+                ? configValue
+                : null;
+
+    internal static List<string> CreateRemainingArguments(
+        IList<string> args,
+        string? context)
+    {
+        var remainingArguments = new List<string>(args);
+
+        if (context != null)
+        {
+            remainingArguments.Add("--context");
+            remainingArguments.Add(context);
+        }
+
+        return remainingArguments;
+    }
+
+    private static bool AppliesToContext(IList<string> args)
+        => args.Count >= 2
+            && (args[0], args[1]) switch
+            {
+                ("database", "drop") => true,
+                ("database", "update") => true,
+                ("dbcontext", "info") => true,
+                ("dbcontext", "optimize") => true,
+                ("dbcontext", "script") => true,
+                ("migrations", "add") => true,
+                ("migrations", "bundle") => true,
+                ("migrations", "has-pending-model-changes") => true,
+                ("migrations", "list") => true,
+                ("migrations", "remove") => true,
+                ("migrations", "script") => true,
+                _ => false
+            };
+
+    private static bool ContainsOption(
+        IList<string> args,
+        params string[] names)
+        => args.Any(
+            argument => names.Any(
+                name => string.Equals(argument, name, StringComparison.Ordinal)
+                    || argument.StartsWith(name + "=", StringComparison.Ordinal)
+                    || argument.StartsWith(name + ":", StringComparison.Ordinal)));
+
+    internal static bool ShouldSkipOptimization(IList<string> args)
+        => args.Count > 2
+            && args[0] == "dbcontext"
+            && args[1] == "optimize"
+            && !args.Any(a => a == "--no-scaffold");
+
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion;
 
-    private static bool ShouldHelp(IReadOnlyList<string> commands)
-        => commands.Count == 0
-            || (commands.Count == 1
+    private static bool HasPlatformInTargetFramework(string? targetFramework)
+    {
+        if (string.IsNullOrEmpty(targetFramework))
+        {
+            return false;
+        }
+
+        // Check for netX.Y-Z form (e.g. net8.0-windows10.0.19041.0)
+        var dashIndex = targetFramework.IndexOf('-');
+        return dashIndex > 0 && dashIndex < targetFramework.Length - 1;
+    }
+
+    private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
+        => args.Count == 0
+            || commands.Count == 0
+            || (args.Count == 1
+                && commands.Count == 1
                 && (commands[0] == "database"
                     || commands[0] == "dbcontext"
                     || commands[0] == "migrations"));

@@ -23,6 +23,11 @@ public static class RelationalForeignKeyExtensions
     /// <returns>The foreign key constraint name.</returns>
     public static string? GetConstraintName(this IReadOnlyForeignKey foreignKey)
     {
+        if (!foreignKey.IsConstrained)
+        {
+            return null;
+        }
+
         var tableName = foreignKey.DeclaringEntityType.GetTableName();
         if (tableName == null)
         {
@@ -102,7 +107,7 @@ public static class RelationalForeignKeyExtensions
     public static void SetConstraintName(this IMutableForeignKey foreignKey, string? value)
         => foreignKey.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the foreign key constraint name.
@@ -117,7 +122,7 @@ public static class RelationalForeignKeyExtensions
         bool fromDataAnnotation = false)
         => (string?)foreignKey.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -139,7 +144,7 @@ public static class RelationalForeignKeyExtensions
         foreignKey.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<IForeignKeyConstraint>?)foreignKey.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ForeignKeyMappings)
-            ?? Enumerable.Empty<IForeignKeyConstraint>();
+            ?? [];
     }
 
     /// <summary>
@@ -288,4 +293,47 @@ public static class RelationalForeignKeyExtensions
         this IForeignKey foreignKey,
         in StoreObjectIdentifier storeObject)
         => (IForeignKey?)((IReadOnlyForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
+
+    /// <summary>
+    ///     Returns a value indicating whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <returns><see langword="true" /> if the foreign key constraint is excluded from migrations.</returns>
+    public static bool IsExcludedFromMigrations(this IReadOnlyForeignKey foreignKey)
+        => foreignKey is RuntimeForeignKey
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)foreignKey[RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations] ?? false;
+
+    /// <summary>
+    ///     Sets a value indicating whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <param name="excluded">The value to set.</param>
+    public static void SetIsExcludedFromMigrations(this IMutableForeignKey foreignKey, bool? excluded)
+        => foreignKey.SetOrRemoveAnnotation(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations, excluded);
+
+    /// <summary>
+    ///     Sets a value indicating whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <param name="excluded">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetIsExcludedFromMigrations(
+        this IConventionForeignKey foreignKey,
+        bool? excluded,
+        bool fromDataAnnotation = false)
+        => (bool?)foreignKey.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations,
+            excluded,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the foreign key exclusion from migrations.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the foreign key exclusion from migrations.</returns>
+    public static ConfigurationSource? GetIsExcludedFromMigrationsConfigurationSource(this IConventionForeignKey foreignKey)
+        => foreignKey.FindAnnotation(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations)
+            ?.GetConfigurationSource();
 }

@@ -225,7 +225,7 @@ ORDER BY [b].[Name]
 
     #endregion Tests for the different querying enumerables
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Do_not_cache_is_respected()
     {
         // The "do not cache" flag in the 2nd part of the query pipeline is turned on in provider-specific situations, so we test it
@@ -233,15 +233,18 @@ ORDER BY [b].[Name]
         await Test(
             """
 string[] names = ["foo", "bar"];
-var blogs = await context.Blogs.Where(b => names.Contains(b.Name)).ToListAsync();
+var blogs = await context.Blogs.Where(b => ((IEnumerable<string>)names).Contains(b.Name)).ToListAsync();
 """,
             interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
 
         AssertSql(
             """
+@p1='foo' (Size = 4000)
+@p2='bar' (Size = 4000)
+
 SELECT [b].[Id], [b].[Name]
 FROM [Blogs] AS [b]
-WHERE [b].[Name] IN (N'foo', N'bar')
+WHERE [b].[Name] IN (@p1, @p2)
 """);
     }
 
@@ -251,16 +254,9 @@ WHERE [b].[Name] IN (N'foo', N'bar')
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        {
-            builder = base.AddOptions(builder);
-
             // TODO: Figure out if there's a nice way to continue using the retrying strategy
-            var sqlServerOptionsBuilder = new SqlServerDbContextOptionsBuilder(builder);
-            sqlServerOptionsBuilder
-                .UseCompatibilityLevel(120)
-                .ExecutionStrategy(d => new NonRetryingExecutionStrategy(d));
-            return builder;
-        }
+            => base.AddOptions(builder).UseSqlServerCompatibilityLevel(120)
+                .ConfigureSqlEngine(b => b.ExecutionStrategy(d => new NonRetryingExecutionStrategy(d)));
 
         public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers
             => SqlServerPrecompiledQueryTestHelpers.Instance;

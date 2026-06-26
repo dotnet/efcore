@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -66,7 +67,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var nullable = false;
         var scaffoldedFiles = new List<ScaffoldedFile>();
 
-        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
+        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, options.ProviderName, nullable);
         var assemblyInfoFileName = UniquifyFileName(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
         scaffoldedFiles.Add(new ScaffoldedFile(assemblyInfoFileName, assemblyAttributesCode));
 
@@ -134,8 +135,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         => Uniquifier.Uniquify(
             name,
             options.GeneratedFileNames,
-            (options.Suffix ?? "") + FileExtension,
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            (options.Suffix ?? "") + FileExtension);
 
     private static string GenerateHeader(SortedSet<string> namespaces, string currentNamespace, bool nullable)
     {
@@ -174,6 +175,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private string CreateAssemblyAttributes(
         string @namespace,
         Type contextType,
+        string? providerName,
         bool nullable)
     {
         var mainBuilder = new IndentedStringBuilder();
@@ -183,13 +185,39 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder
             .Append("[assembly: DbContextModel(typeof(").Append(_code.Reference(contextType))
-            .Append("), typeof(").Append(GetModelClassName(contextType)).AppendLine("))]");
+            .Append("), typeof(").Append(GetModelClassName(contextType)).Append(")");
+
+        if (providerName != null)
+        {
+            mainBuilder
+                .Append(", ProviderName = ").Append(_code.Literal(providerName));
+        }
+
+        mainBuilder.AppendLine(")]");
 
         return GenerateHeader(namespaces, currentNamespace: "", nullable) + mainBuilder;
     }
 
     private string GetModelClassName(Type contextType)
         => _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
+
+    private static string GetAccessibilityModifier(Type type)
+        => IsPubliclyAccessible(type) ? "public" : "internal";
+
+    private static bool IsPubliclyAccessible(Type type)
+    {
+        while (type.IsNested)
+        {
+            if (!type.IsNestedPublic)
+            {
+                return false;
+            }
+
+            type = type.DeclaringType!;
+        }
+
+        return type.IsPublic;
+    }
 
     private string GenerateUnsafeAccessorType(
         Type type,
@@ -207,13 +235,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         mainBuilder
-            .Append("public static class ").Append(className);
+            .Append(GetAccessibilityModifier(type)).Append(" static class ").Append(className);
         if (type.IsGenericTypeDefinition)
         {
             var genericParameters = type.GetGenericArguments();
@@ -321,12 +348,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -346,9 +367,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         var className = GetModelClassName(contextType);
@@ -404,12 +424,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -431,9 +445,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         var className = GetModelClassName(contextType);
@@ -616,12 +629,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -718,16 +725,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         AddNamespace(typeof(EntityFrameworkInternalAttribute), namespaces);
         var className = entityClassNames[entityType];
         mainBuilder
             .AppendLine("[EntityFrameworkInternal]")
-            .Append("public partial class ").AppendLine(className)
+            .Append(GetAccessibilityModifier(entityType.ClrType)).Append(" partial class ").AppendLine(className)
             .AppendLine("{");
         using (mainBuilder.Indent())
         {
@@ -770,12 +776,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         mainBuilder.AppendLine("}");
-
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
 
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
@@ -892,18 +892,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     entityType.ShortName(), "Customize()", parameters.ClassName));
         }
 
-        if (entityType.GetQueryFilter() != null)
+        if (entityType.GetDeclaredQueryFilters().Count > 0)
         {
             throw new InvalidOperationException(DesignStrings.CompiledModelQueryFilter(entityType.ShortName()));
         }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (entityType.GetDefiningQuery() != null)
-        {
-            // TODO: Move to InMemoryCSharpRuntimeAnnotationCodeGenerator, see #21624
-            throw new InvalidOperationException(DesignStrings.CompiledModelDefiningQuery(entityType.ShortName()));
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
 
         AddNamespace(entityType.ClrType, parameters.Namespaces);
 
@@ -922,14 +914,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("sharedClrType: ")
                 .Append(_code.Literal(entityType.HasSharedClrType));
-        }
-
-        var discriminatorProperty = entityType.GetDiscriminatorPropertyName();
-        if (discriminatorProperty != null)
-        {
-            mainBuilder.AppendLine(",")
-                .Append("discriminatorProperty: ")
-                .Append(_code.Literal(discriminatorProperty));
         }
 
         var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
@@ -958,14 +942,26 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.Literal(true));
         }
 
+        var discriminatorProperty = entityType.GetDiscriminatorPropertyName();
+        if (discriminatorProperty != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("discriminatorProperty: ")
+                .Append(_code.Literal(discriminatorProperty));
+        }
+
         var discriminatorValue = entityType.GetDiscriminatorValue();
         if (discriminatorValue != null)
         {
-            AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
+            var discriminatorConverter = entityType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+            if (discriminatorConverter == null)
+            {
+                AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
 
-            mainBuilder.AppendLine(",")
-                .Append("discriminatorValue: ")
-                .Append(_code.UnknownLiteral(discriminatorValue));
+                mainBuilder.AppendLine(",")
+                    .Append("discriminatorValue: ")
+                    .Append(_code.UnknownLiteral(discriminatorValue));
+            }
         }
 
         var derivedTypesCount = entityType.GetDirectlyDerivedTypes().Count();
@@ -1056,6 +1052,26 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine(");")
             .AppendLine()
             .DecrementIndent();
+
+        if (discriminatorValue != null)
+        {
+            var discriminatorConverter = entityType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+            if (discriminatorConverter != null)
+            {
+                var providerValue = discriminatorConverter.ConvertToProvider(discriminatorValue);
+                if (providerValue != null)
+                {
+                    AddNamespace(providerValue.GetType(), parameters.Namespaces);
+                }
+
+                mainBuilder
+                    .Append(parameters.TargetName)
+                    .Append(".SetDiscriminatorValueFromProviderValue(")
+                    .Append(_code.UnknownLiteral(providerValue))
+                    .AppendLine(");")
+                    .AppendLine();
+            }
+        }
     }
 
     private void Create(
@@ -1179,18 +1195,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var valueComparerType = (Type?)property[CoreAnnotationNames.ValueComparerType];
         if (valueComparerType != null)
         {
-            AddNamespace(valueComparerType, parameters.Namespaces);
-
-            var valueComparerString = $"new {_code.Reference(valueComparerType)}()";
-            if (property.ClrType.IsNullableValueType())
-            {
-                var valueComparerElementType = ((ValueComparer)Activator.CreateInstance(valueComparerType)!).Type;
-                if (!valueComparerElementType.IsNullableValueType())
-                {
-                    AddNamespace(typeof(NullableValueComparer<>), parameters.Namespaces);
-                    valueComparerString = $"new NullableValueComparer<{_code.Reference(valueComparerType)}>({valueComparerString})";
-                }
-            }
+            var valueComparerString = CreateValueComparerType(valueComparerType, property.ClrType, parameters);
 
             mainBuilder.AppendLine(",")
                 .Append("valueComparer: ")
@@ -1218,6 +1223,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.UnknownLiteral(sentinel));
         }
 
+        if (!property.IsAutoLoaded)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("autoLoaded: ")
+                .Append(_code.Literal(false));
+        }
+
         var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
         if (jsonValueReaderWriterType != null)
         {
@@ -1240,11 +1252,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             && converter != null
             && property[CoreAnnotationNames.ValueConverter] != null
             && !parameters.ForNativeAot;
+        var typeMappingSet = false;
 
         if (parameters.ForNativeAot
             || (shouldSetConverter && converter!.MappingHints != null))
         {
             shouldSetConverter = false;
+            typeMappingSet = true;
             mainBuilder.Append(variableName).Append(".TypeMapping = ");
             _annotationCodeGenerator.Create(property.GetTypeMapping(), property, propertyParameters);
             mainBuilder.AppendLine(";");
@@ -1311,12 +1325,150 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .AppendLine(");");
         }
 
+        var elementType = property.GetElementType();
+        if (elementType != null)
+        {
+            Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+            Create(elementType, typeMappingSet, propertyParameters);
+        }
+
         CreateAnnotations(
             property,
             _annotationCodeGenerator.Generate,
-            parameters with { TargetName = variableName });
+            propertyParameters);
 
         mainBuilder.AppendLine();
+    }
+
+    private void Create(IElementType elementType, bool typeMappingSet, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        var elementVariableName = _code.Identifier(
+            parameters.TargetName + "ElementType", elementType, parameters.ScopeObjects, capitalize: false);
+        var elementParameters = parameters with { TargetName = elementVariableName };
+
+        mainBuilder
+            .Append("var ").Append(elementVariableName).Append(" = ")
+            .Append(parameters.TargetName).Append(".SetElementType(").IncrementIndent()
+            .Append(_code.Literal(elementType.ClrType));
+
+        if (elementType.IsNullable)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("nullable: ")
+                .Append(_code.Literal(elementType.IsNullable));
+        }
+
+        if (elementType.GetMaxLength() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("maxLength: ")
+                .Append(_code.Literal(elementType.GetMaxLength()));
+        }
+
+        if (elementType.IsUnicode() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("unicode: ")
+                .Append(_code.Literal(elementType.IsUnicode()));
+        }
+
+        if (elementType.GetPrecision() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("precision: ")
+                .Append(_code.Literal(elementType.GetPrecision()));
+        }
+
+        if (elementType.GetScale() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("scale: ")
+                .Append(_code.Literal(elementType.GetScale()));
+        }
+
+        var providerClrType = elementType.GetProviderClrType();
+        if (providerClrType != null)
+        {
+            AddNamespace(providerClrType, parameters.Namespaces);
+            mainBuilder.AppendLine(",")
+                .Append("providerClrType: ")
+                .Append(_code.Literal(providerClrType));
+        }
+
+        var jsonValueReaderWriterType = (Type?)elementType[CoreAnnotationNames.JsonValueReaderWriterType];
+        if (jsonValueReaderWriterType != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("jsonValueReaderWriter: ");
+            CSharpRuntimeAnnotationCodeGenerator.CreateJsonValueReaderWriter(jsonValueReaderWriterType, parameters, _code);
+        }
+
+        mainBuilder
+            .AppendLine(");")
+            .DecrementIndent();
+
+        var converter = elementType.FindTypeMapping()?.Converter;
+        var shouldSetConverter = providerClrType == null
+            && converter != null
+            && elementType[CoreAnnotationNames.ValueConverter] != null
+            && !parameters.ForNativeAot;
+
+        if (parameters.ForNativeAot
+            || (shouldSetConverter && converter!.MappingHints != null))
+        {
+            shouldSetConverter = false;
+            mainBuilder.Append(elementVariableName).Append(".TypeMapping = ");
+
+            if (typeMappingSet)
+            {
+                mainBuilder.Append(parameters.TargetName).Append(".TypeMapping.ElementTypeMapping");
+            }
+            else
+            {
+                _annotationCodeGenerator.Create(elementType.GetTypeMapping(), elementParameters);
+            }
+
+            mainBuilder.AppendLine(";");
+        }
+
+        if (shouldSetConverter)
+        {
+            mainBuilder.Append(elementVariableName).Append(".SetValueConverter(");
+            _annotationCodeGenerator.Create(converter!, parameters);
+            mainBuilder.AppendLine(");");
+        }
+
+        var valueComparer = elementType.GetValueComparer();
+        var typeMappingComparer = elementType.GetTypeMapping().Comparer;
+        if ((!parameters.ForNativeAot || valueComparer != typeMappingComparer)
+            && (parameters.ForNativeAot || elementType[CoreAnnotationNames.ValueComparer] != null))
+        {
+            SetValueComparer(valueComparer, typeMappingComparer, nameof(CoreTypeMapping.Comparer), elementParameters);
+        }
+
+        CreateAnnotations(
+            elementType,
+            _annotationCodeGenerator.Generate,
+            elementParameters);
+    }
+
+    private string CreateValueComparerType(Type valueComparerType, Type clrType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        AddNamespace(valueComparerType, parameters.Namespaces);
+
+        var valueComparerString = $"new {_code.Reference(valueComparerType)}()";
+        if (clrType.IsNullableValueType())
+        {
+            var valueComparerElementType = ((ValueComparer)Activator.CreateInstance(valueComparerType)!).Type;
+            if (!valueComparerElementType.IsNullableValueType())
+            {
+                AddNamespace(typeof(NullableValueComparer<>), parameters.Namespaces);
+                valueComparerString = $"new NullableValueComparer<{_code.Reference(valueComparerType)}>({valueComparerString})";
+            }
+        }
+
+        return valueComparerString;
     }
 
     private void SetValueComparer(
@@ -1327,7 +1479,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     {
         var mainBuilder = parameters.MainBuilder;
         var valueComparerType = valueComparer.GetType();
-        if (valueComparer is IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer }
+        if (valueComparer is IInfrastructure<ValueComparer> { Instance: var underlyingValueComparer }
             && typeMappingComparer == underlyingValueComparer
             && valueComparerType.GetDeclaredConstructor([typeof(ValueComparer)]) != null)
         {
@@ -1383,41 +1535,61 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             ClrPropertyGetterFactory.Instance.Create(
                 property,
-                out var getterExpression,
-                out var hasSentinelExpression,
-                out var structuralGetterExpression,
-                out var hasStructuralSentinelExpression);
+                out var getClrValueUsingContainingEntityExpression,
+                out var hasSentinelValueUsingContainingEntityExpression,
+                out var getClrValueExpression,
+                out var hasSentinelValueExpression);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetGetter(")
-                .IncrementIndent()
+                .IncrementIndent();
+            if (property.DeclaringType is not IEntityType)
+            {
+                mainBuilder
+                    .AppendLines(
+                        _code.Expression(
+                            getClrValueUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            hasSentinelValueUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(",");
+            }
+
+            mainBuilder
                 .AppendLines(
                     _code.Expression(
-                        getterExpression, parameters.Namespaces, unsafeAccessors,
+                        getClrValueExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
                 .AppendLines(
                     _code.Expression(
-                        hasSentinelExpression, parameters.Namespaces, unsafeAccessors,
-                        (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    _code.Expression(
-                        structuralGetterExpression, parameters.Namespaces, unsafeAccessors,
-                        (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    _code.Expression(
-                        hasStructuralSentinelExpression, parameters.Namespaces, unsafeAccessors,
+                        hasSentinelValueExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
-            ClrPropertySetterFactory.Instance.Create(property, out var setterExpression);
+            ClrPropertySetterFactory.Instance.Create(property, out var setterUsingContainingEntityExpression, out var setterExpression);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetSetter(")
-                .IncrementIndent()
+                .IncrementIndent();
+            if (property.DeclaringType is not IEntityType)
+            {
+                mainBuilder
+                    .AppendLines(
+                        _code.Expression(
+                            setterUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(",");
+            }
+
+            mainBuilder
                 .AppendLines(
                     _code.Expression(
                         setterExpression, parameters.Namespaces, unsafeAccessors,
@@ -1425,17 +1597,68 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .AppendLine(");")
                 .DecrementIndent();
 
-            ClrPropertyMaterializationSetterFactory.Instance.Create(property, out var materializationSetterExpression);
+            ClrPropertyMaterializationSetterFactory.Instance.Create(
+                property, out var materializationSetterUsingContainingEntityExpression, out var materializationSetterExpression);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetMaterializationSetter(")
-                .IncrementIndent()
+                .IncrementIndent();
+            if (property.DeclaringType is not IEntityType)
+            {
+                mainBuilder
+                    .AppendLines(
+                        _code.Expression(
+                            materializationSetterUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(",");
+            }
+
+            mainBuilder
                 .AppendLines(
                     _code.Expression(
                         materializationSetterExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
+
+            if (property.IsCollection
+                && property is IComplexProperty)
+            {
+                ClrIndexedCollectionAccessorFactory.Instance.Create(
+                    property,
+                    out _, out _, out _,
+                    out var get, out var set, out var setForMaterialization, out var createCollection);
+
+                mainBuilder
+                    .Append(variableName).AppendLine(".SetIndexedCollectionAccessor(")
+                    .IncrementIndent()
+                    .AppendLines(
+                        _code.Expression(
+                            get!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            set!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            setForMaterialization!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            createCollection!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                        skipFinalNewline: true)
+                    .AppendLine(");")
+                    .DecrementIndent();
+            }
         }
 
         if (property is not IServiceProperty)
@@ -1445,8 +1668,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 out var currentValueGetter,
                 out var preStoreGeneratedCurrentValueGetter,
                 out var originalValueGetter,
-                out var relationshipSnapshotGetter,
-                out var valueBufferGetter);
+                out var relationshipSnapshotGetter);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetAccessors(")
@@ -1473,14 +1695,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     _code.Expression(
                         relationshipSnapshotGetter, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    valueBufferGetter == null
-                        ? "null"
-                        : _code.Expression(
-                            valueBufferGetter, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                    skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -1586,7 +1800,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
         ref Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
-        var member = property.GetMemberInfo(forMaterialization, forSet);
+        if (!property.TryGetMemberInfo(forMaterialization, forSet, out var member, out var error))
+        {
+            throw new InvalidOperationException(error);
+        }
+
+        if (member == null)
+        {
+            return null;
+        }
         switch (member)
         {
             case FieldInfo field:
@@ -1616,6 +1838,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         memberAccessReplacements ??= [];
+
         var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
 
         var declaringType = member.DeclaringType!;
@@ -1628,8 +1851,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix,
-                    int.MaxValue);
+                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, int.MaxValue,
+                    UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 
@@ -1642,7 +1865,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name, unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix, int.MaxValue);
+                    declaringType.Name, unsafeAccessorClassNames.Inverse, int.MaxValue, UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 
@@ -1790,7 +2013,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private void FindProperties(
         string entityTypeVariable,
-        IEnumerable<IProperty> properties,
+        IEnumerable<IPropertyBase> properties,
         IndentedStringBuilder mainBuilder,
         bool nullable,
         IDictionary<object, string>? scopeVariables = null)
@@ -1813,11 +2036,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             {
                 mainBuilder.Append(propertyVariable);
             }
-            else
+            else if (property.DeclaringType is IEntityType)
             {
                 mainBuilder
                     .Append(entityTypeVariable)
-                    .Append(".FindProperty(")
+                    .Append(property is IComplexProperty ? ".FindComplexProperty(" : ".FindProperty(")
                     .Append(_code.Literal(property.Name))
                     .Append(')');
 
@@ -1825,6 +2048,70 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 {
                     mainBuilder
                         .Append('!');
+                }
+            }
+            else
+            {
+                // Property is declared on a complex type. Walk the chain from the entity type down to the
+                // complex type, then look up the leaf property/complex property. At each level, check
+                // whether the complex property/type already has a variable in scope and start from there.
+                var chain = new List<string>();
+                var typeBase = (IReadOnlyTypeBase)property.DeclaringType;
+                string? startVariable = null;
+                var startVariableIsComplexProperty = false;
+                while (typeBase is IReadOnlyComplexType complexType)
+                {
+                    if (scopeVariables != null
+                        && scopeVariables.TryGetValue(complexType, out startVariable))
+                    {
+                        break;
+                    }
+
+                    if (scopeVariables != null
+                        && scopeVariables.TryGetValue(complexType.ComplexProperty, out startVariable))
+                    {
+                        startVariableIsComplexProperty = true;
+                        break;
+                    }
+
+                    chain.Insert(0, complexType.ComplexProperty.Name);
+                    typeBase = complexType.ComplexProperty.DeclaringType;
+                }
+
+                mainBuilder.Append(startVariable ?? entityTypeVariable);
+                if (startVariableIsComplexProperty)
+                {
+                    if (nullable)
+                    {
+                        mainBuilder.Append('!');
+                    }
+
+                    mainBuilder.Append(".ComplexType");
+                }
+
+                foreach (var complexPropertyName in chain)
+                {
+                    mainBuilder
+                        .Append(".FindComplexProperty(")
+                        .Append(_code.Literal(complexPropertyName))
+                        .Append(')');
+
+                    if (nullable)
+                    {
+                        mainBuilder.Append('!');
+                    }
+
+                    mainBuilder.Append(".ComplexType");
+                }
+
+                mainBuilder
+                    .Append(property is IComplexProperty ? ".FindComplexProperty(" : ".FindProperty(")
+                    .Append(_code.Literal(property.Name))
+                    .Append(')');
+
+                if (nullable)
+                {
+                    mainBuilder.Append('!');
                 }
             }
         }
@@ -1898,6 +2185,43 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder.AppendLine();
     }
 
+    private static void CollectionIndicesLiteral(
+        IndentedStringBuilder mainBuilder,
+        IReadOnlyList<IReadOnlyList<int?>?> collectionIndices)
+    {
+        mainBuilder.Append("[");
+        for (var i = 0; i < collectionIndices.Count; i++)
+        {
+            if (i > 0)
+            {
+                mainBuilder.Append(", ");
+            }
+
+            var entry = collectionIndices[i];
+            if (entry is null)
+            {
+                mainBuilder.Append("null");
+                continue;
+            }
+
+            mainBuilder.Append("[");
+            for (var j = 0; j < entry.Count; j++)
+            {
+                if (j > 0)
+                {
+                    mainBuilder.Append(", ");
+                }
+
+                var value = entry[j];
+                mainBuilder.Append(value is null ? "null" : value.Value.ToString(CultureInfo.InvariantCulture));
+            }
+
+            mainBuilder.Append("]");
+        }
+
+        mainBuilder.Append("]");
+    }
+
     private void Create(
         IIndex index,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
@@ -1924,6 +2248,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("unique: ")
                 .Append(_code.Literal(true));
+        }
+
+        if (index.CollectionIndices is { } collectionIndices)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("collectionIndices: ");
+            CollectionIndicesLiteral(mainBuilder, collectionIndices);
         }
 
         mainBuilder
@@ -2053,6 +2384,28 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                         .Append(_code.Literal(true));
                 }
 
+                var discriminatorPropertyName = complexType.GetDiscriminatorPropertyName();
+                if (discriminatorPropertyName != null)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("discriminatorProperty: ")
+                        .Append(_code.Literal(discriminatorPropertyName));
+                }
+
+                var discriminatorValue = complexType.GetDiscriminatorValue();
+                if (discriminatorValue != null)
+                {
+                    var discriminatorConverter = complexType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+                    if (discriminatorConverter == null)
+                    {
+                        AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
+
+                        mainBuilder.AppendLine(",")
+                            .Append("discriminatorValue: ")
+                            .Append(_code.UnknownLiteral(discriminatorValue));
+                    }
+                }
+
                 mainBuilder.AppendLine(",")
                     .Append("propertyCount: ")
                     .Append(_code.Literal(complexType.GetDeclaredProperties().Count()));
@@ -2073,6 +2426,25 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder
                     .Append("var ").Append(complexTypeVariable).Append(" = ")
                     .Append(complexPropertyVariable).AppendLine(".ComplexType;");
+
+                if (discriminatorValue != null)
+                {
+                    var discriminatorConverter = complexType.FindDiscriminatorProperty()?.FindTypeMapping()?.Converter;
+                    if (discriminatorConverter != null)
+                    {
+                        var providerValue = discriminatorConverter.ConvertToProvider(discriminatorValue);
+                        if (providerValue != null)
+                        {
+                            AddNamespace(providerValue.GetType(), parameters.Namespaces);
+                        }
+
+                        mainBuilder
+                            .Append(complexTypeVariable)
+                            .Append(".SetDiscriminatorValueFromProviderValue(")
+                            .Append(_code.UnknownLiteral(providerValue))
+                            .AppendLine(");");
+                    }
+                }
 
                 var complexTypeParameters = parameters with { TargetName = complexTypeVariable };
                 var complexPropertyParameters = parameters with { TargetName = complexPropertyVariable };
@@ -2222,6 +2594,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder.AppendLine(",")
                     .Append("ownership: ")
                     .Append(_code.Literal(true));
+            }
+
+            if (!foreignKey.IsConstrained)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("constrained: ")
+                    .Append(_code.Literal(false));
             }
 
             mainBuilder
@@ -2512,6 +2891,23 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
             SetNavigationBaseProperties(navigation, memberAccessReplacements, parameters);
 
+            if (parameters.ForNativeAot)
+            {
+                AddNamespace(navigation.TargetEntityType.ClrType, parameters.Namespaces);
+                AddNamespace(navigation.DeclaringEntityType.ClrType, parameters.Namespaces);
+                mainBuilder
+                    .Append(navigationVariable)
+                    .AppendLine(".SetManyToManyLoaderFactory(")
+                    .IncrementIndent()
+                    .Append("static (factory, navigation) => factory.Create<")
+                    .Append(_code.Reference(navigation.TargetEntityType.ClrType))
+                    .Append(", ")
+                    .Append(_code.Reference(navigation.DeclaringEntityType.ClrType))
+                    .AppendLine(">(navigation));")
+                    .DecrementIndent()
+                    .AppendLine();
+            }
+
             CreateAnnotations(navigation, _annotationCodeGenerator.Generate, parameters);
 
             mainBuilder
@@ -2653,6 +3049,21 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine(";");
                 }
 
+                foreach (var navigation in entityType.GetSkipNavigations())
+                {
+                    var variableName = _code.Identifier(navigation.Name, navigation, parameters.ScopeObjects, capitalize: false);
+
+                    mainBuilder
+                        .Append($"var {variableName} = ")
+                        .Append($"{parameters.TargetName}.FindSkipNavigation({_code.Literal(navigation.Name)})");
+                    if (nullable)
+                    {
+                        mainBuilder.Append("!");
+                    }
+
+                    mainBuilder.AppendLine(";");
+                }
+
                 var runtimeType = (IRuntimeEntityType)entityType;
                 var unsafeAccessors = new HashSet<string>();
 
@@ -2729,17 +3140,18 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .DecrementIndent();
 
                 AddNamespace(typeof(PropertyCounts), parameters.Namespaces);
-                var counts = runtimeType.Counts;
+                var counts = runtimeType.CalculateCounts();
                 mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".Counts = new PropertyCounts(")
+                    .Append(parameters.TargetName).AppendLine(".SetCounts(new PropertyCounts(")
                     .IncrementIndent()
                     .Append("propertyCount: ").Append(_code.Literal(counts.PropertyCount)).AppendLine(",")
                     .Append("navigationCount: ").Append(_code.Literal(counts.NavigationCount)).AppendLine(",")
                     .Append("complexPropertyCount: ").Append(_code.Literal(counts.ComplexPropertyCount)).AppendLine(",")
+                    .Append("complexCollectionCount: ").Append(_code.Literal(counts.ComplexCollectionCount)).AppendLine(",")
                     .Append("originalValueCount: ").Append(_code.Literal(counts.OriginalValueCount)).AppendLine(",")
                     .Append("shadowCount: ").Append(_code.Literal(counts.ShadowCount)).AppendLine(",")
                     .Append("relationshipCount: ").Append(_code.Literal(counts.RelationshipCount)).AppendLine(",")
-                    .Append("storeGeneratedCount: ").Append(_code.Literal(counts.StoreGeneratedCount)).AppendLine(");")
+                    .Append("storeGeneratedCount: ").Append(_code.Literal(counts.StoreGeneratedCount)).AppendLine("));")
                     .DecrementIndent();
 
                 Check.DebugAssert(

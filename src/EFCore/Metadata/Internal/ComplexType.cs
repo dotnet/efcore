@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,16 +16,9 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     private InternalComplexTypeBuilder? _builder;
 
     private ConfigurationSource? _baseTypeConfigurationSource;
-    private ConfigurationSource? _constructorBindingConfigurationSource;
-    private ConfigurationSource? _serviceOnlyConstructorBindingConfigurationSource;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    // _serviceOnlyConstructorBinding needs to be set as well whenever _constructorBinding is set
-    private InstantiationBinding? _constructorBinding;
-    private InstantiationBinding? _serviceOnlyConstructorBinding;
-
-    private IProperty[]? _foreignKeyProperties;
-    private IProperty[]? _valueGeneratingProperties;
+    private PropertyCounts? _counts;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,12 +89,21 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual EntityType ContainingEntityType
+    public override EntityType ContainingEntityType
+        => ComplexProperty.DeclaringType.ContainingEntityType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual TypeBase ContainingEntryType
         => ComplexProperty.DeclaringType switch
         {
-            EntityType entityType => entityType,
-            ComplexType declaringComplexType => declaringComplexType.ContainingEntityType,
-            _ => throw new NotImplementedException()
+            ComplexType declaringComplexType when !declaringComplexType.ComplexProperty.IsCollection => declaringComplexType
+                .ContainingEntryType,
+            _ => ComplexProperty.DeclaringType
         };
 
     /// <summary>
@@ -123,6 +124,13 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     /// </summary>
     public virtual void SetRemovedFromModel()
     {
+        foreach (var complexProperty in GetDeclaredComplexProperties())
+        {
+            Check.DebugAssert(complexProperty.IsInModel, $"IsInModel is false for {complexProperty}");
+
+            complexProperty.SetRemovedFromModel();
+        }
+
         _builder = null;
         Model.RemoveComplexType(this);
         BaseType?.DirectlyDerivedTypes.Remove(this);
@@ -136,6 +144,15 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     /// </summary>
     public new virtual ComplexType? BaseType
         => (ComplexType?)base.BaseType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override TypeBase? SetBaseType(TypeBase? newBaseType, ConfigurationSource configurationSource)
+        => SetBaseType((ComplexType?)newBaseType, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -216,7 +233,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public virtual ConfigurationSource? GetBaseTypeConfigurationSource()
+    public override ConfigurationSource? GetBaseTypeConfigurationSource()
         => _baseTypeConfigurationSource;
 
     [DebuggerStepThrough]
@@ -257,7 +274,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     /// </summary>
     public virtual bool IsAssignableFrom(ComplexType derivedType)
     {
-        Check.NotNull(derivedType, nameof(derivedType));
+        Check.NotNull(derivedType);
 
         if (derivedType == this)
         {
@@ -290,7 +307,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public virtual ComplexType GetRootType()
+    public new virtual ComplexType GetRootType()
         => BaseType?.GetRootType() ?? this;
 
     /// <summary>
@@ -361,15 +378,11 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<IProperty> ForeignKeyProperties
+    public override PropertyCounts CalculateCounts()
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _foreignKeyProperties, this,
-            static entityType =>
-            {
-                entityType.EnsureReadOnly();
-
-                return entityType.GetProperties().Where(p => p.IsForeignKey()).ToArray();
-            });
+            ref _counts, this,
+            // This will calculate the counts for all contained complex collections
+            static complexType => complexType.ContainingEntityType.CalculateCounts());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -377,15 +390,8 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<IProperty> ValueGeneratingProperties
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _valueGeneratingProperties, this,
-            static complexType =>
-            {
-                complexType.EnsureReadOnly();
-
-                return complexType.GetProperties().Where(p => p.RequiresValueGenerator()).ToArray();
-            });
+    public virtual void SetCounts(PropertyCounts value)
+        => _counts = value!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -402,21 +408,9 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override InstantiationBinding? ConstructorBinding
-    {
-        get => IsReadOnly && !ClrType.IsAbstract
-            ? NonCapturingLazyInitializer.EnsureInitialized(
-                ref _constructorBinding, this, static complexType =>
-                {
-                    ((IModel)complexType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
-                        (IReadOnlyEntityType)complexType,
-                        out complexType._constructorBinding,
-                        out complexType._serviceOnlyConstructorBinding);
-                })
-            : _constructorBinding;
-
-        set => SetConstructorBinding(value, ConfigurationSource.Explicit);
-    }
+    [EntityFrameworkInternal]
+    public override Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source)
+        => source.GetMaterializer(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -424,88 +418,9 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InstantiationBinding? SetConstructorBinding(
-        InstantiationBinding? constructorBinding,
-        ConfigurationSource configurationSource)
-    {
-        EnsureMutable();
-
-        _constructorBinding = constructorBinding;
-
-        if (_constructorBinding == null)
-        {
-            _constructorBindingConfigurationSource = null;
-        }
-        else
-        {
-            UpdateConstructorBindingConfigurationSource(configurationSource);
-        }
-
-        return constructorBinding;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetConstructorBindingConfigurationSource()
-        => _constructorBindingConfigurationSource;
-
-    private void UpdateConstructorBindingConfigurationSource(ConfigurationSource configurationSource)
-        => _constructorBindingConfigurationSource = configurationSource.Max(_constructorBindingConfigurationSource);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual InstantiationBinding? ServiceOnlyConstructorBinding
-    {
-        get => _serviceOnlyConstructorBinding;
-        set => SetServiceOnlyConstructorBinding(value, ConfigurationSource.Explicit);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual InstantiationBinding? SetServiceOnlyConstructorBinding(
-        InstantiationBinding? constructorBinding,
-        ConfigurationSource configurationSource)
-    {
-        EnsureMutable();
-
-        _serviceOnlyConstructorBinding = constructorBinding;
-
-        if (_serviceOnlyConstructorBinding == null)
-        {
-            _serviceOnlyConstructorBindingConfigurationSource = null;
-        }
-        else
-        {
-            UpdateServiceOnlyConstructorBindingConfigurationSource(configurationSource);
-        }
-
-        return constructorBinding;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetServiceOnlyConstructorBindingConfigurationSource()
-        => _serviceOnlyConstructorBindingConfigurationSource;
-
-    private void UpdateServiceOnlyConstructorBindingConfigurationSource(ConfigurationSource configurationSource)
-        => _serviceOnlyConstructorBindingConfigurationSource =
-            configurationSource.Max(_serviceOnlyConstructorBindingConfigurationSource);
+    [EntityFrameworkInternal]
+    public override Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source)
+        => source.GetEmptyMaterializer(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -528,6 +443,51 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
         => ((IReadOnlyComplexType)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
     #region Explicit interface implementations
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IReadOnlyComplexType? IReadOnlyComplexType.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IMutableComplexType? IMutableComplexType.BaseType
+        => BaseType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionComplexType? IConventionComplexType.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IComplexType? IComplexType.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -684,6 +644,48 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
         [DebuggerStepThrough]
         get => ContainingEntityType;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IRuntimeTypeBase IRuntimeTypeBase.ContainingEntryType
+    {
+        [DebuggerStepThrough]
+        get => ContainingEntryType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyComplexType> IReadOnlyComplexType.GetDerivedTypes()
+        => GetDerivedTypes<ComplexType>();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyComplexType> IReadOnlyComplexType.GetDirectlyDerivedTypes()
+        => GetDirectlyDerivedTypes();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IComplexType> IComplexType.GetDirectlyDerivedTypes()
+        => GetDirectlyDerivedTypes();
 
     #endregion
 }

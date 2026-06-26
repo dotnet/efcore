@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class SqlServerMemoryOptimizedTablesConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Keys_and_indexes_are_nonclustered_for_memory_optimized_tables()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -17,8 +17,7 @@ public class SqlServerMemoryOptimizedTablesConventionTest
 
         modelBuilder.Entity<Order>().ToTable(tb => tb.IsMemoryOptimized());
 
-        modelBuilder.Entity<Order>().HasKey(
-            o => new { o.Id, o.CustomerId });
+        modelBuilder.Entity<Order>().HasKey(o => new { o.Id, o.CustomerId });
         modelBuilder.Entity<Order>().HasIndex(o => o.CustomerId);
 
         Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.IsClustered() == false));

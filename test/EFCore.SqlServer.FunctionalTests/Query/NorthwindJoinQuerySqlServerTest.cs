@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -16,7 +16,7 @@ public class NorthwindJoinQuerySqlServerTest : NorthwindJoinQueryRelationalTestB
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -235,6 +235,85 @@ WHERE [o].[CustomerID] LIKE N'F%'
 """);
     }
 
+    public override async Task LeftJoin(bool async)
+    {
+        await base.LeftJoin(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task RightJoin(bool async)
+    {
+        await base.RightJoin(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+RIGHT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task RightJoin_with_filtered_outer(bool async)
+    {
+        await base.RightJoin_with_filtered_outer(async);
+
+        AssertSql(
+            """
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+) AS [c0]
+RIGHT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task FullJoin(bool async)
+    {
+        await base.FullJoin(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+FULL JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task FullJoin_with_unmatched_rows_on_both_sides(bool async)
+    {
+        await base.FullJoin_with_unmatched_rows_on_both_sides(async);
+
+        AssertSql(
+            """
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+) AS [c0]
+FULL JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE N'B%'
+) AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
+""");
+    }
+
+    public override async Task FullJoin_with_custom_comparer_does_not_translate(bool async)
+    {
+        await base.FullJoin_with_custom_comparer_does_not_translate(async);
+
+        AssertSql();
+    }
+
     public override async Task GroupJoin_simple(bool async)
     {
         await base.GroupJoin_simple(async);
@@ -338,7 +417,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [c1].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -347,7 +426,7 @@ INNER JOIN (
 ) AS [c1] ON [c].[CustomerID] = [c1].[CustomerID]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [c1].[CustomerID]
+ORDER BY [c].[CustomerID]
 """);
     }
 
@@ -572,9 +651,9 @@ INNER JOIN (
         await base.GroupJoin_aggregate_anonymous_key_selectors(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[City] IS NOT NULL AND [c].[CustomerID] = [o].[CustomerID] AND [c].[City] = N'London') AS [Sum]
 FROM [Customers] AS [c]
@@ -586,9 +665,9 @@ FROM [Customers] AS [c]
         await base.GroupJoin_aggregate_anonymous_key_selectors2(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID] AND 1996 = DATEPART(year, [o].[OrderDate])) AS [Sum]
 FROM [Customers] AS [c]
@@ -600,9 +679,9 @@ FROM [Customers] AS [c]
         await base.GroupJoin_aggregate_anonymous_key_selectors_one_argument(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Sum]
 FROM [Customers] AS [c]
@@ -883,7 +962,7 @@ ORDER BY [c2].[CustomerID]
 
         AssertSql(
             """
-SELECT [c1].[CustomerID], [s].[Title], [s].[OrderID], [s].[CustomerID]
+SELECT [c1].[CustomerID], [s].[Title], [s].[OrderID]
 FROM (
     SELECT TOP(1) [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -892,7 +971,7 @@ OUTER APPLY (
     SELECT CASE
         WHEN [o0].[CustomerID] = [c0].[City] OR ([o0].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
         ELSE N'B'
-    END AS [Title], [o0].[OrderID], [c0].[CustomerID], [o0].[OrderDate]
+    END AS [Title], [o0].[OrderID], [o0].[OrderDate]
     FROM (
         SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
         FROM [Orders] AS [o]
@@ -901,7 +980,7 @@ OUTER APPLY (
     ) AS [o0]
     LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
 ) AS [s]
-ORDER BY [c1].[CustomerID], [s].[OrderDate], [s].[OrderID]
+ORDER BY [c1].[CustomerID], [s].[OrderDate]
 """);
     }
 
@@ -939,19 +1018,20 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 
         AssertSql(
             """
-@p='[1,2]' (Size = 4000)
+@p1='1'
+@p2='2'
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@p) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN (VALUES (@p1), (@p2)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
 """,
             //
             """
-@p='[3]' (Size = 4000)
+@p1='3'
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@p) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
 """);
     }
 

@@ -12,35 +12,115 @@ public class MiscellaneousOperatorTranslationsSqlServerTest : MiscellaneousOpera
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Conditional(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Conditional(a);
+    public override async Task Conditional()
+    {
+        await base.Conditional();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Int"] = 8) ? c["String"] : "Foo") = "Seattle")
 """);
-            });
+    }
 
-    public override Task Coalesce(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Coalesce(a);
+    public override async Task Conditional_simplifiable_equality()
+    {
+        await base.Conditional_simplifiable_equality();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Int"] > 1)
+""");
+    }
+
+    public override async Task Conditional_simplifiable_inequality()
+    {
+        await base.Conditional_simplifiable_inequality();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Int"] > 1)
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_equality_left()
+    {
+        await base.Conditional_uncoalesce_with_equality_left();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((c["Int"] = 9) ? null : c["Int"]) > 1)
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_equality_right()
+    {
+        await base.Conditional_uncoalesce_with_equality_right();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((9 = c["Int"]) ? null : c["Int"]) > 1)
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_inequality_left()
+    {
+        await base.Conditional_uncoalesce_with_inequality_left();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((c["Int"] != 9) ? c["Int"] : null) > 1)
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_inequality_right()
+    {
+        await base.Conditional_uncoalesce_with_inequality_right();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((9 != c["Int"]) ? c["Int"] : null) > 1)
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_string()
+    {
+        await base.Conditional_uncoalesce_with_string();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((c["String"] = "Seattle") ? null : c["String"]) = "London")
+""");
+    }
+
+    public override async Task Coalesce()
+    {
+        await base.Coalesce();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["String"] != null) ? c["String"] : "Unknown") = "Seattle")
 """);
-            });
+    }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

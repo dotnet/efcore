@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqliteValueGenerationScenariosTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_Identity_column()
     {
         using (var context = new BlogContextIdentity(nameof(Insert_with_Identity_column)))
@@ -34,7 +34,7 @@ public class SqliteValueGenerationScenariosTest
 
     public class BlogContextIdentity(string databaseName) : ContextBase(databaseName);
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_uint_to_Identity_column_using_value_converter()
     {
         using (var context = new BlogContextUIntToIdentityUsingValueConverter(
@@ -80,7 +80,7 @@ public class SqliteValueGenerationScenariosTest
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_int_enum_to_Identity_column()
     {
         using (var context = new BlogContextIntEnumToIdentity(nameof(Insert_int_enum_to_Identity_column)))
@@ -126,7 +126,7 @@ public class SqliteValueGenerationScenariosTest
 
     public enum IntKey;
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_ushort_enum_to_Identity_column()
     {
         using (var context = new BlogContextUShortEnumToIdentity(nameof(Insert_ushort_enum_to_Identity_column)))
@@ -172,7 +172,7 @@ public class SqliteValueGenerationScenariosTest
 
     public enum UShortKey : ushort;
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_string_to_Identity_column_using_value_converter()
     {
         using (var context = new BlogContextStringToIdentityUsingValueConverter(
@@ -225,7 +225,7 @@ public class SqliteValueGenerationScenariosTest
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_explicit_non_default_keys()
     {
         using (var context = new BlogContextNoKeyGeneration(nameof(Insert_with_explicit_non_default_keys)))
@@ -261,7 +261,7 @@ public class SqliteValueGenerationScenariosTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_explicit_with_default_keys()
     {
         using (var context = new BlogContextNoKeyGenerationNullableKey(nameof(Insert_with_explicit_with_default_keys)))
@@ -298,7 +298,7 @@ public class SqliteValueGenerationScenariosTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_non_key_default_value()
     {
         using (var context = new BlogContextNonKeyDefaultValue(nameof(Insert_with_non_key_default_value)))
@@ -365,24 +365,23 @@ public class SqliteValueGenerationScenariosTest
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.CreatedOn).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.CreatedOn).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.HasData(
-                        new Blog
-                        {
-                            Id = 9979,
-                            Name = "W Unicorns",
-                            CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
-                            NeedsConverter = new NeedsConverter(111),
-                        });
-                });
+                b.HasData(
+                    new Blog
+                    {
+                        Id = 9979,
+                        Name = "W Unicorns",
+                        CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
+                        NeedsConverter = new NeedsConverter(111),
+                    });
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_non_key_default_value_readonly()
     {
         using (var context = new BlogContextNonKeyReadOnlyDefaultValue(nameof(Insert_with_non_key_default_value_readonly)))
@@ -438,7 +437,7 @@ public class SqliteValueGenerationScenariosTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_client_generated_GUID_key()
     {
         Guid afterSave;
@@ -477,12 +476,11 @@ public class SqliteValueGenerationScenariosTest
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<GuidBlog>(
-                eb =>
-                {
-                    eb.HasAlternateKey(e => e.NotId);
-                    eb.Property(e => e.NotId).ValueGeneratedOnAdd();
-                });
+            modelBuilder.Entity<GuidBlog>(eb =>
+            {
+                eb.HasAlternateKey(e => e.NotId);
+                eb.Property(e => e.NotId).ValueGeneratedOnAdd();
+            });
         }
     }
 
@@ -496,7 +494,7 @@ public class SqliteValueGenerationScenariosTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_explicit_default_keys()
     {
         using var context = new BlogContext(nameof(Insert_with_explicit_default_keys));
@@ -516,7 +514,7 @@ public class SqliteValueGenerationScenariosTest
 
     public class BlogContext(string databaseName) : ContextBase(databaseName);
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_with_implicit_default_keys()
     {
         using (var context = new BlogContextSpecifyKeysUsingDefault(nameof(Insert_with_implicit_default_keys)))
@@ -552,7 +550,7 @@ public class SqliteValueGenerationScenariosTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Insert_explicit_value_throws_when_readonly_before_save()
     {
         using var context = new BlogContextNonKeyReadOnlyDefaultValue(nameof(Insert_explicit_value_throws_when_readonly_before_save));

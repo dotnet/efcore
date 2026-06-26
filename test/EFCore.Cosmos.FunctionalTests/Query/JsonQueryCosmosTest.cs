@@ -1,11 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
@@ -34,25 +32,14 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    public override async Task Basic_json_projection_owned_collection_branch(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => base.Basic_json_projection_owned_collection_branch(async));
-        }
-    }
-
     public override async Task Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(bool async)
     {
         // Always throws for sync.
         if (async)
         {
             //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async));
+            await Assert.ThrowsAsync<NullReferenceException>(()
+                => base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async));
         }
     }
 
@@ -62,25 +49,9 @@ WHERE (c["Discriminator"] = "Basic")
         if (async)
         {
             //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => base.Basic_json_projection_owned_collection_leaf(async));
+            await Assert.ThrowsAsync<NullReferenceException>(() => base.Basic_json_projection_owned_collection_leaf(async));
         }
     }
-
-    public override Task Basic_json_projection_owned_collection_root(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_collection_root(a);
-
-                // TODO: issue #34067 (?)
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
 
     public override Task Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
@@ -89,20 +60,6 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(a);
 
                 // TODO: issue #34067 (?)
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
-    public override Task Basic_json_projection_owned_reference_branch(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_reference_branch(async);
-
                 AssertSql(
                     """
 SELECT VALUE c
@@ -122,36 +79,6 @@ WHERE (c["Discriminator"] = "Basic")
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
-    public override Task Basic_json_projection_owned_reference_duplicated(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_reference_duplicated(async);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-ORDER BY c["Id"]
-""");
-            });
-
-    public override Task Basic_json_projection_owned_reference_duplicated2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_reference_duplicated2(async);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-ORDER BY c["Id"]
 """);
             });
 
@@ -199,21 +126,6 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    public override Task Basic_json_projection_owned_reference_root(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_reference_root(a);
-
-                // TODO: issue #34067 (?)
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
     public override Task Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -226,48 +138,6 @@ WHERE (c["Discriminator"] = "Basic")
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
-    public override Task Basic_json_projection_owner_entity(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
-    public override Task Basic_json_projection_owner_entity_duplicated(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity_duplicated(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
-    public override Task Basic_json_projection_owner_entity_duplicated_NoTracking(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity_duplicated_NoTracking(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "SingleOwned")
 """);
             });
 
@@ -285,53 +155,11 @@ WHERE (c["Discriminator"] = "SingleOwned")
 """);
             });
 
-    public override Task Basic_json_projection_owner_entity_NoTracking(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity_NoTracking(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
     public override Task Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
-    public override Task Basic_json_projection_owner_entity_twice(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity_twice(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
-
-    public override Task Basic_json_projection_owner_entity_twice_NoTracking(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity_twice_NoTracking(a);
 
                 AssertSql(
                     """
@@ -369,7 +197,7 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Custom_naming_projection_everything(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -439,8 +267,8 @@ WHERE (c["Discriminator"] = "CustomNaming")
 
     public override async Task Entity_including_collection_with_json(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Entity_including_collection_with_json(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Entity_including_collection_with_json(async)))
+            .Message;
 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
@@ -448,35 +276,35 @@ WHERE (c["Discriminator"] = "CustomNaming")
             message);
     }
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_FirstOrDefault_on_json_scalar(bool async)
         => base.Group_by_FirstOrDefault_on_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_First_on_json_scalar(bool async)
         => base.Group_by_First_on_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(bool async)
         => base.Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_json_scalar_Skip_First_project_json_scalar(bool async)
         => base.Group_by_json_scalar_Skip_First_project_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_on_json_scalar(bool async)
         => base.Group_by_on_json_scalar(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_on_json_scalar_using_collection_indexer(bool async)
         => base.Group_by_on_json_scalar_using_collection_indexer(async);
 
-    [ConditionalTheory(Skip = "issue #17313")]
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_Skip_Take_on_json_scalar(bool async)
         => base.Group_by_Skip_Take_on_json_scalar(async);
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_all_types_entity_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -491,7 +319,7 @@ WHERE (c["Discriminator"] = "AllTypes")
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_all_types_projection_from_owned_entity_reference(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -521,7 +349,7 @@ WHERE (c["Discriminator"] = "AllTypes")
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_boolean_predicate(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -579,10 +407,9 @@ WHERE (c["Discriminator"] = "AllTypes")
             });
 
     public override Task Json_branch_collection_distinct_and_other_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_branch_collection_distinct_and_other_collection(async));
+        => AssertTranslationFailed(() => base.Json_branch_collection_distinct_and_other_collection(async));
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -592,7 +419,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -602,7 +429,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -612,7 +439,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -649,14 +476,12 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
             });
 
     public override Task Json_collection_Distinct_Count_with_predicate(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_collection_Distinct_Count_with_predicate(async));
+        => AssertTranslationFailed(() => base.Json_collection_Distinct_Count_with_predicate(async));
 
     public override Task Json_collection_distinct_in_projection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_collection_distinct_in_projection(async));
+        => AssertTranslationFailed(() => base.Json_collection_distinct_in_projection(async));
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAtOrDefault_in_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -666,7 +491,7 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAtOrDefault_project_collection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -708,7 +533,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAt_in_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -718,7 +543,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAt_project_collection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -729,13 +554,12 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
             });
 
     public override Task Json_collection_filter_in_projection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_collection_filter_in_projection(async));
+        => AssertTranslationFailed(() => base.Json_collection_filter_in_projection(async));
 
     public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_predicate_nested_mix(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(() => base.Json_collection_index_in_predicate_nested_mix(async)))
+            .Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -746,8 +570,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         // Always throws for sync.
         if (async)
         {
-            var exception = (await Assert.ThrowsAsync<CosmosException>(
-                () => base.Json_collection_index_in_predicate_using_column(async)));
+            var exception = (await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_column(async)));
         }
     }
 
@@ -756,14 +579,13 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         // Always throws for sync.
         if (async)
         {
-            var exception = (await Assert.ThrowsAsync<CosmosException>(
-                () => base.Json_collection_index_in_predicate_using_complex_expression1(async)));
+            var exception =
+                (await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_complex_expression1(async)));
         }
     }
 
     public override Task Json_collection_index_in_predicate_using_complex_expression2(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_collection_index_in_predicate_using_complex_expression2(async));
+        => AssertTranslationFailed(() => base.Json_collection_index_in_predicate_using_complex_expression2(async));
 
     public override Task Json_collection_index_in_predicate_using_constant(bool async)
         => Fixture.NoSyncTest(
@@ -795,7 +617,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_basic(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -807,8 +629,8 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_nested(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_nested(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(() => base.Json_collection_index_in_projection_nested(async)))
+            .Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -816,8 +638,8 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_nested_project_collection(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_nested_project_collection(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_nested_project_collection(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -825,8 +647,8 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_nested_project_collection_anonymous_projection(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_nested_project_collection_anonymous_projection(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_nested_project_collection_anonymous_projection(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -834,8 +656,8 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_nested_project_reference(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_nested_project_reference(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_nested_project_reference(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -843,14 +665,14 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_nested_project_scalar(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_nested_project_scalar(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_nested_project_scalar(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_project_collection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -860,7 +682,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_column(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -870,7 +692,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -880,7 +702,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -890,7 +712,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -900,7 +722,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -910,7 +732,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -920,7 +742,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
         => base.Json_collection_index_in_projection_using_untranslatable_client_method(async);
 
@@ -931,14 +753,14 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_misc1(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_when_owner_is_not_present_misc1(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_when_owner_is_not_present_misc1(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_collection_index_in_projection_when_owner_is_not_present_misc2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -950,8 +772,8 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_when_owner_is_not_present_multiple(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_when_owner_is_not_present_multiple(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -959,14 +781,14 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_when_owner_is_present_misc1(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_when_owner_is_present_misc1(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_collection_index_in_projection_when_owner_is_present_misc2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -978,14 +800,14 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_in_projection_when_owner_is_present_multiple(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_in_projection_when_owner_is_present_multiple(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_in_projection_when_owner_is_present_multiple(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_index_outside_bounds(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -995,7 +817,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_collection_index_outside_bounds2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1011,8 +833,8 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_with_expression_Select_ElementAt(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_with_expression_Select_ElementAt(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -1020,14 +842,14 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
 
     public override async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_collection_index_with_parameter_Select_ElementAt(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_collection_index_with_parameter_Select_ElementAt(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34004")] // anonymous projection
+    [Theory(Skip = "issue #34004")] // anonymous projection
     public override Task Json_collection_in_projection_with_anonymous_projection_of_scalars(bool async)
         => base.Json_collection_in_projection_with_anonymous_projection_of_scalars(async);
 
@@ -1046,31 +868,16 @@ ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34004")] // anonymous projection
+    [Theory(Skip = "issue #34004")] // anonymous projection
     public override Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(bool async)
         => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(async);
 
-    [ConditionalTheory(Skip = "issue #34004")] // anonymous projection
+    [Theory(Skip = "issue #34004")] // anonymous projection
     public override Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(bool async)
         => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(async);
 
     public override Task Json_collection_leaf_filter_in_projection(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_collection_leaf_filter_in_projection(a);
-
-                AssertSql(
-                    """
-SELECT VALUE ARRAY(
-    SELECT VALUE o
-    FROM o IN c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
-    WHERE (o["SomethingSomething"] != "Baz"))
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-ORDER BY c["Id"]
-""");
-            });
+        => AssertTranslationFailed(() => base.Json_collection_leaf_filter_in_projection(async));
 
     public override Task Json_collection_of_primitives_contains_in_predicate(bool async)
         => Fixture.NoSyncTest(
@@ -1115,7 +922,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] =
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34026")] //enums property is ignored
+    [Theory(Skip = "issue #34026")] //enums property is ignored
     public override Task Json_collection_of_primitives_index_used_in_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1151,17 +958,7 @@ WHERE (c["Discriminator"] = "Basic")
             () => base.Json_collection_OrderByDescending_Skip_ElementAt(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries + Environment.NewLine + CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalTheory(Skip = "issue #34349")]
-    public override Task Json_collection_SelectMany(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_collection_SelectMany(a);
-
-                AssertSql("");
-            });
-
-    [ConditionalTheory(Skip = "issue #34335")]
+    [Theory(Skip = "issue #34335")]
     public override Task Json_collection_Select_entity_collection_ElementAt(bool async)
         => base.Json_collection_Select_entity_collection_ElementAt(async);
 
@@ -1283,7 +1080,7 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
 """);
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_entity_with_inheritance_project_navigations(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1293,7 +1090,7 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_entity_with_inheritance_project_navigations_on_derived(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1304,35 +1101,21 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
             });
 
     public override Task Json_leaf_collection_distinct_and_other_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_leaf_collection_distinct_and_other_collection(async));
+        => AssertTranslationFailed(() => base.Json_leaf_collection_distinct_and_other_collection(async));
 
     public override Task Json_multiple_collection_projections(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_multiple_collection_projections(async));
+        => AssertTranslationFailed(() => base.Json_multiple_collection_projections(async));
 
     public override Task Json_nested_collection_anonymous_projection_in_projection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_nested_collection_anonymous_projection_in_projection(async));
+        => AssertTranslationFailed(() => base.Json_nested_collection_anonymous_projection_in_projection(async));
 
     public override Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(
         bool async)
-        => AssertTranslationFailed(
-            () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async));
+        => AssertTranslationFailed(()
+            => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async));
 
     public override Task Json_nested_collection_filter_in_projection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_nested_collection_filter_in_projection(async));
-
-    [ConditionalTheory(Skip = "issue #34349")]
-    public override Task Json_nested_collection_SelectMany(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_nested_collection_SelectMany(a);
-
-                AssertSql("");
-            });
+        => AssertTranslationFailed(() => base.Json_nested_collection_filter_in_projection(async));
 
     public override Task Json_predicate_on_bool_converted_to_int_zero_one(bool async)
         => Fixture.NoSyncTest(
@@ -1418,7 +1201,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_byte(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1433,7 +1216,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_byte_array(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1448,7 +1231,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] !=
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_character(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1463,7 +1246,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] !=
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_dateonly(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1478,7 +1261,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_datetime(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1493,7 +1276,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_datetimeoffset(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1508,7 +1291,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_decimal(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1523,7 +1306,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_default_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1538,7 +1321,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_double(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1553,7 +1336,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_enum(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1568,7 +1351,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_enumwithintconverter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1583,7 +1366,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntCon
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_guid(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1598,7 +1381,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "000
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_int16(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1613,7 +1396,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_int32(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1628,7 +1411,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33)
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_int64(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1657,7 +1440,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConver
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_max_length_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1672,7 +1455,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthStrin
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenum1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1687,7 +1470,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenum2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1702,7 +1485,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenumwithconverter1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1717,7 +1500,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenumwithconverter2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1732,7 +1515,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableenumwithconverterthathandlesnulls1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1756,7 +1539,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                 AssertSql("");
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableint321(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1771,7 +1554,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_nullableint322(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1786,7 +1569,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_signedbyte(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1801,7 +1584,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] !
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_single(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1816,7 +1599,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_string_condition(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1859,7 +1642,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConverte
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_timeonly(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1874,7 +1657,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_timespan(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1889,7 +1672,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != 
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_unisgnedint16(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1904,7 +1687,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_unsignedint32(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1919,7 +1702,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"
 """);
             });
 
-    [SkipOnCiCondition]
+    [SkipOnCI("Test does not run on CI")]
     public override Task Json_predicate_on_unsignedint64(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1951,8 +1734,8 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"
 
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(()
+            => base.Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -1981,10 +1764,9 @@ WHERE (c["Discriminator"] = "CustomNaming")
         Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
             bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base
-                .Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
-                    async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(() => base
+            .Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
+                async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -2008,10 +1790,9 @@ WHERE (c["Discriminator"] = "Basic")
         Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
             bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base
-                .Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
-                    async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(() => base
+            .Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
+                async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -2021,10 +1802,9 @@ WHERE (c["Discriminator"] = "Basic")
         Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
             bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base
-                .Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
-                    async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(() => base
+            .Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
+                async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -2055,7 +1835,7 @@ WHERE (c["Discriminator"] = "Basic")
             () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
         bool async)
         => Fixture.NoSyncTest(
@@ -2071,10 +1851,9 @@ WHERE (c["Discriminator"] = "Basic")
         Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
     {
-        var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base
-                .Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
-                    async))).Message;
+        var message = (await Assert.ThrowsAsync<NotImplementedException>(() => base
+            .Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
+                async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -2097,30 +1876,6 @@ WHERE (c["Discriminator"] = "Basic")
                 .Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
                     async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
-
-    [ConditionalTheory(Skip = "issue #34350")]
-    public override Task Json_projection_with_deduplication(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_projection_with_deduplication(a);
-
-                AssertSql("");
-            });
-
-    public override Task Json_projection_with_deduplication_reverse_order(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_projection_with_deduplication_reverse_order(async);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
 
     public override Task Json_property_in_predicate(bool async)
         => Fixture.NoSyncTest(
@@ -2211,8 +1966,8 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != 
 
     public override async Task Json_with_include_on_entity_collection(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Json_with_include_on_entity_collection(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_include_on_entity_collection(async)))
+            .Message;
 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
@@ -2245,8 +2000,7 @@ WHERE (c["Discriminator"] = "Basic")
             });
 
     public override Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_with_projection_of_json_collection_and_entity_collection(async));
+        => AssertTranslationFailed(() => base.Json_with_projection_of_json_collection_and_entity_collection(async));
 
     public override Task Json_with_projection_of_json_collection_element_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
@@ -2254,16 +2008,13 @@ WHERE (c["Discriminator"] = "Basic")
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
     public override Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async));
+        => AssertTranslationFailed(() => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async));
 
     public override Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_with_projection_of_json_reference_and_entity_collection(async));
+        => AssertTranslationFailed(() => base.Json_with_projection_of_json_reference_and_entity_collection(async));
 
     public override Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async));
+        => AssertTranslationFailed(() => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async));
 
     public override Task Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
@@ -2275,10 +2026,15 @@ WHERE (c["Discriminator"] = "Basic")
             () => base.Json_with_projection_of_multiple_json_references_and_entity_collection(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    public override Task Left_join_json_entities(bool async)
+    public override Task LeftJoin_json_entities(bool async)
         => AssertTranslationFailedWithDetails(
-            () => base.Left_join_json_entities(async),
+            () => base.LeftJoin_json_entities(async),
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasic), nameof(JsonEntitySingleOwned)));
+
+    public override Task RightJoin_json_entities(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.RightJoin_json_entities(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntitySingleOwned), nameof(JsonEntityBasic)));
 
     public override Task Left_join_json_entities_complex_projection(bool async)
         => AssertTranslationFailedWithDetails(
@@ -2309,51 +2065,34 @@ WHERE (c["Discriminator"] = "SingleOwned")
 """);
             });
 
-    public override Task Project_json_entity_FirstOrDefault_subquery(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_json_entity_FirstOrDefault_subquery(async));
-
-    public override Task Project_json_entity_FirstOrDefault_subquery_deduplication(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication(async));
-
-    public override Task Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async));
-
-    public override Task Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async));
-
     public override Task Project_json_entity_FirstOrDefault_subquery_with_binding_on_top(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_json_entity_FirstOrDefault_subquery_with_binding_on_top(async));
+        => AssertTranslationFailed(() => base.Project_json_entity_FirstOrDefault_subquery_with_binding_on_top(async));
 
     public override Task Project_json_entity_FirstOrDefault_subquery_with_entity_comparison_on_top(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_json_entity_FirstOrDefault_subquery_with_entity_comparison_on_top(async));
+        => AssertTranslationFailed(() => base.Project_json_entity_FirstOrDefault_subquery_with_entity_comparison_on_top(async));
 
     public override async Task Project_json_reference_in_tracking_query_fails(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_json_reference_in_tracking_query_fails(async))).Message;
+        var message =
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_json_reference_in_tracking_query_fails(async))).Message;
 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
     public override async Task Project_json_collection_in_tracking_query_fails(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_json_collection_in_tracking_query_fails(async))).Message;
+        var message =
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_json_collection_in_tracking_query_fails(async)))
+            .Message;
 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34350")]
+    [Theory(Skip = "issue #34350")]
     public override async Task Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(async))).Message;
 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }

@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -12,19 +14,48 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
+public class SqlServerSqlNullabilityProcessor(
+    RelationalParameterBasedSqlProcessorDependencies dependencies,
+    RelationalParameterBasedSqlProcessorParameters parameters,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : SqlNullabilityProcessor(dependencies, parameters)
 {
+    private const int MaxParameterCount = 2100 - 2;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerSqlNullabilityProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        RelationalParameterBasedSqlProcessorParameters parameters)
-        : base(dependencies, parameters)
+    [EntityFrameworkInternal]
+    public const string OpenJsonParameterTableName = "__openjson";
+
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
+
+    private int _openJsonAliasCounter;
+    private int _totalParameterCount;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
+        var parametersCounter = new ParametersCounter(
+            parametersDecorator,
+            CollectionParameterTranslationMode,
+#pragma warning disable EF1001
+            (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
+#pragma warning restore EF1001
+        parametersCounter.Visit(queryExpression);
+        _totalParameterCount = parametersCounter.Count;
+
+        var result = base.Process(queryExpression, parametersDecorator);
+        _openJsonAliasCounter = 0;
+        return result;
     }
 
     /// <summary>
@@ -41,6 +72,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         {
             SqlServerAggregateFunctionExpression aggregateFunctionExpression
                 => VisitSqlServerAggregateFunction(aggregateFunctionExpression, allowOptimizedExpansion, out nullable),
+
+            WithApproximateExpression withApproximate
+                => withApproximate.Update(Visit(withApproximate.Operand, allowOptimizedExpansion, out nullable)),
 
             _ => base.VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
@@ -112,6 +146,48 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override SqlExpression VisitSqlFunction(
+        SqlFunctionExpression sqlFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        if (sqlFunctionExpression is { Name: "JSON_CONTAINS", Arguments: [var collection, var item] } jsonContains)
+        {
+            // JSON_CONTAINS() does not allow searching for NULL within a JSON collection (always returns zero when the item is NULL).
+            // As a result, we do not translate to JSON_CONTAINS() in SqlServerQueryableMethodTranslatingExpressionVisitor unless we know that
+            // either the item or the collection's elements are non-nullable.
+            // When the item argument is nullable, we add a null check around JSON_CONTAINS():
+            // CASE WHEN @item IS NULL THEN NULL ELSE JSON_CONTAINS(collection, @item) END
+            item = Visit(item, out var itemNullable);
+            collection = Visit(collection, out var collectionNullable);
+
+            sqlFunctionExpression = jsonContains.Update(instance: null, arguments: [collection, item]);
+
+            if (itemNullable && !UseRelationalNulls)
+            {
+                nullable = true;
+                return Dependencies.SqlExpressionFactory.Case(
+                    [
+                        new CaseWhenClause(
+                            Dependencies.SqlExpressionFactory.IsNull(item),
+                            Dependencies.SqlExpressionFactory.Constant(null, typeof(bool?), jsonContains.TypeMapping))
+                    ],
+                    jsonContains);
+            }
+
+            nullable = itemNullable || collectionNullable;
+            return sqlFunctionExpression;
+        }
+
+        return base.VisitSqlFunction(sqlFunctionExpression, allowOptimizedExpansion, out nullable);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override bool PreferExistsToInWithCoalesce
         => true;
 
@@ -145,5 +221,323 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         => table is SqlServerOpenJsonExpression { Arguments: [SqlParameterExpression] } openJsonExpression
             ? openJsonExpression.Update(newCollectionParameter, path: null)
             : base.UpdateParameterCollection(table, newCollectionParameter);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitExtension(Expression node)
+    {
+        switch (node)
+        {
+            case ValuesExpression { ValuesParameter: { } valuesParameter } valuesExpression
+                when (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters:
+            {
+                Check.DebugAssert(valuesParameter.TypeMapping is not null);
+                Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
+                var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
+
+                if (TryHandleOverLimitParameters(
+                        valuesParameter,
+                        elementTypeMapping,
+                        valuesExpression,
+                        out var openJson,
+                        out var constants,
+                        out _))
+                {
+                    switch (openJson, constants)
+                    {
+                        case (not null, null):
+                            return openJson;
+
+                        case (null, not null):
+                            Check.DebugAssert(constants.All(x => x is RowValueExpression));
+                            return valuesExpression.Update([.. constants.Cast<RowValueExpression>()]);
+
+                        default:
+                            throw new UnreachableException();
+                    }
+                }
+
+                return base.VisitExtension(node);
+            }
+
+            case TableValuedFunctionExpression { Name: "FREETEXTTABLE" or "CONTAINSTABLE", IsBuiltIn: true }:
+            {
+                var result = (TableValuedFunctionExpression)base.VisitExtension(node);
+
+                // The last argument to the full-text search TVFs is topn (number of rows to return).
+                // This cannot be null - the argument must be non-null or be omitted entirely.
+                // Since these TVFs are called as top-level LINQ operators, their arguments are always parameterized (like Skip/Take),
+                // since LINQ does not allow us to distinguish between constants and parameters.
+                // As a result, if the topn argument is a null, we simply remove it. This must happen in this visitor since we don't
+                // have access to parameter values earlier.
+                if (result.Arguments[^1] is SqlConstantExpression { Value: null })
+                {
+                    result = result.Update([.. result.Arguments.Take(result.Arguments.Count - 1)]);
+                }
+
+                return result;
+            }
+
+            default:
+                return base.VisitExtension(node);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override SqlExpression VisitIn(InExpression inExpression, bool allowOptimizedExpansion, out bool nullable)
+    {
+        switch (inExpression.ValuesParameter)
+        {
+            case { } valuesParameter
+                when (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters:
+            {
+                Check.DebugAssert(valuesParameter.TypeMapping is not null);
+                Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
+
+                var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
+
+                if (TryHandleOverLimitParameters(
+                        valuesParameter,
+                        elementTypeMapping,
+                        valuesExpression: null,
+                        out var openJson,
+                        out var constants,
+                        out var containsNulls))
+                {
+                    var columnName = RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName;
+
+                    inExpression = (openJson, constants) switch
+                    {
+                        (not null, null)
+                            => inExpression.Update(
+                                inExpression.Item,
+                                SelectExpression.CreateImmutable(
+                                    null!,
+                                    [openJson],
+                                    [
+                                        new ProjectionExpression(
+                                            new ColumnExpression(
+                                                columnName,
+                                                openJson.Alias,
+                                                valuesParameter.Type.GetSequenceType().UnwrapNullableType(),
+                                                elementTypeMapping,
+                                                containsNulls!.Value),
+                                            columnName)
+                                    ],
+                                    null!)),
+
+                        (null, not null) => inExpression.Update(inExpression.Item, constants),
+
+                        _ => throw new UnreachableException(),
+                    };
+                }
+
+                return base.VisitIn(inExpression, allowOptimizedExpansion, out nullable);
+            }
+
+            default:
+                return base.VisitIn(inExpression, allowOptimizedExpansion, out nullable);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override int CalculateParameterBucketSize(int count, RelationalTypeMapping elementTypeMapping)
+        => count switch
+        {
+            <= 5 => 1,
+            <= 150 => 10,
+            <= 750 => 50,
+            <= 2000 => 100,
+            <= 2070 => 10, // try not to over-pad as we approach that limit
+            <= MaxParameterCount => 1, // just don't pad between 2070 and 2100, to minimize the crazy
+            _ => 200,
+        };
+
+    private bool TryHandleOverLimitParameters(
+        SqlParameterExpression valuesParameter,
+        RelationalTypeMapping typeMapping,
+        ValuesExpression? valuesExpression,
+        out SqlServerOpenJsonExpression? openJsonResult,
+        out List<SqlExpression>? constantsResult,
+        out bool? containsNulls)
+    {
+        // SQL Server has limit on number of parameters in a query.
+        // If we're over that limit, we switch to using single parameter
+        // and processing it through JSON functions.
+        if (_totalParameterCount > MaxParameterCount)
+        {
+            var parameters = ParametersDecorator.GetAndDisableCaching();
+            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
+
+            if (_sqlServerSingletonOptions.SupportsJsonFunctions)
+            {
+                var openJsonExpression = new SqlServerOpenJsonExpression(
+                    valuesExpression?.Alias ?? $"{OpenJsonParameterTableName}{_openJsonAliasCounter++}",
+                    valuesParameter,
+                    columnInfos:
+                    [
+                        new SqlServerOpenJsonExpression.ColumnInfo
+                        {
+                            Name = RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName,
+                            TypeMapping = typeMapping,
+                            Path = [],
+                        }
+                    ]);
+                var jsonPostprocessor = new SqlServerJsonPostprocessor(
+                    Dependencies.TypeMappingSource,
+                    Dependencies.SqlExpressionFactory,
+                    sqlAliasManager: null);
+                openJsonResult = (SqlServerOpenJsonExpression)jsonPostprocessor.Process(openJsonExpression);
+                constantsResult = default;
+                containsNulls = values.Any(static x => x is null);
+                return true;
+            }
+
+            var intTypeMapping = (IntTypeMapping)Dependencies.TypeMappingSource.FindMapping(typeof(int))!;
+            var counter = 1;
+
+            constantsResult = [];
+            foreach (var value in values)
+            {
+                constantsResult.Add(
+                    valuesExpression is not null
+                        ? new RowValueExpression(
+                            ProcessValuesOrderingColumn(
+                                valuesExpression,
+                                [
+                                    Dependencies.SqlExpressionFactory.Constant(
+                                        value, value?.GetType() ?? typeof(object), sensitive: true, typeMapping)
+                                ],
+                                intTypeMapping,
+                                ref counter))
+                        : Dependencies.SqlExpressionFactory.Constant(
+                            value, value?.GetType() ?? typeof(object), sensitive: true, typeMapping));
+            }
+
+            openJsonResult = default;
+            containsNulls = default;
+            return true;
+        }
+
+        openJsonResult = default;
+        constantsResult = default;
+        containsNulls = default;
+        return false;
+    }
 #pragma warning restore EF1001
+}
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class ParametersCounter(
+    ParametersCacheDecorator parametersDecorator,
+    ParameterTranslationMode collectionParameterTranslationMode,
+    Func<int, RelationalTypeMapping, int> bucketizationPadding) : ExpressionVisitor
+{
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int Count { get; private set; }
+
+    private readonly HashSet<SqlParameterExpression> _visitedSqlParameters =
+        new(EqualityComparer<SqlParameterExpression>.Create(
+            (lhs, rhs) =>
+                ReferenceEquals(lhs, rhs)
+                || (lhs is not null && rhs is not null
+                    && lhs.InvariantName == rhs.InvariantName
+                    && lhs.Type == rhs.Type
+                    && lhs.TypeMapping == rhs.TypeMapping
+                    && lhs.TranslationMode == rhs.TranslationMode),
+            x => HashCode.Combine(x.InvariantName, x.Type, x.TypeMapping, x.TranslationMode)));
+
+    private readonly HashSet<QueryParameterExpression> _visitedQueryParameters =
+        new(EqualityComparer<QueryParameterExpression>.Create(
+            (lhs, rhs) =>
+                ReferenceEquals(lhs, rhs)
+                || (lhs is not null && rhs is not null
+                    && lhs.Name == rhs.Name
+                    && lhs.TranslationMode == rhs.TranslationMode),
+            x => HashCode.Combine(x.Name, x.TranslationMode)));
+
+    /// <inheritdoc/>
+    protected override Expression VisitExtension(Expression node)
+    {
+        switch (node)
+        {
+            case ValuesExpression { ValuesParameter: { } valuesParameter }:
+                ProcessCollectionParameter(valuesParameter, bucketization: false);
+                break;
+
+            case InExpression { ValuesParameter: { } valuesParameter }:
+                ProcessCollectionParameter(valuesParameter, bucketization: true);
+                break;
+
+            case FromSqlExpression { Arguments: QueryParameterExpression queryParameter }:
+                if (_visitedQueryParameters.Add(queryParameter))
+                {
+                    var parameters = parametersDecorator.GetAndDisableCaching();
+                    Count += ((object?[])parameters[queryParameter.Name]!).Length;
+                }
+                break;
+
+            case SqlParameterExpression sqlParameterExpression:
+                if (_visitedSqlParameters.Add(sqlParameterExpression))
+                {
+                    Count++;
+                }
+                break;
+        }
+
+        return base.VisitExtension(node);
+    }
+
+    private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
+    {
+        if (!_visitedSqlParameters.Add(sqlParameterExpression))
+        {
+            return;
+        }
+
+        switch (sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode)
+        {
+            case ParameterTranslationMode.MultipleParameters:
+                var parameters = parametersDecorator.GetAndDisableCaching();
+                var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object?>().Count() ?? 0;
+                Count += count;
+
+                if (bucketization)
+                {
+                    var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
+                    Count += bucketizationPadding(count, elementTypeMapping);
+                }
+
+                break;
+
+            case ParameterTranslationMode.Parameter:
+                Count++;
+                break;
+
+            case ParameterTranslationMode.Constant:
+                break;
+
+            default:
+                throw new UnreachableException();
+        }
+    }
 }

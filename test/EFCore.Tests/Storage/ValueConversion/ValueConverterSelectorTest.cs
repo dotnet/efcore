@@ -11,7 +11,7 @@ public class ValueConverterSelectorTest
     private readonly IValueConverterSelector _selector
         = new ValueConverterSelector(new ValueConverterSelectorDependencies());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_int_enums()
         => AssertConverters(
             _selector.Select(typeof(Queen)).ToList(),
@@ -29,7 +29,7 @@ public class ValueConverterSelectorTest
             (typeof(EnumToNumberConverter<Queen, double>), default),
             (typeof(EnumToNumberConverter<Queen, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_ulong_enums()
         => AssertConverters(
             _selector.Select(typeof(Gnr)).ToList(),
@@ -47,7 +47,7 @@ public class ValueConverterSelectorTest
             (typeof(EnumToNumberConverter<Gnr, double>), default),
             (typeof(EnumToNumberConverter<Gnr, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_long_enums()
         => AssertConverters(
             _selector.Select(typeof(Velvets)).ToList(),
@@ -65,7 +65,7 @@ public class ValueConverterSelectorTest
             (typeof(EnumToNumberConverter<Velvets, double>), default),
             (typeof(EnumToNumberConverter<Velvets, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_byte_enums()
         => AssertConverters(
             _selector.Select(typeof(Nwa)).ToList(),
@@ -83,31 +83,31 @@ public class ValueConverterSelectorTest
             (typeof(EnumToNumberConverter<Nwa, double>), default),
             (typeof(EnumToNumberConverter<Nwa, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_enum_to_string()
         => AssertConverters(
             _selector.Select(typeof(Queen), typeof(string)).ToList(),
             (typeof(EnumToStringConverter<Queen>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_enum_to_underlying_enum_type()
         => AssertConverters(
             _selector.Select(typeof(Queen), typeof(int)).ToList(),
             (typeof(EnumToNumberConverter<Queen, int>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_enum_to_other_integer_type()
         => AssertConverters(
             _selector.Select(typeof(Queen), typeof(sbyte)).ToList(),
             (typeof(EnumToNumberConverter<Queen, sbyte>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_enum_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(Queen), typeof(byte[])).ToList(),
             (typeof(CompositeValueConverter<Queen, int, byte[]>), new ConverterMappingHints(size: 4)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_int()
         => AssertConverters(
             _selector.Select(typeof(int)).ToList(),
@@ -124,7 +124,7 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<int, double>), default),
             (typeof(CastingConverter<int, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_uint()
         => AssertConverters(
             _selector.Select(typeof(uint)).ToList(),
@@ -141,7 +141,7 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<uint, double>), default),
             (typeof(CastingConverter<uint, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_sbyte()
         => AssertConverters(
             _selector.Select(typeof(sbyte)).ToList(),
@@ -158,7 +158,7 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<sbyte, double>), default),
             (typeof(CastingConverter<sbyte, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_byte()
         => AssertConverters(
             _selector.Select(typeof(byte)).ToList(),
@@ -175,7 +175,7 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<byte, double>), default),
             (typeof(CastingConverter<byte, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_double()
         => AssertConverters(
             _selector.Select(typeof(double)).ToList(),
@@ -192,7 +192,7 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<double, sbyte>), default),
             (typeof(CastingConverter<double, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_float()
         => AssertConverters(
             _selector.Select(typeof(float)).ToList(),
@@ -209,7 +209,7 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<float, ushort>), default),
             (typeof(CastingConverter<float, sbyte>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_decimal()
         => AssertConverters(
             _selector.Select(typeof(decimal)).ToList(),
@@ -226,19 +226,19 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<decimal, double>), default),
             (typeof(CastingConverter<decimal, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_double_to_float()
         => AssertConverters(
             _selector.Select(typeof(double), typeof(float)).ToList(),
             (typeof(CastingConverter<double, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_float_to_double()
         => AssertConverters(
             _selector.Select(typeof(float), typeof(double)).ToList(),
             (typeof(CastingConverter<float, double>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_explicit_converters_for_numeric_types()
     {
         var types = new[]
@@ -276,7 +276,7 @@ public class ValueConverterSelectorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_char()
         => AssertConverters(
             _selector.Select(typeof(char)).ToList(),
@@ -294,25 +294,25 @@ public class ValueConverterSelectorTest
             (typeof(CastingConverter<char, double>), default),
             (typeof(CastingConverter<char, float>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_char_to_string()
         => AssertConverters(
             _selector.Select(typeof(char), typeof(string)).ToList(),
             (typeof(CharToStringConverter), new ConverterMappingHints(size: 1)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_char_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(char), typeof(byte[])).ToList(),
             (typeof(NumberToBytesConverter<char>), new ConverterMappingHints(size: 2)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_char_to_specific_numeric()
         => AssertConverters(
             _selector.Select(typeof(char), typeof(ushort)).ToList(),
             (typeof(CastingConverter<char, ushort>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_bool()
         => AssertConverters(
             _selector.Select(typeof(bool)).ToList(),
@@ -330,170 +330,170 @@ public class ValueConverterSelectorTest
             (typeof(BoolToStringConverter), new ConverterMappingHints(size: 1)),
             (typeof(CompositeValueConverter<bool, byte, byte[]>), new ConverterMappingHints(size: 1)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_GUID()
         => AssertConverters(
             _selector.Select(typeof(Guid)).ToList(),
             (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)),
             (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_GUID_to_string()
         => AssertConverters(
             _selector.Select(typeof(Guid), typeof(string)).ToList(),
             (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_GUID_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(Guid), typeof(byte[])).ToList(),
             (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_strings()
         => AssertConverters(
             _selector.Select(typeof(string)).ToList(),
             (typeof(StringToBytesConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_int()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(int)).ToList(),
             (typeof(StringToNumberConverter<int>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_long()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(long)).ToList(),
             (typeof(StringToNumberConverter<long>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_short()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(short)).ToList(),
             (typeof(StringToNumberConverter<short>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_byte()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(byte)).ToList(),
             (typeof(StringToNumberConverter<byte>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_ulong()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(ulong)).ToList(),
             (typeof(StringToNumberConverter<ulong>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_uint()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(uint)).ToList(),
             (typeof(StringToNumberConverter<uint>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_ushort()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(ushort)).ToList(),
             (typeof(StringToNumberConverter<ushort>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_sbyte()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(sbyte)).ToList(),
             (typeof(StringToNumberConverter<sbyte>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_decimal()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(decimal)).ToList(),
             (typeof(StringToNumberConverter<decimal>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_double()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(double)).ToList(),
             (typeof(StringToNumberConverter<double>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_float()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(float)).ToList(),
             (typeof(StringToNumberConverter<float>), new ConverterMappingHints(size: 64)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_enum()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(Queen)).ToList(),
             (typeof(StringToEnumConverter<Queen>), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_DateTime()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(DateTime)).ToList(),
             (typeof(StringToDateTimeConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_DateTimeOffset()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(DateTimeOffset)).ToList(),
             (typeof(StringToDateTimeOffsetConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_TimeOnly()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(TimeOnly)).ToList(),
             (typeof(StringToTimeOnlyConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_TimeSpan()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(TimeSpan)).ToList(),
             (typeof(StringToTimeSpanConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_Guid()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(Guid)).ToList(),
             (typeof(StringToGuidConverter), new ConverterMappingHints(size: 36)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_Uri()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(Uri)).ToList(),
             (typeof(StringToUriConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_bool()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(bool)).ToList(),
             (typeof(StringToBoolConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_char()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(char)).ToList(),
             (typeof(StringToCharConverter), new ConverterMappingHints(size: 1)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_string_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(byte[])).ToList(),
             (typeof(StringToBytesConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_bytes()
         => AssertConverters(
             _selector.Select(typeof(byte[])).ToList(),
             (typeof(BytesToStringConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_bytes_to_strings()
         => AssertConverters(
             _selector.Select(typeof(byte[]), typeof(string)).ToList(),
             (typeof(BytesToStringConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTime()
         => AssertConverters(
             _selector.Select(typeof(DateTime)).ToList(),
@@ -501,25 +501,25 @@ public class ValueConverterSelectorTest
             (typeof(DateTimeToBinaryConverter), default),
             (typeof(CompositeValueConverter<DateTime, long, byte[]>), new ConverterMappingHints(size: 8)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTime_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(DateTime), typeof(byte[])).ToList(),
             (typeof(CompositeValueConverter<DateTime, long, byte[]>), new ConverterMappingHints(size: 8)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTime_to_string()
         => AssertConverters(
             _selector.Select(typeof(DateTime), typeof(string)).ToList(),
             (typeof(DateTimeToStringConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTime_to_long()
         => AssertConverters(
             _selector.Select(typeof(DateTime), typeof(long)).ToList(),
             (typeof(DateTimeToBinaryConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTimeOffset()
         => AssertConverters(
             _selector.Select(typeof(DateTimeOffset)).ToList(),
@@ -527,25 +527,25 @@ public class ValueConverterSelectorTest
             (typeof(DateTimeOffsetToBinaryConverter), default),
             (typeof(DateTimeOffsetToBytesConverter), new ConverterMappingHints(size: 12)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTimeOffset_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(DateTimeOffset), typeof(byte[])).ToList(),
             (typeof(DateTimeOffsetToBytesConverter), new ConverterMappingHints(size: 12)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTimeOffset_to_string()
         => AssertConverters(
             _selector.Select(typeof(DateTimeOffset), typeof(string)).ToList(),
             (typeof(DateTimeOffsetToStringConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_DateTimeOffset_to_long()
         => AssertConverters(
             _selector.Select(typeof(DateTimeOffset), typeof(long)).ToList(),
             (typeof(DateTimeOffsetToBinaryConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeOnly()
         => AssertConverters(
             _selector.Select(typeof(TimeOnly)).ToList(),
@@ -553,25 +553,25 @@ public class ValueConverterSelectorTest
             (typeof(TimeOnlyToTicksConverter), default),
             (typeof(CompositeValueConverter<TimeOnly, long, byte[]>), new ConverterMappingHints(size: 8)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeOnly_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(TimeOnly), typeof(byte[])).ToList(),
             (typeof(CompositeValueConverter<TimeOnly, long, byte[]>), new ConverterMappingHints(size: 8)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeOnly_to_string()
         => AssertConverters(
             _selector.Select(typeof(TimeOnly), typeof(string)).ToList(),
             (typeof(TimeOnlyToStringConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeOnly_to_long()
         => AssertConverters(
             _selector.Select(typeof(TimeOnly), typeof(long)).ToList(),
             (typeof(TimeOnlyToTicksConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeSpan()
         => AssertConverters(
             _selector.Select(typeof(TimeSpan)).ToList(),
@@ -579,31 +579,31 @@ public class ValueConverterSelectorTest
             (typeof(TimeSpanToTicksConverter), default),
             (typeof(CompositeValueConverter<TimeSpan, long, byte[]>), new ConverterMappingHints(size: 8)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeSpan_to_bytes()
         => AssertConverters(
             _selector.Select(typeof(TimeSpan), typeof(byte[])).ToList(),
             (typeof(CompositeValueConverter<TimeSpan, long, byte[]>), new ConverterMappingHints(size: 8)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeSpan_to_string()
         => AssertConverters(
             _selector.Select(typeof(TimeSpan), typeof(string)).ToList(),
             (typeof(TimeSpanToStringConverter), new ConverterMappingHints(size: 48)));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_TimeSpan_to_long()
         => AssertConverters(
             _selector.Select(typeof(TimeSpan), typeof(long)).ToList(),
             (typeof(TimeSpanToTicksConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_Uri_to_string()
         => AssertConverters(
             _selector.Select(typeof(Uri), typeof(string)).ToList(),
             (typeof(UriToStringConverter), default));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_IPAddress_to_string()
     {
         AssertConverters(
@@ -615,7 +615,7 @@ public class ValueConverterSelectorTest
             (typeof(IPAddressToStringConverter), new ConverterMappingHints(size: 45)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_converters_for_IPAddress_to_bytes()
     {
         AssertConverters(

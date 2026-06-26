@@ -12,131 +12,11 @@ public class MiscellaneousTranslationsSqliteTest : MiscellaneousTranslationsRela
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    #region Guid
-
-    public override async Task Guid_new_with_constant(bool async)
-    {
-        await base.Guid_new_with_constant(async);
-
-        AssertSql(
-            """
-SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
-FROM "BasicTypesEntities" AS "b"
-WHERE "b"."Guid" = 'DF36F493-463F-4123-83F9-6B135DEEB7BA'
-""");
-    }
-
-    public override async Task Guid_new_with_parameter(bool async)
-    {
-        await base.Guid_new_with_parameter(async);
-
-        AssertSql(
-            """
-@p='df36f493-463f-4123-83f9-6b135deeb7ba'
-
-SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
-FROM "BasicTypesEntities" AS "b"
-WHERE "b"."Guid" = @p
-""");
-    }
-
-    public override async Task Guid_ToString_projection(bool async)
-    {
-        await base.Guid_ToString_projection(async);
-
-        AssertSql(
-            """
-SELECT CAST("b"."Guid" AS TEXT)
-FROM "BasicTypesEntities" AS "b"
-""");
-    }
-
-    public override Task Guid_NewGuid(bool async)
-        => AssertTranslationFailed(() => base.Guid_NewGuid(async));
-
-    #endregion Guid
-
-    #region Byte array
-
-    public override async Task Byte_array_Length(bool async)
-    {
-        await base.Byte_array_Length(async);
-
-        AssertSql(
-            """
-SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
-FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."ByteArray") = 4
-""");
-    }
-
-    // Array access. Issue #16428.
-    public override Task Byte_array_array_index(bool async)
-        => AssertTranslationFailed(() => base.Byte_array_array_index(async));
-
-    // Array access. Issue #16428.
-    public override Task Byte_array_First(bool async)
-        => AssertTranslationFailed(() => base.Byte_array_First(async));
-
-    public override async Task Byte_array_Contains_with_constant(bool async)
-    {
-        await base.Byte_array_Contains_with_constant(async);
-
-        AssertSql(
-            """
-SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
-FROM "BasicTypesEntities" AS "b"
-WHERE instr("b"."ByteArray", X'01') > 0
-""");
-    }
-
-    public override async Task Byte_array_Contains_with_parameter(bool async)
-    {
-        await base.Byte_array_Contains_with_parameter(async);
-
-        AssertSql(
-            """
-@someByte='1'
-
-SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
-FROM "BasicTypesEntities" AS "b"
-WHERE instr("b"."ByteArray", char(@someByte)) > 0
-""");
-    }
-
-    public override async Task Byte_array_Contains_with_column(bool async)
-    {
-        await base.Byte_array_Contains_with_column(async);
-
-        AssertSql(
-            """
-SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
-FROM "BasicTypesEntities" AS "b"
-WHERE instr("b"."ByteArray", char("b"."Byte")) > 0
-""");
-    }
-
-    public override async Task Byte_array_SequenceEqual(bool async)
-    {
-        await base.Byte_array_SequenceEqual(async);
-
-        AssertSql(
-            """
-@byteArrayParam='0xDEADBEEF' (Size = 4)
-
-SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
-FROM "BasicTypesEntities" AS "b"
-WHERE "b"."ByteArray" = @byteArrayParam
-""");
-    }
-
-    #endregion Byte array
-
     #region Random
 
-    public override async Task Random_on_EF_Functions(bool async)
+    public override async Task Random_on_EF_Functions()
     {
-        await base.Random_on_EF_Functions(async);
+        await base.Random_on_EF_Functions();
 
         AssertSql(
             """
@@ -146,44 +26,44 @@ WHERE abs(random() / 9.2233720368547799E+18) >= 0.0 AND abs(random() / 9.2233720
 """);
     }
 
-    public override async Task Random_Shared_Next_with_no_args(bool async)
+    public override async Task Random_Shared_Next_with_no_args()
     {
-        await base.Random_Shared_Next_with_no_args(async);
+        await base.Random_Shared_Next_with_no_args();
 
         AssertSql();
     }
 
-    public override async Task Random_Shared_Next_with_one_arg(bool async)
+    public override async Task Random_Shared_Next_with_one_arg()
     {
-        await base.Random_Shared_Next_with_one_arg(async);
+        await base.Random_Shared_Next_with_one_arg();
 
         AssertSql();
     }
 
-    public override async Task Random_Shared_Next_with_two_args(bool async)
+    public override async Task Random_Shared_Next_with_two_args()
     {
-        await base.Random_Shared_Next_with_two_args(async);
+        await base.Random_Shared_Next_with_two_args();
 
         AssertSql();
     }
 
-    public override async Task Random_new_Next_with_no_args(bool async)
+    public override async Task Random_new_Next_with_no_args()
     {
-        await base.Random_new_Next_with_no_args(async);
+        await base.Random_new_Next_with_no_args();
 
         AssertSql();
     }
 
-    public override async Task Random_new_Next_with_one_arg(bool async)
+    public override async Task Random_new_Next_with_one_arg()
     {
-        await base.Random_new_Next_with_one_arg(async);
+        await base.Random_new_Next_with_one_arg();
 
         AssertSql();
     }
 
-    public override async Task Random_new_Next_with_two_args(bool async)
+    public override async Task Random_new_Next_with_two_args()
     {
-        await base.Random_new_Next_with_two_args(async);
+        await base.Random_new_Next_with_two_args();
 
         AssertSql();
     }
@@ -192,29 +72,29 @@ WHERE abs(random() / 9.2233720368547799E+18) >= 0.0 AND abs(random() / 9.2233720
 
     #region Convert
 
-    public override Task Convert_ToBoolean(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToBoolean(async));
+    public override Task Convert_ToBoolean()
+        => AssertTranslationFailed(() => base.Convert_ToBoolean());
 
-    public override Task Convert_ToByte(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToByte(async));
+    public override Task Convert_ToByte()
+        => AssertTranslationFailed(() => base.Convert_ToByte());
 
-    public override Task Convert_ToDecimal(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToDecimal(async));
+    public override Task Convert_ToDecimal()
+        => AssertTranslationFailed(() => base.Convert_ToDecimal());
 
-    public override Task Convert_ToDouble(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToDouble(async));
+    public override Task Convert_ToDouble()
+        => AssertTranslationFailed(() => base.Convert_ToDouble());
 
-    public override Task Convert_ToInt16(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToInt16(async));
+    public override Task Convert_ToInt16()
+        => AssertTranslationFailed(() => base.Convert_ToInt16());
 
-    public override Task Convert_ToInt32(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToInt32(async));
+    public override Task Convert_ToInt32()
+        => AssertTranslationFailed(() => base.Convert_ToInt32());
 
-    public override Task Convert_ToInt64(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToInt64(async));
+    public override Task Convert_ToInt64()
+        => AssertTranslationFailed(() => base.Convert_ToInt64());
 
-    public override Task Convert_ToString(bool async)
-        => AssertTranslationFailed(() => base.Convert_ToString(async));
+    public override Task Convert_ToString()
+        => AssertTranslationFailed(() => base.Convert_ToString());
 
     #endregion Convert
 
@@ -242,52 +122,52 @@ WHERE abs(random() / 9.2233720368547799E+18) >= 0.0 AND abs(random() / 9.2233720
 
     #region Compare
 
-    public override async Task Int_Compare_to_simple_zero(bool async)
+    public override async Task Int_Compare_to_simple_zero()
     {
-        await base.Int_Compare_to_simple_zero(async);
+        await base.Int_Compare_to_simple_zero();
 
-AssertSql(
-"""
+        AssertSql(
+            """
 @orderId='8'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."Int" = @orderId
 """,
-                //
-                """
+            //
+            """
 @orderId='8'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."Int" <> @orderId
 """,
-                //
-                """
+            //
+            """
 @orderId='8'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."Int" > @orderId
 """,
-                //
-                """
+            //
+            """
 @orderId='8'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."Int" <= @orderId
 """,
-                //
-                """
+            //
+            """
 @orderId='8'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."Int" > @orderId
 """,
-                //
-                """
+            //
+            """
 @orderId='8'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
@@ -296,52 +176,52 @@ WHERE "b"."Int" <= @orderId
 """);
     }
 
-    public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
+    public override async Task DateTime_Compare_to_simple_zero(bool compareTo)
     {
-        await base.DateTime_Compare_to_simple_zero(async, compareTo);
+        await base.DateTime_Compare_to_simple_zero(compareTo);
 
         AssertSql(
-"""
+            """
 @dateTime='1998-05-04T15:30:10.0000000' (DbType = DateTime)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."DateTime" = @dateTime
 """,
-                //
-                """
+            //
+            """
 @dateTime='1998-05-04T15:30:10.0000000' (DbType = DateTime)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."DateTime" <> @dateTime
 """,
-                //
-                """
+            //
+            """
 @dateTime='1998-05-04T15:30:10.0000000' (DbType = DateTime)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."DateTime" > @dateTime
 """,
-                //
-                """
+            //
+            """
 @dateTime='1998-05-04T15:30:10.0000000' (DbType = DateTime)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."DateTime" <= @dateTime
 """,
-                //
-                """
+            //
+            """
 @dateTime='1998-05-04T15:30:10.0000000' (DbType = DateTime)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."DateTime" > @dateTime
 """,
-                //
-                """
+            //
+            """
 @dateTime='1998-05-04T15:30:10.0000000' (DbType = DateTime)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
@@ -350,52 +230,52 @@ WHERE "b"."DateTime" <= @dateTime
 """);
     }
 
-    public override async Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
+    public override async Task TimeSpan_Compare_to_simple_zero(bool compareTo)
     {
-        await base.TimeSpan_Compare_to_simple_zero(async, compareTo);
+        await base.TimeSpan_Compare_to_simple_zero(compareTo);
 
         AssertSql(
-"""
+            """
 @timeSpan='01:02:03'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."TimeSpan" = @timeSpan
 """,
-                //
-                """
+            //
+            """
 @timeSpan='01:02:03'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."TimeSpan" <> @timeSpan
 """,
-                //
-                """
+            //
+            """
 @timeSpan='01:02:03'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."TimeSpan" > @timeSpan
 """,
-                //
-                """
+            //
+            """
 @timeSpan='01:02:03'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."TimeSpan" <= @timeSpan
 """,
-                //
-                """
+            //
+            """
 @timeSpan='01:02:03'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."TimeSpan" > @timeSpan
 """,
-                //
-                """
+            //
+            """
 @timeSpan='01:02:03'
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
@@ -406,7 +286,7 @@ WHERE "b"."TimeSpan" <= @timeSpan
 
     #endregion Compare
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

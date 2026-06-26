@@ -131,6 +131,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
     /// <returns>This builder, such that further calls can be chained.</returns>
     public override EntityFrameworkServicesBuilder TryAddCoreServices()
     {
+        TryAdd<IStructuralTypeMaterializerSource, RelationalStructuralTypeMaterializerSource>();
         TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();
         TryAdd<IComparer<IReadOnlyModificationCommand>, ModificationCommandComparer>();
         TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
@@ -143,6 +144,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();
         TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
         TryAdd<IModelValidator, RelationalModelValidator>();
+        TryAdd<IMemberClassifier, RelationalMemberClassifier>();
         TryAdd<IMigrator, Migrator>();
         TryAdd<IMigrationCommandExecutor, MigrationCommandExecutor>();
         TryAdd<IMigrationsAssembly, MigrationsAssembly>();
@@ -167,8 +169,8 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IDatabaseFacadeDependencies>(p => p.GetRequiredService<IRelationalDatabaseFacadeDependencies>());
         TryAdd<IRelationalDatabaseFacadeDependencies, RelationalDatabaseFacadeDependencies>();
         TryAdd<IRelationalConnectionDiagnosticsLogger, RelationalConnectionDiagnosticsLogger>();
-        TryAdd<IDiagnosticsLogger<DbLoggerCategory.Database.Connection>>(
-            p => p.GetRequiredService<IRelationalConnectionDiagnosticsLogger>());
+        TryAdd<IDiagnosticsLogger<DbLoggerCategory.Database.Connection>>(p
+            => p.GetRequiredService<IRelationalConnectionDiagnosticsLogger>());
         TryAdd<IRelationalCommandDiagnosticsLogger, RelationalCommandDiagnosticsLogger>();
         TryAdd<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(p => p.GetRequiredService<IRelationalCommandDiagnosticsLogger>());
         TryAdd<IInterceptorAggregator, DbConnectionInterceptorAggregator>();

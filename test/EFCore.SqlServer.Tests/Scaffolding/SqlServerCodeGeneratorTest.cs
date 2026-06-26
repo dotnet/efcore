@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
@@ -8,12 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public class SqlServerCodeGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Use_provider_method_is_generated_correctly()
     {
         var codeGenerator = new SqlServerCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions: null);
 
@@ -24,12 +24,12 @@ public class SqlServerCodeGeneratorTest
         Assert.Null(result.ChainedCall);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Use_provider_method_is_generated_correctly_with_options()
     {
         var codeGenerator = new SqlServerCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var providerOptions = new MethodCallCodeFragment(_setProviderOptionMethodInfo);
 
@@ -49,12 +49,12 @@ public class SqlServerCodeGeneratorTest
         Assert.Null(result.ChainedCall);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Use_provider_method_is_generated_correctly_with_NetTopologySuite()
     {
         var codeGenerator = new SqlServerCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                new[] { new SqlServerNetTopologySuiteCodeGeneratorPlugin() }));
+                [new SqlServerNetTopologySuiteCodeGeneratorPlugin()]));
 
         var result = ((IProviderConfigurationCodeGenerator)codeGenerator).GenerateUseProvider("Data Source=Test");
 

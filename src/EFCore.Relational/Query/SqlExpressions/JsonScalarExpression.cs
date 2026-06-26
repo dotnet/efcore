@@ -89,7 +89,7 @@ public class JsonScalarExpression : SqlExpression
                     if (newPath is null)
                     {
                         newPath = new PathSegment[Path.Count];
-                        for (var j = 0; j < i; i++)
+                        for (var j = 0; j < i; j++)
                         {
                             newPath[j] = Path[j];
                         }

@@ -26,7 +26,7 @@ public interface IConventionIndex : IReadOnlyIndex, IConventionAnnotatable
     /// <summary>
     ///     Gets the properties that this index is defined on.
     /// </summary>
-    new IReadOnlyList<IConventionProperty> Properties { get; }
+    new IReadOnlyList<IConventionPropertyBase> Properties { get; }
 
     /// <summary>
     ///     Gets the entity type the index is defined on. This may be different from the type that <see cref="Properties" />

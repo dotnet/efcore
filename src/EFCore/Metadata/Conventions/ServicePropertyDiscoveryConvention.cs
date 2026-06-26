@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -125,7 +124,7 @@ public class ServicePropertyDiscoveryConvention :
             return false;
         }
 
-        factory = Dependencies.MemberClassifier.FindServicePropertyCandidateBindingFactory(memberInfo, model, UseAttributes);
+        Dependencies.MemberClassifier.IsCandidateServiceProperty(memberInfo, model, UseAttributes, out factory, out _);
         if (factory == null)
         {
             return false;

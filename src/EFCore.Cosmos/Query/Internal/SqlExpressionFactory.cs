@@ -109,8 +109,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         SqlBinaryExpression sqlBinaryExpression,
         CoreTypeMapping? typeMapping)
     {
-        var left = sqlBinaryExpression.Left;
-        var right = sqlBinaryExpression.Right;
+        var left = sqlBinaryExpression.Left as SqlExpression ?? throw new UnreachableException();
+        var right = sqlBinaryExpression.Right as SqlExpression ?? throw new UnreachableException();
 
         Type resultType;
         CoreTypeMapping? resultTypeMapping;
@@ -156,7 +156,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.Coalesce:
             {
                 inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                resultType = inferredTypeMapping?.ClrType ?? left.Type;
+                resultType = inferredTypeMapping?.ClrType ?? (left.Type != typeof(object) ? left.Type : right.Type);
                 resultTypeMapping = inferredTypeMapping;
                 break;
             }
@@ -198,11 +198,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         CoreTypeMapping? valuesTypeMapping = null;
         switch (inExpression)
         {
-            case { ValuesParameter: SqlParameterExpression parameter }:
+            case { ValuesParameter: { } parameter }:
                 valuesTypeMapping = parameter.TypeMapping;
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 // Note: there could be conflicting type mappings inside the values; we take the first.
                 foreach (var value in values)
                 {
@@ -228,11 +228,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         switch (inExpression)
         {
-            case { ValuesParameter: SqlParameterExpression parameter }:
+            case { ValuesParameter: { } parameter }:
                 inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, item.TypeMapping));
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 SqlExpression[]? newValues = null;
 
                 if (missingTypeMappingInValues)
@@ -660,6 +660,27 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, scoringFunction: false, arguments, returnType, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression ScoringFunction(
+        string functionName,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, scoringFunction: true, arguments, returnType, typeMapping);
+
+    private SqlExpression BuildFunction(
+        string functionName,
+        bool scoringFunction,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
     {
         var typeMappedArguments = new List<Expression>();
 
@@ -670,6 +691,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         return new SqlFunctionExpression(
             functionName,
+            scoringFunction,
             typeMappedArguments,
             returnType,
             typeMapping);
@@ -685,10 +707,37 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     {
         var typeMapping = ExpressionExtensions.InferTypeMapping(ifTrue, ifFalse);
 
-        return new SqlConditionalExpression(
-            ApplyTypeMapping(test, _boolTypeMapping),
-            ApplyTypeMapping(ifTrue, typeMapping),
-            ApplyTypeMapping(ifFalse, typeMapping));
+        test = ApplyTypeMapping(test, _boolTypeMapping);
+        ifTrue = ApplyTypeMapping(ifTrue, typeMapping);
+        ifFalse = ApplyTypeMapping(ifFalse, typeMapping);
+
+        // Simplify:
+        //   a == b ? b : a -> a
+        //   a != b ? a : b -> a
+        if (test is SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                Left: SqlExpression left,
+                Right: SqlExpression right
+            } binary)
+        {
+            // Swap ifTrue/ifFalse for NotEqual so we can reason uniformly about ifEqual/ifNotEqual.
+            var (ifEqual, ifNotEqual) = binary.OperatorType is ExpressionType.Equal ? (ifTrue, ifFalse) : (ifFalse, ifTrue);
+
+            // 'left' survives: a == b ? b : a -> a
+            if (left.Equals(ifNotEqual) && right.Equals(ifEqual))
+            {
+                return left;
+            }
+
+            // 'right' survives: a == b ? a : b -> b
+            if (right.Equals(ifNotEqual) && left.Equals(ifEqual))
+            {
+                return right;
+            }
+        }
+
+        return new SqlConditionalExpression(test, ifTrue, ifFalse);
     }
 
     /// <summary>

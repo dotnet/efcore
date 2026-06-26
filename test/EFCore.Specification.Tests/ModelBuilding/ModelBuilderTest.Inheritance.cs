@@ -14,7 +14,7 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class InheritanceTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_map_derived_types_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -46,7 +46,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(model.FindEntityType(typeof(SpecialBookLabel)).FindProperty(nameof(BookLabel.BookId)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Base_types_are_mapped_correctly_if_discovered_last()
         {
             var modelBuilder = CreateModelBuilder();
@@ -66,7 +66,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(derived, moreDerived.BaseType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_specify_discriminator_without_derived_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -79,7 +79,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Q", model.FindEntityType(typeof(Q)).GetDiscriminatorValue());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_specify_discriminator_values_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -101,7 +101,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, model.FindEntityType(typeof(Q)).GetDiscriminatorValue());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_map_derived_self_ref_many_to_one()
         {
             var modelBuilder = CreateModelBuilder();
@@ -120,7 +120,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(fk.IsRequired);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_and_remove_base_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -159,8 +159,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
-                pickle.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
+                initialIndexes.SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? [],
+                pickle.GetIndexes().SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? []);
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 pickle.GetForeignKeys().Single().Properties);
@@ -191,15 +191,15 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
-                ingredient.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
+                initialIndexes.SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? [],
+                ingredient.GetIndexes().SingleOrDefault()?.Properties.Cast<IReadOnlyProperty>().ToList() ?? []);
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 ingredient.GetForeignKeys().Single().Properties);
             Assert.Equal(initialReferencingForeignKeys.Count(), ingredient.GetReferencingForeignKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Setting_base_type_to_null_fixes_relationships()
         {
             var modelBuilder = CreateModelBuilder();
@@ -247,7 +247,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalEntityBuilder.Metadata.GetNavigations());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Pulling_relationship_to_a_derived_type_creates_relationships_on_other_derived_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -320,7 +320,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Pulling_relationship_to_a_derived_type_reverted_creates_relationships_on_other_derived_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -357,7 +357,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_match_navigation_to_derived_type_with_inverse_on_base()
         {
             var modelBuilder = CreateModelBuilder();
@@ -387,7 +387,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalEntityBuilder.Metadata, newFk.PrincipalEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Pulling_relationship_to_a_derived_type_many_to_one_creates_relationships_on_other_derived_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -417,7 +417,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(OtherCustomer.Orders), otherDerivedFk.PrincipalToDependent.Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Pulling_relationship_to_a_derived_type_one_to_one_creates_relationship_on_base()
         {
             var modelBuilder = CreateModelBuilder();
@@ -444,7 +444,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(derivedDependentEntityBuilder.Metadata, newFk.DeclaringEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Pulling_relationship_to_a_derived_type_one_to_one_with_fk_creates_relationship_on_base()
         {
             var modelBuilder = CreateModelBuilder();
@@ -471,7 +471,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(derivedDependentEntityBuilder.Metadata, newFk.DeclaringEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Pulling_relationship_to_a_derived_type_with_fk_creates_relationships_on_other_derived_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -504,7 +504,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_promote_shadow_fk_to_the_base_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -533,7 +533,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(SpecialOrder.SpecialCustomerId), newFk.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Removing_a_key_triggers_fk_discovery_on_derived_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -568,7 +568,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(derivedPrincipalEntityBuilder.Metadata, newFk.PrincipalEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Index_removed_when_covered_by_an_inherited_foreign_key()
         {
             if (!Fixture.ForeignKeysHaveIndexes)
@@ -594,18 +594,14 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
             principalEntityBuilder.HasMany(c => c.Orders).WithOne(o => o.Customer)
-                .HasForeignKey(
-                    o => new { o.CustomerId, o.AnotherCustomerId })
-                .HasPrincipalKey(
-                    c => new { c.Id, c.AlternateKey });
+                .HasForeignKey(o => new { o.CustomerId, o.AnotherCustomerId })
+                .HasPrincipalKey(c => new { c.Id, c.AlternateKey });
 
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
             derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
-                .HasForeignKey(
-                    o => new { o.CustomerId })
-                .HasPrincipalKey(
-                    c => new { c.Id });
+                .HasForeignKey(o => new { o.CustomerId })
+                .HasPrincipalKey(c => new { c.Id });
 
             var fk = dependentEntityType.GetForeignKeys().Single();
             Assert.Single(dependentEntityType.GetIndexes());
@@ -638,10 +634,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
             principalEntityBuilder.HasOne<Order>().WithOne()
-                .HasPrincipalKey<Customer>(
-                    c => new { c.Id })
-                .HasForeignKey<Order>(
-                    o => new { o.CustomerId });
+                .HasPrincipalKey<Customer>(c => new { c.Id })
+                .HasForeignKey<Order>(o => new { o.CustomerId });
 
             modelBuilder.FinalizeModel();
 
@@ -657,7 +651,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Index_removed_when_covered_by_an_inherited_index()
         {
             if (!Fixture.ForeignKeysHaveIndexes)
@@ -677,15 +671,12 @@ public abstract partial class ModelBuilderTest
             var dependentEntityBuilder = modelBuilder.Entity<Order>();
             var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
 
-            dependentEntityBuilder.HasIndex(
-                    o => new { o.CustomerId, o.AnotherCustomerId })
+            dependentEntityBuilder.HasIndex(o => new { o.CustomerId, o.AnotherCustomerId })
                 .IsUnique();
 
             derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
-                .HasPrincipalKey(
-                    c => new { c.Id })
-                .HasForeignKey(
-                    o => new { o.CustomerId });
+                .HasPrincipalKey(c => new { c.Id })
+                .HasForeignKey(o => new { o.CustomerId });
 
             var dependentEntityType = dependentEntityBuilder.Metadata;
             var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
@@ -730,7 +721,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(1, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Setting_base_type_handles_require_value_generator_properly()
         {
             var modelBuilder = CreateModelBuilder();
@@ -742,7 +733,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ValueGenerated.Never, fkProperty.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_create_relationship_between_base_type_and_derived_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -759,7 +750,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(SpecialBookLabel.Id), relationshipBuilder.Metadata.PrincipalKey.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Removing_derived_removes_it_from_directly_derived_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -771,7 +762,7 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName).GetDirectlyDerivedTypes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_base_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -793,7 +784,7 @@ public abstract partial class ModelBuilderTest
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Relationships_are_discovered_on_the_base_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -809,7 +800,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(anotherNavigation.Inverse);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_reconfigure_inherited_intraHierarchical_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -827,12 +818,12 @@ public abstract partial class ModelBuilderTest
                 .HasForeignKey<ExtraSpecialBookLabel>();
 
             var fk = bookLabelEntityBuilder.Metadata.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
-            Assert.Equal(new[] { fk }, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Equal([fk], extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
             Assert.Equal(nameof(SpecialBookLabel.BookLabel), fk.DependentToPrincipal.Name);
-            Assert.Equal(new[] { fk }, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Equal([fk], extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided()
         {
             var modelBuilder = CreateModelBuilder();
@@ -854,18 +845,17 @@ public abstract partial class ModelBuilderTest
 
             Assert.Empty(modelBuilder.Model.FindEntityType(typeof(CityViewModel)).GetForeignKeys());
 
-            modelBuilder.Entity<CityViewModel>(
-                c =>
-                {
-                    c.Ignore(c => c.CustomValues);
-                });
+            modelBuilder.Entity<CityViewModel>(c =>
+            {
+                c.Ignore(c => c.CustomValues);
+            });
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(Dictionary<string, string>)));
 
             modelBuilder.FinalizeModel();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void
             Can_remove_objects_in_derived_type_which_was_set_using_data_annotation_while_setting_base_type_by_convention()
         {
@@ -882,7 +872,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ConfigurationSource.Convention, derivedEntityType.GetBaseTypeConfigurationSource());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Cannot_remove_objects_in_derived_type_which_was_set_using_explicit_while_setting_base_type_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -905,7 +895,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.GetPrimaryKeyConfigurationSource());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Ordering_of_entityType_discovery_does_not_affect_key_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -924,7 +914,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(baseEntity2.FindPrimaryKey());
         }
 
-        [ConditionalFact] // #7049
+        [Fact] // #7049
         public virtual void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
         {
             var mb = CreateModelBuilder();
@@ -934,7 +924,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ValueGenerated.OnAdd, mb.Model.FindEntityType(typeof(Q)).FindProperty(nameof(Q.ID)).ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_get_set_discriminator_mapping_is_complete()
         {
             var mb = CreateModelBuilder();

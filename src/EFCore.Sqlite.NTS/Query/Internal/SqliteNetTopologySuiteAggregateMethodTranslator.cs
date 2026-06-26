@@ -64,15 +64,14 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
             // Spatialite has no built-in aggregate convex hull, but we can simply apply Collect beforehand
             return _sqlExpressionFactory.Function(
                 "ConvexHull",
-                new[]
-                {
+                [
                     _sqlExpressionFactory.Function(
                         "Collect",
-                        new[] { sqlExpression },
+                        [sqlExpression],
                         nullable: true,
                         argumentsPropagateNullability: Statics.FalseArrays[1],
                         typeof(Geometry))
-                },
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(Geometry));
@@ -95,7 +94,7 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
 
         return _sqlExpressionFactory.Function(
             functionName,
-            new[] { sqlExpression },
+            [sqlExpression],
             nullable: true,
             argumentsPropagateNullability: Statics.FalseArrays[1],
             typeof(Geometry));

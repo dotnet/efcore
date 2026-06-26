@@ -134,7 +134,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -256,7 +256,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -303,8 +303,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                             : commandIndex];
 
                     Check.DebugAssert(
-                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                        "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
                     command.PropagateResults(reader);
 
@@ -318,7 +317,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             return commandIndex - 1;
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -374,8 +373,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                             : commandIndex];
 
                     Check.DebugAssert(
-                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                        "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
                     command.PropagateResults(reader);
 
@@ -389,7 +387,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             return commandIndex - 1;
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -412,8 +410,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
         {
             Check.DebugAssert(
-                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                "ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
             expectedRowsAffected++;
         }
@@ -456,8 +453,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
         {
             Check.DebugAssert(
-                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                "ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
             expectedRowsAffected++;
         }

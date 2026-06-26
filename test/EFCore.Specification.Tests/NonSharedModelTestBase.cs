@@ -5,83 +5,108 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class NonSharedModelTestBase : IAsyncLifetime
+public abstract class NonSharedModelTestBase(NonSharedFixture fixture) : IAsyncLifetime
 {
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    protected abstract string StoreName { get; }
-    protected abstract ITestStoreFactory TestStoreFactory { get; }
+    protected abstract string NonSharedStoreName { get; }
+    protected abstract ITestStoreFactory NonSharedTestStoreFactory { get; }
+    protected NonSharedFixture? NonSharedFixture { get; set; } = fixture;
+    protected virtual ITestOutputHelper? TestOutputHelper { get; set; }
 
     private ServiceProvider? _serviceProvider;
 
-    protected IServiceProvider ServiceProvider
+    protected IServiceProvider NonSharedServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
+                $"You must call `await {nameof(InitializeAsync)}<TContext>();` at the beginning of the test.");
 
     private TestStore? _testStore;
 
-    protected TestStore TestStore
+    protected TestStore NonSharedTestStore
         => _testStore
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
+                $"You must call `await {nameof(InitializeAsync)}<TContext>();` at the beginning of the test.");
 
     private ListLoggerFactory? _listLoggerFactory;
 
-    protected ListLoggerFactory ListLoggerFactory
-        => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+    protected virtual ListLoggerFactory ListLoggerFactory
+        => _listLoggerFactory ??= (ListLoggerFactory)NonSharedServiceProvider.GetRequiredService<ILoggerFactory>();
 
-    public virtual Task InitializeAsync()
-        => Task.CompletedTask;
+    public virtual ValueTask InitializeAsync()
+        => ValueTask.CompletedTask;
 
-    protected virtual async Task<ContextFactory<TContext>> InitializeAsync<TContext>(
+    protected virtual async Task<ContextFactory<TContext>> InitializeNonSharedTest<TContext>(
         Action<ModelBuilder>? onModelCreating = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
         Action<ModelConfigurationBuilder>? configureConventions = null,
         Func<TContext, Task>? seed = null,
         Func<string, bool>? shouldLogCategory = null,
-        Func<Task<TestStore>>? createTestStore = null,
+        Func<TestStore>? createTestStore = null,
         bool usePooling = true,
         bool useServiceProvider = true)
         where TContext : DbContext
     {
-        var contextFactory = await CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, configureConventions, shouldLogCategory, createTestStore, usePooling,
+        if (NonSharedFixture == null && _testStore != null)
+        {
+            await _testStore.DisposeAsync();
+        }
+
+        _serviceProvider?.Dispose();
+        _serviceProvider = null;
+
+        var contextFactory = CreateContextFactory<TContext>(
+            onModelCreating,
+            onConfiguring,
+            addServices,
+            configureConventions,
+            shouldLogCategory,
+            createTestStore,
+            usePooling,
             useServiceProvider);
 
-        await TestStore.InitializeAsync(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
+        await NonSharedTestStore.InitializeAsync(_serviceProvider, contextFactory.CreateDbContext, seed == null ? null : c => seed((TContext)c));
 
         ListLoggerFactory.Clear();
 
         return contextFactory;
     }
 
-    protected async Task<ContextFactory<TContext>> CreateContextFactory<TContext>(
+    protected virtual ContextFactory<TContext> CreateContextFactory<TContext>(
         Action<ModelBuilder>? onModelCreating = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
         Action<ModelConfigurationBuilder>? configureConventions = null,
         Func<string, bool>? shouldLogCategory = null,
-        Func<Task<TestStore>>? createTestStore = null,
+        Func<TestStore>? createTestStore = null,
         bool usePooling = true,
-        bool useServiceProvider = true)
+        bool useServiceProvider = true,
+        bool skipValidation = false)
         where TContext : DbContext
     {
-        _testStore = createTestStore != null
-            ? await createTestStore()
-            : CreateTestStore();
+        if (createTestStore != null)
+        {
+            _testStore = createTestStore();
+            NonSharedFixture = null;
+        }
+        else
+        {
+            _testStore = NonSharedFixture != null
+                ? NonSharedFixture.GetOrCreateTestStore(CreateTestStore)
+                : CreateTestStore();
+        }
 
         shouldLogCategory ??= _ => false;
         var services = AddServices(
             (useServiceProvider
-                ? TestStoreFactory.AddProviderServices(new ServiceCollection())
+                ? NonSharedTestStoreFactory.AddProviderServices(new ServiceCollection())
                 : new ServiceCollection())
-            .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(shouldLogCategory)));
+            .AddSingleton(CreateNonSharedLoggerFactory(shouldLogCategory)));
 
         if (onModelCreating != null)
         {
-            services = services.AddSingleton(TestModelSource.GetFactory(onModelCreating, configureConventions));
+            services = services.AddSingleton(TestModelSource.GetFactory(onModelCreating, configureConventions, skipValidation));
         }
 
         addServices?.Invoke(services);
@@ -105,7 +130,7 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
         DbContextOptionsBuilder optionsBuilder,
         Action<DbContextOptionsBuilder>? onConfiguring)
     {
-        optionsBuilder = AddOptions(TestStore.AddProviderOptions(optionsBuilder));
+        optionsBuilder = AddNonSharedOptions(NonSharedTestStore.AddProviderOptions(optionsBuilder));
         if (serviceProvider == null)
         {
             optionsBuilder.EnableServiceProviderCaching(false);
@@ -119,32 +144,34 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
         return optionsBuilder;
     }
 
+    protected virtual ILoggerFactory CreateNonSharedLoggerFactory(Func<string, bool> shouldLogCategory)
+        => NonSharedTestStoreFactory.CreateListLoggerFactory(shouldLogCategory);
+
     protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
         => serviceCollection;
 
-    protected virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected virtual DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => builder
             .EnableSensitiveDataLogging()
-            .ConfigureWarnings(
-                b => b.Default(WarningBehavior.Throw)
-                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning)
-                    .Ignore(
-                        CoreEventId.MappedEntityTypeIgnoredWarning,
-                        CoreEventId.MappedPropertyIgnoredWarning,
-                        CoreEventId.MappedNavigationIgnoredWarning));
+            .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
+                .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning)
+                .Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning));
 
     protected virtual TestStore CreateTestStore()
-        => TestStoreFactory.Create(StoreName);
+        => NonSharedTestStoreFactory.Create(NonSharedStoreName);
 
     // Called after DisposeAsync
     public virtual void Dispose()
     {
     }
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
-        if (_testStore != null)
+        if (NonSharedFixture == null && _testStore != null)
         {
             await _testStore.DisposeAsync();
             _testStore = null;
@@ -156,7 +183,7 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
         _listLoggerFactory = null;
     }
 
-    protected class ContextFactory<TContext>
+    protected class ContextFactory<TContext> : IDbContextFactory<TContext>
         where TContext : DbContext
     {
         public ContextFactory(IServiceProvider serviceProvider, bool usePooling, TestStore testStore)
@@ -179,7 +206,7 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
 
         public TestStore TestStore { get; }
 
-        public virtual TContext CreateContext()
+        public virtual TContext CreateDbContext()
             => UsePooling
                 ? PooledContextFactory!.CreateDbContext()
                 : (TContext)ServiceProvider.GetRequiredService(typeof(TContext));

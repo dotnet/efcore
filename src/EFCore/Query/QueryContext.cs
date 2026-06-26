@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -19,9 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-public abstract class QueryContext : IParameterValues
+public abstract class QueryContext
 {
-    private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
     private IStateManager? _stateManager;
 
     /// <summary>
@@ -41,9 +39,14 @@ public abstract class QueryContext : IParameterValues
     }
 
     /// <summary>
-    ///     The current DbContext in using while executing the query.
+    ///     The current <see cref="DbContext" /> in using while executing the query.
     /// </summary>
     public virtual DbContext Context { get; }
+
+    /// <summary>
+    ///     The query parameter used in the query query.
+    /// </summary>
+    public virtual Dictionary<string, object?> Parameters { get; } = new();
 
     /// <summary>
     ///     Dependencies for this service.
@@ -95,20 +98,6 @@ public abstract class QueryContext : IParameterValues
         => Dependencies.QueryLogger;
 
     /// <summary>
-    ///     The parameter values to use while executing the query.
-    /// </summary>
-    public virtual IReadOnlyDictionary<string, object?> ParameterValues
-        => (IReadOnlyDictionary<string, object?>)_parameterValues;
-
-    /// <summary>
-    ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <param name="value">The value.</param>
-    public virtual void AddParameter(string name, object? value)
-        => _parameterValues.Add(name, value);
-
-    /// <summary>
     ///     Initializes the <see cref="IStateManager" /> to be used with this QueryContext.
     /// </summary>
     /// <param name="standAlone">Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution.</param>
@@ -125,12 +114,24 @@ public abstract class QueryContext : IParameterValues
     /// </summary>
     [EntityFrameworkInternal]
     public virtual InternalEntityEntry? TryGetEntry(
-            IKey key,
-            object[] keyValues,
-            bool throwOnNullKey,
-            out bool hasNullKey)
+        IKey key,
+        object[] keyValues,
+        bool throwOnNullKey,
+        out bool hasNullKey)
+    {
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+        var entry = _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+
+        // An entity returned by a tracking query provably exists in the store, so an entry that is being tracked as
+        // Added (e.g. a new entity whose key matches an existing row, possibly created during an Add graph traversal)
+        // must be corrected to Unchanged. Otherwise it would be re-inserted, causing a duplicate key. See #35762.
+        if (entry is { EntityState: EntityState.Added })
+        {
+            entry.SetEntityState(EntityState.Unchanged);
+        }
+
+        return entry;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public class MigrationsScaffolderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldMigration_reuses_model_snapshot()
     {
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
@@ -26,7 +27,7 @@ public class MigrationsScaffolderTest
         Assert.Equal(typeof(ContextWithSnapshotModelSnapshot).Namespace, migration.SnapshotSubnamespace);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldMigration_handles_generic_contexts()
     {
         var scaffolder = CreateMigrationScaffolder<GenericContext<int>>();
@@ -36,7 +37,7 @@ public class MigrationsScaffolderTest
         Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldMigration_can_override_namespace()
     {
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
@@ -50,6 +51,18 @@ public class MigrationsScaffolderTest
         Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.SnapshotSubnamespace);
     }
 
+    [Fact]
+    public void ScaffoldMigration_uses_migration_id_as_type_name()
+    {
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+
+        var migration = scaffolder.ScaffoldMigration("DateTime", "WebApplication1");
+
+        Assert.Contains($"public partial class _{migration.MigrationId} : Migration", migration.MigrationCode);
+        Assert.Contains($"partial class _{migration.MigrationId}", migration.MetadataCode);
+        Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
+    }
+
     private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
         where TContext : DbContext, new()
     {
@@ -57,7 +70,8 @@ public class MigrationsScaffolderTest
         var idGenerator = new MigrationsIdGenerator();
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
         var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
             new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
         var code = new CSharpHelper(sqlServerTypeMappingSource);
@@ -94,7 +108,6 @@ public class MigrationsScaffolderTest
                 [
                     new CSharpMigrationsGenerator(
                         new MigrationsCodeGeneratorDependencies(
-                            sqlServerTypeMappingSource,
                             sqlServerAnnotationCodeGenerator),
                         new CSharpMigrationsGeneratorDependencies(
                             code,
@@ -144,7 +157,8 @@ public class MigrationsScaffolderTest
 
     private class MockHistoryRepository : IHistoryRepository
     {
-        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+        public virtual LockReleaseBehavior LockReleaseBehavior
+            => LockReleaseBehavior.Explicit;
 
         public string GetBeginIfExistsScript(string migrationId)
             => null;

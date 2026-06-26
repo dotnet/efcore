@@ -45,10 +45,10 @@ public class SqlServerGeometryCollectionMemberTranslator : IMemberTranslator
             return _sqlExpressionFactory.Function(
                 instance!,
                 "STNumGeometries",
-                Enumerable.Empty<SqlExpression>(),
+                [],
                 nullable: true,
                 instancePropagatesNullability: true,
-                argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                argumentsPropagateNullability: [],
                 returnType);
         }
 

@@ -27,7 +27,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         Fixture.TestSqlLoggerFactory.Clear();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_decimal_and_byte_as_identity_columns()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -175,8 +175,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
     private class AnNum
     {
-        [Column(TypeName = "decimal(18, 0)")]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column(TypeName = "decimal(18, 0)"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public decimal Id { get; set; }
 
         public string TheWalrus { get; set; }
@@ -214,7 +213,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public string Lucy { get; set; }
     }
 
-    [ConditionalFact] // Issue #29931
+    [Fact] // Issue #29931
     public async Task Can_use_SqlQuery_when_context_has_DbFunction()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -254,7 +253,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public string Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_string_enum_or_byte_array_as_key()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -290,7 +289,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_remove_multiple_byte_array_as_key()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -325,7 +324,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public DbSet<BNum> BNums { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_table_splitting_dependent_after_principal()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -368,7 +367,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Throws_when_adding_table_splitting_dependent_without_principal()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -460,7 +459,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public string TheWalrus { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_and_remove_entities_with_keys_of_different_type()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -512,7 +511,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public long Id2 { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_insert_non_owner_principal_for_owned()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -544,15 +543,14 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Category>(
-                builder =>
-                {
-                    builder.OwnsOne(
-                        x => x.Picture, fileSource =>
-                        {
-                            fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
-                        });
-                });
+            modelBuilder.Entity<Category>(builder =>
+            {
+                builder.OwnsOne(
+                    x => x.Picture, fileSource =>
+                    {
+                        fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
+                    });
+            });
         }
     }
 
@@ -574,7 +572,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public bool Deleted { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_insert_TPT_dependents_with_identity()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -612,7 +610,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public Car Special { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_run_linq_query_on_entity_set()
     {
         await using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
@@ -634,7 +632,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         Assert.Equal("030-0076545", results[3].Fax);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_run_linq_query_on_entity_set_with_value_buffer_reader()
     {
         await using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
@@ -656,7 +654,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         Assert.Equal("030-0076545", results[3].Fax);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_enumerate_entity_set()
     {
         await using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
@@ -672,7 +670,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         Assert.Equal("Alfreds Futterkiste", results[0].CompanyName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_save_changes()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -745,7 +743,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_save_changes_in_tracked_entities()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -802,7 +800,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_track_an_entity_with_more_than_10_properties()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -831,7 +829,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_replace_identifying_FK_entity_with_many_to_many()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -866,12 +864,11 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(
-        nameof(DataGenerator.GetCombinations),
-        new object[] { 0, 1, 2, 3, 4, 7 },
-        2,
-        MemberType = typeof(DataGenerator))]
+    [Theory, MemberData(
+         nameof(DataGenerator.GetCombinations),
+         new object[] { 0, 1, 2, 3, 4, 7 },
+         2,
+         MemberType = typeof(DataGenerator))]
     public async Task Can_insert_entities_with_generated_PKs(int studentCount, int courseCount)
     {
         var students = new Student[]
@@ -1079,78 +1076,75 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Course>(
-                builder =>
-                {
-                    builder.ToTable("Courses");
+            modelBuilder.Entity<Course>(builder =>
+            {
+                builder.ToTable("Courses");
 
-                    builder.HasKey(x => x.Id);
+                builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                builder.Property(x => x.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.Title)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                builder.Property(x => x.Title)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
+                builder.Property(x => x.RowVersion)
+                    .IsRowVersion();
 
-                    builder.HasMany(x => x.Students)
-                        .WithMany(x => x.Courses)
-                        .UsingEntity<Enrollment>();
-                });
+                builder.HasMany(x => x.Students)
+                    .WithMany(x => x.Courses)
+                    .UsingEntity<Enrollment>();
+            });
 
-            modelBuilder.Entity<Student>(
-                builder =>
-                {
-                    builder.ToTable("Students");
+            modelBuilder.Entity<Student>(builder =>
+            {
+                builder.ToTable("Students");
 
-                    builder.HasKey(x => x.Id);
+                builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                builder.Property(x => x.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.LastName)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                builder.Property(x => x.LastName)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    builder.Property(x => x.FirstMidName)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                builder.Property(x => x.FirstMidName)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
-                });
+                builder.Property(x => x.RowVersion)
+                    .IsRowVersion();
+            });
 
-            modelBuilder.Entity<Enrollment>(
-                builder =>
-                {
-                    builder.ToTable("Enrollments");
+            modelBuilder.Entity<Enrollment>(builder =>
+            {
+                builder.ToTable("Enrollments");
 
-                    builder.HasKey(x => x.Id);
+                builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                builder.Property(x => x.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
+                builder.Property(x => x.RowVersion)
+                    .IsRowVersion();
 
-                    builder.HasOne(t => t.Course)
-                        .WithMany(t => t.Enrollments)
-                        .HasPrincipalKey(d => d.Id)
-                        .HasForeignKey(d => d.CourseId)
-                        .OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(t => t.Course)
+                    .WithMany(t => t.Enrollments)
+                    .HasPrincipalKey(d => d.Id)
+                    .HasForeignKey(d => d.CourseId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-                    builder.HasOne(t => t.Student)
-                        .WithMany(t => t.Enrollments)
-                        .HasPrincipalKey(d => d.Id)
-                        .HasForeignKey(d => d.StudentId)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+                builder.HasOne(t => t.Student)
+                    .WithMany(t => t.Enrollments)
+                    .HasPrincipalKey(d => d.Id)
+                    .HasForeignKey(d => d.StudentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 
@@ -1187,7 +1181,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 .HasForeignKey<EntityB>(e => e.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Adding_an_item_to_a_collection_marks_it_as_modified()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1212,7 +1206,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         Assert.True(context.Entry(player).Collection(p => p.Items).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_set_reference_twice()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1252,7 +1246,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_include_on_loaded_entity()
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1412,75 +1406,69 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Level>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedNever();
+            modelBuilder.Entity<Level>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedNever();
 
-                    eb.HasKey(l => new { l.GameId, l.Id });
-                });
+                eb.HasKey(l => new { l.GameId, l.Id });
+            });
 
-            modelBuilder.Entity<Actor>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedNever();
+            modelBuilder.Entity<Actor>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedNever();
 
-                    eb.HasKey(a => new { a.GameId, a.Id });
+                eb.HasKey(a => new { a.GameId, a.Id });
 
-                    eb.HasOne(a => a.Level)
-                        .WithMany(l => l.Actors)
-                        .HasForeignKey(nameof(Actor.GameId), "LevelId")
-                        .IsRequired();
+                eb.HasOne(a => a.Level)
+                    .WithMany(l => l.Actors)
+                    .HasForeignKey(nameof(Actor.GameId), "LevelId")
+                    .IsRequired();
 
-                    eb.HasMany(a => a.Items)
-                        .WithOne(i => i.Actor)
-                        .HasForeignKey(nameof(Item.GameId), "ActorId");
-                });
+                eb.HasMany(a => a.Items)
+                    .WithOne(i => i.Actor)
+                    .HasForeignKey(nameof(Item.GameId), "ActorId");
+            });
 
-            modelBuilder.Entity<PlayerCharacter>(
-                eb =>
-                {
-                    eb.HasOne(p => p.CurrentWeapon)
-                        .WithOne()
-                        .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
-                });
+            modelBuilder.Entity<PlayerCharacter>(eb =>
+            {
+                eb.HasOne(p => p.CurrentWeapon)
+                    .WithOne()
+                    .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
+            });
 
-            modelBuilder.Entity<Item>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedNever();
+            modelBuilder.Entity<Item>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedNever();
 
-                    eb.HasKey(l => new { l.GameId, l.Id });
-                });
+                eb.HasKey(l => new { l.GameId, l.Id });
+            });
 
-            modelBuilder.Entity<Container>(
-                eb =>
-                {
-                    eb.HasMany(c => c.Items)
-                        .WithOne()
-                        .HasForeignKey("GameId", "ContainerId");
-                });
+            modelBuilder.Entity<Container>(eb =>
+            {
+                eb.HasMany(c => c.Items)
+                    .WithOne()
+                    .HasForeignKey("GameId", "ContainerId");
+            });
 
-            modelBuilder.Entity<Game>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedOnAdd();
-                    eb.HasMany(g => g.Levels)
-                        .WithOne(l => l.Game)
-                        .HasForeignKey(l => l.GameId);
-                    eb.HasMany(g => g.Actors)
-                        .WithOne(a => a.Game)
-                        .HasForeignKey(a => a.GameId)
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
+            modelBuilder.Entity<Game>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedOnAdd();
+                eb.HasMany(g => g.Levels)
+                    .WithOne(l => l.Game)
+                    .HasForeignKey(l => l.GameId);
+                eb.HasMany(g => g.Actors)
+                    .WithOne(a => a.Game)
+                    .HasForeignKey(a => a.GameId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
     {
         await using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
@@ -1494,7 +1482,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         db.Customers.Remove(customer);
     }
 
-    [ConditionalFact] // Issue #931
+    [Fact] // Issue #931
     public async Task Can_save_and_query_with_schema()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1549,15 +1537,15 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public int MyKey { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_round_trip_changes_with_snapshot_change_tracking()
         => RoundTripChanges<Blog>();
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_round_trip_changes_with_full_notification_entities()
         => RoundTripChanges<ChangedChangingBlog>();
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_round_trip_changes_with_changed_only_notification_entities()
         => RoundTripChanges<ChangedOnlyBlog>();
 
@@ -1690,12 +1678,11 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
-                b =>
-                {
-                    b.HasKey(c => c.CustomerID);
-                    b.ToTable("Customers");
-                });
+            => modelBuilder.Entity<Customer>(b =>
+            {
+                b.HasKey(c => c.CustomerID);
+                b.ToTable("Customers");
+            });
     }
 
     private class Customer

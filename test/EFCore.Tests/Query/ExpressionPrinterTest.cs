@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -7,7 +7,7 @@ public class ExpressionPrinterTest
 {
     private readonly ExpressionPrinter _expressionPrinter = new();
 
-    [ConditionalFact]
+    [Fact]
     public void UnaryExpression_printed_correctly()
     {
         Assert.Equal("(decimal)42", _expressionPrinter.PrintExpression(Expression.Convert(Expression.Constant(42), typeof(decimal))));
@@ -23,7 +23,7 @@ public class ExpressionPrinterTest
 
     private class DerivedClass : BaseClass;
 
-    [ConditionalFact]
+    [Fact]
     public void BinaryExpression_printed_correctly()
     {
         Assert.Equal(
@@ -89,7 +89,7 @@ public class ExpressionPrinterTest
                 Expression.MakeBinary(ExpressionType.Modulo, Expression.Constant(7), Expression.Constant(42))));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ConditionalExpression_printed_correctly()
         => Assert.Equal(
             "True ? \"Foo\" : \"Bar\"",
@@ -99,7 +99,7 @@ public class ExpressionPrinterTest
                     Expression.Constant("Foo"),
                     Expression.Constant("Bar"))));
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_lambda_printed_correctly()
         => Assert.Equal(
             "prm => 42",
@@ -108,7 +108,7 @@ public class ExpressionPrinterTest
                     Expression.Constant(42),
                     Expression.Parameter(typeof(int), "prm"))));
 
-    [ConditionalFact]
+    [Fact]
     public void Multi_parameter_lambda_printed_correctly()
         => Assert.Equal(
             "(prm1, prm2) => 42",
@@ -118,7 +118,7 @@ public class ExpressionPrinterTest
                     Expression.Parameter(typeof(int), "prm1"),
                     Expression.Parameter(typeof(int), "prm2"))));
 
-    [ConditionalFact]
+    [Fact]
     public void Unhandled_parameter_in_lambda_detected()
         => Assert.Equal(
             "prm1{0} => (Unhandled parameter: prm2){1}",
@@ -127,7 +127,7 @@ public class ExpressionPrinterTest
                     Expression.Parameter(typeof(int), "prm2"),
                     Expression.Parameter(typeof(int), "prm1"))));
 
-    [ConditionalFact]
+    [Fact]
     public void MemberAccess_after_BinaryExpression_adds_parentheses()
         => Assert.Equal(
             @"(7 + 42).Value",
@@ -138,7 +138,7 @@ public class ExpressionPrinterTest
                         Expression.Constant(42, typeof(int?))),
                     "Value")));
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_MethodCall_printed_correctly()
         => Assert.Equal(
             @"""Foo"".ToUpper()",
@@ -147,7 +147,7 @@ public class ExpressionPrinterTest
                     Expression.Constant("Foo"),
                     typeof(string).GetMethods().Single(m => m.Name == nameof(string.ToUpper) && m.GetParameters().Count() == 0))));
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_MethodCall_printed_correctly()
         => Assert.Equal(
             "\"Foobar\""
@@ -162,7 +162,7 @@ public class ExpressionPrinterTest
                     Expression.Constant(4))),
             ignoreLineEndingDifferences: true);
 
-    [ConditionalFact]
+    [Fact]
     public void Linq_methods_printed_as_extensions()
     {
         Expression<Func<object, object>> expr =
@@ -183,11 +183,16 @@ public class ExpressionPrinterTest
             ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Enumerable_Constant_printed_correctly()
         => Assert.Equal(
             @"int[] { 1, 2, 3 }",
             _expressionPrinter.PrintExpression(
-                Expression.Constant(
-                    new[] { 1, 2, 3 })));
+                Expression.Constant(new[] { 1, 2, 3 })));
+
+    [Fact] // #35866
+    public void EnumerableQuery_Constant_printed_correctly()
+        => Assert.Equal(
+            "EnumerableQuery<int> { 1 }",
+            _expressionPrinter.PrintExpression(Expression.Constant(new[] { 1 }.AsQueryable())));
 }

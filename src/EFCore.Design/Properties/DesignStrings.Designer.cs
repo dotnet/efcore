@@ -20,6 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).Assembly);
 
         /// <summary>
+        ///     Failed to create and apply migration '{name}'. {message}
+        /// </summary>
+        public static string AddAndApplyMigrationFailed(object? name, object? message)
+            => string.Format(
+                GetString("AddAndApplyMigrationFailed", nameof(name), nameof(message)),
+                name, message);
+
+        /// <summary>
         ///     Failed creating connection: {exceptionMessage}
         /// </summary>
         public static string BadConnection(object? exceptionMessage)
@@ -36,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name, characters);
 
         /// <summary>
-        ///     Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.
+        ///     Sequence '{sequenceName}' cannot be scaffolded because it uses type '{typeName}' which is unsupported.
         /// </summary>
         public static string BadSequenceType(object? sequenceName, object? typeName)
             => string.Format(
@@ -130,14 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 factoryType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.
-        /// </summary>
-        public static string CompiledModelDefiningQuery(object? entityType)
-            => string.Format(
-                GetString("CompiledModelDefiningQuery", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     Successfully generated a compiled model, it will be discovered automatically, but you can also call '{optionsCall}'. Run this command again when the model is modified.
         /// </summary>
         public static string CompiledModelGenerated(object? optionsCall)
@@ -193,6 +193,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 contextClassName);
 
         /// <summary>
+        ///     Couldn't get interceptable location for: '{node}'.
+        /// </summary>
+        public static string CouldNotGetInterceptableLocation(object? node)
+            => string.Format(
+                GetString("CouldNotGetInterceptableLocation", nameof(node)),
+                node);
+
+        /// <summary>
+        ///     Creating and applying migration '{migrationName}'.
+        /// </summary>
+        public static string CreatingAndApplyingMigration(object? migrationName)
+            => string.Format(
+                GetString("CreatingAndApplyingMigration", nameof(migrationName)),
+                migrationName);
+
+        /// <summary>
         ///     Successfully dropped database '{name}'.
         /// </summary>
         public static string DatabaseDropped(object? name)
@@ -227,6 +243,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DuplicateMigrationName", nameof(migrationName)),
                 migrationName);
+
+        /// <summary>
+        ///     The dynamic migration '{migrationId}' was not found. Only migrations applied in the current session using CreateAndApplyMigration can be reverted.
+        /// </summary>
+        public static string DynamicMigrationNotFound(object? migrationId)
+            => string.Format(
+                GetString("DynamicMigrationNotFound", nameof(migrationId)),
+                migrationId);
 
         /// <summary>
         ///     Dynamic LINQ queries are not supported when precompiling queries.
@@ -431,10 +455,33 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ManuallyDeleted");
 
         /// <summary>
+        ///     Failed to compile migration '{migrationId}'. Errors:
+        ///     {errors}
+        /// </summary>
+        public static string MigrationCompilationFailed(object? migrationId, object? errors)
+            => string.Format(
+                GetString("MigrationCompilationFailed", nameof(migrationId), nameof(errors)),
+                migrationId, errors);
+
+        /// <summary>
+        ///     Migration '{migrationId}' was successfully created and applied.
+        /// </summary>
+        public static string MigrationCreatedAndApplied(object? migrationId)
+            => string.Format(
+                GetString("MigrationCreatedAndApplied", nameof(migrationId)),
+                migrationId);
+
+        /// <summary>
         ///     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
         /// </summary>
         public static string MigrationDescription
             => GetString("MigrationDescription");
+
+        /// <summary>
+        ///     A migration name must be specified.
+        /// </summary>
+        public static string MigrationNameRequired
+            => GetString("MigrationNameRequired");
 
         /// <summary>
         ///     Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
@@ -447,12 +494,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 assembly, migrationsAssembly);
 
         /// <summary>
-        ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
+        ///     Could not find migration type with ID '{migrationId}' in the compiled assembly.
         /// </summary>
-        public static string MultipleAnnotationConflict(object? annotationName)
+        public static string MigrationTypeNotFound(object? migrationId)
             => string.Format(
-                GetString("MultipleAnnotationConflict", nameof(annotationName)),
-                annotationName);
+                GetString("MigrationTypeNotFound", nameof(migrationId)),
+                migrationId);
+
+        /// <summary>
+        ///     MSBuild Workspace diagnostics:{diagnostics}
+        /// </summary>
+        public static string MSBuildWorkspaceDiagnostics(object? diagnostics)
+            => string.Format(
+                GetString("MSBuildWorkspaceDiagnostics", nameof(diagnostics)),
+                diagnostics);
+
+        /// <summary>
+        ///     MSBuild Workspace failure: {kind} - {message}
+        /// </summary>
+        public static string MSBuildWorkspaceFailure(object? kind, object? message)
+            => string.Format(
+                GetString("MSBuildWorkspaceFailure", nameof(kind), nameof(message)),
+                kind, message);
 
         /// <summary>
         ///     More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.
@@ -535,6 +598,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoDesignTimeServices");
 
         /// <summary>
+        ///     No dynamic migrations have been applied in the current session. Only migrations applied using CreateAndApplyMigration can be reverted with RevertMigration.
+        /// </summary>
+        public static string NoDynamicMigrationsToRevert
+            => GetString("NoDynamicMigrationsToRevert");
+
+        /// <summary>
         ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for the programming language.
         /// </summary>
         public static string NoLanguageService(object? language, object? service)
@@ -559,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 file);
 
         /// <summary>
-        ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
+        ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to 'false' and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
         /// </summary>
         public static string NonNullableBoooleanColumnHasDefaultConstraint(object? columnName)
             => string.Format(
@@ -647,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 tableName, columnNames);
 
         /// <summary>
-        ///     Metadata model returned should not be null. Provider: {providerTypeName}.
+        ///     Metadata model returned should not be 'null'. Provider: {providerTypeName}.
         /// </summary>
         public static string ProviderReturnedNullModel(object? providerTypeName)
             => string.Format(
@@ -665,6 +734,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string QueryPrecompilationErrors
             => GetString("QueryPrecompilationErrors");
+
+        /// <summary>
+        ///     Failed to load project for query precompilation. Project: {project}. Error: {error}
+        /// </summary>
+        public static string QueryPrecompilationProjectLoadFailed(object? project, object? error)
+            => string.Format(
+                GetString("QueryPrecompilationProjectLoadFailed", nameof(project), nameof(error)),
+                project, error);
 
         /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.
@@ -733,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SensitiveInformationWarning");
 
         /// <summary>
-        ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
+        ///     Sequence name cannot be 'null' or empty. Entity Framework cannot model a sequence that does not have a name.
         /// </summary>
         public static string SequencesRequireName
             => GetString("SequencesRequireName");
@@ -755,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 indexName, columnNames);
 
         /// <summary>
-        ///     Unable to translate type '{type}'
+        ///     Unable to translate type '{type}'.
         /// </summary>
         public static string UnableToTranslateType(object? type)
             => string.Format(
@@ -877,6 +954,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("VersionMismatch", nameof(toolsVersion), nameof(runtimeVersion)),
                 toolsVersion, runtimeVersion);
+
+        /// <summary>
+        ///     The wildcard '*' can only be used with commands that run for all contexts found. Specify a context name for this command.
+        /// </summary>
+        public static string WildcardNotSupported
+            => GetString("WildcardNotSupported");
 
         /// <summary>
         ///     Writing migration to '{file}'.

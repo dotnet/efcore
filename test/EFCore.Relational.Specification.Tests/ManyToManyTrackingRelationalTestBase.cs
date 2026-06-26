@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fixture) : ManyToManyTrackingTestBase<TFixture>(fixture)
     where TFixture : ManyToManyTrackingRelationalTestBase<TFixture>.ManyToManyTrackingRelationalFixture
 {
-    [ConditionalFact]
-    public void Many_to_many_delete_behaviors_are_set()
+    [Fact]
+    public virtual void Many_to_many_delete_behaviors_are_set()
     {
         using var context = CreateContext();
         var model = context.Model;
@@ -50,12 +50,11 @@ public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fi
             base.OnModelCreating(modelBuilder, context);
 
             modelBuilder.Entity<EntityTableSharing1>().ToTable("TableSharing");
-            modelBuilder.Entity<EntityTableSharing2>(
-                b =>
-                {
-                    b.HasOne<EntityTableSharing1>().WithOne().HasForeignKey<EntityTableSharing2>(e => e.Id);
-                    b.ToTable("TableSharing");
-                });
+            modelBuilder.Entity<EntityTableSharing2>(b =>
+            {
+                b.HasOne<EntityTableSharing1>().WithOne().HasForeignKey<EntityTableSharing2>(e => e.Id);
+                b.ToTable("TableSharing");
+            });
         }
     }
 }

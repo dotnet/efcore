@@ -572,12 +572,6 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         if (nullable.HasValue)
         {
-            Check.DebugAssert(
-                nullable.Value
-                || !direction.HasFlag(ParameterDirection.Input)
-                || value != null,
-                "Null value in a non-nullable input parameter");
-
             parameter.IsNullable = nullable.Value;
         }
 
@@ -661,6 +655,32 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </returns>
     protected virtual string GenerateNonNullSqlLiteral(object value)
         => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
+
+    /// <summary>
+    ///     Creates the provider value used to populate a newly added, required column for existing rows when generating a migration.
+    /// </summary>
+    /// <remarks>
+    ///     Type mappings whose facets (such as size) are required to produce a usable value should override this to supply
+    ///     a provider value built from the configured mapping.
+    /// </remarks>
+    /// <returns>The default provider value.</returns>
+    public virtual object? GetDefaultProviderValue()
+    {
+        if (ElementTypeMapping is not null
+            && Converter?.GetType() is { IsGenericType: true } converterType
+            && converterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>))
+        {
+            return "[]";
+        }
+
+        var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
+
+        return providerType == typeof(string)
+            ? string.Empty
+            : providerType.IsArray
+                ? Array.CreateInstance(providerType.GetElementType()!, 0)
+                : providerType.GetDefaultValue();
+    }
 
     /// <summary>
     ///     The method to use when reading values of the given type. The method must be defined

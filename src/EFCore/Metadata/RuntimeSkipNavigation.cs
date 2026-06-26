@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -25,6 +24,9 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
     private ICollectionLoader? _manyToManyLoader;
+    // An optional compiled-model delegate that creates the loader, letting a compiled model carry the
+    // concrete generic types for native AOT. Null unless set during model build.
+    private Func<IManyToManyLoaderFactory, ISkipNavigation, ICollectionLoader>? _manyToManyLoaderDelegatedFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,6 +102,12 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     [DisallowNull]
     public virtual RuntimeSkipNavigation? Inverse { get; set; }
 
+    /// <summary>
+    ///     Gets a value indicating whether the property is a collection.
+    /// </summary>
+    public override bool IsCollection
+        => _isCollection;
+
     /// <inheritdoc />
     public override object? Sentinel
         => null;
@@ -121,7 +129,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
-        _collectionAccessor = new ClrICollectionAccessor<TEntity, TCollection, TElement>(
+        _collectionAccessor = new ClrCollectionAccessor<TEntity, TCollection, TElement>(
             Name,
             ((ISkipNavigation)this).IsShadowProperty(),
             getCollection,
@@ -131,6 +139,17 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
             createCollection);
         _collectionAccessorInitialized = true;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetManyToManyLoaderFactory(
+        Func<IManyToManyLoaderFactory, ISkipNavigation, ICollectionLoader> factory)
+        => _manyToManyLoaderDelegatedFactory = factory;
 
     /// <summary>
     ///     Returns a string that represents the current object.
@@ -187,14 +206,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     }
 
     /// <inheritdoc />
-    bool IReadOnlyNavigationBase.IsCollection
-    {
-        [DebuggerStepThrough]
-        get => _isCollection;
-    }
-
-    /// <inheritdoc />
-    IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
+    IClrCollectionAccessor? IPropertyBase.GetCollectionAccessor()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _collectionAccessor,
             ref _collectionAccessorInitialized,
@@ -206,10 +218,15 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
                 : null);
 
     /// <inheritdoc />
-    ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
+    ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader(IManyToManyLoaderFactory factory)
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _manyToManyLoader, this, static navigation =>
-                RuntimeFeature.IsDynamicCodeSupported
-                    ? ManyToManyLoaderFactory.Instance.Create(navigation)
-                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+            ref _manyToManyLoader, this, factory, static (navigation, factory) =>
+            {
+                var generated = navigation._manyToManyLoaderDelegatedFactory;
+                return generated != null
+                    ? generated(factory, navigation)
+                    : RuntimeFeature.IsDynamicCodeSupported
+                        ? factory.Create(navigation)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+            });
 }

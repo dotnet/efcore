@@ -57,12 +57,11 @@ public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
                 return _sqlExpressionFactory.Function(
                     instance,
                     "RingN",
-                    new[]
-                    {
+                    [
                         _sqlExpressionFactory.Add(
                             arguments[0],
                             _sqlExpressionFactory.Constant(2))
-                    },
+                    ],
                     nullable: true,
                     instancePropagatesNullability: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
@@ -73,12 +72,11 @@ public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.Function(
                 instance,
                 "STInteriorRingN",
-                new[]
-                {
+                [
                     _sqlExpressionFactory.Add(
                         arguments[0],
                         _sqlExpressionFactory.Constant(1))
-                },
+                ],
                 nullable: true,
                 instancePropagatesNullability: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],

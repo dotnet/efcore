@@ -1,6 +1,7 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -17,12 +18,23 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region Model
 
+    [ComplexType]
+    public class Phone
+    {
+        public Phone(int code, int number)
+        {
+            Code = code;
+            Number = number;
+        }
+
+        public int Code { get; set; }
+        public int Number { get; set; }
+    }
     public class Customer
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-
         public List<Order> Orders { get; set; }
         public List<Address> Addresses { get; set; }
     }
@@ -92,6 +104,31 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         public int? AmountSold { get; set; }
     }
 
+    [ComplexType]
+    public class ComplexGpsCoordinates
+    {
+        public ComplexGpsCoordinates(double latitude, double longitude)
+        {
+            Latitude = latitude;
+            Longitude = longitude;
+        }
+
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+    }
+
+    public class MapLocation
+    {
+        public int Id { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+    }
+
+    public class MapLocationData
+    {
+        public int Id { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+    }
+
     public class CustomerData
     {
         public int Id { get; set; }
@@ -107,6 +144,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         public DbSet<Order> Orders { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<MapLocation> MapLocations { get; set; }
 
         #endregion
 
@@ -285,44 +323,38 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
             var abc = new[] { "A", "B", "C" };
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), [typeof(string)]))
-                .HasTranslation(
-                    args => new InExpression(
-                        args.First(),
-                        new[]
-                        {
-                            new SqlConstantExpression(abc[0], typeMapping: null),
-                            new SqlConstantExpression(abc[1], typeMapping: null),
-                            new SqlConstantExpression(abc[2], typeMapping: null)
-                        }, // args.First().TypeMapping)
-                        typeMapping: null));
+                .HasTranslation(args => new InExpression(
+                    args.First(),
+                    [
+                        new SqlConstantExpression(abc[0], typeMapping: null),
+                        new SqlConstantExpression(abc[1], typeMapping: null),
+                        new SqlConstantExpression(abc[2], typeMapping: null)
+                    ], // args.First().TypeMapping)
+                    typeMapping: null));
 
             var trueFalse = new[] { true, false };
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), [typeof(string)]))
-                .HasTranslation(
-                    args => new InExpression(
-                        new InExpression(
-                            args.First(),
-                            new[]
-                            {
-                                new SqlConstantExpression(abc[0], args.First().TypeMapping),
-                                new SqlConstantExpression(abc[1], args.First().TypeMapping),
-                                new SqlConstantExpression(abc[2], args.First().TypeMapping)
-                            },
-                            typeMapping: null),
-                        new[]
-                        {
-                            new SqlConstantExpression(trueFalse[0], typeMapping: null),
-                            new SqlConstantExpression(trueFalse[1], typeMapping: null)
-                        },
-                        typeMapping: null));
+                .HasTranslation(args => new InExpression(
+                    new InExpression(
+                        args.First(),
+                        [
+                            new SqlConstantExpression(abc[0], args.First().TypeMapping),
+                            new SqlConstantExpression(abc[1], args.First().TypeMapping),
+                            new SqlConstantExpression(abc[2], args.First().TypeMapping)
+                        ],
+                        typeMapping: null),
+                    [
+                        new SqlConstantExpression(trueFalse[0], typeMapping: null),
+                        new SqlConstantExpression(trueFalse[1], typeMapping: null)
+                    ],
+                    typeMapping: null));
 
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), []))
-                .HasTranslation(
-                    _ => new SqlFunctionExpression(
-                        "foo",
-                        nullable: true,
-                        typeof(int?),
-                        typeMapping: null));
+                .HasTranslation(_ => new SqlFunctionExpression(
+                    "foo",
+                    nullable: true,
+                    typeof(int?),
+                    typeMapping: null));
 
             //Instance
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance)))
@@ -361,6 +393,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             modelBuilder.Entity<OrderByYear>().HasNoKey();
             modelBuilder.Entity<TopSellingProduct>().HasNoKey().ToFunction("GetTopTwoSellingProducts");
             modelBuilder.Entity<CustomerData>().ToView("Customers");
+            modelBuilder.Entity<MapLocationData>().ToView("MapLocations");
         }
     }
 
@@ -526,11 +559,22 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                 ]
             };
 
+            var location1 = new MapLocation
+            {
+                GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0),
+            };
+
+            var location2 = new MapLocation
+            {
+                GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0),
+            };
+
             ((UDFSqlContext)context).Products.AddRange(product1, product2, product3, product4, product5);
             ((UDFSqlContext)context).Addresses.AddRange(
                 address11, address12, address21, address31, address32, address41, address42, address43);
             ((UDFSqlContext)context).Customers.AddRange(customer1, customer2, customer3, customer4);
             ((UDFSqlContext)context).Orders.AddRange(order11, order12, order13, order21, order22, order31);
+            ((UDFSqlContext)context).MapLocations.AddRange(location1, location2);
         }
     }
 
@@ -540,7 +584,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region Static
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Extension_Method_Static()
     {
         using var context = CreateContext();
@@ -550,7 +594,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_With_Translator_Translates_Static()
     {
         using var context = CreateContext();
@@ -562,19 +606,23 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(5, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static()
     {
         using var context = CreateContext();
 
-        Assert.Throws<NotImplementedException>(
-            () => (from c in context.Customers
-                   where c.Id == 1
-                   select new { c.FirstName, OrderCount = UDFSqlContext.CustomerOrderCountStatic(UDFSqlContext.AddFiveStatic(c.Id - 5)) })
-                .Single());
+        Assert.Throws<NotImplementedException>(() => (from c in context.Customers
+                                                      where c.Id == 1
+                                                      select new
+                                                      {
+                                                          c.FirstName,
+                                                          OrderCount = UDFSqlContext.CustomerOrderCountStatic(
+                                                              UDFSqlContext.AddFiveStatic(c.Id - 5))
+                                                      })
+            .Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Constant_Parameter_Static()
     {
         using var context = CreateContext();
@@ -585,7 +633,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, custs.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Correlated_Static()
     {
         using var context = CreateContext();
@@ -598,7 +646,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Static()
     {
         using var context = CreateContext();
@@ -611,7 +659,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Parameter_Static()
     {
         using var context = CreateContext();
@@ -625,7 +673,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Nested_Static()
     {
         using var context = CreateContext();
@@ -645,7 +693,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***1", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Correlated_Static()
     {
         using var context = CreateContext();
@@ -657,7 +705,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(cust);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Not_Correlated_Static()
     {
         using var context = CreateContext();
@@ -670,7 +718,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Parameter_Static()
     {
         using var context = CreateContext();
@@ -685,7 +733,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Nested_Static()
     {
         using var context = CreateContext();
@@ -700,7 +748,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Correlated_Static()
     {
         using var context = CreateContext();
@@ -714,7 +762,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Correlated_Static()
     {
         using var context = CreateContext();
@@ -728,7 +776,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Parameter_Static()
     {
         using var context = CreateContext();
@@ -743,7 +791,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Nested_Static()
     {
         using var context = CreateContext();
@@ -759,29 +807,27 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***3", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == UDFSqlContext.AddOneStatic(c.Id)
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == UDFSqlContext.AddOneStatic(c.Id)
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   orderby UDFSqlContext.AddOneStatic(c.Id)
-                   select c.Id).ToList());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       orderby UDFSqlContext.AddOneStatic(c.Id)
+                                       select c.Id).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Static()
     {
         using var context = CreateContext();
@@ -794,106 +840,103 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(results.SequenceEqual(Enumerable.Range(2, 4)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_UDF_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == UDFSqlContext.AddOneStatic(Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2
+                                           == UDFSqlContext.AddOneStatic(Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_BCL_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2
+                                           == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_UDF_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == Math.Abs(UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2
+                                           == Math.Abs(UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Client_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 1 == Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 1
+                                           == Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Client_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 1 == UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(UDFSqlContext.AddOneStatic(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 1
+                                           == UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(UDFSqlContext.AddOneStatic(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_BCL_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 1 == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(Math.Abs(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 1
+                                           == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(Math.Abs(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 3 == UDFSqlContext.AddOneStatic(Math.Abs(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 3 == UDFSqlContext.AddOneStatic(Math.Abs(c.Id))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 3 == Math.Abs(UDFSqlContext.AddOneStatic(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 3 == Math.Abs(UDFSqlContext.AddOneStatic(c.Id))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Static()
     {
         using var context = CreateContext();
@@ -905,18 +948,17 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_Static()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Static()
     {
         using var context = CreateContext();
@@ -928,7 +970,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Nullable_navigation_property_access_preserves_schema_for_sql_function()
     {
         using var context = CreateContext();
@@ -941,7 +983,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("Customer", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_function_without_null_propagation_to_null()
     {
         using var context = CreateContext();
@@ -954,7 +996,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_function_with_null_propagation_to_null()
     {
         using var context = CreateContext();
@@ -967,22 +1009,21 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_non_nullable_function_to_null_gets_optimized()
     {
         using var context = CreateContext();
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(
-                c => UDFSqlContext.IdentityStringNonNullable(c.FirstName) != null
-                    && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName) != null)
+            .Where(c => UDFSqlContext.IdentityStringNonNullable(c.FirstName) != null
+                && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName) != null)
             .ToList();
 
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compare_functions_returning_int_that_take_nullable_param_which_propagates_null()
     {
         using var context = CreateContext();
@@ -995,7 +1036,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, result.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_SqlFragment_Static()
     {
         using var context = CreateContext();
@@ -1005,7 +1046,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_with_InExpression_translation()
     {
         using var context = CreateContext();
@@ -1014,7 +1055,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, query.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_with_nested_InExpression_translation()
     {
         using var context = CreateContext();
@@ -1024,7 +1065,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     }
 
 #if RELEASE
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_with_nullable_value_return_type_throws()
     {
         using var context = CreateContext();
@@ -1044,7 +1085,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region Instance
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Non_Static()
     {
         using var context = CreateContext();
@@ -1057,7 +1098,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("$$One", custName.LastName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Extension_Method_Instance()
     {
         using var context = CreateContext();
@@ -1067,7 +1108,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_With_Translator_Translates_Instance()
     {
         using var context = CreateContext();
@@ -1079,19 +1120,23 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(5, len);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Instance()
     {
         using var context = CreateContext();
 
-        Assert.Throws<NotImplementedException>(
-            () => (from c in context.Customers
-                   where c.Id == 1
-                   select new { c.FirstName, OrderCount = context.CustomerOrderCountInstance(context.AddFiveInstance(c.Id - 5)) })
-                .Single());
+        Assert.Throws<NotImplementedException>(() => (from c in context.Customers
+                                                      where c.Id == 1
+                                                      select new
+                                                      {
+                                                          c.FirstName,
+                                                          OrderCount = context.CustomerOrderCountInstance(
+                                                              context.AddFiveInstance(c.Id - 5))
+                                                      })
+            .Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Constant_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1102,7 +1147,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(4, custs.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1115,7 +1160,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1128,7 +1173,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1142,7 +1187,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Anonymous_Type_Select_Nested_Instance()
     {
         using var context = CreateContext();
@@ -1160,7 +1205,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***1", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1172,7 +1217,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(cust);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Not_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1185,7 +1230,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1200,7 +1245,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Where_Nested_Instance()
     {
         using var context = CreateContext();
@@ -1215,7 +1260,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, custId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1229,7 +1274,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Correlated_Instance()
     {
         using var context = CreateContext();
@@ -1243,7 +1288,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Not_Parameter_Instance()
     {
         using var context = CreateContext();
@@ -1258,7 +1303,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(2, cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Function_Let_Nested_Instance()
     {
         using var context = CreateContext();
@@ -1274,29 +1319,27 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("***3", cust.OrderCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == context.AddOneInstance(c.Id)
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == context.AddOneInstance(c.Id)
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   orderby context.AddOneInstance(c.Id)
-                   select c.Id).ToList());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       orderby context.AddOneInstance(c.Id)
+                                       select c.Id).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Instance()
     {
         using var context = CreateContext();
@@ -1309,103 +1352,94 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(results.SequenceEqual(Enumerable.Range(2, 4)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_UDF_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == context.AddOneInstance(Math.Abs(context.CustomerOrderCountWithClientInstance(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == context.AddOneInstance(Math.Abs(context.CustomerOrderCountWithClientInstance(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_BCL_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(Math.Abs(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(Math.Abs(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_UDF_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == Math.Abs(context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == Math.Abs(context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Client_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 1 == Math.Abs(context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 1 == Math.Abs(context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Client_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 1 == context.CustomerOrderCountWithClientInstance(Math.Abs(context.AddOneInstance(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 1 == context.CustomerOrderCountWithClientInstance(Math.Abs(context.AddOneInstance(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_BCL_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 1 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(Math.Abs(c.Id)))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 1 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(Math.Abs(c.Id)))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_BCL_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 3 == context.AddOneInstance(Math.Abs(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 3 == context.AddOneInstance(Math.Abs(c.Id))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_Client_UDF_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_Client_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 3 == Math.Abs(context.AddOneInstance(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 3 == Math.Abs(context.AddOneInstance(c.Id))
+                                       select c.Id).Single());
     }
 
     public static Exception AssertThrows<T>(Func<object> testCode)
@@ -1416,7 +1450,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         return new T();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_BCL_UDF_Instance()
     {
         using var context = CreateContext();
@@ -1427,18 +1461,17 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(1, results);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_Client_Instance()
     {
         using var context = CreateContext();
 
-        AssertTranslationFailed(
-            () => (from c in context.Customers
-                   where 2 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id))
-                   select c.Id).Single());
+        AssertTranslationFailed(() => (from c in context.Customers
+                                       where 2 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id))
+                                       select c.Id).Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Scalar_Nested_Function_UDF_BCL_Instance()
     {
         using var context = CreateContext();
@@ -1456,7 +1489,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region TableValuedFunction
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Anonymous_Collection_No_PK_Throws()
     {
         using (var context = CreateContext())
@@ -1475,7 +1508,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Anonymous_Collection_No_IQueryable_In_Projection_Throws()
     {
         using (var context = CreateContext())
@@ -1489,7 +1522,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Stand_Alone()
     {
         using (var context = CreateContext())
@@ -1506,7 +1539,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Stand_Alone_Parameter()
     {
         using (var context = CreateContext())
@@ -1523,7 +1556,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossApply_Correlated_Select_QF_Type()
     {
         using (var context = CreateContext())
@@ -1546,7 +1579,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossApply_Correlated_Select_Anonymous()
     {
         using (var context = CreateContext())
@@ -1578,23 +1611,22 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Direct_In_Anonymous()
     {
         using (var context = CreateContext())
         {
-            var message = Assert.Throws<InvalidOperationException>(
-                () => (from c in context.Customers
-                       select new
-                       {
-                           c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
-                       }).ToList()).Message;
+            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                          select new
+                                                                          {
+                                                                              c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
+                                                                          }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
     }
 
-    [ConditionalFact(Skip = "issue #26078")]
+    [Fact(Skip = "issue #26078")]
     public virtual void QF_Select_Direct_In_Anonymous_distinct()
     {
         using (var context = CreateContext())
@@ -1607,7 +1639,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1627,7 +1659,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1652,7 +1684,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested_With_QF()
     {
         using (var context = CreateContext())
@@ -1680,82 +1712,87 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested()
     {
         using (var context = CreateContext())
         {
-            var message = Assert.Throws<InvalidOperationException>(
-                () => (from c in context.Customers
-                       select new
-                       {
-                           c.Id,
-                           OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).Select(
-                               o => new
-                               {
-                                   OrderCountYearNested = context.GetOrdersWithMultipleProducts(o.CustomerId).ToList(),
-                                   Prods = context.GetTopTwoSellingProducts().ToList(),
-                               }).ToList()
-                       }).ToList()).Message;
+            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                          select new
+                                                                          {
+                                                                              c.Id,
+                                                                              OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id)
+                                                                                  .Where(o => o.OrderDate.Day == 21).Select(o => new
+                                                                                  {
+                                                                                      OrderCountYearNested =
+                                                                                          context.GetOrdersWithMultipleProducts(
+                                                                                              o.CustomerId).ToList(),
+                                                                                      Prods = context.GetTopTwoSellingProducts().ToList(),
+                                                                                  }).ToList()
+                                                                          }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections()
     {
         using (var context = CreateContext())
         {
-            var message = Assert.Throws<InvalidOperationException>(
-                () => (from c in context.Customers
-                       select new
-                       {
-                           c.Id,
-                           Addresses = c.Addresses.Where(a => a.State == "NY").ToList(),
-                           Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId).ToList()
-                       }).ToList()).Message;
+            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                          select new
+                                                                          {
+                                                                              c.Id,
+                                                                              Addresses =
+                                                                                  c.Addresses.Where(a => a.State == "NY").ToList(),
+                                                                              Prods = context.GetTopTwoSellingProducts()
+                                                                                  .Where(p => p.AmountSold == 249)
+                                                                                  .Select(p => p.ProductId).ToList()
+                                                                          }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_NonCorrelated_Subquery_In_Anonymous()
     {
         using (var context = CreateContext())
         {
-            var message = Assert.Throws<InvalidOperationException>(
-                () => (from c in context.Customers
-                       select new
-                       {
-                           c.Id, Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
-                       }).ToList()).Message;
+            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                          select new
+                                                                          {
+                                                                              c.Id,
+                                                                              Prods = context.GetTopTwoSellingProducts()
+                                                                                  .Select(p => p.ProductId).ToList(),
+                                                                          }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter()
     {
         using (var context = CreateContext())
         {
             var amount = 27;
-            var message = Assert.Throws<InvalidOperationException>(
-                () => (from c in context.Customers
-                       select new
-                       {
-                           c.Id,
-                           Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId)
-                               .ToList(),
-                       }).ToList()).Message;
+            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                          select new
+                                                                          {
+                                                                              c.Id,
+                                                                              Prods = context.GetTopTwoSellingProducts()
+                                                                                  .Where(p => p.AmountSold == amount)
+                                                                                  .Select(p => p.ProductId)
+                                                                                  .ToList(),
+                                                                          }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Correlated_Select_In_Anonymous()
     {
         using (var context = CreateContext())
@@ -1793,7 +1830,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossApply_Correlated_Select_Result()
     {
         using (var context = CreateContext())
@@ -1817,7 +1854,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossJoin_Not_Correlated()
     {
         using (var context = CreateContext())
@@ -1841,7 +1878,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_CrossJoin_Parameter()
     {
         using (var context = CreateContext())
@@ -1867,7 +1904,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Join()
     {
         using (var context = CreateContext())
@@ -1891,7 +1928,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_LeftJoin_Select_Anonymous()
     {
         using (var context = CreateContext())
@@ -1930,7 +1967,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_LeftJoin_Select_Result()
     {
         using (var context = CreateContext())
@@ -1952,7 +1989,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_OuterApply_Correlated_Select_QF()
     {
         using (var context = CreateContext())
@@ -1982,7 +2019,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_OuterApply_Correlated_Select_Entity()
     {
         using (var context = CreateContext())
@@ -2002,7 +2039,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_OuterApply_Correlated_Select_Anonymous()
     {
         using (var context = CreateContext())
@@ -2042,7 +2079,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Nested()
     {
         using (var context = CreateContext())
@@ -2068,7 +2105,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Correlated_Nested_Func_Call()
     {
         var custId = 2;
@@ -2092,7 +2129,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QF_Correlated_Func_Call_With_Navigation()
     {
         using (var context = CreateContext())
@@ -2102,13 +2139,12 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                         select new
                         {
                             c.Id,
-                            Orders = context.GetOrdersWithMultipleProducts(c.Id).Select(
-                                mpo => new
-                                {
-                                    //how to I setup the PK/FK combo properly for this?  Is it even possible?
-                                    //OrderName = mpo.Order.Name,
-                                    CustomerName = mpo.Customer.LastName
-                                }).ToList()
+                            Orders = context.GetOrdersWithMultipleProducts(c.Id).Select(mpo => new
+                            {
+                                //how to I setup the PK/FK combo properly for this?  Is it even possible?
+                                //OrderName = mpo.Order.Name,
+                                CustomerName = mpo.Customer.LastName
+                            }).ToList()
                         }).ToList();
 
             Assert.Equal(4, cust.Count);
@@ -2119,7 +2155,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_mapped_to_function()
     {
         using (var context = CreateContext())
@@ -2136,7 +2172,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TVF_with_navigation_in_projection_groupby_aggregate()
     {
         using (var context = CreateContext())
@@ -2159,15 +2195,14 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TVF_with_argument_being_a_subquery_with_navigation_in_projection_groupby_aggregate()
     {
         using (var context = CreateContext())
         {
             var query = context.Orders
-                .Where(
-                    c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id)
-                        .Select(x => x.CustomerId).Contains(25))
+                .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id)
+                    .Select(x => x.CustomerId).Contains(25))
                 .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
                 .GroupBy(x => new { x.LastName })
                 .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
@@ -2184,7 +2219,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TVF_backing_entity_type_mapped_to_view()
     {
         using (var context = CreateContext())
@@ -2197,7 +2232,20 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual void TVF_backing_entity_type_with_complextype_mapped_to_view()
+    {
+        using (var context = CreateContext())
+        {
+            var locations = (from t in context.Set<MapLocationData>()
+                             orderby t.Id
+                             select t).ToList();
+
+            Assert.Equal(2, locations.Count);
+        }
+    }
+
+    [Fact]
     public virtual void Udf_with_argument_being_comparison_to_null_parameter()
     {
         using (var context = CreateContext())
@@ -2222,7 +2270,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Udf_with_argument_being_comparison_of_nullable_columns()
     {
         using (var context = CreateContext())
@@ -2231,13 +2279,12 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                             from r in context.Orders.ToList()
                                 .Where(x => x.CustomerId == 1 && (a.City != a.State || x.OrderDate.Year == 2000))
                                 .GroupBy(x => new { x.CustomerId, x.OrderDate.Year })
-                                .Select(
-                                    x => new OrderByYear
-                                    {
-                                        CustomerId = x.Key.CustomerId,
-                                        Year = x.Key.Year,
-                                        Count = x.Count()
-                                    })
+                                .Select(x => new OrderByYear
+                                {
+                                    CustomerId = x.Key.CustomerId,
+                                    Year = x.Key.Year,
+                                    Count = x.Count()
+                                })
                             orderby a.Id, r.Year
                             select r
                 ).ToList();

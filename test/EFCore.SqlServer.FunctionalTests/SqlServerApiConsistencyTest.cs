@@ -18,6 +18,16 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
 
     public class SqlServerApiConsistencyFixture : ApiConsistencyFixtureBase
     {
+        public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } =
+        [
+            typeof(SqlServerIndexExtensions).GetMethod(
+                nameof(SqlServerIndexExtensions.SetFullTextLanguage),
+                [typeof(IMutableIndex), typeof(string), typeof(string)]),
+            typeof(SqlServerIndexExtensions).GetMethod(
+                nameof(SqlServerIndexExtensions.SetFullTextLanguage),
+                [typeof(IConventionIndex), typeof(string), typeof(string), typeof(bool)])
+        ];
+
         public override HashSet<Type> FluentApiTypes { get; } =
         [
             typeof(SqlServerDbContextOptionsBuilder),
@@ -38,7 +48,10 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
             typeof(OwnedNavigationTemporalTableBuilder<,>),
             typeof(TemporalPeriodPropertyBuilder),
             typeof(TemporalTableBuilder),
-            typeof(TemporalTableBuilder<>)
+            typeof(TemporalTableBuilder<>),
+            typeof(SqlServerFullTextCatalogBuilder),
+            typeof(SqlServerFullTextIndexBuilder),
+            typeof(SqlServerFullTextIndexBuilder<>)
         ];
 
         public override
@@ -119,7 +132,15 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
             MirrorTypes.Add(
                 typeof(SqlServerComplexTypePrimitiveCollectionBuilderExtensions), typeof(SqlServerComplexTypePropertyBuilderExtensions));
 
+            MetadataTypes.Add(
+                typeof(IReadOnlySqlServerFullTextCatalog),
+                (typeof(IMutableSqlServerFullTextCatalog),
+                    typeof(IConventionSqlServerFullTextCatalog),
+                    null,
+                    typeof(ISqlServerFullTextCatalog)));
+
             base.Initialize();
         }
+
     }
 }

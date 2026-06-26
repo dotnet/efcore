@@ -18,4 +18,8 @@ public readonly record struct ContainerProperties(
     int? DefaultTimeToLive,
     ThroughputProperties? Throughput,
     IReadOnlyList<IIndex> Indexes,
-    IReadOnlyList<(IProperty Property, CosmosVectorType VectorType)> Vectors);
+    IReadOnlyList<(IProperty Property, CosmosVectorType VectorType)> Vectors,
+    string DefaultFullTextLanguage,
+    IReadOnlyList<(IProperty Property, string? Language)> FullTextProperties,
+    IReadOnlyList<string>? AutomaticIndexingExceptions,
+    bool? AutomaticIndexingEnabled);

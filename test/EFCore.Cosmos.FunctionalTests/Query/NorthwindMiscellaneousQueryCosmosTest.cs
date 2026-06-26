@@ -5,7 +5,6 @@ using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit.Sdk;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
 
@@ -25,12 +24,11 @@ public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQuery
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Simple_IQueryable(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -169,7 +167,7 @@ WHERE (c["id"] = "ANATR")
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -183,7 +181,6 @@ WHERE (c["id"] = null)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] != null)
 """);
             });
 
@@ -202,56 +199,64 @@ WHERE (c["id"] != null)
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level(bool async)
+    public override async Task DefaultIfEmpty_top_level(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level(async));
 
         AssertSql();
     }
 
-    public override async Task Join_with_default_if_empty_on_both_sources(bool async)
+    public override async Task Join_with_DefaultIfEmpty_on_both_sources(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Join_with_default_if_empty_on_both_sources(async));
+        await AssertTranslationFailed(() => base.Join_with_DefaultIfEmpty_on_both_sources(async));
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_followed_by_constant_Select(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level_followed_by_projecting_constant(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_followed_by_constant_Select(async));
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_positive(bool async)
+    public override async Task DefaultIfEmpty_top_level_preceded_by_constant_Select(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level_positive(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_preceded_by_constant_Select(async));
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg(bool async)
-    {
-        await base.Default_if_empty_top_level_arg(async);
-
-        AssertSql();
-    }
-
-    public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
-    {
-        await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(async);
-
-        AssertSql();
-    }
-
-    public override async Task Default_if_empty_top_level_projection(bool async)
+    public override async Task DefaultIfEmpty_top_level_positive(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level_projection(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_positive(async));
+
+        AssertSql();
+    }
+
+    public override async Task DefaultIfEmpty_top_level_arg(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_arg(async);
+
+        AssertSql();
+    }
+
+    public override async Task DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(async);
+
+        AssertSql();
+    }
+
+    public override async Task DefaultIfEmpty_top_level_projection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_projection(async));
 
         AssertSql();
     }
@@ -470,8 +475,7 @@ WHERE (c["id"] != null)
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_arithmetic(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_arithmetic(async));
 
             AssertSql(
                 """
@@ -488,8 +492,7 @@ ORDER BY (c["EmployeeID"] - c["EmployeeID"])
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_condition_comparison(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_condition_comparison(async));
 
             AssertSql(
                 """
@@ -507,8 +510,7 @@ ORDER BY (c["UnitsInStock"] > 0), c["ProductID"]
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_ternary_conditions(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_ternary_conditions(async));
 
             AssertSql(
                 """
@@ -530,22 +532,28 @@ ORDER BY ((c["UnitsInStock"] > 10) ? (c["ProductID"] > 40) : (c["ProductID"] <= 
 
     public override async Task Skip(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Skip(async))).Message);
+        // Always throws for sync.
+        if (async)
+        {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override async Task Skip_no_orderby(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Skip_no_orderby(async))).Message);
+        // Always throws for sync.
+        if (async)
+        {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_no_orderby(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override Task Skip_Take(bool async)
@@ -557,12 +565,12 @@ ORDER BY ((c["UnitsInStock"] > 10) ? (c["ProductID"] > 40) : (c["ProductID"] <= 
                 AssertSql(
                     """
 @p='5'
-@p0='10'
+@p1='10'
 
 SELECT VALUE c
 FROM root c
 ORDER BY c["ContactName"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
             });
 
@@ -793,43 +801,34 @@ OFFSET 0 LIMIT @p
         AssertSql();
     }
 
-    public override async Task Any_simple(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_simple(async));
+    public override Task Any_simple(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Any_simple(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c)
+                AssertSql(
+                    """
+SELECT VALUE true
+FROM root c
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
-    public override async Task Any_predicate(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_predicate(async));
+    public override Task Any_predicate(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Any_predicate(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-            AssertSql(
-                """
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE STARTSWITH(c["ContactName"], "A"))
+                AssertSql(
+                    """
+SELECT VALUE true
+FROM root c
+WHERE STARTSWITH(c["ContactName"], "A")
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task Any_nested_negated(bool async)
     {
@@ -1095,28 +1094,32 @@ SELECT VALUE EXISTS (
 
     public override async Task Where_Join_Exists(bool async)
     {
-        await base.Where_Join_Exists(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Exists(async));
 
         AssertSql();
     }
 
     public override async Task Where_Join_Exists_Inequality(bool async)
     {
-        await base.Where_Join_Exists_Inequality(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Exists_Inequality(async));
 
         AssertSql();
     }
 
     public override async Task Where_Join_Exists_Constant(bool async)
     {
-        await base.Where_Join_Exists_Constant(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Exists_Constant(async));
 
         AssertSql();
     }
 
     public override async Task Where_Join_Not_Exists(bool async)
     {
-        await base.Where_Join_Not_Exists(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Join_Not_Exists(async));
 
         AssertSql();
     }
@@ -1287,26 +1290,10 @@ SELECT VALUE EXISTS (
 
     public override async Task Skip_Take_Any(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Skip_Take_Any(async));
+        // TODO: Subquery pushdown, #33968
+        await AssertTranslationFailed(() => base.Skip_Take_Any(async));
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-@p='5'
-@p0='10'
-
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    ORDER BY c["ContactName"]
-    OFFSET @p LIMIT @p0)
-""");
-        }
+        AssertSql();
     }
 
     public override async Task Skip_Take_All(bool async)
@@ -1354,8 +1341,7 @@ ORDER BY c["id"]
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_true(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_true(async));
 
             AssertSql(
                 """
@@ -1372,8 +1358,7 @@ ORDER BY true
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_integer(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_integer(async));
             AssertSql(
                 """
 SELECT VALUE c
@@ -1389,8 +1374,7 @@ ORDER BY 3
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_parameter(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_parameter(async));
 
             AssertSql(
                 """
@@ -1463,14 +1447,16 @@ ORDER BY c["id"]
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task OrderBy_shadow(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_shadow(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_shadow(async));
             AssertSql(
                 """
 SELECT VALUE c
@@ -1480,14 +1466,16 @@ ORDER BY c["Title"], c["EmployeeID"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task OrderBy_multiple(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_multiple(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_multiple(async));
 
             AssertSql(
                 """
@@ -1499,24 +1487,19 @@ ORDER BY c["Country"], c["City"]
         }
     }
 
-    public override async Task OrderBy_ThenBy_Any(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ThenBy_Any(async));
+    public override Task OrderBy_ThenBy_Any(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.OrderBy_ThenBy_Any(a);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c)
+                AssertSql(
+                    """
+SELECT VALUE true
+FROM root c
+OFFSET 0 LIMIT 1
 """);
-        }
-    }
+            });
 
     public override async Task OrderBy_correlated_subquery1(bool async)
     {
@@ -1549,7 +1532,7 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Always does sync evaluation.")]
+    [Theory(Skip = "Always does sync evaluation.")]
     public override Task Where_subquery_expression(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1558,8 +1541,7 @@ SELECT VALUE EXISTS (
                 Assert.Equal(
                     CoreStrings.ExpressionParameterizationExceptionSensitive(
                         "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass107_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Where(value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass107_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).expr).Any()"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => base.Where_subquery_expression(async))).Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_subquery_expression(async))).Message);
 
                 AssertSql(
                     """
@@ -1570,7 +1552,7 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    [ConditionalTheory(Skip = "Always does sync evaluation.")]
+    [Theory(Skip = "Always does sync evaluation.")]
     public override async Task Where_subquery_expression_same_parametername(bool async)
     {
         // Always throws
@@ -1655,8 +1637,8 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
     public override async Task Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server(async));
+        await AssertTranslationFailed(()
+            => base.Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server(async));
 
         AssertSql();
     }
@@ -1723,8 +1705,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_null_coalesce_operator(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_null_coalesce_operator(async));
 
             AssertSql(
                 """
@@ -1741,8 +1722,7 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.Select_null_coalesce_operator(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.Select_null_coalesce_operator(async));
             AssertSql(
                 """
 SELECT VALUE
@@ -1763,8 +1743,7 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_conditional_operator(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_conditional_operator(async));
             AssertSql(
                 """
 SELECT VALUE c
@@ -1794,8 +1773,7 @@ ORDER BY c["City"]
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_comparison_operator(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_comparison_operator(async));
 
             AssertSql(
                 """
@@ -1851,8 +1829,7 @@ WHERE (((c["ContactName"] != null) ? c["ContactName"] : c["CompanyName"]) = "Liz
         if (async)
         {
             // Subquery pushdown. Issue #16156.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.Select_take_null_coalesce_operator(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.Select_take_null_coalesce_operator(async));
 
             AssertSql(
                 """
@@ -1904,8 +1881,7 @@ OFFSET 0 LIMIT @p
         if (async)
         {
             // Unsupported ORDER BY clause.
-            await Assert.ThrowsAsync<CosmosException>(
-                () => base.Selected_column_can_coalesce(async));
+            await Assert.ThrowsAsync<CosmosException>(() => base.Selected_column_can_coalesce(async));
             AssertSql(
                 """
 SELECT VALUE c
@@ -1922,16 +1898,23 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ")
                 await base.Environment_newline_is_funcletized(a);
 
                 var sql = Fixture.TestSqlLoggerFactory.SqlStatements[0];
-                Assert.StartsWith("@NewLine='", sql);
-                Assert.EndsWith(
-                    """
-'
+                var newlineString = Environment.NewLine switch
+                {
+                    "\n" => """\n""",
+                    "\r\n" => """\r\n""",
+                    _ => throw new UnreachableException()
+                };
+
+                Assert.Equal(
+                    $"""
+@NewLine='{newlineString}'
 
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["id"], @NewLine)
 """,
-                    sql);
+                    sql,
+                    ignoreLineEndingDifferences: true);
             });
 
     public override async Task String_concat_with_navigation1(bool async)
@@ -2027,6 +2010,18 @@ WHERE ((c["$type"] = "Order") AND ((c["OrderID"] < 10400) OR (((c["OrderDate"] !
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] = "Order")
+""");
+            });
+
+    public override Task Captured_variable_from_switch_case_pattern_matching(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Captured_variable_from_switch_case_pattern_matching(a);
+
+                AssertSql(
+                    """
+ReadItem(None, ALFKI)
 """);
             });
 
@@ -2196,7 +2191,11 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Select_expression_date_add_milliseconds_below_the_range(a);
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<Order>().Where(o => o.OrderDate != null)
+                        .Select(o => new Order { OrderDate = o.OrderDate.Value.AddMilliseconds(-1000000000000) }),
+                    elementSorter: e => e.OrderDate);
 
                 AssertSql(
                     """
@@ -2292,24 +2291,26 @@ WHERE (((c["$type"] = "Order") AND (c["OrderDate"] != null)) AND (DateTimePart("
         );
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task OrderBy_skip_take(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_skip_take(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_skip_take(async));
 
             AssertSql(
                 """
 @p='5'
-@p0='8'
+@p1='8'
 
 SELECT VALUE c
 FROM root c
 ORDER BY c["ContactTitle"], c["ContactName"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
         }
     }
@@ -2521,8 +2522,7 @@ WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.Anonymous_complex_orderby(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.Anonymous_complex_orderby(async));
 
             AssertSql(
                 """
@@ -2609,8 +2609,7 @@ WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.DTO_complex_orderby(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.DTO_complex_orderby(async));
             AssertSql(
                 """
 SELECT VALUE (c["id"] || c["City"])
@@ -2634,8 +2633,7 @@ ORDER BY (c["id"] || c["City"])
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
                 "Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Include_with_orderby_skip_preserves_ordering(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_with_orderby_skip_preserves_ordering(async)))
             .Message);
 
         AssertSql();
@@ -2883,7 +2881,7 @@ WHERE STARTSWITH(c["id"], @prefix)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (STARTSWITH(c["id"], "A") AND NOT((c["id"] = null)))
+WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["id"]
 """);
             });
@@ -2929,7 +2927,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -3011,8 +3009,8 @@ ORDER BY c["id"] DESC
     public override async Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(async));
+        await AssertTranslationFailed(()
+            => base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(async));
 
         AssertSql();
     }
@@ -3020,8 +3018,8 @@ ORDER BY c["id"] DESC
     public override async Task Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result(async));
+        await AssertTranslationFailed(()
+            => base.Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result(async));
 
         AssertSql();
     }
@@ -3034,12 +3032,12 @@ ORDER BY c["id"] DESC
                 AssertSql(
                     """
 @p='5'
-@p0='10'
+@p1='10'
 
 SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
             });
 
@@ -3056,8 +3054,7 @@ OFFSET @p LIMIT @p0
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_empty_list_contains(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_empty_list_contains(async));
             AssertSql(
                 """
 @list='[]'
@@ -3074,8 +3071,7 @@ ORDER BY ARRAY_CONTAINS(@list, c["id"])
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_empty_list_does_not_contains(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_empty_list_does_not_contains(async));
 
             AssertSql(
                 """
@@ -3129,8 +3125,7 @@ ORDER BY NOT(ARRAY_CONTAINS(@list, c["id"]))
 
     public override async Task Collection_navigation_equal_to_null_for_subquery(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Collection_navigation_equal_to_null_for_subquery(async));
+        await AssertTranslationFailed(() => base.Collection_navigation_equal_to_null_for_subquery(async));
 
         AssertSql();
     }
@@ -3194,14 +3189,16 @@ WHERE (c["City"] != null)
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task Entity_equality_orderby_descending_composite_key(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.Entity_equality_orderby_descending_composite_key(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.Entity_equality_orderby_descending_composite_key(async));
 
             AssertSql(
                 """
@@ -3229,6 +3226,49 @@ ORDER BY c["OrderID"] DESC, c["ProductID"] DESC
         AssertSql();
     }
 
+    public override Task Coalesce_Correct_Multiple_Same_TypeMapping(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_Multiple_Same_TypeMapping(async);
+
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "ReportsTo" : c["ReportsTo"],
+    "c" : 1,
+    "c0" : 2,
+    "c1" : 3
+}
+FROM root c
+ORDER BY c["EmployeeID"]
+""");
+            });
+
+    public override Task Coalesce_Correct_TypeMapping_Double(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_TypeMapping_Double(async);
+
+                AssertSql();
+            });
+
+    public override Task Coalesce_Correct_TypeMapping_String(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_TypeMapping_String(async);
+
+                AssertSql(
+                    """
+SELECT VALUE ((c["Region"] != null) ? c["Region"] : "no region specified")
+FROM root c
+ORDER BY c["id"]
+""");
+            });
+
     public override async Task Null_Coalesce_Short_Circuit(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
@@ -3237,14 +3277,16 @@ ORDER BY c["OrderID"] DESC, c["ProductID"] DESC
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task OrderByDescending_ThenBy(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderByDescending_ThenBy(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderByDescending_ThenBy(async));
 
             AssertSql(
                 """
@@ -3255,14 +3297,16 @@ ORDER BY c["id"] DESC, c["Country"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task OrderByDescending_ThenByDescending(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderByDescending_ThenByDescending(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderByDescending_ThenByDescending(async));
             AssertSql(
                 """
 SELECT VALUE c["City"]
@@ -3281,14 +3325,16 @@ ORDER BY c["id"] DESC, c["Country"] DESC
         );
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task OrderBy_ThenBy(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_ThenBy(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_ThenBy(async));
 
             AssertSql(
                 """
@@ -3299,14 +3345,16 @@ ORDER BY c["id"], c["Country"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task OrderBy_ThenBy_predicate(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
             // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_ThenBy_predicate(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_ThenBy_predicate(async));
 
             AssertSql(
                 """
@@ -3347,9 +3395,8 @@ ORDER BY c["City"], c["id"]
         // Cosmos client evaluation. Issue #17246.
         Assert.Equal(
             CoreStrings.ExpressionParameterizationExceptionSensitive(
-                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass172_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.SelectMany_primitive_select_subquery(async))).Message);
+                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass177_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_primitive_select_subquery(async))).Message);
 
         AssertSql();
     }
@@ -3357,8 +3404,7 @@ ORDER BY c["City"], c["id"]
     public override async Task Select_DTO_constructor_distinct_with_navigation_translated_to_server(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Select_DTO_constructor_distinct_with_navigation_translated_to_server(async));
+        await AssertTranslationFailed(() => base.Select_DTO_constructor_distinct_with_navigation_translated_to_server(async));
 
         AssertSql();
     }
@@ -3366,8 +3412,7 @@ ORDER BY c["City"], c["id"]
     public override async Task Select_DTO_constructor_distinct_with_collection_projection_translated_to_server(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server(async));
+        await AssertTranslationFailed(() => base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server(async));
 
         AssertSql();
     }
@@ -3376,9 +3421,8 @@ ORDER BY c["City"], c["id"]
         Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base
-                .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
+        await AssertTranslationFailed(() => base
+            .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
 
         AssertSql();
     }
@@ -3398,12 +3442,15 @@ FROM root c
 
     public override async Task Skip_orderby_const(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Skip_orderby_const(async))).Message);
+        // Always throws for sync.
+        if (async)
+       {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_orderby_const(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override Task Where_Property_when_shadow_unconstrained_generic_method(bool async)
@@ -3495,6 +3542,22 @@ WHERE (c["Title"] = @value)
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.SelectMany_correlated_subquery_simple(async));
+
+        AssertSql();
+    }
+
+    public override async Task SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(bool async)
+    {
+        // The test "passes" since the base implementation expects InvalidOperation (but for a different reason).
+        await base.SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async));
 
         AssertSql();
     }
@@ -3615,7 +3678,17 @@ WHERE (c["Title"] = @value)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Checked_context_with_arithmetic_does_not_fail(async);
+                checked
+                {
+                    await AssertQuery(
+                        a,
+                        ss => ss.Set<OrderDetail>()
+                            .Where(w => w.Quantity + 1 == 5 && w.Quantity - 1 == 3 && w.Quantity * 1 == w.Quantity)
+                            .OrderBy(o => o.OrderID)
+                            .Select(o => o),
+                        elementSorter: e => (e.OrderID, e.ProductID),
+                        elementAsserter: (e, a2) => { AssertEqual(e, a2); });
+                }
 
                 AssertSql(
                     """
@@ -3712,8 +3785,8 @@ WHERE c["id"] IN (null, "ALFKI")
         bool async)
     {
         // Non embedded collection subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async));
+        await AssertTranslationFailed(()
+            => base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async));
 
         AssertSql();
     }
@@ -3837,8 +3910,8 @@ WHERE c["id"] IN (null, "ALFKI")
         bool async)
     {
         // Cross collection join. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async));
+        await AssertTranslationFailed(()
+            => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async));
 
         AssertSql();
     }
@@ -3954,7 +4027,7 @@ FROM root c
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -4063,16 +4136,15 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] != null) AND (c["ProductID"] != null)))
+WHERE (c["$type"] = "OrderDetail")
 """);
             });
 
     public override void Query_composition_against_ienumerable_set()
-        => Fixture.NoSyncTest(
-            () =>
-            {
-                base.Query_composition_against_ienumerable_set();
-            });
+        => Fixture.NoSyncTest(() =>
+        {
+            base.Query_composition_against_ienumerable_set();
+        });
 
     public override Task ToListAsync_with_canceled_token()
         => Fixture.NoSyncTest(
@@ -4134,7 +4206,12 @@ FROM root c
             {
                 await base.Null_parameter_name_works(a);
 
-                AssertSql("ReadItem(None, null)");
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
             });
 
     public override Task Where_Property_shadow_closure(bool async)
@@ -4227,7 +4304,7 @@ FROM root c
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] = null) OR (c["ProductID"] = null)))
+WHERE ((c["$type"] = "OrderDetail") AND false)
 """);
             });
 
@@ -4282,7 +4359,10 @@ FROM root c
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Convert_to_nullable_on_nullable_value_is_ignored(a);
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<Order>().Select(o => new Order { OrderDate = o.OrderDate.Value }),
+                    elementSorter: e => e.OrderDate);
 
                 AssertSql(
                     """
@@ -4385,8 +4465,7 @@ OFFSET @p LIMIT @p
             CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryCosmosTest",
                 "InstanceMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_method_throws(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_method_throws(async))).Message);
 
         AssertSql();
     }
@@ -4397,8 +4476,7 @@ OFFSET @p LIMIT @p
             CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryCosmosTest",
                 "StaticMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_static_method(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_static_method(async))).Message);
 
         AssertSql();
     }
@@ -4408,8 +4486,7 @@ OFFSET @p LIMIT @p
         Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInTree(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryCosmosTest"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_anonymous_type(async))).Message);
 
         AssertSql();
     }
@@ -4469,12 +4546,11 @@ OFFSET @p LIMIT @p
 
     public override async Task Where_query_composition5(bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => from c1 in ss.Set<Customer>()
-                      where c1.IsLondon == ss.Set<Customer>().OrderBy(c => c.CustomerID).First().IsLondon
-                      select c1));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+            async,
+            ss => from c1 in ss.Set<Customer>()
+                  where c1.IsLondon == ss.Set<Customer>().OrderBy(c => c.CustomerID).First().IsLondon
+                  select c1));
 
         Assert.Contains(CosmosStrings.NonCorrelatedSubqueriesNotSupported, exception.Message);
         Assert.Contains(CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)), exception.Message);
@@ -4484,15 +4560,14 @@ OFFSET @p LIMIT @p
 
     public override async Task Where_query_composition6(bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => from c1 in ss.Set<Customer>()
-                      where c1.IsLondon
-                          == ss.Set<Customer>().OrderBy(c => c.CustomerID)
-                              .Select(c => new { Foo = c })
-                              .First().Foo.IsLondon
-                      select c1));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+            async,
+            ss => from c1 in ss.Set<Customer>()
+                  where c1.IsLondon
+                      == ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                          .Select(c => new { Foo = c })
+                          .First().Foo.IsLondon
+                  select c1));
 
         Assert.Contains(CosmosStrings.NonCorrelatedSubqueriesNotSupported, exception.Message);
         Assert.Contains(CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)), exception.Message);
@@ -4583,40 +4658,38 @@ OFFSET @p LIMIT @p
 
     public override async Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_zero(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_zero(async));
+        await AssertTranslationFailed(()
+            => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_zero(async));
 
         AssertSql();
     }
 
     public override async Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_one(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_one(async));
+        await AssertTranslationFailed(()
+            => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_one(async));
 
         AssertSql();
     }
 
     public override async Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(async));
+        await AssertTranslationFailed(()
+            => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(async));
 
         AssertSql();
     }
 
     public override async Task Subquery_with_navigation_inside_inline_collection(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Subquery_with_navigation_inside_inline_collection(async));
+        await AssertTranslationFailed(() => base.Subquery_with_navigation_inside_inline_collection(async));
 
         AssertSql();
     }
 
     public override async Task Parameter_collection_Contains_with_projection_and_ordering(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Parameter_collection_Contains_with_projection_and_ordering(async));
+        await AssertTranslationFailed(() => base.Parameter_collection_Contains_with_projection_and_ordering(async));
 
         AssertSql();
     }
@@ -4654,8 +4727,7 @@ WHERE ARRAY_CONTAINS(@data, (c["id"] || "SomeConstant"))
 
     public override async Task Contains_over_concatenated_columns_both_fixed_length(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Contains_over_concatenated_columns_both_fixed_length(async));
+        await AssertTranslationFailed(() => base.Contains_over_concatenated_columns_both_fixed_length(async));
 
         AssertSql();
     }
@@ -4747,8 +4819,7 @@ ORDER BY c["id"] DESC
 
     public override async Task Where_Order_First(bool async)
     {
-        await AssertTranslationFailed(
-            () => base.Where_Order_First(async));
+        await AssertTranslationFailed(() => base.Where_Order_First(async));
 
         AssertSql();
     }
@@ -4759,7 +4830,8 @@ ORDER BY c["id"] DESC
             {
                 await base.Where_nanosecond_and_microsecond_component(a);
 
-                AssertSql("""
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Order") AND (((DateTimePart("ns", c["OrderDate"]) % 1000) != 0) AND ((DateTimePart("mcs", c["OrderDate"]) % 1000) != 0)))
@@ -4768,7 +4840,9 @@ WHERE ((c["$type"] = "Order") AND (((DateTimePart("ns", c["OrderDate"]) % 1000) 
 
     #region ToPageAsync
 
-    [ConditionalFact]
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/285 (MaxItemCount not respected)
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task ToPageAsync()
     {
         await using var context = CreateContext();
@@ -4823,7 +4897,9 @@ ORDER BY c["id"]
 """);
     }
 
-    [ConditionalFact]
+
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/285 (MaxItemCount not respected)
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task ToPageAsync_with_scalar()
     {
         await using var context = CreateContext();
@@ -4881,7 +4957,7 @@ ORDER BY c["id"]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToPageAsync_with_exact_maxItemCount()
     {
         await using var context = CreateContext();
@@ -4908,7 +4984,7 @@ ORDER BY c["id"]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToPageAsync_does_not_use_ReadItem()
     {
         await using var context = CreateContext();
@@ -4927,7 +5003,7 @@ WHERE (c["id"] = "ALFKI")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToPageAsync_in_subquery_throws()
         => await AssertTranslationFailedWithDetails(
             () => AssertQuery(
@@ -4982,6 +5058,26 @@ WHERE (c["id"] = "ALFKI")
             // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
             await Assert.ThrowsAsync<CosmosException>(() => base.Cast_to_object_over_parameter_directly_in_lambda(async: true));
         }
+    }
+
+    public override async Task Late_subquery_pushdown(bool async)
+    {
+        // Uncorrelated subquery, not supported by Cosmos
+        await AssertTranslationFailed(() => base.Late_subquery_pushdown(async));
+
+        AssertSql();
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Concat_on_entity_queries_throws(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Concat(ss.Set<Customer>())),
+            CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

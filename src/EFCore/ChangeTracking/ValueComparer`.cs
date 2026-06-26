@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 using static System.Linq.Expressions.Expression;
@@ -31,18 +30,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public class ValueComparer
 <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
-        | DynamicallyAccessedMemberTypes.NonPublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T>
-    : ValueComparer, IEqualityComparer<T>
+    T> : ValueComparer, IEqualityComparer<T>
 {
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;
     private Func<T, T>? _snapshot;
-    private LambdaExpression? _objectEqualsExpression;
-
-    private static readonly PropertyInfo StructuralComparisonsStructuralEqualityComparerProperty =
-        typeof(StructuralComparisons).GetProperty(nameof(StructuralComparisons.StructuralEqualityComparer))!;
 
     /// <summary>
     ///     Creates a new <see cref="ValueComparer{T}" /> with a default comparison
@@ -131,12 +124,11 @@ public class ValueComparer
                 param1, param2);
         }
 
-        var typedEquals = type.GetRuntimeMethods().FirstOrDefault(
-            m => m.ReturnType == typeof(bool)
-                && !m.IsStatic
-                && nameof(object.Equals).Equals(m.Name, StringComparison.Ordinal)
-                && m.GetParameters().Length == 1
-                && m.GetParameters()[0].ParameterType == typeof(T));
+        var typedEquals = type.GetRuntimeMethods().FirstOrDefault(m => m.ReturnType == typeof(bool)
+            && !m.IsStatic
+            && nameof(object.Equals).Equals(m.Name, StringComparison.Ordinal)
+            && m.GetParameters().Length == 1
+            && m.GetParameters()[0].ParameterType == typeof(T));
 
         if (typedEquals != null)
         {
@@ -159,13 +151,12 @@ public class ValueComparer
                && type != null)
         {
             var declaredMethods = type.GetTypeInfo().DeclaredMethods;
-            typedEquals = declaredMethods.FirstOrDefault(
-                m => m.IsStatic
-                    && m.ReturnType == typeof(bool)
-                    && "op_Equality".Equals(m.Name, StringComparison.Ordinal)
-                    && m.GetParameters().Length == 2
-                    && m.GetParameters()[0].ParameterType == typeof(T)
-                    && m.GetParameters()[1].ParameterType == typeof(T));
+            typedEquals = declaredMethods.FirstOrDefault(m => m.IsStatic
+                && m.ReturnType == typeof(bool)
+                && "op_Equality".Equals(m.Name, StringComparison.Ordinal)
+                && m.GetParameters().Length == 2
+                && m.GetParameters()[0].ParameterType == typeof(T)
+                && m.GetParameters()[1].ParameterType == typeof(T));
 
             type = type.BaseType;
         }
@@ -254,11 +245,12 @@ public class ValueComparer
     }
 
     /// <inheritdoc />
+    [field: AllowNull, MaybeNull]
     public override LambdaExpression ObjectEqualsExpression
     {
         get
         {
-            if (_objectEqualsExpression == null)
+            if (field == null)
             {
                 var left = Parameter(typeof(object), "left");
                 var right = Parameter(typeof(object), "right");
@@ -268,7 +260,7 @@ public class ValueComparer
                     [Convert(left, typeof(T)), Convert(right, typeof(T))],
                     EqualsExpression.Body);
 
-                _objectEqualsExpression = Lambda<Func<object?, object?, bool>>(
+                field = Lambda<Func<object?, object?, bool>>(
                     Condition(
                         Equal(left, Constant(null)),
                         Equal(right, Constant(null)),
@@ -279,7 +271,7 @@ public class ValueComparer
                     right);
             }
 
-            return _objectEqualsExpression;
+            return field;
         }
     }
 
@@ -372,8 +364,4 @@ public class ValueComparer
     private readonly ConstructorInfo _constructorInfo
         = typeof(ValueComparer<T>).GetConstructor(
             [typeof(Expression<Func<T?, T?, bool>>), typeof(Expression<Func<T, int>>), typeof(Expression<Func<T, T>>)])!;
-
-    /// <inheritdoc />
-    public override Expression ConstructorExpression
-        => New(_constructorInfo, EqualsExpression, HashCodeExpression, SnapshotExpression);
 }

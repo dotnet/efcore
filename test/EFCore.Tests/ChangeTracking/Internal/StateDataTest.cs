@@ -5,112 +5,136 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class StateDataTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_modification_flags()
     {
         for (var i = 0; i < 70; i++)
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated,
+                InternalEntryBase.PropertyFlag.IsPropertyNotLoaded);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_null_flags()
     {
         for (var i = 0; i < 70; i++)
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated,
+                InternalEntryBase.PropertyFlag.IsPropertyNotLoaded);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_not_set_flags()
     {
         for (var i = 0; i < 70; i++)
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated,
+                InternalEntryBase.PropertyFlag.IsPropertyNotLoaded);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_is_loaded_flags()
     {
         for (var i = 0; i < 70; i++)
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated,
+                InternalEntryBase.PropertyFlag.IsPropertyNotLoaded);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_temporary_flags()
     {
         for (var i = 0; i < 70; i++)
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated,
+                InternalEntryBase.PropertyFlag.IsPropertyNotLoaded);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_and_manipulate_store_generated_flags()
     {
         for (var i = 0; i < 70; i++)
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsTemporary);
+                InternalEntryBase.PropertyFlag.IsStoreGenerated,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsPropertyNotLoaded);
+        }
+    }
+
+    [Fact]
+    public void Can_read_and_manipulate_is_property_loaded_flags()
+    {
+        for (var i = 0; i < 70; i++)
+        {
+            PropertyManipulation(
+                i,
+                InternalEntryBase.PropertyFlag.IsPropertyNotLoaded,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated);
         }
     }
 
     private void PropertyManipulation(
         int propertyCount,
-        InternalEntityEntry.PropertyFlag propertyFlag,
-        InternalEntityEntry.PropertyFlag unusedFlag1,
-        InternalEntityEntry.PropertyFlag unusedFlag2,
-        InternalEntityEntry.PropertyFlag unusedFlag3,
-        InternalEntityEntry.PropertyFlag unusedFlag4,
-        InternalEntityEntry.PropertyFlag unusedFlag5)
+        InternalEntryBase.PropertyFlag propertyFlag,
+        InternalEntryBase.PropertyFlag unusedFlag1,
+        InternalEntryBase.PropertyFlag unusedFlag2,
+        InternalEntryBase.PropertyFlag unusedFlag3,
+        InternalEntryBase.PropertyFlag unusedFlag4,
+        InternalEntryBase.PropertyFlag unusedFlag5,
+        InternalEntryBase.PropertyFlag unusedFlag6)
     {
-        var data = new InternalEntityEntry.StateData(propertyCount, propertyCount);
+        var data = new InternalEntryBase.StateData(propertyCount, propertyCount);
 
         Assert.False(data.AnyPropertiesFlagged(propertyFlag));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag1));
@@ -118,6 +142,7 @@ public class StateDataTest
         Assert.False(data.AnyPropertiesFlagged(unusedFlag3));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag4));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag5));
+        Assert.False(data.AnyPropertiesFlagged(unusedFlag6));
 
         for (var i = 0; i < propertyCount; i++)
         {
@@ -131,6 +156,7 @@ public class StateDataTest
                 Assert.False(data.IsPropertyFlagged(j, unusedFlag3));
                 Assert.False(data.IsPropertyFlagged(j, unusedFlag4));
                 Assert.False(data.IsPropertyFlagged(j, unusedFlag5));
+                Assert.False(data.IsPropertyFlagged(j, unusedFlag6));
             }
 
             Assert.True(data.AnyPropertiesFlagged(propertyFlag));
@@ -139,6 +165,7 @@ public class StateDataTest
             Assert.False(data.AnyPropertiesFlagged(unusedFlag3));
             Assert.False(data.AnyPropertiesFlagged(unusedFlag4));
             Assert.False(data.AnyPropertiesFlagged(unusedFlag5));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag6));
         }
 
         for (var i = 0; i < propertyCount; i++)
@@ -153,6 +180,7 @@ public class StateDataTest
                 Assert.False(data.IsPropertyFlagged(j, unusedFlag3));
                 Assert.False(data.IsPropertyFlagged(j, unusedFlag4));
                 Assert.False(data.IsPropertyFlagged(j, unusedFlag5));
+                Assert.False(data.IsPropertyFlagged(j, unusedFlag6));
             }
 
             Assert.Equal(i < propertyCount - 1, data.AnyPropertiesFlagged(propertyFlag));
@@ -161,6 +189,7 @@ public class StateDataTest
             Assert.False(data.AnyPropertiesFlagged(unusedFlag3));
             Assert.False(data.AnyPropertiesFlagged(unusedFlag4));
             Assert.False(data.AnyPropertiesFlagged(unusedFlag5));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag6));
         }
 
         for (var i = 0; i < propertyCount; i++)
@@ -171,6 +200,7 @@ public class StateDataTest
             Assert.False(data.IsPropertyFlagged(i, unusedFlag3));
             Assert.False(data.IsPropertyFlagged(i, unusedFlag4));
             Assert.False(data.IsPropertyFlagged(i, unusedFlag5));
+            Assert.False(data.IsPropertyFlagged(i, unusedFlag6));
         }
 
         data.FlagAllProperties(propertyCount, propertyFlag, flagged: true);
@@ -181,6 +211,7 @@ public class StateDataTest
         Assert.False(data.AnyPropertiesFlagged(unusedFlag3));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag4));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag5));
+        Assert.False(data.AnyPropertiesFlagged(unusedFlag6));
 
         for (var i = 0; i < propertyCount; i++)
         {
@@ -190,6 +221,7 @@ public class StateDataTest
             Assert.False(data.IsPropertyFlagged(i, unusedFlag3));
             Assert.False(data.IsPropertyFlagged(i, unusedFlag4));
             Assert.False(data.IsPropertyFlagged(i, unusedFlag5));
+            Assert.False(data.IsPropertyFlagged(i, unusedFlag6));
         }
 
         data.FlagAllProperties(propertyCount, propertyFlag, flagged: false);
@@ -200,6 +232,7 @@ public class StateDataTest
         Assert.False(data.AnyPropertiesFlagged(unusedFlag3));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag4));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag5));
+        Assert.False(data.AnyPropertiesFlagged(unusedFlag6));
 
         for (var i = 0; i < propertyCount; i++)
         {
@@ -209,13 +242,14 @@ public class StateDataTest
             Assert.False(data.IsPropertyFlagged(i, unusedFlag3));
             Assert.False(data.IsPropertyFlagged(i, unusedFlag4));
             Assert.False(data.IsPropertyFlagged(i, unusedFlag5));
+            Assert.False(data.IsPropertyFlagged(i, unusedFlag6));
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_EntityState()
     {
-        var data = new InternalEntityEntry.StateData(70, 0);
+        var data = new InternalEntryBase.StateData(70, 0);
 
         Assert.Equal(EntityState.Detached, data.EntityState);
 
@@ -231,7 +265,7 @@ public class StateDataTest
         data.EntityState = EntityState.Deleted;
         Assert.Equal(EntityState.Deleted, data.EntityState);
 
-        data.FlagAllProperties(70, InternalEntityEntry.PropertyFlag.Modified, flagged: true);
+        data.FlagAllProperties(70, InternalEntryBase.PropertyFlag.Modified, flagged: true);
 
         Assert.Equal(EntityState.Deleted, data.EntityState);
 

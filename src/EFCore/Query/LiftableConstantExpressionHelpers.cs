@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using static System.Linq.Expressions.Expression;
@@ -39,8 +38,8 @@ public static class LiftableConstantExpressionHelpers
     private static readonly MethodInfo EntityTypeFindSkipNavigationMethod =
         typeof(IEntityType).GetRuntimeMethod(nameof(IEntityType.FindSkipNavigation), [typeof(string)])!;
 
-    private static readonly MethodInfo NavigationBaseClrCollectionAccessorMethod =
-        typeof(INavigationBase).GetRuntimeMethod(nameof(INavigationBase.GetCollectionAccessor), [])!;
+    private static readonly MethodInfo PropertyBaseClrCollectionAccessorMethod =
+        typeof(IPropertyBase).GetRuntimeMethod(nameof(IPropertyBase.GetCollectionAccessor), [])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -150,7 +149,7 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildMemberAccessLambdaForEntityOrComplexType(
+    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildMemberAccessLambdaForStructuralType(
         ITypeBase type)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
@@ -201,20 +200,27 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildNavigationAccess(INavigationBase? navigation, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildStructuralPropertyAccess(IPropertyBase? structuralProperty, ParameterExpression liftableConstantContextParameter)
     {
-        if (navigation == null)
+        if (structuralProperty is null)
         {
             return Default(typeof(INavigationBase));
         }
 
-        var declaringType = navigation.DeclaringType;
+        var declaringType = structuralProperty.DeclaringType;
         var declaringTypeExpression = BuildMemberAccessForEntityOrComplexType(declaringType, liftableConstantContextParameter);
 
         var result = Call(
             declaringTypeExpression,
-            navigation is ISkipNavigation ? EntityTypeFindSkipNavigationMethod : EntityTypeFindNavigationMethod,
-            Constant(navigation.Name));
+            structuralProperty switch
+            {
+                ISkipNavigation => EntityTypeFindSkipNavigationMethod,
+                INavigation => EntityTypeFindNavigationMethod,
+                IComplexProperty => TypeBaseFindComplexPropertyMethod,
+
+                _ => throw new UnreachableException()
+            },
+            Constant(structuralProperty.Name));
 
         return result;
     }
@@ -225,10 +231,10 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildNavigationAccessLambda(INavigationBase? navigation)
+    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildStructuralPropertyAccessLambda(IPropertyBase? structuralProperty)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
-        var body = BuildNavigationAccess(navigation, prm);
+        var body = BuildStructuralPropertyAccess(structuralProperty, prm);
 
         return Lambda<Func<MaterializerLiftableConstantContext, object>>(body, prm);
     }
@@ -239,15 +245,15 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildClrCollectionAccessor(INavigationBase? navigation, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildClrCollectionAccessor(IPropertyBase? structuralProperty, ParameterExpression liftableConstantContextParameter)
     {
-        if (navigation == null)
+        if (structuralProperty is null)
         {
             return Default(typeof(IClrCollectionAccessor));
         }
 
-        var navigationAccessExpression = BuildNavigationAccess(navigation, liftableConstantContextParameter);
-        var result = Call(navigationAccessExpression, NavigationBaseClrCollectionAccessorMethod);
+        var structuralPropertyAccessExpression = BuildStructuralPropertyAccess(structuralProperty, liftableConstantContextParameter);
+        var result = Call(structuralPropertyAccessExpression, PropertyBaseClrCollectionAccessorMethod);
 
         return result;
     }
@@ -259,10 +265,10 @@ public static class LiftableConstantExpressionHelpers
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildClrCollectionAccessorLambda(
-        INavigationBase? navigation)
+        IPropertyBase? structuralProperty)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
-        var body = BuildClrCollectionAccessor(navigation, prm);
+        var body = BuildClrCollectionAccessor(structuralProperty, prm);
 
         return Lambda<Func<MaterializerLiftableConstantContext, object>>(body, prm);
     }

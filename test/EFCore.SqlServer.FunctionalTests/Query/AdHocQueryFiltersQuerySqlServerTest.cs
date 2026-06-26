@@ -1,22 +1,110 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocQueryFiltersQuerySqlServerTest : AdHocQueryFiltersQueryRelationalTestBase
+public class AdHocQueryFiltersQuerySqlServerTest(NonSharedFixture fixture) : AdHocQueryFiltersQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    #region 8576
+
+    public override async Task Named_query_filters()
+    {
+        await base.Named_query_filters();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Name] LIKE N'Name%' AND [e].[IsDeleted] = CAST(0 AS bit) AND [e].[IsDraft] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_anonymous()
+    {
+        await base.Named_query_filters_anonymous();
+
+        AssertSql(
+            """
+@ef_filter___ids1='1'
+@ef_filter___ids2='7'
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Id] NOT IN (@ef_filter___ids1, @ef_filter___ids2)
+""");
+    }
+
+    public override async Task Named_query_filters_ignore_some()
+    {
+        await base.Named_query_filters_ignore_some();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDraft] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_ignore_all()
+    {
+        await base.Named_query_filters_ignore_all();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Named_query_filters_anonymous_ignore()
+    {
+        await base.Named_query_filters_anonymous_ignore();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Named_query_filters_overwriting()
+    {
+        await base.Named_query_filters_overwriting();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDeleted] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_removing()
+    {
+        await base.Named_query_filters_removing();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    #endregion
 
     #region 11803
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_filter_with_db_set_should_not_block_other_filters()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Factions.ToList();
 
         Assert.Empty(query);
@@ -32,11 +120,11 @@ WHERE EXISTS (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Keyless_type_used_inside_defining_query()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.LeadersQuery.ToList();
 
         Assert.Single(query);
@@ -127,14 +215,12 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
 
         AssertSql(
             """
-@ef_filter___ids='[1,7]' (Size = 4000)
+@ef_filter___ids1='1'
+@ef_filter___ids2='7'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] NOT IN (
-    SELECT [e0].[value]
-    FROM OPENJSON(@ef_filter___ids) WITH ([value] int '$') AS [e0]
-)
+WHERE [e].[Id] NOT IN (@ef_filter___ids1, @ef_filter___ids2)
 """);
     }
 
@@ -264,31 +350,6 @@ WHERE [u].[Id] IS NOT NULL
 """);
     }
 
-    public override async Task GroupJoin_SelectMany_gets_flattened()
-    {
-        await base.GroupJoin_SelectMany_gets_flattened();
-
-        AssertSql(
-            """
-SELECT [c].[CustomerId], [c].[CustomerMembershipId]
-FROM [CustomerFilters] AS [c]
-WHERE (
-    SELECT COUNT(*)
-    FROM [Customers] AS [c0]
-    LEFT JOIN [CustomerMemberships] AS [c1] ON [c0].[Id] = [c1].[CustomerId]
-    WHERE [c1].[Id] IS NOT NULL AND [c0].[Id] = [c].[CustomerId]) > 0
-""",
-            //
-            """
-SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
-    WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
-    ELSE N''
-END AS [CustomerMembershipName]
-FROM [Customers] AS [c]
-LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]
-""");
-    }
-
     public override async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
     {
         await base.Group_by_multiple_aggregate_joining_different_tables(async);
@@ -382,6 +443,20 @@ LEFT JOIN (
 ) AS [l0] ON [s].[LocationId] = [l0].[LocationId]
 WHERE [s].[IsDeleted] = 0
 ORDER BY [s].[Name]
+""");
+    }
+
+    public override async Task Query_filter_with_primary_constructor_parameter()
+    {
+        await base.Query_filter_with_primary_constructor_parameter();
+
+        AssertSql(
+            """
+@ef_filter__tenantId='00000001-0000-0000-0000-000000000001'
+
+SELECT [e].[Id], [e].[Name], [e].[TenantId]
+FROM [Entity38132] AS [e]
+WHERE [e].[TenantId] = @ef_filter__tenantId
 """);
     }
 }

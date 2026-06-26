@@ -18,7 +18,7 @@ public class DefaultValueBinding : InstantiationBinding
     public DefaultValueBinding(Type runtimeType)
         : base(new List<ParameterBinding>())
     {
-        Check.NotNull(runtimeType, nameof(runtimeType));
+        Check.NotNull(runtimeType);
 
         RuntimeType = runtimeType;
     }

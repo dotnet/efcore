@@ -19,12 +19,11 @@ public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : Complex
         base.OnModelCreating(modelBuilder, context);
 
         modelBuilder.Entity<Level1>().ToTable(
-            nameof(Level1), tb => tb.IsTemporal(
-                ttb =>
-                {
-                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                }));
+            nameof(Level1), tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+            }));
     }
 
     protected override void Configure(OwnedNavigationBuilder<Level1, Level2> l2)
@@ -32,12 +31,11 @@ public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : Complex
         base.Configure(l2);
 
         l2.ToTable(
-            nameof(Level1), tb => tb.IsTemporal(
-                ttb =>
-                {
-                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                }));
+            nameof(Level1), tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+            }));
     }
 
     protected override void Configure(OwnedNavigationBuilder<Level2, Level3> l3)
@@ -45,12 +43,11 @@ public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : Complex
         base.Configure(l3);
 
         l3.ToTable(
-            nameof(Level1), tb => tb.IsTemporal(
-                ttb =>
-                {
-                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                }));
+            nameof(Level1), tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+            }));
     }
 
     protected override void Configure(OwnedNavigationBuilder<Level3, Level4> l4)
@@ -58,12 +55,11 @@ public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : Complex
         base.Configure(l4);
 
         l4.ToTable(
-            nameof(Level1), tb => tb.IsTemporal(
-                ttb =>
-                {
-                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                }));
+            nameof(Level1), tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+            }));
     }
 
     protected override async Task SeedAsync(ComplexNavigationsContext context)

@@ -24,23 +24,37 @@ public class NorthwindJoinQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopMo
         // Joins between sources with client eval. Issue #21200.
         => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_constructor(async));
 
+    // Right join not supported in InMemory
+    public override Task RightJoin(bool async)
+        => AssertTranslationFailed(() => base.RightJoin(async));
+
+    // Right join not supported in InMemory
+    public override Task RightJoin_with_filtered_outer(bool async)
+        => AssertTranslationFailed(() => base.RightJoin_with_filtered_outer(async));
+
+    // Full join not supported in InMemory
+    public override Task FullJoin(bool async)
+        => AssertTranslationFailed(() => base.FullJoin(async));
+
+    // Full join not supported in InMemory
+    public override Task FullJoin_with_unmatched_rows_on_both_sides(bool async)
+        => AssertTranslationFailed(() => base.FullJoin_with_unmatched_rows_on_both_sides(async));
+
     public override async Task Join_local_collection_int_closure_is_cached_correctly(bool async)
     {
         var ids = new uint[] { 1, 2 };
 
-        await AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => from e in ss.Set<Employee>()
-                      join id in ids on e.EmployeeID equals id
-                      select e.EmployeeID));
+        await AssertTranslationFailed(() => AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID));
 
         ids = [3];
-        await AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => from e in ss.Set<Employee>()
-                      join id in ids on e.EmployeeID equals id
-                      select e.EmployeeID));
+        await AssertTranslationFailed(() => AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID));
     }
 }

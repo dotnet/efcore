@@ -442,11 +442,11 @@ WHERE [s].[ParentId] = @p
                 ? ""
                 : """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
+WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p1
 """);
     }
 
@@ -461,11 +461,11 @@ WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
                 ? ""
                 : """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(1) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -480,11 +480,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
                 ? ""
                 : """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(1) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -499,11 +499,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
                 ? ""
                 : """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT TOP(1) [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p0
+WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p1
 """);
     }
 
@@ -1635,11 +1635,11 @@ WHERE 0 = 1
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
+WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p1
 """);
     }
 
@@ -1650,11 +1650,11 @@ WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(1) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -1665,11 +1665,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(1) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -1680,11 +1680,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT TOP(1) [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p0
+WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p1
 """);
     }
 
@@ -1695,11 +1695,11 @@ WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
+WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p1
 """);
     }
 
@@ -1710,11 +1710,11 @@ WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -1725,11 +1725,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -1742,11 +1742,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
                 ? ""
                 : """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT TOP(2) [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p0
+WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p1
 """);
     }
 

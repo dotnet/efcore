@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SharedTypeDbSetTest
 {
-    [ConditionalFact]
+    [Fact]
     public void DbSets_are_cached()
     {
         DbSet<Category> set1;
@@ -28,7 +28,7 @@ public class SharedTypeDbSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Use_of_set_throws_if_context_is_disposed()
     {
         DbSet<Category> set;
@@ -79,7 +79,7 @@ public class SharedTypeDbSetTest
             (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Direct_use_of_Set_for_shared_type_throws_if_context_disposed()
     {
         var context = new EarlyLearningCenter();
@@ -90,7 +90,7 @@ public class SharedTypeDbSetTest
             Assert.Throws<ObjectDisposedException>(() => context.Set<Dictionary<string, object>>("SharedTypeEntityTypeName")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Using_shared_type_entity_type_db_set_with_incorrect_return_type_throws()
     {
         using var context = new EarlyLearningCenter();
@@ -110,7 +110,7 @@ public class SharedTypeDbSetTest
             Assert.Throws<InvalidOperationException>(() => wrongDbSet.ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Use_of_LocalView_throws_if_context_is_disposed()
     {
         LocalView<Category> view;
@@ -145,23 +145,23 @@ public class SharedTypeDbSetTest
             Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_existing_entities_to_context_to_be_deleted()
         => TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_new_entities_to_context_graph()
         => TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_new_entities_to_context_graph_async()
         => TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_existing_entities_to_context_to_be_attached_graph()
         => TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_existing_entities_to_context_to_be_updated_graph()
         => TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
 
@@ -256,35 +256,35 @@ public class SharedTypeDbSetTest
         Assert.Same(productEntry22.GetInfrastructure(), context.Entry(product22).GetInfrastructure());
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Category1s.AddRange(e[0], e[1]),
             (c, e) => c.Product2s.AddRange(e[0], e[1]),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set_async()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Category1s.AddRangeAsync(e[0], e[1]),
             (c, e) => c.Product2s.AddRangeAsync(e[0], e[1]),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_attached()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Category1s.AttachRange(e[0], e[1]),
             (c, e) => c.Product2s.AttachRange(e[0], e[1]),
             EntityState.Unchanged);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_updated()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Category1s.UpdateRange(e[0], e[1]),
             (c, e) => c.Product2s.UpdateRange(e[0], e[1]),
             EntityState.Modified);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_deleted()
         => TrackMultipleEntitiesTest(
             (c, e) => c.Category1s.RemoveRange(e[0], e[1]),
@@ -348,11 +348,11 @@ public class SharedTypeDbSetTest
         Assert.Equal(expectedState, context.Entry(product2).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_new_entities_to_set()
         => TrackNoEntitiesTest(c => c.Category1s.AddRange(), c => c.Product2s.AddRange());
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_no_new_entities_to_set_async()
     {
         using var context = new EarlyLearningCenter();
@@ -361,15 +361,15 @@ public class SharedTypeDbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_attached()
         => TrackNoEntitiesTest(c => c.Category1s.AttachRange(), c => c.Product2s.AttachRange());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_updated()
         => TrackNoEntitiesTest(c => c.Category1s.UpdateRange(), c => c.Product2s.UpdateRange());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_deleted()
         => TrackNoEntitiesTest(c => c.Category1s.RemoveRange(), c => c.Product2s.RemoveRange());
 
@@ -381,35 +381,35 @@ public class SharedTypeDbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Category1s.RemoveRange(e),
             (c, e) => c.Product2s.RemoveRange(e),
             EntityState.Deleted);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set_Enumerable_graph()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Category1s.AddRange(e),
             (c, e) => c.Product2s.AddRange(e),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_new_entities_to_set_Enumerable_graph_async()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Category1s.AddRangeAsync(e),
             (c, e) => c.Product2s.AddRangeAsync(e),
             EntityState.Added);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Category1s.AttachRange(e),
             (c, e) => c.Product2s.AttachRange(e),
             EntityState.Unchanged);
 
-    [ConditionalFact]
+    [Fact]
     public Task Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
         => TrackMultipleEntitiesTestEnumerable(
             (c, e) => c.Category1s.UpdateRange(e),
@@ -475,15 +475,15 @@ public class SharedTypeDbSetTest
         Assert.Equal(expectedState, context.Entry(product2).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_deleted_Enumerable()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Category2s.RemoveRange(e), (c, e) => c.Product1s.RemoveRange(e));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_new_entities_to_set_Enumerable_graph()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Category2s.AddRange(e), (c, e) => c.Product1s.AddRange(e));
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_add_no_new_entities_to_set_Enumerable_graph_async()
     {
         using var context = new EarlyLearningCenter();
@@ -492,11 +492,11 @@ public class SharedTypeDbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable_graph()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Category2s.AttachRange(e), (c, e) => c.Product1s.AttachRange(e));
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable_graph()
         => TrackNoEntitiesTestEnumerable((c, e) => c.Category2s.UpdateRange(e), (c, e) => c.Product1s.UpdateRange(e));
 
@@ -510,7 +510,7 @@ public class SharedTypeDbSetTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Add_to_change_entity_state()
     {
         await ChangeStateWithMethod(c => c.Category2s, (c, e) => c.Add(e), EntityState.Detached, EntityState.Added);
@@ -520,7 +520,7 @@ public class SharedTypeDbSetTest
         await ChangeStateWithMethod(c => c.Category2s, (c, e) => c.Add(e), EntityState.Added, EntityState.Added);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Add_to_change_entity_state_async()
     {
         await ChangeStateWithMethod(c => c.Category2s, async (c, e) => await c.AddAsync(e), EntityState.Detached, EntityState.Added);
@@ -530,7 +530,7 @@ public class SharedTypeDbSetTest
         await ChangeStateWithMethod(c => c.Category2s, async (c, e) => await c.AddAsync(e), EntityState.Added, EntityState.Added);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Attach_to_change_entity_state()
     {
         await ChangeStateWithMethod(c => c.Category2s, (c, e) => c.Attach(e), EntityState.Detached, EntityState.Unchanged);
@@ -540,7 +540,7 @@ public class SharedTypeDbSetTest
         await ChangeStateWithMethod(c => c.Category2s, (c, e) => c.Attach(e), EntityState.Added, EntityState.Unchanged);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Update_to_change_entity_state()
     {
         await ChangeStateWithMethod(c => c.Category2s, (c, e) => c.Update(e), EntityState.Detached, EntityState.Modified);
@@ -550,7 +550,7 @@ public class SharedTypeDbSetTest
         await ChangeStateWithMethod(c => c.Category2s, (c, e) => c.Update(e), EntityState.Added, EntityState.Modified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_Remove_to_change_entity_state()
     {
         await ChangeStateWithMethod(c => c.Category2s, (c, e) => c.Remove(e), EntityState.Detached, EntityState.Deleted);
@@ -593,9 +593,7 @@ public class SharedTypeDbSetTest
         Assert.Equal(expectedState, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Can_add_new_entities_to_context_with_key_generation(bool async)
     {
         using var context = new EarlyLearningCenter();
@@ -626,7 +624,7 @@ public class SharedTypeDbSetTest
         Assert.Equal(EntityState.Added, categoryEntry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_scoped_service_provider()
     {
         using var context = new EarlyLearningCenter();
@@ -635,7 +633,7 @@ public class SharedTypeDbSetTest
             ((IInfrastructure<IServiceProvider>)context.Product1s).Instance);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_using_with_IListSource()
     {
         using var context = new EarlyLearningCenter();
@@ -644,7 +642,7 @@ public class SharedTypeDbSetTest
             Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gu1s).GetList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_using_query_with_IListSource()
     {
         using var context = new EarlyLearningCenter();
@@ -653,7 +651,7 @@ public class SharedTypeDbSetTest
             Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gu1s.Distinct()).GetList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_using_Local_with_IListSource()
     {
         using var context = new EarlyLearningCenter();
@@ -662,7 +660,7 @@ public class SharedTypeDbSetTest
             Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gu1s.Local).GetList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_enumerate_with_foreach()
     {
         using var context = new EarlyLearningCenter();
@@ -672,7 +670,7 @@ public class SharedTypeDbSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_enumerate_with_await_foreach()
     {
         using var context = new EarlyLearningCenter();
@@ -682,7 +680,7 @@ public class SharedTypeDbSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_enumerate_with_await_foreach_with_cancellation()
     {
         using var context = new EarlyLearningCenter();

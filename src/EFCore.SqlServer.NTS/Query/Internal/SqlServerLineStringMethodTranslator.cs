@@ -52,12 +52,11 @@ public class SqlServerLineStringMethodTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.Function(
                 instance,
                 "STPointN",
-                new[]
-                {
+                [
                     _sqlExpressionFactory.Add(
                         arguments[0],
                         _sqlExpressionFactory.Constant(1))
-                },
+                ],
                 nullable: true,
                 instancePropagatesNullability: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],

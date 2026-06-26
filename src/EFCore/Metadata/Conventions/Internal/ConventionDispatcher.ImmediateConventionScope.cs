@@ -256,15 +256,15 @@ public partial class ConventionDispatcher
             return !entityTypeBuilder.Metadata.IsIgnored(name) ? null : name;
         }
 
-        public override string? OnDiscriminatorPropertySet(IConventionEntityTypeBuilder entityTypeBuilder, string? name)
+        public override string? OnDiscriminatorPropertySet(IConventionTypeBaseBuilder structuralTypeBuilder, string? name)
         {
-            if (!entityTypeBuilder.Metadata.IsInModel)
+            if (!structuralTypeBuilder.Metadata.IsInModel)
             {
                 return null;
             }
 
 #if DEBUG
-            var initialValue = entityTypeBuilder.Metadata.GetDiscriminatorPropertyName();
+            var initialValue = structuralTypeBuilder.Metadata.GetDiscriminatorPropertyName();
 #endif
             using (dispatcher.DelayConventions())
             {
@@ -273,20 +273,20 @@ public partial class ConventionDispatcher
                 foreach (var entityTypeConvention in conventionSet.DiscriminatorPropertySetConventions)
                 {
                     entityTypeConvention.ProcessDiscriminatorPropertySet(
-                        entityTypeBuilder, name, _nullableStringConventionContext);
+                        structuralTypeBuilder, name, _nullableStringConventionContext);
                     if (_nullableStringConventionContext.ShouldStopProcessing())
                     {
                         return _nullableStringConventionContext.Result;
                     }
 #if DEBUG
                     Check.DebugAssert(
-                        initialValue == entityTypeBuilder.Metadata.GetDiscriminatorPropertyName(),
+                        initialValue == structuralTypeBuilder.Metadata.GetDiscriminatorPropertyName(),
                         $"Convention {entityTypeConvention.GetType().Name} changed value without terminating");
 #endif
                 }
             }
 
-            return entityTypeBuilder.Metadata.GetDiscriminatorPropertyName();
+            return structuralTypeBuilder.Metadata.GetDiscriminatorPropertyName();
         }
 
         public override IConventionEntityType? OnEntityTypeBaseTypeChanged(
@@ -782,6 +782,39 @@ public partial class ConventionDispatcher
 #if DEBUG
                     Check.DebugAssert(
                         initialValue == relationshipBuilder.Metadata.IsRequired,
+                        $"Convention {foreignKeyConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
+        }
+
+        public override bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
+        {
+#if DEBUG
+            var initialValue = relationshipBuilder.Metadata.IsConstrained;
+#endif
+            using (dispatcher.DelayConventions())
+            {
+                _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsConstrained);
+                foreach (var foreignKeyConvention in conventionSet.ForeignKeyConstrainednessChangedConventions)
+                {
+                    if (!relationshipBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    foreignKeyConvention.ProcessForeignKeyConstrainednessChanged(relationshipBuilder, _boolConventionContext);
+
+                    if (_boolConventionContext.ShouldStopProcessing())
+                    {
+                        return _boolConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == relationshipBuilder.Metadata.IsConstrained,
                         $"Convention {foreignKeyConvention.GetType().Name} changed value without terminating");
 #endif
                 }
@@ -1567,6 +1600,41 @@ public partial class ConventionDispatcher
 #if DEBUG
                     Check.DebugAssert(
                         initialValue == propertyBuilder.Metadata.IsNullable,
+                        $"Convention {propertyConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return !propertyBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
+        }
+
+        public override bool? OnPropertyAutoLoadChanged(IConventionPropertyBuilder propertyBuilder)
+        {
+            if (!propertyBuilder.Metadata.DeclaringType.IsInModel)
+            {
+                return null;
+            }
+#if DEBUG
+            var initialValue = propertyBuilder.Metadata.IsAutoLoaded;
+#endif
+            using (dispatcher.DelayConventions())
+            {
+                _boolConventionContext.ResetState(propertyBuilder.Metadata.IsAutoLoaded);
+                foreach (var propertyConvention in conventionSet.PropertyAutoLoadChangedConventions)
+                {
+                    if (!propertyBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    propertyConvention.ProcessPropertyAutoLoadChanged(propertyBuilder, _boolConventionContext);
+                    if (_boolConventionContext.ShouldStopProcessing())
+                    {
+                        return _boolConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == propertyBuilder.Metadata.IsAutoLoaded,
                         $"Convention {propertyConvention.GetType().Name} changed value without terminating");
 #endif
                 }

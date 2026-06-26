@@ -91,9 +91,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] foreignKeyPropertyNames)
         => new(
             HasForeignKeyBuilder(
-                ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName)))!,
+                ResolveEntityType(Check.NotNull(dependentEntityTypeName))!,
                 dependentEntityTypeName,
-                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                Check.NotNull(foreignKeyPropertyNames)),
             this,
             inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName)!.Name,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -129,9 +129,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] foreignKeyPropertyNames)
         => new(
             HasForeignKeyBuilder(
-                ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))!,
+                ResolveEntityType(Check.NotNull(dependentEntityType))!,
                 dependentEntityType.ShortDisplayName(),
-                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                Check.NotNull(foreignKeyPropertyNames)),
             this,
             inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -207,7 +207,7 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
             HasForeignKeyBuilder(
                 ResolveEntityType(typeof(TDependentEntity))!,
                 typeof(TDependentEntity).ShortDisplayName(),
-                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
+                Check.NotNull(foreignKeyExpression).GetMemberAccessList()),
             this,
             inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
             foreignKeySet: true);
@@ -229,9 +229,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] keyPropertyNames)
         => new(
             HasPrincipalKeyBuilder(
-                ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))!,
+                ResolveEntityType(Check.NotEmpty(principalEntityTypeName))!,
                 principalEntityTypeName,
-                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                Check.NotNull(keyPropertyNames)),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
             principalKeySet: keyPropertyNames.Length > 0);
@@ -253,9 +253,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] keyPropertyNames)
         => new(
             HasPrincipalKeyBuilder(
-                ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))!,
+                ResolveEntityType(Check.NotNull(principalEntityType))!,
                 principalEntityType.ShortDisplayName(),
-                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                Check.NotNull(keyPropertyNames)),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
             principalKeySet: keyPropertyNames.Length > 0);
@@ -309,7 +309,7 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
             HasPrincipalKeyBuilder(
                 ResolveEntityType(typeof(TPrincipalEntity))!,
                 typeof(TPrincipalEntity).ShortDisplayName(),
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
+                Check.NotNull(keyExpression).GetMemberAccessList()),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
             principalKeySet: true);
@@ -322,6 +322,17 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool required = true)
         => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
+
+    /// <summary>
+    ///     Configures whether the relationship is constrained. When <see langword="false" />, no database
+    ///     foreign key constraint is created and queries treat the relationship as optional (the principal is
+    ///     not assumed to exist), even when the foreign key properties are non-nullable. This does not affect
+    ///     change tracking. See <see cref="Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey.IsConstrained" />.
+    /// </summary>
+    /// <param name="constrained">A value indicating whether the relationship is constrained.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true)
+        => new(Builder.IsConstrained(constrained, ConfigurationSource.Explicit)!, this);
 
     /// <summary>
     ///     Configures the operation applied to dependent entities in the relationship when the

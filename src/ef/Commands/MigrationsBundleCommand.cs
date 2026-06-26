@@ -29,21 +29,24 @@ internal partial class MigrationsBundleCommand
         }
     }
 
-#if NET472
-    protected override int Execute(string[] args)
-        => throw new CommandException(Resources.VersionRequired("6.0.0"));
-#else
     protected override int Execute(string[] args)
     {
-        if (new SemanticVersionComparer().Compare(EFCoreVersion, "6.0.0") < 0)
-        {
-            throw new CommandException(Resources.VersionRequired("6.0.0"));
-        }
-
+        string? version;
         string context;
         using (var executor = CreateExecutor(args))
         {
-            context = (string)executor.GetContextInfo(Context!.Value())["Type"];
+            version = executor.EFCoreVersion;
+            if (new SemanticVersionComparer().Compare(version, "6.0.0") < 0)
+            {
+                throw new CommandException(Resources.VersionRequired("6.0.0"));
+            }
+
+            if (Context!.Value() == "*")
+            {
+                throw new CommandException(Resources.WildcardNotSupported);
+            }
+
+            context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
         }
 
         Reporter.WriteInformation(Resources.BuildBundleStarted);
@@ -53,7 +56,7 @@ internal partial class MigrationsBundleCommand
             Session = new Dictionary<string, object>
             {
                 ["TargetFramework"] = Framework!.Value()!,
-                ["EFCoreVersion"] = EFCoreVersion!,
+                ["EFCoreVersion"] = version!,
                 ["Project"] = Project!.Value()!,
                 ["StartupProject"] = StartupProject!.Value()!
             }
@@ -76,7 +79,6 @@ internal partial class MigrationsBundleCommand
         };
         programGenerator.Initialize();
 
-        // TODO: We may not always have access to TEMP
         var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(tempDirectory);
         try
@@ -86,7 +88,7 @@ internal partial class MigrationsBundleCommand
             var globalJson = default(string);
             var nugetConfigs = new Stack<string>();
 
-            var searchPath = WorkingDir!.Value();
+            var searchPath = WorkingDir!.Value()!;
             do
             {
                 foreach (var file in Directory.EnumerateFiles(searchPath))
@@ -131,7 +133,7 @@ internal partial class MigrationsBundleCommand
 
             var runtime = _runtime!.HasValue()
                 ? _runtime!.Value()!
-                : (string)AppContext.GetData("RUNTIME_IDENTIFIER");
+                : (string)AppContext.GetData("RUNTIME_IDENTIFIER")!;
             publishArgs.Add("--runtime");
             publishArgs.Add(runtime);
 
@@ -165,14 +167,11 @@ internal partial class MigrationsBundleCommand
                     : "--no-self-contained");
 
             var configuration = Configuration!.Value();
-            if (string.Equals(configuration, "Debug", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(configuration, "Release", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(configuration))
             {
                 publishArgs.Add("--configuration");
                 publishArgs.Add(configuration!);
             }
-
-            publishArgs.Add("--disable-build-servers");
 
             var exitCode = Exe.Run("dotnet", publishArgs, directory, handleOutput: Reporter.WriteVerbose);
             if (exitCode != 0)
@@ -216,5 +215,4 @@ internal partial class MigrationsBundleCommand
 
         return base.Execute(args);
     }
-#endif
 }

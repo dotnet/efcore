@@ -31,7 +31,7 @@ public class ExecutionStrategyTest : IDisposable
                 return null;
             });
 
-    [ConditionalFact]
+    [Fact]
     public void GetNextDelay_returns_the_expected_default_sequence()
     {
         var strategy = new TestExecutionStrategy(Context);
@@ -63,7 +63,7 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RetriesOnFailure_returns_true()
     {
         var mockExecutionStrategy = new TestExecutionStrategy(Context);
@@ -71,11 +71,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.True(mockExecutionStrategy.RetriesOnFailure);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_throws_for_an_existing_transaction()
         => Execute_throws_for_an_existing_transaction(e => e.Execute(() => { }));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_throws_for_an_existing_transaction()
         => Execute_throws_for_an_existing_transaction(e => e.Execute(() => 1));
 
@@ -87,17 +87,16 @@ public class ExecutionStrategyTest : IDisposable
             Assert.Equal(
                 CoreStrings.ExecutionStrategyExistingTransaction(
                     mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                Assert.Throws<InvalidOperationException>(
-                        () => execute(mockExecutionStrategy))
+                Assert.Throws<InvalidOperationException>(() => execute(mockExecutionStrategy))
                     .Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_throws_for_an_ambient_transaction()
         => Execute_throws_for_an_ambient_transaction(e => e.Execute(() => { }));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_throws_for_an_ambient_transaction()
         => Execute_throws_for_an_ambient_transaction(e => e.Execute(() => 1));
 
@@ -109,17 +108,16 @@ public class ExecutionStrategyTest : IDisposable
             Assert.Equal(
                 CoreStrings.ExecutionStrategyExistingTransaction(
                     mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                Assert.Throws<InvalidOperationException>(
-                        () => execute(mockExecutionStrategy))
+                Assert.Throws<InvalidOperationException>(() => execute(mockExecutionStrategy))
                     .Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_throws_for_an_enlisted_transaction()
         => Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => { }));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_throws_for_an_enlisted_transaction()
         => Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => 1));
 
@@ -132,16 +130,15 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(
             CoreStrings.ExecutionStrategyExistingTransaction(
                 mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-            Assert.Throws<InvalidOperationException>(
-                    () => execute(mockExecutionStrategy))
+            Assert.Throws<InvalidOperationException>(() => execute(mockExecutionStrategy))
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_does_not_throw_when_invoked_twice()
         => Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_does_not_throw_when_invoked_twice()
         => Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(f));
 
@@ -172,11 +169,11 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
         => Execute_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
         => Execute_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f) => e.Execute(f));
 
@@ -216,11 +213,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.True(executed2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_doesnt_retry_if_successful()
         => Execute_doesnt_retry_if_successful((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_doesnt_retry_if_successful()
         => Execute_doesnt_retry_if_successful((e, f) => e.Execute(f));
 
@@ -232,11 +229,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(1, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_retries_until_successful()
         => Execute_retries_until_successful((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_retries_until_successful()
         => Execute_retries_until_successful((e, f) => e.Execute(f));
 
@@ -263,11 +260,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_retries_until_not_retriable_exception_is_thrown()
         => Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_retries_until_not_retriable_exception_is_thrown()
         => Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(f));
 
@@ -280,27 +277,26 @@ public class ExecutionStrategyTest : IDisposable
 
         var executionCount = 0;
 
-        Assert.Throws<ArgumentNullException>(
-            () =>
-                execute(
-                    executionStrategyMock, () =>
+        Assert.Throws<ArgumentNullException>(() =>
+            execute(
+                executionStrategyMock, () =>
+                {
+                    if (executionCount++ < 3)
                     {
-                        if (executionCount++ < 3)
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
+                        throw new ArgumentOutOfRangeException();
+                    }
 
-                        throw new ArgumentNullException();
-                    }));
+                    throw new ArgumentNullException();
+                }));
 
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_retries_until_limit_is_reached()
         => Execute_retries_until_limit_is_reached((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_retries_until_limit_is_reached()
         => Execute_retries_until_limit_is_reached((e, f) => e.Execute(f));
 
@@ -315,29 +311,28 @@ public class ExecutionStrategyTest : IDisposable
             getNextDelay: e => TimeSpan.FromTicks(0));
 
         Assert.IsType<ArgumentOutOfRangeException>(
-            Assert.Throws<RetryLimitExceededException>(
-                    () =>
-                        execute(
-                            executionStrategyMock, () =>
+            Assert.Throws<RetryLimitExceededException>(() =>
+                    execute(
+                        executionStrategyMock, () =>
+                        {
+                            if (executionCount++ < 3)
                             {
-                                if (executionCount++ < 3)
-                                {
-                                    throw new ArgumentOutOfRangeException();
-                                }
+                                throw new ArgumentOutOfRangeException();
+                            }
 
-                                Assert.True(false);
-                                return 0;
-                            }))
+                            Assert.True(false);
+                            return 0;
+                        }))
                 .InnerException);
 
         Assert.Equal(3, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_throws_for_an_existing_transaction()
         => ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_throws_for_an_existing_transaction()
         => ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
 
@@ -349,16 +344,15 @@ public class ExecutionStrategyTest : IDisposable
             Assert.Equal(
                 CoreStrings.ExecutionStrategyExistingTransaction(
                     mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => executeAsync(mockExecutionStrategy))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => executeAsync(mockExecutionStrategy))).Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Action_throws_for_an_ambient_transaction()
         => await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Func_throws_for_an_ambient_transaction()
         => await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
 
@@ -370,17 +364,16 @@ public class ExecutionStrategyTest : IDisposable
             Assert.Equal(
                 CoreStrings.ExecutionStrategyExistingTransaction(
                     mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => executeAsync(mockExecutionStrategy)))
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => executeAsync(mockExecutionStrategy)))
                 .Message);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Action_throws_for_an_enlisted_transaction()
         => await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Func_throws_for_an_enlisted_transaction()
         => await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
 
@@ -393,16 +386,15 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(
             CoreStrings.ExecutionStrategyExistingTransaction(
                 mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => executeAsync(mockExecutionStrategy)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => executeAsync(mockExecutionStrategy)))
             .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_does_not_throw_when_invoked_twice()
         => ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_does_not_throw_when_invoked_twice()
         => ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -434,15 +426,15 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Action_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
-        => await ExecuteAsync_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled(
-            (e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
+        => await ExecuteAsync_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f)
+            => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Func_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
-        => await ExecuteAsync_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled(
-            (e, f) => e.ExecuteAsync(f, CancellationToken.None));
+        => await ExecuteAsync_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f)
+            => e.ExecuteAsync(f, CancellationToken.None));
 
     private async Task ExecuteAsync_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled(
         Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
@@ -480,11 +472,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.True(executed2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_doesnt_retry_if_successful()
         => ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_doesnt_retry_if_successful()
         => ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -497,11 +489,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(1, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_retries_until_successful()
         => ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_retries_until_successful()
         => ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -529,12 +521,12 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_retries_until_not_retrieable_exception_is_thrown()
-        => ExecuteAsync_retries_until_not_retrieable_exception_is_thrown(
-            (e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
+        => ExecuteAsync_retries_until_not_retrieable_exception_is_thrown((e, f) => e.ExecuteAsync(
+            ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_retries_until_not_retrieable_exception_is_thrown()
         => ExecuteAsync_retries_until_not_retrieable_exception_is_thrown((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -548,26 +540,25 @@ public class ExecutionStrategyTest : IDisposable
 
         var executionCount = 0;
 
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => executeAsync(
-                executionStrategyMock, ct =>
+        await Assert.ThrowsAsync<ArgumentNullException>(() => executeAsync(
+            executionStrategyMock, ct =>
+            {
+                if (executionCount++ < 3)
                 {
-                    if (executionCount++ < 3)
-                    {
-                        throw new ArgumentOutOfRangeException();
-                    }
+                    throw new ArgumentOutOfRangeException();
+                }
 
-                    throw new ArgumentNullException();
-                }));
+                throw new ArgumentNullException();
+            }));
 
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_retries_until_limit_is_reached()
         => ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_retries_until_limit_is_reached()
         => ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -584,24 +575,23 @@ public class ExecutionStrategyTest : IDisposable
 
         // ReSharper disable once PossibleNullReferenceException
         Assert.IsType<ArgumentOutOfRangeException>(
-            (await Assert.ThrowsAsync<RetryLimitExceededException>(
-                () =>
-                    executeAsync(
-                        executionStrategyMock, ct =>
+            (await Assert.ThrowsAsync<RetryLimitExceededException>(() =>
+                executeAsync(
+                    executionStrategyMock, ct =>
+                    {
+                        if (executionCount++ < 3)
                         {
-                            if (executionCount++ < 3)
-                            {
-                                throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                            }
+                            throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                        }
 
-                            Assert.True(false);
-                            return Task.FromResult(0);
-                        }))).InnerException.InnerException);
+                        Assert.True(false);
+                        return Task.FromResult(0);
+                    }))).InnerException.InnerException);
 
         Assert.Equal(3, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ShouldRetryOn_does_not_get_null_on_DbUpdateConcurrencyException()
     {
         var executionStrategyMock = new TestExecutionStrategy(
@@ -615,19 +605,18 @@ public class ExecutionStrategyTest : IDisposable
 
         var executionCount = 0;
 
-        executionStrategyMock.Execute(
-            () =>
+        executionStrategyMock.Execute(() =>
+        {
+            if (executionCount++ < 1)
             {
-                if (executionCount++ < 1)
-                {
-                    throw new DbUpdateConcurrencyException("");
-                }
-            });
+                throw new DbUpdateConcurrencyException("");
+            }
+        });
 
         Assert.Equal(2, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_preserves_synchronization_context_across_retries()
     {
         var mockExecutionStrategy = new TestExecutionStrategy(Context, shouldRetryOn: e => e is DbUpdateConcurrencyException);

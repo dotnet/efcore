@@ -34,12 +34,11 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [Column(TypeName = "tinyint")]
+        [Required, Column(TypeName = "tinyint")]
         public TinyState TinyState { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SQLite_type_mapping_works_even_when_using_non_SQLite_store_type()
     {
         using var connection = new SqliteConnection("DataSource=:memory:");
@@ -66,32 +65,18 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
     protected override DbCommand CreateTestCommand()
         => new SqliteCommand();
 
-    [ConditionalTheory]
-    [InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
-    [InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime))]
-    [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]
-    [InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid))]
-    [InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
+    [Theory, InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
+     InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime)), InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal)),
+     InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid)), InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
 
-    [ConditionalTheory]
-    [InlineData("TEXT", typeof(string))]
-    [InlineData("Integer", typeof(long))]
-    [InlineData("Blob", typeof(byte[]))]
-    [InlineData("numeric", typeof(byte[]))]
-    [InlineData("real", typeof(double))]
-    [InlineData("doub", typeof(double))]
-    [InlineData("int", typeof(long))]
-    [InlineData("SMALLINT", typeof(long))]
-    [InlineData("UNSIGNED BIG INT", typeof(long))]
-    [InlineData("VARCHAR(255)", typeof(string))]
-    [InlineData("nchar(55)", typeof(string))]
-    [InlineData("datetime", typeof(byte[]))]
-    [InlineData("decimal(10,4)", typeof(byte[]))]
-    [InlineData("boolean", typeof(byte[]))]
-    [InlineData("unknown_type", typeof(byte[]))]
-    [InlineData("", typeof(byte[]))]
+    [Theory, InlineData("TEXT", typeof(string)), InlineData("Integer", typeof(long)), InlineData("Blob", typeof(byte[])),
+     InlineData("numeric", typeof(byte[])), InlineData("real", typeof(double)), InlineData("doub", typeof(double)),
+     InlineData("int", typeof(long)), InlineData("SMALLINT", typeof(long)), InlineData("UNSIGNED BIG INT", typeof(long)),
+     InlineData("VARCHAR(255)", typeof(string)), InlineData("nchar(55)", typeof(string)), InlineData("datetime", typeof(byte[])),
+     InlineData("decimal(10,4)", typeof(byte[])), InlineData("boolean", typeof(byte[])), InlineData("unknown_type", typeof(byte[])),
+     InlineData("", typeof(byte[]))]
     public void It_maps_strings_to_not_null_types(string typeName, Type type)
         => Assert.Equal(type, CreateTypeMapper().FindMapping(typeName)?.ClrType);
 
@@ -113,14 +98,14 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
             new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
             "'2015-03-12 13:36:37.371'");
 
-    [ConditionalFact]
+    [Fact]
     public override void DateOnly_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(DateOnly)),
             new DateOnly(2015, 3, 12),
             "'2015-03-12'");
 
-    [ConditionalFact]
+    [Fact]
     public override void TimeOnly_literal_generated_correctly()
     {
         var typeMapping = GetMapping(typeof(TimeOnly));

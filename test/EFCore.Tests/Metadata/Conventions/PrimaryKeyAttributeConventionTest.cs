@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class PrimaryKeyAttributeConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKeyAttribute_overrides_configuration_from_convention()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
@@ -37,7 +37,7 @@ public class PrimaryKeyAttributeConventionTest
             prop1 => Assert.Equal("B", prop1.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKeyAttribute_can_be_overriden_using_explicit_configuration()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -54,7 +54,7 @@ public class PrimaryKeyAttributeConventionTest
             prop0 => Assert.Equal("A", prop0.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKeyAttribute_with_null_properties_array_throws()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -62,21 +62,18 @@ public class PrimaryKeyAttributeConventionTest
         Assert.Throws<ArgumentNullException>(() => modelBuilder.Entity<EntityWithInvalidNullAdditionalProperties>());
     }
 
-    [InlineData(typeof(EntityWithInvalidNullAdditionalProperty))]
-    [InlineData(typeof(EntityWithInvalidEmptyPrimaryKeyProperty))]
-    [InlineData(typeof(EntityWithInvalidWhiteSpacePrimaryKeyProperty))]
-    [ConditionalTheory]
+    [InlineData(typeof(EntityWithInvalidNullAdditionalProperty)), InlineData(typeof(EntityWithInvalidEmptyPrimaryKeyProperty)),
+     InlineData(typeof(EntityWithInvalidWhiteSpacePrimaryKeyProperty)), Theory]
     public void PrimaryKeyAttribute_properties_cannot_include_whitespace(Type entityTypeWithInvalidPrimaryKey)
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
-            AbstractionsStrings.CollectionArgumentHasEmptyElements("additionalPropertyNames"),
-            Assert.Throws<ArgumentException>(
-                () => modelBuilder.Entity(entityTypeWithInvalidPrimaryKey)).Message);
+            $"{AbstractionsStrings.CollectionArgumentHasEmptyElements} (Parameter 'additionalPropertyNames')",
+            Assert.Throws<ArgumentException>(() => modelBuilder.Entity(entityTypeWithInvalidPrimaryKey)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKeyAttribute_can_be_inherited_from_base_entity_type()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -97,7 +94,7 @@ public class PrimaryKeyAttributeConventionTest
             prop1 => Assert.Equal("B", prop1.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void PrimaryKeyAttribute_on_ignored_property_causes_error()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -105,11 +102,10 @@ public class PrimaryKeyAttributeConventionTest
 
         Assert.Equal(
             CoreStrings.PrimaryKeyDefinedOnIgnoredProperty(nameof(EntityPrimaryKeyWithIgnoredProperty), "B"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void PrimaryKeyAttribute_with_non_existent_property_causes_error()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -120,22 +116,20 @@ public class PrimaryKeyAttributeConventionTest
                 nameof(EntityPrimaryKeyWithNonExistentProperty),
                 "{'A', 'DoesNotExist'}",
                 "DoesNotExist"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void PrimaryKeyAttribute_and_KeylessAttribute_on_same_type()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
             CoreStrings.ConflictingKeylessAndPrimaryKeyAttributes(nameof(EntityPrimaryKeyAndKeyless)),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Entity<EntityPrimaryKeyAndKeyless>()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<EntityPrimaryKeyAndKeyless>()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKeyAttribute_primaryKey_replicated_to_derived_type_when_base_type_changes()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -173,7 +167,7 @@ public class PrimaryKeyAttributeConventionTest
         modelBuilder.Model.FinalizeModel();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKeyAttribute_primaryKey_is_created_when_missing_property_added()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -192,7 +186,7 @@ public class PrimaryKeyAttributeConventionTest
             prop1 => Assert.Equal("Y", prop1.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PrimaryKeyAttribute_primaryKey_is_created_when_primaryKey_on_private_property()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -236,8 +230,7 @@ public class PrimaryKeyAttributeConventionTest
         public int B { get; set; }
     }
 
-    [PrimaryKey(nameof(A), nameof(B))]
-    [NotMapped]
+    [PrimaryKey(nameof(A), nameof(B)), NotMapped]
     private class BaseUnmappedEntityWithPrimaryKey
     {
         public int Id { get; set; }
@@ -337,8 +330,7 @@ public class PrimaryKeyAttributeConventionTest
         private int Y { get; set; }
     }
 
-    [PrimaryKey("Id")]
-    [Keyless]
+    [PrimaryKey("Id"), Keyless]
     private class EntityPrimaryKeyAndKeyless
     {
         public int Id { get; set; }

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
@@ -25,21 +26,7 @@ public static class UpdateEntryExtensions
     /// <param name="property">The property to get the value for.</param>
     /// <returns>The value for the property.</returns>
     public static object? GetCurrentProviderValue(this IUpdateEntry updateEntry, IProperty property)
-    {
-        var value = updateEntry.GetCurrentValue(property);
-        var typeMapping = property.GetTypeMapping();
-        value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
-            ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
-            : value;
-
-        var converter = typeMapping.Converter;
-        if (converter != null)
-        {
-            value = converter.ConvertToProvider(value);
-        }
-
-        return value;
-    }
+        => ((IInternalEntry)updateEntry).GetCurrentProviderValue(property);
 
     /// <summary>
     ///     Gets the original value that was assigned to the property and converts it to the provider-expected value.
@@ -107,78 +94,7 @@ public static class UpdateEntryExtensions
 
             if ((options & ChangeTrackerDebugStringOptions.IncludeProperties) != 0)
             {
-                DumpProperties(entry.EntityType, indent + 2);
-
-                void DumpProperties(ITypeBase structuralType, int tempIndent)
-                {
-                    var tempIndentString = new string(' ', tempIndent);
-                    foreach (var property in structuralType.GetProperties())
-                    {
-                        builder.AppendLine().Append(tempIndentString);
-
-                        var currentValue = entry.GetCurrentValue(property);
-                        builder
-                            .Append("  ")
-                            .Append(property.Name)
-                            .Append(": ");
-
-                        AppendValue(currentValue);
-
-                        if (property.IsPrimaryKey())
-                        {
-                            builder.Append(" PK");
-                        }
-                        else if (property.IsKey())
-                        {
-                            builder.Append(" AK");
-                        }
-
-                        if (property.IsForeignKey())
-                        {
-                            builder.Append(" FK");
-                        }
-
-                        if (entry.IsModified(property))
-                        {
-                            builder.Append(" Modified");
-                        }
-
-                        if (entry.HasTemporaryValue(property))
-                        {
-                            builder.Append(" Temporary");
-                        }
-
-                        if (entry.IsUnknown(property))
-                        {
-                            builder.Append(" Unknown");
-                        }
-
-                        if (entry.HasOriginalValuesSnapshot
-                            && property.GetOriginalValueIndex() != -1)
-                        {
-                            var originalValue = entry.GetOriginalValue(property);
-                            if (!Equals(originalValue, currentValue))
-                            {
-                                builder.Append(" Originally ");
-                                AppendValue(originalValue);
-                            }
-                        }
-                    }
-
-                    foreach (var complexProperty in structuralType.GetComplexProperties())
-                    {
-                        builder.AppendLine().Append(tempIndentString);
-
-                        builder
-                            .Append("  ")
-                            .Append(complexProperty.Name)
-                            .Append(" (Complex: ")
-                            .Append(complexProperty.ClrType.ShortDisplayName())
-                            .Append(")");
-
-                        DumpProperties(complexProperty.ComplexType, tempIndent + 2);
-                    }
-                }
+                DumpProperties(entry, entry.EntityType, indent + 2);
             }
             else
             {
@@ -232,7 +148,7 @@ public static class UpdateEntryExtensions
 
                             if (i < 32)
                             {
-                                AppendRelatedKey(targetType, relatedEntities[i]);
+                                AppendRelatedKey(entry, targetType, relatedEntities[i]);
                             }
                             else
                             {
@@ -244,48 +160,9 @@ public static class UpdateEntryExtensions
                     }
                     else
                     {
-                        AppendRelatedKey(targetType, currentValue);
+                        AppendRelatedKey(entry, targetType, currentValue);
                     }
                 }
-            }
-
-            void AppendValue(object? value)
-            {
-                if (value == null)
-                {
-                    builder.Append("<null>");
-                }
-                else if (value.GetType().IsNumeric())
-                {
-                    builder.Append(value);
-                }
-                else if (value is byte[] bytes)
-                {
-                    builder.AppendBytes(bytes);
-                }
-                else
-                {
-                    var stringValue = value.ToString();
-                    if (stringValue?.Length > 63)
-                    {
-                        stringValue = string.Concat(stringValue.AsSpan(0, 60), "...");
-                    }
-
-                    builder
-                        .Append('\'')
-                        .Append(stringValue)
-                        .Append('\'');
-                }
-            }
-
-            void AppendRelatedKey(IEntityType targetType, object value)
-            {
-                var otherEntry = entry.StateManager.TryGetEntry(value, targetType, throwOnTypeMismatch: false);
-
-                builder.Append(
-                    otherEntry == null
-                        ? "<not found>"
-                        : otherEntry.BuildCurrentValuesString(targetType.FindPrimaryKey()!.Properties));
             }
         }
         catch (Exception exception)
@@ -294,6 +171,119 @@ public static class UpdateEntryExtensions
         }
 
         return builder.ToString();
+
+        void DumpProperties(InternalEntityEntry entry, ITypeBase structuralType, int tempIndent)
+        {
+            var tempIndentString = new string(' ', tempIndent);
+            foreach (var property in structuralType.GetProperties())
+            {
+                builder.AppendLine().Append(tempIndentString);
+
+                var currentValue = entry.GetCurrentValue(property);
+                builder
+                    .Append("  ")
+                    .Append(property.Name)
+                    .Append(": ");
+
+                AppendValue(currentValue);
+
+                if (property.IsPrimaryKey())
+                {
+                    builder.Append(" PK");
+                }
+                else if (property.IsKey())
+                {
+                    builder.Append(" AK");
+                }
+
+                if (property.IsForeignKey())
+                {
+                    builder.Append(" FK");
+                }
+
+                if (entry.IsModified(property))
+                {
+                    builder.Append(" Modified");
+                }
+
+                if (entry.HasTemporaryValue(property))
+                {
+                    builder.Append(" Temporary");
+                }
+
+                if (entry.IsUnknown(property))
+                {
+                    builder.Append(" Unknown");
+                }
+
+                if (entry.HasOriginalValuesSnapshot
+                    && property.GetOriginalValueIndex() != -1)
+                {
+                    var originalValue = entry.GetOriginalValue(property);
+                    if (!Equals(originalValue, currentValue))
+                    {
+                        builder.Append(" Originally ");
+                        AppendValue(originalValue);
+                    }
+                }
+            }
+
+            foreach (var complexProperty in structuralType.GetComplexProperties())
+            {
+                builder.AppendLine().Append(tempIndentString);
+
+                builder
+                    .Append("  ")
+                    .Append(complexProperty.Name)
+                    .Append(" (Complex: ")
+                    .Append(complexProperty.ClrType.ShortDisplayName())
+                    .Append(")");
+
+                if (!complexProperty.IsCollection)
+                {
+                    DumpProperties(entry, complexProperty.ComplexType, tempIndent + 2);
+                }
+            }
+        }
+
+        void AppendValue(object? value)
+        {
+            if (value == null)
+            {
+                builder.Append("<null>");
+            }
+            else if (value.GetType().IsNumeric())
+            {
+                builder.Append(value);
+            }
+            else if (value is byte[] bytes)
+            {
+                builder.AppendBytes(bytes);
+            }
+            else
+            {
+                var stringValue = value.ToString();
+                if (stringValue?.Length > 63)
+                {
+                    stringValue = string.Concat(stringValue.AsSpan(0, 60), "...");
+                }
+
+                builder
+                    .Append('\'')
+                    .Append(stringValue)
+                    .Append('\'');
+            }
+        }
+
+        void AppendRelatedKey(InternalEntityEntry entry, IEntityType targetType, object value)
+        {
+            var otherEntry = entry.StateManager.TryGetEntry(value, targetType, throwOnTypeMismatch: false);
+
+            builder.Append(
+                otherEntry == null
+                    ? "<not found>"
+                    : otherEntry.BuildCurrentValuesString(targetType.FindPrimaryKey()!.Properties));
+        }
     }
 
     /// <summary>
@@ -309,16 +299,15 @@ public static class UpdateEntryExtensions
         IEnumerable<IPropertyBase> properties)
         => "{"
             + string.Join(
-                ", ", properties.Select(
-                    p =>
-                    {
-                        var currentValue = entry.GetCurrentValue(p);
-                        return p.Name
-                            + ": "
-                            + (currentValue == null
-                                ? "<null>"
-                                : Convert.ToString(currentValue, CultureInfo.InvariantCulture));
-                    }))
+                ", ", properties.Select(p =>
+                {
+                    var currentValue = entry.GetCurrentValue(p);
+                    return p.Name
+                        + ": "
+                        + (currentValue == null
+                            ? "<null>"
+                            : Convert.ToString(currentValue, CultureInfo.InvariantCulture));
+                }))
             + "}";
 
     /// <summary>
@@ -334,15 +323,14 @@ public static class UpdateEntryExtensions
         IEnumerable<IPropertyBase> properties)
         => "{"
             + string.Join(
-                ", ", properties.Select(
-                    p =>
-                    {
-                        var originalValue = entry.GetOriginalValue(p);
-                        return p.Name
-                            + ": "
-                            + (originalValue == null
-                                ? "<null>"
-                                : Convert.ToString(originalValue, CultureInfo.InvariantCulture));
-                    }))
+                ", ", properties.Select(p =>
+                {
+                    var originalValue = entry.GetOriginalValue(p);
+                    return p.Name
+                        + ": "
+                        + (originalValue == null
+                            ? "<null>"
+                            : Convert.ToString(originalValue, CultureInfo.InvariantCulture));
+                }))
             + "}";
 }

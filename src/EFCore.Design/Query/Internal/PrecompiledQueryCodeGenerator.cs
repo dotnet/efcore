@@ -2,12 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -28,6 +30,10 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private ExpressionTreeFuncletizer _funcletizer = null!;
     private RuntimeModelLinqToCSharpSyntaxTranslator _linqToCSharpTranslator = null!;
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
+    private RuntimeConstantProcessor _runtimeConstantProcessor = null!;
+
+    private readonly Dictionary<string, RuntimeConstantExpression> _runtimeConstants = [];
+    private readonly BidirectionalDictionary<object, string> _constantReplacements = [];
 
     private Symbols _symbols;
 
@@ -77,6 +83,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g);
         _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
+        _constantReplacements.Clear();
+        _runtimeConstants.Clear();
+        _runtimeConstantProcessor = new RuntimeConstantProcessor();
         _queryCompiler = dbContext.GetService<IQueryCompiler>();
         _unsafeAccessors.Clear();
         var contextType = dbContext.GetType();
@@ -173,7 +182,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 var penultimateOperator = terminatingOperator switch
                 {
                     // This is needed e.g. for GetEnumerator(), DbSet.AsAsyncEnumerable (non-static terminating operators)
-                    { Object: Expression @object } => @object,
+                    { Object: { } @object } => @object,
                     { Arguments: [var sourceArgument, ..] } => sourceArgument,
                     _ => throw new UnreachableException()
                 };
@@ -250,6 +259,14 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             _code.AppendLine("#endregion Unsafe accessors");
         }
 
+        foreach (var (fieldName, constant) in _runtimeConstants.OrderBy(x => x.Key))
+        {
+            var typeSymbol = GetTypeSymbol(semanticModel.Compilation, constant.Type);
+
+            var syntax = _linqToCSharpTranslator.TranslateExpression(constant.InitializeExpression, constantReplacements: null, _namespaces, _unsafeAccessors);
+            _code.AppendLine($"private static readonly {typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {fieldName} = {syntax.NormalizeWhitespace().ToFullString()};");
+        }
+
         _code
             .DecrementIndent().AppendLine("}")
             .DecrementIndent().AppendLine("}");
@@ -284,13 +301,12 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         ]);
 
         foreach (var ns in _namespaces
-                     .OrderBy(
-                         ns => ns switch
-                         {
-                             _ when ns.StartsWith("System.", StringComparison.Ordinal) => 10,
-                             _ when ns.StartsWith("Microsoft.", StringComparison.Ordinal) => 9,
-                             _ => 0
-                         })
+                     .OrderBy(ns => ns switch
+                     {
+                         _ when ns.StartsWith("System.", StringComparison.Ordinal) => 10,
+                         _ when ns.StartsWith("Microsoft.", StringComparison.Ordinal) => 9,
+                         _ => 0
+                     })
                      .ThenBy(ns => ns))
         {
             _code.Append("using ").Append(ns).AppendLine(";");
@@ -305,7 +321,7 @@ namespace System.Runtime.CompilerServices
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     file sealed class InterceptsLocationAttribute : Attribute
     {
-        public InterceptsLocationAttribute(string filePath, int line, int column) { }
+        public InterceptsLocationAttribute(int version, string data) { }
     }
 }
 """
@@ -314,8 +330,8 @@ namespace System.Runtime.CompilerServices
         var name = Uniquifier.Uniquify(
             Path.GetFileNameWithoutExtension(syntaxTree.FilePath),
             generatedFileNames,
-            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath),
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath));
         return new ScaffoldedFile(name, _code.ToString());
     }
 
@@ -398,7 +414,7 @@ namespace System.Runtime.CompilerServices
                 var nestedOperatorExpression = operatorMethodCall switch
                 {
                     // This is needed e.g. for GetEnumerator(), DbSet.AsAsyncEnumerable (non-static terminating operators)
-                    { Object: Expression @object } => @object,
+                    { Object: { } @object } => @object,
                     { Arguments: [var sourceArgument, ..] } => sourceArgument,
                     _ => throw new UnreachableException()
                 };
@@ -489,19 +505,19 @@ namespace System.Runtime.CompilerServices
             IArrayTypeSymbol arrayTypeSymbol => arrayTypeSymbol.ElementType,
             INamedTypeSymbol namedReturnType2
                 when namedReturnType2.AllInterfaces.Prepend(namedReturnType2)
-                    .Any(
-                        i => i.OriginalDefinition.Equals(_symbols.GenericEnumerable, SymbolEqualityComparer.Default)
-                            || i.OriginalDefinition.Equals(_symbols.GenericAsyncEnumerable, SymbolEqualityComparer.Default)
-                            || i.OriginalDefinition.Equals(_symbols.GenericEnumerator, SymbolEqualityComparer.Default))
+                    .Any(i => i.OriginalDefinition.Equals(_symbols.GenericEnumerable, SymbolEqualityComparer.Default)
+                        || i.OriginalDefinition.Equals(_symbols.GenericAsyncEnumerable, SymbolEqualityComparer.Default)
+                        || i.OriginalDefinition.Equals(_symbols.GenericEnumerator, SymbolEqualityComparer.Default))
                 => namedReturnType2.TypeArguments[0],
             _ => null
         };
 
         // Output the interceptor method signature preceded by the [InterceptsLocation] attribute.
-        var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccessSyntax.Name.Span, cancellationToken).StartLinePosition;
         var interceptorName = $"Query{queryNum}_{memberAccessSyntax.Name}{operatorNum}";
-        code.AppendLine(
-            $"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"", "\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
+        var invocationSyntax = (InvocationExpressionSyntax)operatorSyntax;
+        var interceptableLocation = semanticModel.GetInterceptableLocation(invocationSyntax, cancellationToken)
+            ?? throw new InvalidOperationException(DesignStrings.CouldNotGetInterceptableLocation(operatorSyntax));
+        code.AppendLine(interceptableLocation.GetInterceptsLocationAttributeSyntax());
         GenerateInterceptorMethodSignature();
         code.AppendLine("{").IncrementIndent();
 
@@ -734,18 +750,64 @@ namespace System.Runtime.CompilerServices
 
                     for (var i = 1; i < parameters.Length; i++)
                     {
-                        var parameter = parameters[i];
+                        var (parameterName, parameterType) = (parameters[i].Name!, parameters[i].ParameterType);
 
-                        if (parameter.ParameterType == typeof(CancellationToken))
+                        if (parameterType == typeof(CancellationToken))
                         {
+                            // Set the cancellation token on the query context
+                            if (!declaredQueryContextVariable)
+                            {
+                                code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
+                                declaredQueryContextVariable = true;
+                            }
+
+                            code.AppendLine($"queryContext.CancellationToken = {parameterName};");
                             continue;
                         }
 
-                        if (_funcletizer.CalculatePathsToEvaluatableRoots(operatorMethodCall, i) is not ExpressionTreeFuncletizer.PathNode
-                            evaluatableRootPaths)
+                        ExpressionTreeFuncletizer.PathNode? evaluatableRootPaths;
+
+                        // ExecuteUpdate requires really special handling: the function accepts a Func<UpdateSettersBuilder...> argument, but
+                        // we need to run funcletization on the setter lambdas added via that Func<>.
+                        if (operatorMethodCall.Method is
+                            {
+                                Name: nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                                or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync),
+                                IsGenericMethod: true
+                            }
+                            && operatorMethodCall.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
                         {
-                            // There are no captured variables in this lambda argument - skip the argument
-                            continue;
+                            // First, statically convert the Action<UpdateSettersBuilder> to a NewArrayExpression which represents all the
+                            // setters; since that's an expression, we can run the funcletizer on it.
+                            var settersExpression = ProcessExecuteUpdate(operatorMethodCall);
+                            evaluatableRootPaths = _funcletizer.CalculatePathsToEvaluatableRoots(settersExpression);
+
+                            if (evaluatableRootPaths is null)
+                            {
+                                // There are no captured variables in this lambda argument - skip the argument
+                                continue;
+                            }
+
+                            // If there were captured variables, generate code to evaluate and build the same NewArrayExpression at runtime,
+                            // and then fall through to the normal logic, generating variable extractors against that NewArrayExpression
+                            // (local var) instead of against the method argument.
+                            code.AppendLine(
+                                $"""
+                                             var setterBuilder = new UpdateSettersBuilder<{sourceElementTypeName}>();
+                                             {parameterName}(setterBuilder);
+                                             var setters = setterBuilder.BuildSettersExpression();
+                                             """);
+                            parameterName = "setters";
+                            parameterType = typeof(NewArrayExpression);
+                        }
+                        else
+                        {
+                            evaluatableRootPaths = _funcletizer.CalculatePathsToEvaluatableRoots(operatorMethodCall, i);
+                            if (evaluatableRootPaths is null)
+                            {
+                                // There are no captured variables in this lambda argument - skip the argument
+                                continue;
+                            }
                         }
 
                         // We have a lambda argument with captured variables. Use the information returned by the funcletizer to generate code
@@ -756,11 +818,11 @@ namespace System.Runtime.CompilerServices
                             declaredQueryContextVariable = true;
                         }
 
-                        if (!parameter.ParameterType.IsSubclassOf(typeof(Expression)))
+                        if (!parameterType.IsSubclassOf(typeof(Expression)))
                         {
                             // Special case: this is a non-lambda argument (Skip/Take/FromSql).
                             // Simply add the argument directly as a parameter
-                            code.AppendLine($"""queryContext.AddParameter("{evaluatableRootPaths.ParameterName}", {parameter.Name});""");
+                            code.AppendLine($"""queryContext.Parameters.Add("{evaluatableRootPaths.ParameterName}", {parameterName});""");
                             continue;
                         }
 
@@ -769,7 +831,7 @@ namespace System.Runtime.CompilerServices
                         // Lambda argument. Recurse through evaluatable path trees.
                         foreach (var child in evaluatableRootPaths.Children!)
                         {
-                            GenerateCapturedVariableExtractors(parameter.Name!, parameter.ParameterType, child);
+                            GenerateCapturedVariableExtractors(parameterName, parameterType, child);
 
                             void GenerateCapturedVariableExtractors(
                                 string currentIdentifier,
@@ -786,12 +848,13 @@ namespace System.Runtime.CompilerServices
 
                                 var variableName = capturedVariablesPathTree.ExpressionType.Name;
                                 variableName = char.ToLower(variableName[0]) + variableName[1..^"Expression".Length] + ++variableCounter;
-                                code.AppendLine(
-                                    $"var {variableName} = ({capturedVariablesPathTree.ExpressionType.Name}){roslynPathSegment};");
 
                                 if (capturedVariablesPathTree.Children?.Count > 0)
                                 {
                                     // This is an intermediate node which has captured variables in the children. Continue recursing down.
+                                    code.AppendLine(
+                                        $"var {variableName} = ({capturedVariablesPathTree.ExpressionType.Name}){roslynPathSegment};");
+
                                     foreach (var child in capturedVariablesPathTree.Children)
                                     {
                                         GenerateCapturedVariableExtractors(variableName, capturedVariablesPathTree.ExpressionType, child);
@@ -811,12 +874,13 @@ namespace System.Runtime.CompilerServices
                                 //       (see ExpressionTreeFuncletizer.Evaluate()).
                                 // TODO: Basically this means that the evaluator should come from ExpressionTreeFuncletizer itself, as part of its outputs
                                 // TODO: Integrate try/catch around the evaluation?
-                                code.AppendLine("queryContext.AddParameter(");
+                                code.AppendLine("queryContext.Parameters.Add(");
                                 using (code.Indent())
                                 {
                                     code
                                         .Append('"').Append(capturedVariablesPathTree.ParameterName!).AppendLine("\",")
-                                        .AppendLine($"Expression.Lambda<Func<object?>>(Expression.Convert({variableName}, typeof(object)))")
+                                        .AppendLine(
+                                            $"Expression.Lambda<Func<object?>>(Expression.Convert({roslynPathSegment}, typeof(object)))")
                                         .AppendLine(".Compile(preferInterpretation: true)")
                                         .AppendLine(".Invoke());");
                                 }
@@ -831,8 +895,7 @@ namespace System.Runtime.CompilerServices
                 // side we have a query root (i.e. not the MethodCallExpression for the FromSql(), but rather its evaluated result)
                 case FromSqlQueryRootExpression fromSqlQueryRoot:
                 {
-                    if (_funcletizer.CalculatePathsToEvaluatableRoots(fromSqlQueryRoot.Argument) is not ExpressionTreeFuncletizer.PathNode
-                        evaluatableRootPaths)
+                    if (_funcletizer.CalculatePathsToEvaluatableRoots(fromSqlQueryRoot.Argument) is not { } evaluatableRootPaths)
                     {
                         // There are no captured variables in this FromSqlQueryRootExpression, skip it.
                         break;
@@ -855,7 +918,7 @@ namespace System.Runtime.CompilerServices
                     };
 
                     code.AppendLine(
-                        $"""queryContext.AddParameter("{evaluatableRootPaths.ParameterName}", {argumentsParameter});""");
+                        $"""queryContext.Parameters.Add("{evaluatableRootPaths.ParameterName}", {argumentsParameter});""");
 
                     break;
                 }
@@ -889,7 +952,20 @@ namespace System.Runtime.CompilerServices
             .AppendLine("    dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>(),")
             .AppendLine("    dbContext.GetService<RelationalCommandBuilderDependencies>());");
 
-        HashSet<string> variableNames = ["relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
+        queryExecutor = _runtimeConstantProcessor.Process(queryExecutor);
+        foreach (var runtimeConstant in _runtimeConstantProcessor.LastProcessFoundRuntimeConstants)
+        {
+            var name = SanitizeIdentifierName(runtimeConstant.Name);
+            var baseName = name;
+            for (var j = 0; _runtimeConstants.ContainsKey(name); j++)
+            {
+                name = baseName + j;
+            }
+            _runtimeConstants.Add(name, runtimeConstant);
+            _constantReplacements.Add(runtimeConstant.Value, name);
+        }
+
+        HashSet<string> variableNames = [.. _constantReplacements.Values, "relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
 
         var materializerLiftableConstantContext =
             Expression.Parameter(typeof(RelationalMaterializerLiftableConstantContext), "materializerLiftableConstantContext");
@@ -902,7 +978,7 @@ namespace System.Runtime.CompilerServices
         foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
         {
             var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
-                liftedConstant.Expression, constantReplacements: null, _memberAccessReplacements, namespaces, unsafeAccessors);
+                liftedConstant.Expression, _constantReplacements, _memberAccessReplacements, namespaces, unsafeAccessors);
             // code.AppendLine($"{liftedConstant.Parameter.Type.Name} {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
             code.AppendLine($"var {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
         }
@@ -910,7 +986,7 @@ namespace System.Runtime.CompilerServices
         var queryExecutorSyntaxTree =
             (AnonymousFunctionExpressionSyntax)_linqToCSharpTranslator.TranslateExpression(
                 queryExecutorAfterLiftingExpression,
-                constantReplacements: null,
+                _constantReplacements,
                 _memberAccessReplacements,
                 namespaces,
                 unsafeAccessors);
@@ -1073,22 +1149,30 @@ namespace System.Runtime.CompilerServices
                     QueryableMethods.GetSumWithSelector(
                         method.GetParameters()[1].ParameterType.GenericTypeArguments[0].GenericTypeArguments[1])),
 
-            // ExecuteDelete/Update behave just like other scalar-returning operators
+            // ExecuteDelete behaves just like other scalar-returning operators
             nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync) when method.DeclaringType
                 == typeof(EntityFrameworkQueryableExtensions)
                 => RewriteToSync(
                     typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteDelete))),
-            nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync) when method.DeclaringType
-                == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToSync(
-                    typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate))),
+
+            // ExecuteUpdate is special; it accepts a non-expression-tree argument (Action<UpdateSettersBuilder>),
+            // evaluates it immediately, and injects a different MethodCall node into the expression tree with the resulting setter
+            // expressions.
+            // When statically analyzing ExecuteUpdate, we have to manually perform the same thing.
+            nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate) or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)
+                when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                => Expression.Call(
+                    EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo.MakeGenericMethod(
+                        terminatingOperator.Arguments[0].Type.GetSequenceType()),
+                    penultimateOperator,
+                    ProcessExecuteUpdate(terminatingOperator)),
 
             // In the regular case (sync terminating operator which needs to stay in the query tree), simply compose the terminating
             // operator over the penultimate and return that.
             _ => terminatingOperator switch
             {
                 // This is needed e.g. for GetEnumerator(), DbSet.AsAsyncEnumerable (non-static terminating operators)
-                { Object: Expression }
+                { Object: not null }
                     => terminatingOperator.Update(penultimateOperator, terminatingOperator.Arguments),
                 { Arguments: [_, ..] }
                     => terminatingOperator.Update(@object: null, [penultimateOperator, .. terminatingOperator.Arguments.Skip(1)]),
@@ -1114,6 +1198,116 @@ namespace System.Runtime.CompilerServices
 
             return Expression.Call(terminatingOperator.Object, syncMethod, syncArguments);
         }
+    }
+
+    // Accepts an expression tree representing a series of SetProperty() calls, parses them and passes them through the
+    // UpdateSettersBuilder; returns the resulting NewArrayExpression representing all the setters.
+    private static NewArrayExpression ProcessExecuteUpdate(MethodCallExpression executeUpdateCall)
+    {
+        var settersBuilder = new UpdateSettersBuilder();
+        var settersLambda = (LambdaExpression)executeUpdateCall.Arguments[1];
+        var settersParameter = settersLambda.Parameters.Single();
+        var expression = settersLambda.Body;
+
+        while (expression != settersParameter)
+        {
+            if (expression is MethodCallExpression
+                {
+                    Method:
+                    {
+                        IsGenericMethod: true,
+                        Name: nameof(UpdateSettersBuilder<int>.SetProperty),
+                        DeclaringType.IsGenericType: true,
+                    },
+                    Arguments:
+                    [
+                        UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression propertySelector }, { } valueSelector
+                    ]
+                } methodCallExpression
+                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(UpdateSettersBuilder<>))
+            {
+                if (valueSelector is UnaryExpression
+                    {
+                        NodeType: ExpressionType.Quote,
+                        Operand: LambdaExpression unwrappedValueSelector
+                    })
+                {
+                    settersBuilder.SetProperty(propertySelector, unwrappedValueSelector);
+                }
+                else
+                {
+                    settersBuilder.SetProperty(propertySelector, valueSelector);
+                }
+
+                expression = methodCallExpression.Object;
+                continue;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
+        }
+
+        // The expression tree is nested inside-out (last SetProperty call is the outermost node),
+        // so setters were added in reverse order. Reverse to restore source code order.
+        var settersArray = settersBuilder.BuildSettersExpression();
+        return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
+    }
+
+    private static ITypeSymbol GetTypeSymbol(Compilation compilation, Type type)
+    {
+        if (type.IsByRef || type.IsPointer || type.IsGenericParameter || type.IsByRefLike)
+        {
+            throw new NotSupportedException($"Unsupported type: {type}");
+        }
+
+        if (type.IsArray)
+        {
+            var elementSymbol = GetTypeSymbol(compilation, type.GetElementType()!);
+            return compilation.CreateArrayTypeSymbol(elementSymbol, type.GetArrayRank());
+        }
+
+        if (type.IsGenericType && !type.IsGenericTypeDefinition)
+        {
+            var genericDefinition = (INamedTypeSymbol)GetTypeSymbol(
+                compilation,
+                type.GetGenericTypeDefinition());
+
+            var typeArguments = type
+                .GetGenericArguments()
+                .Select(t => GetTypeSymbol(compilation, t))
+                .ToArray();
+
+            return genericDefinition.Construct(typeArguments);
+        }
+
+        return type.FullName is null || compilation.GetTypeByMetadataName(type.FullName) is not { } typeSymbol
+            ? throw new InvalidOperationException($"Couldn't find type symbol for: {type}")
+            : typeSymbol;
+    }
+
+    [return: NotNullIfNotNull(nameof(name))]
+    private static string? SanitizeIdentifierName(string? name)
+    {
+        if (name == null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "_";
+        }
+
+        var result = new string(
+            [.. name.Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) ? c : '_')]);
+
+        if (!SyntaxFacts.IsValidIdentifier(result))
+        {
+            result = "_" + result;
+        }
+
+        Debug.Assert(SyntaxFacts.IsValidIdentifier(result));
+
+        return result;
     }
 
     /// <summary>

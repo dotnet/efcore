@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
+public abstract class ComplexTypeQueryFixtureBase : QueryFixtureBase<PoolableDbContext>
 {
     protected override string StoreName
         => "ComplexTypeQueryTest";
@@ -27,48 +27,42 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.Entity<Customer>(
-            cb =>
-            {
-                cb.Property(c => c.Id).ValueGeneratedNever();
+        modelBuilder.Entity<Customer>(cb =>
+        {
+            cb.Property(c => c.Id).ValueGeneratedNever();
 
-                cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-                cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-            });
+            cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+            cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+            cb.ComplexProperty(c => c.OptionalAddress, sab => sab.ComplexProperty(sa => sa.Country));
+        });
 
-        modelBuilder.Entity<CustomerGroup>(
-            cgb =>
-            {
-                cgb.Property(cg => cg.Id).ValueGeneratedNever();
-                cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
-                cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
-            });
+        modelBuilder.Entity<CustomerGroup>(cgb =>
+        {
+            cgb.Property(cg => cg.Id).ValueGeneratedNever();
+            cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
+            cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
+        });
 
-        modelBuilder.Entity<ValuedCustomer>(
-            cb =>
-            {
-                cb.Property(c => c.Id).ValueGeneratedNever();
+        modelBuilder.Entity<ValuedCustomer>(cb =>
+        {
+            cb.Property(c => c.Id).ValueGeneratedNever();
 
-                cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-                cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-            });
+            cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+            cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+        });
 
-        modelBuilder.Entity<ValuedCustomerGroup>(
-            cgb =>
-            {
-                cgb.Property(cg => cg.Id).ValueGeneratedNever();
-                cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
-                cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
-            });
+        modelBuilder.Entity<ValuedCustomerGroup>(cgb =>
+        {
+            cgb.Property(cg => cg.Id).ValueGeneratedNever();
+            cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
+            cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
+        });
     }
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => _expectedData ??= new ComplexTypeData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, object>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, object>
     {
         { typeof(Customer), (Func<Customer, object>)(e => e.Id) },
         { typeof(CustomerGroup), (Func<CustomerGroup, object>)(e => e.Id) },
@@ -76,13 +70,13 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
         { typeof(ValuedCustomerGroup), (Func<ValuedCustomerGroup, object>)(e => e.Id) },
 
         // Complex types - still need comparers for cases where they are projected directly
-        { typeof(Address), (Func<Address, object>)(e => e.ZipCode) },
-        { typeof(Country), (Func<Country, object>)(e => e.Code) },
+        { typeof(Address), (Func<Address, object>)(e => e?.ZipCode ?? 0) },
+        { typeof(Country), (Func<Country, object>)(e => e?.Code ?? string.Empty) },
         { typeof(AddressStruct), (Func<AddressStruct, object>)(e => e.ZipCode) },
         { typeof(CountryStruct), (Func<CountryStruct, object>)(e => e.Code) }
     }.ToDictionary(e => e.Key, e => e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, object>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, object>
     {
         {
             typeof(Customer), (Customer e, Customer a) =>

@@ -51,7 +51,7 @@ public class FakeStateManager : IStateManager
         => throw new NotImplementedException();
 
     public IEnumerable<InternalEntityEntry> Entries
-        => InternalEntries ?? Enumerable.Empty<InternalEntityEntry>();
+        => InternalEntries ?? [];
 
     public IEnumerable<InternalEntityEntry> GetEntriesForState(
         bool added = false,
@@ -131,6 +131,9 @@ public class FakeStateManager : IStateManager
     public InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
         => throw new NotImplementedException();
 
+    public InternalEntityEntry CreateEntry(IReadOnlyDictionary<IProperty, object> values, IEntityType entityType)
+        => throw new NotImplementedException();
+
     public InternalEntityEntry StartTrackingFromQuery(
         IEntityType baseEntityType,
         object entity,
@@ -164,7 +167,7 @@ public class FakeStateManager : IStateManager
     public IValueGenerationManager ValueGenerationManager
         => throw new NotImplementedException();
 
-    public IEntityMaterializerSource EntityMaterializerSource { get; }
+    public IStructuralTypeMaterializerSource EntityMaterializerSource { get; }
 
     public InternalEntityEntry StartTracking(InternalEntityEntry entry)
         => throw new NotImplementedException();
@@ -251,5 +254,11 @@ public class FakeStateManager : IStateManager
         => throw new NotImplementedException();
 
     public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
+        => throw new NotImplementedException();
+
+    public InternalComplexEntry StartTracking(InternalComplexEntry entry)
+        => throw new NotImplementedException();
+
+    public void StopTracking(InternalComplexEntry entry, EntityState oldState)
         => throw new NotImplementedException();
 }

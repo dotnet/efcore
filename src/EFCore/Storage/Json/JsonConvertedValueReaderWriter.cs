@@ -33,12 +33,24 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
     }
 
     /// <inheritdoc />
+    public override bool HandlesNullWrites => _converter.ConvertsNulls;
+
+    /// <inheritdoc />
     public override TModel FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => (TModel)_converter.ConvertFromProvider(_providerReaderWriter.FromJsonTyped(ref manager, existingObject))!;
 
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TModel value)
-        => _providerReaderWriter.ToJson(writer, (TProvider)_converter.ConvertToProvider(value)!);
+    {
+        var convertedValue = _converter.ConvertToProvider(value);
+        if (convertedValue == null && !_providerReaderWriter.HandlesNullWrites)
+        {
+            writer.WriteNullValue();
+            return;
+        }
+
+        _providerReaderWriter.ToJson(writer, convertedValue);
+    }
 
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
         => _providerReaderWriter;
@@ -55,5 +67,9 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
         => Expression.New(
             _constructorInfo,
             ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression,
-            ((IJsonConvertedValueReaderWriter)this).Converter.ConstructorExpression);
+            // We shouldn't quote converters, because it will create a new instance every time and
+            // it will have to compile the expression again and
+            // it will have a negative performance impact. See #36856 for more info.
+            // This means this is currently unsupported scenario for precompilation.
+            Expression.Constant(((IJsonConvertedValueReaderWriter)this).Converter));
 }

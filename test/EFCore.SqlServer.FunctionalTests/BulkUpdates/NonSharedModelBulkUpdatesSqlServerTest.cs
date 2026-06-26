@@ -1,16 +1,16 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesRelationalTestBase
+public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -20,6 +20,7 @@ public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesR
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [o]
 FROM [Owner] AS [o]
 """);
@@ -33,6 +34,7 @@ FROM [Owner] AS [o]
             """
 @p='1'
 
+SET NOCOUNT OFF;
 DELETE FROM [o]
 FROM [Owner] AS [o]
 WHERE [o].[Id] IN (
@@ -50,6 +52,7 @@ WHERE [o].[Id] IN (
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [o]
 FROM [Owner] AS [o]
 """);
@@ -68,8 +71,11 @@ FROM [Owner] AS [o]
 
         AssertSql(
             """
+@p='SomeValue' (Size = 4000)
+
+SET NOCOUNT OFF;
 UPDATE [o0]
-SET [o0].[Value] = N'SomeValue'
+SET [o0].[Value] = @p
 FROM [Owner] AS [o]
 INNER JOIN [OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnerId]
 """);
@@ -81,8 +87,11 @@ INNER JOIN [OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnerId]
 
         AssertSql(
             """
+@p='SomeValue' (Size = 4000)
+
+SET NOCOUNT OFF;
 UPDATE [o]
-SET [o].[Title] = N'SomeValue'
+SET [o].[Title] = @p
 FROM [Owner] AS [o]
 """);
     }
@@ -93,6 +102,7 @@ FROM [Owner] AS [o]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 UPDATE [o]
 SET [o].[Title] = COALESCE([o].[Title], N'') + N'_Suffix'
 FROM [Owner] AS [o]
@@ -105,8 +115,11 @@ FROM [Owner] AS [o]
 
         AssertSql(
             """
+@p='NewValue' (Size = 4000)
+
+SET NOCOUNT OFF;
 UPDATE [o]
-SET [o].[Title] = N'NewValue'
+SET [o].[Title] = @p
 FROM [Owner] AS [o]
 INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
 """);
@@ -118,9 +131,10 @@ INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 UPDATE [o]
-SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
-    [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), '')
+SET [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), ''),
+    [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int)
 FROM [Owner] AS [o]
 """);
     }
@@ -131,6 +145,7 @@ FROM [Owner] AS [o]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[CreationTimestamp] = '2020-01-01T00:00:00.0000000'
 FROM [Blogs] AS [b]
@@ -143,9 +158,10 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 UPDATE [b0]
-SET [b0].[Rating] = CAST(LEN([b0].[Title]) AS int),
-    [b0].[Title] = CONVERT(varchar(11), [b0].[Rating])
+SET [b0].[Title] = CONVERT(varchar(11), [b0].[Rating]),
+    [b0].[Rating] = CAST(LEN([b0].[Title]) AS int)
 FROM [Blogs] AS [b]
 INNER JOIN [BlogsPart1] AS [b0] ON [b].[Id] = [b0].[Id]
 """);
@@ -157,9 +173,9 @@ INNER JOIN [BlogsPart1] AS [b0] ON [b].[Id] = [b0].[Id]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Context30572_Principal] AS [c]
-LEFT JOIN [Context30572_Dependent] AS [c0] ON [c].[DependentId] = [c0].[Id]
 """);
     }
 
@@ -169,6 +185,7 @@ LEFT JOIN [Context30572_Dependent] AS [c0] ON [c].[DependentId] = [c0].[Id]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [p]
 FROM [Posts] AS [p]
 LEFT JOIN [Blogs] AS [b] ON [p].[BlogId] = [b].[Id]
@@ -182,6 +199,7 @@ WHERE [b].[Title] LIKE N'Arthur%'
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 UPDATE [o]
 SET [o].[Total] = (
     SELECT COALESCE(SUM([o0].[Amount]), 0)
@@ -198,6 +216,7 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 """);
@@ -209,8 +228,11 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+@p='Updated' (Size = 4000)
+
+SET NOCOUNT OFF;
 UPDATE [b]
-SET [b].[Data] = N'Updated'
+SET [b].[Data] = @p
 FROM [Blogs] AS [b]
 """);
     }
@@ -219,8 +241,33 @@ FROM [Blogs] AS [b]
     {
         await base.Update_complex_type_with_view_mapping(async);
 
-        // #34706
-        AssertSql();
+        AssertSql(
+            """
+@complex_type_p_Prop1='3' (Nullable = true)
+@complex_type_p_Prop2='4' (Nullable = true)
+
+SET NOCOUNT OFF;
+UPDATE [b]
+SET [b].[ComplexThing_Prop1] = @complex_type_p_Prop1,
+    [b].[ComplexThing_Prop2] = @complex_type_p_Prop2
+FROM [Blogs] AS [b]
+""");
+
+    }
+
+    public override async Task Update_complex_type_property_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_property_with_view_mapping(async);
+
+        AssertSql(
+            """
+@p='6'
+
+SET NOCOUNT OFF;
+UPDATE [b]
+SET [b].[ComplexThing_Prop1] = @p
+FROM [Blogs] AS [b]
+""");
     }
 
     private void AssertSql(params string[] expected)

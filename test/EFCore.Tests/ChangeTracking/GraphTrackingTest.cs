@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class GraphTrackingTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_add_aggregate()
     {
         using var context = new AggregateContext();
@@ -25,7 +25,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_one_to_one_aggregate()
     {
         using var context = new AggregateContext();
@@ -38,7 +38,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_aggregate()
     {
         using var context = new AggregateContext();
@@ -72,7 +72,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Unchanged, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_one_to_one_aggregate()
     {
         using var context = new AggregateContext();
@@ -85,7 +85,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Unchanged, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Attaching_aggregate_with_no_key_set_adds_it_instead()
     {
         using var context = new AggregateContext();
@@ -105,7 +105,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Attaching_one_to_one_aggregate_with_no_key_set_adds_it_instead()
     {
         using var context = new AggregateContext();
@@ -118,7 +118,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Dependents_with_no_key_set_are_added()
     {
         using var context = new AggregateContext();
@@ -147,7 +147,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void One_to_one_dependents_with_no_key_set_are_added()
     {
         using var context = new AggregateContext();
@@ -160,7 +160,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_aggregate_with_linked_aggregate_also_added()
     {
         using var context = new AggregateContext();
@@ -205,7 +205,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(reminders[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_aggregate_with_other_linked_aggregate_also_attached()
     {
         using var context = new AggregateContext();
@@ -254,7 +254,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(reminders[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_aggregate_with_linked_aggregate_also_attached()
     {
         using var context = new AggregateContext();
@@ -339,7 +339,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Unchanged, context.Entry(reminders[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_two_aggregates_linked_down_the_tree()
     {
         using var context = new AggregateContext();

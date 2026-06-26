@@ -92,6 +92,34 @@ public interface ICSharpHelper
         => Lambda(properties.Select(p => p.Name).ToList(), lambdaIdentifier);
 
     /// <summary>
+    ///     Generates a property accessor lambda. Properties declared on a complex type are emitted using the dotted path
+    ///     from the entity type down to the property.
+    /// </summary>
+    /// <param name="properties">The properties.</param>
+    /// <param name="lambdaIdentifier">The identifier to use for parameter in the lambda.</param>
+    /// <returns>The lambda.</returns>
+    string Lambda(IEnumerable<IPropertyBase> properties, string? lambdaIdentifier = null)
+        => Lambda(properties.Select(GetDottedPathFromContainingEntity).ToList(), lambdaIdentifier);
+
+    private static string GetDottedPathFromContainingEntity(IPropertyBase property)
+    {
+        if (property.DeclaringType is not IReadOnlyComplexType)
+        {
+            return property.Name;
+        }
+
+        var segments = new List<string> { property.Name };
+        var typeBase = (IReadOnlyTypeBase)property.DeclaringType;
+        while (typeBase is IReadOnlyComplexType complexType)
+        {
+            segments.Insert(0, complexType.ComplexProperty.Name);
+            typeBase = complexType.ComplexProperty.DeclaringType;
+        }
+
+        return string.Join(".", segments);
+    }
+
+    /// <summary>
     ///     Generates a multidimensional array literal.
     /// </summary>
     /// <param name="values">The multidimensional array.</param>

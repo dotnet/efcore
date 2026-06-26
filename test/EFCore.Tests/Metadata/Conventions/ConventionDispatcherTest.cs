@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ConventionDispatcherTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Infinite_recursion_throws()
     {
         var conventions = new ConventionSet();
@@ -21,9 +21,8 @@ public class ConventionDispatcherTest
 
         Assert.Equal(
             CoreStrings.ConventionsInfiniteLoop,
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    entityBuilder.Property(typeof(int), shadowPropertyName, ConfigurationSource.Convention)).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                entityBuilder.Property(typeof(int), shadowPropertyName, ConfigurationSource.Convention)).Message);
     }
 
     private class InfinitePropertyAddedConvention : IPropertyAddedConvention
@@ -36,9 +35,7 @@ public class ConventionDispatcherTest
             => ((IMutableEntityType)propertyBuilder.Metadata.DeclaringType).AddProperty("TempProperty" + _count++, typeof(int));
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnModelInitialized_calls_conventions_in_order(bool useBuilder)
     {
         var conventions = new ConventionSet();
@@ -86,9 +83,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnModelFinalized_calls_conventions_in_order(bool useBuilder)
     {
         var conventions = new ConventionSet();
@@ -138,11 +133,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnModelAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -235,11 +226,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void ModelEmbeddedDiscriminatorName_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -327,11 +314,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnEntityTypeAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -400,11 +383,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnEntityTypeIgnored_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -505,11 +484,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnEntityTypeMemberIgnored_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -586,11 +561,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnBaseTypeChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -683,11 +654,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnDiscriminatorPropertySet_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -762,11 +729,11 @@ public class ConventionDispatcherTest
         public readonly List<object> Calls = [];
 
         public void ProcessDiscriminatorPropertySet(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder structuralTypeBuilder,
             string name,
             IConventionContext<string> context)
         {
-            Assert.True(entityTypeBuilder.Metadata.IsInModel);
+            Assert.True(structuralTypeBuilder.Metadata.IsInModel);
 
             Calls.Add(name);
 
@@ -777,11 +744,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnPrimaryKeyChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -796,13 +759,13 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
 
-        entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention);
+        entityBuilder.HasKey(["OrderId"], ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
         if (useBuilder)
         {
-            Assert.NotNull(entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention));
+            Assert.NotNull(entityBuilder.PrimaryKey(["OrderId"], ConfigurationSource.Convention));
         }
         else
         {
@@ -826,7 +789,7 @@ public class ConventionDispatcherTest
 
         if (useBuilder)
         {
-            Assert.NotNull(entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention));
+            Assert.NotNull(entityBuilder.PrimaryKey(["OrderId"], ConfigurationSource.Convention));
         }
         else
         {
@@ -881,11 +844,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnEntityTypeAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -977,11 +936,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnForeignKeyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -995,7 +950,7 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-        entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
+        entityBuilder.PrimaryKey(["OrderId"], ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -1055,9 +1010,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnForeignKeyRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1072,8 +1025,8 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var foreignKey = entityBuilder.Metadata.AddForeignKey(
-            new[] { entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata },
-            entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
+            [entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata],
+            entityBuilder.HasKey(["OrderId"], ConfigurationSource.Convention).Metadata,
             entityBuilder.Metadata,
             ConfigurationSource.Explicit,
             ConfigurationSource.Explicit);
@@ -1129,9 +1082,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnForeignKeyPrincipalEndChanged_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1145,7 +1096,7 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-        entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
+        entityBuilder.PrimaryKey(["OrderId"], ConfigurationSource.Convention);
         var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
         var relationship = dependentEntityBuilder
             .HasRelationship(entityBuilder.Metadata, ConfigurationSource.Convention);
@@ -1255,9 +1206,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnForeignKeyPropertiesChangedConvention_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1272,8 +1221,8 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var foreignKey = entityBuilder.Metadata.AddForeignKey(
-            new[] { entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata },
-            entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
+            [entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata],
+            entityBuilder.HasKey(["OrderId"], ConfigurationSource.Convention).Metadata,
             entityBuilder.Metadata,
             ConfigurationSource.Explicit,
             ConfigurationSource.Explicit);
@@ -1281,7 +1230,7 @@ public class ConventionDispatcherTest
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
         foreignKey.SetProperties(
-            new[] { entityBuilder.Property(typeof(int), "FK2", ConfigurationSource.Convention).Metadata },
+            [entityBuilder.Property(typeof(int), "FK2", ConfigurationSource.Convention).Metadata],
             foreignKey.PrincipalKey,
             ConfigurationSource.Convention);
 
@@ -1322,11 +1271,10 @@ public class ConventionDispatcherTest
             if (relationshipBuilder.Metadata.Properties.First().Name == "FK2")
             {
                 relationshipBuilder.Metadata.SetProperties(
-                    new[]
-                    {
+                    [
                         relationshipBuilder.Metadata.DeclaringEntityType.Builder.Property(
                             typeof(int), "FK3").Metadata
-                    },
+                    ],
                     relationshipBuilder.Metadata.PrincipalKey);
                 context.StopProcessingIfChanged(relationshipBuilder.Metadata.Properties);
             }
@@ -1338,11 +1286,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnForeignKeyUniquenessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1438,11 +1382,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnForeignKeyRequirednessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1538,11 +1478,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnForeignKeyDependentRequirednessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1640,11 +1576,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnForeignKeyOwnershipChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1742,11 +1674,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnForeignKeyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1852,11 +1780,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnForeignKeyNullNavigationSet_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -1932,11 +1856,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnNavigationAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2024,11 +1944,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnNavigationAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2128,11 +2044,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnNavigationRemoved_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2223,11 +2135,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnSkipNavigationAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2296,11 +2204,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnSkipNavigationAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2399,11 +2303,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnSkipNavigationForeignKeyChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2421,7 +2321,7 @@ public class ConventionDispatcherTest
         var joinEntityBuilder = builder.Entity(typeof(OrderProduct), ConfigurationSource.Convention);
 
         var foreignKey = joinEntityBuilder
-            .HasRelationship(typeof(Order), new[] { OrderProduct.OrderIdProperty }, ConfigurationSource.Convention)
+            .HasRelationship(typeof(Order), [OrderProduct.OrderIdProperty], ConfigurationSource.Convention)
             .IsUnique(false, ConfigurationSource.Convention)
             .Metadata;
         var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
@@ -2494,11 +2394,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnSkipNavigationInverseChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2586,9 +2482,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnSkipNavigationRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2657,11 +2551,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnTriggerAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2727,9 +2617,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnTriggerRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2796,11 +2684,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnKeyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2869,9 +2753,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnKeyRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -2933,11 +2815,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnKeyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3034,11 +2912,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnIndexAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3100,15 +2974,13 @@ public class ConventionDispatcherTest
 
             if (_terminate)
             {
-                indexBuilder.Metadata.DeclaringEntityType.RemoveIndex(indexBuilder.Metadata.Properties);
+                indexBuilder.Metadata.DeclaringEntityType.RemoveIndex(indexBuilder.Metadata.Properties.OfType<IConventionProperty>().ToList());
                 context.StopProcessing();
             }
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnIndexRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3175,11 +3047,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnIndexUniquenessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3272,11 +3140,7 @@ public class ConventionDispatcherTest
     }
 
 #nullable enable
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnIndexSortOrderChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3368,11 +3232,7 @@ public class ConventionDispatcherTest
     }
 #nullable restore
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnIndexAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3386,7 +3246,7 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var indexBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
-            .HasIndex(new[] { nameof(SpecialOrder.Name) }, ConfigurationSource.Convention);
+            .HasIndex([nameof(SpecialOrder.Name)], ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -3468,11 +3328,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnPropertyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3569,11 +3425,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnPropertyNullabilityChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3704,11 +3556,138 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
+    public void OnPropertyAutoLoadChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyAutoLoadChangedConvention(false);
+        var convention2 = new PropertyAutoLoadChangedConvention(true);
+        var convention3 = new PropertyAutoLoadChangedConvention(false);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
+
+        var model = new Model(conventions);
+
+        var scope = useScope ? model.DelayConventions() : null;
+
+        var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
+            .Property(typeof(string), "Name", ConfigurationSource.Convention);
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = false;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(true, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(true, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = false;
+        }
+
+        scope?.Dispose();
+
+        if (useScope)
+        {
+            Assert.Equal(new bool?[] { false, false, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, false, false }, convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true, false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(
+            new PropertyAutoLoadChangedConvention(terminate: true),
+            conventions, conventions.PropertyAutoLoadChangedConventions);
+    }
+
+    private class PropertyAutoLoadChangedConvention(bool terminate) : IPropertyAutoLoadChangedConvention
+    {
+        public readonly List<bool?> Calls = [];
+        private readonly bool _terminate = terminate;
+
+        public void ProcessPropertyAutoLoadChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<bool?> context)
+        {
+            Calls.Add(propertyBuilder.Metadata.IsAutoLoaded);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnPropertyFieldChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3805,11 +3784,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnPropertyElementTypeChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -3904,11 +3879,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnPropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4004,9 +3975,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnPropertyRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4074,11 +4043,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexTypePropertyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4155,11 +4120,7 @@ public class ConventionDispatcherTest
         Assert.Empty(entityBuilder.Metadata.GetProperties());
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexTypePropertyNullabilityChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4270,11 +4231,7 @@ public class ConventionDispatcherTest
         Assert.Empty(convention3.Calls);
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexTypePropertyFieldChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4348,11 +4305,7 @@ public class ConventionDispatcherTest
         Assert.Empty(convention3.Calls);
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexTypePropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4423,9 +4376,7 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnComplexTypePropertyRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4470,11 +4421,7 @@ public class ConventionDispatcherTest
         Assert.Empty(convention3.Calls);
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexPropertyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4574,11 +4521,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexPropertyNullabilityChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4709,11 +4652,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexPropertyFieldChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4811,11 +4750,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexPropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4911,9 +4846,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false)]
-    [InlineData(true)]
-    [ConditionalTheory]
+    [InlineData(false), InlineData(true), Theory]
     public void OnComplexPropertyRemoved_calls_conventions_in_order(bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4981,11 +4914,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexTypeAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -5082,11 +5011,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnComplexTypeMemberIgnored_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -5182,11 +5107,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnElementTypeAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -5283,11 +5204,7 @@ public class ConventionDispatcherTest
         }
     }
 
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    [ConditionalTheory]
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnElementTypeNullabilityChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();

@@ -23,12 +23,12 @@ public class PrecisionAttribute : Attribute
     {
         if (precision < 0)
         {
-            throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber(nameof(precision)));
+            throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber, nameof(precision));
         }
 
         if (scale < 0)
         {
-            throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber(nameof(scale)));
+            throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber, nameof(scale));
         }
 
         Precision = precision;
@@ -43,7 +43,7 @@ public class PrecisionAttribute : Attribute
     {
         if (precision < 0)
         {
-            throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber(nameof(precision)));
+            throw new ArgumentException(AbstractionsStrings.ArgumentIsNegativeNumber, nameof(precision));
         }
 
         Precision = precision;

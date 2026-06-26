@@ -266,9 +266,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     continue;
                 }
 
-                var principalCreateTableOperation = createTableOperations.FirstOrDefault(
-                    o => o.Name == addForeignKeyOperation.PrincipalTable
-                        && o.Schema == addForeignKeyOperation.PrincipalSchema);
+                var principalCreateTableOperation = createTableOperations.FirstOrDefault(o
+                    => o.Name == addForeignKeyOperation.PrincipalTable
+                    && o.Schema == addForeignKeyOperation.PrincipalSchema);
                 if (principalCreateTableOperation != null)
                 {
                     createTableGraph.AddEdge(principalCreateTableOperation, createTableOperation, addForeignKeyOperation);
@@ -276,8 +276,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
         }
 
-        createTableOperations = (List<CreateTableOperation>)createTableGraph.TopologicalSort(
-            (_, createTableOperation, cyclicAddForeignKeyOperations) =>
+        createTableOperations =
+            (List<CreateTableOperation>)createTableGraph.TopologicalSort((_, createTableOperation, cyclicAddForeignKeyOperations) =>
             {
                 foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                 {
@@ -312,13 +312,12 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         }
 
         var newDiffContext = new DiffContext();
-        dropTableOperations = (List<DropTableOperation>)dropTableGraph.TopologicalSort(
-            (_, _, foreignKeys) =>
-            {
-                dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
+        dropTableOperations = (List<DropTableOperation>)dropTableGraph.TopologicalSort((_, _, foreignKeys) =>
+        {
+            dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
 
-                return true;
-            });
+            return true;
+        });
 
         return dropForeignKeyOperations
             .Concat(dropTableOperations)
@@ -374,7 +373,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
                 alterDatabaseOperation.OldDatabase.AddAnnotations(sourceMigrationsAnnotations);
 
-                operations = new[] { alterDatabaseOperation };
+                operations = [alterDatabaseOperation];
             }
 
             operations = operations
@@ -393,7 +392,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 ? Add(target, diffContext)
                 : source != null
                     ? Remove(source, diffContext)
-                    : Enumerable.Empty<MigrationOperation>();
+                    : [];
         }
 
         return operations.Concat(GetDataOperations(source, target, diffContext));
@@ -496,7 +495,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         string source,
         string target,
         DiffContext diffContext)
-        => Enumerable.Empty<MigrationOperation>();
+        => [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -516,7 +515,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual IEnumerable<MigrationOperation> Remove(string source, DiffContext diffContext)
-        => Enumerable.Empty<MigrationOperation>();
+        => [];
 
     #endregion
 
@@ -552,9 +551,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 t.Name,
                 StringComparison.OrdinalIgnoreCase),
             (s, t, _) => string.Equals(GetMainType(s).Name, GetMainType(t).Name, StringComparison.OrdinalIgnoreCase),
-            (s, t, _) => s.EntityTypeMappings.Any(
-                se => t.EntityTypeMappings.Any(
-                    te => string.Equals(se.TypeBase.Name, te.TypeBase.Name, StringComparison.OrdinalIgnoreCase))));
+            (s, t, _) => s.EntityTypeMappings.Any(se => t.EntityTypeMappings.Any(te => string.Equals(
+                se.TypeBase.Name, te.TypeBase.Name, StringComparison.OrdinalIgnoreCase))));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -597,7 +595,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var sourceMigrationsAnnotations = source.GetAnnotations();
         var targetMigrationsAnnotations = target.GetAnnotations();
 
-        if (source.Comment != target.Comment
+        if (!MultilineEquals(source.Comment, target.Comment)
             || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
         {
             var alterTableOperation = new AlterTableOperation
@@ -909,24 +907,18 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             (t, c) => Add(t, c),
             Remove,
             (s, t, _) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
-            (s, t, c) => s.PropertyMappings.Any(
-                sm =>
-                    t.PropertyMappings.Any(
-                        tm =>
-                            string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
-                            && EntityTypePathEquals(sm.Property.DeclaringType, tm.Property.DeclaringType, c))),
-            (s, t, _) => s.PropertyMappings.Any(
-                sm =>
-                    t.PropertyMappings.Any(
-                        tm =>
-                            string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase))),
+            (s, t, c) => s.PropertyMappings.Any(sm =>
+                t.PropertyMappings.Any(tm =>
+                    string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
+                    && EntityTypePathEquals(sm.Property.DeclaringType, tm.Property.DeclaringType, c))),
+            (s, t, _) => s.PropertyMappings.Any(sm =>
+                t.PropertyMappings.Any(tm =>
+                    string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase))),
             (s, t, c) => ColumnStructureEquals(s, t)
-                && s.PropertyMappings.Any(
-                    sm =>
-                        t.PropertyMappings.Any(
-                            tm =>
-                                string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
-                                && EntityTypePathEquals(sm.Property.DeclaringType, tm.Property.DeclaringType, c))),
+                && s.PropertyMappings.Any(sm =>
+                    t.PropertyMappings.Any(tm =>
+                        string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
+                        && EntityTypePathEquals(sm.Property.DeclaringType, tm.Property.DeclaringType, c))),
             (s, t, _) => ColumnStructureEquals(s, t) && ColumnAnnotationsEqual(s, t, matchValues: true),
             (s, t, _) => ColumnStructureEquals(s, t) && ColumnAnnotationsEqual(s, t, matchValues: false),
             (s, t, _) => ColumnStructureEquals(s, t));
@@ -994,11 +986,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             && source.MaxLength == target.MaxLength
             && source.IsFixedLength == target.IsFixedLength
             && source.Collation == target.Collation
-            && source.Comment == target.Comment
+            && MultilineEquals(source.Comment, target.Comment)
             && source.IsStored == target.IsStored
-            && source.ComputedColumnSql == target.ComputedColumnSql
+            && MultilineEquals(source.ComputedColumnSql, target.ComputedColumnSql)
             && Equals(sourceDefault, targetDefault)
-            && source.DefaultValueSql == target.DefaultValueSql;
+            && MultilineEquals(source.DefaultValueSql, target.DefaultValueSql);
     }
 
     private static bool EntityTypePathEquals(ITypeBase source, ITypeBase target, DiffContext diffContext)
@@ -1035,10 +1027,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             var nextSource = sourceComplexType.ComplexProperty.DeclaringType;
             var nextTarget = targetComplexType.ComplexProperty.DeclaringType;
-            return (nextSource == null && nextTarget == null)
-                || (nextSource != null
-                    && nextTarget != null
-                    && EntityTypePathEquals(nextSource, nextTarget, diffContext));
+            return EntityTypePathEquals(nextSource, nextTarget, diffContext);
         }
 
         return false;
@@ -1090,12 +1079,12 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (isNullableChanged
             || columnTypeChanged
-            || source.DefaultValueSql != target.DefaultValueSql
-            || source.ComputedColumnSql != target.ComputedColumnSql
+            || !MultilineEquals(source.DefaultValueSql, target.DefaultValueSql)
+            || !MultilineEquals(source.ComputedColumnSql, target.ComputedColumnSql)
             || source.IsStored != target.IsStored
             || sourceDefault?.GetType() != targetDefault?.GetType()
             || (sourceDefault != DBNull.Value && !target.ProviderValueComparer.Equals(sourceDefault, targetDefault))
-            || source.Comment != target.Comment
+            || !MultilineEquals(source.Comment, target.Comment)
             || source.Collation != target.Collation
             || source.Order != target.Order
             || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
@@ -1241,24 +1230,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             = (valueConverter?.ProviderClrType
                 ?? typeMapping.ClrType).UnwrapNullableType();
 
-        if (!column.TryGetDefaultValue(out var defaultValue))
-        {
-            // for non-nullable collections of primitives that are mapped to JSON we set a default value corresponding to empty JSON collection
-            defaultValue = !inline
-                && column is
-                {
-                    IsNullable: false, StoreTypeMapping: { ElementTypeMapping: not null, Converter: ValueConverter columnValueConverter }
-                }
-                && columnValueConverter.GetType() is Type { IsGenericType: true } columnValueConverterType
-                && columnValueConverterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>)
-                    ? "[]"
-                    : null;
-        }
-
+        column.TryGetDefaultValue(out var defaultValue);
         columnOperation.DefaultValue = defaultValue
             ?? (inline || isNullable
                 ? null
-                : GetDefaultValue(columnOperation.ClrType));
+                : typeMapping.GetDefaultProviderValue());
         columnOperation.DefaultValueSql = column.DefaultValueSql;
         columnOperation.ColumnType = column.StoreType;
         columnOperation.MaxLength = column.MaxLength;
@@ -1290,10 +1266,22 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.ClrType = typeof(string);
         columnOperation.DefaultValue = inline || isNullable
             ? null
-            : "{}";
+            : IsJsonCollectionColumn(jsonColumn) ? "[]" : "{}";
 
         columnOperation.AddAnnotations(migrationsAnnotations);
     }
+
+    private static bool IsJsonCollectionColumn(JsonColumn jsonColumn)
+        => jsonColumn.Table.ComplexTypeMappings.Any(
+               m => m.TypeBase is IComplexType ct
+                   && ct.GetContainerColumnName() == jsonColumn.Name
+                   && ct.ComplexProperty.IsCollection
+                   && !ct.ComplexProperty.DeclaringType.IsMappedToJson())
+           || jsonColumn.Table.EntityTypeMappings.Any(
+               m => m.TypeBase is IEntityType et
+                   && et.GetContainerColumnName() == jsonColumn.Name
+                   && et.FindOwnership() is { IsUnique: false, PrincipalEntityType: var principal }
+                   && !principal.IsMappedToJson());
 
     #endregion
 
@@ -1332,7 +1320,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         IUniqueConstraint source,
         IUniqueConstraint target,
         DiffContext diffContext)
-        => Enumerable.Empty<MigrationOperation>();
+        => [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1411,6 +1399,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Add,
             Remove,
             (s, t, context) => s.Name == t.Name
+                && s.IsExcludedFromMigrations == t.IsExcludedFromMigrations
                 && s.Columns.Select(c => c.Name).SequenceEqual(
                     t.Columns.Select(c => context.FindSource(c)?.Name))
                 && s.PrincipalTable == context.FindSource(t.PrincipalTable)
@@ -1429,7 +1418,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         IForeignKeyConstraint source,
         IForeignKeyConstraint target,
         DiffContext diffContext)
-        => Enumerable.Empty<MigrationOperation>();
+        => [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1440,7 +1429,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     protected virtual IEnumerable<MigrationOperation> Add(IForeignKeyConstraint target, DiffContext diffContext)
     {
         var targetTable = target.Table;
-        if (targetTable.IsExcludedFromMigrations)
+        if (targetTable.IsExcludedFromMigrations
+            || target.IsExcludedFromMigrations)
         {
             yield break;
         }
@@ -1467,7 +1457,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     protected virtual IEnumerable<MigrationOperation> Remove(IForeignKeyConstraint source, DiffContext diffContext)
     {
         var sourceTable = source.Table;
-        if (sourceTable.IsExcludedFromMigrations)
+        if (sourceTable.IsExcludedFromMigrations
+            || source.IsExcludedFromMigrations)
         {
             yield break;
         }
@@ -1518,10 +1509,31 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 || (source.IsDescending is not null
                     && target.IsDescending is not null
                     && source.IsDescending.SequenceEqual(target.IsDescending)))
-            && source.Filter == target.Filter
+            && MultilineEquals(source.Filter, target.Filter)
             && !HasDifferences(source.GetAnnotations(), target.GetAnnotations())
             && source.Columns.Select(p => p.Name).SequenceEqual(
-                target.Columns.Select(p => diffContext.FindSource(p)?.Name));
+                target.Columns.Select(p => diffContext.FindSource(p)?.Name))
+            && JsonIndexEqual(source, target);
+
+    private static bool JsonIndexEqual(ITableIndex source, ITableIndex target)
+    {
+        // The JsonIndex annotation captures both the mapped JSON elements and the complex-collection
+        // indices traversed to reach each indexed property. RelationalJsonIndex.Equals compares both
+        // element identity (column + path) and the parallel collection-indices list.
+        var sourceJson = source[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        var targetJson = target[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        if (sourceJson is null && targetJson is null)
+        {
+            return true;
+        }
+
+        if (sourceJson is null || targetJson is null)
+        {
+            return false;
+        }
+
+        return sourceJson.Equals(targetJson);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1611,7 +1623,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Remove,
             (s, t, c) => c.FindTable(s.EntityType) == c.FindSource(c.FindTable(t.EntityType))
                 && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(s.Sql, t.Sql, StringComparison.OrdinalIgnoreCase));
+                && MultilineEquals(s.Sql, t.Sql));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1623,7 +1635,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         ICheckConstraint source,
         ICheckConstraint target,
         DiffContext diffContext)
-        => Enumerable.Empty<MigrationOperation>();
+        => [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2030,7 +2042,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         static (object?, bool) GetClrValue(IProperty property, object seed)
         {
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            if (!property.TryGetMemberInfo(forMaterialization: false, forSet: false, out var memberInfo, out var _))
+            if (!property.TryGetMemberInfo(forMaterialization: false, forSet: false, out var memberInfo, out _))
             {
                 return (null, false);
             }
@@ -2296,9 +2308,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         var commands = identityMaps.Values
             .SelectMany(m => m.Rows)
-            .Where(
-                r => r.EntityState is EntityState.Added or EntityState.Modified
-                    || (r.EntityState is EntityState.Deleted && diffContext.FindDrop(r.Table!) == null));
+            .Where(r => r.EntityState is EntityState.Added or EntityState.Modified
+                || (r.EntityState is EntityState.Deleted && diffContext.FindDrop(r.Table!) == null));
 
         var commandSets = new CommandBatchPreparer(CommandBatchPreparerDependencies)
             .TopologicalSort(commands);
@@ -2492,8 +2503,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var unmatched = new List<IAnnotation>(target);
         foreach (var annotation in source)
         {
-            var index = unmatched.FindIndex(
-                a => a.Name == annotation.Name && StructuralComparisons.StructuralEqualityComparer.Equals(a.Value, annotation.Value));
+            var index = unmatched.FindIndex(a
+                => a.Name == annotation.Name && AnnotationValuesEqual(a, annotation));
             if (index == -1)
             {
                 return true;
@@ -2503,7 +2514,18 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         }
 
         return unmatched.Count != 0;
+
+        static bool AnnotationValuesEqual(IAnnotation left, IAnnotation right)
+            => left.Value is string leftString && right.Value is string rightString
+                ? MultilineEquals(leftString, rightString)
+                : StructuralComparisons.StructuralEqualityComparer.Equals(left.Value, right.Value);
     }
+
+    private static bool MultilineEquals(string? sourceString, string? targetString, StringComparison comparisonType = StringComparison.Ordinal)
+        => ReferenceEquals(sourceString, targetString)
+            || (sourceString is not null
+                && targetString is not null
+                && string.Equals(sourceString.ReplaceLineEndings(), targetString.ReplaceLineEndings(), comparisonType));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2519,19 +2541,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             // ReSharper disable once RedundantEnumerableCastCall
             .Cast<string>()
             .Distinct();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual object? GetDefaultValue(Type type)
-        => type == typeof(string)
-            ? string.Empty
-            : type.IsArray
-                ? Array.CreateInstance(type.GetElementType()!, 0)
-                : type.UnwrapNullableType().GetDefaultValue();
 
     private static ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
         => (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
@@ -2574,10 +2583,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     private static string BuildValuesString(object?[] values)
         => "{"
             + string.Join(
-                ", ", values.Select(
-                    p => p == null
-                        ? "<null>"
-                        : Convert.ToString(p, CultureInfo.InvariantCulture)))
+                ", ", values.Select(p => p == null
+                    ? "<null>"
+                    : Convert.ToString(p, CultureInfo.InvariantCulture)))
             + "}";
 
     /// <summary>

@@ -62,12 +62,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
             _maxItemCountParameterName = maxItemCountParameterName;
             _continuationTokenParameterName = continuationTokenParameterName;
-            _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
 
+            _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
-                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.ParameterValues);
+                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.Parameters);
         }
 
         public IAsyncEnumerator<CosmosPage<T>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -75,11 +75,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private CosmosSqlQuery GenerateQuery()
             => _querySqlGeneratorFactory.Create().GetSqlQuery(
-                (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                (SelectExpression)new ParameterInliner(
                         _sqlExpressionFactory,
-                        _cosmosQueryContext.ParameterValues)
+                        _cosmosQueryContext.Parameters)
                     .Visit(_selectExpression),
-                _cosmosQueryContext.ParameterValues);
+                _cosmosQueryContext.Parameters);
 
         private sealed class AsyncEnumerator : IAsyncEnumerator<CosmosPage<T>>
         {
@@ -135,11 +135,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     _hasExecuted = true;
 
-                    var maxItemCount = (int)_cosmosQueryContext.ParameterValues[_queryingEnumerable._maxItemCountParameterName];
+                    var maxItemCount = (int)_cosmosQueryContext.Parameters[_queryingEnumerable._maxItemCountParameterName];
                     var continuationToken =
-                        (string)_cosmosQueryContext.ParameterValues[_queryingEnumerable._continuationTokenParameterName];
+                        (string)_cosmosQueryContext.Parameters[_queryingEnumerable._continuationTokenParameterName];
                     var responseContinuationTokenLimitInKb = (int?)
-                        _cosmosQueryContext.ParameterValues[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
+                        _cosmosQueryContext.Parameters[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
 
                     var sqlQuery = _queryingEnumerable.GenerateQuery();
 
@@ -155,6 +155,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         queryRequestOptions.PartitionKey = _cosmosPartitionKey;
                     }
 
+                    queryRequestOptions.SessionToken = _cosmosQueryContext.SessionTokenStorage.GetSessionToken(_cosmosContainer);
+
                     var cosmosClient = _cosmosQueryContext.CosmosClient;
                     _commandLogger.ExecutingSqlQuery(_cosmosContainer, _cosmosPartitionKey, sqlQuery);
                     _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
@@ -165,7 +167,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         queryRequestOptions.MaxItemCount = maxItemCount;
                         using var feedIterator = cosmosClient.CreateQuery(
-                            _cosmosContainer, sqlQuery, continuationToken, queryRequestOptions);
+                            _cosmosContainer, sqlQuery, _cosmosQueryContext.SessionTokenStorage, continuationToken, queryRequestOptions);
 
                         using var responseMessage = await feedIterator.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
 

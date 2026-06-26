@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 public class SqliteEventIdTest : EventIdTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
         var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), owned: false, ConfigurationSource.Convention);
@@ -21,7 +21,8 @@ public class SqliteEventIdTest : EventIdTestBase
         {
             { typeof(string), () => "Fake" },
             { typeof(IEntityType), () => entityType },
-            { typeof(IKey), () => new Key(new[] { property }, ConfigurationSource.Convention) },
+            { typeof(IKey), () => new Key([property], ConfigurationSource.Convention) },
+            { typeof(IReadOnlyProperty), () => property },
             { typeof(IReadOnlySequence), () => new FakeSequence() },
             { typeof(Type), () => typeof(object) }
         };

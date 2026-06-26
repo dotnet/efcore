@@ -10,13 +10,13 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
 public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture fixture)
     : IClassFixture<MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture>
 {
     protected MemoryOptimizedTablesFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_create_memoryOptimized_table()
     {
         await using (await CreateTestStoreAsync())
@@ -64,13 +64,12 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Entity<FastUn>(
-                    eb =>
-                    {
-                        eb.ToTable(tb => tb.IsMemoryOptimized());
-                        eb.HasIndex(e => e.Name).IsUnique();
-                        eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
-                    });
+                .Entity<FastUn>(eb =>
+                {
+                    eb.ToTable(tb => tb.IsMemoryOptimized());
+                    eb.HasIndex(e => e.Name).IsUnique();
+                    eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
+                });
 
             modelBuilder.Entity<BigUn>().ToTable(tb => tb.IsMemoryOptimized());
         }

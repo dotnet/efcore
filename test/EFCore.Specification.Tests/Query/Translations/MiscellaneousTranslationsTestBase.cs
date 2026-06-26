@@ -8,167 +8,48 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    #region Guid
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Guid_new_with_constant(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid("DF36F493-463F-4123-83F9-6B135DEEB7BA")));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Guid_new_with_parameter(bool async)
-    {
-        var guid = "DF36F493-463F-4123-83F9-6B135DEEB7BA";
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid(guid)));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Guid_ToString_projection(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Select(b => b.Guid.ToString()),
-            elementAsserter: (e, a) => Assert.Equal(e.ToLower(), a.ToLower()));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Guid_NewGuid(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>()
-                .Where(od => Guid.NewGuid() != default));
-
-    #endregion Guid
-
-    #region Byte array
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_Length(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Length == 4));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_array_index(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Length >= 3 && e.ByteArray[2] == 0xBE));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_First(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Length >= 1 && e.ByteArray.First() == 0xDE));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_Contains_with_constant(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains((byte)1)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_Contains_with_parameter(bool async)
-    {
-        byte someByte = 1;
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains(someByte)));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_Contains_with_column(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains(s.Byte)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_SequenceEqual(bool async)
-    {
-        var byteArrayParam = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.SequenceEqual(byteArrayParam)));
-    }
-
-    #endregion Byte array
-
     #region Random
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_on_EF_Functions(bool async)
+    [Fact]
+    public virtual Task Random_on_EF_Functions()
         => AssertCount(
-            async,
             ss => ss.Set<BasicTypesEntity>(),
             ss => ss.Set<BasicTypesEntity>(),
             ss => EF.Functions.Random() >= 0 && EF.Functions.Random() < 1,
             c => true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_Shared_Next_with_no_args(bool async)
+    [Fact]
+    public virtual Task Random_Shared_Next_with_no_args()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(o => o.Int < (Random.Shared.Next() - 2147483647)),
             assertEmpty: true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_Shared_Next_with_one_arg(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(5) - 2147483647));
+    [Fact]
+    public virtual Task Random_Shared_Next_with_one_arg()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(5) - 2147483647));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_Shared_Next_with_two_args(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(0, 10) - 2147483647));
+    [Fact]
+    public virtual Task Random_Shared_Next_with_two_args()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(0, 10) - 2147483647));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_new_Next_with_no_args(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next() - 2147483647));
+    [Fact]
+    public virtual Task Random_new_Next_with_no_args()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next() - 2147483647));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_new_Next_with_one_arg(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(5) - 2147483647));
+    [Fact]
+    public virtual Task Random_new_Next_with_one_arg()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(5) - 2147483647));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_new_Next_with_two_args(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(0, 10) - 2147483647));
+    [Fact]
+    public virtual Task Random_new_Next_with_two_args()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(0, 10) - 2147483647));
 
     #endregion Random
 
     #region Convert
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToBoolean(bool async)
+    [Fact]
+    public virtual async Task Convert_ToBoolean()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
         {
@@ -185,13 +66,12 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToByte(bool async)
+    [Fact]
+    public virtual async Task Convert_ToByte()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
         {
@@ -209,13 +89,12 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToDecimal(bool async)
+    [Fact]
+    public virtual async Task Convert_ToDecimal()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
         {
@@ -233,13 +112,12 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToDouble(bool async)
+    [Fact]
+    public virtual async Task Convert_ToDouble()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
         {
@@ -257,13 +135,12 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToInt16(bool async)
+    [Fact]
+    public virtual async Task Convert_ToInt16()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
         {
@@ -281,13 +158,12 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToInt32(bool async)
+    [Fact]
+    public virtual async Task Convert_ToInt32()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
         {
@@ -305,13 +181,12 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToInt64(bool async)
+    [Fact]
+    public virtual async Task Convert_ToInt64()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
         {
@@ -329,13 +204,12 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Convert_ToString(bool async)
+    [Fact]
+    public virtual async Task Convert_ToString()
     {
         // Actual convert-to-string behavior varies across databases for most types and cannot be asserted upon here
         // (e.g. boolean converts to 1/0 on SQL Server, true/false on PG).
@@ -356,7 +230,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
         foreach (var convertMethod in convertMethods)
         {
-            await AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(convertMethod));
         }
     }
 
@@ -408,160 +282,91 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
     #region Compare
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Int_Compare_to_simple_zero(bool async)
+    [Fact]
+    public virtual async Task Int_Compare_to_simple_zero()
     {
         var orderId = 8;
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) == 0));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) == 0));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.Int.CompareTo(orderId)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.Int.CompareTo(orderId)));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) > 0));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) > 0));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.Int.CompareTo(orderId)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.Int.CompareTo(orderId)));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.Int.CompareTo(orderId)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.Int.CompareTo(orderId)));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) <= 0));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) <= 0));
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public virtual async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task DateTime_Compare_to_simple_zero(bool compareTo)
     {
         var dateTime = new DateTime(1998, 5, 4, 15, 30, 10);
 
         if (compareTo)
         {
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) == 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.DateTime.CompareTo(dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.DateTime.CompareTo(dateTime)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) > 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.DateTime.CompareTo(dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.DateTime.CompareTo(dateTime)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.DateTime.CompareTo(dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.DateTime.CompareTo(dateTime)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) <= 0));
         }
         else
         {
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) == 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != DateTime.Compare(c.DateTime, dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != DateTime.Compare(c.DateTime, dateTime)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) > 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= DateTime.Compare(c.DateTime, dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= DateTime.Compare(c.DateTime, dateTime)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < DateTime.Compare(c.DateTime, dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < DateTime.Compare(c.DateTime, dateTime)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) <= 0));
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public virtual async Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task TimeSpan_Compare_to_simple_zero(bool compareTo)
     {
         var timeSpan = new TimeSpan(1, 2, 3);
 
         if (compareTo)
         {
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) == 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.TimeSpan.CompareTo(timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.TimeSpan.CompareTo(timeSpan)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) > 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.TimeSpan.CompareTo(timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.TimeSpan.CompareTo(timeSpan)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.TimeSpan.CompareTo(timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.TimeSpan.CompareTo(timeSpan)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) <= 0));
         }
         else
         {
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) == 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != TimeSpan.Compare(c.TimeSpan, timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != TimeSpan.Compare(c.TimeSpan, timeSpan)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) > 0));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= TimeSpan.Compare(c.TimeSpan, timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= TimeSpan.Compare(c.TimeSpan, timeSpan)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < TimeSpan.Compare(c.TimeSpan, timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < TimeSpan.Compare(c.TimeSpan, timeSpan)));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) <= 0));
         }
     }
 
