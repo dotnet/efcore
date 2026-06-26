@@ -197,6 +197,53 @@ public class PropertyValuesTest
         Assert.Equal("505", result.Errors[2].InnerError!.InnerError!.Code);
     }
 
+    [Fact]
+    public void OriginalValues_ToObject_with_complex_collection_for_added_entity()
+    {
+        var job = new Job
+        {
+            Id = 1,
+            Name = "Added Job",
+            Errors =
+            [
+                new RootJobError
+                {
+                    Code = "500",
+                    Message = "Server Error",
+                    InnerErrors =
+                    [
+                        new JobError { Code = "501", Message = "Not Implemented" }
+                    ]
+                }
+            ]
+        };
+
+        var stateManager = CreateStateManager(BuildJobModel);
+        var internalEntry = stateManager.GetOrCreateEntry(job);
+        internalEntry.SetEntityState(EntityState.Added);
+        var entry = new EntityEntry<Job>(internalEntry);
+
+        var result = (Job)entry.OriginalValues.ToObject();
+
+        Assert.NotSame(job, result);
+        Assert.Equal("Added Job", result.Name);
+        Assert.Single(result.Errors);
+
+        var error = result.Errors[0];
+        Assert.NotSame(job.Errors[0], error);
+        Assert.Equal("500", error.Code);
+        Assert.Equal("Server Error", error.Message);
+        Assert.Single(error.InnerErrors);
+        Assert.NotSame(job.Errors[0].InnerErrors[0], error.InnerErrors[0]);
+        Assert.Equal("501", error.InnerErrors[0].Code);
+
+        error.Code = "Changed";
+        error.InnerErrors[0].Code = "Changed";
+
+        Assert.Equal("500", job.Errors[0].Code);
+        Assert.Equal("501", job.Errors[0].InnerErrors[0].Code);
+    }
+
     [Theory]
     [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_complex_property_in_complex_collection_in_complex_collection(
