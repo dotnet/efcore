@@ -3785,101 +3785,6 @@ public class ConventionDispatcherTest
     }
 
     [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
-    public void OnPropertyElementTypeChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
-    {
-        var conventions = new ConventionSet();
-
-        var convention1 = new PropertyElementTypeChangedConvention(terminate: false);
-        var convention2 = new PropertyElementTypeChangedConvention(terminate: true);
-        var convention3 = new PropertyElementTypeChangedConvention(terminate: false);
-        conventions.Add(convention1);
-        conventions.Add(convention2);
-        conventions.Add(convention3);
-
-        var builder = new InternalModelBuilder(new Model(conventions));
-        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention)!;
-        var propertyBuilder = entityBuilder.Property(Order.OrderIdsProperty, ConfigurationSource.Convention)!;
-
-        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
-
-        ElementType elementType;
-
-        if (useBuilder)
-        {
-            Assert.NotNull(propertyBuilder.SetElementType(typeof(int), ConfigurationSource.Convention));
-            elementType = propertyBuilder.Metadata.GetElementType()!;
-        }
-        else
-        {
-            elementType = propertyBuilder.Metadata.SetElementType(typeof(int), ConfigurationSource.Convention);
-        }
-
-        if (useScope)
-        {
-            Assert.Empty(convention1.Calls);
-            Assert.Empty(convention2.Calls);
-            scope.Dispose();
-        }
-
-        Assert.Equal(new (object, object)[] { (null, elementType) }, convention1.Calls);
-        Assert.Equal(new (object, object)[] { (null, elementType) }, convention2.Calls);
-        Assert.Empty(convention3.Calls);
-
-        if (useBuilder)
-        {
-            Assert.NotNull(propertyBuilder.SetElementType(typeof(int), ConfigurationSource.Convention));
-            elementType = propertyBuilder.Metadata.GetElementType()!;
-        }
-        else
-        {
-            elementType = propertyBuilder.Metadata.SetElementType(typeof(int), ConfigurationSource.Convention);
-        }
-
-        Assert.Equal(new (object, object)[] { (null, elementType) }, convention1.Calls);
-        Assert.Equal(new (object, object)[] { (null, elementType) }, convention2.Calls);
-        Assert.Empty(convention3.Calls);
-
-        if (useBuilder)
-        {
-            Assert.NotNull(propertyBuilder.SetElementType(null, ConfigurationSource.Convention));
-        }
-        else
-        {
-            Assert.Null(propertyBuilder.Metadata.SetElementType(null, ConfigurationSource.Convention));
-        }
-
-        Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention1.Calls);
-        Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention2.Calls);
-        Assert.Empty(convention3.Calls);
-
-        AssertSetOperations(
-            new PropertyElementTypeChangedConvention(terminate: true),
-            conventions, conventions.PropertyElementTypeChangedConventions);
-    }
-
-    private class PropertyElementTypeChangedConvention(bool terminate) : IPropertyElementTypeChangedConvention
-    {
-        private readonly bool _terminate = terminate;
-        public readonly List<(object, object)> Calls = [];
-
-        public void ProcessPropertyElementTypeChanged(
-            IConventionPropertyBuilder propertyBuilder,
-            IElementType newElementType,
-            IElementType oldElementType,
-            IConventionContext<IElementType> context)
-        {
-            Assert.True(propertyBuilder.Metadata.IsInModel);
-
-            Calls.Add((oldElementType, newElementType));
-
-            if (_terminate)
-            {
-                context.StopProcessing();
-            }
-        }
-    }
-
-    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), Theory]
     public void OnPropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -5121,8 +5026,8 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var elementTypeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)!
-            .Property(nameof(SpecialOrder.OrderIds), ConfigurationSource.Convention)!
-            .SetElementType(typeof(int), ConfigurationSource.Convention)!;
+            .PrimitiveCollection(nameof(SpecialOrder.OrderIds), ConfigurationSource.Convention)!
+            .Metadata.GetElementType()!.Builder;
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -5221,8 +5126,8 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(model);
         var elementTypeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)!
-            .Property(nameof(SpecialOrder.Notes), ConfigurationSource.Convention)!
-            .SetElementType(typeof(string), ConfigurationSource.Convention)!;
+            .PrimitiveCollection(nameof(SpecialOrder.Notes), ConfigurationSource.Convention)!
+            .Metadata.GetElementType()!.Builder;
 
         if (useBuilder)
         {

@@ -1721,7 +1721,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                     dependentProperties: []);
         }
 
-        properties = dependentEntityType.Builder.GetActualProperties(properties, configurationSource)!;
+        properties = dependentEntityType.Builder.GetActualProperties(
+            properties, configurationSource, Metadata.PrincipalKey.Properties)!;
         if (Metadata.Properties.SequenceEqual(properties))
         {
             Metadata.UpdateConfigurationSource(configurationSource);
@@ -3660,7 +3661,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         }
         else
         {
-            dependentProperties = dependentEntityTypeBuilder.GetActualProperties(Metadata.Properties, configurationSource)
+            dependentProperties = dependentEntityTypeBuilder.GetActualProperties(
+                Metadata.Properties,
+                configurationSource,
+                principalProperties.Count != 0 ? principalProperties : Metadata.PrincipalKey.Properties)
                 ?? new List<Property>();
         }
 

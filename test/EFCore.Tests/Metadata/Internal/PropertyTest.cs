@@ -507,8 +507,7 @@ public class PropertyTest
     {
         var model = CreateModel();
         var entityType = model.AddEntityType(typeof(object));
-        var property = entityType.AddProperty("Random", typeof(IList<int>));
-        property.SetElementType(typeof(int));
+        var property = entityType.AddPrimitiveCollection("Random", typeof(IList<int>), typeof(int));
 
         Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
         Assert.True(property.IsPrimitiveCollection);
@@ -519,23 +518,39 @@ public class PropertyTest
     {
         var model = CreateModel();
         var entityType = model.AddEntityType(typeof(object));
-        var property = entityType.AddProperty("Random", typeof(IList<object>));
-        property.SetElementType(typeof(int));
+        var property = entityType.AddPrimitiveCollection("Random", typeof(IList<object>), typeof(int));
 
         Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
         Assert.True(property.IsPrimitiveCollection);
     }
 
     [Fact]
-    public void Can_set_element_type_for_non_primitive_collection()
+    public void Can_set_element_type_for_primitive_collection_with_member_info()
+    {
+        var model = CreateModel();
+        var entityType = model.AddEntityType(typeof(Customer));
+        var memberInfo = typeof(Customer).GetProperty(nameof(Customer.Numbers));
+        var property = entityType.AddPrimitiveCollection(nameof(Customer.Numbers), typeof(IList<int>), memberInfo, typeof(int));
+
+        Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
+        Assert.True(property.IsPrimitiveCollection);
+        Assert.Same(memberInfo, property.PropertyInfo);
+    }
+
+    [Fact]
+    public void Adding_element_type_incompatible_with_collection_type_throws()
     {
         var model = CreateModel();
         var entityType = model.AddEntityType(typeof(object));
-        var property = entityType.AddProperty("Random", typeof(Random));
-        property.SetElementType(typeof(int));
 
-        Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
-        Assert.False(property.IsPrimitiveCollection);
+        Assert.Equal(
+            CoreStrings.ElementTypeNotCompatible(
+                typeof(int).ShortDisplayName(),
+                typeof(Random).ShortDisplayName(),
+                entityType.DisplayName(),
+                "Random"),
+            Assert.Throws<InvalidOperationException>(
+                () => entityType.AddPrimitiveCollection("Random", typeof(Random), typeof(int))).Message);
     }
 
     private class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
@@ -695,6 +710,7 @@ public class PropertyTest
 
         public IEnumerable<Order> EnumerableOrders { get; set; }
         public Order NotCollectionOrders { get; set; }
+        public IList<int> Numbers { get; set; }
     }
 
     private class Order : BaseType

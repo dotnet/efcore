@@ -457,15 +457,6 @@ public partial class ConventionDispatcher
             Add(new OnPropertyRemovedNode(typeBaseBuilder, property));
             return property;
         }
-
-        public override IElementType? OnPropertyElementTypeChanged(
-            IConventionPropertyBuilder propertyBuilder,
-            IElementType? newElementType,
-            IElementType? oldElementType)
-        {
-            Add(new OnPropertyElementTypeChangedNode(propertyBuilder, newElementType, oldElementType));
-            return newElementType;
-        }
     }
 
     private sealed class OnModelAnnotationChangedNode(
@@ -1041,20 +1032,6 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnPropertyFieldChanged(PropertyBuilder, NewFieldInfo, OldFieldInfo);
-    }
-
-    private sealed class OnPropertyElementTypeChangedNode(
-        IConventionPropertyBuilder propertyBuilder,
-        IElementType? newElementType,
-        IElementType? oldElementType)
-        : ConventionNode
-    {
-        public IConventionPropertyBuilder PropertyBuilder { get; } = propertyBuilder;
-        public IElementType? NewElementType { get; } = newElementType;
-        public IElementType? OldElementType { get; } = oldElementType;
-
-        public override void Run(ConventionDispatcher dispatcher)
-            => dispatcher._immediateConventionScope.OnPropertyElementTypeChanged(PropertyBuilder, NewElementType, OldElementType);
     }
 
     private sealed class OnPropertyAnnotationChangedNode(
