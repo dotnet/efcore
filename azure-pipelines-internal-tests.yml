@@ -132,7 +132,7 @@ extends:
                 displayName: 'Set CI tags'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true /p:SkipApiBaselineTests=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__SqlServer__DefaultConnection: "Data Source="
@@ -205,7 +205,7 @@ extends:
             steps:
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
+              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true /p:SkipApiBaselineTests=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
@@ -240,7 +240,7 @@ extends:
             steps:
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
+              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true /p:SkipApiBaselineTests=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 displayName: Build

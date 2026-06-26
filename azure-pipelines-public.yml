@@ -76,7 +76,7 @@ stages:
                 condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine /bl:artifacts\log\$(_BuildConfig)\Build.binlog $(_InternalBuildArgs)
-                  $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
+                  $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true /p:SkipApiBaselineTests=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__SqlServer__DefaultConnection: "Data Source="
@@ -164,7 +164,7 @@ stages:
               - skipComponentGovernanceDetection: true
               - Codeql.SkipTaskAutoInjection: true
             steps:
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true /p:SkipApiBaselineTests=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
@@ -206,7 +206,7 @@ stages:
               - skipComponentGovernanceDetection: true
               - Codeql.SkipTaskAutoInjection: true
             steps:
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs) /p:CollectCoverage=true /p:SkipApiBaselineTests=true
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__AuthToken: $(_CosmosToken)
