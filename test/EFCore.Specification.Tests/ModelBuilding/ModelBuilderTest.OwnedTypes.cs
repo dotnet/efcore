@@ -1147,14 +1147,17 @@ public abstract partial class ModelBuilderTest
 
             var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
             Assert.NotNull(ownedPkProperty.GetValueConverter());
+            Assert.Null(ownedPkProperty.GetElementType());
 
             var category = model.FindEntityType(typeof(ValueCategory));
             Assert.Null(category.FindProperty("TempId"));
+            Assert.Null(category.FindPrimaryKey().Properties.Single().GetElementType());
 
             var categoryNavigation = owned.GetDeclaredNavigations().Single(n => !n.ForeignKey.IsOwnership);
             Assert.Same(category, categoryNavigation.TargetEntityType);
             var fkProperty = categoryNavigation.ForeignKey.Properties.Single();
             Assert.Equal("CategoryId", fkProperty.Name);
+            Assert.Null(fkProperty.GetElementType());
 
             Assert.Equal(3, model.GetEntityTypes().Count());
         }
@@ -1185,6 +1188,45 @@ public abstract partial class ModelBuilderTest
 
             var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
             Assert.NotNull(ownedPkProperty.GetValueConverter());
+            Assert.Null(ownedPkProperty.GetElementType());
+
+            Assert.DoesNotContain(owned.GetDeclaredNavigations(), n => !n.ForeignKey.IsOwnership);
+            Assert.Equal(2, model.GetEntityTypes().Count());
+        }
+
+        [Fact]
+        public virtual void Can_configure_relationship_with_PK_ValueConverter_after_FK()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<QueryResult>(eb =>
+            {
+                eb.OwnsOne(q => q.Value)
+                    .WithOwner()
+                    .HasForeignKey(q => q.CategoryId);
+            });
+
+            // Configure the value converter on the principal key after the foreign key has been created.
+            // This recreates the principal key property as a scalar, which must also recreate the dependent
+            // foreign key property (a primitive collection by default) as a scalar.
+            modelBuilder.Entity<QueryResult>()
+                .Property(x => x.Id)
+                .HasConversion(x => x.Id, x => new CustomId { Id = x });
+
+            modelBuilder.Ignore<ValueCategory>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var result = model.FindEntityType(typeof(QueryResult));
+            Assert.Null(result.FindProperty("TempId"));
+            Assert.Null(result.FindPrimaryKey().Properties.Single().GetElementType());
+
+            var owned = result.GetDeclaredNavigations().Single().TargetEntityType;
+            Assert.Null(owned.FindProperty("TempId"));
+
+            var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
+            Assert.NotNull(ownedPkProperty.GetValueConverter());
+            Assert.Null(ownedPkProperty.GetElementType());
 
             Assert.DoesNotContain(owned.GetDeclaredNavigations(), n => !n.ForeignKey.IsOwnership);
             Assert.Equal(2, model.GetEntityTypes().Count());

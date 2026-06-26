@@ -1312,7 +1312,7 @@ namespace System.Runtime.CompilerServices
 
     /// <summary>
     ///     Contains information on a failure to precompile a specific query in the user's source code.
-    ///     Includes information about the query, its location, and the exception that occured.
+    ///     Includes information about the query, its location, and the exception that occurred.
     /// </summary>
     public sealed record QueryPrecompilationError(SyntaxNode SyntaxNode, Exception Exception);
 

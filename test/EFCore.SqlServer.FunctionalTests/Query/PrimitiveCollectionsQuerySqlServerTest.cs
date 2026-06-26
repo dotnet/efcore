@@ -3690,10 +3690,26 @@ WHERE (
 """);
     }
 
-    // On relational databases, byte[] gets mapped to a special binary data type, which isn't queryable as a regular primitive collection.
     [Fact]
     public virtual async Task Ordered_array_of_byte()
-        => await AssertTranslationFailed(() => TestOrderedArray((byte)1, (byte)2));
+    {
+        await TestOrderedArray((byte)1, (byte)2);
+
+        AssertSql(
+            """
+SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT CAST([s].[value] AS tinyint) AS [value]
+        FROM OPENJSON([t].[SomeArray]) AS [s]
+        ORDER BY CAST([s].[key] AS int)
+        OFFSET 1 ROWS
+    ) AS [s0]
+    WHERE [s0].[value] = CAST(1 AS tinyint)) = 2
+""");
+    }
 
     [Fact]
     public virtual async Task Ordered_array_of_double()
@@ -3927,7 +3943,7 @@ WHERE (
         var arrayClrType = typeof(TElement).MakeArrayType();
 
         var contextFactory = await InitializeNonSharedTest<TestContext>(
-            onModelCreating: onModelCreating ?? (mb => mb.Entity<TestEntity>().Property(arrayClrType, "SomeArray")),
+            onModelCreating: onModelCreating ?? (mb => mb.Entity<TestEntity>().PrimitiveCollection(arrayClrType, "SomeArray")),
             seed: context =>
             {
                 var instance1 = new TestEntity { Id = 1 };

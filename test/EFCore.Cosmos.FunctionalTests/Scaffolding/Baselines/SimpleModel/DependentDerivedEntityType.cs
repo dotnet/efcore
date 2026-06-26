@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Newtonsoft.Json.Linq;
 
@@ -66,9 +65,26 @@ public partial class DependentDerivedEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: -1);
-        id.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        id.TypeMapping = CosmosTypeMapping<int>.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+
+        var type = runtimeEntityType.AddProperty(
+            "$type",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        type.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 1),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
+        type.SetPropertyIndexes(
+            index: 1,
+            originalValueIndex: 1,
+            shadowIndex: 0,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        type.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var data = runtimeEntityType.AddProperty(
             "Data",
@@ -102,8 +118,7 @@ public partial class DependentDerivedEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        data.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        data.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var discriminator = runtimeEntityType.AddProperty(
             "Discriminator",
@@ -141,8 +156,7 @@ public partial class DependentDerivedEntityType
             shadowIndex: 1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
         var __jObject = runtimeEntityType.AddProperty(

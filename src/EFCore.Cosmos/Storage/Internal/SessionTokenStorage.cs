@@ -150,7 +150,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public virtual string? GetSessionToken(string containerName)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
         if (_mode == SessionTokenManagementMode.FullyAutomatic)
         {
@@ -183,7 +183,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public virtual void TrackSessionToken(string containerName, string? sessionToken)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
         if (_mode == SessionTokenManagementMode.FullyAutomatic || string.IsNullOrWhiteSpace(sessionToken))
         {

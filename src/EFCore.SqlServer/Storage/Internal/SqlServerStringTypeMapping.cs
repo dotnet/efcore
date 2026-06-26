@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Data.SqlTypes;
 using System.Text;
+using System.Xml;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -18,6 +20,15 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 {
     private const int UnicodeMax = 4000;
     private const int AnsiMax = 8000;
+
+    // DTD processing is explicitly prohibited and no external resolver is used so that a malicious
+    // payload is rejected rather than processed.
+    private static readonly XmlReaderSettings XmlFragmentSettings = new()
+    {
+        ConformanceLevel = ConformanceLevel.Fragment,
+        DtdProcessing = DtdProcessing.Prohibit,
+        XmlResolver = null
+    };
 
     private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
 
@@ -110,8 +121,9 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             _maxSize = AnsiMax;
         }
 
-        _isUtf16 = parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase);
         _sqlDbType = sqlDbType;
+        _isUtf16 = _sqlDbType == SqlDbType.Xml
+            || (parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -153,6 +165,22 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
             sqlParameter.SqlDbType = _sqlDbType.Value;
+        }
+
+        if (_sqlDbType == SqlDbType.Xml)
+        {
+            // SqlClient only sends a parameter as 'xml' (rather than 'nvarchar(max)') when its value is a SqlXml.
+            // Sending it as 'xml' lets SQL Server honor any encoding declared in the XML prolog (e.g. utf-8), which
+            // otherwise fails with "unable to switch the encoding". A fragment-conformant reader is used so that the
+            // content forms that the 'xml' store type accepts - empty strings, text, and multiple top-level nodes -
+            // continue to round-trip.
+            if (value is string xml)
+            {
+                using var reader = XmlReader.Create(new StringReader(xml), XmlFragmentSettings);
+                parameter.Value = new SqlXml(reader);
+            }
+
+            return;
         }
 
         if ((value == null
@@ -211,7 +239,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         var concatCount = 1;
         var concatStartList = new List<int>();
         var insideConcat = false;
-        for (i = 0; i < stringValue.Length; i++)
+
+        for (i = start; i < stringValue.Length; i++)
         {
             var lineFeed = stringValue[i] == '\n';
             var carriageReturn = stringValue[i] == '\r';

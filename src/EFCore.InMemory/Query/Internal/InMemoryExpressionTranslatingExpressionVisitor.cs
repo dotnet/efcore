@@ -206,8 +206,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         if (binaryExpression.NodeType == ExpressionType.Equal
-            || binaryExpression.NodeType == ExpressionType.NotEqual
-            && binaryExpression.Left.Type == typeof(Type))
+            || (binaryExpression.NodeType == ExpressionType.NotEqual
+                && binaryExpression.Left.Type == typeof(Type)))
         {
             if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
                 && IsTypeConstant(binaryExpression.Right, out var type1))
@@ -416,8 +416,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         if (exactMatch == null
-            && (!property!.ClrType.IsAssignableFrom(newLeft.Type))
-            || !property!.ClrType.IsAssignableFrom(newRight.Type))
+            && (!property!.ClrType.IsAssignableFrom(newLeft.Type)
+                || !property!.ClrType.IsAssignableFrom(newRight.Type)))
         {
             return false;
         }

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -1037,16 +1039,78 @@ INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
 
     public override async Task Join_local_string_closure_is_cached_correctly(bool async)
     {
-        await base.Join_local_string_closure_is_cached_correctly(async);
+        var ids = "12";
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids.Select(c => (uint)(c - '0')) on e.EmployeeID equals id
+                  select e.EmployeeID);
 
-        AssertSql();
+        ids = "3";
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids.Select(c => (uint)(c - '0')) on e.EmployeeID equals id
+                  select e.EmployeeID);
+
+        AssertSql(
+            """
+@p1='1' (Nullable = false) (Size = 1)
+@p2='2' (Nullable = false) (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1), (@p2)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""",
+            //
+            """
+@p1='3' (Nullable = false) (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""");
     }
 
     public override async Task Join_local_bytes_closure_is_cached_correctly(bool async)
     {
-        await base.Join_local_bytes_closure_is_cached_correctly(async);
+        var ids = new byte[] { 1, 2 };
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
 
-        AssertSql();
+        ids = [3];
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
+
+        AssertSql(
+            """
+@p1='1' (Size = 1)
+@p2='2' (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1), (@p2)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""",
+            //
+            """
+@p1='3' (Size = 1)
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = CAST([p].[Value] AS int)
+""");
     }
 
     public override async Task GroupJoin_customers_employees_shadow(bool async)

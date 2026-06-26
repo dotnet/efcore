@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using System.Xml;
 using Microsoft.Data.SqlClient;
 
 // ReSharper disable InconsistentNaming
@@ -3816,6 +3817,115 @@ FROM INFORMATION_SCHEMA.COLUMNS
         return actual;
     }
 
+    // The grinning-face emoji is outside the BMP (a UTF-16 surrogate pair, four UTF-8 bytes) and the euro sign
+    // is a single UTF-16 code unit but three UTF-8 bytes; both are represented differently in UTF-16 than in
+    // UTF-8 and are lost when an xml value is sent to the server as a non-Unicode string, which makes them good
+    // probes for the SqlXml/SqlDbType.Xml parameter path.
+    private const string XmlEmoji = "\U0001F600";
+    private const string XmlEuro = "\u20AC";
+
+    [Theory]
+    [InlineData("<root>" + XmlEmoji + XmlEuro + "</root>", "<root>" + XmlEmoji + XmlEuro + "</root>")]
+    // An explicit non-UTF-16 prolog is accepted because the value is sent as 'xml', not 'nvarchar(max)'.
+    [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><root>" + XmlEmoji + "</root>", "<root>" + XmlEmoji + "</root>")]
+    [InlineData("<?xml version=\"1.0\" encoding=\"utf-16\"?><root>" + XmlEuro + "</root>", "<root>" + XmlEuro + "</root>")]
+    // Content forms that the 'xml' store type accepts beyond a single well-formed document.
+    [InlineData("", "")]
+    [InlineData("text fragment", "text fragment")]
+    [InlineData("<a/><b/>", "<a /><b />")]
+    public async Task Xml_value_round_trips(string value, string expected)
+    {
+        await using var context = CreateContext();
+
+        var document = new XmlTestDocument { Content = value };
+        context.Add(document);
+        await context.SaveChangesAsync();
+
+        var id = document.Id;
+        context.ChangeTracker.Clear();
+
+        // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key. Coalescing
+        // the column with the original value sends that value as an 'xml' parameter, exercising the SqlXml
+        // parameter path in a query in addition to the insert above.
+        var query = context.Set<XmlTestDocument>()
+            .Where(d => d.Id == id)
+            .Select(d => d.Content ?? value);
+
+        Assert.Equal(
+            $"""
+DECLARE @value xml = N'{expected}';
+DECLARE @id int = {id};
+
+SELECT COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""",
+            query.ToQueryString());
+
+        var roundTripped = await query.SingleAsync();
+        Assert.Equal(expected, roundTripped);
+
+        AssertSql(
+            $"""
+@p0='{expected}' (DbType = Xml)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [XmlTestDocument] ([Content])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            $"""
+@value='{expected}' (DbType = Xml)
+@id='{id}'
+
+SELECT TOP(2) COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""");
+    }
+
+    [Fact]
+    public async Task Xml_value_with_dtd_payload_is_rejected()
+    {
+        await using var context = CreateContext();
+
+        // A "billion laughs" entity-expansion payload: the reader must reject the DTD rather than expand it.
+        const string maliciousXml =
+            "<?xml version=\"1.0\"?>"
+            + "<!DOCTYPE lolz [<!ENTITY lol \"lol\">"
+            + "<!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
+            + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">]>"
+            + "<lolz>&lol3;</lolz>";
+
+        context.Add(new XmlTestDocument { Content = maliciousXml });
+
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() => context.SaveChangesAsync());
+        Assert.True(
+            HasXmlException(exception),
+            $"Expected an {nameof(XmlException)} in the exception chain but found: {exception}");
+
+        static bool HasXmlException(Exception exception)
+        {
+            for (var current = exception; current is not null; current = current.InnerException)
+            {
+                if (current is XmlException)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private class XmlTestDocument
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -3896,6 +4006,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 b.Property(e => e.Id).ValueGeneratedNever();
                 b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
             });
+
+            modelBuilder.Entity<XmlTestDocument>().Property(e => e.Content).HasColumnType("xml");
 
             MakeRequired<MappedDataTypes>(modelBuilder);
             MakeRequired<MappedSquareDataTypes>(modelBuilder);

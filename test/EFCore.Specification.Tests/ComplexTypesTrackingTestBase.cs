@@ -2394,7 +2394,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                             e => e.Teams, "TeamPropertyBag", teamBuilder =>
                             {
                                 teamBuilder.Property<string>("Name");
-                                teamBuilder.Property<List<string>>("Members");
+                                teamBuilder.PrimitiveCollection<List<string>>("Members");
                                 teamBuilder.Property<DateTime>("Founded");
                                 teamBuilder.Property<bool>("IsActive");
                                 teamBuilder.Property<double>("Rating");
@@ -2404,7 +2404,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     e => e.FeaturedTeam, "FeaturedTeamPropertyBag", featuredTeamBuilder =>
                     {
                         featuredTeamBuilder.Property<string>("Name");
-                        featuredTeamBuilder.Property<List<string>>("Members");
+                        featuredTeamBuilder.PrimitiveCollection<List<string>>("Members");
                         featuredTeamBuilder.Property<DateTime>("Founded");
                         featuredTeamBuilder.Property<bool>("IsActive");
                         featuredTeamBuilder.Property<double>("Rating");

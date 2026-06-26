@@ -92,11 +92,9 @@ FROM "BasicTypesEntities" AS "b"
 """);
     }
 
-    [Fact(Skip = "Issue #16645 bitwise xor support")]
     public override Task Xor()
         => AssertTranslationFailed(() => base.Xor());
 
-    [Fact(Skip = "Issue #16645 bitwise xor support")]
     public override Task Xor_over_boolean()
         => AssertTranslationFailed(() => base.Xor_over_boolean());
 

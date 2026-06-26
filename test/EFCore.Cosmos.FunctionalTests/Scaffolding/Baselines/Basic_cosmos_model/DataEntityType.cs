@@ -48,8 +48,7 @@ public partial class DataEntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: -1);
-        id.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        id.TypeMapping = CosmosTypeMapping<int>.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
         var partitionId = runtimeEntityType.AddProperty(
@@ -216,8 +215,7 @@ public partial class DataEntityType
             shadowIndex: 5,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
         var __jObject = runtimeEntityType.AddProperty(
@@ -260,8 +258,7 @@ public partial class DataEntityType
             shadowIndex: 7,
             relationshipIndex: -1,
             storeGenerationIndex: 1);
-        _etag.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        _etag.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var key = runtimeEntityType.AddKey(
             new[] { id, partitionId });

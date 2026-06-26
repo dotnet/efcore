@@ -181,7 +181,7 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
                 return dbLock;
             }
 
-            await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(true);
+            await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
             if (retryDelay < TimeSpan.FromMinutes(1))
             {
                 retryDelay = retryDelay.Add(retryDelay);

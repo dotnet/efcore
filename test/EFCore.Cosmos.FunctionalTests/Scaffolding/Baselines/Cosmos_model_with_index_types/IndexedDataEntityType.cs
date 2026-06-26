@@ -69,8 +69,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: -1);
-        id.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        id.TypeMapping = CosmosTypeMapping<int>.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
         var partitionId = runtimeEntityType.AddProperty(
@@ -105,9 +104,26 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: 1,
             storeGenerationIndex: -1);
-        partitionId.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        partitionId.TypeMapping = CosmosTypeMapping<string>.Default;
         partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(partitionId));
+
+        var type = runtimeEntityType.AddProperty(
+            "$type",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        type.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 2),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
+        type.SetPropertyIndexes(
+            index: 2,
+            originalValueIndex: 2,
+            shadowIndex: 0,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        type.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var category = runtimeEntityType.AddProperty(
             "Category",
@@ -140,8 +156,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        category.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        category.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var description = runtimeEntityType.AddProperty(
             "Description",
@@ -174,8 +189,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        description.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        description.TypeMapping = CosmosTypeMapping<string>.Default;
         description.AddAnnotation("Cosmos:FullTextSearchLanguage", null);
         description.AddAnnotation("Cosmos:IsFullTextSearchEnabled", true);
 
@@ -277,8 +291,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        notes.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        notes.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var region = runtimeEntityType.AddProperty(
             "Region",
@@ -311,8 +324,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        region.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        region.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var __id = runtimeEntityType.AddProperty(
             "__id",
@@ -330,8 +342,7 @@ public partial class IndexedDataEntityType
             shadowIndex: 1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
         var __jObject = runtimeEntityType.AddProperty(

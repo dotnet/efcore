@@ -1129,7 +1129,17 @@ OUTER APPLY (
     {
         await base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async);
 
-        AssertSql("");
+        AssertSql(
+            """
+SELECT [c].[Id], [s].[BillingAddress_AddressLine1], [s].[BillingAddress_AddressLine2], [s].[BillingAddress_Tags], [s].[BillingAddress_ZipCode], [s].[BillingAddress_Country_Code], [s].[BillingAddress_Country_FullName], [s].[BillingAddress_AddressLine10], [s].[BillingAddress_AddressLine20], [s].[BillingAddress_Tags0], [s].[BillingAddress_ZipCode0], [s].[BillingAddress_Country_Code0], [s].[BillingAddress_Country_FullName0], [s].[c]
+FROM [Customer] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_Tags], [c0].[BillingAddress_ZipCode], [c0].[BillingAddress_Country_Code], [c0].[BillingAddress_Country_FullName], [c1].[BillingAddress_AddressLine1] AS [BillingAddress_AddressLine10], [c1].[BillingAddress_AddressLine2] AS [BillingAddress_AddressLine20], [c1].[BillingAddress_Tags] AS [BillingAddress_Tags0], [c1].[BillingAddress_ZipCode] AS [BillingAddress_ZipCode0], [c1].[BillingAddress_Country_Code] AS [BillingAddress_Country_Code0], [c1].[BillingAddress_Country_FullName] AS [BillingAddress_Country_FullName0], 1 AS [c]
+    FROM [Customer] AS [c0]
+    CROSS JOIN [Customer] AS [c1]
+    ORDER BY [c0].[Id], [c1].[Id] DESC
+) AS [s]
+""");
     }
 
     #region GroupBy

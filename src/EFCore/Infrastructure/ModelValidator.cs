@@ -1430,16 +1430,29 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var elementClrType = property.GetElementType()?.ClrType;
-        if (property is { IsPrimitiveCollection: true, ClrType.IsArray: false })
+        var elementType = property.GetElementType();
+        if (elementType == null)
         {
-            if (property.ClrType.IsSealed && property.ClrType.TryGetElementType(typeof(IList<>)) == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.BadListType(
-                        property.ClrType.ShortDisplayName(),
-                        typeof(IList<>).MakeGenericType(elementClrType!).ShortDisplayName()));
-            }
+            return;
+        }
+
+        if (elementType.FindTypeMapping() == null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ElementNotMapped(
+                    elementType.ClrType.ShortDisplayName(),
+                    property.DeclaringType.DisplayName(),
+                    property.Name));
+        }
+
+        var elementClrType = elementType.ClrType;
+        if (property is { ClrType.IsArray: false }
+            && property.ClrType.IsSealed && property.ClrType.TryGetElementType(typeof(IList<>)) == null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.BadListType(
+                    property.ClrType.ShortDisplayName(),
+                    typeof(IList<>).MakeGenericType(elementClrType).ShortDisplayName()));
         }
     }
 

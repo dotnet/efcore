@@ -76,9 +76,13 @@ public class SqlServerQueryStringFactory : IRelationalQueryStringFactory
                     .Append(
                         parameter.Value is SqlBytes sqlBytes
                             ? new SqlServerByteArrayTypeMapping(typeName).GenerateSqlLiteral(sqlBytes.Value)
-                            : typeMapping != null
-                                ? typeMapping.GenerateSqlLiteral(parameter.Value)
-                                : parameter.Value.ToString());
+                            : parameter.Value is SqlXml sqlXml
+                                ? new SqlServerStringTypeMapping(
+                                        typeName, unicode: true, sqlDbType: SqlDbType.Xml, storeTypePostfix: StoreTypePostfix.None)
+                                    .GenerateSqlLiteral(sqlXml.Value)
+                                : typeMapping != null
+                                    ? typeMapping.GenerateSqlLiteral(parameter.Value)
+                                    : parameter.Value.ToString());
             }
 
             builder.AppendLine(";");

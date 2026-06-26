@@ -399,7 +399,7 @@ public class IndexTest
 
         var properties = entityTypeBuilder.GetOrCreateProperties(
             [["Owner"]],
-            isCollection: null,
+            collection: null,
             ConfigurationSource.Explicit);
 
         Assert.NotNull(properties);
@@ -416,7 +416,7 @@ public class IndexTest
 
         var properties = entityTypeBuilder.GetOrCreateProperties(
             [["Posts"]],
-            isCollection: null,
+            collection: null,
             ConfigurationSource.Explicit);
 
         Assert.NotNull(properties);
@@ -435,7 +435,7 @@ public class IndexTest
 
         var properties = entityTypeBuilder.GetOrCreateProperties(
             [[ownerMember]],
-            isCollection: null,
+            collection: null,
             ConfigurationSource.Explicit);
 
         Assert.NotNull(properties);
@@ -453,7 +453,7 @@ public class IndexTest
 
         var properties = entityTypeBuilder.GetOrCreateProperties(
             [[postsMember]],
-            isCollection: null,
+            collection: null,
             ConfigurationSource.Explicit);
 
         Assert.NotNull(properties);

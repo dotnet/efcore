@@ -1015,35 +1015,57 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
     public override async Task Concat_string_int_comparison1()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison1());
+        await base.Concat_string_int_comparison1();
 
-        AssertSql();
+        AssertSql(
+            """
+@i='10'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["String"] || ToString(@i)) = "Seattle10")
+""");
     }
 
     public override async Task Concat_string_int_comparison2()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison2());
+        await base.Concat_string_int_comparison2();
 
-        AssertSql();
+        AssertSql(
+            """
+@i='10'
+
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(@i) || c["String"]) = "10Seattle")
+""");
     }
 
     public override async Task Concat_string_int_comparison3()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison3());
+        await base.Concat_string_int_comparison3();
 
-        AssertSql();
+        AssertSql(
+            """
+@p='30'
+@j='21'
+
+SELECT VALUE c
+FROM root c
+WHERE ((((ToString(@p) || c["String"]) || ToString(@j)) || ToString(42)) = "30Seattle2142")
+""");
     }
 
     public override async Task Concat_string_int_comparison4()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison4());
+        await base.Concat_string_int_comparison4();
 
         AssertSql(
-        );
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(c["Int"]) || c["String"]) = "8Seattle")
+""");
     }
 
     public override async Task Concat_method_comparison()

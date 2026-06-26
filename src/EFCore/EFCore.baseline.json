@@ -2796,9 +2796,6 @@
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAutoLoadChangedConvention> PropertyAutoLoadChangedConventions { get; }"
         },
         {
-          "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention> PropertyElementTypeChangedConventions { get; }"
-        },
-        {
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; }"
         },
         {
@@ -4017,6 +4014,12 @@
         },
         {
           "Member": "static string EFMethodWithNonEvaluatableArgument(object? methodName);"
+        },
+        {
+          "Member": "static string ElementNotMapped(object? elementType, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string ElementTypeNotCompatible(object? elementType, object? collectionType, object? entityType, object? property);"
         },
         {
           "Member": "static string EmptyComplexType(object? complexType);"
@@ -6977,22 +6980,6 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.ElementMappingConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
-      "Methods": [
-        {
-          "Member": "ElementMappingConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
-        }
-      ]
-    },
-    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionElementTypeBuilder>",
       "Methods": [
         {
@@ -7050,28 +7037,6 @@
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IMutableElementType Metadata { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.ElementTypeChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyPropertiesChangedConvention",
-      "Methods": [
-        {
-          "Member": "ElementTypeChangedConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
-        },
-        {
-          "Member": "void ProcessForeignKeyPropertiesChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> oldDependentProperties, Microsoft.EntityFrameworkCore.Metadata.IConventionKey oldPrincipalKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty>> context);"
-        },
-        {
-          "Member": "void ProcessPropertyElementTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.IElementType? newElementType, Microsoft.EntityFrameworkCore.Metadata.IElementType? oldElementType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IElementType> context);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
         }
       ]
     },
@@ -10087,7 +10052,8 @@
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IConventionElementType : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyElementType, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotatable",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();",
+          "Stage": "Obsolete"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsNullableConfigurationSource();"
@@ -11425,7 +11391,8 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionElementType? GetElementType();"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetElementTypeConfigurationSource();"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetElementTypeConfigurationSource();",
+          "Stage": "Obsolete"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsAutoLoadedConfigurationSource();"
@@ -11491,7 +11458,8 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior? SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior? beforeSaveBehavior, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionElementType? SetElementType(System.Type? elementType, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionElementType? SetElementType(System.Type? elementType, bool fromDataAnnotation = false);",
+          "Stage": "Obsolete"
         },
         {
           "Member": "bool? SetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation = false);"
@@ -11946,6 +11914,12 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddIndexerProperty(string name, System.Type propertyType, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddPrimitiveCollection(string name, System.Type propertyType, System.Type elementType, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddPrimitiveCollection(string name, System.Type propertyType, System.Reflection.MemberInfo memberInfo, System.Type elementType, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddProperty(System.Reflection.MemberInfo memberInfo, bool fromDataAnnotation = false);"
         },
         {
@@ -12122,6 +12096,12 @@
           "Member": "bool CanHaveIndexerProperty(System.Type propertyType, string propertyName, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "bool CanHavePrimitiveCollection(System.Type? propertyType, string propertyName, System.Type? elementType = null, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "bool CanHavePrimitiveCollection(System.Reflection.MemberInfo memberInfo, System.Type? elementType = null, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "bool CanHaveProperty(System.Type? propertyType, string propertyName, bool fromDataAnnotation = false);"
         },
         {
@@ -12208,6 +12188,12 @@
         },
         {
           "Member": "bool IsIgnored(string memberName, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? PrimitiveCollection(System.Type propertyType, string propertyName, System.Type? elementType = null, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? PrimitiveCollection(System.Reflection.MemberInfo memberInfo, System.Type? elementType = null, bool fromDataAnnotation = false);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? Property(System.Type propertyType, string propertyName, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
@@ -13527,7 +13513,7 @@
           "Member": "bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
         },
         {
-          "Member": "bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
+          "Member": "bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out System.Type? elementType, out bool explicitlyConfigured);"
         },
         {
           "Member": "bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
@@ -14337,7 +14323,8 @@
           "Member": "void SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior? beforeSaveBehavior);"
         },
         {
-          "Member": "void SetElementType(System.Type? elementType);"
+          "Member": "void SetElementType(System.Type? elementType);",
+          "Stage": "Obsolete"
         },
         {
           "Member": "void SetIsUnicode(bool? unicode);"
@@ -14492,6 +14479,12 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddIndexerProperty(string name, System.Type propertyType);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddPrimitiveCollection(string name, System.Type propertyType, System.Type elementType);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddPrimitiveCollection(string name, System.Type propertyType, System.Reflection.MemberInfo memberInfo, System.Type elementType);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddProperty(System.Reflection.MemberInfo memberInfo);"
@@ -15276,14 +15269,6 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ITypeBase DeclaringType { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
-      "Methods": [
-        {
-          "Member": "void ProcessPropertyElementTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.IElementType? newElementType, Microsoft.EntityFrameworkCore.Metadata.IElementType? oldElementType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IElementType> context);"
         }
       ]
     },
@@ -17213,7 +17198,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum> where TEnum : struct, System.Enum",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
       "Methods": [
         {
           "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
@@ -17346,7 +17331,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum> where TEnum : struct, System.Enum",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
       "Methods": [
         {
           "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
@@ -18285,7 +18270,7 @@
           "Member": "virtual bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
         },
         {
-          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out bool explicitlyConfigured);"
+          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out System.Type? elementType, out bool explicitlyConfigured);"
         },
         {
           "Member": "virtual bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
@@ -19424,7 +19409,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableReferencePropertyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableConventionBase, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableReferencePropertyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableConventionBase, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention",
       "Methods": [
         {
           "Member": "NonNullableReferencePropertyConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
@@ -19437,9 +19422,6 @@
         },
         {
           "Member": "virtual void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder> context);"
-        },
-        {
-          "Member": "virtual void ProcessPropertyElementTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.IElementType? newElementType, Microsoft.EntityFrameworkCore.Metadata.IElementType? oldElementType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IElementType> context);"
         },
         {
           "Member": "virtual void ProcessPropertyFieldChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.Reflection.FieldInfo? newFieldInfo, System.Reflection.FieldInfo? oldFieldInfo, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<System.Reflection.FieldInfo> context);"
@@ -20805,7 +20787,7 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<System.Reflection.MemberInfo> GetMembers(Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase structuralType);"
         },
         {
-          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase structuralType, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? mapping);"
+          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase structuralType, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? mapping, out System.Type? elementType);"
         },
         {
           "Member": "void ProcessComplexPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder> context);"
@@ -24384,6 +24366,9 @@
       "Methods": [
         {
           "Member": "static System.Type Create(System.Type outerType, System.Type innerType);"
+        },
+        {
+          "Member": "static bool IsTransparentIdentifierType(System.Type type);"
         }
       ]
     },

@@ -26,6 +26,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     private CoreTypeMapping? _typeMapping;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
+    private readonly ElementType? _elementType;
 
     private ConfigurationSource? _typeConfigurationSource;
     private ConfigurationSource? _isNullableConfigurationSource;
@@ -48,13 +49,30 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
         FieldInfo? fieldInfo,
         TypeBase declaringType,
         ConfigurationSource configurationSource,
-        ConfigurationSource? typeConfigurationSource)
+        ConfigurationSource? typeConfigurationSource,
+        Type? elementType = null)
         : base(name, propertyInfo, fieldInfo, configurationSource)
     {
         DeclaringType = declaringType;
         ClrType = clrType;
         _typeConfigurationSource = typeConfigurationSource;
         _builder = new InternalPropertyBuilder(this, declaringType.Model.Builder);
+
+        if (elementType != null)
+        {
+            if (clrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
+                    .IsAssignableFrom(elementType.UnwrapNullableType()) != true)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ElementTypeNotCompatible(
+                        elementType.ShortDisplayName(),
+                        clrType.ShortDisplayName(),
+                        declaringType.DisplayName(),
+                        name));
+            }
+
+            _elementType = new ElementType(elementType, this);
+        }
     }
 
     /// <summary>
@@ -1104,8 +1122,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
                 ref _typeMapping, (IProperty)this, static property =>
                     property.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!)
             : _typeMapping;
-
-        set => SetTypeMapping(value, ConfigurationSource.Explicit);
     }
 
     /// <summary>
@@ -1409,7 +1425,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ElementType? GetElementType()
-        => (ElementType?)this[CoreAnnotationNames.ElementType];
+        => _elementType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1418,66 +1434,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsPrimitiveCollection
-    {
-        get
-        {
-            var elementType = GetElementType();
-            return elementType != null
-                && ClrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
-                    .IsAssignableFrom(elementType.ClrType.UnwrapNullableType())
-                == true;
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ElementType? SetElementType(
-        Type? elementType,
-        ConfigurationSource configurationSource)
-    {
-        var existingElementType = GetElementType();
-        if (elementType != null
-            && elementType != existingElementType?.ClrType)
-        {
-            var newElementType = new ElementType(elementType, this, configurationSource);
-            SetAnnotation(CoreAnnotationNames.ElementType, newElementType, configurationSource);
-            OnElementTypeSet(newElementType, null);
-            return newElementType;
-        }
-
-        if (elementType == null
-            && existingElementType != null)
-        {
-            existingElementType.SetRemovedFromModel();
-            RemoveAnnotation(CoreAnnotationNames.ElementType);
-            OnElementTypeSet(null, existingElementType);
-            return null;
-        }
-
-        return existingElementType;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual IElementType? OnElementTypeSet(IElementType? newElementType, IElementType? oldElementType)
-        => DeclaringType.Model.ConventionDispatcher.OnPropertyElementTypeChanged(Builder, newElementType, oldElementType);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetElementTypeConfigurationSource()
-        => FindAnnotation(CoreAnnotationNames.ElementType)?.GetConfigurationSource();
+        => GetElementType() != null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2211,28 +2168,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
         => SetJsonValueReaderWriterType(
             readerWriterType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IConventionElementType? IConventionProperty.SetElementType(Type? elementType, bool fromDataAnnotation)
-        => SetElementType(
-            elementType,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    void IMutableProperty.SetElementType(Type? elementType)
-        => SetElementType(elementType, ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

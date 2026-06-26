@@ -2462,13 +2462,19 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             var genericMethod = StructuralTypeMaterializerSource.PopulateListMethod.MakeGenericMethod(
                                 property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                            // The instance the property is being assigned to must be taken from the original assignment, not the
+                            // hard-coded 'instance'. For lazy-loading proxies, 'instance' is the converted (non-proxy) variable that
+                            // is only assigned at the end of the materializer, so reading the member from it here would dereference null.
+                            var instanceExpression = node.Left is MemberExpression { Expression: { } leftInstance }
+                                ? leftInstance
+                                : instance;
                             var currentVariable = Variable(parameter!.Type);
                             var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
                                 ? (Expression)currentVariable
                                 : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
                             return Block(
                                 [currentVariable],
-                                MakeMemberAccess(instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
+                                MakeMemberAccess(instanceExpression, property.GetMemberInfo(forMaterialization: true, forSet: false))
                                     .Assign(currentVariable),
                                 IfThenElse(
                                     OrElse(

@@ -50,8 +50,7 @@ public partial class OwnedType0EntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        principalDerivedId.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        principalDerivedId.TypeMapping = CosmosTypeMapping<long>.Default;
         principalDerivedId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalDerivedId));
 
         var principalDerivedAlternateId = runtimeEntityType.AddProperty(
@@ -97,8 +96,7 @@ public partial class OwnedType0EntityType
             shadowIndex: 2,
             relationshipIndex: 2,
             storeGenerationIndex: 2);
-        id.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        id.TypeMapping = CosmosTypeMapping<int>.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
         var details = runtimeEntityType.AddProperty(
@@ -133,8 +131,7 @@ public partial class OwnedType0EntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        details.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        details.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var number = runtimeEntityType.AddProperty(
             "Number",
@@ -168,8 +165,7 @@ public partial class OwnedType0EntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        number.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        number.TypeMapping = CosmosTypeMapping<int>.Default;
 
         var refTypeEnumerable = runtimeEntityType.AddProperty(
             "RefTypeEnumerable",
@@ -208,8 +204,7 @@ public partial class OwnedType0EntityType
             keyComparer: ValueComparer<IEnumerable<string>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
         refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -250,8 +245,7 @@ public partial class OwnedType0EntityType
             keyComparer: ValueComparer<IList<string>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
         refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -292,8 +286,7 @@ public partial class OwnedType0EntityType
             keyComparer: ValueComparer<DateTime[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                 JsonDateTimeReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<DateTime>.Default.Clone(
-                jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<DateTime>.Default);
         var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
         valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -334,8 +327,7 @@ public partial class OwnedType0EntityType
             keyComparer: ValueComparer<IEnumerable<byte>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
         valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -376,8 +368,7 @@ public partial class OwnedType0EntityType
             keyComparer: ValueComparer<IList<byte>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
         valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -418,8 +409,7 @@ public partial class OwnedType0EntityType
             keyComparer: ValueComparer<List<short>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<short>.Default);
         var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
         valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 

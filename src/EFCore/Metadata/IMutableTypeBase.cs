@@ -165,6 +165,39 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
         MemberInfo memberInfo);
 
     /// <summary>
+    ///     Adds a primitive collection property to this type.
+    /// </summary>
+    /// <param name="name">The name of the property to add.</param>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="elementType">The element type of the primitive collection.</param>
+    /// <returns>The newly created property.</returns>
+    IMutableProperty AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        Type elementType);
+
+    /// <summary>
+    ///     Adds a primitive collection property to this type.
+    /// </summary>
+    /// <param name="name">The name of the property to add.</param>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="memberInfo">
+    ///     <para>
+    ///         The corresponding CLR type member.
+    ///     </para>
+    ///     <para>
+    ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
+    ///     </para>
+    /// </param>
+    /// <param name="elementType">The element type of the primitive collection.</param>
+    /// <returns>The newly created property.</returns>
+    IMutableProperty AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo memberInfo,
+        Type elementType);
+
+    /// <summary>
     ///     Adds a property backed up by an indexer to this type.
     /// </summary>
     /// <param name="name">The name of the property to add.</param>

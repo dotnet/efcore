@@ -93,8 +93,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        derivedsId.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        derivedsId.TypeMapping = CosmosTypeMapping<long>.Default;
         derivedsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(derivedsId));
 
         var derivedsAlternateId = runtimeEntityType.AddProperty(
@@ -216,8 +215,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             shadowIndex: -1,
             relationshipIndex: 2,
             storeGenerationIndex: 2);
-        principalsId.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        principalsId.TypeMapping = CosmosTypeMapping<long>.Default;
         principalsId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalsId));
 
         var principalsAlternateId = runtimeEntityType.AddProperty(
@@ -316,8 +314,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        discriminator.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        discriminator.TypeMapping = CosmosTypeMapping<string>.Default;
         discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var __id = runtimeEntityType.AddProperty(
@@ -352,8 +349,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
         var __jObject = runtimeEntityType.AddProperty(

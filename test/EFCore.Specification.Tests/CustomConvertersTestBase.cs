@@ -684,12 +684,12 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         => Task.CompletedTask;
 
     [Fact]
-    public virtual void Optional_owned_with_converter_reading_non_nullable_column()
+    public virtual async Task Optional_owned_with_converter_reading_non_nullable_column()
     {
         using var context = CreateContext();
         Assert.Equal(
             "Nullable object must have a value.",
-            Assert.Throws<InvalidOperationException>(() => context.Set<Parent>().Select(e => new { e.OwnedWithConverter.Value }).ToList())
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Parent>().Select(e => new { e.OwnedWithConverter.Value }).ToListAsync()))
                 .Message);
     }
 

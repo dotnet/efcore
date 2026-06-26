@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -113,9 +113,10 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
 """);
     }
 
-    [Fact(Skip = "Issue#27678")]
-    public override void Optional_owned_with_converter_reading_non_nullable_column()
-        => base.Optional_owned_with_converter_reading_non_nullable_column();
+    // Issue #34567
+    [Fact]
+    public override Task Optional_owned_with_converter_reading_non_nullable_column()
+        => Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_owned_with_converter_reading_non_nullable_column());
 
     public override void Value_conversion_on_enum_collection_contains()
         => Assert.Contains(
