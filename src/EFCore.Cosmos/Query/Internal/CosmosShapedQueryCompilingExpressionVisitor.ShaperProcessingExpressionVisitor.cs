@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -65,6 +64,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static readonly PropertyInfo Utf8JsonReaderBytesConsumedProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.BytesConsumed)) ?? throw new UnreachableException();
+
+        private static readonly PropertyInfo Utf8JsonReaderStateProperty
+            = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.CurrentState)) ?? throw new UnreachableException();
 
         private static readonly PropertyInfo ReadOnlyMemorySpanProperty
             = typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span)) ?? throw new UnreachableException();
@@ -164,12 +166,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // We read the projections in the order they are defined in from the document and pass the sub data to the shaper
                 var tokenTypeVariable = Parameter(typeof(JsonTokenType), "tokenType");
                 var jsonReaderVariable = Parameter(typeof(Utf8JsonReader), "jsonReader");
+                var afterStartObjectReaderStateVariable = Parameter(typeof(JsonReaderState), "afterStartObjectReaderState");
 
                 var shaperBlockVariables = new List<ParameterExpression>(_deferredProjectionBindings.Values.Select(x => x.Variable))
                 {
                     _jsonReaderDataParameter,
                     tokenTypeVariable,
-                    jsonReaderVariable
+                    jsonReaderVariable,
+                    afterStartObjectReaderStateVariable
                 };
                 var shaperBlockExpressions = new List<Expression>()
                 {
@@ -177,24 +181,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Assign(_bytesConsumedParameter, Constant(0)),
                     // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: default)
                     AssignJsonReaderVariableExpression(),
-                    // jsonReader.Read()
+                    // jsonReader.Read() // Reads StartObject
                     Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
-                    // tokenType = jsonReader.TokenType
-                    Assign(tokenTypeVariable, Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)),
+                    // afterStartObjectReaderState = jsonReader.CurrentState // Store the state of after start object to be able to continue reading properties later on
+                    Assign(afterStartObjectReaderStateVariable, Property(jsonReaderVariable, Utf8JsonReaderStateProperty))
                 };
 
-                BinaryExpression AssignJsonReaderVariableExpression()
-                    => Assign(jsonReaderVariable, New(Utf8JsonReaderConstructor, Property(_dataParameter, ReadOnlyMemorySpanProperty), Constant(true), Default(typeof(JsonReaderState))));
+                BinaryExpression AssignJsonReaderVariableExpression(Expression? jsonReaderState = null)
+                    => Assign(jsonReaderVariable, New(Utf8JsonReaderConstructor, Property(_dataParameter, ReadOnlyMemorySpanProperty), Constant(true), jsonReaderState ?? Default(typeof(JsonReaderState))));
 
                 var groups = _deferredProjectionBindings.GroupBy(x => GetProjectionIndex(x.Key));
 
-                foreach (var group in groups)
+                foreach (var group in groups.OrderBy(x => x.Key))
                 {
                     shaperBlockExpressions.AddRange([
-                        Call(jsonReaderVariable, Utf8JsonReaderReadMethod), // jsonReader.Read();
+                        // jsonReader.Read() // Reads PropertyName
+                        Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                        // bytesConsumed += jsonReader.BytesConsumed
+                        // data = data.Slice((int)jsonReader.BytesConsumed) // Slice the data to the start json value being deserialized
                         .. AddBytesConsumedExpressions(Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int))),
                     ]);
 
+                    // Deserialize the json value the amount of times there are projections for this json value, and assign the result to the variable for each projection.
                     foreach (var (projectionBindingExpression, (variable, materializer)) in group)
                     {
                         shaperBlockExpressions.Add(
@@ -202,11 +210,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Assign(variable, materializer));
                     }
 
+                    var nextItemBytesConsumedVariable = Variable(typeof(int), "nextItemBytesConsumed");
                     shaperBlockExpressions.AddRange([
+                        // bytesConsumed += jsonReader.BytesConsumed
+                        // data = data.Slice((int)jsonReader.BytesConsumed) // Slice the data to the end of the json value being deserialzed
                         ..AddBytesConsumedExpressions(Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
-                        AssignJsonReaderVariableExpression(), // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: default);
+                        // Slice the possible ',' after the last json value
+                        Block(
+                            [nextItemBytesConsumedVariable],
+                            // data = SliceNextItemTokenMethodInfo(data, out nextItemBytesConsumed)
+                            [Assign(_dataParameter, Call(SliceNextItemTokenMethodInfo, _dataParameter, nextItemBytesConsumedVariable)),
+                            // nextItemBytesConsumed += nextItemBytesConsumedVariable
+                            AddAssign(_bytesConsumedParameter, nextItemBytesConsumedVariable)]),
+                        // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: afterStartObjectReaderState) // Create a new json reader to continue reading the document, using the state from when we started reading the first property
+                        AssignJsonReaderVariableExpression(afterStartObjectReaderStateVariable),
                     ]);
                 }
+
+                shaperBlockExpressions.AddRange(
+                    // jsonReader.Read() // Reads EndObject
+                    Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                    // bytesConsumed += jsonReader.BytesConsumed
+                    AddBytesConsumedExpressions(Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int)))[0]);
 
                 shaperBlockExpressions.Add(processedShaperExpression);
                 processedShaperExpression = Block(shaperBlockVariables, shaperBlockExpressions);
@@ -256,30 +281,34 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return shaper;
                 }
 
-                //case ProjectionBindingExpression projectionBindingExpression:
-                //{
-                //    var (jsonReaderData, jsonReaderManager, jsonReaderInitializeExpessions) = GenerateJsonReader();
+                case ProjectionBindingExpression projectionBindingExpression:
+                {
+                    var projection = GetProjection(projectionBindingExpression);
+                    var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
+                    var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
+                    var valueJsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "valueJsonReaderManager");
 
-                //    var projection = GetProjection(projectionBindingExpression);
-                //    var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
-                //    var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
+                    Expression jsonDeserializeExpression = Block(
+                        [returnValue, valueJsonReaderManager],
+                        [
+                            Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                            Assign(valueJsonReaderManager, NewJsonReaderManager()),
+                            Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+                            Assign(
+                                returnValue,
+                                CreateReadJsonValueExpression(valueJsonReaderManager, returnValue.Type, typeMapping)),
+                            Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                            returnValue]);
 
-                //    Expression jsonMaterializeExpression = Block(
-                //        [jsonReaderData, jsonReaderManager, returnValue],
-                //        [ ..jsonReaderInitializeExpessions,
-                //            Assign(
-                //                returnValue,
-                //                CreateReadJsonValueExpression(jsonReaderManager, returnValue.Type, typeMapping)),
-                //            Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                //            returnValue]);
+                    if (!projection.IsValueProjection && projection.Alias != null)
+                    {
+                        var variable = Variable(jsonDeserializeExpression.Type, projection.Alias);
+                        _deferredProjectionBindings[projectionBindingExpression] = (variable, jsonDeserializeExpression);
+                        return variable;
+                    }
 
-                //    if (!projection.IsValueProjection && projection.Alias != null) 
-                //    {
-                //        jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, _dataParameter, [projection.Alias]);
-                //    }
-
-                //    return jsonMaterializeExpression;
-                //}
+                    return jsonDeserializeExpression;
+                }
 
                 //case CollectionShaperExpression collectionShaperExpression:
                 //{
@@ -1349,41 +1378,41 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        //private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
-        //{
-        //    var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
-        //    Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-        //    var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
+        private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
+        {
+            var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
+            Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+            var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
 
-        //    var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
-        //        nameof(JsonValueReaderWriter<>.FromJsonTyped),
-        //        [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
+            var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
+                nameof(JsonValueReaderWriter<>.FromJsonTyped),
+                [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
 
-        //    Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
+            Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
 
-        //    if (resultExpression.Type != typeMapping.ClrType)
-        //    {
-        //        resultExpression = Convert(resultExpression, typeMapping.ClrType);
-        //    }
+            if (resultExpression.Type != typeMapping.ClrType)
+            {
+                resultExpression = Convert(resultExpression, typeMapping.ClrType);
+            }
 
-        //    if (clrType.IsNullableType())
-        //    {
-        //        // in case of null value we can't just use the JsonReader method, but rather check the current token type
-        //        // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-        //        resultExpression = Condition(
-        //            Equal(
-        //                Property(
-        //                    Field(
-        //                        jsonReaderManagerParameter,
-        //                        Utf8JsonReaderManagerCurrentReaderField),
-        //                    Utf8JsonReaderTokenTypeProperty),
-        //                Constant(JsonTokenType.Null)),
-        //            Default(clrType),
-        //            Convert(resultExpression, clrType));
-        //    }
+            if (clrType.IsNullableType())
+            {
+                // in case of null value we can't just use the JsonReader method, but rather check the current token type
+                // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
+                resultExpression = Condition(
+                    Equal(
+                        Property(
+                            Field(
+                                jsonReaderManagerParameter,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty),
+                        Constant(JsonTokenType.Null)),
+                    Default(clrType),
+                    Convert(resultExpression, clrType));
+            }
 
-        //    return resultExpression;
-        //}
+            return resultExpression;
+        }
     }
 }
 
