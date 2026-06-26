@@ -47,7 +47,7 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
-      # Only update to the latest minor version, never major
+      # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
@@ -83,7 +83,7 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
-      # Only update to the latest minor version, never major
+      # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
@@ -119,7 +119,7 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
-      # Only update to the latest minor version, never major
+      # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
