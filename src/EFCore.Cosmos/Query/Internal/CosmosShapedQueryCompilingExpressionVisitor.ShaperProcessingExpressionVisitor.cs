@@ -102,7 +102,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ITypeBase, LambdaExpression>
             _structuralTypeJsonMaterializerLambdaMapping = new();
 
-        private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, LambdaExpression Materializer)>
+        private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, Expression Materializer)>
             _deferredProjectionBindings = new();
 
         private readonly Dictionary<ParameterExpression, Expression>
@@ -150,16 +150,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var resultVarialbe = Variable(processedShaperExpression.Type, "result");
                 processedShaperExpression = Block(
                     [_jsonReaderDataParameter, resultVarialbe],
-                    // bytesConsumed = 0;
+                    // bytesConsumed = 0
                     [Assign(_bytesConsumedParameter, Constant(0)),
-                    // jsonReaderData = new JsonReaderData(data)
-                    Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                    // result = shaper
                     Assign(resultVarialbe, processedShaperExpression),
+                    // bytesConsumed += jsonReaderData.BytesConsumed
                     AddBytesConsumedExpressions(Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty))[0],
+                    // return result
                     resultVarialbe]);
             }
             else
             {
+                // We read the projections in the order they are defined in from the document and pass the sub data to the shaper
                 var tokenTypeVariable = Parameter(typeof(JsonTokenType), "tokenType");
                 var jsonReaderVariable = Parameter(typeof(Utf8JsonReader), "jsonReader");
 
@@ -171,31 +173,33 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 };
                 var shaperBlockExpressions = new List<Expression>()
                 {
-                    Assign(_bytesConsumedParameter, Constant(0)), // bytesConsumed = 0;
-                    AssignJsonReaderVariableExpression(), // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: default);
-                    Call(jsonReaderVariable, Utf8JsonReaderReadMethod), // jsonReader.Read();
-                    Assign(tokenTypeVariable, Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)), // tokenType = jsonReader.TokenType;
-                    IfThen(NotEqual(tokenTypeVariable, Constant(JsonTokenType.StartObject)), Throw(New(InvalidOperationExceptionConstructor, Constant("Invalid JSON shaper")))), // @TODO: Invalid json exception
+                    // bytesConsumed = 0
+                    Assign(_bytesConsumedParameter, Constant(0)),
+                    // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: default)
+                    AssignJsonReaderVariableExpression(),
+                    // jsonReader.Read()
+                    Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                    // tokenType = jsonReader.TokenType
+                    Assign(tokenTypeVariable, Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)),
                 };
 
                 BinaryExpression AssignJsonReaderVariableExpression()
                     => Assign(jsonReaderVariable, New(Utf8JsonReaderConstructor, Property(_dataParameter, ReadOnlyMemorySpanProperty), Constant(true), Default(typeof(JsonReaderState))));
 
-                var groups = _deferredProjectionBindings.GroupBy(x => GetProjectionIndex(x.Key)); // @TODO: Get projection index?
+                var groups = _deferredProjectionBindings.GroupBy(x => GetProjectionIndex(x.Key));
 
                 foreach (var group in groups)
                 {
                     shaperBlockExpressions.AddRange([
                         Call(jsonReaderVariable, Utf8JsonReaderReadMethod), // jsonReader.Read();
-                        .. AddBytesConsumedExpressions(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty)),
+                        .. AddBytesConsumedExpressions(Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int))),
                     ]);
 
                     foreach (var (projectionBindingExpression, (variable, materializer)) in group)
                     {
-                        shaperBlockExpressions.AddRange([
-                            Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)), // jsonReaderData = new JsonReaderData(data)
-                            Assign(variable, Invoke(materializer, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter)) // variable = materializer(QueryContext, jsonReaderData)
-                            ]);
+                        shaperBlockExpressions.Add(
+                            // variable = materializer
+                            Assign(variable, materializer));
                     }
 
                     shaperBlockExpressions.AddRange([
@@ -230,22 +234,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             switch (extensionExpression)
             {
-                case StructuralTypeShaperExpression shaper:
+                case StructuralTypeShaperExpression structuralTypeShaper:
                 {
-                    var shaperLambda = StructuralTypeJsonShaper(shaper);
+                    var shaperLambda = StructuralTypeJsonShaper(structuralTypeShaper);
 
-                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // Otherwise this is an inner shaper of a CollectionShaperExpression,
+                    var shaper = Block(
+                        Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                        Invoke(shaperLambda, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter));
+
+                    if (structuralTypeShaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // Otherwise this is an inner shaper of a CollectionShaperExpression,
                     {
                         var projection = GetProjection(projectionBindingExpression);
                         if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the document, so we have to defer the projection to a variable assignment when reading the parent document. See: ProcessShaper
                         {
                             var variable = Variable(shaper.Type, projection.Alias);
-                            _deferredProjectionBindings[projectionBindingExpression] = (variable, shaperLambda);
+                            _deferredProjectionBindings[projectionBindingExpression] = (variable, shaper);
                             return variable;
                         }
                     }
 
-                    return Invoke(shaperLambda, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter);
+                    return shaper;
                 }
 
                 //case ProjectionBindingExpression projectionBindingExpression:
