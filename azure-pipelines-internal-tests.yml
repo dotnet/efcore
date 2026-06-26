@@ -137,6 +137,9 @@ extends:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__SqlServer__DefaultConnection: "Data Source="
                 displayName: Build
+              - script: .dotnet\dotnet test test\EFCore.ApiBaseline.Tests -configuration $(_BuildConfig)
+                displayName: Test API Baselines
+                condition: succeeded()
               - powershell: |
                   $files = Get-ChildItem -Path 'artifacts\coverage' -Filter '*.cobertura.xml' -ErrorAction SilentlyContinue
                   if ($files) {
