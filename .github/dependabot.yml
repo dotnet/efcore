@@ -48,9 +48,9 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
-      # Only update to the latest minor or patch version, never major
+      # Only update to the latest patch version, never major or minor
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -84,9 +84,9 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
-      # Only update to the latest minor or patch version, never major
+      # Only update to the latest patch version, never major or minor
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -120,9 +120,9 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
-      # Only update to the latest minor or patch version, never major
+      # Only update to the latest patch version, never major or minor
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
