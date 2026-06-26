@@ -82,24 +82,6 @@ public partial class ManyTypesEntityType
         id.SetCurrentValueComparer(new CurrentProviderValueComparer<CompiledModelTestBase.ManyTypesId, int>(id));
         id.SetSentinelFromProviderValue(0);
 
-        var type = runtimeEntityType.AddProperty(
-            "$type",
-            typeof(string),
-            afterSaveBehavior: PropertySaveBehavior.Throw,
-            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
-        type.SetAccessors(
-            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 1),
-            string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
-        type.SetPropertyIndexes(
-            index: 1,
-            originalValueIndex: 1,
-            shadowIndex: 0,
-            relationshipIndex: -1,
-            storeGenerationIndex: -1);
-        type.TypeMapping = CosmosTypeMapping<string>.Default;
-
         var @bool = runtimeEntityType.AddProperty(
             "Bool",
             typeof(bool),
@@ -1185,8 +1167,7 @@ public partial class ManyTypesEntityType
             shadowIndex: 0,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        discriminator.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        discriminator.TypeMapping = CosmosTypeMapping<string>.Default;
         discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var @double = runtimeEntityType.AddProperty(
