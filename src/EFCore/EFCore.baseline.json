@@ -24378,6 +24378,9 @@
       "Methods": [
         {
           "Member": "static System.Type Create(System.Type outerType, System.Type innerType);"
+        },
+        {
+          "Member": "static bool IsTransparentIdentifierType(System.Type type);"
         }
       ]
     },

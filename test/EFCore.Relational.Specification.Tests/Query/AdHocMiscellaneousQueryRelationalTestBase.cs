@@ -423,11 +423,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   inner with no aggregate / no pushdown; Union and other set operations over the projection;
         //   and server-side OrderBy/Where null-checks against the whole non-entity projection.
 
-        // ---------------------------------------------------------------------------------------
-        // Category A: whole non-entity object projected from the nullable side
-        // ---------------------------------------------------------------------------------------
+        #region Category A: whole non-entity object projected from the nullable side
 
-        [Fact] // 1
+        [Fact]
         public virtual async Task Anon_whole_object_GroupJoin_DefaultIfEmpty()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -463,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.Count);
         }
 
-        [Fact] // 2
+        [Fact]
         public virtual async Task Anon_whole_object_LeftJoin_operator()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -497,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.Count);
         }
 
-        [Fact] // 3
+        [Fact]
         public virtual async Task Anon_client_null_check_GroupJoin()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -521,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
-        [Fact] // 4
+        [Fact]
         public virtual async Task Anon_client_null_check_LeftJoin_operator()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -545,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
-        [Fact] // 5 - CONTROL: member access with nullable cast, likely works
+        [Fact] // CONTROL: member access with nullable cast, likely works
         public virtual async Task Anon_member_only_nullable_cast()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -568,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal((3, (int?)1), (result[2].PickupStatusId, result[2].Count));
         }
 
-        [Fact] // 6
+        [Fact]
         public virtual async Task Dto_memberinit_whole_object_LeftJoin()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -602,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.Count);
         }
 
-        [Fact] // 7
+        [Fact]
         public virtual async Task Dto_constructor_whole_object_LeftJoin()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -622,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 8
+        [Fact]
         public virtual async Task Struct_whole_object_LeftJoin()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -640,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 9
+        [Fact]
         public virtual async Task RecordStruct_whole_object_LeftJoin()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -660,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 10
+        [Fact]
         public virtual async Task Nested_anon_whole_object()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -699,11 +697,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].Wrap.countInfo.Count);
         }
 
-        // ---------------------------------------------------------------------------------------
-        // Category B: post-join operators
-        // ---------------------------------------------------------------------------------------
+        #endregion
 
-        [Fact] // 11
+        #region Category B: post-join operators
+
+        [Fact]
         public virtual async Task GroupBy_after_join_then_whole_object()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -724,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 12
+        [Fact]
         public virtual async Task Second_join_after_then_whole_object()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -745,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 13 - plain inner with no aggregate -> no pushdown
+        [Fact] // plain inner with no aggregate -> no pushdown
         public virtual async Task Plain_inner_no_aggregate_LeftJoin_whole_object()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -762,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 14
+        [Fact]
         public virtual async Task Distinct_after_join_member()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -788,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
-        [Fact] // 15
+        [Fact]
         public virtual async Task Union_of_two_leftjoin_nonentity()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -816,7 +814,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 16
+        [Fact]
         public virtual async Task OrderBy_member_of_nullable_projection()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -836,7 +834,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 17
+        [Fact]
         public virtual async Task Take_after_join_whole_object()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -873,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.Count);
         }
 
-        [Fact] // 18
+        [Fact]
         public virtual async Task Where_nonentity_projection_not_null_serverside()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -896,7 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        [Fact] // 19
+        [Fact]
         public virtual async Task Where_nonentity_projection_null_serverside()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -919,11 +917,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
-        // ---------------------------------------------------------------------------------------
-        // Category C: member kinds inside the projected object
-        // ---------------------------------------------------------------------------------------
+        #endregion
 
-        [Fact] // 20
+        #region Category C: member kinds inside the projected object
+
+        [Fact]
         public virtual async Task Projected_object_with_nullable_member()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -959,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(7, result[2].countInfo.MaxPriority);
         }
 
-        [Fact] // 21
+        [Fact]
         public virtual async Task Projected_object_with_string_member()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -997,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal("cat", result[2].countInfo.Name);
         }
 
-        [Fact] // 22 - only nullable/reference members; all-null may be representable
+        [Fact] // only nullable/reference members; all-null may be representable
         public virtual async Task Projected_object_all_nullable_members()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -1037,12 +1035,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(7, result[2].countInfo.MaxPriority);
         }
 
-        // ---------------------------------------------------------------------------------------
-        // Category D: reviewer-suggested hardening (matched-null invariant, bare-root projection,
-        // alias collision, and boundary cases)
-        // ---------------------------------------------------------------------------------------
+        #endregion
 
-        [Fact] // 23
+        #region Category D: reviewer-suggested hardening (matched-null invariant, bare-root projection, alias collision, and boundary cases)
+
+        [Fact]
         public virtual async Task Matched_row_with_null_aggregate_keeps_object_non_null()
         {
             // A matched group whose aggregate is null must STILL materialize a non-null object: the
@@ -1081,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(result[2].countInfo.MaxPriority);
         }
 
-        [Fact] // 24
+        [Fact]
         public virtual async Task Bare_whole_object_projection_is_null_on_no_match()
         {
             // The non-entity object is the ROOT of the projection (not nested in an anon wrapper).
@@ -1115,7 +1112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].Count);
         }
 
-        [Fact] // 25
+        [Fact]
         public virtual async Task User_member_named_marker_does_not_collide_with_synthetic_marker()
         {
             // A user member literally named "marker" must not collide with the synthetic nullability
@@ -1154,7 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.marker);
         }
 
-        [Fact] // 26
+        [Fact]
         public virtual async Task RightJoin_whole_object_outer_nullable()
         {
             // Queryable.RightJoin makes the OUTER (the non-entity categories) the nullable side.
@@ -1177,7 +1174,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: RightJoin (outer-nullable) whole-object not yet covered; flip to assert results if/when fixed.
         }
 
-        [Fact] // 27
+        [Fact]
         public virtual async Task Correlated_SelectMany_DefaultIfEmpty_whole_object()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -1200,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // #30915 TODO: correlated APPLY whole-object shape not yet covered on providers without APPLY.
         }
 
-        [Fact] // 28
+        [Fact]
         public virtual async Task Two_left_joined_nonentity_objects_second_marker_orphaned()
         {
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -1222,14 +1219,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             // verify two distinct marker aliases.
         }
 
-        // ---------------------------------------------------------------------------------------
-        // Category E: low-priority coverage (sync variant, non-int value-type member)
-        // ---------------------------------------------------------------------------------------
+        #endregion
 
-        [Fact] // 29
+        #region Category E: low-priority coverage (sync variant, non-int value-type member)
+
+        [Fact]
         public virtual async Task Anon_whole_object_GroupJoin_DefaultIfEmpty_sync()
         {
-            // Sync (ToList) variant of test 1: the null-gate lives in the shared shaper, so both the
+            // Sync (ToList) variant of Anon_whole_object_GroupJoin_DefaultIfEmpty: the null-gate lives in the shared shaper, so both the
             // sync and async paths must behave identically.
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
             using var context = contextFactory.CreateDbContext();
@@ -1261,7 +1258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.Count);
         }
 
-        [Fact] // 30
+        [Fact]
         public virtual async Task Projected_object_with_decimal_member()
         {
             // Exercises the gated branch with a non-int, non-nullable value-type member (decimal), so a
@@ -1299,7 +1296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(3m, result[2].countInfo.Total);
         }
 
-        [Fact] // 31
+        [Fact]
         public virtual async Task Composed_user_marker_projection_into_subquery_self_heals()
         {
             // Test 25 leaves a cosmetic duplicate output alias at the OUTERMOST SELECT (a user member
@@ -1340,11 +1337,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.marker);
         }
 
-        // ---------------------------------------------------------------------------------------
-        // Category F: hardening characterization (reachable structural edges of the marker mechanism)
-        // ---------------------------------------------------------------------------------------
+        #endregion
 
-        [Fact] // 32
+        #region Category F: hardening characterization (reachable structural edges of the marker mechanism)
+
+        [Fact]
         public virtual async Task Nested_transparent_identifier_of_entities_as_leftjoin_inner()
         {
             // The only structurally-reachable untested edge: a join-of-entities used as the LEFT JOIN
@@ -1389,7 +1386,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(3, result[3].pair.s2.PickupStatusId);
         }
 
-        [Fact] // 33
+        [Fact]
         public virtual async Task Distinct_with_unconsumed_marker_is_benign()
         {
             // A non-entity anon inner with MEMBER-ONLY access (so a marker is injected but unconsumed by
@@ -1414,7 +1411,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
-        [Fact] // 34
+        [Fact]
         public virtual async Task Nullable_struct_whole_object_from_nullable_side()
         {
             // Pins the Nullable<T> case: project a CountStruct30915? whole-object from the nullable side.
@@ -1439,13 +1436,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             // by the marker mechanism, which only records for New/MemberInit, not Convert).
         }
 
-        [Fact] // 35
+        [Fact]
         public virtual async Task ValueTuple_whole_object_from_nullable_side()
         {
-            // Pins that IsTransparentIdentifierType does NOT false-positive on a ValueTuple (its fields are
-            // Item1/Item2, not Outer/Inner) and that a ValueTuple constructed in a GroupBy projection is a
+            // Pins that IsTransparentIdentifierType does NOT false-positive on a ValueTuple (it is not the
+            // TransparentIdentifier<,> generic type) and that a ValueTuple constructed in a GroupBy projection is a
             // value type so the marker gate never applies. Actual behavior: the constructor-bound ValueTuple
-            // projection fails to TRANSLATE (like the ctor-bound DTO in test 7 / record struct in test 9),
+            // projection fails to TRANSLATE (like the ctor-bound DTO in Dto_constructor_whole_object_LeftJoin / record struct in
+            // RecordStruct_whole_object_LeftJoin),
             // rather than failing during materialization with "Nullable object must have a value".
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
             using var context = contextFactory.CreateDbContext();
@@ -1465,10 +1463,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             // constructor-bound ValueTuple GroupBy projection currently fails to translate.
         }
 
-        [Fact] // 36
+        [Fact]
         public virtual async Task Member_only_access_nested_two_joins_deep()
         {
-            // Extends the one-level self-heal (test 31) to a deeper composition: a member-only access of a
+            // Extends the one-level self-heal (Composed_user_marker_projection_into_subquery_self_heals) to a deeper composition: a member-only access of a
             // non-entity inner composed through a SECOND join/subquery. Confirms an injected-but-unused
             // marker causes no ambiguous-column or alias issue two joins deep.
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
@@ -1495,9 +1493,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal((3, "Busy", 1), (result[2].PickupStatusId, result[2].Name, result[2].Count));
         }
 
+        #endregion
+
         protected abstract Task Seed30915(Context30915 context);
 
-        // Provider-agnostic seed for the matched-null-aggregate invariant (test 23): status 4 MATCHES
+        // Provider-agnostic seed for the matched-null-aggregate invariant (Matched_row_with_null_aggregate_keeps_object_non_null): status 4 MATCHES
         // (two requests) but Max(Priority) over the matched group is null; status 2 is a genuine no-match.
         private static async Task Seed30915MatchedNullAggregate(Context30915 context)
         {

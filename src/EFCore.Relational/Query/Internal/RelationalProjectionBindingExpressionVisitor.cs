@@ -705,24 +705,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     // (produced by TransparentIdentifierFactory.Create) is the intermediate outer/inner result of a join that EF Core composes
     // further (a subsequent Where/Join/Select member-accesses its Outer/Inner parts). When the projection root is such a node, a
     // recorded non-entity object lives nested inside it and must stay a bare New so that downstream member-folding keeps working;
-    // the marker only needs to gate the final user projection, which is never itself a transparent identifier. Detection mirrors
-    // TransparentIdentifierFactory's structural signature (a generic value type with exactly two fields named Outer and Inner)
-    // rather than a fragile type-name match, and is robust because the transparent-identifier struct is private to EFCore.
+    // the marker only needs to gate the final user projection, which is never itself a transparent identifier.
     private static bool IsTransparentIdentifierProjection(Expression expression)
-        => expression is NewExpression newExpression && IsTransparentIdentifierType(newExpression.Type);
-
-    private static bool IsTransparentIdentifierType(Type type)
-    {
-        if (!type.IsValueType || !type.IsGenericType)
-        {
-            return false;
-        }
-
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-        return fields.Length == 2
-            && fields.Any(f => f.Name == "Outer")
-            && fields.Any(f => f.Name == "Inner");
-    }
+        => expression is NewExpression newExpression && TransparentIdentifierFactory.IsTransparentIdentifierType(newExpression.Type);
 
     // #30915: builds a Condition that gates the materialization of a non-entity object projected from the nullable side of an
     // outer join: it returns the default (null) for the object's CLR type when the recorded marker column reads NULL (no-match
