@@ -663,8 +663,29 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var breakLabel = Label("EndRead");
 
-            // @TODO: throwOnLateType ? Throw(New(typeof(InvalidOperationException))) : Empty();
-            var ifNotPropertyMatchThrow = Throw(New(InvalidOperationExceptionConstructor, Constant("Discriminator was not early in the document."))); // @TODO: message: Discriminator was not early in the document.
+            Expression noMatch;
+            //if (_throwOnLateDiscriminator) // @TODO
+            //{
+            //    var ifNotPropertyMatchThrow = Throw(New(InvalidOperationExceptionConstructor, Constant("Discriminator was not early in the document."))); // @TODO: message: Discriminator was not early in the document.
+            //    noMatch = structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility.
+            //                                                                                                        // else if (jsonReaderManager.CurrentReader.ValueTextEquals(("Id"u8).Span))
+            //            ? IfThenElse(
+            //                primaryKey.Properties
+            //                    .Select(p => JsonReaderValueTextEquals(_jsonReaderManagerVariable, p.GetJsonPropertyName()))
+            //                    .Aggregate<MethodCallExpression, Expression?>(
+            //                        null,
+            //                        (previous, next) => previous is null ? next : OrElse(previous, next))!,
+            //                    // jsonReaderManager.Skip() x2
+            //                    Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod))),
+            //                // else throw new InvalidOperationException("Discriminator was not early in the document.")
+            //                ifNotPropertyMatchThrow)
+            //            : ifNotPropertyMatchThrow;
+            //}
+            //else
+            {
+                // jsonReaderManager.Skip() x2
+                noMatch = Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod)));
+            }
 
             var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
 
@@ -703,19 +724,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                     ReadJsonPropertyValue(discriminatorProperty))),
                                             // goto EndRead
                                             Break(breakLabel, typeof(void))),
-                                        structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility.
-                                            // else if (jsonReaderManager.CurrentReader.ValueTextEquals(("Id"u8).Span))
-                                            ? IfThenElse(
-                                                primaryKey.Properties
-                                                    .Select(p => JsonReaderValueTextEquals(_jsonReaderManagerVariable, p.GetJsonPropertyName()))
-                                                    .Aggregate<MethodCallExpression, Expression?>(
-                                                        null,
-                                                        (previous, next) => previous is null ? next : OrElse(previous, next))!,
-                                                    // jsonReaderManager.Skip() x2
-                                                    Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod))),
-                                                // else throw new InvalidOperationException("Discriminator was not early in the document.")
-                                                ifNotPropertyMatchThrow)
-                                            : ifNotPropertyMatchThrow),
+                                        noMatch
+                                        ),
                                     Constant(JsonTokenType.PropertyName))])]),
                     breakLabel));
         }
