@@ -503,6 +503,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var materializerBlock =
                 (BlockExpression)_parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
 
+            // @TODO: Rewrite ordinal key properties...
+
             // We can't know principal properties until we have fully deserialized the parent.
             // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
             // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
@@ -1013,20 +1015,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         // Change tracker will do fixup
                         // We also need to set any principal properties on the nested entity to the values from the parent entity, because we can only do this once the parent entity is fully materialized
-                        //var (entityType, associate, associateShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
-                        //if (associate != default)
+                        //var (nestedEntityType, nestedInstance, nestedShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
+                        //if (nestedInstance != default)
                         //{
                         //  trackingActions.Add(() =>
                         //  {
-                        //      var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id, associate.Id }, false, out var _);
+                        //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
                         //      if (entry != default)
                         //      {
-                        //          associateShadowSnapshot[0] = instance.Id;
+                        //          nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id);
                         //          foreach (var nestedTrackingAction in nestedTrackingActions)
                         //          {
                         //              nestedTrackingAction();
                         //          }
-                        //          queryContext.StartTracking(entityType, associate, associateShadowSnapshot);
+                        //          queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot);
                         //    }
                         //});
                         //}
@@ -1044,6 +1046,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
                         var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
 
+                        // Map key values to the correct source for the try get entry call.
                         var tryGetEntryPropertyMap = nestedEntityType.FindPrimaryKey()!.Properties
                             .ToDictionary<IProperty, IProperty, Expression>(
                                 p => p,
@@ -1078,15 +1081,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         nestedReadExpressions.AddRange(
                             Assign(tupleVariable, nestedMaterializer),
+                            // if (nestedInstance != default)
                             IfThen(NotEqual(nestedInstanceVariable, Default(nestedInstanceVariable.Type)),
+                                // parentTrackingActions.Add(() =>
                                 Call(parentTrackingActionsVariable, parentTrackingActionsVariable.Type.GetMethod(nameof(List<>.Add))!,
                                     Lambda(
                                         Block(
                                             [entryVariable, hasNullKeyVariable],
                                             [
+                                                // var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
                                                 tryGetEntryAssignment,
+                                                // if (entry == default)
                                                 IfThen(Equal(entryVariable, Default(entryVariable.Type)),
                                                     Block([
+                                                        // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id)
                                                         ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x.principal != null).Select(p =>
                                                             Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.self.ClrType),
                                                                 Constant(p.self.GetShadowIndex()),
@@ -1095,7 +1103,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                                         ? Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(p.principal.ClrType), Constant(p.principal.GetShadowIndex()))
                                                                         : parentInstanceVariable.MakeMemberAccess(p.principal.GetMemberInfo(true, false)),
                                                                 p.self.ClrType))),
+                                                        // nestedTrackingActions.ForEach(nestedTrackingAction => nestedTrackingAction())
                                                         ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
+                                                        // queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot)
                                                         Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
                     }
                     else
