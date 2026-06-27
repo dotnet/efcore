@@ -75,6 +75,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo ReadOnlyMemorySliceMethod
             = typeof(ReadOnlyMemory<byte>).GetMethod(nameof(ReadOnlyMemory<>.Slice), [typeof(int)]) ?? throw new UnreachableException();
 
+        private static FieldInfo MaterializerTupleEntityTypeField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item1))!;
+        private static FieldInfo MaterializerTupleInstanceField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item2))!;
+        private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item3))!;
+        private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item4))!;
+
         private static readonly ConstructorInfo InvalidOperationExceptionConstructor
             = typeof(InvalidOperationException).GetConstructor([typeof(string)]) ?? throw new UnreachableException();
 
@@ -730,11 +735,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _ => base.VisitSwitchCase(switchCase)
             };
 
-        private static FieldInfo MaterializerTupleEntityTypeField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item1))!;
-        private static FieldInfo MaterializerTupleInstanceField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item2))!;
-        private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item3))!;
-        private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item4))!;
-
         private BlockExpression RewriteStructuralTypeCase(Expression entityTypeVariable, BlockExpression body, ITypeBase structuralType)
         {
             // keep track which variable corresponds to which navigation - we need that info for fixup
@@ -1184,126 +1184,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static BlockExpression ForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
-        {
-            var itemType = list.Type.GetGenericArguments()[0];
-
-            var listVar = Variable(list.Type, "list");
-            var i = Variable(typeof(int), "i");
-            var count = Variable(typeof(int), "count");
-            var item = Variable(itemType, "item");
-
-            var breakLabel = Label("break");
-
-            var countProperty = list.Type.GetProperty(nameof(List<int>.Count))!;
-            var indexerProperty = list.Type.GetProperty("Item")!;
-
-            var body = bodyFactory(item);
-
-            if (body.Type != typeof(void))
-            {
-                body = Block(body, Empty());
-            }
-
-            return Block(
-                [listVar, i, count, item],
-
-                Assign(listVar, list),
-                Assign(i, Constant(0)),
-                Assign(count, Property(listVar, countProperty)),
-
-                Loop(
-                    IfThenElse(
-                        LessThan(i, count),
-
-                        Block(
-                            Assign(
-                                item,
-                                MakeIndex(
-                                    listVar,
-                                    indexerProperty,
-                                    new[] { i }
-                                )
-                            ),
-
-                            body,
-
-                            PostIncrementAssign(i)
-                        ),
-
-                        Break(breakLabel)
-                    ),
-                    breakLabel
-                )
-            );
-        }
-
-        private NewExpression NewJsonReaderManager()
-            => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
-
-        private static MemberExpression StringConstantSpan(string value)
-            => Property(Constant((ReadOnlyMemory<byte>)Encoding.UTF8.GetBytes(value)), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!);
-
-        private static Expression ConvertIfNotMatch(Expression expression, Type targetType)
-            => expression.Type != targetType
-                ? Convert(expression, targetType)
-                : expression;
-
-        private static Expression CheckMakeNullableValueType(Expression expression)
-            => expression.Type.IsValueType && !expression.Type.IsNullableValueType()
-                ? Convert(expression, expression.Type.MakeNullable())
-                : expression;
-
-        private static MethodCallExpression JsonReaderValueTextEquals(ParameterExpression jsonReaderManagerVariable, string text)
-            => Call(
-                Field(
-                    jsonReaderManagerVariable,
-                    Utf8JsonReaderManagerCurrentReaderField),
-                Utf8JsonReaderValueTextEqualsMethod,
-                StringConstantSpan(text));
-
-        private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
-            => ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[GetProjectionIndex(projectionBindingExpression)];
-
-        private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            => projectionBindingExpression.ProjectionMember != null
-                ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
-                : (projectionBindingExpression.Index
-                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
-
-        private static Expression AssignStructuralProperty(
-            ParameterExpression structuralType,
-            ParameterExpression relatedStructuralType,
-            IPropertyBase structuralProperty)
-        {
-            var setter = structuralProperty.GetMemberInfo(forMaterialization: true, forSet: true);
-
-            // If we're assigning a value complex type to a nullable complex property, add an upcast for typing
-            var assignee = structuralProperty.ClrType.IsNullableValueType()
-                && structuralProperty.ClrType.UnwrapNullableType() == relatedStructuralType.Type
-                ? Convert(relatedStructuralType, structuralProperty.ClrType)
-                : (Expression)relatedStructuralType;
-
-            return structuralType.MakeMemberAccess(setter).Assign(assignee);
-        }
-
-        private static bool IsValueBufferTryReadValueMethod(Expression expression, [NotNullWhen(true)] out IProperty? property)
-        {
-            if (expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition()
-                == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty p)
-            {
-                property = p;
-                return true;
-            }
-
-            property = null;
-            return false;
-        }
-
-        // Almost 1-1 copy from relational, but no liftable constants..
         private Expression ReadJsonPropertyValue(IProperty property) // @TODO: Can this levarage CreateReadJsonValueExpression?
         {
             // jsonReaderManager.MoveNext();
@@ -1391,6 +1271,109 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             return resultExpression;
+        }
+
+        private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
+            => ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[GetProjectionIndex(projectionBindingExpression)];
+
+        private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
+            => projectionBindingExpression.ProjectionMember != null
+                ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
+                : (projectionBindingExpression.Index
+                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
+
+        private NewExpression NewJsonReaderManager()
+            => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
+
+        private static BlockExpression ForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
+        {
+            var itemType = list.Type.GetGenericArguments()[0];
+
+            var listVar = Variable(list.Type, "list");
+            var i = Variable(typeof(int), "i");
+            var count = Variable(typeof(int), "count");
+            var item = Variable(itemType, "item");
+
+            var breakLabel = Label("break");
+
+            var countProperty = list.Type.GetProperty(nameof(List<int>.Count))!;
+            var indexerProperty = list.Type.GetProperty("Item")!;
+
+            var body = bodyFactory(item);
+
+            if (body.Type != typeof(void))
+            {
+                body = Block(body, Empty());
+            }
+
+            return Block(
+                [listVar, i, count, item],
+
+                Assign(listVar, list),
+                Assign(i, Constant(0)),
+                Assign(count, Property(listVar, countProperty)),
+
+                Loop(
+                    IfThenElse(
+                        LessThan(i, count),
+
+                        Block(
+                            Assign(
+                                item,
+                                MakeIndex(
+                                    listVar,
+                                    indexerProperty,
+                                    new[] { i }
+                                )
+                            ),
+
+                            body,
+
+                            PostIncrementAssign(i)
+                        ),
+
+                        Break(breakLabel)
+                    ),
+                    breakLabel
+                )
+            );
+        }
+
+        private static MemberExpression StringConstantSpan(string value)
+            => Property(Constant((ReadOnlyMemory<byte>)Encoding.UTF8.GetBytes(value)), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!);
+
+        private static Expression ConvertIfNotMatch(Expression expression, Type targetType)
+            => expression.Type != targetType
+                ? Convert(expression, targetType)
+                : expression;
+
+        private static Expression CheckMakeNullableValueType(Expression expression)
+            => expression.Type.IsValueType && !expression.Type.IsNullableValueType()
+                ? Convert(expression, expression.Type.MakeNullable())
+                : expression;
+
+        private static MethodCallExpression JsonReaderValueTextEquals(ParameterExpression jsonReaderManagerVariable, string text)
+            => Call(
+                Field(
+                    jsonReaderManagerVariable,
+                    Utf8JsonReaderManagerCurrentReaderField),
+                Utf8JsonReaderValueTextEqualsMethod,
+                StringConstantSpan(text));
+
+        private static bool IsValueBufferTryReadValueMethod(Expression expression, [NotNullWhen(true)] out IProperty? property)
+        {
+            if (expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition()
+                == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty p)
+            {
+                property = p;
+                return true;
+            }
+
+            property = null;
+            return false;
         }
 
         private sealed class ValueBufferTryReadValueMethodsFinder : ExpressionVisitor
