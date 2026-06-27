@@ -67,7 +67,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         // Because the shaper might process the data twice (duplicated shaper),
         // we pass the data as ROM, and the shaper will create a JsonReaderData where needed.
         var dataParameter = Parameter(typeof(ReadOnlyMemory<byte>), "data");
-        // The shaper will always read the while next json token/object, and will know how many bytes that was
+        // The shaper will always read the whole next json token/object, and will know how many bytes that was
         // we get the amount of bytes read from the shaper, so that we can advance the data in the QueryingEnumerable as needed, without having to scan the data twice (once for shaper, once for advancing the data).
         var bytesConsumedParameter = Parameter(typeof(int).MakeByRefType(), "bytesConsumed");
         var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter, bytesConsumedParameter)
