@@ -17,9 +17,8 @@
     <PackageVersion Include="Grpc.AspNetCore" Version="2.59.0" />
     <PackageVersion Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="$(OpenTelemetryExporterInMemoryVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3mc" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_winsqlite3" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.provider.sqlite3" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.provider.winsqlite3" Version="$(SQLitePCLRawVersion)" />
 
     <!-- Newer version of Roslyn used in tests for testing -->
     <!--https://github.com/dotnet/efcore/issues/34637-->
