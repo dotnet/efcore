@@ -686,5 +686,82 @@ ORDER BY "s0"."PickupStatusId"
 """);
     }
 
+    public override async Task Second_join_after_then_whole_object()
+    {
+        await base.Second_join_after_then_whole_object();
+
+        AssertSql(
+            """
+SELECT "s0"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+INNER JOIN "Statuses" AS "s0" ON "s"."PickupStatusId" = "s0"."PickupStatusId"
+ORDER BY "s0"."PickupStatusId"
+""");
+    }
+
+    public override async Task Two_left_joined_nonentity_objects_second_marker_orphaned()
+    {
+        await base.Two_left_joined_nonentity_objects_second_marker_orphaned();
+
+        AssertSql(
+            """
+SELECT "s"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker", "r2"."pickupStatusId", "r2"."Count", "r2"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+LEFT JOIN (
+    SELECT "r1"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r1"
+    GROUP BY "r1"."PickupStatusId"
+) AS "r2" ON "s"."PickupStatusId" = "r2"."pickupStatusId"
+ORDER BY "s"."PickupStatusId"
+""");
+    }
+
+    public override async Task Three_sequential_joins_marker_survives_two_remaps()
+    {
+        await base.Three_sequential_joins_marker_survives_two_remaps();
+
+        AssertSql(
+            """
+SELECT "s1"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+INNER JOIN "Statuses" AS "s0" ON "s"."PickupStatusId" = "s0"."PickupStatusId"
+INNER JOIN "Statuses" AS "s1" ON "s0"."PickupStatusId" = "s1"."PickupStatusId"
+ORDER BY "s1"."PickupStatusId"
+""");
+    }
+
+    public override async Task Marker_object_nested_in_outer_wrapper_across_second_join()
+    {
+        await base.Marker_object_nested_in_outer_wrapper_across_second_join();
+
+        AssertSql(
+            """
+SELECT "s0"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+INNER JOIN "Statuses" AS "s0" ON "s"."PickupStatusId" = "s0"."PickupStatusId"
+ORDER BY "s0"."PickupStatusId"
+""");
+    }
+
     #endregion
 }
