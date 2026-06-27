@@ -738,9 +738,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Join(context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId, (e, s2) => new { s2.PickupStatusId, e.countInfo })
                 .OrderBy(e => e.PickupStatusId);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match on the left join; whole non-entity object is null even after the second join
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
         }
 
         [Fact] // plain inner with no aggregate -> no pushdown
@@ -1211,12 +1227,119 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .LeftJoin(categories, e => e.PickupStatusId, c => c.pickupStatusId, (e, second) => new { e.PickupStatusId, e.first, second })
                 .OrderBy(e => e.PickupStatusId);
 
-            // Two sequential non-entity nullable joins: the FIRST object's marker must pass through the
-            // SECOND join's outer-shaper remap. It currently does not (Blocker-1).
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: Blocker-1 (graph-anchored keying); when fixed, flip to assert results and
-            // verify two distinct marker aliases.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> both joins matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].first);
+            Assert.Equal(1, result[0].first.pickupStatusId);
+            Assert.Equal(2, result[0].first.Count);
+            Assert.NotNull(result[0].second);
+            Assert.Equal(1, result[0].second.pickupStatusId);
+            Assert.Equal(2, result[0].second.Count);
+
+            // status 2 -> neither join matched; both whole non-entity objects are null.
+            // The first object's marker passes through the second join's outer-shaper remap,
+            // and the second object carries its own marker — two distinct marker aliases in SQL.
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].first);
+            Assert.Null(result[1].second);
+
+            // status 3 -> both joins matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].first);
+            Assert.Equal(3, result[2].first.pickupStatusId);
+            Assert.Equal(1, result[2].first.Count);
+            Assert.NotNull(result[2].second);
+            Assert.Equal(3, result[2].second.pickupStatusId);
+            Assert.Equal(1, result[2].second.Count);
+        }
+
+        [Fact]
+        public virtual async Task Three_sequential_joins_marker_survives_two_remaps()
+        {
+            // The marker, recorded on the non-entity inner-shaper node from the first DefaultIfEmpty, must
+            // survive TWO subsequent AddJoin outer-shaper remaps (re-key composes): one when the second
+            // .Join rebuilds the outer shaper and again when the third .Join does the same.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s.PickupStatusId, countInfo })
+                .Join(context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId, (e, s2) => new { s2.PickupStatusId, e.countInfo })
+                .Join(context.Statuses, e => e.PickupStatusId, s3 => s3.PickupStatusId, (e, s3) => new { s3.PickupStatusId, e.countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match on the left join; whole non-entity object is null even after TWO subsequent joins
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
+        }
+
+        [Fact]
+        public virtual async Task Marker_object_nested_in_outer_wrapper_across_second_join()
+        {
+            // The marker-carrying countInfo is nested inside an outer anonymous wrapper object constructed
+            // by the second .Join. RebuiltNodes must capture the nested rebuild so the marker still gates
+            // countInfo correctly after the join rebuilds the wrapping node.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s.PickupStatusId, countInfo })
+                .Join(context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId, (e, s2) => new { s2.PickupStatusId, wrapper = new { e.countInfo } })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, wrapper is always non-null (constructed on match side), countInfo inside is non-null
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].wrapper);
+            Assert.NotNull(result[0].wrapper.countInfo);
+            Assert.Equal(1, result[0].wrapper.countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].wrapper.countInfo.Count);
+
+            // status 2 -> no match on the left join; wrapper itself is non-null (it is always constructed),
+            // but wrapper.countInfo is null because the marker gates the inner non-entity object to null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.NotNull(result[1].wrapper);
+            Assert.Null(result[1].wrapper.countInfo);
+
+            // status 3 -> matched, wrapper is non-null, countInfo inside is non-null
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].wrapper);
+            Assert.NotNull(result[2].wrapper.countInfo);
+            Assert.Equal(3, result[2].wrapper.countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].wrapper.countInfo.Count);
         }
 
         #endregion
