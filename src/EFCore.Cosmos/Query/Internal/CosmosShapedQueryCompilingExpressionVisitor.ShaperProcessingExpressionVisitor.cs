@@ -644,7 +644,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //              discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
             //              goto EndRead;
             //          else if (jsonReaderManager.CurrentReader.ValueTextEquals("Id"u8))
-            //              jsonReaderManager.Skip(); // @TODO: was it 1 or 2 skips?
+            //              jsonReaderManager.Skip();
             //              jsonReaderManager.Skip();
             //          else
             //              throw new InvalidOperationException("Discriminator was not early in the document.");
