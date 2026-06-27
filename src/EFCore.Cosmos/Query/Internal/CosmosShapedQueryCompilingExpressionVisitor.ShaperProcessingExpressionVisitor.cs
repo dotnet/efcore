@@ -108,8 +108,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, Expression Shaper)>
             _deferredProjectionBindings = new();
 
-        private readonly Dictionary<ParameterExpression, Expression>
-            _materializationContextValueBufferMapping = new();
+        private readonly Dictionary<Expression, Expression>
+            _entityTypeVariableValueBufferMapping = new();
 
         private static readonly Dictionary<Expression, (
             ParameterExpression InstanceVariable,
@@ -505,9 +505,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
             materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
 
-            var materializationContextVariable = materializerBlock.Variables.Single(x => x.Type == typeof(MaterializationContext));
-            _materializationContextValueBufferMapping[materializationContextVariable] = valueBuffer;
-
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
@@ -532,6 +529,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
             var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type.IsAssignableTo(typeof(ITypeBase)));
             materializerVariables.AddRange(instanceVariable, entityTypeVariable);
+            _entityTypeVariableValueBufferMapping[entityTypeVariable] = valueBuffer;
 
             var requiresTracking = _queryStateManager && structuralType is IEntityType;
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
@@ -715,13 +713,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     breakLabel));
         }
 
-        protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
+        protected override Expression VisitSwitch(SwitchExpression switchExpression)
+            => switchExpression.SwitchValue.Type.IsAssignableTo(typeof(ITypeBase))
+             ? switchExpression.Update(switchExpression.SwitchValue,
+                    switchExpression.Cases.Select(switchCase => RewriteSwitchCase(switchExpression.SwitchValue, switchCase)),
+                    switchExpression.DefaultBody)
+             : base.VisitSwitch(switchExpression);
+
+        private SwitchCase RewriteSwitchCase(Expression switchValue, SwitchCase switchCase)
             => switchCase switch
             {
                 {
                     Body: BlockExpression { Expressions.Count: > 0 } body,
                     TestValues: [ConstantExpression { Value: ITypeBase structuralType }]
-                } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(body, structuralType)),
+                } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(switchValue, body, structuralType)),
                 _ => base.VisitSwitchCase(switchCase)
             };
 
@@ -730,19 +735,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item3))!;
         private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item4))!;
 
-        private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
+        private BlockExpression RewriteStructuralTypeCase(Expression entityTypeVariable, BlockExpression body, ITypeBase structuralType)
         {
             // keep track which variable corresponds to which navigation - we need that info for fixup
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
             var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
 
+            // The body might not contain ValueBufferTryReadValue (type contains no key and no scalar properties), so we have to use a mapping here
+            var valueBuffer = _entityTypeVariableValueBufferMapping[entityTypeVariable];
+
             var valueBufferTryReadValueMethodsToProcess =
                 new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
-
-            var materializationContextVariable = (ParameterExpression?)((MethodCallExpression?)valueBufferTryReadValueMethodsToProcess.FirstOrDefault()?.Arguments[0])?.Object;
-            var valueBuffer = materializationContextVariable != null
-                ? _materializationContextValueBufferMapping[materializationContextVariable]
-                : null; // @TODO: Fix this, we should always have a materializatio context. Currently we have a problem if the type only contains structural properties, and no scalar properties... (complex type only?)
 
             BlockExpression jsonEntityTypeInitializerBlock;
             // sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
@@ -1301,7 +1304,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         // Almost 1-1 copy from relational, but no liftable constants..
-        private Expression ReadJsonPropertyValue(IProperty property)
+        private Expression ReadJsonPropertyValue(IProperty property) // @TODO: Can this levarage CreateReadJsonValueExpression?
         {
             // jsonReaderManager.MoveNext();
             // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
@@ -1350,6 +1353,42 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             //    resultExpression = TryCatch(resultExpression, catchBlock);
             //}
+
+            return resultExpression;
+        }
+
+        private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
+        {
+            var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
+            Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+            var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
+
+            var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
+                nameof(JsonValueReaderWriter<>.FromJsonTyped),
+                [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
+
+            Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
+
+            if (resultExpression.Type != typeMapping.ClrType)
+            {
+                resultExpression = Convert(resultExpression, typeMapping.ClrType);
+            }
+
+            if (clrType.IsNullableType())
+            {
+                // in case of null value we can't just use the JsonReader method, but rather check the current token type
+                // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
+                resultExpression = Condition(
+                    Equal(
+                        Property(
+                            Field(
+                                jsonReaderManagerParameter,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty),
+                        Constant(JsonTokenType.Null)),
+                    Default(clrType),
+                    Convert(resultExpression, clrType));
+            }
 
             return resultExpression;
         }
@@ -1407,40 +1446,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
+        private sealed class MaterializationContextFindingExpressionVisitor : ExpressionVisitor
         {
-            var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
-            Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-            var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
+            private ParameterExpression? _result;
 
-            var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
-                nameof(JsonValueReaderWriter<>.FromJsonTyped),
-                [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
-
-            Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
-
-            if (resultExpression.Type != typeMapping.ClrType)
+            public ParameterExpression Find(Expression expression)
             {
-                resultExpression = Convert(resultExpression, typeMapping.ClrType);
+                _result = null;
+                Visit(expression);
+                return _result ?? throw new UnreachableException("Expected a materialization context in the expression.");
             }
 
-            if (clrType.IsNullableType())
-            {
-                // in case of null value we can't just use the JsonReader method, but rather check the current token type
-                // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-                resultExpression = Condition(
-                    Equal(
-                        Property(
-                            Field(
-                                jsonReaderManagerParameter,
-                                Utf8JsonReaderManagerCurrentReaderField),
-                            Utf8JsonReaderTokenTypeProperty),
-                        Constant(JsonTokenType.Null)),
-                    Default(clrType),
-                    Convert(resultExpression, clrType));
-            }
+            public override Expression? Visit(Expression? node)
+                => _result is null ? base.Visit(node) : node;
 
-            return resultExpression;
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                if (node.Type == typeof(MaterializationContext))
+                {
+                    _result = node;
+                }
+                return base.VisitParameter(node);
+            }
         }
     }
 }
