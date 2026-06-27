@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -36,6 +37,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             bytesConsumed = startLength - data.Length;
 
             result = shaper(queryContext, data, out var shaperBytesConsumed)!;
+
+            // The shaper might be a constant expression, in which case it won't consume any bytes. In that case, we need to skip the next token.
+            if (shaperBytesConsumed == 0)
+            {
+                var reader = new Utf8JsonReader(data.Span, isFinalBlock: true, default);
+                reader.Read();
+                reader.Skip();
+                shaperBytesConsumed = (int)reader.BytesConsumed;
+            }
 
             data = data.Slice(shaperBytesConsumed);
             bytesConsumed += shaperBytesConsumed;
