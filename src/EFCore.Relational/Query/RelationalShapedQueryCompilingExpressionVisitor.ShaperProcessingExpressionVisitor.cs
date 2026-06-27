@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -3000,7 +3001,66 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var converter = typeMapping.Converter;
 
             var converterExpression = default(Expression);
-            if (converter != null)
+            var primitiveCollectionJsonHandled = false;
+
+            // #34881/#38454: A primitive collection mapped to a column uses CollectionToJsonStringConverter, which parses the
+            // provider JSON string via the collection's JsonValueReaderWriter. That reader/writer doesn't handle a JSON 'null'
+            // token, so we must peek the first token here and short-circuit to null (or throw for a required property) before
+            // invoking the converter, rather than letting the reader/writer throw a cryptic "Invalid token type: 'Null'".
+            if (property is IProperty { IsPrimitiveCollection: true } primitiveCollectionProperty
+                && converter is not null
+                && converter.GetType() is { IsGenericType: true } converterClrType
+                && converterClrType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>))
+            {
+                var liftableConstantParameter = Parameter(typeof(MaterializerLiftableConstantContext), "c");
+                var jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                    primitiveCollectionProperty.GetJsonValueReaderWriter() ?? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter!,
+                    Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                        Coalesce(
+                            Call(
+                                LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
+                                    primitiveCollectionProperty, liftableConstantParameter),
+                                PropertyGetJsonValueReaderWriterMethod),
+                            Property(
+                                Call(
+                                    LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
+                                        primitiveCollectionProperty, liftableConstantParameter),
+                                    PropertyGetTypeMappingMethod),
+                                nameof(CoreTypeMapping.JsonValueReaderWriter))),
+                        liftableConstantParameter),
+                    primitiveCollectionProperty.Name + "JsonReaderWriter",
+                    typeof(JsonValueReaderWriter));
+
+                if (valueExpression.Type != typeof(string))
+                {
+                    valueExpression = Convert(valueExpression, typeof(string));
+                }
+
+                Expression readExpression = Call(
+                    ReadPrimitiveCollectionFromJsonMethodInfo,
+                    valueExpression,
+                    jsonReaderWriterExpression,
+                    Constant(nullable),
+                    Constant(primitiveCollectionProperty.Name));
+
+                if (readExpression.Type != type)
+                {
+                    readExpression = Convert(readExpression, type);
+                }
+
+                if (nullable)
+                {
+                    // The column itself may be SQL NULL (DbNull), distinct from a JSON 'null' token in a non-null string.
+                    readExpression = Condition(
+                        Call(dbDataReader, IsDbNullMethod, indexExpression),
+                        Default(type),
+                        readExpression);
+                }
+
+                valueExpression = readExpression;
+                primitiveCollectionJsonHandled = true;
+            }
+            else if (converter != null)
             {
                 // if IProperty is available, we can reliably get the converter from the model and then incorporate FromProvider(Typed) delegate
                 // into the expression. This way we have consistent behavior between precompiled and normal queries (same code path)
@@ -3074,12 +3134,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
             }
 
-            if (valueExpression.Type != type)
+            if (!primitiveCollectionJsonHandled
+                && valueExpression.Type != type)
             {
                 valueExpression = Convert(valueExpression, type);
             }
 
-            if (nullable)
+            if (!primitiveCollectionJsonHandled
+                && nullable)
             {
                 Expression replaceExpression;
                 if (converter?.ConvertsNulls == true)
@@ -3275,6 +3337,31 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             Utf8JsonReaderTokenTypeProperty),
                         Constant(JsonTokenType.Null)),
                     nullExpression,
+                    resultExpression);
+            }
+            else if (property.ClrType != typeof(string)
+                && property.ClrType.TryGetElementType(typeof(IEnumerable<>)) is not null)
+            {
+                // A required primitive collection nested in a JSON document can't be materialized from a JSON 'null'
+                // token. Throw a clear, property-named error instead of the cryptic reader/writer "Invalid token type".
+                if (resultExpression.Type != property.ClrType)
+                {
+                    resultExpression = Convert(resultExpression, property.ClrType);
+                }
+
+                resultExpression = Condition(
+                    Equal(
+                        Property(
+                            Field(
+                                jsonReaderManagerParameter,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty),
+                        Constant(JsonTokenType.Null)),
+                    Throw(
+                        New(
+                            typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
+                            Constant(RelationalStrings.NullValueInRequiredJsonProperty(property.Name))),
+                        property.ClrType),
                     resultExpression);
             }
 
