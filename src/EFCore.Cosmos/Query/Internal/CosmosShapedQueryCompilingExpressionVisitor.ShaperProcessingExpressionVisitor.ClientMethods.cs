@@ -1,12 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -38,15 +35,56 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             bytesConsumed = startLength - data.Length;
 
-            result = shaper(queryContext, data, out var bytesConsumedShaper)!;
+            result = shaper(queryContext, data, out var shaperBytesConsumed)!;
 
-            data = data.Slice(bytesConsumedShaper);
-            bytesConsumed += bytesConsumedShaper;
+            data = data.Slice(shaperBytesConsumed);
+            bytesConsumed += shaperBytesConsumed;
 
             SliceNextItemToken(data, out var bytesConsumedNextItem);
             bytesConsumed += bytesConsumedNextItem;
 
             return true;
+        }
+
+        private static readonly MethodInfo ShapeCollectionMethodInfo
+            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShapeCollection), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new UnreachableException();
+
+        private static TCollection ShapeCollection<TElement, TCollection>(
+            QueryContext queryContext,
+            ReadOnlyMemory<byte> data,
+            Func<object> creator,
+            Shaper<TElement> shaper,
+            out int bytesConsumed)
+        {
+            // TODO: throw a better exception for non ICollection navigations
+            var collection = (ICollection<TElement>)creator();
+
+            var reader = new Utf8JsonReader(data.Span);
+            reader.Read();
+            data = data.Slice((int)reader.BytesConsumed);
+            bytesConsumed = (int)reader.BytesConsumed;
+
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                // #35916
+                return (TCollection)collection;
+            }
+
+            if (reader.TokenType != JsonTokenType.StartArray)
+            {
+                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(reader.TokenType));
+            }
+
+            int itemBytesConsumed;
+            while (TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, out itemBytesConsumed, out var item))
+            {
+                collection.Add(item);
+                data = data.Slice(itemBytesConsumed);
+                bytesConsumed += itemBytesConsumed;
+            }
+            bytesConsumed += itemBytesConsumed; // ']'
+
+            return (TCollection)collection;
         }
 
         private static readonly MethodInfo SliceNextItemTokenMethodInfo
