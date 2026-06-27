@@ -535,13 +535,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
-            var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type == typeof(IEntityType));
+            var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type.IsAssignableTo(typeof(ITypeBase)));
             materializerVariables.AddRange(instanceVariable, entityTypeVariable);
 
-            var requiresTracking = _queryStateManager && structuralType is IEntityType entityType;
+            var requiresTracking = _queryStateManager && structuralType is IEntityType;
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
             if (requiresTracking)
             {
+
                 materializerVariables.Add(trackingActions);
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
 
@@ -590,10 +591,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
             else
             {
-                var nullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>().Single();
-                var readValuesBlock = (BlockExpression)nullKeyCheck.IfTrue;
+                if (structuralType is IEntityType)
+                {
+                    var nullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>().Single();
+                    var readValuesBlock = (BlockExpression)nullKeyCheck.IfTrue;
 
-                materializerBlock = (BlockExpression)Visit(readValuesBlock);
+                    materializerBlock = (BlockExpression)Visit(readValuesBlock);
+                }
+                else
+                {
+                    materializerBlock = materializerBlock.Expressions.OfType<BlockExpression>().Single();
+                    materializerBlock = (BlockExpression)Visit(materializerBlock);
+                }
+                
                 materializerVariables.AddRange(materializerBlock.Variables);
                 materializerExpressions.AddRange(materializerBlock.Expressions);
             }
