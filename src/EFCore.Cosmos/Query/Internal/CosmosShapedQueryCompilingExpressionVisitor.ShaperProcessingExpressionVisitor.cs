@@ -742,7 +742,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var materializationContextVariable = (ParameterExpression?)((MethodCallExpression?)valueBufferTryReadValueMethodsToProcess.FirstOrDefault()?.Arguments[0])?.Object;
             var valueBuffer = materializationContextVariable != null
                 ? _materializationContextValueBufferMapping[materializationContextVariable]
-                : null;
+                : null; // @TODO: Fix this, we should always have a materializatio context. Currently we have a problem if the type only contains structural properties, and no scalar properties... (complex type only?)
 
             BlockExpression jsonEntityTypeInitializerBlock;
             // sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
