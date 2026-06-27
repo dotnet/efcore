@@ -365,7 +365,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 && methodCallExpression.Method.GetGenericMethodDefinition()
                 == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
-                var materializationContext = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
 
                 var jsonReadPropertyValueExpression = ReadJsonPropertyValue(property);
@@ -390,7 +389,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var materializer = StructuralTypeJsonMaterializer(
                 shaper.StructuralType,
-                shaper.Type,
                 shaper.IsNullable,
                 shaper.ValueBufferExpression);
 
@@ -481,16 +479,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private LambdaExpression StructuralTypeJsonMaterializer(
             ITypeBase structuralType,
-            Type clrType,
             bool nullable,
             Expression valueBuffer)
         {
-            if (_structuralTypeJsonMaterializerLambdaMapping.TryGetValue(structuralType, out var lambda)) // @TODO: We might need to cache per nullable aswell?
+            if (_structuralTypeJsonMaterializerLambdaMapping.TryGetValue(structuralType, out var lambda))
             {
                 return lambda;
             }
-
-            // @TODO: Nullable?
 
             var materializerVariables = new List<ParameterExpression>() { _jsonReaderManagerVariable };
             var materializerExpressions = new List<Expression>();
@@ -542,7 +537,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
             if (requiresTracking)
             {
-
                 materializerVariables.Add(trackingActions);
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
 
@@ -578,12 +572,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 materializerVariables.AddRange(materializerBlock.Variables);
                 materializerExpressions.AddRange(materializerBlock.Expressions);
 
-                // If tracking, this returns (IEntityType, RootEntity, ISnapshot, List<Action>)
+                // Because of tracking, this returns (IEntityType, RootEntity, ISnapshot, List<Action>)
                 // Else this only returns RootEntity (clrType)
                 materializerExpressions.Add(
                     New(
-                        typeof(ValueTuple<,,,>).MakeGenericType(typeof(IEntityType), clrType, typeof(ISnapshot), typeof(List<Action>))
-                            .GetConstructor([typeof(IEntityType), clrType, typeof(ISnapshot), typeof(List<Action>)])!,
+                        typeof(ValueTuple<,,,>).MakeGenericType(typeof(IEntityType), structuralType.ClrType, typeof(ISnapshot), typeof(List<Action>))
+                            .GetConstructor([typeof(IEntityType), structuralType.ClrType, typeof(ISnapshot), typeof(List<Action>)])!,
                         entityTypeVariable,
                         instanceVariable,
                         (Expression?)shadowSnapshotVariable ?? Default(typeof(ISnapshot)),
@@ -610,15 +604,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             materializerBlock = Block(materializerVariables, materializerExpressions);
 
+            var resultType = structuralType.ClrType.IsValueType && nullable ? materializerBlock.Type.MakeNullable() : materializerBlock.Type;
+
             var nullCheck = Block(
                 [_jsonReaderManagerVariable],
                 [Assign(_jsonReaderManagerVariable, NewJsonReaderManager()),
                 Condition(
                     NotEqual(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod), Constant(JsonTokenType.Null)),
-                    materializerBlock,
+                    ConvertIfNotMatch(materializerBlock, resultType),
                     Block(
                         Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
-                        Default(materializerBlock.Type)))]);
+                        Default(resultType)))]);
 
             lambda = Lambda(
                 nullCheck,
@@ -894,9 +890,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             // Empty collections have not been initialized, so we double check all collection properties here
-            foreach (var collectionProperty in nestedStructuralProperties.Where(x => x.IsCollection))
+            if (!structuralType.ClrType.IsValueType) // @TODO: How does this work for value types...?
             {
-                finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
+                foreach (var collectionProperty in nestedStructuralProperties.Where(x => x.IsCollection))
+                {
+                    finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
+                }
             }
 
             finalBlockExpressions.Add(instanceVariable);
@@ -985,7 +984,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var nestedMaterializer = Invoke(
                         StructuralTypeJsonMaterializer(
                             nestedStructuralType,
-                            nestedStructuralProperty.IsCollection ? nestedStructuralProperty.ClrType.GetSequenceType() : nestedStructuralProperty.ClrType,
                             isStructuralPropertyNullable,
                             nestedValueBuffer),
                         QueryCompilationContext.QueryContextParameter,
