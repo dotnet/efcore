@@ -25,7 +25,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly string _cosmosContainer;
         private readonly ReadItemInfo _readItemInfo;
         private readonly PartitionKey _cosmosPartitionKey;
-        private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
+        private readonly Shaper<T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -36,7 +36,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
             ReadItemInfo readItemInfo,
-            Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> shaper,
+            Shaper<T> shaper,
             Type contextType,
             bool standAloneStateManager,
             bool threadSafetyChecksEnabled)
@@ -105,7 +105,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
-            private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
+            private readonly Shaper<T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
@@ -199,7 +199,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 Current
                     = hasNext
-                        ? _shaper(_cosmosQueryContext, _repsonse.Value)
+                        ? _shaper(_cosmosQueryContext, _repsonse.Value, out var _)
                         : default;
 
                 _hasExecuted = true;
