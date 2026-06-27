@@ -108,6 +108,48 @@ CREATE TABLE "Thing" (
 A write/read round-trip was verified: `ThingA`/`ThingB` instances persist and re-read their
 `Address` values correctly through the shared columns.
 
+### Alternative: pin the inner property column names (no base-property hoisting needed)
+
+Instead of moving `Address` to the base type, you can keep the natural per-subtype `required Address`
+properties and simply force the **inner** property column names to identical values on both subtypes.
+EF then collapses them into one shared set of columns. This was verified (schema + write/read
+round-trip) on EF Core 10.0.9:
+
+```csharp
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<Thing>()
+        .HasDiscriminator().HasValue<ThingA>("A").HasValue<ThingB>("B");
+
+    modelBuilder.Entity<ThingA>().ComplexProperty(e => e.Address, a =>
+    {
+        a.Property(p => p.Street).HasColumnName("Address_Street");
+        a.Property(p => p.City).HasColumnName("Address_City");
+    });
+    modelBuilder.Entity<ThingB>().ComplexProperty(e => e.Address, a =>
+    {
+        a.Property(p => p.Street).HasColumnName("Address_Street");
+        a.Property(p => p.City).HasColumnName("Address_City");
+    });
+}
+```
+
+Because the complex type `Address` is shared, the same can be expressed even more compactly with
+`[Column]` attributes on the record's properties (this configures both subtypes at once):
+
+```csharp
+[ComplexType]
+public record class Address(
+    [property: Column("Address_Street")] string Street,
+    [property: Column("Address_City")] string City);
+```
+
+Both forms produce the desired two shared columns (`Address_City`, `Address_Street`).
+
+> Note: this relies on the user explicitly pinning the names so they collide. It does **not**
+> contradict the underlying issue — EF still won't share these columns *automatically*; the request
+> in #38485 is to have that de-duplication happen by default for same-named complex properties.
+
 ### Simpler alternatives
 
 - **Hoist the complex property to the base type** as a plain public property
