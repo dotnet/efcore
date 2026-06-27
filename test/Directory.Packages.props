@@ -22,6 +22,7 @@
     <PackageVersion Include="SQLitePCLRaw.provider.winsqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="Testcontainers.CosmosDb" Version="4.11.0" />
     <PackageVersion Include="Microsoft.DotNet.XUnitV3Extensions" Version="$(MicrosoftDotNetXUnitV3ExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(MicrosoftTestingExtensionsCodeCoverageVersion)" />
     <PackageVersion Include="xunit.v3.assert.aot" Version="$(XUnitV3Version)" />
     <PackageVersion Include="xunit.v3.runner.inproc.console" Version="$(XUnitV3Version)" />
   </ItemGroup>

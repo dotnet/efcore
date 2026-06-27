@@ -5,6 +5,7 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.ApiBaseline.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <ImplicitUsings>true</ImplicitUsings>
+    <SkipTests Condition="'$(SkipApiBaselineTests)' == 'true'">true</SkipTests>
   </PropertyGroup>
 
   <ItemGroup>
