@@ -310,6 +310,32 @@ public class PropertyEntryTest
     public void Can_set_and_get_original_value_with_object_field()
         => Can_set_and_get_original_value_helper<ObjectWotty>();
 
+    [Fact]
+    public void Original_value_for_added_entity_is_current_value()
+    {
+        using var context = new PrimateContext();
+        var entity = new Wotty
+        {
+            Id = 1,
+            Primate = "Monkey",
+            RequiredPrimate = "Tarsier"
+        };
+        var entry = context.Entry(entity).GetInfrastructure();
+        entry.SetEntityState(EntityState.Added);
+
+        var property = entry.EntityType.FindProperty(nameof(Wotty.Primate))!;
+        var propertyEntry = new PropertyEntry(entry, property);
+        var genericPropertyEntry = new PropertyEntry<Wotty, string>(entry, property);
+
+        Assert.Equal("Monkey", propertyEntry.OriginalValue);
+        Assert.Equal("Monkey", genericPropertyEntry.OriginalValue);
+
+        propertyEntry.CurrentValue = "Chimp";
+
+        Assert.Equal("Chimp", propertyEntry.OriginalValue);
+        Assert.Equal("Chimp", genericPropertyEntry.OriginalValue);
+    }
+
     private void Can_set_and_get_original_value_helper<TWotty>()
         where TWotty : IWotty, new()
     {

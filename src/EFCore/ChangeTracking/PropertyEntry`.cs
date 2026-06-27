@@ -65,7 +65,8 @@ public class PropertyEntry<TEntity, TProperty> : PropertyEntry
     ///     Gets or sets the value that was assigned to this property when it was retrieved from the database.
     ///     This property is populated when an entity is retrieved from the database, but setting it may be
     ///     useful in disconnected scenarios where entities are retrieved with one context instance and
-    ///     saved with a different context instance.
+    ///     saved with a different context instance. For entity entries in the <see cref="EntityState.Added" /> state,
+    ///     this is the same as the current value.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
