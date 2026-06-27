@@ -1482,49 +1482,73 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private sealed class ValueBufferTryReadValueMethodsReplacer(IReadOnlyDictionary<IProperty, Expression> mappedProperties) : ExpressionVisitor
+        private sealed class ValueBufferTryReadValueMethodsReplacer(IReadOnlyDictionary<IProperty, Expression> mappedProperties) : ExpressionVisitor // @TODO: Can we simply bring back instance?
         {
+            private readonly Dictionary<IProperty, Expression> _propertyInstanceMap = [];
+
             public BlockExpression Rewrite(BlockExpression materializerExpression)
-                => (BlockExpression)VisitBlock(materializerExpression);
+            {
+                _propertyInstanceMap.Clear();
+                return (BlockExpression)VisitBlock(materializerExpression);
+            }
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (IsValueBufferTryReadValueMethod(node.Right, out var property)
+                 && mappedProperties.TryGetValue(property, out var parameter))
+                {
+                    parameter = ConvertIfNotMatch(parameter, node.Right.Type);
+
+                    if (node.Left is MemberExpression memberExpression)
+                    {
+                        _propertyInstanceMap[property] = memberExpression.Expression ?? throw new UnreachableException();
+                    }
+
+                    if (property!.IsPrimitiveCollection
+                        && !property.ClrType.IsArray)
+                    {
+                        var instance = _propertyInstanceMap[property];
+
+                        var genericMethod = StructuralTypeMaterializerSource.PopulateListMethod.MakeGenericMethod(
+                            property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
+
+                        var currentVariable = Variable(parameter!.Type);
+                        var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
+                            ? (Expression)currentVariable
+                            : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
+                        return Block(
+                            [currentVariable],
+                            MakeMemberAccess(instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
+                                .Assign(currentVariable),
+                            IfThenElse(
+                                OrElse(
+                                    ReferenceEqual(currentVariable, Constant(null)),
+                                    ReferenceEqual(parameter, Constant(null))),
+                                node is { NodeType: ExpressionType.Assign, Left: MemberExpression leftMemberExpression }
+                                    ? leftMemberExpression.Assign(parameter)
+                                    : MakeBinary(node.NodeType, node.Left, parameter),
+                                Call(
+                                    genericMethod,
+                                    parameter,
+                                    convertedVariable)
+                            ));
+                    }
+
+                    var visitedLeft = Visit(node.Left);
+                    return node.NodeType == ExpressionType.Assign
+                        && visitedLeft is MemberExpression me
+                            ? me.Assign(parameter!)
+                            : MakeBinary(node.NodeType, visitedLeft, parameter!);
+                }
+
+                return base.VisitBinary(node);
+            }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (IsValueBufferTryReadValueMethod(methodCallExpression, out var property))
-                {
-                    if (mappedProperties.TryGetValue(property, out var parameter))
-                    {
-                        return methodCallExpression.Type != parameter.Type
-                            ? Convert(parameter, methodCallExpression.Type)
-                            : parameter;
-                    }
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
-        }
-
-        private sealed class MaterializationContextFindingExpressionVisitor : ExpressionVisitor
-        {
-            private ParameterExpression? _result;
-
-            public ParameterExpression Find(Expression expression)
-            {
-                _result = null;
-                Visit(expression);
-                return _result ?? throw new UnreachableException("Expected a materialization context in the expression.");
-            }
-
-            public override Expression? Visit(Expression? node)
-                => _result is null ? base.Visit(node) : node;
-
-            protected override Expression VisitParameter(ParameterExpression node)
-            {
-                if (node.Type == typeof(MaterializationContext))
-                {
-                    _result = node;
-                }
-                return base.VisitParameter(node);
-            }
+                => IsValueBufferTryReadValueMethod(methodCallExpression, out var property)
+                && mappedProperties.TryGetValue(property, out var parameter)
+                    ? ConvertIfNotMatch(parameter, methodCallExpression.Type)
+                    : base.VisitMethodCall(methodCallExpression);
         }
     }
 }
