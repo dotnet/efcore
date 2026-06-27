@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -16,10 +15,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly byte EndArrayByte = Encoding.UTF8.GetBytes("]")[0];
         private static readonly byte NextItemByte = Encoding.UTF8.GetBytes(",")[0];
 
+        public static bool TryMaterializeNextJsonCollectionItem<T>(QueryContext queryContext,
+            ReadOnlyMemory<byte> data,
+            Shaper<T> shaper,
+            out int bytesConsumed,
+            [NotNullWhen(true)] out T? result)
+            => TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, 0, out bytesConsumed, out result);
+
         public static bool TryMaterializeNextJsonCollectionItem<T>(
             QueryContext queryContext,
             ReadOnlyMemory<byte> data,
             Shaper<T> shaper,
+            int ordinal,
             out int bytesConsumed,
             [NotNullWhen(true)] out T? result)
         {
@@ -36,7 +43,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             bytesConsumed = startLength - data.Length;
 
-            result = shaper(queryContext, data, out var shaperBytesConsumed)!;
+            result = shaper(queryContext, data, ordinal, out var shaperBytesConsumed)!;
 
             // The shaper might be a constant expression, in which case it won't consume any bytes. In that case, we need to skip the next token.
             if (shaperBytesConsumed == 0)
@@ -86,7 +93,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             int itemBytesConsumed;
-            while (TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, out itemBytesConsumed, out var item))
+            while (TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, collection.Count, out itemBytesConsumed, out var item))
             {
                 collection.Add(item);
                 data = data.Slice(itemBytesConsumed);

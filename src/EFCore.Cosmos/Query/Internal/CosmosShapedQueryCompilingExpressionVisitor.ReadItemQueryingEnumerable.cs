@@ -6,7 +6,6 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -199,7 +198,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 Current
                     = hasNext
-                        ? _shaper(_cosmosQueryContext, _repsonse.Value, out var _)
+                        ? _shaper(_cosmosQueryContext, _repsonse.Value, ordinal: 0, out var _)
                         : default;
 
                 _hasExecuted = true;

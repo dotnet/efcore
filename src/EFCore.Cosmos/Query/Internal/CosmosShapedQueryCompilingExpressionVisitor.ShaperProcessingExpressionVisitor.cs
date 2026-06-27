@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -86,8 +87,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo ByteArrayAsSpanMethod = typeof(MemoryExtensions).GetMethods()
             .Where(x => x.Name == nameof(MemoryExtensions.AsSpan) && x.GetGenericArguments().Count() == 1)
             .Select(x => new { x, prms = x.GetParameters() })
-            .Where(x => x.prms.Count() == 1 && x.prms[0].ParameterType.IsArray)
-            .Single().x.MakeGenericMethod(typeof(byte));
+            .Single(x => x.prms.Count() == 1 && x.prms[0].ParameterType.IsArray).x.MakeGenericMethod(typeof(byte));
 
         private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType))!;
@@ -125,6 +125,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly ParameterExpression _jsonReaderDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
         private readonly ParameterExpression _jsonReaderManagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
         private readonly ParameterExpression _innerShaperBytesConsumedVariable = Variable(typeof(int), "innerShaperBytesConsumed");
+        private readonly ParameterExpression _ordinalParameter = Variable(typeof(int), "ordinal");
 
         private readonly CosmosShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly SelectExpression _selectExpression;
@@ -231,7 +232,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             // data = SliceNextItemTokenMethodInfo(data, out nextItemBytesConsumed)
                             [Assign(_dataParameter, Call(SliceNextItemTokenMethodInfo, _dataParameter, nextItemBytesConsumedVariable)),
                             // nextItemBytesConsumed += nextItemBytesConsumedVariable
-                            AddAssign(_bytesConsumedParameter, nextItemBytesConsumedVariable)]),
+                            AddAssignChecked(_bytesConsumedParameter, nextItemBytesConsumedVariable)]),
                         // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: afterStartObjectReaderState) // Create a new json reader to continue reading the document, using the state from when we started reading the first property
                         AssignJsonReaderVariableExpression(afterStartObjectReaderStateVariable),
                     ]);
@@ -260,6 +261,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 "Shaper",
                 [QueryCompilationContext.QueryContextParameter,
                 _dataParameter,
+                _ordinalParameter,
                 _bytesConsumedParameter]);
 
             return shaperLambda;
@@ -273,7 +275,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 case StructuralTypeShaperExpression structuralTypeShaper:
                 {
-                    var shaperLambda = StructuralTypeJsonShaper(structuralTypeShaper);
+                    var shaperLambda = StructuralTypeJsonShaperLambda(structuralTypeShaper);
 
                     var shaper = Block(
                         [resultVariable],
@@ -327,7 +329,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 case CollectionShaperExpression collectionShaperExpression:
                 {
-                    var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
+                    var innerShaperLambda = ProcessShaper(collectionShaperExpression.InnerShaper);
                     var collectionBytesConsumedVariable = Variable(typeof(int), "collectionBytesConsumed");
 
                     var shaper = Block(
@@ -338,7 +340,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataParameter,
                                 Constant(collectionShaperExpression.CollectionCreator),
-                                innerShaper,
+                                innerShaperLambda,
                                 collectionBytesConsumedVariable)),
                         Assign(_innerShaperBytesConsumedVariable, collectionBytesConsumedVariable),
                         resultVariable]);
@@ -385,14 +387,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 ? MakeMemberAccess(QueryCompilationContext.QueryContextParameter, typeof(QueryContext).GetProperty(nameof(QueryContext.Context))!)
                 : base.VisitMember(memberExpression);
 
-        private LambdaExpression StructuralTypeJsonShaper(StructuralTypeShaperExpression shaper)
+        private LambdaExpression StructuralTypeJsonShaperLambda(StructuralTypeShaperExpression shaper)
         {
-            if (_structuralTypeJsonShaperLambdaMapping.TryGetValue(shaper.StructuralType, out var lambda)) // @TODO: We might need to cache per nullable aswell?
+            if (_structuralTypeJsonShaperLambdaMapping.TryGetValue(shaper.StructuralType, out var lambda))
             {
                 return lambda;
             }
 
-            var materializer = StructuralTypeJsonMaterializer(
+            var materializer = StructuralTypeJsonMaterializerLambda(
                 shaper.StructuralType,
                 shaper.IsNullable,
                 shaper.ValueBufferExpression);
@@ -409,9 +411,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 tupleVariable
             };
+
+            var materializerArguments = new List<Expression> { QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter };
+            if (shaper.StructuralType.TryGetOrdinalKey(out _))
+            {
+                materializerArguments.Add(_ordinalParameter);
+            }
+
             var shaperExpressions = new List<Expression>()
             {
-                Assign(tupleVariable, Invoke(materializer, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter))
+                Assign(tupleVariable, Invoke(materializer, materializerArguments))
             };
 
             // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
@@ -431,10 +440,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     p => p,
                     property =>
                     {
-                        // @TODO: Ordinal key?  What about collection shaper?
+                        if (entityType.IsOwned() && property.IsOrdinalKeyProperty())
+                        {
+                            return _ordinalParameter;
+                        }
 
-                        // @TODO: Check if the property must come AsNoTrackingWithIdentityResolution...
-                        
+                        // @TODO: AsNoTrackingWithIdentityResolution...
+
                         if (property.IsShadowProperty())
                         {
                             // shadowSnapshotVariable.GetValue<T>(1)
@@ -482,7 +494,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return lambda;
         }
 
-        private LambdaExpression StructuralTypeJsonMaterializer(
+        private LambdaExpression StructuralTypeJsonMaterializerLambda(
             ITypeBase structuralType,
             bool nullable,
             Expression valueBuffer)
@@ -503,12 +515,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var materializerBlock =
                 (BlockExpression)_parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
 
-            // @TODO: Rewrite ordinal key properties...
+            //  Rewrite ordinal key properties
+            if (structuralType.TryGetOrdinalKey(out var ordinalKeyProperty))
+            {
+                materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, Expression>
+                {
+                    { ordinalKeyProperty, _ordinalParameter }
+                }).Rewrite(materializerBlock);
+            }
 
             // We can't know principal properties until we have fully deserialized the parent.
             // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
             // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
-            var principalPropertyDefaultReplacements = structuralType.GetDerivedTypesInclusive().SelectMany(x => x.GetProperties().Where(x => x.FindFirstPrincipal() != null)).Distinct()
+            var principalPropertyDefaultReplacements = structuralType.GetDerivedTypesInclusive()
+                .SelectMany(x => x.GetProperties().Where(x => x.FindFirstPrincipal() != null)).Distinct()
                 .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
             materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
 
@@ -621,11 +641,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
                         Default(resultType)))]);
 
+            var parameters = new List<ParameterExpression>()
+            {
+                QueryCompilationContext.QueryContextParameter,
+                _jsonReaderDataParameter
+            };
+            if (ordinalKeyProperty != null)
+            {
+                parameters.Add(_ordinalParameter);
+            }
+
             lambda = Lambda(
                 nullCheck,
                 structuralType.Name + "_Materializer",
-                [QueryCompilationContext.QueryContextParameter,
-                _jsonReaderDataParameter]);
+                parameters);
 
             _structuralTypeJsonMaterializerLambdaMapping.Add(structuralType, lambda);
 
@@ -702,7 +731,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
                         // switch (tokenType)
                         Switch(tokenTypeVariable,
-                            // default: throw @todo: invalid json
+                            // default: throw
                             Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
                             [
                                 // case Null: goto EndRead
@@ -996,29 +1025,48 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     testExpressions.Add(JsonReaderValueTextEquals(_jsonReaderManagerVariable, jsonPropertyName));
 
                     var nestedValueBuffer = Default(typeof(ValueBuffer));
-                    var nestedMaterializer = Invoke(
-                        StructuralTypeJsonMaterializer(
+
+                    var nestedMaterializerLambda =
+                        StructuralTypeJsonMaterializerLambda(
                             nestedStructuralType,
                             isStructuralPropertyNullable,
-                            nestedValueBuffer),
-                        QueryCompilationContext.QueryContextParameter,
-                        _jsonReaderDataParameter);
+                            nestedValueBuffer);
 
-                    var propertyVariable = Variable(nestedStructuralProperty.ClrType);
                     // Builds the expression tree for collection properties. This is a while loop around the materializer for the nested structural type
+                    var ordinalVariable = Variable(typeof(int), "ordinal");
+                    var nestedCollectionReadVariables = new List<ParameterExpression>()
+                    {
+                        ordinalVariable
+                    };
                     var nestedCollectionReadExpressions = new List<Expression>()
                     {
                         Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
                         Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                        Assign(ordinalVariable, Constant(-1)),
                     };
 
+                    var nestedMaterializerArguments = new List<Expression>
+                        {
+                            QueryCompilationContext.QueryContextParameter,
+                            _jsonReaderDataParameter
+                        };
+                    if (nestedStructuralType.TryGetOrdinalKey(out _))
+                    {
+                        nestedMaterializerArguments.Add(ordinalVariable);
+                    }
+                    var nestedMaterializer = Invoke(nestedMaterializerLambda, nestedMaterializerArguments);
+
                     // Builds the expression tree for materializing an instance of the nested structural type
-                    var nestedReadVariables = new List<ParameterExpression>();
                     var nestedReadExpressions = new List<Expression>();
+                    var nestedReadVariables = new List<ParameterExpression>();
 
                     if (!nestedStructuralProperty.IsCollection)
                     {
                         nestedReadExpressions.Add(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod));
+                    }
+                    else
+                    {
+                        nestedReadExpressions.Add(PostIncrementAssign(ordinalVariable));
                     }
 
                     if (_queryStateManager && nestedStructuralType is IEntityType nestedEntityType)
@@ -1043,13 +1091,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         //});
                         //}
 
-                        var tupleVariable = Variable(nestedMaterializer.Type);
+                        var tupleType = nestedMaterializerLambda.Body.Type;
+
+                        var tupleVariable = Variable(tupleType);
                         nestedReadVariables.Add(tupleVariable);
 
-                        var nestedEntityTypeVariable = Field(tupleVariable, MaterializerTupleEntityTypeField(nestedMaterializer.Type));
-                        var nestedInstanceVariable = Field(tupleVariable, MaterializerTupleInstanceField(nestedMaterializer.Type));
-                        var nestedShadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(nestedMaterializer.Type));
-                        var nestedTrackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(nestedMaterializer.Type));
+                        var nestedEntityTypeVariable = Field(tupleVariable, MaterializerTupleEntityTypeField(tupleType));
+                        var nestedInstanceVariable = Field(tupleVariable, MaterializerTupleInstanceField(tupleType));
+                        var nestedShadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(tupleType));
+                        var nestedTrackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(tupleType));
 
                         var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = _valueBufferToMaterializerExpressionsMapping[valueBuffer];
                         var tryGetEntryAssignment = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer].TryGetEntryAssignment;
@@ -1062,9 +1112,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 p => p,
                                 property =>
                                 {
-                                    // @TODO: Ordinal key?  What about collection shaper?
+                                    if (nestedEntityType.IsOwned() && property.IsOrdinalKeyProperty())
+                                    {
+                                        return _ordinalParameter;
+                                    }
 
-                                    // Check if the property must come from the parentInstanceVariable or parentShadowSnapshotVariable
                                     if (property.FindFirstPrincipal() is { } firstPrincipalProperty)
                                     {
                                         if (firstPrincipalProperty.IsShadowProperty())
@@ -1076,7 +1128,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         return parentInstanceVariable.MakeMemberAccess(firstPrincipalProperty.GetMemberInfo(true, false));
                                     }
 
-                                    // Otherwise get the value by field from the nestedInstanceVariable or nestedShadowSnapshotVariable
                                     if (property.IsShadowProperty())
                                     {
                                         // nestedShadowSnapshotVariable.GetValue<T>(1)
@@ -1113,6 +1164,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                                         ? Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(p.principal.ClrType), Constant(p.principal.GetShadowIndex()))
                                                                         : parentInstanceVariable.MakeMemberAccess(p.principal.GetMemberInfo(true, false)),
                                                                 p.self.ClrType))),
+                                                        // nestedShadowSnapshotVariable.SetValue<T>(1, ordinal)
+                                                        ..nestedEntityType.GetProperties().Where(x => x.IsOrdinalKeyProperty()).Select(p => ConvertIfNotMatch(_ordinalParameter, p.ClrType)),
                                                         // nestedTrackingActions.ForEach(nestedTrackingAction => nestedTrackingAction())
                                                         ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
                                                         // queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot)
@@ -1121,6 +1174,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     else
                     {
                         // We have to do manual fixup for this structural property
+                        var propertyVariable = Variable(nestedStructuralProperty.ClrType);
                         finalBlockVariables.Add(propertyVariable);
                         navigationVariableMap[nestedStructuralProperty] = propertyVariable;
                         if (!nestedStructuralProperty.IsCollection)
@@ -1129,8 +1183,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         else
                         {
-                            // @TODO: We need a null check here for the materialized collection item...?
                             nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
+                            // @TODO: We need a null check here for the materialized collection item...?
                             nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
                         }
                     }
@@ -1144,8 +1198,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var collectionBreakLabel = Label("EndCollection");
                         readExpressions.Add(
-                            Block([
-                                ..nestedCollectionReadExpressions,
+                            Block(nestedCollectionReadVariables,
+                                [..nestedCollectionReadExpressions,
                                 Loop(Block(
                                     Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
                                     IfThenElse(Equal(tokenTypeVariable, Constant(JsonTokenType.EndArray)), Break(collectionBreakLabel),

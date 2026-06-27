@@ -21,7 +21,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
-    private delegate T Shaper<T>(QueryContext queryContext, ReadOnlyMemory<byte> data, out int bytesConsumed);
+    private delegate T Shaper<T>(QueryContext queryContext, ReadOnlyMemory<byte> data, int ordinal, out int bytesConsumed);
 
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;

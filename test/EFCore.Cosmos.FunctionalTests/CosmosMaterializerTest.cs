@@ -154,6 +154,31 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
+    [ConditionalFact]
+    public async Task Materialize_entity_with_collection_with_ordinal_key()
+    {
+        var factory = await InitializeNonSharedTest<CollectionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new CollectionEntityWithOrdinalKey()
+            {
+                Entities = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var entity = await context.EntitiesWithOrdinalKey.SingleAsync();
+            Assert.Equal(2, entity.Entities.Count);
+            foreach (var item in entity.Entities)
+            {
+                Assert.Equal("Name", item.Name);
+            }
+        }
+    }
+
     public class CollectionEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -167,14 +192,31 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         public string Name { get; set; } = "Name";
     }
 
+    public class CollectionEntityWithOrdinalKey
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public List<CollectionItemEntityWithOrdinalKey> Entities { get; set; } = new();
+    }
+
+    public class CollectionItemEntityWithOrdinalKey
+    {
+        public string Name { get; set; } = "Name";
+    }
+
     public class CollectionContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<CollectionEntity> Entities => Set<CollectionEntity>();
+
+        public DbSet<CollectionEntityWithOrdinalKey> EntitiesWithOrdinalKey => Set<CollectionEntityWithOrdinalKey>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CollectionEntity>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<CollectionEntity>().OwnsMany(x => x.Entities);
+
+            modelBuilder.Entity<CollectionEntityWithOrdinalKey>().HasPartitionKey(x => x.Id);
+            modelBuilder.Entity<CollectionEntityWithOrdinalKey>().OwnsMany(x => x.Entities);
         }
     }
 
