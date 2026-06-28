@@ -386,10 +386,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
-            => memberExpression.Member == typeof(MaterializationContext).GetProperty(nameof(MaterializationContext.Context))
-                ? MakeMemberAccess(QueryCompilationContext.QueryContextParameter, typeof(QueryContext).GetProperty(nameof(QueryContext.Context))!)
-                : base.VisitMember(memberExpression);
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            if (binaryExpression is { NodeType: ExpressionType.Assign } && binaryExpression.Left.Type == typeof(MaterializationContext))
+            {
+                var newExpression = (NewExpression)binaryExpression.Right;
+
+                return binaryExpression.Update(binaryExpression.Left, binaryExpression.Conversion, newExpression.Update([Constant(ValueBuffer.Empty), ..newExpression.Arguments.Skip(1)]));
+            }
+            return base.VisitBinary(binaryExpression);
+        }
 
         private LambdaExpression StructuralTypeJsonShaperLambda(StructuralTypeShaperExpression shaper)
         {
@@ -539,8 +545,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
+            var materializationContextVariable = materializerBlock.Variables.Single(x => x.Type == typeof(MaterializationContext));
             var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type.IsAssignableTo(typeof(ITypeBase)));
-            materializerVariables.AddRange(instanceVariable, entityTypeVariable);
+            materializerVariables.AddRange(materializationContextVariable, entityTypeVariable, instanceVariable);
+
+            var materializationContextAssignment = materializerBlock.Expressions.Single(x => x is BinaryExpression { NodeType: ExpressionType.Assign } be && be.Left == materializationContextVariable);
+            materializerExpressions.Add(Visit(materializationContextAssignment));
 
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
             if (IsTracking(structuralType, out var entityType))
