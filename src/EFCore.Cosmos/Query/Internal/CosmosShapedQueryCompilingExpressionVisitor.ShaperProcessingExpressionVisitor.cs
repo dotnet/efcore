@@ -113,14 +113,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, Expression Shaper)>
             _deferredProjectionBindings = new();
 
-        private readonly Dictionary<Expression, Expression>
-            _entityTypeVariableValueBufferMapping = new();
-
-        private static readonly Dictionary<Expression, (
+        private static readonly Dictionary<IEntityType, (
             ParameterExpression InstanceVariable,
             ParameterExpression? ShadowSnapshotVariable,
             ParameterExpression TrackingActionsVariable,
-            BinaryExpression TryGetEntryAssignment)> _valueBufferToMaterializerExpressionsMapping = new();
+            BinaryExpression TryGetEntryAssignment)> _entityTypeMaterializerExpressionsMapping = new();
 
         private readonly ParameterExpression _jsonReaderDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
         private readonly ParameterExpression _jsonReaderManagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
@@ -407,8 +404,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var materializer = StructuralTypeJsonMaterializerLambda(
                 shaper.StructuralType,
-                shaper.IsNullable,
-                shaper.ValueBufferExpression);
+                shaper.IsNullable);
 
             if (!_isTracking || !(_queryStateManager && shaper.StructuralType is IEntityType entityType))
             {
@@ -423,7 +419,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var shaperExpressions = new List<Expression>()
             {
-                Assign(tupleVariable, Invoke(materializer, GetParametersForLambda(shaper.StructuralType)))
+                Assign(tupleVariable, Invoke(materializer, GetParametersForLambda(entityType)))
             };
 
             // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
@@ -432,7 +428,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var shadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(materializer.Body.Type));
             var trackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(materializer.Body.Type));
 
-            var tryGetEntryAssignment = _valueBufferToMaterializerExpressionsMapping[shaper.ValueBufferExpression].TryGetEntryAssignment;
+            var tryGetEntryAssignment = GetEntityTypeMaterializerExpressions(entityType).TryGetEntryAssignment;
             var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
             var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
             shaperVariables.Add(entryVariable);
@@ -489,17 +485,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             lambda = Lambda(
                 Block(shaperVariables, shaperExpressions),
-                shaper.StructuralType.Name + "_Shaper",
-                GetParametersForLambda(shaper.StructuralType));
-            _structuralTypeJsonShaperLambdaMapping.Add(shaper.StructuralType, lambda);
+                entityType.Name + "_Shaper",
+                GetParametersForLambda(entityType));
+            _structuralTypeJsonShaperLambdaMapping.Add(entityType, lambda);
 
             return lambda;
         }
 
         private LambdaExpression StructuralTypeJsonMaterializerLambda(
             ITypeBase structuralType,
-            bool nullable,
-            Expression valueBuffer)
+            bool nullable)
         {
             if (_structuralTypeJsonMaterializerLambdaMapping.TryGetValue(structuralType, out var lambda))
             {
@@ -511,7 +506,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
                 structuralType,
-                valueBuffer,
+                Default(typeof(ValueBuffer)),
                 nullable);
 
             var materializerBlock =
@@ -558,11 +553,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
             var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type.IsAssignableTo(typeof(ITypeBase)));
             materializerVariables.AddRange(instanceVariable, entityTypeVariable);
-            _entityTypeVariableValueBufferMapping[entityTypeVariable] = valueBuffer;
 
-            var requiresTracking = _queryStateManager && structuralType is IEntityType;
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
-            if (requiresTracking)
+            if (_queryStateManager && structuralType is IEntityType entityType)
             {
                 materializerVariables.Add(trackingActions);
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
@@ -583,7 +576,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 var shadowSnapshotVariable = readValuesBlock.Variables.SingleOrDefault(x => x.Type == typeof(ISnapshot));
 
-                _valueBufferToMaterializerExpressionsMapping[valueBuffer] = (
+                _entityTypeMaterializerExpressionsMapping[entityType] = (
                     instanceVariable,
                     shadowSnapshotVariable,
                     trackingActions,
@@ -603,8 +596,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // Else this only returns RootEntity (clrType)
                 materializerExpressions.Add(
                     New(
-                        typeof(ValueTuple<,,,>).MakeGenericType(typeof(IEntityType), structuralType.ClrType, typeof(ISnapshot), typeof(List<Action>))
-                            .GetConstructor([typeof(IEntityType), structuralType.ClrType, typeof(ISnapshot), typeof(List<Action>)])!,
+                        typeof(ValueTuple<,,,>).MakeGenericType(typeof(IEntityType), entityType.ClrType, typeof(ISnapshot), typeof(List<Action>))
+                            .GetConstructor([typeof(IEntityType), entityType.ClrType, typeof(ISnapshot), typeof(List<Action>)])!,
                         entityTypeVariable,
                         instanceVariable,
                         (Expression?)shadowSnapshotVariable ?? Default(typeof(ISnapshot)),
@@ -787,9 +780,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // keep track which variable corresponds to which navigation - we need that info for fixup
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
             var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
-
-            // The body might not contain ValueBufferTryReadValue (type contains no key and no scalar properties), so we have to use a mapping here
-            var valueBuffer = _entityTypeVariableValueBufferMapping[entityTypeVariable];
 
             var valueBufferTryReadValueMethodsToProcess =
                 new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
@@ -1030,13 +1020,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     testExpressions.Add(JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, jsonPropertyName));
 
-                    var nestedValueBuffer = Default(typeof(ValueBuffer));
-
                     var nestedMaterializerLambda =
                         StructuralTypeJsonMaterializerLambda(
                             nestedStructuralType,
-                            isStructuralPropertyNullable,
-                            nestedValueBuffer);
+                            isStructuralPropertyNullable);
 
                     // Builds the expression tree for collection properties. This is a while loop around the materializer for the nested structural type
                     var nestedCollectionReadVariables = new List<ParameterExpression>()
@@ -1095,8 +1082,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var nestedShadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(tupleType));
                         var nestedTrackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(tupleType));
 
-                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = _valueBufferToMaterializerExpressionsMapping[valueBuffer];
-                        var tryGetEntryAssignment = _valueBufferToMaterializerExpressionsMapping[nestedValueBuffer].TryGetEntryAssignment;
+                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = GetEntityTypeMaterializerExpressions((IEntityType)structuralType);
+                        var tryGetEntryAssignment = GetEntityTypeMaterializerExpressions(nestedEntityType).TryGetEntryAssignment;
                         var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
                         var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
 
@@ -1271,6 +1258,24 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 return (Loop(loopBody, breakLabel), propertyAssignmentMap);
             }
+        }
+
+        private (
+            ParameterExpression InstanceVariable,
+            ParameterExpression? ShadowSnapshotVariable,
+            ParameterExpression TrackingActionsVariable,
+            BinaryExpression TryGetEntryAssignment)
+            GetEntityTypeMaterializerExpressions(IEntityType entityType)
+        {
+            do
+            {
+                if (_entityTypeMaterializerExpressionsMapping.TryGetValue(entityType, out var materializerExpressions))
+                {
+                    return materializerExpressions;
+                }
+            } while ((entityType = entityType.BaseType!) != null);
+
+            throw new UnreachableException();
         }
 
         private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
