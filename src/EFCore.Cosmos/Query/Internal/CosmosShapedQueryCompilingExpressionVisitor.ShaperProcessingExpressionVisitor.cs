@@ -113,7 +113,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, Expression Shaper)>
             _deferredProjectionBindings = new();
 
-        private static readonly Dictionary<IEntityType, (
+        private readonly Dictionary<IEntityType, (
             ParameterExpression InstanceVariable,
             ParameterExpression? ShadowSnapshotVariable,
             ParameterExpression TrackingActionsVariable,
