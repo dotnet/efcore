@@ -1198,7 +1198,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 var switchCases = new List<SwitchCase>
                 {
-                    SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
                     SwitchCase(
                         Break(breakLabel),
                         Constant(JsonTokenType.EndObject))
