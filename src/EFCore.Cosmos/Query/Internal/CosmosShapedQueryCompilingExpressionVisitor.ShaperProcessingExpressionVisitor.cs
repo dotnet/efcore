@@ -637,18 +637,32 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var resultType = structuralType.ClrType.IsValueType && nullable ? materializerBlock.Type.MakeNullable() : materializerBlock.Type;
 
-            var nullCheck = Block(
-                [_jsonReaderManagerVariable],
+            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+
+            // Check if there is an object to materialize before we start.
+            materializerBlock = Block(
+                [_jsonReaderManagerVariable, tokenTypeVariable],
+                // jsonReaderManager = new Utf8JsonReaderManager(data.Span)
                 [Assign(_jsonReaderManagerVariable, NewJsonReaderManager()),
-                Condition(
-                    NotEqual(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod), Constant(JsonTokenType.Null)),
-                    ConvertIfNotMatch(materializerBlock, resultType),
-                    Block(
-                        Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
-                        Default(resultType)))]);
+                // tokenType = jsonReaderManager.MoveNext()
+                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                // switch (tokenType)
+                Switch(
+                    tokenTypeVariable,
+                    // default: throw new InvalidOperationException(InvalidTokenType)
+                    Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable), resultType),
+                    // case JsonTokenType.Null: return default
+                    SwitchCase(
+                        Block(
+                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                            Default(resultType)),
+                        Constant(JsonTokenType.Null)),
+                    // case JsonTokenType.StartObject: materializerBlock
+                    SwitchCase(ConvertIfNotMatch(materializerBlock, resultType),
+                        Constant(JsonTokenType.StartObject)))]);
 
             lambda = Lambda(
-                nullCheck,
+                materializerBlock,
                 structuralType.Name + "_Materializer",
                 GetParametersForLambda(structuralType));
 
