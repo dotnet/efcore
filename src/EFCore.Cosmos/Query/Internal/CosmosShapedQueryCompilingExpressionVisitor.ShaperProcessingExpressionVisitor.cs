@@ -899,9 +899,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Operand: NewExpression
                     }
                 } shadowSnapshotAssignment
-#pragma warning disable EF1001 // Internal EF Core API usage.
                 && shadowSnapshotAssignment.Type == typeof(ISnapshot))
-#pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 finalBlockExpressions.Add(valueBufferTryReadValueReplacer.Visit(shadowSnapshotAssignment));
             }
@@ -1041,7 +1039,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     if (RequiresTracking(nestedStructuralType, out var nestedEntityType))
                     {
                         // Change tracker will do fixup
-                        // We also need to set any non persisted principal properties on the nested entity to the values from the parent entity, because we can only do this once the parent entity is fully materialized
+                        // However, we do need to set any non persisted principal properties on the nested entity to the values from the parent entity
+                        // We can only do this once the parent entity is fully materialized
+
                         //var (nestedEntityType, nestedInstance, nestedShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
                         //if (nestedInstance != default)
                         //{
@@ -1050,7 +1050,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
                         //      if (entry != default)
                         //      {
-                        //          nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id);
+                        //          nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
+                        //          nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id2)
                         //          foreach (var nestedTrackingAction in nestedTrackingActions)
                         //          {
                         //              nestedTrackingAction();
@@ -1077,24 +1078,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         // Map key values to the correct source for the try get entry call.
                         var tryGetEntryPropertyMap = nestedEntityType.FindPrimaryKey()!.Properties
-                            .ToDictionary(property => property, property =>
-                            {
-                                return nestedEntityType.IsOwned() && property.IsOrdinalKeyProperty()
-                                        ? _ordinalParameter
-                                        : property.FindFirstPrincipal() is { } principalProperty
-                                            ? principalProperty.IsShadowProperty()
-                                                ? GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty)
-                                                : parentInstanceVariable.MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false))
-                                            : property.IsShadowProperty()
-                                                ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
-                                                : nestedInstanceVariable.MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
-
-                                static Expression GetSnapshotValue(Expression snapshotVariable, IProperty property)
-                                    => Call(
-                                        snapshotVariable,
-                                        Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
-                                        Constant(property.GetShadowIndex()));
-                            });
+                            .ToDictionary(property => property, GetPropertyValue);
 
                         tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
                             .Visit(tryGetEntryAssignment);
@@ -1114,21 +1098,35 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                 // if (entry == default)
                                                 IfThen(Equal(entryVariable, Default(entryVariable.Type)),
                                                     Block([
-                                                        // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id)
-                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty() && !x.IsPersisted()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x.principal != null).Select(p =>
-                                                            Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.self.ClrType),
-                                                                Constant(p.self.GetShadowIndex()),
-                                                                ConvertIfNotMatch(
-                                                                    p.principal.IsShadowProperty()
-                                                                        ? Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(p.principal.ClrType), Constant(p.principal.GetShadowIndex()))
-                                                                        : parentInstanceVariable.MakeMemberAccess(p.principal.GetMemberInfo(true, false)),
-                                                                p.self.ClrType))),
-                                                        // nestedShadowSnapshotVariable.SetValue<T>(1, ordinal)
-                                                        ..nestedEntityType.GetProperties().Where(x => x.IsOrdinalKeyProperty()).Select(p => ConvertIfNotMatch(_ordinalParameter, p.ClrType)),
+                                                        // nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
+                                                        // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id2)
+                                                        ..nestedEntityType.GetProperties().Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(p =>
+                                                            p.IsShadowProperty()
+                                                                ? Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.ClrType),
+                                                                    Constant(p.GetShadowIndex()),
+                                                                    GetPropertyValue(p))
+                                                                : ConvertIfNotMatch(nestedInstanceVariable, p.DeclaringType.ClrType).MakeMemberAccess(p.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(GetPropertyValue(p))),
                                                         // nestedTrackingActions.ForEach(nestedTrackingAction => nestedTrackingAction())
                                                         ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
                                                         // queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot)
                                                         Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
+
+                        Expression GetPropertyValue(IProperty property)
+                            => property.IsOrdinalKeyProperty()
+                                ? _ordinalParameter // @TODO: Does this work? isnt this the ordinal key of the parent?
+                                : property.FindFirstPrincipal() is { } principalProperty
+                                    ? principalProperty.IsShadowProperty()
+                                        ? GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty)
+                                        : ConvertIfNotMatch(parentInstanceVariable, principalProperty.DeclaringType.ClrType).MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false))
+                                    : property.IsShadowProperty()
+                                        ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
+                                        : ConvertIfNotMatch(nestedInstanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
+
+                        static Expression GetSnapshotValue(Expression snapshotVariable, IProperty property)
+                            => Call(
+                                snapshotVariable,
+                                Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
+                                Constant(property.GetShadowIndex()));
                     }
                     else
                     {

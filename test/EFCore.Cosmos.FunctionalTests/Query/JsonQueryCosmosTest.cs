@@ -43,7 +43,7 @@ WHERE (c["Discriminator"] = "Basic")
 
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
@@ -76,7 +76,7 @@ WHERE (c["Discriminator"] = "Basic")
                 // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedCollectionRoot"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
