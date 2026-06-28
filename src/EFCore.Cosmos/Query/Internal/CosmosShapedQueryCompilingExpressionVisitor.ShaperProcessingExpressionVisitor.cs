@@ -105,19 +105,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)) ?? throw new UnreachableException();
 
         private readonly Dictionary<ITypeBase, LambdaExpression>
-            _structuralTypeJsonShaperLambdaMapping = new();
+            _structuralTypeJsonShaperLambdaMapping = [];
 
         private readonly Dictionary<ITypeBase, LambdaExpression>
-            _structuralTypeJsonMaterializerLambdaMapping = new();
+            _structuralTypeJsonMaterializerLambdaMapping = [];
 
         private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, Expression Shaper)>
-            _deferredProjectionBindings = new();
+            _deferredProjectionBindings = [];
 
         private readonly Dictionary<IEntityType, (
             ParameterExpression InstanceVariable,
             ParameterExpression? ShadowSnapshotVariable,
             ParameterExpression TrackingActionsVariable,
-            BinaryExpression TryGetEntryAssignment)> _entityTypeMaterializerExpressionsMapping = new();
+            BinaryExpression TryGetEntryAssignment)> _entityTypeMaterializerExpressionsMapping = [];
 
         private readonly ParameterExpression _jsonReaderDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
         private readonly ParameterExpression _jsonReaderManagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
@@ -761,24 +761,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     breakLabel));
         }
 
-        protected override Expression VisitSwitch(SwitchExpression switchExpression)
-            => switchExpression.SwitchValue.Type.IsAssignableTo(typeof(ITypeBase))
-             ? switchExpression.Update(switchExpression.SwitchValue,
-                    switchExpression.Cases.Select(switchCase => RewriteSwitchCase(switchExpression.SwitchValue, switchCase)),
-                    switchExpression.DefaultBody)
-             : base.VisitSwitch(switchExpression);
-
-        private SwitchCase RewriteSwitchCase(Expression switchValue, SwitchCase switchCase)
+        protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
             => switchCase switch
             {
                 {
                     Body: BlockExpression { Expressions.Count: > 0 } body,
                     TestValues: [ConstantExpression { Value: ITypeBase structuralType }]
-                } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(switchValue, body, structuralType)),
+                } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(body, structuralType)),
                 _ => base.VisitSwitchCase(switchCase)
             };
 
-        private BlockExpression RewriteStructuralTypeCase(Expression entityTypeVariable, BlockExpression body, ITypeBase structuralType)
+        private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
         {
             // keep track which variable corresponds to which navigation - we need that info for fixup
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
@@ -1098,7 +1091,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         ? _ordinalParameter
                                         : property.FindFirstPrincipal() is { } principalProperty
                                             ? principalProperty.IsShadowProperty()
-                                                ? GetSnapshotValue(parentShadowSnapshotVariable, principalProperty)
+                                                ? GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty)
                                                 : parentInstanceVariable.MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false))
                                             : property.IsShadowProperty()
                                                 ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
@@ -1374,7 +1367,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 MakeIndex(
                                     listVar,
                                     indexerProperty,
-                                    new[] { i }
+                                    [i]
                                 )
                             ),
 
@@ -1534,5 +1527,3 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
     }
 }
-
-#pragma warning restore EF1001 // Internal EF Core API usage.
