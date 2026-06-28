@@ -667,8 +667,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         if (targetType != expression.Type
             && targetType.TryGetSequenceType() == null)
         {
-            Check.DebugAssert(targetType.MakeNullable() == expression.Type, "expression.Type must be nullable of targetType");
-
             expression = Expression.Convert(expression, targetType);
         }
 
