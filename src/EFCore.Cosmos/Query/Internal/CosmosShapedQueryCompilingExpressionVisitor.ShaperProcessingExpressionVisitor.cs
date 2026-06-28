@@ -521,13 +521,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }).Rewrite(materializerBlock);
             }
 
-            // We can't know principal properties until we have fully deserialized the parent.
+            // We can't know principal properties on owned types until we have fully deserialized the parent.
             // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
             // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
-            var principalPropertyDefaultReplacements = structuralType.GetDerivedTypesInclusive()
-                .SelectMany(x => x.GetProperties().Where(x => x.FindFirstPrincipal() != null)).Distinct()
+            if (structuralType is IEntityType ownedEntityType && ownedEntityType.IsOwned())
+            {
+                var principalPropertyDefaultReplacements = ownedEntityType.GetDerivedTypesInclusive()
+                    .SelectMany(x => x.GetProperties().Where(p => p.FindFirstPrincipal() != null)).Distinct()
                 .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
             materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
+            }
 
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
