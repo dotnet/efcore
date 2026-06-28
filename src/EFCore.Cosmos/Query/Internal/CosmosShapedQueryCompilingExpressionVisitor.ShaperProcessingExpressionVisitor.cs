@@ -402,7 +402,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 shaper.StructuralType,
                 shaper.IsNullable);
 
-            if (!RequiresTracking(shaper.StructuralType, out var entityType))
+            if (!IsTracking(shaper.StructuralType, out var entityType))
             {
                 return materializer;
             }
@@ -543,7 +543,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             materializerVariables.AddRange(instanceVariable, entityTypeVariable);
 
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
-            if (RequiresTracking(structuralType, out var entityType))
+            if (IsTracking(structuralType, out var entityType))
             {
                 materializerVariables.Add(trackingActions);
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
@@ -1036,7 +1036,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedReadExpressions.Add(PostIncrementAssign(_ordinalParameter));
                     }
 
-                    if (RequiresTracking(nestedStructuralType, out var nestedEntityType))
+                    if (IsTracking(nestedStructuralType, out var nestedEntityType))
                     {
                         // Change tracker will do fixup
                         // However, we do need to set any non persisted principal properties on the nested entity to the values from the parent entity
@@ -1270,7 +1270,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
              ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ordinalParameter]
              : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter];
 
-        private bool RequiresTracking(ITypeBase structuralType, [NotNullWhen(true)] out IEntityType? entityType)
+        private bool IsTracking(ITypeBase structuralType, [NotNullWhen(true)] out IEntityType? entityType)
         {
             entityType = structuralType as IEntityType;
             return _queryStateManager && entityType != null && entityType.FindPrimaryKey() != null;
