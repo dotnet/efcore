@@ -383,12 +383,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-            if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition()
-                == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
+            if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property))
             {
-                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
-
                 var jsonReadPropertyValueExpression = ReadJsonPropertyValue(property);
 
                 return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
@@ -1451,7 +1447,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Utf8JsonReaderValueTextEqualsMethod,
                 StringConstantSpan(text));
 
-        private static bool IsValueBufferTryReadValueMethod(Expression expression, [NotNullWhen(true)] out IProperty? property)
+        private static bool IsValueBufferTryReadValueMethodCall(Expression expression, [NotNullWhen(true)] out IProperty? property)
         {
             if (expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
@@ -1486,7 +1482,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (IsValueBufferTryReadValueMethod(methodCallExpression, out var property)
+                if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
                  && _properties.Contains(property))
                 {
                     _valueBufferTryReadValueMethods.Add(methodCallExpression);
@@ -1511,7 +1507,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             protected override Expression VisitBinary(BinaryExpression node)
             {
-                if (IsValueBufferTryReadValueMethod(node.Right, out var property)
+                if (IsValueBufferTryReadValueMethodCall(node.Right, out var property)
                  && mappedProperties.TryGetValue(property, out var parameter))
                 {
                     parameter = ConvertIfNotMatch(parameter, node.Right.Type);
@@ -1562,7 +1558,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-                => IsValueBufferTryReadValueMethod(methodCallExpression, out var property)
+                => IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
                 && mappedProperties.TryGetValue(property, out var parameter)
                     ? ConvertIfNotMatch(parameter, methodCallExpression.Type)
                     : base.VisitMethodCall(methodCallExpression);
