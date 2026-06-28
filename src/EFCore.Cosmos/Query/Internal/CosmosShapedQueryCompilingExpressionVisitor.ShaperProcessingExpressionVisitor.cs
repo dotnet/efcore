@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -522,7 +523,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (structuralType is IEntityType ownedEntityType && ownedEntityType.IsOwned())
             {
                 var principalPropertyDefaultReplacements = ownedEntityType.GetDerivedTypesInclusive()
-                    .SelectMany(x => x.GetProperties().Where(p => p.FindFirstPrincipal() != null && p.GetJsonPropertyName() == string.Empty)).Distinct()
+                    .SelectMany(x => x.GetProperties().Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted())).Distinct()
                     .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
                 materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
             }
@@ -953,7 +954,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
                     var jsonPropertyName = property.GetJsonPropertyName();
 
-                    if (jsonPropertyName == string.Empty) // non persisted property
+                    if (!property.IsPersisted())
                     {
                         continue;
                     }
@@ -1044,7 +1045,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     if (RequiresTracking(nestedStructuralType, out var nestedEntityType))
                     {
                         // Change tracker will do fixup
-                        // We also need to set any principal properties on the nested entity to the values from the parent entity, because we can only do this once the parent entity is fully materialized
+                        // We also need to set any non persisted principal properties on the nested entity to the values from the parent entity, because we can only do this once the parent entity is fully materialized
                         //var (nestedEntityType, nestedInstance, nestedShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
                         //if (nestedInstance != default)
                         //{
@@ -1118,7 +1119,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                 IfThen(Equal(entryVariable, Default(entryVariable.Type)),
                                                     Block([
                                                         // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id)
-                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty() && x.GetJsonPropertyName() == string.Empty).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x.principal != null).Select(p =>
+                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty() && !x.IsPersisted()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x.principal != null).Select(p =>
                                                             Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.self.ClrType),
                                                                 Constant(p.self.GetShadowIndex()),
                                                                 ConvertIfNotMatch(
