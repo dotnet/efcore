@@ -327,7 +327,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
                             Assign(
                                 resultVariable,
-                                CreateReadJsonValueExpression(valueJsonReaderManager, resultVariable.Type, typeMapping)),
+                                CreateReadJsonValueExpression(valueJsonReaderManager, typeMapping, resultVariable.Type)),
                             Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
                             resultVariable]);
@@ -1273,63 +1273,39 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private Expression ReadJsonPropertyValue(IProperty property) // @TODO: Can this levarage CreateReadJsonValueExpression?
+        private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
+            => ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[GetProjectionIndex(projectionBindingExpression)];
+
+        private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
+            => projectionBindingExpression.ProjectionMember != null
+                ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
+                : (projectionBindingExpression.Index
+                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
+
+        private NewExpression NewJsonReaderManager()
+            => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
+
+        private ParameterExpression[] GetParametersForLambda(ITypeBase structuralType)
+            => structuralType.TryGetOrdinalKey(out _)
+             ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ordinalParameter]
+             : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter];
+
+        private Expression ReadJsonPropertyValue(IProperty property)
         {
-            // jsonReaderManager.MoveNext();
-            // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
             var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
             Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-            var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
-
-            var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
-                nameof(JsonValueReaderWriter<>.FromJsonTyped),
-                [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
-
-            Expression resultExpression = Convert(
-                Call(jsonValueReaderWriterConstant, fromJsonMethod, _jsonReaderManagerVariable, Default(typeof(object))),
-                property.GetTypeMapping().ClrType);
-
-            if (property.IsNullable)
-            {
-                // in case of null value we can't just use the JsonReader method, but rather check the current token type
-                // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-                if (resultExpression.Type != property.ClrType)
-                {
-                    resultExpression = Convert(resultExpression, property.ClrType);
-                }
-
-                resultExpression = Condition(
-                    Equal(
-                        Property(
-                            Field(
-                                _jsonReaderManagerVariable,
-                                Utf8JsonReaderManagerCurrentReaderField),
-                            Utf8JsonReaderTokenTypeProperty),
-                        Constant(JsonTokenType.Null)),
-                    Default(property.ClrType),
-                    resultExpression);
-            }
-
-            //if (_detailedErrorsEnabled)
-            //{
-            //    var exceptionParameter = Parameter(typeof(Exception), name: "e");
-            //    var catchBlock = Catch(
-            //        exceptionParameter,
-            //        Call(
-            //            ThrowExtractJsonPropertyExceptionMethod.MakeGenericMethod(resultExpression.Type),
-            //            exceptionParameter,
-            //            Constant(property, typeof(IProperty))));
-
-            //    resultExpression = TryCatch(resultExpression, catchBlock);
-            //}
-
-            return resultExpression;
+            return CreateReadJsonValueExpression(_jsonReaderManagerVariable, jsonValueReaderWriter, property.ClrType);
         }
 
-        private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
+        private static Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping, Type clrType)
         {
             var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
             Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+            return CreateReadJsonValueExpression(jsonReaderManagerParameter, jsonValueReaderWriter, clrType);
+        }
+
+        private static Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, JsonValueReaderWriter jsonValueReaderWriter, Type clrType)
+        {
             var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
 
             var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
@@ -1338,9 +1314,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
 
-            if (resultExpression.Type != typeMapping.ClrType)
+            if (resultExpression.Type != clrType)
             {
-                resultExpression = Convert(resultExpression, typeMapping.ClrType);
+                resultExpression = Convert(resultExpression, clrType);
             }
 
             if (clrType.IsNullableType())
@@ -1361,23 +1337,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return resultExpression;
         }
-
-        private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
-            => ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[GetProjectionIndex(projectionBindingExpression)];
-
-        private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            => projectionBindingExpression.ProjectionMember != null
-                ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
-                : (projectionBindingExpression.Index
-                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
-
-        private NewExpression NewJsonReaderManager()
-            => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
-
-        private ParameterExpression[] GetParametersForLambda(ITypeBase structuralType)
-            => structuralType.TryGetOrdinalKey(out _)
-             ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ordinalParameter]
-             : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter];
 
         private static BlockExpression ForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
         {
