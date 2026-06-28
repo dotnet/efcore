@@ -406,7 +406,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 shaper.StructuralType,
                 shaper.IsNullable);
 
-            if (!_isTracking || !(_queryStateManager && shaper.StructuralType is IEntityType entityType))
+            if (!RequiresTracking(shaper.StructuralType, out var entityType))
             {
                 return materializer;
             }
@@ -558,7 +558,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             materializerVariables.AddRange(instanceVariable, entityTypeVariable);
 
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
-            if (_queryStateManager && structuralType is IEntityType entityType)
+            if (RequiresTracking(structuralType, out var entityType))
             {
                 materializerVariables.Add(trackingActions);
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
@@ -608,7 +608,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
             else
             {
-                if (structuralType is IEntityType)
+                if (structuralType is IEntityType et && et.FindPrimaryKey() != null)
                 {
                     var nullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>().Single();
                     var readValuesBlock = (BlockExpression)nullKeyCheck.IfTrue;
@@ -1046,7 +1046,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedReadExpressions.Add(PostIncrementAssign(_ordinalParameter));
                     }
 
-                    if (_queryStateManager && nestedStructuralType is IEntityType nestedEntityType)
+                    if (RequiresTracking(nestedStructuralType, out var nestedEntityType))
                     {
                         // Change tracker will do fixup
                         // We also need to set any principal properties on the nested entity to the values from the parent entity, because we can only do this once the parent entity is fully materialized
@@ -1280,6 +1280,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             => structuralType.TryGetOrdinalKey(out _)
              ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ordinalParameter]
              : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter];
+
+        private bool RequiresTracking(ITypeBase structuralType, [NotNullWhen(true)] out IEntityType? entityType)
+        {
+            entityType = structuralType as IEntityType;
+            return _queryStateManager && entityType != null && entityType.FindPrimaryKey() != null;
+        }
 
         private Expression ReadJsonPropertyValue(IProperty property)
         {
