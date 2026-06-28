@@ -1040,8 +1040,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     };
                     var nestedCollectionReadExpressions = new List<Expression>()
                     {
-                        Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
-                        Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
                         Assign(ordinalVariable, Constant(-1)),
                     };
 
@@ -1184,7 +1182,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         else
                         {
                             nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
-                            // @TODO: We need a null check here for the materialized collection item...?
                             nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
                         }
                     }
@@ -1199,12 +1196,22 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var collectionBreakLabel = Label("EndCollection");
                         readExpressions.Add(
                             Block(nestedCollectionReadVariables,
-                                [..nestedCollectionReadExpressions,
-                                Loop(Block(
-                                    Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
-                                    IfThenElse(Equal(tokenTypeVariable, Constant(JsonTokenType.EndArray)), Break(collectionBreakLabel),
-                                        IfThenElse(Equal(tokenTypeVariable, Constant(JsonTokenType.None)), Break(collectionBreakLabel),
-                                            nestedReadBlock))), collectionBreakLabel)]));
+                                [Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                                Switch(tokenTypeVariable,
+                                    Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
+                                    SwitchCase(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod), Constant(JsonTokenType.Null)),
+                                    SwitchCase(
+                                        Block([
+                                            ..nestedCollectionReadExpressions,
+                                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                                            Loop(Block(
+                                                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                                                Switch(tokenTypeVariable,
+                                                    nestedReadBlock,
+                                                    SwitchCase(Throw(New(typeof(InvalidOperationException))), Constant(JsonTokenType.Null)), // @TODO: message? Null item in collection.
+                                                    SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)),
+                                                    SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.None)))), collectionBreakLabel)]),
+                                        Constant(JsonTokenType.StartArray)))]));
                     }
                     else
                     {
