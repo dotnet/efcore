@@ -285,26 +285,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var resultVariable = Variable(extensionExpression.Type, "result");
             switch (extensionExpression)
             {
-                case StructuralTypeShaperExpression structuralTypeShaper:
+                case StructuralTypeShaperExpression structuralTypeShaperExpression:
                 {
-                    var shaperLambda = StructuralTypeJsonShaperLambda(structuralTypeShaper);
+                    var shaperLambda = StructuralTypeJsonShaperLambda(structuralTypeShaperExpression);
 
                     var shaper = Block(
                         [resultVariable],
                         [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                        Assign(resultVariable, Invoke(shaperLambda, GetParametersForLambda(structuralTypeShaper.StructuralType))),
+                        Assign(resultVariable, Invoke(shaperLambda, GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
                         resultVariable]);
 
-                    if (structuralTypeShaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // Otherwise this is an inner shaper of a CollectionShaperExpression,
+                    if (structuralTypeShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBinding) // Otherwise this is an inner shaper of a CollectionShaperExpression,
                     {
-                        var projection = GetProjection(projectionBindingExpression);
-                        if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the query result, so we have to defer the shaper to a variable assignment and run it when we are reading the projection from the result. See: ProcessShaper
-                        {
-                            var variable = Variable(shaper.Type, projection.Alias);
-                            _deferredProjectionBindings[projectionBindingExpression] = (variable, shaper);
-                            return variable;
-                        }
+                        return CheckDeferProjectionBinding(projectionBinding, shaper);
                     }
 
                     return shaper;
@@ -329,14 +323,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
                             resultVariable]);
 
-                    if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the query result, so we have to defer the shaper to a variable assignment and run it when we are reading the projection from the result. See: ProcessShaper
-                    {
-                        var variable = Variable(shaper.Type, projection.Alias);
-                        _deferredProjectionBindings[projectionBindingExpression] = (variable, shaper);
-                        return variable;
-                    }
-
-                    return shaper;
+                    return CheckDeferProjectionBinding(projectionBindingExpression, shaper);
                 }
 
                 case CollectionShaperExpression collectionShaperExpression:
@@ -358,20 +345,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         resultVariable]);
 
                     var projectionBinding = (ProjectionBindingExpression)collectionShaperExpression.Projection;
-                    var projection = GetProjection(projectionBinding);
-                    if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the query result, so we have to defer the shaper to a variable assignment and run it when we are reading the projection from the result. See: ProcessShaper
-                    {
-                        var variable = Variable(shaper.Type, projection.Alias);
-                        _deferredProjectionBindings[projectionBinding] = (variable, shaper);
-                        return variable;
-                    }
-
-                    return shaper;
-
+                    return CheckDeferProjectionBinding(projectionBinding, shaper);
                 }
 
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);
+            }
+
+            Expression CheckDeferProjectionBinding(ProjectionBindingExpression projectionBinding, Expression shaper)
+            {
+                var projection = GetProjection(projectionBinding);
+                if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the query result, so we have to defer the shaper to a variable assignment and run it when we are reading the projection from the result. See: ProcessShaper
+                {
+                    if (!_deferredProjectionBindings.TryGetValue(projectionBinding, out var deferredBinding))
+                    {
+                        deferredBinding = (Variable(shaper.Type, projection.Alias), shaper);
+                        _deferredProjectionBindings[projectionBinding] = deferredBinding;
+                    }
+                    
+                    return deferredBinding.Variable;
+                }
+
+                return shaper;
             }
 
             return base.VisitExtension(extensionExpression);
