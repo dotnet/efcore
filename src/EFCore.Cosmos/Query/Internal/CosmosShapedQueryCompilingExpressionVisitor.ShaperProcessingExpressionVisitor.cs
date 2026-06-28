@@ -762,16 +762,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
             var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
 
-            // We can't know owned principal properties until we have fully deserialized the parent.
-            // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
-            // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
-            if (structuralType is IEntityType ownedEntityType && ownedEntityType.IsOwned())
-            {
-                var principalPropertyDefaultReplacements = ownedEntityType.GetProperties()
-                    .Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted())
-                    .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
-                body = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(body);
-            }
+            // Set any non persisted properties to their default values
+            // If the property has a principal (i.e. foreign key), it will be fixed up later when we have fully deserialized the parent.
+            var nonPersistedPropertyDefaultReplacements = structuralType.GetProperties()
+                .Where(p => !p.IsPersisted())
+                .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
+            body = new ValueBufferTryReadValueMethodsReplacer(nonPersistedPropertyDefaultReplacements).Rewrite(body);
 
             var valueBufferTryReadValueMethodsToProcess =
                 new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
