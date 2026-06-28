@@ -517,17 +517,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }).Rewrite(materializerBlock);
             }
 
-            // We can't know owned principal properties until we have fully deserialized the parent.
-            // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
-            // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
-            if (structuralType is IEntityType ownedEntityType && ownedEntityType.IsOwned())
-            {
-                var principalPropertyDefaultReplacements = ownedEntityType.GetDerivedTypesInclusive()
-                    .SelectMany(x => x.GetProperties().Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted())).Distinct()
-                    .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
-                materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
-            }
-
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
@@ -772,6 +761,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // keep track which variable corresponds to which navigation - we need that info for fixup
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
             var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
+
+            // We can't know owned principal properties until we have fully deserialized the parent.
+            // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
+            // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
+            if (structuralType is IEntityType ownedEntityType && ownedEntityType.IsOwned())
+            {
+                var principalPropertyDefaultReplacements = ownedEntityType.GetProperties()
+                    .Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted())
+                    .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
+                body = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(body);
+            }
 
             var valueBufferTryReadValueMethodsToProcess =
                 new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
