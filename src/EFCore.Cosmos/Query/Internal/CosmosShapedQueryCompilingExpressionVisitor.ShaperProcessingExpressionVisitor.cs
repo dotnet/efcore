@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
-// @TODO: What to do on null keys? -> Missing
+// @TODO: What to do on null keys? -> Missing. It should throw for both tracking and non tracking...
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
@@ -329,7 +329,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 case CollectionShaperExpression collectionShaperExpression:
                 {
-                    var innerShaperLambda = ProcessShaper(collectionShaperExpression.InnerShaper);
+                    var innerShaperLambda = new ShaperProcessingExpressionVisitor(_parentVisitor, _selectExpression, _dataParameter, _bytesConsumedParameter).ProcessShaper(collectionShaperExpression.InnerShaper);
                     var collectionBytesConsumedVariable = Variable(typeof(int), "collectionBytesConsumed");
 
                     var shaper = Block(
