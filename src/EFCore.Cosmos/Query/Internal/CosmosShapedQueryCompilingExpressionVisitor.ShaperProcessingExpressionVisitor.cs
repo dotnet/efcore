@@ -516,13 +516,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }).Rewrite(materializerBlock);
             }
 
-            // We can't know principal properties on owned types until we have fully deserialized the parent.
+            // We can't know owned principal properties until we have fully deserialized the parent.
             // We rewrite assignments to principal properties here, to be assigned after the parent is fully deserialized and tracked.
             // See GenerateJsonPropertyReadLoop nested structural properties for the replacement of these values.
             if (structuralType is IEntityType ownedEntityType && ownedEntityType.IsOwned())
             {
                 var principalPropertyDefaultReplacements = ownedEntityType.GetDerivedTypesInclusive()
-                    .SelectMany(x => x.GetProperties().Where(p => p.FindFirstPrincipal() != null)).Distinct()
+                    .SelectMany(x => x.GetProperties().Where(p => p.FindFirstPrincipal() != null && p.GetJsonPropertyName() == string.Empty)).Distinct()
                     .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
                 materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
             }
@@ -917,7 +917,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             foreach (var (property, variable) in navigationVariableMap)
             {
                 finalBlockExpressions.Add(
-                    MakeMemberAccess(instanceVariable, property.GetMemberInfo(true, true)).Assign(variable));
+                    MakeMemberAccess(ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType), property.GetMemberInfo(true, true)).Assign(variable));
             }
 
             // Empty collections have not been initialized, so we double check all collection properties here
@@ -1118,7 +1118,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                 IfThen(Equal(entryVariable, Default(entryVariable.Type)),
                                                     Block([
                                                         // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id)
-                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty()).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x.principal != null).Select(p =>
+                                                        ..nestedEntityType.GetProperties().Where(x => x.IsShadowProperty() && x.GetJsonPropertyName() == string.Empty).Select(p => new { self = p, principal = p.FindFirstPrincipal()! }).Where(x => x.principal != null).Select(p =>
                                                             Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.self.ClrType),
                                                                 Constant(p.self.GetShadowIndex()),
                                                                 ConvertIfNotMatch(
