@@ -295,7 +295,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var shaper = Block(
                         [resultVariable],
                         [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                        Assign(resultVariable, Invoke(shaperLambda, QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter)),
+                        Assign(resultVariable, Invoke(shaperLambda, GetParametersForLambda(structuralTypeShaper.StructuralType))),
                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
                         resultVariable]);
 
@@ -416,8 +416,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             if (!_isTracking || !(_queryStateManager && shaper.StructuralType is IEntityType entityType))
             {
-                // Materializer will be generated as a simple deserialize for non tracking queries.
-                // We can return the materializer directly as the shaper, since we don't need to read any metadata properties from the document.
                 return materializer;
             }
 
@@ -427,15 +425,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 tupleVariable
             };
 
-            var materializerArguments = new List<Expression> { QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter };
-            if (shaper.StructuralType.TryGetOrdinalKey(out _))
-            {
-                materializerArguments.Add(_ordinalParameter);
-            }
-
             var shaperExpressions = new List<Expression>()
             {
-                Assign(tupleVariable, Invoke(materializer, materializerArguments))
+                Assign(tupleVariable, Invoke(materializer, GetParametersForLambda(shaper.StructuralType)))
             };
 
             // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
@@ -502,8 +494,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             lambda = Lambda(
                 Block(shaperVariables, shaperExpressions),
                 shaper.StructuralType.Name + "_Shaper",
-                [QueryCompilationContext.QueryContextParameter,
-                _jsonReaderDataParameter]);
+                GetParametersForLambda(shaper.StructuralType));
             _structuralTypeJsonShaperLambdaMapping.Add(shaper.StructuralType, lambda);
 
             return lambda;
@@ -656,20 +647,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
                         Default(resultType)))]);
 
-            var parameters = new List<ParameterExpression>()
-            {
-                QueryCompilationContext.QueryContextParameter,
-                _jsonReaderDataParameter
-            };
-            if (ordinalKeyProperty != null)
-            {
-                parameters.Add(_ordinalParameter);
-            }
-
             lambda = Lambda(
                 nullCheck,
                 structuralType.Name + "_Materializer",
-                parameters);
+                GetParametersForLambda(structuralType));
 
             _structuralTypeJsonMaterializerLambdaMapping.Add(structuralType, lambda);
 
@@ -1048,26 +1029,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             nestedValueBuffer);
 
                     // Builds the expression tree for collection properties. This is a while loop around the materializer for the nested structural type
-                    var ordinalVariable = Variable(typeof(int), "ordinal");
                     var nestedCollectionReadVariables = new List<ParameterExpression>()
                     {
-                        ordinalVariable
+                        _ordinalParameter
                     };
                     var nestedCollectionReadExpressions = new List<Expression>()
                     {
-                        Assign(ordinalVariable, Constant(-1)),
+                        Assign(_ordinalParameter, Constant(-1)),
                     };
 
-                    var nestedMaterializerArguments = new List<Expression>
-                        {
-                            QueryCompilationContext.QueryContextParameter,
-                            _jsonReaderDataParameter
-                        };
-                    if (nestedStructuralType.TryGetOrdinalKey(out _))
-                    {
-                        nestedMaterializerArguments.Add(ordinalVariable);
-                    }
-                    var nestedMaterializer = Invoke(nestedMaterializerLambda, nestedMaterializerArguments);
+                    var nestedMaterializer = Invoke(nestedMaterializerLambda, GetParametersForLambda(nestedStructuralType));
 
                     // Builds the expression tree for materializing an instance of the nested structural type
                     var nestedReadExpressions = new List<Expression>();
@@ -1079,7 +1050,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
                     else
                     {
-                        nestedReadExpressions.Add(PostIncrementAssign(ordinalVariable));
+                        nestedReadExpressions.Add(PostIncrementAssign(_ordinalParameter));
                     }
 
                     if (_queryStateManager && nestedStructuralType is IEntityType nestedEntityType)
@@ -1380,6 +1351,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private NewExpression NewJsonReaderManager()
             => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
+
+        private ParameterExpression[] GetParametersForLambda(ITypeBase structuralType)
+            => structuralType.TryGetOrdinalKey(out _)
+             ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ordinalParameter]
+             : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter];
 
         private static BlockExpression ForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
         {
