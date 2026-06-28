@@ -1192,21 +1192,33 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var collectionBreakLabel = Label("EndCollection");
                         readExpressions.Add(
                             Block(nestedCollectionReadVariables,
+                                // tokenType = jsonReaderManager.MoveNext()
                                 [Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                                // switch (tokenType)
                                 Switch(tokenTypeVariable,
+                                    // default: throw new InvalidOperationException(InvalidTokenType)
                                     Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
+                                    // case Null: jsonReaderManager.CaptureState()
                                     SwitchCase(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod), Constant(JsonTokenType.Null)),
+                                    // case StartArray
                                     SwitchCase(
                                         Block([
                                             ..nestedCollectionReadExpressions,
+                                            // jsonReaderManager.CaptureState()
                                             Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                                            // while (true)
                                             Loop(Block(
+                                                // tokenType = jsonReaderManager.MoveNext()
                                                 Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                                                // switch (tokenType)
                                                 Switch(tokenTypeVariable,
+                                                    // default: materializer
                                                     nestedReadBlock,
+                                                    // case Null: throw new InvalidOperationException("Null item in collection.")
                                                     SwitchCase(Throw(New(typeof(InvalidOperationException))), Constant(JsonTokenType.Null)), // @TODO: message? Null item in collection.
-                                                    SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)),
-                                                    SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.None)))), collectionBreakLabel)]),
+                                                    // case EndArray: goto collectionBreakLabel
+                                                    SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)))),
+                                                collectionBreakLabel)]),
                                         Constant(JsonTokenType.StartArray)))]));
                     }
                     else
