@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
@@ -410,13 +411,9 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var properties = new Dictionary<string, IPropertyBase>();
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetProperties().Where(x => x.IsPersisted()))
         {
             var jsonName = property.GetJsonPropertyName();
-            if (string.IsNullOrWhiteSpace(jsonName))
-            {
-                continue;
-            }
 
             if (properties.TryGetValue(jsonName, out var otherProperty))
             {

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
@@ -52,15 +53,9 @@ public static class CosmosSerializationUtilities // @TODO: Can this be removed? 
         }
 
         var obj = new JObject();
-        foreach (var property in type.GetProperties())
+        foreach (var property in type.GetProperties().Where(x => x.IsPersisted()))
         {
             var jsonPropertyName = property.GetJsonPropertyName();
-
-            if (string.IsNullOrEmpty(jsonPropertyName))
-            {
-                continue;
-            }
-
             var propertyValue = property.GetGetter().GetClrValue(value);
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var providerValue = property.ConvertToProviderValue(propertyValue);

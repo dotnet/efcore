@@ -5,6 +5,7 @@ using System.Collections;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -87,9 +88,7 @@ public class DocumentSource
 
         foreach (var property in structuralType.GetProperties())
         {
-            var jsonPropertyName = property.GetJsonPropertyName();
-
-            if (jsonPropertyName == "")
+            if (!property.IsPersisted())
             {
                 if (property.IsKey() && property.IsOrdinalKeyProperty())
                 {
@@ -97,6 +96,8 @@ public class DocumentSource
                 }
                 continue;
             }
+
+            var jsonPropertyName = property.GetJsonPropertyName();
 
             var propertyValue = entry.GetCurrentValue(property);
             writer.WritePropertyName(jsonPropertyName);
