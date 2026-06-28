@@ -975,7 +975,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     Constant(Encoding.UTF8.GetBytes(jsonPropertyName))),
                                 typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
-                    var propertyVariable = Variable(valueBufferTryReadValueMethodToProcess.Type);
+                    var propertyVariable = Variable(valueBufferTryReadValueMethodToProcess.Type, property.Name);
 
                     finalBlockVariables.Add(propertyVariable);
 
@@ -1141,7 +1141,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     else
                     {
                         // We have to do manual fixup for this structural property
-                        var propertyVariable = Variable(nestedStructuralProperty.ClrType);
+                        var propertyVariable = Variable(nestedStructuralProperty.ClrType, nestedStructuralProperty.Name);
                         finalBlockVariables.Add(propertyVariable);
                         navigationVariableMap[nestedStructuralProperty] = propertyVariable;
                         if (!nestedStructuralProperty.IsCollection)
