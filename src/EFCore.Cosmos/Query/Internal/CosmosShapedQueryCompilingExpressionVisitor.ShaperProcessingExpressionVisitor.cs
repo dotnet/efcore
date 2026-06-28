@@ -528,8 +528,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 var principalPropertyDefaultReplacements = ownedEntityType.GetDerivedTypesInclusive()
                     .SelectMany(x => x.GetProperties().Where(p => p.FindFirstPrincipal() != null)).Distinct()
-                .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
-            materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
+                    .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
+                materializerBlock = new ValueBufferTryReadValueMethodsReplacer(principalPropertyDefaultReplacements).Rewrite(materializerBlock);
             }
 
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
@@ -1092,34 +1092,24 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         // Map key values to the correct source for the try get entry call.
                         var tryGetEntryPropertyMap = nestedEntityType.FindPrimaryKey()!.Properties
-                            .ToDictionary<IProperty, IProperty, Expression>(
-                                p => p,
-                                property =>
-                                {
-                                    if (nestedEntityType.IsOwned() && property.IsOrdinalKeyProperty())
-                                    {
-                                        return _ordinalParameter;
-                                    }
+                            .ToDictionary(property => property, property =>
+                            {
+                                return nestedEntityType.IsOwned() && property.IsOrdinalKeyProperty()
+                                        ? _ordinalParameter
+                                        : property.FindFirstPrincipal() is { } principalProperty
+                                            ? principalProperty.IsShadowProperty()
+                                                ? GetSnapshotValue(parentShadowSnapshotVariable, principalProperty)
+                                                : parentInstanceVariable.MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false))
+                                            : property.IsShadowProperty()
+                                                ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
+                                                : nestedInstanceVariable.MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
 
-                                    if (property.FindFirstPrincipal() is { } firstPrincipalProperty)
-                                    {
-                                        if (firstPrincipalProperty.IsShadowProperty())
-                                        {
-                                            // parentShadowSnapshotVariable.GetValue<T>(1)
-                                            return Call(parentShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(firstPrincipalProperty.ClrType), Constant(firstPrincipalProperty.GetShadowIndex()));
-                                        }
-
-                                        return parentInstanceVariable.MakeMemberAccess(firstPrincipalProperty.GetMemberInfo(true, false));
-                                    }
-
-                                    if (property.IsShadowProperty())
-                                    {
-                                        // nestedShadowSnapshotVariable.GetValue<T>(1)
-                                        return Call(nestedShadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()));
-                                    }
-
-                                    return nestedInstanceVariable.MakeMemberAccess(property.GetMemberInfo(true, false));
-                                });
+                                static Expression GetSnapshotValue(Expression snapshotVariable, IProperty property)
+                                    => Call(
+                                        snapshotVariable,
+                                        Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
+                                        Constant(property.GetShadowIndex()));
+                            });
 
                         tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
                             .Visit(tryGetEntryAssignment);
