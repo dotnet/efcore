@@ -1126,11 +1126,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 ? _ordinalParameter // @TODO: Does this work? isnt this the ordinal key of the parent?
                                 : property.FindFirstPrincipal() is { } principalProperty
                                     ? principalProperty.IsShadowProperty()
-                                        ? GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty)
-                                        : ConvertIfNotMatch(parentInstanceVariable, principalProperty.DeclaringType.ClrType).MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false))
+                                        ? ConvertIfNotMatch(GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty), property.ClrType)
+                                        : ConvertIfNotMatch(ConvertIfNotMatch(parentInstanceVariable, principalProperty.DeclaringType.ClrType).MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType)
                                     : property.IsShadowProperty()
                                         ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
-                                        : ConvertIfNotMatch(nestedInstanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
+                                        : ConvertIfNotMatch(ConvertIfNotMatch(nestedInstanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType);
 
                         static Expression GetSnapshotValue(Expression snapshotVariable, IProperty property)
                             => Call(
