@@ -219,12 +219,20 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             start++;
         }
 
-        // An XML declaration is introduced by "<?xml" followed by mandatory whitespace, so matching "<?xml "
-        // (including the trailing space) identifies it. Its closing '>' cannot appear any earlier because the
-        // version/encoding/standalone values are quoted, so everything up to and including that first '>' is removed.
-        return string.CompareOrdinal(xml, start, "<?xml ", 0, 6) == 0
-            ? xml[(xml.IndexOf('>', start) + 1)..]
-            : xml;
+        // An XML declaration starts with "<?xml" followed by mandatory whitespace. If present, remove everything
+        // up to and including the first following '>' and return the remainder verbatim.
+        if (start + 5 < xml.Length
+            && string.CompareOrdinal(xml, start, "<?xml", 0, 5) == 0
+            && char.IsWhiteSpace(xml[start + 5]))
+        {
+            var end = xml.IndexOf('>', start + 5);
+            if (end >= 0)
+            {
+                return xml[(end + 1)..];
+            }
+        }
+
+        return xml;
     }
 
     /// <summary>
