@@ -152,13 +152,19 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
                     }
 
+                    if (array is not SqlExpression scalarArray)
+                    {
+                        // @TODO: Create separate issue..
+                        return Visit(collectionArgument);
+                    }
+
                     // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
                     // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
                     // simply read the JSON results out successfully.
                     // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
                     // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
                     // "reprojection" subquery, effectively to change the CLR type.
-                    if (array is SqlExpression scalarArray && !(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                    if (!(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
                     {
                         Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
 
@@ -209,7 +215,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     {
                         shaper = Expression.Call(shaper, listType.GetMethod(nameof(List<>.ToArray))!);
                     }
-
+                    
                     return shaper;
                 }
 
