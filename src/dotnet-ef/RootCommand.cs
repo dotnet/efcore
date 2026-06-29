@@ -138,6 +138,8 @@ internal class RootCommand : CommandBase
                 Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetFramework));
         }
 
+        var additionalProbingPaths = new List<string>();
+
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
         if (targetFramework.Identifier == ".NETFramework")
         {
@@ -162,13 +164,16 @@ internal class RootCommand : CommandBase
                 using var file = File.OpenRead(projectAssetsFile);
                 using var reader = JsonDocument.Parse(file);
                 var projectAssets = reader.RootElement;
-                var packageFolders = projectAssets.GetProperty("packageFolders").EnumerateObject().Select(p => p.Name);
+                var packageFolders = projectAssets.GetProperty("packageFolders")
+                    .EnumerateObject().Select(p => p.Name.TrimEnd(Path.DirectorySeparatorChar)).ToList();
 
                 foreach (var packageFolder in packageFolders)
                 {
                     args.Add("--additionalprobingpath");
-                    args.Add(packageFolder.TrimEnd(Path.DirectorySeparatorChar));
+                    args.Add(packageFolder);
                 }
+
+                additionalProbingPaths = packageFolders;
             }
 
             if (File.Exists(runtimeConfig))
@@ -247,6 +252,31 @@ internal class RootCommand : CommandBase
         if (Reporter.PrefixOutput)
         {
             args.Add("--prefix-output");
+        }
+
+        if (File.Exists(depsFile))
+        {
+            args.Add("--deps-file");
+            args.Add(depsFile);
+        }
+
+        if (File.Exists(runtimeConfig))
+        {
+            args.Add("--runtime-config");
+            args.Add(runtimeConfig);
+        }
+        else if (startupProject.RuntimeFrameworkVersion!.Length != 0)
+        {
+            // Mirrors the host --fx-version above so a child discovery process (migrations bundle)
+            // can pin the same shared framework when there's no runtimeconfig.json.
+            args.Add("--runtime-framework-version");
+            args.Add(startupProject.RuntimeFrameworkVersion);
+        }
+
+        foreach (var additionalProbingPath in additionalProbingPaths)
+        {
+            args.Add("--additional-probing-path");
+            args.Add(additionalProbingPath);
         }
 
         if (_applicationArgs!.Any())
