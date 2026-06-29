@@ -84,11 +84,19 @@ public partial class NavigationExpandingExpressionVisitor
             if (memberExpression.Expression is MethodCallExpression { Method.IsGenericMethod: true } subquery
                 && SingleResultMethods.Contains(subquery.Method.GetGenericMethodDefinition()))
             {
-                _memberAccessCount[subquery] = _memberAccessCount.GetValueOrDefault(subquery) + 1;
-
-                foreach (var argument in subquery.Arguments)
+                if (_memberAccessCount.TryGetValue(subquery, out var count))
                 {
-                    Visit(argument);
+                    _memberAccessCount[subquery] = count + 1;
+                }
+                else
+                {
+                    // First encounter: count it and visit its arguments once (a later access duplicates the count)
+                    _memberAccessCount[subquery] = 1;
+
+                    foreach (var argument in subquery.Arguments)
+                    {
+                        Visit(argument);
+                    }
                 }
 
                 return memberExpression;
