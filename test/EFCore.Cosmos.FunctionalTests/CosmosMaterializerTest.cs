@@ -310,14 +310,22 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         using (var context = factory.CreateDbContext())
         {
             var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.Associates.Concat(x.Associates).ToList()).ToListAsync();
-            Assert.Equal(4, results.Count);
+            Assert.Equal(2, results.Count);
 
-            for (var i = 0; i < results.Count / 2; i++)
+            for (var i = 0; i < results.Count; i++)
             {
-                var result1 = results[i];
-                var result2 = results[i + results.Count / 2];
+                var result = results[i];
+                Assert.Equal(4, result.Count);
 
-                Assert.Same(result1, result2);
+                for (var j = 0; j < result.Count / 2; j++)
+                {
+                    if (j > 0)
+                    {
+                        Assert.NotSame(result[j], result[j - 1]);
+                    }
+
+                    Assert.Same(result[j], result[j + 2]);
+                }
             }
         }
     }
@@ -345,14 +353,102 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         using (var context = factory.CreateDbContext())
         {
             var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.OrdinalAssociates.Concat(x.OrdinalAssociates).ToList()).ToListAsync();
+            Assert.Equal(2, results.Count);
+
+            for (var i = 0; i < results.Count; i++)
+            {
+                var result = results[i];
+                Assert.Equal(4, result.Count);
+
+                for (var j = 0; j < result.Count / 2; j++)
+                {
+                    if (j > 0)
+                    {
+                        Assert.NotSame(result[j], result[j - 1]);
+                    }
+
+                    Assert.Same(result[j], result[j + 2]);
+                }
+            }
+        }
+    }
+
+    [ConditionalFact]
+    public async Task SelectManyConcatAssociateCollectionAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().SelectMany(x => x.Associates.Concat(x.Associates)).ToListAsync();
             Assert.Equal(4, results.Count);
 
             for (var i = 0; i < results.Count / 2; i++)
             {
-                var result1 = results[i];
-                var result2 = results[i + results.Count / 2];
+                var result = results[i];
+                var otherResult = results[i + results.Count / 2];
+                
+                Assert.Same(result, otherResult);
 
-                Assert.Same(result1, result2);
+                if (i < 0)
+                {
+                    Assert.NotSame(result, results[i - 1]);
+                }
+            }
+        }
+    }
+
+    [ConditionalFact]
+    public async Task SelectManyConcatOrdinalAssociateCollectionAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                OrdinalAssociates = [new(), new()]
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                OrdinalAssociates = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().SelectMany(x => x.OrdinalAssociates.Concat(x.OrdinalAssociates)).ToListAsync();
+            Assert.Equal(4, results.Count);
+
+            for (var i = 0; i < results.Count / 2; i++)
+            {
+                var result = results[i];
+                var otherResult = results[i + results.Count / 2];
+
+                Assert.Same(result, otherResult);
+
+                if (i < 0)
+                {
+                    Assert.NotSame(result, results[i - 1]);
+                }
             }
         }
     }
@@ -455,7 +551,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         public List<AsNoTrackingWithIdentityResolutionAssociateEntity> Associates { get; set; } = new();
 
-        public List<AsNoTrackingWithIdentityResolutionAssociateEntity> OrdinalAssociates { get; set; } = new();
+        public List<AsNoTrackingWithIdentityResolutionOrdinalAssociateEntity> OrdinalAssociates { get; set; } = new();
 
     }
 
@@ -463,6 +559,11 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = "Name";
+    }
+
+    public class AsNoTrackingWithIdentityResolutionOrdinalAssociateEntity
+    {
+        public string OtherName { get; set; } = "Name";
     }
 
     public class AsNoTrackingWithIdentityResolutionContext(DbContextOptions options) : DbContext(options)
@@ -473,8 +574,8 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         {
             modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsOne(x => x.RequiredAssociate);
-            modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsMany(x => x.Associates, x => x.HasKey(x => x.Id));
             modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsMany(x => x.Associates);
+            modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsMany(x => x.OrdinalAssociates);
         }
     }
 

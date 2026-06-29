@@ -191,7 +191,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     else
                     {
                         var structuralTypeShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
-                        // There is no actual binding here because the inner shaper is directly over the collection, and not a query.
+                        // There is no actual binding here because the shaper is over the inner json, and not the actual query result.
                         structuralTypeShaper = structuralTypeShaper.Update(Expression.Constant(ValueBuffer.Empty));
                     }
 
@@ -295,7 +295,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     // If the query uses SelectMany, the structuralTypeShaper's ValueBuffer is already bound to the inner query and is a ProjectionBindingExpression
                     if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
                     {
-                        // There is no actual binding here because the inner shaper is directly over the collection, and not a query.
+                        // There is no actual binding here because the shaper is over the inner json, and not the actual query result.
                         structuralTypeShaper = structuralTypeShaper.Update(Expression.Convert(Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                         return new CollectionShaperExpression(
@@ -363,7 +363,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
                 }
 
-                // There is no actual binding here because the inner shaper is directly over the collection, and not a query.
+                // There is no actual binding here because the shaper is over the inner json, and not the actual query result.
                 shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                 return new CollectionShaperExpression(
