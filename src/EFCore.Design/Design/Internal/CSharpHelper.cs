@@ -297,19 +297,16 @@ public class CSharpHelper : ICSharpHelper
             builder.Append(name[partStart..]);
         }
 
-        if (builder.Length == 0
-            || !IsIdentifierStartCharacter(builder[0]))
-        {
-            builder.Insert(0, '_');
-        }
-
         if (capitalize != null)
         {
             ChangeFirstLetterCase(builder, capitalize.Value);
         }
 
-        var identifier = builder.ToString();
-        return identifier;
+        var candidateIdentifier = builder.ToString();
+
+        return ModelValidator.IsValidIdentifier(candidateIdentifier)
+            ? candidateIdentifier
+            : "_" + candidateIdentifier;
     }
 
     private static void ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
@@ -1632,73 +1629,6 @@ public class CSharpHelper : ICSharpHelper
         return code;
     }
 
-    private static bool IsIdentifierStartCharacter(char ch)
-    {
-        if (ch < 'a')
-        {
-            return ch is >= 'A' and (<= 'Z' or '_');
-        }
-
-        if (ch <= 'z')
-        {
-            return true;
-        }
-
-        return ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
-    }
-
     private static bool IsIdentifierPartCharacter(char ch)
-    {
-        if (ch < 'a')
-        {
-            return (ch < 'A'
-                    ? ch is >= '0' and <= '9'
-                    : ch <= 'Z')
-                || ch == '_';
-        }
-
-        if (ch <= 'z')
-        {
-            return true;
-        }
-
-        if (ch <= '\u007F')
-        {
-            return false;
-        }
-
-        var cat = CharUnicodeInfo.GetUnicodeCategory(ch);
-        if (IsLetterChar(cat))
-        {
-            return true;
-        }
-
-        switch (cat)
-        {
-            case UnicodeCategory.DecimalDigitNumber:
-            case UnicodeCategory.ConnectorPunctuation:
-            case UnicodeCategory.NonSpacingMark:
-            case UnicodeCategory.SpacingCombiningMark:
-            case UnicodeCategory.Format:
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsLetterChar(UnicodeCategory cat)
-    {
-        switch (cat)
-        {
-            case UnicodeCategory.UppercaseLetter:
-            case UnicodeCategory.LowercaseLetter:
-            case UnicodeCategory.TitlecaseLetter:
-            case UnicodeCategory.ModifierLetter:
-            case UnicodeCategory.OtherLetter:
-            case UnicodeCategory.LetterNumber:
-                return true;
-        }
-
-        return false;
-    }
+        => char.IsLetter(ch) || char.IsAsciiDigit(ch) || ch == '_';
 }

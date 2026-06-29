@@ -129,6 +129,7 @@ public static class CoreEventId
         NoEntityTypeConfigurationsWarning = CoreBaseId + 632,
         AccidentalEntityType = CoreBaseId + 633,
         AccidentalComplexPropertyCollection = CoreBaseId + 634,
+        ShadowPropertyNameNotValidIdentifierWarning = CoreBaseId + 635,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -749,6 +750,20 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId AccidentalComplexPropertyCollection = MakeModelValidationId(Id.AccidentalComplexPropertyCollection);
+
+    /// <summary>
+    ///     A shadow property has a name that is not a valid identifier, which can cause issues in generated code.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ShadowPropertyNameNotValidIdentifierWarning =
+        MakeModelValidationId(Id.ShadowPropertyNameNotValidIdentifierWarning);
 
     /// <summary>
     ///     The <see cref="RequiredAttribute" /> on the collection navigation property was ignored.

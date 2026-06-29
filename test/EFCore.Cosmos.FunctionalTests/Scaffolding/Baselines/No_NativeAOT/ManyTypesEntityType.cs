@@ -31,7 +31,7 @@ public partial class ManyTypesEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes",
             typeof(CompiledModelTestBase.ManyTypes),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "ManyTypes",
             propertyCount: 170,
             keyCount: 1);
@@ -44,12 +44,6 @@ public partial class ManyTypesEntityType
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueConverter: new CompiledModelTestBase.ManyTypesIdConverter());
         id.SetSentinelFromProviderValue(0);
-
-        var type = runtimeEntityType.AddProperty(
-            "$type",
-            typeof(string),
-            afterSaveBehavior: PropertySaveBehavior.Throw,
-            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
 
         var @bool = runtimeEntityType.AddProperty(
             "Bool",
@@ -258,6 +252,13 @@ public partial class ManyTypesEntityType
             fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             valueConverter: new NumberToStringConverter<decimal>());
         decimalNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
+
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var @double = runtimeEntityType.AddProperty(
             "Double",

@@ -28,7 +28,7 @@ public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
                     """
 SELECT c["Id"], c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Enum"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -64,7 +64,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -78,7 +78,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -92,7 +92,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
 """);
             });
@@ -107,7 +107,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
 """);
             });
@@ -122,7 +122,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -137,7 +137,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -151,7 +151,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "SingleOwned")
+WHERE (c["$type"] = "SingleOwned")
 """);
             });
 
@@ -165,7 +165,7 @@ WHERE (c["Discriminator"] = "SingleOwned")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -179,7 +179,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -193,7 +193,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c["OwnedReferenceRoot"]["Name"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -218,7 +218,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 ORDER BY c["Id"]
 """);
             });
@@ -233,7 +233,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
@@ -247,7 +247,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"]
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
@@ -261,7 +261,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
@@ -315,7 +315,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -331,7 +331,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -345,7 +345,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT c["Reference"]["TestDefaultString"], c["Reference"]["TestMaxLengthString"], c["Reference"]["TestBoolean"], c["Reference"]["TestByte"], c["Reference"]["TestCharacter"], c["Reference"]["TestDateTime"], c["Reference"]["TestDateTimeOffset"], c["Reference"]["TestDecimal"], c["Reference"]["TestDouble"], c["Reference"]["TestGuid"], c["Reference"]["TestInt16"], c["Reference"]["TestInt32"], c["Reference"]["TestInt64"], c["Reference"]["TestSignedByte"], c["Reference"]["TestSingle"], c["Reference"]["TestTimeSpan"], c["Reference"]["TestDateOnly"], c["Reference"]["TestTimeOnly"], c["Reference"]["TestUnsignedInt16"], c["Reference"]["TestUnsignedInt32"], c["Reference"]["TestUnsignedInt64"], c["Reference"]["TestEnum"], c["Reference"]["TestEnumWithIntConverter"], c["Reference"]["TestNullableEnum"], c["Reference"]["TestNullableEnumWithIntConverter"], c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"]
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -360,7 +360,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND c["Reference"]["TestBoolean"])
+WHERE ((c["$type"] = "AllTypes") AND c["Reference"]["TestBoolean"])
 """);
             });
 
@@ -374,7 +374,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND c["Reference"]["TestBoolean"])
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
+WHERE ((c["$type"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
 """);
             });
 
@@ -388,7 +388,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
                     """
 SELECT VALUE c["Reference"]["TestBoolean"]
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -402,7 +402,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT VALUE NOT(c["Reference"]["TestBoolean"])
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -468,7 +468,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
+WHERE ((c["$type"] = "Basic") AND EXISTS (
     SELECT 1
     FROM o IN c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
     WHERE (o["OwnedReferenceLeaf"]["SomethingSomething"] = "e1_r_c1_r")))
@@ -515,7 +515,7 @@ SELECT VALUE
     "CollectionElement" : c["OwnedCollectionRoot"][0]["Number"]
 }
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -529,7 +529,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] != "Foo"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] != "Foo"))
 """);
             });
 
@@ -597,7 +597,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
                     """
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] != "Foo"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] != "Foo"))
 """);
             });
 
@@ -613,7 +613,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] !
 
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"] != "Foo"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"] != "Foo"))
 """);
             });
 
@@ -863,7 +863,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                     """
 SELECT VALUE ARRAY_LENGTH(c["OwnedCollectionRoot"])
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
 """);
             });
@@ -889,7 +889,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]["Names"], "e1_r1"))
+WHERE ((c["$type"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]["Names"], "e1_r1"))
 """);
             });
 
@@ -903,7 +903,7 @@ WHERE ((c["Discriminator"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["OwnedReferenceRoot"]["Numbers"][0]
 """);
             });
@@ -918,7 +918,7 @@ ORDER BY c["OwnedReferenceRoot"]["Numbers"][0]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] = "e1_r1"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] = "e1_r1"))
 """);
             });
 
@@ -949,7 +949,7 @@ ORDER BY c["Id"]
 SELECT VALUE n
 FROM root c
 JOIN n IN c["OwnedReferenceRoot"]["Names"]
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -987,7 +987,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
+WHERE ((c["$type"] = "Basic") AND (ARRAY(
     SELECT VALUE o["OwnedReferenceLeaf"]["SomethingSomething"]
     FROM o IN (SELECT VALUE ARRAY_SLICE(c["OwnedReferenceRoot"]["OwnedCollectionBranch"], 1)))[0] = "e1_r_c2_r"))
 """);
@@ -1019,7 +1019,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
+WHERE ((c["$type"] = "Basic") AND (ARRAY(
     SELECT VALUE o["OwnedReferenceLeaf"]["SomethingSomething"]
     FROM o IN c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
     WHERE (o["Enum"] = -3))[0] = "e1_r_c2_r"))
@@ -1036,7 +1036,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
+WHERE ((c["$type"] = "Basic") AND EXISTS (
     SELECT 1
     FROM o IN c["OwnedCollectionRoot"]
     WHERE (ARRAY_LENGTH(o["OwnedCollectionBranch"]) = 2)))
@@ -1127,7 +1127,7 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 1))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 1))
 """);
             });
 
@@ -1141,7 +1141,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToI
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 0))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 0))
 """);
             });
 
@@ -1155,7 +1155,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToI
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
 """);
             });
 
@@ -1169,7 +1169,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
 """);
             });
 
@@ -1183,7 +1183,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "Y"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "Y"))
 """);
             });
 
@@ -1197,7 +1197,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "N"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "N"))
 """);
             });
 
@@ -1212,7 +1212,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
 """);
             });
 
@@ -1227,7 +1227,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] != "AQID"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestByteArray"] != "AQID"))
 """);
             });
 
@@ -1242,7 +1242,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] !=
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] != "z"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestCharacter"] != "z"))
 """);
             });
 
@@ -1257,7 +1257,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] !=
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != "0003-02-01"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != "0003-02-01"))
 """);
             });
 
@@ -1272,7 +1272,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00"))
 """);
             });
 
@@ -1287,7 +1287,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset"] != "2000-01-04T00:00:00+03:02"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset"] != "2000-01-04T00:00:00+03:02"))
 """);
             });
 
@@ -1302,7 +1302,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1.35))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1.35))
 """);
             });
 
@@ -1317,7 +1317,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"] != "MyDefaultStringInReference1"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDefaultString"] != "MyDefaultStringInReference1"))
 """);
             });
 
@@ -1332,7 +1332,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33.25))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33.25))
 """);
             });
 
@@ -1347,7 +1347,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
 """);
             });
 
@@ -1362,7 +1362,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntConverter"] != -3))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntConverter"] != -3))
 """);
             });
 
@@ -1377,7 +1377,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntCon
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "00000000-0000-0000-0000-000000000000"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "00000000-0000-0000-0000-000000000000"))
 """);
             });
 
@@ -1392,7 +1392,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "000
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
 """);
             });
 
@@ -1407,7 +1407,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33))
 """);
             });
 
@@ -1422,7 +1422,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33)
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333))
 """);
             });
 
@@ -1436,7 +1436,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConvertedToBool"] = true))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["IntZeroOneConvertedToBool"] = true))
 """);
             });
 
@@ -1451,7 +1451,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConver
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthString"] != "Foo"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestMaxLengthString"] != "Foo"))
 """);
             });
 
@@ -1466,7 +1466,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthStrin
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != -1))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != -1))
 """);
             });
 
@@ -1481,7 +1481,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != null))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != null))
 """);
             });
 
@@ -1496,7 +1496,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != 2))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != 2))
 """);
             });
 
@@ -1511,7 +1511,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != null))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != null))
 """);
             });
 
@@ -1526,7 +1526,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"] != "One"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"] != "One"))
 """);
             });
 
@@ -1550,7 +1550,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != 100))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != 100))
 """);
             });
 
@@ -1565,7 +1565,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != null))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != null))
 """);
             });
 
@@ -1580,7 +1580,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] != 100))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] != 100))
 """);
             });
 
@@ -1595,7 +1595,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] !
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10.4))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10.4))
 """);
             });
 
@@ -1610,7 +1610,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]) ? c["Reference"]["TestMaxLengthString"] : c["Reference"]["TestDefaultString"]) = "MyDefaultStringInReference1"))
+WHERE ((c["$type"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]) ? c["Reference"]["TestMaxLengthString"] : c["Reference"]["TestDefaultString"]) = "MyDefaultStringInReference1"))
 """);
             });
 
@@ -1624,7 +1624,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringTrueFalseConvertedToBool"] = false))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["StringTrueFalseConvertedToBool"] = false))
 """);
             });
 
@@ -1638,7 +1638,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringTrueFalseC
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConvertedToBool"] = false))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["StringYNConvertedToBool"] = false))
 """);
             });
 
@@ -1653,7 +1653,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConverte
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != "03:02:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != "03:02:00"))
 """);
             });
 
@@ -1668,7 +1668,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != "03:02:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != "03:02:00"))
 """);
             });
 
@@ -1683,7 +1683,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"] != 100))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"] != 100))
 """);
             });
 
@@ -1698,7 +1698,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"] != 1000))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"] != 1000))
 """);
             });
 
@@ -1713,7 +1713,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"] != 10000))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"] != 10000))
 """);
             });
 
@@ -1751,7 +1751,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"
                     """
 SELECT c["Id"], c["OwnedReferenceRoot"]["Enum"]
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
@@ -1782,7 +1782,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT c["Id"], c["Name"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -1820,7 +1820,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT c["Id"], c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -1887,7 +1887,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"] < 20.5))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"] < 20.5))
 """);
             });
 
@@ -1901,7 +1901,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferen
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"]) > 2))
+WHERE ((c["$type"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"]) > 2))
 """);
             });
 
@@ -1915,7 +1915,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]["SomethingSomething"]))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]["SomethingSomething"]))
 """);
             });
 
@@ -1929,7 +1929,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c[
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != LENGTH(c["OwnedReferenceRoot"]["Name"])))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != LENGTH(c["OwnedReferenceRoot"]["Name"])))
 """);
             });
 
@@ -1995,7 +1995,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -2061,7 +2061,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "SingleOwned")
+WHERE (c["$type"] = "SingleOwned")
 """);
             });
 

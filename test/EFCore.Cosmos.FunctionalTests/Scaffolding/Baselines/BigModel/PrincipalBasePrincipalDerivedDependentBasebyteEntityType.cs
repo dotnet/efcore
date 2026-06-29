@@ -32,7 +32,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             sharedClrType: true,
             indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(typeof(Dictionary<string, object>)),
             propertyBag: true,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
             propertyCount: 8,
             foreignKeyCount: 2,
@@ -282,39 +282,40 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
                 GuidToStringConverter.Instance));
         principalsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalsAlternateId));
 
-        var type = runtimeEntityType.AddProperty(
-            "$type",
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
             typeof(string),
             propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
-        type.SetGetter(
-            string (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null) == null ? null : ((string)((((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null)))),
-            bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null) == null);
-        type.SetSetter(
+        discriminator.SetGetter(
+            string (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("Discriminator") ? instance["Discriminator"] : null) == null ? null : ((string)((((IDictionary<string, object>)instance).ContainsKey("Discriminator") ? instance["Discriminator"] : null)))),
+            bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("Discriminator") ? instance["Discriminator"] : null) == null);
+        discriminator.SetSetter(
             Dictionary<string, object> (Dictionary<string, object> instance, string value) =>
             {
-                instance["$type"] = ((object)value);
+                instance["Discriminator"] = ((object)value);
                 return instance;
             });
-        type.SetMaterializationSetter(
+        discriminator.SetMaterializationSetter(
             Dictionary<string, object> (Dictionary<string, object> instance, string value) =>
             {
-                instance["$type"] = ((object)value);
+                instance["Discriminator"] = ((object)value);
                 return instance;
             });
-        type.SetAccessors(
-            string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
-            string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
-            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 4),
-            string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
-        type.SetPropertyIndexes(
+        discriminator.SetAccessors(
+            string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Discriminator") ? ((Dictionary<string, object>)(entry.Entity))["Discriminator"] : null))),
+            string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Discriminator") ? ((Dictionary<string, object>)(entry.Entity))["Discriminator"] : null))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(discriminator, 4),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(discriminator));
+        discriminator.SetPropertyIndexes(
             index: 4,
             originalValueIndex: 4,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        type.TypeMapping = CosmosTypeMapping<string>.Default;
+        discriminator.TypeMapping = CosmosTypeMapping<string>.Default;
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var __id = runtimeEntityType.AddProperty(
             "__id",
@@ -465,7 +466,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
         var derivedsAlternateId = runtimeEntityType.FindProperty("DerivedsAlternateId");
         var principalsId = runtimeEntityType.FindProperty("PrincipalsId");
         var principalsAlternateId = runtimeEntityType.FindProperty("PrincipalsAlternateId");
-        var type = runtimeEntityType.FindProperty("$type");
+        var discriminator = runtimeEntityType.FindProperty("Discriminator");
         var __id = runtimeEntityType.FindProperty("__id");
         var __jObject = runtimeEntityType.FindProperty("__jObject");
         var rowid = runtimeEntityType.FindProperty("rowid");
@@ -476,7 +477,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType5 = ((Dictionary<string, object>)(source.Entity));
-                return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, JObject, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
+                return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, JObject, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
             ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, long, Guid, JObject>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(default(Guid)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(default(Guid)), (default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));

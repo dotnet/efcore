@@ -579,6 +579,15 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 property.GetColumnName());
         }
 
+        if (!annotations.ContainsKey(RelationalAnnotationNames.JsonPropertyName)
+            && property.GetJsonPropertyName() is { } jsonPropertyName
+            && property.Name != jsonPropertyName)
+        {
+            annotations[RelationalAnnotationNames.JsonPropertyName] = new Annotation(
+                RelationalAnnotationNames.JsonPropertyName,
+                jsonPropertyName);
+        }
+
         return Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(annotations.Values)
             .ToDictionary(a => a.Name, a => a);

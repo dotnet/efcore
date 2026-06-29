@@ -387,6 +387,36 @@ var books = await context.Entities.ToListAsync();
         public string Name2 { get; set; } = "";
     }
 
+    [Fact]
+    public virtual async Task Invalid_identifier_shadow_property_name()
+    {
+        var contextFactory = await InitializeNonSharedTest<InvalidShadowNameContext>(
+            onConfiguring: o => o.ConfigureWarnings(w => w.Ignore(CoreEventId.ShadowPropertyNameNotValidIdentifierWarning)));
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.InvalidShadowNameContext(dbContextOptions);
+var entities = await context.Entities.ToListAsync();
+""",
+            typeof(InvalidShadowNameContext),
+            options);
+    }
+
+    public class InvalidShadowNameContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<InvalidShadowNameEntity> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<InvalidShadowNameEntity>()
+                .Property<string>("NOT VALID !!!1").HasConversion<int>(x => 0, x => "");
+    }
+
+    public class InvalidShadowNameEntity
+    {
+        public Guid Id { get; set; }
+    }
+
     #endregion
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory

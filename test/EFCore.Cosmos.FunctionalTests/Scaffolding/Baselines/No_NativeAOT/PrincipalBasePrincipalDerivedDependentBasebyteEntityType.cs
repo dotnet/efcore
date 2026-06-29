@@ -26,7 +26,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             sharedClrType: true,
             indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(typeof(Dictionary<string, object>)),
             propertyBag: true,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
             propertyCount: 8,
             foreignKeyCount: 2,
@@ -56,12 +56,13 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
             afterSaveBehavior: PropertySaveBehavior.Throw);
 
-        var type = runtimeEntityType.AddProperty(
-            "$type",
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
             typeof(string),
             propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var __id = runtimeEntityType.AddProperty(
             "__id",

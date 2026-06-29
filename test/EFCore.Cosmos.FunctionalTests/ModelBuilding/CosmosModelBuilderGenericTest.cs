@@ -531,7 +531,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             Assert.Equal(
                 [
-                    nameof(SingleStringKey.Id), "$type", nameof(SingleStringKey.Name), nameof(SingleStringKey.P1),
+                    nameof(SingleStringKey.Id), "Discriminator", nameof(SingleStringKey.Name), nameof(SingleStringKey.P1),
                     nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
                 ],
                 entityType.GetProperties().Select(p => p.Name));
@@ -558,7 +558,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             Assert.Equal(
                 [
-                    nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), "$type", nameof(SingleStringKey.Name),
+                    nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), "Discriminator", nameof(SingleStringKey.Name),
                     nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
                 ],
                 entityType.GetProperties().Select(p => p.Name));
@@ -591,7 +591,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), nameof(SingleStringKey.P2), nameof(SingleStringKey.P3),
-                    "$type", nameof(SingleStringKey.Name), "__jObject"
+                    "Discriminator", nameof(SingleStringKey.Name), "__jObject"
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 
@@ -626,7 +626,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             Assert.Equal(
                 [
-                    nameof(SingleGuidKey.Id), "$type", nameof(SingleGuidKey.Name), nameof(SingleGuidKey.P1),
+                    nameof(SingleGuidKey.Id), "Discriminator", nameof(SingleGuidKey.Name), nameof(SingleGuidKey.P1),
                     nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
                 ],
                 entityType.GetProperties().Select(p => p.Name));
@@ -653,7 +653,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             Assert.Equal(
                 [
-                    nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), "$type", nameof(SingleGuidKey.Name),
+                    nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), "Discriminator", nameof(SingleGuidKey.Name),
                     nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
                 ],
                 entityType.GetProperties().Select(p => p.Name));
@@ -686,7 +686,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 [
                     nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3),
-                    "$type", nameof(SingleGuidKey.Name), "__jObject"
+                    "Discriminator", nameof(SingleGuidKey.Name), "__jObject"
                 ],
                 entityType.GetProperties().Select(p => p.Name));
 

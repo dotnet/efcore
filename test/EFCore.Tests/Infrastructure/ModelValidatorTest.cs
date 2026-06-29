@@ -462,6 +462,40 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 .GenerateMessage("A", "Key"), modelBuilder, LogLevel.Debug);
     }
 
+    [Fact]
+    public virtual void Warns_on_shadow_property_name_that_is_not_a_valid_identifier()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(A));
+        SetPrimaryKey(entityType);
+        AddProperties(entityType);
+
+        entityType.AddProperty("NOT VALID !!!1", typeof(string));
+
+        VerifyWarning(
+            CoreResources.LogShadowPropertyNameNotValidIdentifier(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("A", "NOT VALID !!!1"), modelBuilder, LogLevel.Warning);
+    }
+
+    [Fact]
+    public virtual void Does_not_warn_on_shadow_property_with_valid_identifier_name()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(A));
+        SetPrimaryKey(entityType);
+        AddProperties(entityType);
+
+        entityType.AddProperty("ValidName", typeof(string));
+
+        VerifyLogDoesNotContain(
+            CoreResources.LogShadowPropertyNameNotValidIdentifier(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("A", "ValidName"), modelBuilder);
+    }
+
     [Fact] // Issue #33484
     public virtual void Does_not_log_for_shadow_property_when_creating_indexer_property()
     {

@@ -174,6 +174,37 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateTypeMapping(property, logger);
         ValidatePrimitiveCollection(property, logger);
         ValidateAutoLoaded(property, structuralType, logger);
+
+        if (property.IsShadowProperty()
+            && !IsValidIdentifier(property.Name))
+        {
+            logger.ShadowPropertyNameNotValidIdentifierWarning(property);
+        }
+    }
+
+    /// <summary>
+    ///     Returns <see langword="true" /> if the given name only uses letters, ASCII digits and underscores and does not start with a digit;
+    ///     that is, if it can be used as-is as an identifier in generated code.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static bool IsValidIdentifier(string? name)
+    {
+        if (string.IsNullOrEmpty(name)
+            || (!char.IsLetter(name[0]) && name[0] != '_'))
+        {
+            return false;
+        }
+
+        for (var i = 1; i < name.Length; i++)
+        {
+            var ch = name[i];
+            if (!char.IsLetter(ch) && !char.IsAsciiDigit(ch) && ch != '_')
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>

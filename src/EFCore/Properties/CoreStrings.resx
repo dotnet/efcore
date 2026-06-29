@@ -1239,6 +1239,10 @@
     <value>The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
     <comment>Debug CoreEventId.ShadowPropertyCreated string string</comment>
   </data>
+  <data name="LogShadowPropertyNameNotValidIdentifier" xml:space="preserve">
+    <value>The shadow property '{entityType}.{property}' has a name that is not a valid identifier. This can cause issues in generated code. Consider renaming the property to use only letters, digits (except for the first character), and underscore.</value>
+    <comment>Warning CoreEventId.ShadowPropertyNameNotValidIdentifierWarning string string</comment>
+  </data>
   <data name="LogSkipCollectionChangeDetected" xml:space="preserve">
     <value>{addedCount} entities were added and {removedCount} entities were removed from skip navigation '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
     <comment>Debug CoreEventId.SkipCollectionChangeDetected int int string string</comment>

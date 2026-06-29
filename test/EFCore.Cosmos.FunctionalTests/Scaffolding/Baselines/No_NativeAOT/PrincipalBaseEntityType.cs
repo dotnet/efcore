@@ -25,7 +25,7 @@ public partial class PrincipalBaseEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
             typeof(CompiledModelTestBase.PrincipalBase),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBase",
             derivedTypesCount: 1,
             propertyCount: 15,
@@ -49,11 +49,12 @@ public partial class PrincipalBaseEntityType
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         alternateId.SetSentinelFromProviderValue("00000000-0000-0000-0000-000000000000");
 
-        var type = runtimeEntityType.AddProperty(
-            "$type",
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
             typeof(string),
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var enum1 = runtimeEntityType.AddProperty(
             "Enum1",
