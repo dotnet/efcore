@@ -3871,7 +3871,8 @@ SELECT COALESCE([x].[Content], @value)
 FROM [XmlTestDocument] AS [x]
 WHERE [x].[Id] = @id
 """,
-            query.ToQueryString());
+            query.ToQueryString(),
+            ignoreLineEndingDifferences: true);
 
         var actual = await query.SingleAsync();
         Assert.Equal(roundTripped, actual);

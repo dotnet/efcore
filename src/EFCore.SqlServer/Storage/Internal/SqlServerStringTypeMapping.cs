@@ -220,15 +220,15 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         }
 
         // An XML declaration starts with "<?xml" followed by mandatory whitespace. If present, remove everything
-        // up to and including the first following '>' and return the remainder verbatim.
+        // up to and including the closing "?>" and return the remainder verbatim.
         if (start + 5 < xml.Length
             && string.CompareOrdinal(xml, start, "<?xml", 0, 5) == 0
             && char.IsWhiteSpace(xml[start + 5]))
         {
-            var end = xml.IndexOf('>', start + 5);
+            var end = xml.IndexOf("?>", start + 6, StringComparison.Ordinal);
             if (end >= 0)
             {
-                return xml[(end + 1)..];
+                return xml[(end + 2)..];
             }
         }
 
