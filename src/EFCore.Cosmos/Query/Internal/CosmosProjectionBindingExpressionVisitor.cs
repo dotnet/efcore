@@ -130,9 +130,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                     case StructuralTypeShaperExpression shaper:
                         return base.Visit(shaper);
-
-                    //case MaterializeCollectionNavigationExpression:
-                    //    return base.Visit(expression);
                 }
 
                 if (expression is MethodCallExpression
@@ -170,7 +167,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                             throw new UnreachableException("Scalar array with no element type mapping");
                         }
 
-                        // @TODO: Doesn't this cause an additional ARRAY(SELECT ...) to be generated in the SQL? This is bad for RU's as it will allocate an additional array
+                        // TODO: This causes an additional ARRAY(SELECT ...) to be generated in the SQL. This is bad for RU's as it will allocate an additional array
                         // TODO: Proper alias management (#33894).
                         var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
                             array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
@@ -228,12 +225,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         _projectionMapping[_projectionMembers.Peek()] = translation;
                         return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
 
-                    // This handles the case of a complex type being projected out of a Select.
-                    // Note that an entity type being projected is (currently) handled differently
-                    case StructuralTypeShaperExpression { StructuralType: IComplexType } shaper: // I think this is only because of FindAsync can work via a Convert in the shaper, so entity types must be client eval...?
+                    case StructuralTypeShaperExpression shaper:
                         return base.Visit(shaper);
 
-                    case null or StructuralTypeShaperExpression { StructuralType: IEntityType }:
+                    case null:
                         return QueryCompilationContext.NotTranslatedExpression;
 
                     default:
@@ -260,13 +255,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (structuralTypeShaper.ValueBufferExpression)
                 {
                     case ProjectionBindingExpression innerProjectionBinding:
-
-                        // @TODO: Do we need this? Can't the inner select use client eval and the outer not?
-                        //if (innerProjectionBinding.ProjectionMember is null && !_clientEval)
-                        //{
-                        //    return QueryCompilationContext.NotTranslatedExpression;
-                        //}
-
                         var innerSelect = (SelectExpression)innerProjectionBinding.QueryExpression;
                         structuralTypeProjection = (StructuralTypeProjectionExpression)
                             (innerProjectionBinding.ProjectionMember is not null
@@ -292,6 +280,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 if (structuralTypeShaper.StructuralType is IComplexType { ComplexProperty: { } complexProperty })
                 {
+                    // Projections of complex collections do not produce a separate expression like MaterializeCollectionNavigationExpression for owned types.
+                    // Instead, it's simply a StructuralTypeShaperExpression over the complex collection property structural type
+                    // So we need to handle it here.
+                    // If the query uses SelectMany, the structuralTypeShaper's ValueBuffer is already bound to the inner query and is a ProjectionBindingExpression
                     if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
                     {
                         // There is no actual binding here because the inner shaper is directly over the collection, and not a subquery.
@@ -331,7 +323,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 var subquery = materializeCollectionNavigationExpression.Subquery;
                 if (subquery is MethodCallExpression { Method.IsGenericMethod: true } methodCallSubquery)
                 {
-                    // strip .Select(x => x) and .AsQueryable() from the JsonCollectionResultExpression
+                    // strip .Select(x => x) and .AsQueryable()
                     if (methodCallSubquery.Method.GetGenericMethodDefinition() == QueryableMethods.Select
                         && methodCallSubquery.Arguments[0] is MethodCallExpression selectSourceMethod)
                     {

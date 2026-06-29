@@ -119,6 +119,20 @@ FROM root c
 """);
     }
 
+    [ConditionalFact]
+    public async Task Select_distinct_nested_associate()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate.RequiredNestedAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking);
+
+        AssertSql(
+            """
+SELECT DISTINCT VALUE c["RequiredAssociate"]["RequiredNestedAssociate"]
+FROM root c
+""");
+    }
+
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_optional_associate(queryTrackingBehavior);

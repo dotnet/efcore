@@ -116,6 +116,20 @@ FROM root c
 """);
     }
 
+    [ConditionalFact]
+    public async Task Select_distinct_nested_associate()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate.RequiredNestedAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking);
+
+        AssertSql(
+            """
+SELECT DISTINCT VALUE c["RequiredAssociate"]["RequiredNestedAssociate"]
+FROM root c
+""");
+    }
+
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_optional_associate(queryTrackingBehavior);
@@ -377,7 +391,11 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT c["RequiredAssociate"], c["OptionalAssociate"]
+SELECT VALUE
+{
+    "First" : c["RequiredAssociate"],
+    "Second" : c["OptionalAssociate"]
+}
 FROM root c
 """);
         }
@@ -391,7 +409,11 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT c["OptionalAssociate"], c["RequiredAssociate"]["Ints"]
+SELECT VALUE
+{
+    "First" : c["OptionalAssociate"],
+    "Ints" : c["RequiredAssociate"]["Ints"]
+}
 FROM root c
 """);
         }
