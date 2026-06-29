@@ -382,7 +382,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Te
             {
                 await base.Project_owned_reference_navigation_which_owns_additional(a);
 
-                // TODO: The following should project out c["PersonAddress"], not c: #34067
                 AssertSql(
                     """
 SELECT VALUE c["PersonAddress"]

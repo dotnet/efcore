@@ -73,7 +73,6 @@ WHERE (c["Discriminator"] = "Basic")
             {
                 await base.Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
 SELECT VALUE c["OwnedCollectionRoot"]
@@ -154,7 +153,6 @@ WHERE (c["Discriminator"] = "Basic")
             {
                 await base.Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
 SELECT VALUE c["OwnedReferenceRoot"]
@@ -235,7 +233,6 @@ WHERE (c["Discriminator"] = "Basic")
             {
                 await base.Custom_naming_projection_owned_collection(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
 SELECT VALUE c["OwnedCollectionRoot"]
@@ -348,7 +345,6 @@ WHERE (c["Discriminator"] = "AllTypes")
             {
                 await base.Json_all_types_projection_from_owned_entity_reference(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
 SELECT VALUE c["Reference"]

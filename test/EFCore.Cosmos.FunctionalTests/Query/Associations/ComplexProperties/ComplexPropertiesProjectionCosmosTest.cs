@@ -359,9 +359,20 @@ FROM root c
 """);
     }
 
-    [ConditionalTheory(Skip = "#34067")]
-    public override Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
-        => base.Select_optional_associate_and_ints(queryTrackingBehavior);
+    public override async Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_associate_and_ints(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "First" : c["OptionalAssociate"],
+    "Ints" : c["RequiredAssociate"]["Ints"]
+}
+FROM root c
+""");
+    }
 
     #endregion Multiple
 

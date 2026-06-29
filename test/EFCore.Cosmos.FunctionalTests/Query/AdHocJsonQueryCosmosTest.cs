@@ -40,18 +40,13 @@ WHERE (c["Id"] < 4)
         AssertSql();
     });
 
-    [ConditionalTheory(Skip = "issue #34067")]
     public override Task Project_top_level_entity_with_null_value_required_scalars(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        await base.Project_top_level_entity_with_null_value_required_scalars(async);
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
 
-        AssertSql(
-            """
-SELECT c["Id"], c
-FROM root c
-WHERE (c["Id"] = 4)
-""");
+        Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
     });
 
     public override Task Project_root_entity_with_missing_required_navigation(bool async)
