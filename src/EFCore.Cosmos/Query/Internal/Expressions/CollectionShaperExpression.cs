@@ -33,7 +33,7 @@ public class CollectionShaperExpression(
         Expression innerShaper,
         IClrCollectionAccessor clrCollectionAccessor,
         Type elementType)
-        : this(projection, innerShaper, clrCollectionAccessor.CollectionType, () => clrCollectionAccessor.Create(), elementType)
+        : this(projection, innerShaper, clrCollectionAccessor.CollectionType, clrCollectionAccessor.Create, elementType)
     {
     }
 

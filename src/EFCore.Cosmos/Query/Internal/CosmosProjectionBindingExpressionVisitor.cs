@@ -147,42 +147,9 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
 
                     if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
-                     || !subquery.TryConvertToArray(_typeMappingSource, out var array))
+                        || !subquery.TryConvertToArray(_typeMappingSource, out var array))
                     {
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
-                    }
-
-                    if (array is not SqlExpression scalarArray)
-                    {
-                        // @TODO: Create separate issue..
-                        return Visit(collectionArgument);
-                    }
-
-                    // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
-                    // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
-                    // simply read the JSON results out successfully.
-                    // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
-                    // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
-                    // "reprojection" subquery, effectively to change the CLR type.
-                    if (!(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-                    {
-                        Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
-
-                        if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
-                        {
-                            throw new UnreachableException("Scalar array with no element type mapping");
-                        }
-
-                        // TODO: This causes an additional ARRAY(SELECT ...) to be generated in the SQL. This is bad for RU's as it will allocate an additional array
-                        // TODO: Proper alias management (#33894).
-                        var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
-                            array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
-                        arrayReprojectionSubquery.ApplyProjection();
-
-                        array = new ScalarArrayExpression(
-                            arrayReprojectionSubquery,
-                            methodCallExpression.Type, // List<>
-                            _typeMappingSource.FindMapping(methodCallExpression.Type, _model, elementTypeMapping));
                     }
 
                     // @TODO: Ask if there is a better way for this..
@@ -191,6 +158,42 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     // This appears to be needed because ShapedQueryExpression doesn't properly replace projection bindings their query expression when updating the shaper expression.
                     // But fixing that causes a lot of errors (in other providers?).
                     new ProjectionBindingQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
+
+                    if (array is SqlExpression scalarArray)
+                    {
+                        // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
+                        // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
+                        // simply read the JSON results out successfully.
+                        // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
+                        // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
+                        // "reprojection" subquery, effectively to change the CLR type.
+                        if (!(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                        {
+                            Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
+
+                            if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
+                            {
+                                throw new UnreachableException("Scalar array with no element type mapping");
+                            }
+
+                            // TODO: This causes an additional ARRAY(SELECT ...) to be generated in the SQL. This is bad for RU's as it will allocate an additional array
+                            // TODO: Proper alias management (#33894).
+                            var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
+                                array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
+                            arrayReprojectionSubquery.ApplyProjection();
+
+                            array = new ScalarArrayExpression(
+                                arrayReprojectionSubquery,
+                                methodCallExpression.Type, // List<>
+                                _typeMappingSource.FindMapping(methodCallExpression.Type, _model, elementTypeMapping));
+                        }
+                    }
+                    else
+                    {
+                        var structuralTypeShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+                        // There is no actual binding here because the inner shaper is directly over the collection, and not a query.
+                        structuralTypeShaper = structuralTypeShaper.Update(Expression.Constant(ValueBuffer.Empty));
+                    }
 
                     var listType = typeof(List<>).MakeGenericType(elementType);
                     var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
@@ -215,7 +218,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     {
                         shaper = Expression.Call(shaper, listType.GetMethod(nameof(List<>.ToArray))!);
                     }
-                    
+
                     return shaper;
                 }
 
@@ -292,8 +295,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     // If the query uses SelectMany, the structuralTypeShaper's ValueBuffer is already bound to the inner query and is a ProjectionBindingExpression
                     if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
                     {
-                        // There is no actual binding here because the inner shaper is directly over the collection, and not a subquery.
-                        // Subqueries currently require a ToList call and are handled in Visit
+                        // There is no actual binding here because the inner shaper is directly over the collection, and not a query.
                         structuralTypeShaper = structuralTypeShaper.Update(Expression.Convert(Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                         return new CollectionShaperExpression(
@@ -361,8 +363,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
                 }
 
-                // There is no actual binding here because the inner shaper is directly over the collection, and not a subquery.
-                // Subqueries currently require a ToList call and are handled in Visit
+                // There is no actual binding here because the inner shaper is directly over the collection, and not a query.
                 shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                 return new CollectionShaperExpression(

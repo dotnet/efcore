@@ -1673,8 +1673,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translation = new ObjectFunctionExpression(functionName, [array1, array2], arrayType);
                 var alias = _aliasManager.GenerateSourceAlias(translation);
                 var select = SelectExpression.CreateForCollection(
-                    translation, alias, new ObjectReferenceExpression(structuralType1, alias));
-                return CreateShapedQueryExpression(select, structuralType1.ClrType);
+                    translation,
+                    alias,
+                    new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(structuralType1, alias),
+                        structuralType1));
+                return source1.Update(
+                    select,
+                    new StructuralTypeShaperExpression(structuralType1, new ProjectionBindingExpression(select, new ProjectionMember(), typeof(ValueBuffer)), nullable: true));
             }
         }
 
