@@ -112,6 +112,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IConcurrencyDetector? _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
+            private int _ordinal;
             private T? _current;
             private ReadOnlyMemory<byte>? _data;
             private IAsyncEnumerator<ReadOnlyMemory<byte>>? _enumerator;
@@ -200,7 +201,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
                             _cosmosQueryContext, _data.Value,
-                            _shaper,
+                            _shaper, _ordinal++,
                             out var bytesConsumed, out _current))
                     {
                         _data = null;

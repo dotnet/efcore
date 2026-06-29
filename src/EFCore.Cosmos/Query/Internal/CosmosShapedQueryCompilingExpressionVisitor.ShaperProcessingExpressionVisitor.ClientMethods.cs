@@ -15,13 +15,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly byte EndArrayByte = Encoding.UTF8.GetBytes("]")[0];
         private static readonly byte NextItemByte = Encoding.UTF8.GetBytes(",")[0];
 
-        public static bool TryMaterializeNextJsonCollectionItem<T>(QueryContext queryContext,
-            ReadOnlyMemory<byte> data,
-            Shaper<T> shaper,
-            out int bytesConsumed,
-            [NotNullWhen(true)] out T? result)
-            => TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, 0, out bytesConsumed, out result);
-
         public static bool TryMaterializeNextJsonCollectionItem<T>(
             QueryContext queryContext,
             ReadOnlyMemory<byte> data,

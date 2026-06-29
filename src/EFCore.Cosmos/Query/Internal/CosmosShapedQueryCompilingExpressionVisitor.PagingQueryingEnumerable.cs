@@ -222,7 +222,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         while (ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
                             _cosmosQueryContext, data,
-                            _shaper,
+                            _shaper, 0,
                             out var bytesConsumed, out var result))
                         {
                             results.Add(result);

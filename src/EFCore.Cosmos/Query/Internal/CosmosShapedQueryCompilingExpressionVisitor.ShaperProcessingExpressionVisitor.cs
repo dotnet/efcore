@@ -441,12 +441,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     p => p,
                     property =>
                     {
-                        if (entityType.IsOwned() && property.IsOrdinalKeyProperty())
+                        if (entityType.IsOwned()
+                         && (property.IsOrdinalKeyProperty()
+                          || property.FindFirstPrincipal() != null) // We use the ordinal for AsNoTrackingWithIdentityResoltion?
+                         )
                         {
                             return _ordinalParameter;
                         }
-
-                        // @TODO: AsNoTrackingWithIdentityResolution...
 
                         if (property.IsShadowProperty())
                         {
@@ -1058,7 +1059,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         //  trackingActions.Add(() =>
                         //  {
                         //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
-                        //      if (entry != default)
+                        //      if (entry == default)
                         //      {
                         //          nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
                         //          nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id2)
@@ -1067,8 +1068,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         //              nestedTrackingAction();
                         //          }
                         //          queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot);
-                        //    }
-                        //});
+                        //      }
+                        //  });
                         //}
 
                         var tupleType = nestedMaterializerLambda.Body.Type;

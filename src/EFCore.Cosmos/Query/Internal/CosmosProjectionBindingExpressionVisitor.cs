@@ -147,7 +147,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
 
                     if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
-                    || !subquery.TryConvertToArray(_typeMappingSource, out var array))
+                     || !subquery.TryConvertToArray(_typeMappingSource, out var array))
                     {
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
                     }

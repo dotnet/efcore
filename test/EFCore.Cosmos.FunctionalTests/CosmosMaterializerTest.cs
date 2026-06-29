@@ -221,4 +221,262 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     }
 
     #endregion
+
+    #region AsNoTrackingWithIdentityResolution
+
+    [ConditionalFact]
+    public async Task AssociateAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.RequiredAssociate).ToListAsync();
+            Assert.Equal(2, results.Count);
+            Assert.Same(results[0], results[1]);
+        }
+    }
+
+    [ConditionalFact]
+    public async Task DoubleAssociateAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => new { first = x.RequiredAssociate, second = x.RequiredAssociate }).ToListAsync();
+            Assert.Equal(2, results.Count);
+            for (var i = 0; i < results.Count; i++)
+            {
+                var result = results[i];
+                Assert.Same(result.first, result.second);
+                if (i > 0)
+                {
+                    var otherResult = results[i - 1];
+                    Assert.NotSame(otherResult.first, result.first);
+                }
+            }
+        }
+    }
+
+    [ConditionalFact]
+    public async Task ConcatAssociateCollectionAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.Associates.Concat(x.Associates).ToList()).ToListAsync();
+            Assert.Equal(4, results.Count);
+
+            for (var i = 0; i < results.Count / 2; i++)
+            {
+                var result1 = results[i];
+                var result2 = results[i + results.Count / 2];
+
+                Assert.Same(result1, result2);
+            }
+        }
+    }
+
+    [ConditionalFact]
+    public async Task ConcatOrdinalAssociateCollectionAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                OrdinalAssociates = [new(), new()]
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                OrdinalAssociates = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.OrdinalAssociates.Concat(x.OrdinalAssociates).ToList()).ToListAsync();
+            Assert.Equal(4, results.Count);
+
+            for (var i = 0; i < results.Count / 2; i++)
+            {
+                var result1 = results[i];
+                var result2 = results[i + results.Count / 2];
+
+                Assert.Same(result1, result2);
+            }
+        }
+    }
+
+    [ConditionalFact]
+    public async Task DoubleAssociateCollectionAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                Associates = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => new { first = x.Associates, second = x.Associates }).ToListAsync();
+            Assert.Equal(2, results.Count);
+            for (var i = 0; i < results.Count; i++)
+            {
+                var result = results[i];
+
+                for (var j = 0; j < result.first.Count; j++)
+                {
+                    Assert.Same(result.first[j], result.second[j]);
+                }
+
+                if (i > 0)
+                {
+                    var otherResult = results[i - 1];
+                    for (var j = 0; j < result.first.Count; j++)
+                    {
+                        Assert.NotSame(otherResult.first[j], result.first[j]);
+                    }
+                }
+            }
+        }
+    }
+
+    [ConditionalFact]
+    public async Task DoubleOrdinalAssociateCollectionAsNoTrackingWithIdentityResolution()
+    {
+        var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                OrdinalAssociates = [new(), new()]
+            });
+            context.Add(new AsNoTrackingWithIdentityResolutionEntity()
+            {
+                RequiredAssociate = new(),
+                OrdinalAssociates = [new(), new()]
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => new { first = x.OrdinalAssociates, second = x.OrdinalAssociates }).ToListAsync();
+            Assert.Equal(2, results.Count);
+            for (var i = 0; i < results.Count; i++)
+            {
+                var result = results[i];
+
+                for (var j = 0; j < result.first.Count; j++)
+                {
+                    Assert.Same(result.first[j], result.second[j]);
+                }
+
+                if (i > 0)
+                {
+                    var otherResult = results[i - 1];
+                    for (var j = 0; j < result.first.Count; j++)
+                    {
+                        Assert.NotSame(otherResult.first[j], result.first[j]);
+                    }
+                }
+            }
+        }
+    }
+
+    public class AsNoTrackingWithIdentityResolutionEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public AsNoTrackingWithIdentityResolutionAssociateEntity RequiredAssociate { get; set; }
+
+        public List<AsNoTrackingWithIdentityResolutionAssociateEntity> Associates { get; set; } = new();
+
+        public List<AsNoTrackingWithIdentityResolutionAssociateEntity> OrdinalAssociates { get; set; } = new();
+
+    }
+
+    public class AsNoTrackingWithIdentityResolutionAssociateEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Name { get; set; } = "Name";
+    }
+
+    public class AsNoTrackingWithIdentityResolutionContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<AsNoTrackingWithIdentityResolutionEntity> Entities => Set<AsNoTrackingWithIdentityResolutionEntity>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().HasPartitionKey(x => x.Id);
+            modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsOne(x => x.RequiredAssociate);
+            modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsMany(x => x.Associates, x => x.HasKey(x => x.Id));
+            modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsMany(x => x.Associates);
+        }
+    }
+
+    #endregion
 }
