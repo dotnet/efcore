@@ -517,34 +517,59 @@ VALUES(
         Assert.Equal(CoreStrings.EmptyJsonString, exception.Message);
     }
 
+    [Fact]
+    public virtual async Task Materialize_json_null_required_primitive_collection_mapped_to_column_throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // The required primitive collection column holds the JSON 'null' token. Since the property is required, the
+        // materializer throws a clear, property-named error rather than silently materializing null. See #34881.
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 5).ToListAsync());
+
+        Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredTags"), exception.Message);
+    }
+
     protected virtual async Task SeedPrimitiveCollectionInColumn(DbContext ctx)
     {
         // primitive collection column contains a JSON array
         await ctx.Database.ExecuteSqlAsync(
             $$"""
-INSERT INTO [Entities] ([Id], [Tags])
-VALUES(1, N'["a","b"]')
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(1, N'["a","b"]', N'[]')
 """);
 
         // primitive collection column contains a JSON null token (the literal string "null", not a SQL NULL)
         await ctx.Database.ExecuteSqlAsync(
             $$"""
-INSERT INTO [Entities] ([Id], [Tags])
-VALUES(2, N'null')
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(2, N'null', N'[]')
 """);
 
         // primitive collection column is SQL NULL
         await ctx.Database.ExecuteSqlAsync(
             $$"""
-INSERT INTO [Entities] ([Id], [Tags])
-VALUES(3, NULL)
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(3, NULL, N'[]')
 """);
 
         // primitive collection column contains an empty (invalid) JSON string
         await ctx.Database.ExecuteSqlAsync(
             $$"""
-INSERT INTO [Entities] ([Id], [Tags])
-VALUES(4, N'')
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(4, N'', N'[]')
+""");
+
+        // required primitive collection column contains a JSON null token
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(5, N'["a","b"]', N'null')
 """);
     }
 
@@ -554,6 +579,7 @@ VALUES(4, N'')
             b.ToTable("Entities");
             b.Property(x => x.Id).ValueGeneratedNever();
             b.PrimitiveCollection(x => x.Tags);
+            b.PrimitiveCollection(x => x.RequiredTags).IsRequired();
         });
 
     protected class ContextPrimitiveCollectionInColumn(DbContextOptions options) : DbContext(options)
@@ -564,6 +590,8 @@ VALUES(4, N'')
 
             // IList<string> matches the legacy mapping reported in #34881.
             public IList<string> Tags { get; set; }
+
+            public IList<string> RequiredTags { get; set; }
         }
     }
 

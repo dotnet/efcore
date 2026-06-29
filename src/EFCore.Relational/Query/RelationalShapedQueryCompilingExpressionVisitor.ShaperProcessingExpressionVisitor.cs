@@ -3040,7 +3040,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     ReadPrimitiveCollectionFromJsonMethodInfo,
                     valueExpression,
                     jsonReaderWriterExpression,
-                    Constant(nullable),
+                    Constant(primitiveCollectionProperty.IsNullable),
                     Constant(primitiveCollectionProperty.Name));
 
                 if (readExpression.Type != type)
