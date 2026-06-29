@@ -40,6 +40,6 @@
     <MicrosoftCodeAnalysisVersion>4.5.0</MicrosoftCodeAnalysisVersion>
     <MicrosoftCodeAnalysisTestingVersion>1.1.2</MicrosoftCodeAnalysisTestingVersion>
     <AzureIdentityVersion>1.17.0</AzureIdentityVersion>
-    <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
+    <AzureResourceManagerCosmosDBVersion>1.4.1</AzureResourceManagerCosmosDBVersion>
   </PropertyGroup>
 </Project>
