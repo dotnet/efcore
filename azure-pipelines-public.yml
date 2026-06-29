@@ -89,10 +89,10 @@ stages:
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: $(DncEngPublicBuildPool)
-                demands: ImageOverride -equals 1es-windows-2019-open
+                demands: ImageOverride -equals 1es-windows-2022-open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: $(DncEngInternalBuildPool)
-                demands: ImageOverride -equals 1es-windows-2019
+                demands: ImageOverride -equals 1es-windows-2022
             ${{ if eq(variables.runCodeQL3000, 'true') }}:
               # Component governance and SBOM creation are not needed here. Disable what Arcade would inject.
               disableComponentGovernance: true
@@ -258,10 +258,10 @@ stages:
               pool:
                 ${{ if eq(variables['System.TeamProject'], 'public') }}:
                   name: $(DncEngPublicBuildPool)
-                  demands: ImageOverride -equals 1es-windows-2019-open
+                  demands: ImageOverride -equals 1es-windows-2022-open
                 ${{ if ne(variables['System.TeamProject'], 'public') }}:
                   name: $(DncEngInternalBuildPool)
-                  demands: ImageOverride -equals 1es-windows-2019
+                  demands: ImageOverride -equals 1es-windows-2022
               variables:
                 # Rely on task Arcade injects, not auto-injected build step.
                 - skipComponentGovernanceDetection: true
