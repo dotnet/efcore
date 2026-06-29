@@ -39,7 +39,7 @@
     <!-- NB: This version affects Visual Studio compatibility. See https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->
     <MicrosoftCodeAnalysisVersion>4.5.0</MicrosoftCodeAnalysisVersion>
     <MicrosoftCodeAnalysisTestingVersion>1.1.2</MicrosoftCodeAnalysisTestingVersion>
-    <AzureIdentityVersion>1.17.0</AzureIdentityVersion>
+    <AzureIdentityVersion>1.21.0</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
   </PropertyGroup>
 </Project>
