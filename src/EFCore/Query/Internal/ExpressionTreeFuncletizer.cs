@@ -988,6 +988,32 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                             unwrappedSpanArg, valueArg));
                 }
 
+                // Note that MemoryExtensions.Min/Max have an overload taking an IComparer<T>; we only match the
+                // overload taking just the span.
+                case nameof(MemoryExtensions.Min)
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.GetGenericArguments()[0];
+                    var enumerableMin = EnumerableMethods.GetMinWithoutSelector(elementType);
+                    return Visit(
+                        Call(
+                            enumerableMin.IsGenericMethodDefinition ? enumerableMin.MakeGenericMethod(elementType) : enumerableMin,
+                            unwrappedSpanArg));
+                }
+
+                case nameof(MemoryExtensions.Max)
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.GetGenericArguments()[0];
+                    var enumerableMax = EnumerableMethods.GetMaxWithoutSelector(elementType);
+                    return Visit(
+                        Call(
+                            enumerableMax.IsGenericMethodDefinition ? enumerableMax.MakeGenericMethod(elementType) : enumerableMax,
+                            unwrappedSpanArg));
+                }
+
                 case nameof(MemoryExtensions.SequenceEqual)
                     when methodCall.Arguments is [var spanArg, var otherArg]
                     && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg)
