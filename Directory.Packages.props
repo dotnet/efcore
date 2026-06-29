@@ -32,7 +32,7 @@
     <!-- Azure SDK for .NET dependencies -->
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.61.0" />
     <!-- SQL Server dependencies -->
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.2" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="170.1000.7" />
     <!-- external dependencies -->
     <PackageVersion Include="Castle.Core" Version="5.2.1" />
