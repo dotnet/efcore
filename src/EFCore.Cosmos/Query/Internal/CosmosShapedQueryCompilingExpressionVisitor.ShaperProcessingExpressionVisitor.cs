@@ -319,7 +319,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
                             Assign(
                                 resultVariable,
-                                CreateReadJsonValueExpression(valueJsonReaderManager, typeMapping, resultVariable.Type)),
+                                ReadJsonValue(valueJsonReaderManager, typeMapping, resultVariable.Type)),
                             Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
                             resultVariable]);
@@ -1288,19 +1288,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private Expression ReadJsonPropertyValue(IProperty property)
         {
-            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+            var typeMapping = property.GetTypeMapping();
+            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
             Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-            return CreateReadJsonValueExpression(_jsonReaderManagerVariable, jsonValueReaderWriter, property.ClrType);
+            return ReadJsonValue(_jsonReaderManagerVariable, jsonValueReaderWriter, typeMapping, property.ClrType, property.IsNullable);
         }
 
-        private static Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping, Type clrType)
+        private static Expression ReadJsonValue(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping, Type clrType)
         {
             var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
             Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-            return CreateReadJsonValueExpression(jsonReaderManagerParameter, jsonValueReaderWriter, clrType);
+            return ReadJsonValue(jsonReaderManagerParameter, jsonValueReaderWriter, typeMapping, clrType, clrType.IsNullableType());
         }
 
-        private static Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, JsonValueReaderWriter jsonValueReaderWriter, Type clrType)
+        private static Expression ReadJsonValue(
+            ParameterExpression jsonReaderManagerParameter,
+            JsonValueReaderWriter jsonValueReaderWriter,
+            CoreTypeMapping typeMapping,
+            Type clrType,
+            bool nullable)
         {
             var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
 
@@ -1315,10 +1321,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 resultExpression = Convert(resultExpression, clrType);
             }
 
-            if (clrType.IsNullableType())
+            var nullConverter = typeMapping.Converter is { ConvertsNulls: true } converter ? converter : null;
+            if (nullable || nullConverter != null)
             {
-                // in case of null value we can't just use the JsonReader method, but rather check the current token type
-                // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
+                // When the value is allowed to be null, we can't just use the JsonReader method
+                // Check for JsonTokenType.Null
+                // If there is a converter that accepts nulls, we need to call it, otherwise we just return default value of the CLR type
                 resultExpression = Condition(
                     Equal(
                         Property(
@@ -1327,8 +1335,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Utf8JsonReaderManagerCurrentReaderField),
                             Utf8JsonReaderTokenTypeProperty),
                         Constant(JsonTokenType.Null)),
-                    Default(clrType),
-                    Convert(resultExpression, clrType));
+                    nullConverter != null
+                        ? Invoke(
+                            Property(Constant(nullConverter, nullConverter.GetType()), nameof(ValueConverter<,>.ConvertFromProviderTyped)),
+                            Default(nullConverter.ProviderClrType))
+                        : Default(clrType),
+                    resultExpression, clrType);
             }
 
             return resultExpression;
