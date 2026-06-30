@@ -317,12 +317,12 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
                 for (var j = 0; j < result.Count / 2; j++)
                 {
+                    Assert.Same(result[j], result[j + 2]);
+
                     if (j > 0)
                     {
                         Assert.NotSame(result[j], result[j - 1]);
                     }
-
-                    Assert.Same(result[j], result[j + 2]);
                 }
             }
         }
@@ -365,7 +365,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
                         Assert.NotSame(result[j], result[j - 1]);
                     }
 
-                    Assert.Same(result[j], result[j + 2]);
+                    Assert.Same(result[j], result[j + result.Count / 2]);
                 }
             }
         }
@@ -399,11 +399,11 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
             for (var i = 0; i < results.Count / 2; i++)
             {
                 var result = results[i];
-                var otherResult = results[i + results.Count / 2];
+                var otherResult = results[i + 2];
 
                 Assert.Same(result, otherResult);
 
-                if (i < 0)
+                if (i > 0)
                 {
                     Assert.NotSame(result, results[i - 1]);
                 }
@@ -439,11 +439,11 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
             for (var i = 0; i < results.Count / 2; i++)
             {
                 var result = results[i];
-                var otherResult = results[i + results.Count / 2];
+                var otherResult = results[i + 2];
 
                 Assert.Same(result, otherResult);
 
-                if (i < 0)
+                if (i > 0)
                 {
                     Assert.NotSame(result, results[i - 1]);
                 }

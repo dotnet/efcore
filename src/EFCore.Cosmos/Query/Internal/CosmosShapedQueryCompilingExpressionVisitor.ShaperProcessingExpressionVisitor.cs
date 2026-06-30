@@ -303,9 +303,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var shaper = Block(
                         [resultVariable],
                         [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                        Assign(resultVariable, Invoke(shaperLambda, GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
-                        Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
-                        resultVariable]);
+                         Assign(resultVariable, Invoke(shaperLambda, GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
+                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                         resultVariable]);
 
                     if (structuralTypeShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBinding) // Otherwise this is an inner shaper of a CollectionShaperExpression,
                     {
@@ -323,16 +323,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var shaper = Block(
                         [resultVariable, valueJsonReaderManager],
-                        [
-                            Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                            Assign(valueJsonReaderManager, NewJsonReaderManager()),
-                            Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
-                            Assign(
-                                resultVariable,
-                                ReadJsonValue(valueJsonReaderManager, typeMapping, resultVariable.Type)),
-                            Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                            Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
-                            resultVariable]);
+                        [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                         Assign(valueJsonReaderManager, NewJsonReaderManager()),
+                         Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+                         Assign(
+                             resultVariable,
+                             ReadJsonValue(valueJsonReaderManager, typeMapping, resultVariable.Type)),
+                         Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                         resultVariable]);
 
                     return CheckDeferProjectionBinding(projectionBindingExpression, shaper);
                 }
@@ -344,12 +343,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var innerResultVariable = Variable(innerShaper.Type, "innerResult");
                     innerShaper = Block(
                         [_jsonReaderDataParameter, innerResultVariable, _innerShaperBytesConsumedVariable],
-                        // innerResult = shaper
-                        Assign(innerResultVariable, innerShaper),
-                        // bytesConsumed += innerShaperBytesConsumed
-                        AddAssignChecked(_bytesConsumedParameter, _innerShaperBytesConsumedVariable),
-                        // return innerResult
-                        innerResultVariable);
+                         // innerResult = shaper
+                         Assign(innerResultVariable, innerShaper),
+                         // bytesConsumed += innerShaperBytesConsumed
+                         AddAssignChecked(_bytesConsumedParameter, _innerShaperBytesConsumedVariable),
+                         // return innerResult
+                         innerResultVariable);
 
                     var innerShaperLambda = Lambda(
                         typeof(Shaper<>).MakeGenericType(innerShaper.Type),
@@ -372,8 +371,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Constant(collectionShaperExpression.CollectionCreator),
                                 innerShaperLambda,
                                 collectionBytesConsumedVariable)),
-                        Assign(_innerShaperBytesConsumedVariable, collectionBytesConsumedVariable),
-                        resultVariable]);
+                         Assign(_innerShaperBytesConsumedVariable, collectionBytesConsumedVariable),
+                         resultVariable]);
 
                     var projectionBinding = (ProjectionBindingExpression)collectionShaperExpression.Projection;
                     return CheckDeferProjectionBinding(projectionBinding, shaper);
@@ -466,61 +465,31 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             shaperVariables.Add(entryVariable);
             shaperVariables.Add(hasNullKeyVariable);
 
-            //if (entityType.IsOwned())
-            //{
-            //    // Non persisted fixup: we need to set any non persisted principal properties on the entity
-            //    // Since the entity is owned and is the query root, we don't know the owner entity values,
-            //    // But we can use the ordinal of the query result to determine temp values that work for tracking owned entity query roots (AsNoTrackingWithIdentityResoltion)
-            //    // Since the tracking is scoped to the query execution.
-            //    shaperExpressions.AddRange(entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(property =>
-            //    {
-            //        Expression propertyValueExpression = _ordinalParameter;
+            if (IsTracking(entityType, out _))
+            {
+                // Non persisted fixup: we need to set any non persisted principal properties on the entity
+                // Since the entity is owned and is a projection binding root, we don't know the owner entity values when deserializing
+                shaperExpressions.AddRange(entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(property =>
+                {
+                    Expression propertyValueExpression = null!; // @TODO: Use a variable stored in mapping gotten from projection binding expressions that projected out the principal property value
 
-            //        var clrType = property.ClrType;
 
-            //        var valueConverter = property.GetValueConverter();
-            //        if (valueConverter != null)
-            //        {
-            //            clrType = property.GetProviderClrType()!;
-            //        }
-
-            //        clrType = clrType.IsEnum
-            //            ? Enum.GetUnderlyingType(clrType)
-            //            : clrType;
-
-            //        if (!OrdinalConverters.ConvertMethods.TryGetValue(clrType, out var converterMethod))
-            //        {
-            //            throw new NotSupportedException($"Unsupported primary key clr type: '{clrType}'");
-            //        }
-
-            //        if (converterMethod != null)
-            //        {
-            //            propertyValueExpression = Call(converterMethod, propertyValueExpression);
-            //        }
-
-            //        if (valueConverter != null)
-            //        {
-            //            propertyValueExpression = Invoke(
-            //                Property(Constant(valueConverter, valueConverter.GetType()), nameof(ValueConverter<,>.ConvertFromProviderTyped)),
-            //                propertyValueExpression);
-            //        }
-
-            //        return property.IsShadowProperty()
-            //            ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
-            //                Constant(property.GetShadowIndex()),
-            //                propertyValueExpression)
-            //            : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression);
-            //    }));
-            //}
+                    return property.IsShadowProperty()
+                        ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
+                            Constant(property.GetShadowIndex()),
+                            propertyValueExpression)
+                        : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression);
+                }));
+            }
 
             var tryGetEntryPropertyMap = entityType.FindPrimaryKey()!.Properties
                 .ToDictionary(
                     p => p,
                     property => property.IsShadowProperty()
-                                    // shadowSnapshot.GetValue<T>(1)
-                                    ? Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()))
-                                    // instance.Property
-                                    : (Expression)instanceVariable.MakeMemberAccess(property.GetMemberInfo(true, false)));
+                                // shadowSnapshot.GetValue<T>(1)
+                                ? Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()))
+                                // instance.Property
+                                : (Expression)instanceVariable.MakeMemberAccess(property.GetMemberInfo(true, false)));
 
             // var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id }, true, out var _);
             tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
@@ -837,11 +806,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
             var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
 
-            // Set any non persisted properties to their default values
+            // Set any non persisted properties to their default values, also replace ordinals with the ordinal parameter.
             // If the property has a principal (i.e. foreign key), it will be fixed up later when we have fully deserialized the parent.
             var nonPersistedPropertyDefaultReplacements = structuralType.GetProperties()
                 .Where(p => !p.IsPersisted())
-                .ToDictionary(x => x, p => (Expression)Default(p.ClrType));
+                .ToDictionary(x => x, p => p.IsOrdinalKeyProperty() ? _ordinalParameter : (Expression)Default(p.ClrType));
             body = new ValueBufferTryReadValueMethodsReplacer(nonPersistedPropertyDefaultReplacements).Rewrite(body);
 
             var valueBufferTryReadValueMethodsToProcess =
@@ -1187,15 +1156,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                         Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
 
                         Expression GetPropertyValue(IProperty property)
-                            => property.IsOrdinalKeyProperty()
-                                ? _ordinalParameter // @TODO: Does this work? isnt this the ordinal key of the parent?
-                                : property.FindFirstPrincipal() is { } principalProperty
-                                    ? principalProperty.IsShadowProperty()
-                                        ? ConvertIfNotMatch(GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty), property.ClrType)
-                                        : ConvertIfNotMatch(ConvertIfNotMatch(parentInstanceVariable, principalProperty.DeclaringType.ClrType).MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType)
-                                    : property.IsShadowProperty()
-                                        ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
-                                        : ConvertIfNotMatch(ConvertIfNotMatch(nestedInstanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType);
+                            => property.FindFirstPrincipal() is { } principalProperty
+                                ? principalProperty.IsShadowProperty()
+                                    ? ConvertIfNotMatch(GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty), property.ClrType)
+                                    : ConvertIfNotMatch(ConvertIfNotMatch(parentInstanceVariable, principalProperty.DeclaringType.ClrType).MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType)
+                                : property.IsShadowProperty()
+                                    ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
+                                    : ConvertIfNotMatch(ConvertIfNotMatch(nestedInstanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType);
 
                         static Expression GetSnapshotValue(Expression snapshotVariable, IProperty property)
                             => Call(
