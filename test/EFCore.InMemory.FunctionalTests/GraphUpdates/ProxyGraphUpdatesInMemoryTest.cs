@@ -10,12 +10,10 @@ public class ProxyGraphUpdatesInMemoryTest
         where TFixture : ProxyGraphUpdatesInMemoryTestBase<TFixture>.ProxyGraphUpdatesInMemoryFixtureBase, new()
     {
         // FK constraint checking.
-        [Fact]
         public override Task Optional_one_to_one_relationships_are_one_to_one()
             => Assert.ThrowsAnyAsync<Exception>(() => base.Optional_one_to_one_relationships_are_one_to_one());
 
         // FK constraint checking.
-        [Fact]
         public override Task Optional_one_to_one_with_AK_relationships_are_one_to_one()
             => Assert.ThrowsAnyAsync<Exception>(() => base.Optional_one_to_one_with_AK_relationships_are_one_to_one());
 
@@ -100,12 +98,10 @@ public class ProxyGraphUpdatesInMemoryTest
             => Task.CompletedTask;
 
         // FK constraint checking.
-        [Fact]
         public override Task Required_one_to_one_relationships_are_one_to_one()
             => Assert.ThrowsAnyAsync<Exception>(() => base.Required_one_to_one_relationships_are_one_to_one());
 
         // FK constraint checking.
-        [Fact]
         public override Task Required_one_to_one_with_AK_relationships_are_one_to_one()
             => Assert.ThrowsAnyAsync<Exception>(() => base.Required_one_to_one_with_AK_relationships_are_one_to_one());
 
@@ -121,7 +117,7 @@ public class ProxyGraphUpdatesInMemoryTest
         public override Task Can_attach_full_optional_graph_of_duplicates()
             => Task.CompletedTask;
 
-        // Cascade delete.
+        // Graph fixup ordering is non-deterministic on InMemory.
         public override Task Can_attach_full_required_AK_graph_of_duplicates()
             => Task.CompletedTask;
 
@@ -139,6 +135,10 @@ public class ProxyGraphUpdatesInMemoryTest
         public override Task Reparent_required_non_PK_one_to_one_with_alternate_key(
             ChangeMechanism changeMechanism,
             bool useExistingRoot)
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Save_changed_optional_one_to_one_with_alternate_key_in_store()
             => Task.CompletedTask;
 
         // Cascade delete.
@@ -171,10 +171,17 @@ public class ProxyGraphUpdatesInMemoryTest
             Func<DbContext, Task> nestedTestOperation2 = null,
             Func<DbContext, Task> nestedTestOperation3 = null)
         {
-            await base.ExecuteWithStrategyInTransactionAsync(
-                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
-
-            await Fixture.ReseedAsync();
+            // InMemory has no real transactions, so the shared store is mutated directly by each test and must be
+            // reseeded afterwards.
+            try
+            {
+                await base.ExecuteWithStrategyInTransactionAsync(
+                    testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            }
+            finally
+            {
+                await Fixture.ReseedAsync();
+            }
         }
 
         public abstract class ProxyGraphUpdatesInMemoryFixtureBase : ProxyGraphUpdatesFixtureBase

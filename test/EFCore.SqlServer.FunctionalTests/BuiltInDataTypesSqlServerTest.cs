@@ -3859,8 +3859,8 @@ DECLARE @id int = {id};
 SELECT COALESCE([x].[Content], @value)
 FROM [XmlTestDocument] AS [x]
 WHERE [x].[Id] = @id
-""",
-            query.ToQueryString());
+""".ReplaceLineEndings(),
+            query.ToQueryString().ReplaceLineEndings());
 
         var roundTripped = await query.SingleAsync();
         Assert.Equal(expected, roundTripped);
