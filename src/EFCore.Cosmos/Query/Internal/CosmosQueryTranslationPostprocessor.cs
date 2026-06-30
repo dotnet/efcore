@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -34,13 +35,35 @@ public class CosmosQueryTranslationPostprocessor(
 
         var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
         var afterAliases = queryCompilationContext.AliasManager.PostprocessAliases(afterValueConverterCompensation);
+        var afterKeyProjectionOrdering = MoveRootKeyProjectionsFirst(afterAliases);
 
-        ValidateNoTrackingIdentityResolutionOwnedEntityProjection(afterAliases);
+        ValidateNoTrackingIdentityResolutionOwnedEntityProjection(afterKeyProjectionOrdering);
 
         var afterExtraction = new CosmosReadItemAndPartitionKeysExtractor().ExtractPartitionKeysAndId(
-            queryCompilationContext, sqlExpressionFactory, afterAliases);
+            queryCompilationContext, sqlExpressionFactory, afterKeyProjectionOrdering);
 
         return afterExtraction;
+    }
+
+    private Expression MoveRootKeyProjectionsFirst(Expression query)
+    {
+        if (queryCompilationContext.RootEntityType is not { } rootEntityType
+            || query is not ShapedQueryExpression
+            {
+                QueryExpression: SelectExpression selectExpression,
+                ShaperExpression: var shaperExpression
+            }
+            || rootEntityType.FindPrimaryKey()?.Properties
+                .ToArray() is not { Length: > 0 } primaryKeyProperties
+            || selectExpression.MoveRootKeyProjectionsFirst(rootEntityType, primaryKeyProperties) is not { } oldIndexToNewIndex)
+        {
+            return query;
+        }
+
+        var remappedShaperExpression = new ProjectionBindingIndexRemappingExpressionVisitor(selectExpression, oldIndexToNewIndex)
+            .Visit(shaperExpression);
+
+        return ((ShapedQueryExpression)query).UpdateShaperExpression(remappedShaperExpression);
     }
 
     private void ValidateNoTrackingIdentityResolutionOwnedEntityProjection(Expression query)
@@ -153,5 +176,34 @@ public class CosmosQueryTranslationPostprocessor(
         private bool IsRootEntityType(IEntityType entityType)
             => entityType == rootEntityType
                 || entityType.GetRootType() == rootEntityType.GetRootType();
+    }
+
+    private sealed class ProjectionBindingIndexRemappingExpressionVisitor(
+        SelectExpression selectExpression,
+        IReadOnlyList<int> oldIndexToNewIndex)
+        : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression node)
+        {
+            switch (node)
+            {
+                case ShapedQueryExpression:
+                    return node;
+
+                case ProjectionBindingExpression
+                {
+                    QueryExpression: var queryExpression,
+                    ProjectionMember: null,
+                    Index: int index
+                } projectionBindingExpression
+                    when queryExpression == selectExpression:
+                    return new ProjectionBindingExpression(
+                        selectExpression,
+                        oldIndexToNewIndex[index],
+                        projectionBindingExpression.Type);
+            }
+
+            return base.VisitExtension(node);
+        }
     }
 }

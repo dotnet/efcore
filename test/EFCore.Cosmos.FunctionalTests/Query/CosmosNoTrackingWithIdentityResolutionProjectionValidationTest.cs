@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -96,6 +97,38 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
     }
 
     [ConditionalFact]
+    public void Owned_reference_with_owner_key_after_owned_reference_projects_owner_key_first()
+    {
+        using var context = CreateContext();
+
+        var selectExpression = Translate(
+            context,
+            context.Owners
+                .Select(owner => new { owner.OwnedReference, owner.Id })
+                .AsNoTrackingWithIdentityResolution()).QueryExpression;
+
+        AssertProjectionOrder(
+            Assert.IsType<SelectExpression>(selectExpression),
+            nameof(Owner.OwnedReference));
+    }
+
+    [ConditionalFact]
+    public void Owned_collection_with_owner_key_after_owned_collection_projects_owner_key_first()
+    {
+        using var context = CreateContext();
+
+        var selectExpression = Translate(
+            context,
+            context.Owners
+                .Select(owner => new { owner.OwnedCollection, owner.Id })
+                .AsNoTrackingWithIdentityResolution()).QueryExpression;
+
+        AssertProjectionOrder(
+            Assert.IsType<SelectExpression>(selectExpression),
+            nameof(Owner.OwnedCollection));
+    }
+
+    [ConditionalFact]
     public void Complex_reference_without_owner_key_succeeds()
     {
         using var context = CreateContext();
@@ -150,7 +183,21 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
             CosmosStrings.NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey(nameof(Owner.Id), nameof(Owner)),
             exception.Message);
 
-    private static Expression Translate<T>(ValidationContext context, IQueryable<T> query)
+    private static void AssertProjectionOrder(SelectExpression selectExpression, params string[] remainingProjectionAliases)
+    {
+        Assert.Equal(remainingProjectionAliases.Length + 1, selectExpression.Projection.Count);
+
+        var keyProjection = Assert.IsType<ScalarAccessExpression>(selectExpression.Projection[0].Expression);
+        Assert.Equal("id", keyProjection.PropertyName);
+        Assert.IsType<ObjectReferenceExpression>(keyProjection.Object);
+
+        for (var i = 0; i < remainingProjectionAliases.Length; i++)
+        {
+            Assert.Equal(remainingProjectionAliases[i], selectExpression.Projection[i + 1].Alias);
+        }
+    }
+
+    private static ShapedQueryExpression Translate<T>(ValidationContext context, IQueryable<T> query)
     {
         var queryCompilationContext = context.GetService<IQueryCompilationContextFactory>().Create(async: false);
         var preprocessedQuery = context.GetService<IQueryTranslationPreprocessorFactory>()
@@ -161,9 +208,9 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
             .Create(queryCompilationContext)
             .Translate(preprocessedQuery);
 
-        return context.GetService<IQueryTranslationPostprocessorFactory>()
+        return Assert.IsType<ShapedQueryExpression>(context.GetService<IQueryTranslationPostprocessorFactory>()
             .Create(queryCompilationContext)
-            .Process(translatedQuery);
+            .Process(translatedQuery));
     }
 
     public class Fixture : SharedStoreFixtureBase<ValidationContext>

@@ -473,7 +473,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     Expression propertyValueExpression = null!; // @TODO: Use a variable stored in mapping gotten from projection binding expressions that projected out the principal property value
 
-
                     return property.IsShadowProperty()
                         ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
                             Constant(property.GetShadowIndex()),

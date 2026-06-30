@@ -236,7 +236,7 @@ WHERE (c["Discriminator"] = "Basic")
             {
                 await AssertQuery(
                     asyncQuery,
-                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, x.OwnedReferenceRoot })
+                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.OwnedReferenceRoot, x.Id })
                         .AsNoTrackingWithIdentityResolution(),
                     elementSorter: e => e.Id,
                     elementAsserter: (e, a) =>
