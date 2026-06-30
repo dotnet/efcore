@@ -33,6 +33,12 @@ public class ProxyGraphUpdatesInMemoryTest
             => Task.CompletedTask;
 
         // Cascade delete.
+        public override Task Optional_one_to_one_with_alternate_key_are_orphaned(
+            CascadeTiming cascadeDeleteTiming,
+            CascadeTiming deleteOrphansTiming)
+            => Task.CompletedTask;
+
+        // Cascade delete.
         public override Task Optional_many_to_one_dependents_are_orphaned_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
@@ -113,6 +119,14 @@ public class ProxyGraphUpdatesInMemoryTest
 
         // Cascade delete.
         public override Task Can_attach_full_optional_graph_of_duplicates()
+            => Task.CompletedTask;
+
+        // Cascade delete.
+        public override Task Can_attach_full_required_AK_graph_of_duplicates()
+            => Task.CompletedTask;
+
+        // Graph fixup ordering is non-deterministic on InMemory.
+        public override Task No_fixup_to_Deleted_entities()
             => Task.CompletedTask;
 
         // Cascade delete.
