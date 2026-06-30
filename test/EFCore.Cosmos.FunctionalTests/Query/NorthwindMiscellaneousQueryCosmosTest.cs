@@ -1634,8 +1634,8 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
                     """
 SELECT DISTINCT VALUE
 {
-    "Id" : c["CustomerID"],
-    "Count" : c["OrderID"]
+    "Count" : c["OrderID"],
+    "Id" : c["CustomerID"]
 }
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
@@ -3991,7 +3991,7 @@ FROM root c
 
                 AssertSql(
                     """
-SELECT c["CustomerID"], c["OrderID"]
+SELECT c["OrderID"], c["CustomerID"]
 FROM root c
 WHERE (c["$type"] = "Order")
 """);

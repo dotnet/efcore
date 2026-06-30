@@ -120,11 +120,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ParameterExpression TrackingActionsVariable,
             BinaryExpression TryGetEntryAssignment)> _entityTypeMaterializerExpressionsMapping = [];
 
+        private readonly Dictionary<IProperty, ParameterExpression> _ownerKeyProjectionVariables = [];
         private readonly ParameterExpression _jsonReaderDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
         private readonly ParameterExpression _jsonReaderManagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
         private readonly ParameterExpression _innerShaperBytesConsumedVariable = Variable(typeof(int), "innerShaperBytesConsumed");
         private readonly ParameterExpression _ordinalParameter = Variable(typeof(int), "ordinal");
+        private readonly ParameterExpression _ownerKeySnapshotParameter = Parameter(typeof(ISnapshot), "ownerKeySnapshot");
 
+        private readonly IReadOnlyList<IProperty> _ownerKeyProperties;
         private readonly CosmosShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly SelectExpression _selectExpression;
         private readonly ParameterExpression _dataParameter;
@@ -147,6 +150,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
             _queryStateManager = parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll
                 or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+            _ownerKeyProperties = ((CosmosQueryCompilationContext)parentVisitor.QueryCompilationContext).RootEntityType?.FindPrimaryKey()?.Properties.ToArray() ?? [];
         }
 
         public LambdaExpression ProcessShaper(Expression shaperExpression)
@@ -157,7 +161,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 var resultVariable = Variable(processedShaperExpression.Type, "result");
                 processedShaperExpression = Block(
-                    [_jsonReaderDataParameter, resultVariable, _innerShaperBytesConsumedVariable],
+                    [_jsonReaderDataParameter, resultVariable, _innerShaperBytesConsumedVariable, _ownerKeySnapshotParameter],
                     // bytesConsumed = 0
                     [Assign(_bytesConsumedParameter, Constant(0)),
                     // result = shaper
@@ -180,8 +184,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     tokenTypeVariable,
                     jsonReaderVariable,
                     afterStartObjectReaderStateVariable,
-                    _innerShaperBytesConsumedVariable
+                    _innerShaperBytesConsumedVariable,
+                    _ownerKeySnapshotParameter
                 };
+
                 var shaperBlockExpressions = new List<Expression>()
                 {
                     // bytesConsumed = 0
@@ -203,6 +209,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     => Assign(jsonReaderVariable, New(Utf8JsonReaderConstructor, Property(_dataParameter, ReadOnlyMemorySpanProperty), Constant(true), jsonReaderState ?? Default(typeof(JsonReaderState))));
 
                 var groups = _deferredProjectionBindings.GroupBy(x => GetProjectionIndex(x.Key));
+                var ownerKeySnapshotInitialized = false;
 
                 foreach (var group in groups.OrderBy(x => x.Key))
                 {
@@ -222,6 +229,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         projectionReadExpressions.Add(
                             // variable = innerShaper
                             Assign(variable, innerShaper));
+
+                        if (TryGetOwnerKeyProperty(projectionBindingExpression, out var ownerKeyProperty))
+                        {
+                            _ownerKeyProjectionVariables[ownerKeyProperty] = variable;
+                        }
                     }
                     Debug.Assert(alias != null, "There is always one item in a group");
 
@@ -238,6 +250,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             // nextItemBytesConsumed += nextItemBytesConsumedVariable
                             AddAssignChecked(_bytesConsumedParameter, nextItemBytesConsumedVariable)]),
                     ]);
+
+
+                    // After we have read all the primary key properties of the root document entity type (always come first: see CosmosQueryTranslationPostprocessor),
+                    // We initialize the snapshot variable so it can be used in the structural type shapers that need it.
+                    if (!ownerKeySnapshotInitialized
+                        && _ownerKeyProperties.Count > 0
+                        && _ownerKeyProjectionVariables.Count == _ownerKeyProperties.Count)
+                    {
+                        projectionReadExpressions.Add(Assign(_ownerKeySnapshotParameter,
+                            New(
+                                Snapshot.CreateSnapshotType([.. _ownerKeyProjectionVariables.Select(x => x.Key.ClrType)]).GetConstructors().Single(),
+                                _ownerKeyProjectionVariables.Select(x => ConvertIfNotMatch(x.Value, x.Key.ClrType)))));
+                        ownerKeySnapshotInitialized = true;
+                    }
 
                     // Only read the property if the property name matches the alias of the projection, otherwise the property is undefined and we will continue to the next property.
                     shaperBlockExpressions.AddRange(
@@ -303,7 +329,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var shaper = Block(
                         [resultVariable],
                         [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                         Assign(resultVariable, Invoke(shaperLambda, GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
+                         Assign(
+                             resultVariable,
+                             Invoke(
+                                 shaperLambda,
+                                 GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
                          Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
                          resultVariable]);
 
@@ -450,7 +480,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var shaperExpressions = new List<Expression>()
             {
-                Assign(tupleVariable, Invoke(materializer, GetParametersForLambda(entityType)))
+                Assign(
+                    tupleVariable,
+                    Invoke(
+                        materializer,
+                        GetParametersForLambda(entityType)))
             };
 
             // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
@@ -465,20 +499,32 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             shaperVariables.Add(entryVariable);
             shaperVariables.Add(hasNullKeyVariable);
 
-            if (IsTracking(entityType, out _))
+            if (entityType.IsOwned())
             {
                 // Non persisted fixup: we need to set any non persisted principal properties on the entity
                 // Since the entity is owned and is a projection binding root, we don't know the owner entity values when deserializing
-                shaperExpressions.AddRange(entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(property =>
+                foreach (var property in entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()))
                 {
-                    Expression propertyValueExpression = null!; // @TODO: Use a variable stored in mapping gotten from projection binding expressions that projected out the principal property value
+                    var principalProperty = property.FindFirstPrincipal()!;
+                    if (!TryGetOwnerKeyPropertyIndex(principalProperty, out var ownerKeyPropertyIndex))
+                    {
+                        continue;
+                    }
 
-                    return property.IsShadowProperty()
+                    var propertyValueExpression = ConvertIfNotMatch(
+                        Call(
+                            _ownerKeySnapshotParameter,
+                            Snapshot.GetValueMethod.MakeGenericMethod(principalProperty.ClrType),
+                            Constant(ownerKeyPropertyIndex)),
+                        property.ClrType);
+
+                    shaperExpressions.Add(
+                        property.IsShadowProperty()
                         ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
                             Constant(property.GetShadowIndex()),
                             propertyValueExpression)
-                        : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression);
-                }));
+                        : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression));
+                }
             }
 
             var tryGetEntryPropertyMap = entityType.FindPrimaryKey()!.Properties
@@ -1310,13 +1356,54 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private ParameterExpression[] GetParametersForLambda(ITypeBase structuralType)
             => structuralType.TryGetOrdinalKey(out _)
-             ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ordinalParameter]
-             : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter];
+                ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ownerKeySnapshotParameter, _ordinalParameter]
+                : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ownerKeySnapshotParameter];
 
         private bool IsTracking(ITypeBase structuralType, [NotNullWhen(true)] out IEntityType? entityType)
         {
             entityType = structuralType as IEntityType;
             return _queryStateManager && entityType != null && entityType.FindPrimaryKey() != null;
+        }
+
+        private bool TryGetOwnerKeyProperty(ProjectionBindingExpression projectionBindingExpression, [NotNullWhen(true)] out IProperty? property)
+        {
+            property = null;
+
+            if (projectionBindingExpression.QueryExpression != _selectExpression)
+            {
+                return false;
+            }
+
+            var projection = GetProjection(projectionBindingExpression);
+            if (projection.Expression is not ScalarAccessExpression
+                {
+                    Object: ObjectReferenceExpression { StructuralType: IEntityType entityType },
+                    PropertyName: var propertyName
+                }
+                || entityType.IsOwned())
+            {
+                return false;
+            }
+
+            property = _ownerKeyProperties.FirstOrDefault(
+                primaryKeyProperty => string.Equals(primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal));
+
+            return property is not null;
+        }
+
+        private bool TryGetOwnerKeyPropertyIndex(IProperty property, out int index)
+        {
+            for (var i = 0; i < _ownerKeyProperties.Count; i++)
+            {
+                if (_ownerKeyProperties[i] == property)
+                {
+                    index = i;
+                    return true;
+                }
+            }
+
+            index = -1;
+            return false;
         }
 
         private Expression ReadJsonPropertyValue(IProperty property)

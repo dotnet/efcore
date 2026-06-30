@@ -287,7 +287,7 @@
     <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.</value>
   </data>
   <data name="NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey" xml:space="preserve">
-    <value>The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include the root entity or all primary key properties of the root document entity in the projection.</value>
+    <value>The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include all primary key properties of the root document entity in the projection.</value>
   </data>
   <data name="NonCorrelatedSubqueriesNotSupported" xml:space="preserve">
     <value>Cosmos subqueries must be correlated, referencing values from the outer query.</value>

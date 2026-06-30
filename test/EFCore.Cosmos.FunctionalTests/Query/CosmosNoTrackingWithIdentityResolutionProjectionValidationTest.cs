@@ -2,15 +2,20 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
-    CosmosNoTrackingWithIdentityResolutionProjectionValidationTest.Fixture fixture)
+public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest
     : IClassFixture<CosmosNoTrackingWithIdentityResolutionProjectionValidationTest.Fixture>
 {
-    private Fixture TestFixture { get; } = fixture;
+    public CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(Fixture fixture, ITestOutputHelper testOutputHelper)
+    {
+        TestFixture = fixture;
+        TestFixture.TestSqlLoggerFactory.Clear();
+        TestFixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
+
+    private Fixture TestFixture { get; }
 
     [ConditionalFact]
     public void Owned_reference_without_owner_key_throws()
@@ -21,7 +26,7 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
             () => Translate(
                 context,
                 context.Owners
-                .Select(owner => owner.OwnedReference)
+                    .Select(owner => owner.OwnedReference)
                     .AsNoTrackingWithIdentityResolution()));
 
         AssertMissingOwnerKeyMessage(exception);
@@ -36,7 +41,7 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
             () => Translate(
                 context,
                 context.Owners
-                .Select(owner => owner.OwnedCollection)
+                    .Select(owner => owner.OwnedCollection)
                     .AsNoTrackingWithIdentityResolution()));
 
         AssertMissingOwnerKeyMessage(exception);
@@ -51,7 +56,7 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
             () => Translate(
                 context,
                 context.Owners
-                .SelectMany(owner => owner.OwnedCollection)
+                    .SelectMany(owner => owner.OwnedCollection)
                     .AsNoTrackingWithIdentityResolution()));
 
         AssertMissingOwnerKeyMessage(exception);
@@ -73,106 +78,168 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
     }
 
     [ConditionalFact]
-    public void Owned_reference_with_owner_key_succeeds()
+    public async Task Owned_reference_with_owner_key_succeeds()
     {
         using var context = CreateContext();
 
-        Translate(
-            context,
-            context.Owners
-                .Select(owner => new { owner.Id, owner.OwnedReference })
-                .AsNoTrackingWithIdentityResolution());
+        var result = Assert.Single(await context.Owners
+            .Select(owner => new { owner.Id, owner.OwnedReference })
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
+
+        Assert.Equal(Fixture.OwnerId, result.Id);
+        AssertOwnedReference(result.OwnedReference);
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "Id" : c["id"],
+    "OwnedReference" : c["OwnedReference"]
+}
+FROM root c
+""");
     }
 
     [ConditionalFact]
-    public void Owned_collection_with_owner_key_succeeds()
+    public async Task Owned_collection_with_owner_key_succeeds()
     {
         using var context = CreateContext();
 
-        Translate(
-            context,
-            context.Owners
-                .Select(owner => new { owner.Id, owner.OwnedCollection })
-                .AsNoTrackingWithIdentityResolution());
+        var result = Assert.Single(await context.Owners
+            .Select(owner => new { owner.Id, owner.OwnedCollection })
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
+
+        Assert.Equal(Fixture.OwnerId, result.Id);
+        AssertOwnedCollection(result.OwnedCollection);
+
+        AssertSql(
+            """
+SELECT c["id"], c["OwnedCollection"]
+FROM root c
+""");
     }
 
     [ConditionalFact]
-    public void Owned_reference_with_owner_key_after_owned_reference_projects_owner_key_first()
+    public async Task Owned_reference_with_owner_key_after_owned_reference_projects_owner_key_first()
     {
         using var context = CreateContext();
 
-        var selectExpression = Translate(
-            context,
-            context.Owners
-                .Select(owner => new { owner.OwnedReference, owner.Id })
-                .AsNoTrackingWithIdentityResolution()).QueryExpression;
+        var result = Assert.Single(await context.Owners
+            .Select(owner => new { owner.OwnedReference, owner.Id })
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
 
-        AssertProjectionOrder(
-            Assert.IsType<SelectExpression>(selectExpression),
-            nameof(Owner.OwnedReference));
+        Assert.Equal(Fixture.OwnerId, result.Id);
+        AssertOwnedReference(result.OwnedReference);
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "Id" : c["id"],
+    "OwnedReference" : c["OwnedReference"]
+}
+FROM root c
+""");
     }
 
     [ConditionalFact]
-    public void Owned_collection_with_owner_key_after_owned_collection_projects_owner_key_first()
+    public async Task Owned_collection_with_owner_key_after_owned_collection_projects_owner_key_first()
     {
         using var context = CreateContext();
 
-        var selectExpression = Translate(
-            context,
-            context.Owners
-                .Select(owner => new { owner.OwnedCollection, owner.Id })
-                .AsNoTrackingWithIdentityResolution()).QueryExpression;
+        var result = Assert.Single(await context.Owners
+            .Select(owner => new { owner.OwnedCollection, owner.Id })
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
 
-        AssertProjectionOrder(
-            Assert.IsType<SelectExpression>(selectExpression),
-            nameof(Owner.OwnedCollection));
+        Assert.Equal(Fixture.OwnerId, result.Id);
+        AssertOwnedCollection(result.OwnedCollection);
+
+        AssertSql(
+            """
+SELECT c["id"], c["OwnedCollection"]
+FROM root c
+""");
     }
 
     [ConditionalFact]
-    public void Complex_reference_without_owner_key_succeeds()
+    public async Task Complex_reference_without_owner_key_succeeds()
     {
         using var context = CreateContext();
 
-        Translate(
-            context,
-            context.Owners
-                .Select(owner => owner.ComplexReference)
-                .AsNoTrackingWithIdentityResolution());
+        var result = Assert.Single(await context.Owners
+            .Select(owner => owner.ComplexReference)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
+
+        Assert.Equal("ComplexReference", result.Name);
+
+        AssertSql(
+            """
+SELECT VALUE c["ComplexReference"]
+FROM root c
+""");
     }
 
     [ConditionalFact]
-    public void Complex_collection_without_owner_key_succeeds()
+    public async Task Complex_collection_without_owner_key_succeeds()
     {
         using var context = CreateContext();
 
-        Translate(
-            context,
-            context.Owners
-                .Select(owner => owner.ComplexCollection)
-                .AsNoTrackingWithIdentityResolution());
+        var result = Assert.Single(await context.Owners
+            .Select(owner => owner.ComplexCollection)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
+
+        Assert.Collection(
+            result,
+            element => Assert.Equal("ComplexCollection", element.Name));
+
+        AssertSql(
+            """
+SELECT VALUE c["ComplexCollection"]
+FROM root c
+""");
     }
 
     [ConditionalFact]
-    public void Scalar_projection_without_owner_key_succeeds()
+    public async Task Scalar_projection_without_owner_key_succeeds()
     {
         using var context = CreateContext();
 
-        Translate(
-            context,
-            context.Owners
-                .Select(owner => owner.Name)
-                .AsNoTrackingWithIdentityResolution());
+        var result = Assert.Single(await context.Owners
+            .Select(owner => owner.Name)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
+
+        Assert.Equal("Owner", result);
+
+        AssertSql(
+            """
+SELECT VALUE c["Name"]
+FROM root c
+""");
     }
 
     [ConditionalFact]
-    public void Root_entity_projection_succeeds()
+    public async Task Root_entity_projection_succeeds()
     {
         using var context = CreateContext();
 
-        Translate(
-            context,
-            context.Owners
-                .AsNoTrackingWithIdentityResolution());
+        var result = Assert.Single(await context.Owners
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync());
+
+        AssertOwner(result);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+""");
     }
 
     private ValidationContext CreateContext()
@@ -183,19 +250,35 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
             CosmosStrings.NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey(nameof(Owner.Id), nameof(Owner)),
             exception.Message);
 
-    private static void AssertProjectionOrder(SelectExpression selectExpression, params string[] remainingProjectionAliases)
+    private void AssertSql(params string[] expected)
+        => TestFixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    private static void AssertOwner(Owner owner)
     {
-        Assert.Equal(remainingProjectionAliases.Length + 1, selectExpression.Projection.Count);
-
-        var keyProjection = Assert.IsType<ScalarAccessExpression>(selectExpression.Projection[0].Expression);
-        Assert.Equal("id", keyProjection.PropertyName);
-        Assert.IsType<ObjectReferenceExpression>(keyProjection.Object);
-
-        for (var i = 0; i < remainingProjectionAliases.Length; i++)
-        {
-            Assert.Equal(remainingProjectionAliases[i], selectExpression.Projection[i + 1].Alias);
-        }
+        Assert.Equal(Fixture.OwnerId, owner.Id);
+        Assert.Equal("Owner", owner.Name);
+        AssertOwnedReference(owner.OwnedReference);
+        AssertOwnedCollection(owner.OwnedCollection);
+        Assert.Equal("ComplexReference", owner.ComplexReference.Name);
+        Assert.Collection(
+            owner.ComplexCollection,
+            element => Assert.Equal("ComplexCollection", element.Name));
     }
+
+    private static void AssertOwnedReference(OwnedReference ownedReference)
+    {
+        Assert.Equal(Fixture.OwnedReferenceId, ownedReference.Id);
+        Assert.Equal("OwnedReference", ownedReference.Name);
+    }
+
+    private static void AssertOwnedCollection(IEnumerable<OwnedCollectionElement> ownedCollection)
+        => Assert.Collection(
+            ownedCollection,
+            element =>
+            {
+                Assert.Equal(Fixture.OwnedCollectionElementId, element.Id);
+                Assert.Equal("OwnedCollection", element.Name);
+            });
 
     private static ShapedQueryExpression Translate<T>(ValidationContext context, IQueryable<T> query)
     {
@@ -215,11 +298,54 @@ public class CosmosNoTrackingWithIdentityResolutionProjectionValidationTest(
 
     public class Fixture : SharedStoreFixtureBase<ValidationContext>
     {
+        public static readonly Guid OwnerId = new("11111111-1111-1111-1111-111111111111");
+        public static readonly Guid OwnedReferenceId = new("22222222-2222-2222-2222-222222222222");
+        public static readonly Guid OwnedCollectionElementId = new("33333333-3333-3333-3333-333333333333");
+
         protected override string StoreName
             => nameof(CosmosNoTrackingWithIdentityResolutionProjectionValidationTest);
 
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
+
+        protected override Task SeedAsync(ValidationContext context)
+        {
+            context.Add(
+                new Owner
+                {
+                    Id = OwnerId,
+                    Name = "Owner",
+                    OwnedReference = new OwnedReference
+                    {
+                        Id = OwnedReferenceId,
+                        Name = "OwnedReference"
+                    },
+                    OwnedCollection =
+                    [
+                        new OwnedCollectionElement
+                        {
+                            Id = OwnedCollectionElementId,
+                            Name = "OwnedCollection"
+                        }
+                    ],
+                    ComplexReference = new ComplexReference
+                    {
+                        Name = "ComplexReference"
+                    },
+                    ComplexCollection =
+                    [
+                        new ComplexCollectionElement
+                        {
+                            Name = "ComplexCollection"
+                        }
+                    ]
+                });
+
+            return context.SaveChangesAsync();
+        }
     }
 
     public class Owner

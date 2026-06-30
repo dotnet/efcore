@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType);
 
         /// <summary>
-        ///     The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include the root entity or all primary key properties of the root document entity in the projection.
+        ///     The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include all primary key properties of the root document entity in the projection.
         /// </summary>
         public static string NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey(object? properties, object? entityType)
             => string.Format(

@@ -1802,7 +1802,7 @@ WHERE ((c["Discriminator"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
 
                 AssertSql(
                     """
-SELECT c["CustomerID"], (c["CustomerID"] = "ALFKI") AS c, c["OrderID"], LENGTH(c["CustomerID"]) AS c0
+SELECT c["OrderID"], c["CustomerID"], (c["CustomerID"] = "ALFKI") AS c, LENGTH(c["CustomerID"]) AS c0
 FROM root c
 WHERE (c["$type"] = "Order")
 """);

@@ -20,14 +20,9 @@ public static class CosmosPropertyExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsOrdinalKeyProperty(this IReadOnlyProperty property)
-    {
-        Check.DebugAssert(
-            (property.DeclaringType as IEntityType)?.IsOwned() == true, $"Expected {property.DeclaringType.DisplayName()} to be owned.");
-
-        return property.ClrType == typeof(int)
-            && !property.IsForeignKey()
-            && (property.ValueGenerated & ValueGenerated.OnAdd) != 0
-            && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
-            && !property.IsPersisted();
-    }
+        => property.ClrType == typeof(int)
+        && !property.IsForeignKey()
+        && (property.ValueGenerated & ValueGenerated.OnAdd) != 0
+        && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
+        && !property.IsPersisted();
 }
