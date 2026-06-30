@@ -267,6 +267,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Assign(_dataParameter, Call(_dataParameter, ReadOnlyMemorySliceMethod, bytesConsumedExpression))
             ];
 
+            if (_parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+            {
+                // Cosmos can't have 2 document root entities in separate shapers, because there is no join or concat on document root level.
+                // So we can use a separate state manager for each materialization.
+                // This is to be able to track owned entities in the query result without setting their non persited key properties for NoTrackingWithIdentityResolution
+                processedShaperExpression = Block(
+                    QueryCompilationContext.QueryContextParameter.MakeMemberAccess(typeof(QueryContext).GetField("_stateManager", BindingFlags.Instance | BindingFlags.NonPublic)!).Assign(Constant(null, typeof(IStateManager))),
+                    Call(QueryCompilationContext.QueryContextParameter, typeof(QueryContext).GetMethod(nameof(QueryContext.InitializeStateManager), BindingFlags.Instance | BindingFlags.Public)!, Constant(true)),
+                    processedShaperExpression);
+            }
 
             var shaperLambda = Lambda(
                 typeof(Shaper<>).MakeGenericType(shaperExpression.Type),
@@ -329,7 +339,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 case CollectionShaperExpression collectionShaperExpression:
                 {
-                    var innerShaperLambda = new ShaperProcessingExpressionVisitor(_parentVisitor, _selectExpression, _dataParameter, _bytesConsumedParameter).ProcessShaper(collectionShaperExpression.InnerShaper);
+                    var innerShaper = Visit(collectionShaperExpression.InnerShaper);
+
+                    var innerResultVariable = Variable(innerShaper.Type, "innerResult");
+                    innerShaper = Block(
+                        [_jsonReaderDataParameter, innerResultVariable, _innerShaperBytesConsumedVariable],
+                        // innerResult = shaper
+                        Assign(innerResultVariable, innerShaper),
+                        // bytesConsumed += innerShaperBytesConsumed
+                        AddAssignChecked(_bytesConsumedParameter, _innerShaperBytesConsumedVariable),
+                        // return innerResult
+                        innerResultVariable);
+
+                    var innerShaperLambda = Lambda(
+                        typeof(Shaper<>).MakeGenericType(innerShaper.Type),
+                        innerShaper,
+                        "InnerShaper",
+                        [QueryCompilationContext.QueryContextParameter,
+                        _dataParameter,
+                        _ordinalParameter,
+                        _bytesConsumedParameter]);
+
                     var collectionBytesConsumedVariable = Variable(typeof(int), "collectionBytesConsumed");
 
                     var shaper = Block(
@@ -436,27 +466,61 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             shaperVariables.Add(entryVariable);
             shaperVariables.Add(hasNullKeyVariable);
 
+            //if (entityType.IsOwned())
+            //{
+            //    // Non persisted fixup: we need to set any non persisted principal properties on the entity
+            //    // Since the entity is owned and is the query root, we don't know the owner entity values,
+            //    // But we can use the ordinal of the query result to determine temp values that work for tracking owned entity query roots (AsNoTrackingWithIdentityResoltion)
+            //    // Since the tracking is scoped to the query execution.
+            //    shaperExpressions.AddRange(entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(property =>
+            //    {
+            //        Expression propertyValueExpression = _ordinalParameter;
+
+            //        var clrType = property.ClrType;
+
+            //        var valueConverter = property.GetValueConverter();
+            //        if (valueConverter != null)
+            //        {
+            //            clrType = property.GetProviderClrType()!;
+            //        }
+
+            //        clrType = clrType.IsEnum
+            //            ? Enum.GetUnderlyingType(clrType)
+            //            : clrType;
+
+            //        if (!OrdinalConverters.ConvertMethods.TryGetValue(clrType, out var converterMethod))
+            //        {
+            //            throw new NotSupportedException($"Unsupported primary key clr type: '{clrType}'");
+            //        }
+
+            //        if (converterMethod != null)
+            //        {
+            //            propertyValueExpression = Call(converterMethod, propertyValueExpression);
+            //        }
+
+            //        if (valueConverter != null)
+            //        {
+            //            propertyValueExpression = Invoke(
+            //                Property(Constant(valueConverter, valueConverter.GetType()), nameof(ValueConverter<,>.ConvertFromProviderTyped)),
+            //                propertyValueExpression);
+            //        }
+
+            //        return property.IsShadowProperty()
+            //            ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
+            //                Constant(property.GetShadowIndex()),
+            //                propertyValueExpression)
+            //            : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression);
+            //    }));
+            //}
+
             var tryGetEntryPropertyMap = entityType.FindPrimaryKey()!.Properties
-                .ToDictionary<IProperty, IProperty, Expression>(
+                .ToDictionary(
                     p => p,
-                    property =>
-                    {
-                        if (entityType.IsOwned()
-                         && (property.IsOrdinalKeyProperty()
-                          || property.FindFirstPrincipal() != null) // We use the ordinal for AsNoTrackingWithIdentityResoltion?
-                         )
-                        {
-                            return _ordinalParameter;
-                        }
-
-                        if (property.IsShadowProperty())
-                        {
-                            // shadowSnapshotVariable.GetValue<T>(1)
-                            return Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()));
-                        }
-
-                        return instanceVariable.MakeMemberAccess(property.GetMemberInfo(true, false));
-                    });
+                    property => property.IsShadowProperty()
+                                    // shadowSnapshot.GetValue<T>(1)
+                                    ? Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()))
+                                    // instance.Property
+                                    : (Expression)instanceVariable.MakeMemberAccess(property.GetMemberInfo(true, false)));
 
             // var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id }, true, out var _);
             tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
@@ -1049,8 +1113,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (IsTracking(nestedStructuralType, out var nestedEntityType))
                     {
-                        // Change tracker will do fixup
-                        // However, we do need to set any non persisted principal properties on the nested entity to the values from the parent entity
+                        // Change tracker will do reference fixup
+                        // However, we do need to do non persisted fixup: set any non persisted principal properties on the nested entity to the values from the parent entity
                         // We can only do this once the parent entity is fully materialized
 
                         //var (nestedEntityType, nestedInstance, nestedShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
@@ -1154,6 +1218,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
                             nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
                         }
+
+                        // @TODO: Non tracking owner parent fixup? OwnedQueryCosmosTest
                     }
 
                     nestedReadExpressions.Add(Assign(_jsonReaderManagerVariable, NewJsonReaderManager()));

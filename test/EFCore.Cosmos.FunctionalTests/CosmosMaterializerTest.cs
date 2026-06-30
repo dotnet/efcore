@@ -5,13 +5,13 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string NonSharedStoreName  { get; } = nameof(CosmosMaterializerTest);
+    protected override string NonSharedStoreName { get; } = nameof(CosmosMaterializerTest);
 
     protected override ITestStoreFactory NonSharedTestStoreFactory { get; } = CosmosTestStoreFactory.Instance;
 
     #region Shadow key materialization
 
-    [ConditionalFact]
+    [Fact]
     public async Task Materialize_entity_with_shadow_key()
     {
         var factory = await InitializeNonSharedTest<ShadowKeyContext>();
@@ -42,7 +42,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     public class ShadowKeyContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<ShadowKeyEntity> Entities { get; set; }
+        public DbSet<ShadowKeyEntity> Entities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -61,7 +61,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     #region Discriminator
 
-    [ConditionalFact]
+    [Fact]
     public async Task Materialize_entity_with_discriminator()
     {
         var factory = await InitializeNonSharedTest<DiscriminatorContext>();
@@ -108,7 +108,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     #region Collection navigation
 
-    [ConditionalFact]
+    [Fact]
     public async Task Materialize_entity_with_collection()
     {
         var factory = await InitializeNonSharedTest<CollectionContext>();
@@ -133,7 +133,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Materialize_entity_with_empty_collection()
     {
         var factory = await InitializeNonSharedTest<CollectionContext>();
@@ -154,7 +154,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Materialize_entity_with_collection_with_ordinal_key()
     {
         var factory = await InitializeNonSharedTest<CollectionContext>();
@@ -224,7 +224,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     #region AsNoTrackingWithIdentityResolution
 
-    [ConditionalFact]
+    [Fact]
     public async Task AssociateAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -234,12 +234,10 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
             context.Add(new AsNoTrackingWithIdentityResolutionEntity()
             {
                 RequiredAssociate = new(),
-                Associates = [new(), new()]
             });
             context.Add(new AsNoTrackingWithIdentityResolutionEntity()
             {
                 RequiredAssociate = new(),
-                Associates = [new(), new()]
             });
             await context.SaveChangesAsync();
         }
@@ -248,11 +246,11 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         {
             var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.RequiredAssociate).ToListAsync();
             Assert.Equal(2, results.Count);
-            Assert.Same(results[0], results[1]);
+            Assert.NotSame(results[0], results[1]);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task DoubleAssociateAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -287,7 +285,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ConcatAssociateCollectionAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -330,7 +328,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ConcatOrdinalAssociateCollectionAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -373,7 +371,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task SelectManyConcatAssociateCollectionAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -396,13 +394,13 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         using (var context = factory.CreateDbContext())
         {
             var results = await context.Entities.AsNoTrackingWithIdentityResolution().SelectMany(x => x.Associates.Concat(x.Associates)).ToListAsync();
-            Assert.Equal(4, results.Count);
+            Assert.Equal(8, results.Count);
 
             for (var i = 0; i < results.Count / 2; i++)
             {
                 var result = results[i];
                 var otherResult = results[i + results.Count / 2];
-                
+
                 Assert.Same(result, otherResult);
 
                 if (i < 0)
@@ -413,7 +411,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task SelectManyConcatOrdinalAssociateCollectionAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -436,7 +434,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         using (var context = factory.CreateDbContext())
         {
             var results = await context.Entities.AsNoTrackingWithIdentityResolution().SelectMany(x => x.OrdinalAssociates.Concat(x.OrdinalAssociates)).ToListAsync();
-            Assert.Equal(4, results.Count);
+            Assert.Equal(8, results.Count);
 
             for (var i = 0; i < results.Count / 2; i++)
             {
@@ -453,7 +451,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task DoubleAssociateCollectionAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -498,7 +496,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task DoubleOrdinalAssociateCollectionAsNoTrackingWithIdentityResolution()
     {
         var factory = await InitializeNonSharedTest<AsNoTrackingWithIdentityResolutionContext>();
@@ -547,7 +545,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public AsNoTrackingWithIdentityResolutionAssociateEntity RequiredAssociate { get; set; }
+        public AsNoTrackingWithIdentityResolutionAssociateEntity RequiredAssociate { get; set; } = new();
 
         public List<AsNoTrackingWithIdentityResolutionAssociateEntity> Associates { get; set; } = new();
 
@@ -576,6 +574,52 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
             modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsOne(x => x.RequiredAssociate);
             modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsMany(x => x.Associates);
             modelBuilder.Entity<AsNoTrackingWithIdentityResolutionEntity>().OwnsMany(x => x.OrdinalAssociates);
+        }
+    }
+
+    #endregion
+
+    #region PrimaryKeyWithValueConverter
+
+    [Fact]
+    public async Task Materialize_entity_with_value_converter_primary_key()
+    {
+        var factory = await InitializeNonSharedTest<PrimaryKeyValueConvertedContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new PrimaryKeyValueConvertedEntity { Id = 1 });
+            context.Add(new PrimaryKeyValueConvertedEntity { Id = 2 });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            var entities = (await context.Entities.ToListAsync()).OrderBy(x => x.Id).ToList();
+            Assert.Equal(2, entities.Count);
+            Assert.Equal(1, entities[0].Id);
+            Assert.Equal(2, entities[1].Id);
+        }
+    }
+
+    public class PrimaryKeyValueConvertedEntity
+    {
+        public int Id { get; set; }
+    }
+
+    public class PrimaryKeyValueConvertedContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<PrimaryKeyValueConvertedEntity> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<PrimaryKeyValueConvertedEntity>(e =>
+            {
+                e.HasKey(x => x.Id);
+                e.HasPartitionKey(x => x.Id);
+                e.Property(x => x.Id).HasConversion(x => x.ToString(), x => int.Parse(x));
+            });
         }
     }
 
