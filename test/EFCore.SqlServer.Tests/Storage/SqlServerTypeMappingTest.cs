@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 {
-    [ConditionalTheory, InlineData(nameof(ChangeTracker.DetectChanges), false), InlineData(nameof(PropertyEntry.CurrentValue), false),
+    [Theory, InlineData(nameof(ChangeTracker.DetectChanges), false), InlineData(nameof(PropertyEntry.CurrentValue), false),
      InlineData(nameof(PropertyEntry.OriginalValue), false), InlineData(nameof(ChangeTracker.DetectChanges), true),
      InlineData(nameof(PropertyEntry.CurrentValue), true), InlineData(nameof(PropertyEntry.OriginalValue), true)]
     public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
@@ -74,13 +74,13 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     protected override DbCommand CreateTestCommand()
         => new SqlCommand();
 
-    [ConditionalTheory, InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
+    [Theory, InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
      InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double)), InlineData(typeof(SqlServerFloatTypeMapping), typeof(float)),
      InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
 
-    [ConditionalFact]
+    [Fact]
     public void Create_and_clone_SQL_Server_DateTime_mappings_with_converter()
     {
         var mapping = (RelationalTypeMapping)Activator.CreateInstance(
@@ -96,21 +96,21 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(SqlDbType.SmallDateTime, ((SqlServerDateTimeTypeMapping)clone).SqlType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_SQL_Server_sized_mappings_with_converter()
         => ConversionCloneTest(
             typeof(SqlServerByteArrayTypeMapping),
             typeof(byte[]),
             SqlDbType.Image);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_SQL_Server_unicode_sized_mappings_with_converter()
         => UnicodeConversionCloneTest(
             typeof(SqlServerStringTypeMapping),
             typeof(string),
             SqlDbType.Text);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Create_and_clone_UDT_mapping_with_converter()
     {
         Func<object, Expression> literalGenerator = Expression.Constant;
@@ -205,7 +205,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             "'2015-03-12T13:36:37.1230000-07:00'"); //should this really output trailing zeros?
     }
 
-    [ConditionalFact]
+    [Fact]
     public override void TimeOnly_literal_generated_correctly()
     {
         var typeMapping = GetMapping(typeof(TimeOnly));
@@ -215,14 +215,14 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120, 20), "'13:10:15.12002'");
     }
 
-    [ConditionalFact]
+    [Fact]
     public override void DateOnly_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(DateOnly)),
             new DateOnly(2015, 3, 12),
             "'2015-03-12'");
 
-    [ConditionalFact]
+    [Fact]
     public override void Timespan_literal_generated_correctly()
     {
         Test_GenerateSqlLiteral_helper(
@@ -332,7 +332,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "CAST(32767 AS smallint)");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlVariant_literal_generated_correctly()
     {
         var typeMapping = GetMapping("sql_variant");
@@ -346,7 +346,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateSqlLiteral_helper(GetMapping("varchar(max)"), "Text", "'Text'");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void String_Utf8()
     {
         var typeMappingSource = GetTypeMappingSource();
@@ -362,7 +362,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(DbType.String, parameter.DbType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Char_Utf8()
     {
         var typeMappingSource = GetTypeMappingSource();
@@ -378,7 +378,42 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(DbType.String, parameter.DbType);
     }
 
-    [ConditionalFact]
+    [Theory]
+    [InlineData("<r>a</r>")]
+    [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><r>a</r>")]
+    [InlineData("")]
+    [InlineData("text fragment")]
+    [InlineData("<a/><b/>")]
+    public virtual void Xml_parameter_is_sent_as_SqlXml(string value)
+    {
+        var mapping = GetMapping("xml");
+        Assert.Equal("xml", mapping.StoreType);
+
+        using var command = CreateTestCommand();
+        var parameter = (SqlParameter)mapping.CreateParameter(command, "foo", value);
+
+        Assert.Equal(SqlDbType.Xml, parameter.SqlDbType);
+        var sqlXml = Assert.IsType<System.Data.SqlTypes.SqlXml>(parameter.Value);
+        Assert.False(sqlXml.IsNull);
+    }
+
+    [Fact]
+    public virtual void Xml_null_parameter_is_sent_as_SqlDbType_Xml()
+    {
+        var mapping = GetMapping("xml");
+
+        using var command = CreateTestCommand();
+        var parameter = (SqlParameter)mapping.CreateParameter(command, "foo", null, nullable: true);
+
+        Assert.Equal(SqlDbType.Xml, parameter.SqlDbType);
+        Assert.Equal(DBNull.Value, parameter.Value);
+    }
+
+    [Fact]
+    public virtual void Xml_literal_is_generated_as_unicode()
+        => Test_GenerateSqlLiteral_helper(GetMapping("xml"), "<r>\U0001F62D</r>", "N'<r>\U0001F62D</r>'");
+
+    [Fact]
     public virtual void DateOnly_code_literal_generated_correctly()
     {
         var typeMapping = new DateOnlyTypeMapping("date");
@@ -386,7 +421,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Test_GenerateCodeLiteral_helper(typeMapping, new DateOnly(2020, 3, 5), "new DateOnly(2020, 3, 5)");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void TimeOnly_code_literal_generated_correctly()
     {
         var typeMapping = new TimeOnlyTypeMapping("time");
@@ -406,7 +441,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 
     #region Vector
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Vector_comparer_compares_Memory()
     {
         var typeMapping = new SqlServerVectorTypeMapping(3);
@@ -419,6 +454,34 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.True(typeMapping.Comparer.Equals(vector1, vector2));
         Assert.False(typeMapping.Comparer.Equals(vector1, vector3));
     }
+
+    [Fact]
+    public virtual void GenerateCodeLiteral_generates_vector_literal()
+        => Test_GenerateCodeLiteral_helper(
+            new SqlServerVectorTypeMapping(3),
+            new SqlVector<float>(new float[] { 1, 2, 3 }),
+            "new Microsoft.Data.SqlTypes.SqlVector<float>(new[] { 1f, 2f, 3f })");
+
+    [Fact]
+    public virtual void GenerateCodeLiteral_generates_null_vector_literal()
+        => Test_GenerateCodeLiteral_helper(
+            new SqlServerVectorTypeMapping(3),
+            SqlVector<float>.CreateNull(3),
+            "Microsoft.Data.SqlTypes.SqlVector<float>.CreateNull(3)");
+
+    [Fact]
+    public virtual void Vector_default_provider_value_is_zero_vector_of_configured_dimensions()
+    {
+        var value = Assert.IsType<SqlVector<float>>(new SqlServerVectorTypeMapping(3).GetDefaultProviderValue());
+
+        Assert.False(value.IsNull);
+        Assert.Equal(3, value.Length);
+        Assert.True(value.Memory.Span.TrimStart(0f).IsEmpty);
+    }
+
+    [Fact]
+    public virtual void Vector_default_provider_value_is_null_without_dimensions()
+        => Assert.Null(SqlServerVectorTypeMapping.Default.GetDefaultProviderValue());
 
     #endregion Vector
 

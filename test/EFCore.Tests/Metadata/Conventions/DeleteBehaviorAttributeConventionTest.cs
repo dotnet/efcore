@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class DeleteBehaviorAttributeConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Without_attribute_preserve_default_behavior()
     {
         var modelBuilder = CreateModelBuilder();
@@ -29,7 +29,7 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Correctly_set_restrict_delete_behavior_on_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -44,7 +44,37 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void Correctly_set_set_default_delete_behavior_on_foreign_key()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_SetDefault>()
+            .Property(e => e.BlogId);
+
+        var fk = modelBuilder.Entity<Blog_SetDefault>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_SetDefault).Metadata;
+
+        Assert.Equal(DeleteBehavior.SetDefault, fk.DeleteBehavior);
+    }
+
+    [Fact]
+    public void Correctly_set_client_set_default_delete_behavior_on_foreign_key()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_ClientSetDefault>()
+            .Property(e => e.BlogId);
+
+        var fk = modelBuilder.Entity<Blog_ClientSetDefault>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_ClientSetDefault).Metadata;
+
+        Assert.Equal(DeleteBehavior.ClientSetDefault, fk.DeleteBehavior);
+    }
+
+    [Fact]
     public void Correctly_set_delete_behavior_on_compound_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -61,7 +91,7 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Correctly_set_delete_behavior_on_two_different_foreign_keys()
     {
         var modelBuilder = CreateModelBuilder();
@@ -83,7 +113,7 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(DeleteBehavior.Cascade, fk_Two.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throw_InvalidOperationException_if_attribute_was_set_on_one_of_foreign_keys_properties()
     {
         var modelBuilder = CreateModelBuilder();
@@ -96,7 +126,7 @@ public class DeleteBehaviorAttributeConventionTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throw_InvalidOperationException_if_attribute_was_set_on_random_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -109,7 +139,7 @@ public class DeleteBehaviorAttributeConventionTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throw_InvalidOperationException_if_attribute_was_set_on_principal_navigation_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -124,7 +154,7 @@ public class DeleteBehaviorAttributeConventionTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throw_InvalidOperationException_if_attribute_was_set_on_principal_one_to_one_relationship()
     {
         var modelBuilder = CreateModelBuilder();
@@ -177,6 +207,48 @@ public class DeleteBehaviorAttributeConventionTest
 
         [DeleteBehavior(DeleteBehavior.Restrict)]
         public Blog_Restrict Blog_Restrict { get; set; }
+
+        public int? BlogId { get; set; }
+    }
+
+    #endregion
+
+    #region DeleteBehaviourAttribute set to SetDefault
+
+    private class Blog_SetDefault
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_SetDefault> Posts { get; set; }
+    }
+
+    private class Post_SetDefault
+    {
+        public int Id { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.SetDefault)]
+        public Blog_SetDefault Blog_SetDefault { get; set; }
+
+        public int? BlogId { get; set; }
+    }
+
+    #endregion
+
+    #region DeleteBehaviourAttribute set to ClientSetDefault
+
+    private class Blog_ClientSetDefault
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_ClientSetDefault> Posts { get; set; }
+    }
+
+    private class Post_ClientSetDefault
+    {
+        public int Id { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.ClientSetDefault)]
+        public Blog_ClientSetDefault Blog_ClientSetDefault { get; set; }
 
         public int? BlogId { get; set; }
     }

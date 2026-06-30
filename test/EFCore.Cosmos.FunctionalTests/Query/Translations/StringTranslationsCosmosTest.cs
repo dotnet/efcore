@@ -182,7 +182,7 @@ WHERE (INDEX_OF(c["String"], "") = 0)
 
         AssertSql(
             """
-@pattern=?
+@pattern='eattl'
 
 SELECT VALUE c
 FROM root c
@@ -196,7 +196,7 @@ WHERE (INDEX_OF(c["String"], @pattern) = 1)
 
         AssertSql(
             """
-@pattern=?
+@pattern='e'
 
 SELECT VALUE c
 FROM root c
@@ -234,7 +234,7 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", 2) = 6))
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -248,7 +248,7 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -356,7 +356,7 @@ WHERE ((LENGTH(c["String"]) >= 1) AND (SUBSTRING(c["String"], 1, LENGTH(c["Strin
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -394,7 +394,7 @@ WHERE ((LENGTH(c["String"]) >= 2) AND (SUBSTRING(c["String"], 2, 0) = ""))
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -476,7 +476,7 @@ WHERE STARTSWITH(c["String"], "S")
 
         AssertSql(
             """
-@pattern=?
+@pattern='Se'
 
 SELECT VALUE c
 FROM root c
@@ -490,7 +490,7 @@ WHERE STARTSWITH(c["String"], @pattern)
 
         AssertSql(
             """
-@pattern=?
+@pattern='S'
 
 SELECT VALUE c
 FROM root c
@@ -575,7 +575,7 @@ WHERE ENDSWITH(c["String"], "e")
 
         AssertSql(
             """
-@pattern=?
+@pattern='le'
 
 SELECT VALUE c
 FROM root c
@@ -589,7 +589,7 @@ WHERE ENDSWITH(c["String"], @pattern)
 
         AssertSql(
             """
-@pattern=?
+@pattern='e'
 
 SELECT VALUE c
 FROM root c
@@ -751,7 +751,7 @@ WHERE CONTAINS(c["String"], "     ")
 
         AssertSql(
             """
-@pattern=?
+@pattern='     '
 
 SELECT VALUE c
 FROM root c
@@ -882,7 +882,7 @@ WHERE (TRIM(c["String"]) = "Boston")
 
         AssertSql(
             """
-ReadItem(?, ?)
+ReadItem([1.0], 1)
 """);
     }
 
@@ -933,7 +933,7 @@ ReadItem(?, ?)
 
         AssertSql(
             """
-ReadItem(?, ?)
+ReadItem([1.0], 1)
 """);
     }
 
@@ -1005,7 +1005,7 @@ WHERE ((c["String"] || "Boston") = "SeattleBoston")
 
         AssertSql(
             """
-@i=?
+@i='A'
 
 SELECT VALUE c
 FROM root c
@@ -1015,35 +1015,57 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
     public override async Task Concat_string_int_comparison1()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison1());
+        await base.Concat_string_int_comparison1();
 
-        AssertSql();
+        AssertSql(
+            """
+@i='10'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["String"] || ToString(@i)) = "Seattle10")
+""");
     }
 
     public override async Task Concat_string_int_comparison2()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison2());
+        await base.Concat_string_int_comparison2();
 
-        AssertSql();
+        AssertSql(
+            """
+@i='10'
+
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(@i) || c["String"]) = "10Seattle")
+""");
     }
 
     public override async Task Concat_string_int_comparison3()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison3());
+        await base.Concat_string_int_comparison3();
 
-        AssertSql();
+        AssertSql(
+            """
+@p='30'
+@j='21'
+
+SELECT VALUE c
+FROM root c
+WHERE ((((ToString(@p) || c["String"]) || ToString(@j)) || ToString(42)) = "30Seattle2142")
+""");
     }
 
     public override async Task Concat_string_int_comparison4()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison4());
+        await base.Concat_string_int_comparison4();
 
         AssertSql(
-        );
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(c["Int"]) || c["String"]) = "8Seattle")
+""");
     }
 
     public override async Task Concat_method_comparison()
@@ -1052,7 +1074,7 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
         AssertSql(
             """
-@i=?
+@i='A'
 
 SELECT VALUE c
 FROM root c
@@ -1066,8 +1088,8 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
         AssertSql(
             """
-@i=?
-@j=?
+@i='A'
+@j='B'
 
 SELECT VALUE c
 FROM root c
@@ -1081,9 +1103,9 @@ WHERE ((@i || (@j || c["String"])) = "ABSeattle")
 
         AssertSql(
             """
-@i=?
-@j=?
-@k=?
+@i='A'
+@j='B'
+@k='C'
 
 SELECT VALUE c
 FROM root c
@@ -1147,7 +1169,7 @@ WHERE RegexMatch("Seattle", c["String"])
 """);
     }
 
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_None()
     //         => Fixture.NoSyncTest(
@@ -1165,7 +1187,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase()
     //         => Fixture.NoSyncTest(
@@ -1183,7 +1205,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_Multiline()
     //         => Fixture.NoSyncTest(
@@ -1201,7 +1223,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_Singleline()
     //         => Fixture.NoSyncTest(
@@ -1219,7 +1241,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnorePatternWhitespace()
     //         => Fixture.NoSyncTest(
@@ -1237,7 +1259,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_IgnorePatternWhitespace()
     //         => Fixture.NoSyncTest(
@@ -1256,7 +1278,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_RightToLeft()
     //         => AssertTranslationFailed(
@@ -1264,7 +1286,7 @@ WHERE RegexMatch("Seattle", c["String"])
     //                 async,
     //                 ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_RightToLeft()
     //         => AssertTranslationFailed(
@@ -1275,7 +1297,7 @@ WHERE RegexMatch("Seattle", c["String"])
 
     #endregion Regex
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

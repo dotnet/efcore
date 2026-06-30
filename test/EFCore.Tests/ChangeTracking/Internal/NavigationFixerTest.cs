@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class NavigationFixerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_Add_during_fixup()
     {
         using var context = new FixupContext();
@@ -63,7 +63,7 @@ public class NavigationFixerTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_related_principals()
     {
         var contextServices = CreateContextServices();
@@ -85,7 +85,7 @@ public class NavigationFixerTest
         Assert.DoesNotContain(dependent, principal1.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_related_dependents()
     {
         var contextServices = CreateContextServices();
@@ -115,7 +115,7 @@ public class NavigationFixerTest
         Assert.Contains(dependent3, principal.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_relationship()
     {
         var contextServices = CreateContextServices();
@@ -163,7 +163,7 @@ public class NavigationFixerTest
         Assert.Null(dependent4.Product);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_self_referencing_relationship()
     {
         var contextServices = CreateContextServices();
@@ -209,7 +209,7 @@ public class NavigationFixerTest
         Assert.Same(entity2, entity3.OriginalProduct);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_FKs_and_related_principals_using_dependent_navigations()
     {
         var contextServices = CreateContextServices();
@@ -232,7 +232,7 @@ public class NavigationFixerTest
         Assert.DoesNotContain(dependent, principal1.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_FKs_and_related_principals_using_principal_navigations()
     {
         var contextServices = CreateContextServices();
@@ -257,7 +257,7 @@ public class NavigationFixerTest
         Assert.DoesNotContain(dependent, principal1.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_FKs_and_related_dependents_using_dependent_navigations()
     {
         var contextServices = CreateContextServices();
@@ -290,7 +290,7 @@ public class NavigationFixerTest
         Assert.Contains(dependent3, principal.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_FKs_and_related_dependents_using_principal_navigations()
     {
         var contextServices = CreateContextServices();
@@ -326,7 +326,7 @@ public class NavigationFixerTest
         Assert.Contains(dependent3, principal.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_self_referencing_relationship_using_dependent_navigations()
     {
         var contextServices = CreateContextServices();
@@ -387,7 +387,7 @@ public class NavigationFixerTest
         Assert.Null(entity3.OriginalProduct);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_self_referencing_relationship_using_principal_navigations()
     {
         var contextServices = CreateContextServices();
@@ -463,7 +463,7 @@ public class NavigationFixerTest
         Assert.Same(entity2, entity3.OriginalProduct);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_related_principals_when_FK_is_set()
     {
         var model = BuildModel();
@@ -505,7 +505,7 @@ public class NavigationFixerTest
         Assert.DoesNotContain(dependent, principal2.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_related_principals_when_FK_is_cleared()
     {
         var model = BuildModel();
@@ -547,7 +547,7 @@ public class NavigationFixerTest
         Assert.DoesNotContain(dependent, principal1.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_related_principals_when_FK_is_changed()
     {
         var model = BuildModel();
@@ -589,7 +589,7 @@ public class NavigationFixerTest
         Assert.DoesNotContain(dependent, principal2.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_relationship_when_FK_changes()
     {
         var model = BuildModel();
@@ -633,7 +633,7 @@ public class NavigationFixerTest
         Assert.Null(principal1.Detail);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_relationship_when_FK_cleared()
     {
         var model = BuildModel();
@@ -672,7 +672,7 @@ public class NavigationFixerTest
         Assert.Null(principal.Detail);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_relationship_when_FK_set()
     {
         var model = BuildModel();
@@ -711,7 +711,7 @@ public class NavigationFixerTest
         Assert.Same(dependent, principal.Detail);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_one_to_one_self_referencing_relationship_when_FK_changes()
     {
         var model = BuildModel();
@@ -765,7 +765,7 @@ public class NavigationFixerTest
         Assert.Same(entity1, entity3.OriginalProduct);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_steal_reference_of_one_to_one_self_referencing_relationship_when_FK_changes()
     {
         var model = BuildModel();
@@ -821,7 +821,7 @@ public class NavigationFixerTest
         Assert.Null(entity2.AlternateProductId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_fixup_of_all_related_principals_when_part_of_overlapping_composite_FK_is_changed()
     {
         var model = BuildModel();
@@ -1005,7 +1005,7 @@ public class NavigationFixerTest
         Assert.Same(review4, tag8.Review);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removes_dependent_from_collection_after_deletion()
     {
         var contextServices = CreateContextServices();
@@ -1077,7 +1077,7 @@ public class NavigationFixerTest
         Assert.Equal(dependent3.CategoryId, principal1.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Nulls_navigation_to_principal_after_after_deletion()
     {
         var contextServices = CreateContextServices();
@@ -1137,7 +1137,7 @@ public class NavigationFixerTest
         Assert.Equal(dependent3.CategoryId, principal1.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Nulls_one_to_one_navigation_to_principal_after_deletion()
     {
         var model = BuildModel();
@@ -1185,7 +1185,7 @@ public class NavigationFixerTest
         Assert.Equal(dependent2.AlternateProductId, principal2.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Nulls_one_to_one_navigation_to_dependent_after_after_deletion()
     {
         var model = BuildModel();

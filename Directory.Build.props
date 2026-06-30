@@ -23,6 +23,11 @@
     <TargetRuntimeIdentifier Condition="'$(TargetRuntimeIdentifier)' == ''">$(TargetOsName)-$(TargetArchitecture)</TargetRuntimeIdentifier>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- Pin to 1.22.0 until efcore migrates to xunit v3; 1.27.0 crashes with xunit v2 -->
+    <XUnitAnalyzersVersion>1.22.0</XUnitAnalyzersVersion>
+  </PropertyGroup>
+
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <Import
@@ -38,8 +43,11 @@
     <StrongNameKeyId>MicrosoftAspNetCore</StrongNameKeyId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
+    <DefaultNetCoreTargetFramework>$(NetCurrent)</DefaultNetCoreTargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>preview</LangVersion>
+    <EnablePreviewFeatures Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">true</EnablePreviewFeatures>
+    <Features Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(Features);runtime-async=on</Features>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
     <DebugType>portable</DebugType>

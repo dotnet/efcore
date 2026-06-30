@@ -1,9 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedTableSplitting;
+using Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -11,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqliteComplianceTest : RelationalComplianceTestBase
 {
-    protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
-    {
+    protected override ICollection<Type> IgnoredTestBases { get; } =
+    [
         typeof(FromSqlSprocQueryTestBase<>),
         typeof(SqlExecutorTestBase<>),
         typeof(UdfDbFunctionTestBase<>),
@@ -25,7 +27,7 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
         typeof(OwnedNavigationsProjectionRelationalTestBase<>),
         typeof(OwnedJsonProjectionRelationalTestBase<>),
         typeof(OwnedTableSplittingProjectionRelationalTestBase<>)
-    };
+    ];
 
     protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;
 }

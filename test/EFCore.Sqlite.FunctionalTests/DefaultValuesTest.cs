@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_SQLite_default_values()
     {
         using (var context = CreateChipsContext())

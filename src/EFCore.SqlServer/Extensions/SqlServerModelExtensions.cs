@@ -472,4 +472,175 @@ public static class SqlServerModelExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the performance level of the database.</returns>
     public static ConfigurationSource? GetPerformanceLevelSqlConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(SqlServerAnnotationNames.PerformanceLevelSql)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Adds a full-text catalog to the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>The <see cref="IMutableSqlServerFullTextCatalog" /> added to the model.</returns>
+    public static IMutableSqlServerFullTextCatalog AddFullTextCatalog(
+        this IMutableModel model,
+        string name)
+        => SqlServerFullTextCatalog.AddFullTextCatalog(model, name, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     Adds a full-text catalog to the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The <see cref="IConventionSqlServerFullTextCatalog" /> added to the model, or <see langword="null" /> if the catalog could not be added.</returns>
+    public static IConventionSqlServerFullTextCatalog? AddFullTextCatalog(
+        this IConventionModel model,
+        string name,
+        bool fromDataAnnotation = false)
+        => SqlServerFullTextCatalog.AddFullTextCatalog(
+            (IMutableModel)model, name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     Finds a full-text catalog in the model, or returns <see langword="null" /> if not found.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>The <see cref="IReadOnlySqlServerFullTextCatalog" />, or <see langword="null" /> if not found.</returns>
+    public static IReadOnlySqlServerFullTextCatalog? FindFullTextCatalog(
+        this IReadOnlyModel model,
+        string name)
+        => SqlServerFullTextCatalog.FindFullTextCatalog(model, name);
+
+    /// <summary>
+    ///     Finds a full-text catalog in the model, or returns <see langword="null" /> if not found.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>The <see cref="IMutableSqlServerFullTextCatalog" />, or <see langword="null" /> if not found.</returns>
+    public static IMutableSqlServerFullTextCatalog? FindFullTextCatalog(
+        this IMutableModel model,
+        string name)
+        => (IMutableSqlServerFullTextCatalog?)((IReadOnlyModel)model).FindFullTextCatalog(name);
+
+    /// <summary>
+    ///     Finds a full-text catalog in the model, or returns <see langword="null" /> if not found.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>The <see cref="IConventionSqlServerFullTextCatalog" />, or <see langword="null" /> if not found.</returns>
+    public static IConventionSqlServerFullTextCatalog? FindFullTextCatalog(
+        this IConventionModel model,
+        string name)
+        => (IConventionSqlServerFullTextCatalog?)((IReadOnlyModel)model).FindFullTextCatalog(name);
+
+    /// <summary>
+    ///     Finds a full-text catalog in the model, or returns <see langword="null" /> if not found.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>The <see cref="ISqlServerFullTextCatalog" />, or <see langword="null" /> if not found.</returns>
+    public static ISqlServerFullTextCatalog? FindFullTextCatalog(
+        this IModel model,
+        string name)
+        => (ISqlServerFullTextCatalog?)((IReadOnlyModel)model).FindFullTextCatalog(name);
+
+    /// <summary>
+    ///     Removes a full-text catalog from the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>The removed <see cref="IMutableSqlServerFullTextCatalog" />, or <see langword="null" /> if not found.</returns>
+    public static IMutableSqlServerFullTextCatalog? RemoveFullTextCatalog(
+        this IMutableModel model,
+        string name)
+        => SqlServerFullTextCatalog.RemoveFullTextCatalog(model, name);
+
+    /// <summary>
+    ///     Removes a full-text catalog from the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>The removed <see cref="IConventionSqlServerFullTextCatalog" />, or <see langword="null" /> if not found.</returns>
+    public static IConventionSqlServerFullTextCatalog? RemoveFullTextCatalog(
+        this IConventionModel model,
+        string name)
+        => SqlServerFullTextCatalog.RemoveFullTextCatalog((IMutableModel)model, name);
+
+    /// <summary>
+    ///     Gets all full-text catalogs defined in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <returns>All full-text catalogs defined in the model.</returns>
+    public static IEnumerable<IReadOnlySqlServerFullTextCatalog> GetFullTextCatalogs(this IReadOnlyModel model)
+        => SqlServerFullTextCatalog.GetFullTextCatalogs(model);
+
+    /// <summary>
+    ///     Gets all full-text catalogs defined in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <returns>All full-text catalogs defined in the model.</returns>
+    public static IEnumerable<IMutableSqlServerFullTextCatalog> GetFullTextCatalogs(this IMutableModel model)
+        => SqlServerFullTextCatalog.GetFullTextCatalogs(model).Cast<IMutableSqlServerFullTextCatalog>();
+
+    /// <summary>
+    ///     Gets all full-text catalogs defined in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <returns>All full-text catalogs defined in the model.</returns>
+    public static IEnumerable<IConventionSqlServerFullTextCatalog> GetFullTextCatalogs(this IConventionModel model)
+        => SqlServerFullTextCatalog.GetFullTextCatalogs(model).Cast<IConventionSqlServerFullTextCatalog>();
+
+    /// <summary>
+    ///     Gets all full-text catalogs defined in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="model">The model.</param>
+    /// <returns>All full-text catalogs defined in the model.</returns>
+    public static IEnumerable<ISqlServerFullTextCatalog> GetFullTextCatalogs(this IModel model)
+        => SqlServerFullTextCatalog.GetFullTextCatalogs(model).Cast<ISqlServerFullTextCatalog>();
 }

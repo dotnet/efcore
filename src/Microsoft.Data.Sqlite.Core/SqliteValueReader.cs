@@ -230,6 +230,13 @@ internal abstract class SqliteValueReader
             return (T)(object)GetFloat(ordinal);
         }
 
+#if NET6_0_OR_GREATER
+        if (typeof(T) == typeof(Half))
+        {
+            return (T)(object)(Half)GetDouble(ordinal);
+        }
+#endif
+
         if (typeof(T) == typeof(Guid))
         {
             return (T)(object)GetGuid(ordinal);
@@ -347,6 +354,13 @@ internal abstract class SqliteValueReader
             return (T)(object)GetFloat(ordinal);
         }
 
+#if NET6_0_OR_GREATER
+        if (type == typeof(Half))
+        {
+            return (T)(object)(Half)GetDouble(ordinal);
+        }
+#endif
+
         if (type == typeof(Guid))
         {
             return (T)(object)GetGuid(ordinal);
@@ -435,6 +449,11 @@ internal abstract class SqliteValueReader
 
     private static DateTime FromJulianDate(double julianDate)
     {
+        if (double.IsNaN(julianDate) || double.IsInfinity(julianDate) || double.IsNegativeInfinity(julianDate))
+        {
+            throw new InvalidOperationException(Resources.NonFiniteDoubleJulianDateValue);
+        }
+
         // computeYMD
         var iJD = (long)(julianDate * 86400000.0 + 0.5);
         var Z = (int)((iJD + 43200000) / 86400000);

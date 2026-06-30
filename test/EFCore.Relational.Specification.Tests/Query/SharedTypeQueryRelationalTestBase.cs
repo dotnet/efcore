@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -16,13 +16,13 @@ public abstract class SharedTypeQueryRelationalTestBase(NonSharedFixture fixture
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_use_shared_type_entity_type_in_query_filter_with_from_sql(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextRelational24601>(
+        var contextFactory = await InitializeNonSharedTest<MyContextRelational24601>(
             seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<ViewQuery24601>();
         var result = async
             ? await query.ToListAsync()
@@ -31,27 +31,27 @@ public abstract class SharedTypeQueryRelationalTestBase(NonSharedFixture fixture
         Assert.Empty(result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ad_hoc_query_for_shared_type_entity_type_works()
     {
-        var contextFactory = await InitializeAsync<MyContextRelational24601>(
+        var contextFactory = await InitializeNonSharedTest<MyContextRelational24601>(
             seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Database.SqlQueryRaw<ViewQuery24601>(
-            ((RelationalTestStore)TestStore).NormalizeDelimitersInRawString(@"SELECT * FROM [ViewQuery24601]"));
+            ((RelationalTestStore)NonSharedTestStore).NormalizeDelimitersInRawString(@"SELECT * FROM [ViewQuery24601]"));
 
         Assert.Empty(await result.ToListAsync());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ad_hoc_query_for_default_shared_type_entity_type_throws()
     {
-        var contextFactory = await InitializeAsync<MyContextRelational24601>(
+        var contextFactory = await InitializeNonSharedTest<MyContextRelational24601>(
             seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         Assert.Equal(
             CoreStrings.ClashingSharedType("Dictionary<string, object>"),

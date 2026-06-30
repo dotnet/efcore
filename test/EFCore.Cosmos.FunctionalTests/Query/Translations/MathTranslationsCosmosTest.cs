@@ -64,13 +64,13 @@ WHERE (ABS(c["Float"]) = 9.5)
 
     public override async Task Ceiling()
     {
-        await base.Ceiling_float();
+        await base.Ceiling();
 
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE (CEILING(c["Float"]) = 9.0)
+WHERE (CEILING(c["Double"]) = 9.0)
 """);
     }
 
@@ -148,10 +148,14 @@ WHERE (EXP(c["Float"]) > 1.0)
 
     public override async Task Power()
     {
-        // Convert node. Issue #25120.
-        await AssertTranslationFailed(() => base.Power());
+        await base.Power();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (POWER(c["Int"], 2.0) = 64.0)
+""");
     }
 
     public override async Task Power_float()
@@ -444,6 +448,45 @@ WHERE ((c["Float"] > 0.0) AND (SQRT(c["Float"]) > 0.0))
 SELECT VALUE c
 FROM root c
 WHERE (SIGN(c["Double"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Double"])
+FROM root c
+""");
+    }
+
+    public override async Task Sign_decimal()
+    {
+        await base.Sign_decimal();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (SIGN(c["Decimal"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Decimal"])
+FROM root c
+""");
+    }
+
+    public override async Task Sign_int()
+    {
+        await base.Sign_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (SIGN(c["Int"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Int"])
+FROM root c
 """);
     }
 
@@ -456,6 +499,11 @@ WHERE (SIGN(c["Double"]) > 0)
 SELECT VALUE c
 FROM root c
 WHERE (SIGN(c["Float"]) > 0)
+""",
+            //
+            """
+SELECT VALUE SIGN(c["Float"])
+FROM root c
 """);
     }
 
@@ -775,7 +823,7 @@ WHERE (ATN2(c["Float"], 1.0) > 0.0)
 
     #endregion Trigonometry
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

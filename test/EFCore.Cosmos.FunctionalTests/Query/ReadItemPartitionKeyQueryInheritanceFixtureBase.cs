@@ -68,7 +68,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
             = new Func<object, object>(e => ((DerivedOnlyHierarchicalPartitionKeyEntity)e).DerivedPayload);
 
         sorters[typeof(DerivedSinglePartitionKeyEntity)]
-            = new Func<object, object>(e => ((DerivedSinglePartitionKeyEntity)e).Id);
+            = new Func<object, object>(e => (((DerivedSinglePartitionKeyEntity)e).Id, ((DerivedSinglePartitionKeyEntity)e).PartitionKey));
 
         sorters[typeof(DerivedOnlySinglePartitionKeyEntity)]
             = new Func<object, object>(e => ((DerivedOnlySinglePartitionKeyEntity)e).DerivedPayload);

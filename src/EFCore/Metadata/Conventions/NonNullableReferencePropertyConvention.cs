@@ -11,22 +11,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
+public class NonNullableReferencePropertyConvention(ProviderConventionSetBuilderDependencies dependencies)
+    : NonNullableConventionBase(dependencies),
     IPropertyAddedConvention,
     IPropertyFieldChangedConvention,
-    IPropertyElementTypeChangedConvention,
     IComplexPropertyAddedConvention,
     IComplexPropertyFieldChangedConvention
 {
-    /// <summary>
-    ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public NonNullableReferencePropertyConvention(ProviderConventionSetBuilderDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     private void Process(IConventionPropertyBuilder propertyBuilder)
     {
         if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is { } memberInfo
@@ -72,19 +63,6 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
         IConventionContext<FieldInfo> context)
     {
         if (propertyBuilder.Metadata.PropertyInfo == null)
-        {
-            Process(propertyBuilder);
-        }
-    }
-
-    /// <inheritdoc />
-    public virtual void ProcessPropertyElementTypeChanged(
-        IConventionPropertyBuilder propertyBuilder,
-        IElementType? newElementType,
-        IElementType? oldElementType,
-        IConventionContext<IElementType> context)
-    {
-        if (newElementType != null)
         {
             Process(propertyBuilder);
         }

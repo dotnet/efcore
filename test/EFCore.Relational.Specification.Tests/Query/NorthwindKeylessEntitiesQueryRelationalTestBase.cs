@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -11,7 +11,7 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(
     : NorthwindKeylessEntitiesQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_collection_correlated_with_keyless_entity_throws(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
@@ -26,7 +26,7 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Collection_of_entities_projecting_correlated_collection_of_keyless_entities(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
@@ -54,8 +54,4 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

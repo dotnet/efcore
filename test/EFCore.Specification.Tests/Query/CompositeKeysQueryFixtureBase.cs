@@ -7,15 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<CompositeKeysContext>, IQueryFixtureBase
+public abstract class CompositeKeysQueryFixtureBase : QueryFixtureBase<CompositeKeysContext>
 {
     protected override string StoreName
         => "CompositeKeys";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => CompositeKeysDefaultData.Instance;
 
     public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
@@ -198,7 +195,7 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
         };
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(CompositeOne), e => (((CompositeOne)e)?.Id1, ((CompositeOne)e)?.Id2) },
         { typeof(CompositeTwo), e => (((CompositeTwo)e)?.Id1, ((CompositeTwo)e)?.Id2) },
@@ -206,7 +203,7 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
         { typeof(CompositeFour), e => (((CompositeFour)e)?.Id1, ((CompositeFour)e)?.Id2) },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(CompositeOne), (e, a) =>

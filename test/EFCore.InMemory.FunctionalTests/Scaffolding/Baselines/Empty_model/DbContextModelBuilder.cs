@@ -6,17 +6,16 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
-{
-    public partial class DbContextModel
-    {
-        private DbContextModel()
-            : base(skipDetectChanges: true, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 0)
-        {
-        }
+namespace TestNamespace;
 
-        partial void Initialize()
-        {
-        }
+public partial class DbContextModel
+{
+    private DbContextModel()
+        : base(skipDetectChanges: true, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 0)
+    {
+    }
+
+    partial void Initialize()
+    {
     }
 }

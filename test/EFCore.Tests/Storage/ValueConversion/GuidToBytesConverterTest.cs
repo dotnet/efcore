@@ -7,7 +7,7 @@ public class GuidToBytesConverterTest
 {
     private static readonly GuidToBytesConverter _guidToBytes = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_GUIDs_to_bytes()
     {
         var converter = _guidToBytes.ConvertToProviderExpression.Compile();
@@ -21,7 +21,7 @@ public class GuidToBytesConverterTest
             converter(Guid.Empty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_GUIDs_to_bytes_object()
     {
         var converter = _guidToBytes.ConvertToProvider;
@@ -45,7 +45,7 @@ public class GuidToBytesConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_GUIDs()
     {
         var converter = _guidToBytes.ConvertFromProviderExpression.Compile();
@@ -69,7 +69,7 @@ public class GuidToBytesConverterTest
         Assert.Throws<ArgumentNullException>(() => converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_GUIDs_object()
     {
         var converter = _guidToBytes.ConvertFromProvider;

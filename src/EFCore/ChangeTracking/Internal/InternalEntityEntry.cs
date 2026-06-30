@@ -57,6 +57,7 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete("Use the overload that accepts a dictionary keyed by " + nameof(IProperty) + " instead.")]
     public InternalEntityEntry(
         IStateManager stateManager,
         IEntityType entityType,
@@ -81,6 +82,75 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
 
         Entity = entityType.GetOrCreateMaterializer(entityMaterializerSource)(
             new MaterializationContext(new ValueBuffer(valuesArray), stateManager.Context));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public InternalEntityEntry(
+        IStateManager stateManager,
+        IEntityType entityType,
+        IReadOnlyDictionary<IProperty, object?> values,
+        IStructuralTypeMaterializerSource entityMaterializerSource)
+        : base((IRuntimeTypeBase)entityType, GetShadowValues(entityType, values))
+    {
+        StateManager = stateManager;
+        var valuesArray = new object?[EntityType.PropertyCount];
+        foreach (var property in entityType.GetFlattenedProperties())
+        {
+            var index = property.GetIndex();
+            if (index >= 0)
+            {
+                valuesArray[index] = property.Sentinel;
+            }
+        }
+
+        foreach (var (property, value) in values)
+        {
+            var index = property.GetIndex();
+            if (index < 0)
+            {
+                continue;
+            }
+
+            if (!property.DeclaringType.ContainingEntityType.IsAssignableFrom(entityType))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.PropertyDoesNotBelong(
+                        property.Name,
+                        property.DeclaringType.ContainingEntityType.DisplayName(),
+                        entityType.DisplayName()));
+            }
+
+            valuesArray[index] = value;
+        }
+
+        Entity = entityType.GetOrCreateMaterializer(entityMaterializerSource)(
+            new MaterializationContext(new ValueBuffer(valuesArray), stateManager.Context));
+    }
+
+    private static IDictionary<string, object?> GetShadowValues(IEntityType entityType, IReadOnlyDictionary<IProperty, object?> values)
+    {
+        var shadowValues = new Dictionary<string, object?>();
+        if (((IRuntimeTypeBase)entityType).ShadowPropertyCount == 0)
+        {
+            return shadowValues;
+        }
+
+        // Shadow values are keyed by name because shadow properties are unique by name on an entity type;
+        // shadow properties on complex types are not supported (see #35613).
+        foreach (var (property, value) in values)
+        {
+            if (property.IsShadowProperty())
+            {
+                shadowValues[property.Name] = value;
+            }
+        }
+
+        return shadowValues;
     }
 
     /// <summary>
@@ -693,13 +763,20 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
             {
                 if (PropertyStateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null))
                 {
-                    if (properties.Any(p => p.IsNullable)
-                        && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
-                        && foreignKey.DeleteBehavior != DeleteBehavior.ClientCascade)
+                    var isSetDefault = foreignKey.DeleteBehavior is DeleteBehavior.SetDefault or DeleteBehavior.ClientSetDefault;
+
+                    if (isSetDefault
+                        || (properties.Any(p => p.IsNullable)
+                            && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
+                            && foreignKey.DeleteBehavior != DeleteBehavior.ClientCascade))
                     {
                         foreach (var toNull in properties)
                         {
-                            if (toNull.IsNullable)
+                            if (isSetDefault)
+                            {
+                                this[toNull] = toNull.Sentinel;
+                            }
+                            else if (toNull.IsNullable)
                             {
                                 this[toNull] = null;
                             }

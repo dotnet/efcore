@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class SkipCollectionEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_member_entries()
     {
         using var context = new FreezerContext();
@@ -15,7 +15,7 @@ public class SkipCollectionEntryTest
             context.Attach(new Chunky()).Members.Select(e => e.Metadata.Name).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_navigation_entries()
     {
         using var context = new FreezerContext();
@@ -25,7 +25,7 @@ public class SkipCollectionEntryTest
             context.Attach(new Chunky()).Navigations.Select(e => e.Metadata.Name).ToList());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_all_collection_entries()
     {
         using var context = new FreezerContext();
@@ -35,7 +35,7 @@ public class SkipCollectionEntryTest
             context.Attach(new Chunky()).Collections.Select(e => e.Metadata.Name).ToList());
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_back_reference(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -47,7 +47,7 @@ public class SkipCollectionEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Collection("Chunkies").EntityEntry.Entity);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_back_reference_generic(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -59,7 +59,7 @@ public class SkipCollectionEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Collection(e => e.Chunkies).EntityEntry.Entity);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_metadata(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -70,7 +70,7 @@ public class SkipCollectionEntryTest
         Assert.Equal("Chunkies", context.Entry(entity).Collection("Chunkies").Metadata.Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_metadata_generic(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -81,7 +81,7 @@ public class SkipCollectionEntryTest
         Assert.Equal("Chunkies", context.Entry(entity).Collection(e => e.Chunkies).Metadata.Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_and_set_current_value(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -112,7 +112,7 @@ public class SkipCollectionEntryTest
         Assert.Null(collection.FindEntry(chunky));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_and_set_current_value_generic(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -143,7 +143,7 @@ public class SkipCollectionEntryTest
         Assert.Null(collection.FindEntry(chunky));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_and_set_current_value_not_tracked(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -171,7 +171,7 @@ public class SkipCollectionEntryTest
         Assert.Null(inverseCollection.CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_and_set_current_value_generic_not_tracked(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -199,7 +199,7 @@ public class SkipCollectionEntryTest
         Assert.Null(inverseCollection.CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_and_set_current_value_start_tracking(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -234,7 +234,7 @@ public class SkipCollectionEntryTest
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_get_and_set_current_value_start_tracking_generic(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -269,7 +269,7 @@ public class SkipCollectionEntryTest
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
     }
 
-    [ConditionalTheory, InlineData(false, CascadeTiming.Immediate), InlineData(true, CascadeTiming.Immediate),
+    [Theory, InlineData(false, CascadeTiming.Immediate), InlineData(true, CascadeTiming.Immediate),
      InlineData(false, CascadeTiming.OnSaveChanges), InlineData(true, CascadeTiming.OnSaveChanges), InlineData(false, CascadeTiming.Never),
      InlineData(true, CascadeTiming.Never)]
     public void IsModified_tracks_detects_deletion_of_related_entity(bool useExplicitPk, CascadeTiming cascadeTiming)
@@ -303,7 +303,7 @@ public class SkipCollectionEntryTest
         Assert.False(relatedToChunky2.IsModified);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void IsModified_tracks_adding_new_related_entity(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -337,7 +337,7 @@ public class SkipCollectionEntryTest
         Assert.False(relatedToChunky2.IsModified);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void IsModified_tracks_removing_items_from_the_join_table(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -371,7 +371,7 @@ public class SkipCollectionEntryTest
         Assert.True(relatedToChunky2.IsModified);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void IsModified_tracks_adding_items_to_the_join_table(bool useExplicitPk)
     {
         using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
@@ -397,7 +397,7 @@ public class SkipCollectionEntryTest
         Assert.False(relatedToChunky2.IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_tracks_mutation_of_join_fks()
     {
         using var context = new ExplicitFreezerContext();
@@ -435,7 +435,7 @@ public class SkipCollectionEntryTest
         Assert.True(relatedToChunky2.IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_IsModified_true_marks_all_join_table_FK_modified()
     {
         using var context = new ExplicitFreezerContext();
@@ -475,7 +475,7 @@ public class SkipCollectionEntryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_IsModified_false_reverts_changes_to_join_table_FKs()
     {
         using var context = new ExplicitFreezerContext();

@@ -7,17 +7,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryContext>, IQueryFixtureBase
+public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
 {
     private JsonQueryData _expectedData;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => _expectedData ??= new JsonQueryData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(EntityBasic), e => ((EntityBasic)e)?.Id },
         { typeof(JsonEntityBasic), e => ((JsonEntityBasic)e)?.Id },
@@ -30,7 +27,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         { typeof(JsonEntityAllTypes), e => ((JsonEntityAllTypes)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public virtual IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(EntityBasic), (e, a) =>
@@ -395,6 +392,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.TestUnsignedInt32, actual.TestUnsignedInt32);
         Assert.Equal(expected.TestUnsignedInt64, actual.TestUnsignedInt64);
         Assert.Equal(expected.TestNullableInt32, actual.TestNullableInt32);
+        Assert.Equal(expected.TestNullableDateTime, actual.TestNullableDateTime);
+        Assert.Equal(expected.TestNullableDateOnly, actual.TestNullableDateOnly);
         Assert.Equal(expected.TestEnum, actual.TestEnum);
         Assert.Equal(expected.TestEnumWithIntConverter, actual.TestEnumWithIntConverter);
         Assert.Equal(expected.TestNullableEnum, actual.TestNullableEnum);
@@ -651,13 +650,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
 
     protected override string StoreName
         => "JsonQueryTest";
-
-    public override JsonQueryContext CreateContext()
-    {
-        var context = base.CreateContext();
-
-        return context;
-    }
 
     protected override async Task SeedAsync(JsonQueryContext context)
         => await JsonQueryContext.SeedAsync(context);

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalIndexBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_source_IsUnique()
     {
         var builder = CreateInternalIndexBuilder();
@@ -23,7 +23,7 @@ public class InternalIndexBuilderTest
         Assert.False(metadata.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_IsUnique_value_explicitly()
     {
         var builder = CreateInternalIndexBuilder();

@@ -19,7 +19,7 @@ public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQuer
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -138,10 +138,10 @@ WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
             """
 @ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[CustomerID0]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c1].[CustomerID] AS [CustomerID0]
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[CompanyName]
@@ -151,7 +151,7 @@ LEFT JOIN (
     WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL
 ) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
 WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
-ORDER BY [c].[CustomerID], [s].[OrderID]
+ORDER BY [c].[CustomerID]
 """);
     }
 
@@ -252,7 +252,7 @@ WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FromSql_is_composed()
     {
         using (var context = Fixture.CreateContext())
@@ -274,7 +274,7 @@ WHERE [m].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FromSql_is_composed_when_filter_has_navigation()
     {
         using (var context = Fixture.CreateContext())

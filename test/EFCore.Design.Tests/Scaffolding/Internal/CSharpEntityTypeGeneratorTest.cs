@@ -1,8 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 public class CSharpEntityTypeGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
     : ModelCodeGeneratorTestBase(fixture, output)
 {
-    [ConditionalFact]
+    [Fact]
     public Task KeylessAttribute_is_generated_for_key_less_entity()
         => TestAsync(
             modelBuilder => modelBuilder.Entity("Vista").HasNoKey(),
@@ -77,7 +78,7 @@ public partial class TestDbContext : DbContext
                 Assert.Null(entityType.FindPrimaryKey());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task TableAttribute_is_generated_for_custom_name()
         => TestAsync(
             modelBuilder =>
@@ -121,7 +122,7 @@ public partial class Vista
                 Assert.Null(entityType.GetSchema());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task TableAttribute_is_not_generated_for_default_schema()
         => TestAsync(
             modelBuilder =>
@@ -164,7 +165,7 @@ public partial class Vista
                 Assert.Null(entityType.GetSchema()); // Takes through model default schema
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task TableAttribute_is_generated_for_non_default_schema()
         => TestAsync(
             modelBuilder =>
@@ -208,7 +209,7 @@ public partial class Vista
                 Assert.Equal("custom", entityType.GetSchema());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task TableAttribute_is_not_generated_for_views()
         => TestAsync(
             modelBuilder => modelBuilder.Entity("Vista").ToView("Vistas", "dbo"),
@@ -241,7 +242,7 @@ public partial class Vista
                 Assert.Null(entityType.GetSchema());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task IndexAttribute_is_generated_for_multiple_indexes_with_name_unique_descending()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -301,7 +302,7 @@ public partial class EntityWithIndexes
                     t => Assert.Equal("IndexOnBAndC", t.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task IndexAttribute_is_generated_with_ascending_descending()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -368,7 +369,7 @@ public partial class EntityWithAscendingDescendingIndexes
                     });
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Entity_with_indexes_generates_IndexAttribute_only_for_indexes_without_annotations()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -457,7 +458,7 @@ public partial class TestDbContext : DbContext
             model =>
                 Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
 
-    [ConditionalFact]
+    [Fact]
     public Task KeyAttribute_is_generated_for_single_property_and_no_fluent_api()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -527,7 +528,7 @@ public partial class TestDbContext : DbContext
             model =>
                 Assert.Equal("PrimaryKey", model.FindEntityType("TestNamespace.Entity").FindPrimaryKey().Properties[0].Name));
 
-    [ConditionalFact]
+    [Fact]
     public Task KeyAttribute_is_generated_on_multiple_properties_but_and_uses_PrimaryKeyAttribute_for_composite_key()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -605,7 +606,7 @@ public partial class TestDbContext : DbContext
                 Assert.Equal(["Key", "Serial"], postType.FindPrimaryKey().Properties.Select(p => p.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Required_and_not_required_properties_without_nrt()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -658,7 +659,7 @@ public partial class Entity
                 Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Required_and_not_required_properties_with_nrt()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -710,7 +711,7 @@ public partial class Entity
                 Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Required_and_not_required_navigations_without_nrt()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -790,7 +791,7 @@ public partial class Entity
                 Assert.False(entityType.FindNavigation("OptionalValueNavigation")!.ForeignKey.IsRequired);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Required_and_not_required_reference_navigations_with_nrt()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -869,7 +870,7 @@ public partial class Entity
                 Assert.False(entityType.FindNavigation("OptionalNavigationWithValueForeignKey")!.ForeignKey.IsRequired);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Required_and_not_required_collection_navigations_with_nrt()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -955,7 +956,7 @@ public partial class Entity
                 Assert.False(entityType.FindNavigation("OptionalNavigationWithValueForeignKey")!.ForeignKey.IsRequired);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task RequiredAttribute_is_not_generated_for_key_property()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -990,7 +991,7 @@ public partial class Entity
             model =>
                 Assert.False(model.FindEntityType("TestNamespace.Entity").GetProperty("RequiredString").IsNullable));
 
-    [ConditionalFact]
+    [Fact]
     public Task ColumnAttribute_is_generated_for_property()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1085,7 +1086,7 @@ public partial class TestDbContext : DbContext
                 Assert.Equal("varchar(200)", entitType.GetProperty("C").GetColumnType());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task MaxLengthAttribute_is_generated_for_property()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1131,7 +1132,7 @@ public partial class Entity
                 Assert.Equal(10, entitType.GetProperty("B").GetMaxLength());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task UnicodeAttribute_is_generated_for_property()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1184,7 +1185,7 @@ public partial class Entity
                 Assert.Null(entitType.GetProperty("C").IsUnicode());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task PrecisionAttribute_is_generated_for_property()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1241,7 +1242,7 @@ public partial class Entity
                 Assert.Equal(3, entitType.GetProperty("D").GetPrecision());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Comments_are_generated()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1282,7 +1283,7 @@ public partial class Entity
             },
             model => { });
 
-    [ConditionalFact]
+    [Fact]
     public Task Comments_complex_are_generated()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1337,7 +1338,7 @@ public partial class Entity
             },
             model => { });
 
-    [ConditionalFact]
+    [Fact]
     public Task Properties_are_sorted_in_order_of_definition_in_table()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1377,7 +1378,7 @@ public partial class Entity
             },
             model => { });
 
-    [ConditionalFact]
+    [Fact]
     public Task Navigation_properties_are_sorted_after_properties_and_collection_are_initialized_in_ctor()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1459,7 +1460,7 @@ public partial class Person
                 Assert.Equal("TestNamespace.Contribution", contributionsNav.ForeignKey.DeclaringEntityType.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task ForeignKeyAttribute_is_generated_for_composite_fk()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1553,7 +1554,7 @@ public partial class TestDbContext : DbContext
                 Assert.Equal(["BlogId1", "BlogId2"], blogNavigation.ForeignKey.Properties.Select(p => p.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task ForeignKeyAttribute_InversePropertyAttribute_when_composite_alternate_key()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1657,7 +1658,7 @@ public partial class TestDbContext : DbContext
                 Assert.Equal(["Id1", "Id2"], blogNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task ForeignKeyAttribute_is_generated_for_fk_referencing_ak()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1781,7 +1782,7 @@ public partial class TestDbContext : DbContext
                 Assert.Equal(["ColorCode"], colorNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Foreign_key_from_keyless_table()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1874,7 +1875,7 @@ public partial class Post
                 Assert.Null(foreignKey.PrincipalToDependent);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task InverseProperty_when_navigation_property_with_same_type_and_navigation_name()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1928,7 +1929,7 @@ public partial class Post
                 Assert.Equal("Posts", inverseNavigation.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task InverseProperty_when_navigation_property_with_same_type_and_property_name()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1982,7 +1983,7 @@ public partial class Post
                 Assert.Equal("Posts", inverseNavigation.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task InverseProperty_when_navigation_property_with_same_type_and_other_navigation_name()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2053,7 +2054,7 @@ public partial class Post
                 Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task InverseProperty_when_navigation_property_and_keyless()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2102,7 +2103,7 @@ public partial class Post
                 Assert.Null(blogNavigation.Inverse);
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Entity_with_custom_annotation()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2174,7 +2175,7 @@ public partial class TestDbContext : DbContext
             assertModel: null,
             skipBuild: true);
 
-    [ConditionalFact]
+    [Fact]
     public Task Entity_property_with_custom_annotation()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2246,7 +2247,7 @@ public partial class TestDbContext : DbContext
             assertModel: null,
             skipBuild: true);
 
-    [ConditionalFact]
+    [Fact]
     public Task Scaffold_skip_navigations_default()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2304,6 +2305,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsId");
+                        j.IndexerProperty<int>("PostsId");
                     });
         });
 
@@ -2371,7 +2374,7 @@ public partial class Post
                 Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Scaffold_skip_navigations_different_key_type()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2429,6 +2432,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsId");
+                        j.IndexerProperty<string>("PostsId");
                     });
         });
 
@@ -2496,7 +2501,7 @@ public partial class Post
                 Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Scaffold_skip_navigations_default_data_annotations()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2554,6 +2559,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsId");
+                        j.IndexerProperty<int>("PostsId");
                     });
         });
 
@@ -2633,7 +2640,7 @@ public partial class Post
                 Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
             });
 
-    [ConditionalFact]
+    [Fact]
     public Task Scaffold_skip_navigations_alternate_key_data_annotations()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -2697,6 +2704,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsKey", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsKey");
+                        j.IndexerProperty<int>("PostsId");
                     });
         });
 
@@ -2781,7 +2790,187 @@ public partial class Post
                 Assert.False(fk.PrincipalKey.IsPrimaryKey());
             });
 
-    [ConditionalFact]
+    [Fact]
+    public Task Scaffold_skip_navigations_composite_fk()
+    {
+        var database = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Name = "AnnualValue",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
+                        new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey
+                    {
+                        Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") }
+                    }
+                },
+                new DatabaseTable
+                {
+                    Name = "AcademicYear_Lookup",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
+                        new DatabaseColumn { Name = "AcademicYearDesc", StoreType = "varchar(150)", IsNullable = true },
+                        new DatabaseColumn { Name = "AcademicYearDesc2", StoreType = "varchar(100)", IsNullable = true }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("AcademicYear") } }
+                },
+                new DatabaseTable
+                {
+                    Name = "AnnualValue_AcademicYear_Mapping",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
+                        new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
+                        new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey
+                    {
+                        Columns =
+                        {
+                            new DatabaseColumnRef("AcademicYear"),
+                            new DatabaseColumnRef("LearnAimRef"),
+                            new DatabaseColumnRef("EffectiveFrom")
+                        }
+                    },
+                    ForeignKeys =
+                    {
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") },
+                            PrincipalColumns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") },
+                            PrincipalTable = new DatabaseTableRef("AnnualValue"),
+                            OnDelete = ReferentialAction.Cascade
+                        },
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("AcademicYear") },
+                            PrincipalColumns = { new DatabaseColumnRef("AcademicYear") },
+                            PrincipalTable = new DatabaseTableRef("AcademicYear_Lookup"),
+                            OnDelete = ReferentialAction.Cascade
+                        }
+                    }
+                }
+            }
+        };
+
+        return TestAsync(
+            serviceProvider =>
+            {
+                foreach (var table in database.Tables)
+                {
+                    table.Database = database;
+                    foreach (var column in table.Columns)
+                    {
+                        column.Table = table;
+                    }
+
+                    if (table.PrimaryKey != null)
+                    {
+                        table.PrimaryKey.Table = table;
+                        FixupColumns(table, table.PrimaryKey.Columns);
+                    }
+
+                    foreach (var fk in table.ForeignKeys)
+                    {
+                        fk.Table = table;
+                        FixupColumns(table, fk.Columns);
+
+                        if (fk.PrincipalTable is DatabaseTableRef tableRef)
+                        {
+                            fk.PrincipalTable = database.Tables
+                                .First(t => t.Name == tableRef.Name && t.Schema == tableRef.Schema);
+                        }
+
+                        FixupColumns(fk.PrincipalTable, fk.PrincipalColumns);
+                    }
+                }
+
+                return serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
+                    database, new ModelReverseEngineerOptions());
+
+                static void FixupColumns(DatabaseTable table, IList<DatabaseColumn> columns)
+                {
+                    for (var i = 0; i < columns.Count; i++)
+                    {
+                        if (columns[i] is DatabaseColumnRef columnRef)
+                        {
+                            columns[i] = table.Columns.First(c => c.Name == columnRef.Name);
+                        }
+                    }
+                }
+            },
+            new ModelCodeGenerationOptions { UseDataAnnotations = false, UseNullableReferenceTypes = true },
+            code =>
+            {
+                // Context has DbSets for the two principal entities (join table is hidden)
+                Assert.Contains("DbSet<AcademicYearLookup>", code.ContextFile.Code);
+                Assert.Contains("DbSet<AnnualValue>", code.ContextFile.Code);
+
+                // Context wires up the many-to-many via UsingEntity
+                Assert.Contains("UsingEntity", code.ContextFile.Code);
+                Assert.Contains("AnnualValueAcademicYearMapping", code.ContextFile.Code);
+                Assert.Contains("IndexerProperty<DateOnly>(\"EffectiveFrom\")", code.ContextFile.Code);
+
+                // Two entity files generated (join table is Dictionary<string,object>, no class file)
+                Assert.Equal(2, code.AdditionalFiles.Count);
+
+                var lookupFile = code.AdditionalFiles.Single(f => f.Path == "AcademicYearLookup.cs");
+                Assert.Contains("string AcademicYear", lookupFile.Code);
+                Assert.Contains("string? AcademicYearDesc", lookupFile.Code);
+                Assert.Contains("string? AcademicYearDesc2", lookupFile.Code);
+                Assert.Contains("ICollection<AnnualValue> AnnualValues", lookupFile.Code);
+
+                var annualValueFile = code.AdditionalFiles.Single(f => f.Path == "AnnualValue.cs");
+                Assert.Contains("string LearnAimRef", annualValueFile.Code);
+                Assert.Contains("DateOnly EffectiveFrom", annualValueFile.Code);
+                Assert.Contains("ICollection<AcademicYearLookup> AcademicYears", annualValueFile.Code);
+            },
+            model =>
+            {
+                var lookupType = model.FindEntityType("TestNamespace.AcademicYearLookup");
+                Assert.NotNull(lookupType);
+                Assert.Collection(
+                    lookupType.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("AcademicYear", p),
+                    p => Assert.Equal("AcademicYearDesc", p),
+                    p => Assert.Equal("AcademicYearDesc2", p));
+                Assert.Empty(lookupType.GetNavigations());
+                var lookupSkipNav = Assert.Single(lookupType.GetSkipNavigations());
+                Assert.Equal("AnnualValues", lookupSkipNav.Name);
+
+                var annualValueType = model.FindEntityType("TestNamespace.AnnualValue");
+                Assert.NotNull(annualValueType);
+                Assert.Collection(
+                    annualValueType.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("EffectiveFrom", p),
+                    p => Assert.Equal("LearnAimRef", p));
+                Assert.Empty(annualValueType.GetNavigations());
+                var annualValueSkipNav = Assert.Single(annualValueType.GetSkipNavigations());
+                Assert.Equal("AcademicYears", annualValueSkipNav.Name);
+
+                Assert.Equal(lookupSkipNav, annualValueSkipNav.Inverse);
+                Assert.Equal(annualValueSkipNav, lookupSkipNav.Inverse);
+
+                var joinEntityType = lookupSkipNav.ForeignKey.DeclaringEntityType;
+                Assert.Equal("AnnualValueAcademicYearMapping", joinEntityType.Name);
+                Assert.Equal(typeof(Dictionary<string, object>), joinEntityType.ClrType);
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+                Assert.Collection(
+                    joinEntityType.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("AcademicYear", p),
+                    p => Assert.Equal("EffectiveFrom", p),
+                    p => Assert.Equal("LearnAimRef", p));
+            });
+    }
+
+    [Fact]
     public Task Many_to_many_ef6()
         => TestAsync(
             modelBuilder => modelBuilder

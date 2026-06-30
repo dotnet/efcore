@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class InternalServiceCollectionMapTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_transient_service_with_concrete_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -19,7 +19,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_transient_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_transient_service_with_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -30,7 +30,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_transient_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_transient_service_with_service_typed_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -41,7 +41,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_transient_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_transient_service_with_untyped_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -52,7 +52,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_transient_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_transient_service_with_concrete_implementation_already_registered()
     {
         var serviceMap = CreateServiceMap();
@@ -86,7 +86,7 @@ public class InternalServiceCollectionMapTest
         return service;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_scoped_service_with_concrete_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -97,7 +97,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_scoped_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_scoped_service_with_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -108,7 +108,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_scoped_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_scoped_service_with_service_typed_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -119,7 +119,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_scoped_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_scoped_service_with_untyped_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -130,7 +130,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_scoped_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_scoped_service_with_concrete_implementation_already_registered()
     {
         var serviceMap = CreateServiceMap();
@@ -164,7 +164,7 @@ public class InternalServiceCollectionMapTest
         return service;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_singleton_service_with_concrete_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -175,7 +175,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_singleton_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_singleton_service_with_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -186,7 +186,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_singleton_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_singleton_service_with_service_typed_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -197,7 +197,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_singleton_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_singleton_service_with_untyped_delegate_implementation()
     {
         var serviceMap = CreateServiceMap();
@@ -208,7 +208,7 @@ public class InternalServiceCollectionMapTest
         Can_patch_singleton_service(serviceMap);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_singleton_service_with_concrete_implementation_already_registered()
     {
         var serviceMap = CreateServiceMap();
@@ -220,7 +220,7 @@ public class InternalServiceCollectionMapTest
         Assert.IsType<DerivedFakeSingletonService>(Can_patch_singleton_service(serviceMap));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_singleton_service_with_instance_registered()
     {
         var serviceMap = CreateServiceMap();
@@ -231,7 +231,7 @@ public class InternalServiceCollectionMapTest
         Assert.IsType<DerivedFakeSingletonService>(Can_patch_singleton_service(serviceMap));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_patch_singleton_service_with_instance_registered_non_generic()
     {
         var serviceMap = CreateServiceMap();
@@ -263,7 +263,7 @@ public class InternalServiceCollectionMapTest
         return singletonService;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_attempt_is_made_to_register_dependency_as_delegate()
     {
         var serviceCollection = new ServiceCollection();
@@ -277,7 +277,7 @@ public class InternalServiceCollectionMapTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_attempt_is_made_to_register_dependency_as_instance()
     {
         var serviceCollection = new ServiceCollection();

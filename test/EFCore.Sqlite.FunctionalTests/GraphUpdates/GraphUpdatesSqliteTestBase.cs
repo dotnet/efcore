@@ -8,27 +8,27 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class GraphUpdatesSqliteTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqliteTestBase<TFixture>.GraphUpdatesSqliteFixtureBase, new()
 {
-    [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+    [Theory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
     public override Task Update_principal_with_shadow_key_owned_collection_throws(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+    [Theory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
     public override Task Delete_principal_with_shadow_key_owned_collection_throws(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+    [Theory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
     public override Task Clearing_shadow_key_owned_collection_throws(bool async, bool useUpdate, bool addNew)
         => Task.CompletedTask;
 
-    [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+    [Theory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
     public override Task Update_principal_with_CLR_key_owned_collection(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+    [Theory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
     public override Task Delete_principal_with_CLR_key_owned_collection(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+    [Theory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
     public override Task Clearing_CLR_key_owned_collection(bool async, bool useUpdate, bool addNew)
         => Task.CompletedTask;
 

@@ -69,7 +69,8 @@ public class ValueGenerationManager : IValueGenerationManager
         InternalEntityEntry? chosenPrincipal = null;
         foreach (var property in entry.EntityType.GetForeignKeyProperties())
         {
-            if (entry.HasExplicitValue(property))
+            if (!entry.IsUnknown(property)
+                && entry.HasExplicitValue(property))
             {
                 continue;
             }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics;
 
 public class CosmosEventIdTest : EventIdTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
         var model = new Model();
@@ -26,7 +26,8 @@ public class CosmosEventIdTest : EventIdTestBase
                     "Some SQL...",
                     [new SqlParameter("P1", "V1"), new SqlParameter("P2", "V2")])
             },
-            { typeof(string), () => "Fake" }
+            { typeof(string), () => "Fake" },
+            { typeof(IReadOnlyList<CosmosTransactionalBatchEntry>), () => new List<CosmosTransactionalBatchEntry>{ new(null, CosmosCudOperation.Create, "fake") } },
         };
 
         TestEventLogging(

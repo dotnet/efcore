@@ -11,7 +11,7 @@ public class SqlServerMetadataBuilderExtensionsTest
     private IConventionModelBuilder CreateBuilder()
         => new InternalModelBuilder(new Model());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_value_generation_strategy()
     {
         var builder = CreateBuilder();
@@ -39,7 +39,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetValueGenerationStrategyConfigurationSource());
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.IdentityColumn),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.IdentityColumn),
      InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.SequenceHiLo),
      InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.Sequence),
      InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.SequenceHiLo),
@@ -72,7 +72,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.Sequence), InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
+    [Theory, InlineData(SqlServerValueGenerationStrategy.Sequence), InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void Seed_and_increment_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -106,7 +106,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void Sequence_and_schema_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
@@ -141,7 +141,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn), InlineData(SqlServerValueGenerationStrategy.Sequence)]
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn), InlineData(SqlServerValueGenerationStrategy.Sequence)]
     public void HiLo_sequence_and_schema_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -174,7 +174,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_max_size()
     {
         var builder = CreateBuilder();
@@ -199,7 +199,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetDatabaseMaxSizeConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_service_tier()
     {
         var builder = CreateBuilder();
@@ -224,7 +224,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetServiceTierSqlConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_performance_level()
     {
         var builder = CreateBuilder();
@@ -249,7 +249,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetPerformanceLevelSqlConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_change_entity_type_IsMemoryOptimized()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot));
@@ -273,7 +273,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(typeBuilder.Metadata.GetIsMemoryOptimizedConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_change_entity_type_UseSqlOutputClause()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot));
@@ -317,7 +317,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_property()
     {
         var propertyBuilder = CreateBuilder()
@@ -342,7 +342,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(propertyBuilder.Metadata.GetHiLoSequenceNameConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_key()
     {
         var modelBuilder = CreateBuilder();
@@ -368,7 +368,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(keyBuilder.Metadata.GetIsClusteredConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_index()
     {
         var modelBuilder = CreateBuilder();
@@ -394,7 +394,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Equal(ConfigurationSource.DataAnnotation, indexBuilder.Metadata.GetIsClusteredConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_relationship()
     {
         var modelBuilder = CreateBuilder();
