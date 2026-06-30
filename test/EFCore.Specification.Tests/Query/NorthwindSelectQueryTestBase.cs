@@ -2303,4 +2303,55 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                 }).Take(5),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e.OrderIds, a.OrderIds, elementSorter: ee => ee));
+
+    public static TheoryData<bool, string> SingleResultMethodData()
+        => new(
+            from async in new[] { true, false }
+            from method in new[]
+            {
+                nameof(Queryable.First), nameof(Queryable.FirstOrDefault),
+                nameof(Queryable.Single), nameof(Queryable.SingleOrDefault),
+                nameof(Queryable.Last), nameof(Queryable.LastOrDefault),
+                nameof(Queryable.ElementAt), nameof(Queryable.ElementAtOrDefault)
+            }
+            select (async, method));
+
+    [Theory, MemberData(nameof(SingleResultMethodData))]
+    public virtual Task Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(bool async, string method)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var customers = ss.Set<Customer>();
+                var orders = ss.Set<Order>().Where(o => o.CustomerID != null);
+                return method switch
+                {
+                    nameof(Queryable.First) => from o in orders
+                        let c = customers.First(c => c.CustomerID == o.CustomerID)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    nameof(Queryable.FirstOrDefault) => from o in orders
+                        let c = customers.FirstOrDefault(c => c.CustomerID == o.CustomerID)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    nameof(Queryable.Single) => from o in orders
+                        let c = customers.Single(c => c.CustomerID == o.CustomerID)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    nameof(Queryable.SingleOrDefault) => from o in orders
+                        let c = customers.SingleOrDefault(c => c.CustomerID == o.CustomerID)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    nameof(Queryable.Last) => from o in orders
+                        let c = customers.OrderBy(c => c.CustomerID).Last(c => c.CustomerID == o.CustomerID)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    nameof(Queryable.LastOrDefault) => from o in orders
+                        let c = customers.OrderBy(c => c.CustomerID).LastOrDefault(c => c.CustomerID == o.CustomerID)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    nameof(Queryable.ElementAt) => from o in orders
+                        let c = customers.Where(c => c.CustomerID == o.CustomerID).OrderBy(c => c.CustomerID).ElementAt(0)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    nameof(Queryable.ElementAtOrDefault) => from o in orders
+                        let c = customers.Where(c => c.CustomerID == o.CustomerID).OrderBy(c => c.CustomerID).ElementAtOrDefault(0)
+                        select new { o.OrderID, c.City, c.Country, c.ContactName },
+                    _ => throw new InvalidOperationException(method)
+                };
+            },
+            elementSorter: e => e.OrderID);
 }

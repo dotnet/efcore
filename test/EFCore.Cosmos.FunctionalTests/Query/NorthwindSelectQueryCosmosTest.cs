@@ -695,6 +695,13 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
     public override Task Projection_containing_DateTime_subtraction(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_containing_DateTime_subtraction(async));
 
+    public override async Task Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(bool async, string method)
+    {
+        await AssertTranslationFailed(() => base.Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(async, method));
+
+        AssertSql();
+    }
+
     public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
