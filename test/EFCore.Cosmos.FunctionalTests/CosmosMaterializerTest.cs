@@ -244,9 +244,12 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.RequiredAssociate).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .Select(x => new { x.Id, x.RequiredAssociate })
+                .ToListAsync();
+
             Assert.Equal(2, results.Count);
-            Assert.NotSame(results[0], results[1]);
+            Assert.NotSame(results[0].RequiredAssociate, results[1].RequiredAssociate);
         }
     }
 
@@ -270,7 +273,10 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => new { first = x.RequiredAssociate, second = x.RequiredAssociate }).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .Select(x => new { x.Id, first = x.RequiredAssociate, second = x.RequiredAssociate })
+                .ToListAsync();
+
             Assert.Equal(2, results.Count);
             for (var i = 0; i < results.Count; i++)
             {
@@ -307,12 +313,15 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.Associates.Concat(x.Associates).ToList()).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .Select(x => new { x.Id, Associates = x.Associates.Concat(x.Associates).ToList() })
+                .ToListAsync();
+
             Assert.Equal(2, results.Count);
 
             for (var i = 0; i < results.Count; i++)
             {
-                var result = results[i];
+                var result = results[i].Associates;
                 Assert.Equal(4, result.Count);
 
                 for (var j = 0; j < result.Count / 2; j++)
@@ -350,12 +359,15 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => x.OrdinalAssociates.Concat(x.OrdinalAssociates).ToList()).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .Select(x => new { x.Id, OrdinalAssociates = x.OrdinalAssociates.Concat(x.OrdinalAssociates).ToList() })
+                .ToListAsync();
+
             Assert.Equal(2, results.Count);
 
             for (var i = 0; i < results.Count; i++)
             {
-                var result = results[i];
+                var result = results[i].OrdinalAssociates;
                 Assert.Equal(4, result.Count);
 
                 for (var j = 0; j < result.Count / 2; j++)
@@ -393,19 +405,22 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().SelectMany(x => x.Associates.Concat(x.Associates)).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .SelectMany(x => x.Associates.Concat(x.Associates), (x, associate) => new { x.Id, Associate = associate })
+                .ToListAsync();
+
             Assert.Equal(8, results.Count);
 
             for (var i = 0; i < results.Count / 2; i++)
             {
-                var result = results[i];
-                var otherResult = results[i + 2];
+                var result = results[i].Associate;
+                var otherResult = results[i + 2].Associate;
 
                 Assert.Same(result, otherResult);
 
                 if (i > 0)
                 {
-                    Assert.NotSame(result, results[i - 1]);
+                    Assert.NotSame(result, results[i - 1].Associate);
                 }
             }
         }
@@ -433,19 +448,22 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().SelectMany(x => x.OrdinalAssociates.Concat(x.OrdinalAssociates)).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .SelectMany(x => x.OrdinalAssociates.Concat(x.OrdinalAssociates), (x, associate) => new { x.Id, Associate = associate })
+                .ToListAsync();
+
             Assert.Equal(8, results.Count);
 
             for (var i = 0; i < results.Count / 2; i++)
             {
-                var result = results[i];
-                var otherResult = results[i + 2];
+                var result = results[i].Associate;
+                var otherResult = results[i + 2].Associate;
 
                 Assert.Same(result, otherResult);
 
                 if (i > 0)
                 {
-                    Assert.NotSame(result, results[i - 1]);
+                    Assert.NotSame(result, results[i - 1].Associate);
                 }
             }
         }
@@ -473,7 +491,10 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => new { first = x.Associates, second = x.Associates }).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .Select(x => new { x.Id, first = x.Associates, second = x.Associates })
+                .ToListAsync();
+
             Assert.Equal(2, results.Count);
             for (var i = 0; i < results.Count; i++)
             {
@@ -518,7 +539,10 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            var results = await context.Entities.AsNoTrackingWithIdentityResolution().Select(x => new { first = x.OrdinalAssociates, second = x.OrdinalAssociates }).ToListAsync();
+            var results = await context.Entities.AsNoTrackingWithIdentityResolution()
+                .Select(x => new { x.Id, first = x.OrdinalAssociates, second = x.OrdinalAssociates })
+                .ToListAsync();
+
             Assert.Equal(2, results.Count);
             for (var i = 0; i < results.Count; i++)
             {

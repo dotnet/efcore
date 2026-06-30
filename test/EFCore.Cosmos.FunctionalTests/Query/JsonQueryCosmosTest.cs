@@ -39,11 +39,25 @@ WHERE (c["Discriminator"] = "Basic")
         // Always throws for sync.
         if (async)
         {
-            await base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async);
+            await AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>()
+                    .Select(x => new { x.Id, OwnedCollectionBranch = x.OwnedReferenceRoot.OwnedCollectionBranch })
+                    .AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.OwnedCollectionBranch, a.OwnedCollectionBranch, ordered: true);
+                });
 
             AssertSql(
                 """
-SELECT VALUE c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "OwnedCollectionBranch" : c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
+}
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
@@ -69,13 +83,26 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(a);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, x.OwnedCollectionRoot })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertCollection(e.OwnedCollectionRoot, a.OwnedCollectionRoot, ordered: true);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c["OwnedCollectionRoot"]
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "OwnedCollectionRoot" : c["OwnedCollectionRoot"]
+}
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
@@ -83,13 +110,27 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .Select(x => new { x.Id, OwnedReferenceBranch = x.OwnedReferenceRoot.OwnedReferenceBranch })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.OwnedReferenceBranch, a.OwnedReferenceBranch);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "OwnedReferenceBranch" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
+}
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
@@ -97,14 +138,35 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .OrderBy(x => x.Id)
+                        .Select(x => new
+                        {
+                            x.Id,
+                            Root1 = x.OwnedReferenceRoot,
+                            Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                            Root2 = x.OwnedReferenceRoot,
+                            Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                        }).AsNoTrackingWithIdentityResolution(),
+                    assertOrder: true,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.Root1, a.Root1);
+                        AssertEqual(e.Root2, a.Root2);
+                        AssertEqual(e.Leaf1, a.Leaf1);
+                        AssertEqual(e.Leaf2, a.Leaf2);
+                    });
 
                 AssertSql(
                     """
 SELECT VALUE
 {
+    "Id" : c["Id"],
     "Root1" : c["OwnedReferenceRoot"],
     "Leaf1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]
 }
@@ -116,14 +178,35 @@ ORDER BY c["Id"]
 
     public override Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .OrderBy(x => x.Id)
+                        .Select(x => new
+                        {
+                            x.Id,
+                            Root1 = x.OwnedReferenceRoot,
+                            Branch1 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                            Root2 = x.OwnedReferenceRoot,
+                            Branch2 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                        }).AsNoTrackingWithIdentityResolution(),
+                    assertOrder: true,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.Root1, a.Root1);
+                        AssertEqual(e.Root2, a.Root2);
+                        AssertEqual(e.Branch1, a.Branch1);
+                        AssertEqual(e.Branch2, a.Branch2);
+                    });
 
                 AssertSql(
                     """
 SELECT VALUE
 {
+    "Id" : c["Id"],
     "Root1" : c["OwnedReferenceRoot"],
     "Branch1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
 }
@@ -149,13 +232,26 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(a);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, x.OwnedReferenceRoot })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.OwnedReferenceRoot, a.OwnedReferenceRoot);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c["OwnedReferenceRoot"]
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "OwnedReferenceRoot" : c["OwnedReferenceRoot"]
+}
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);

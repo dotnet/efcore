@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -32,9 +34,124 @@ public class CosmosQueryTranslationPostprocessor(
 
         var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
         var afterAliases = queryCompilationContext.AliasManager.PostprocessAliases(afterValueConverterCompensation);
+
+        ValidateNoTrackingIdentityResolutionOwnedEntityProjection(afterAliases);
+
         var afterExtraction = new CosmosReadItemAndPartitionKeysExtractor().ExtractPartitionKeysAndId(
             queryCompilationContext, sqlExpressionFactory, afterAliases);
 
         return afterExtraction;
+    }
+
+    private void ValidateNoTrackingIdentityResolutionOwnedEntityProjection(Expression query)
+    {
+        if (queryCompilationContext.QueryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+          || queryCompilationContext.RootEntityType is not { } rootEntityType
+          || query is not ShapedQueryExpression
+              {
+                  QueryExpression: SelectExpression selectExpression,
+                  ShaperExpression: var shaperExpression
+              }
+          || rootEntityType.FindPrimaryKey()?.Properties
+                .ToArray() is not { Length: > 0 } primaryKeyProperties)
+        {
+            return;
+        }
+
+        var visitor = new NoTrackingIdentityResolutionProjectionVisitor(selectExpression, rootEntityType, primaryKeyProperties);
+        visitor.Visit(shaperExpression);
+
+        if (!visitor.ContainsOwnedEntityShaper)
+        {
+            return;
+        }
+
+        var missingKeyProperties = primaryKeyProperties
+            .Where(property => !visitor.ProjectedKeyProperties.Contains(property))
+            .ToArray();
+
+        if (missingKeyProperties.Length > 0)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey(
+                    string.Join(", ", missingKeyProperties.Select(property => property.Name)),
+                    rootEntityType.DisplayName()));
+        }
+    }
+
+    private sealed class NoTrackingIdentityResolutionProjectionVisitor(
+        SelectExpression selectExpression,
+        IEntityType rootEntityType,
+        IReadOnlyList<IProperty> primaryKeyProperties)
+        : ExpressionVisitor
+    {
+        public bool ContainsOwnedEntityShaper { get; private set; }
+
+        public HashSet<IProperty> ProjectedKeyProperties { get; } = [];
+
+        public override Expression? Visit(Expression? node)
+            => ContainsOwnedEntityShaper
+                && ProjectedKeyProperties.Count == primaryKeyProperties.Count
+                    ? node
+                    : base.Visit(node);
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            switch (node)
+            {
+                case StructuralTypeShaperExpression { StructuralType: IEntityType entityType }:
+                    if (entityType.IsOwned())
+                    {
+                        ContainsOwnedEntityShaper = true;
+                    }
+
+                    return node;
+
+                case ProjectionBindingExpression projectionBindingExpression:
+                    AddProjectedKeyProperty(projectionBindingExpression);
+                    break;
+            }
+
+            return base.VisitExtension(node);
+        }
+
+        private void AddProjectedKeyProperty(ProjectionBindingExpression projectionBindingExpression)
+        {
+            if (projectionBindingExpression.QueryExpression != selectExpression)
+            {
+                return;
+            }
+
+            var projection = selectExpression.Projection[GetProjectionIndex(projectionBindingExpression)].Expression;
+
+            if (projection is not ScalarAccessExpression
+                {
+                    Object: ObjectReferenceExpression { StructuralType: IEntityType entityType },
+                    PropertyName: var propertyName
+                }
+                || !IsRootEntityType(entityType))
+            {
+                return;
+            }
+
+            foreach (var primaryKeyProperty in primaryKeyProperties)
+            {
+                if (string.Equals(primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal))
+                {
+                    ProjectedKeyProperties.Add(primaryKeyProperty);
+                    return;
+                }
+            }
+        }
+
+        private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
+            => projectionBindingExpression.ProjectionMember is not null
+                ? selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
+                : projectionBindingExpression.Index
+                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
+
+        private bool IsRootEntityType(IEntityType entityType)
+            => entityType == rootEntityType
+                || entityType.GetRootType() == rootEntityType.GetRootType();
     }
 }
