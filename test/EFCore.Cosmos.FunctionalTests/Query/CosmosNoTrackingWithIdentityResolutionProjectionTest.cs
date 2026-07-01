@@ -365,6 +365,124 @@ FROM root c
                 }
             }
         }
+
+        [ConditionalFact(Skip = "Fails on main, and also: #37954")]
+        public async Task Ordinal_owned_collection_concat_returns_same()
+        {
+            var contextFactory = await InitializeNonSharedTest<ValidationContext>();
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    var owner = new Owner
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Owner" + i,
+                        OrdinalOwnedCollection =
+                        [
+                            new OrdinalOwnedCollectionElement
+                            {
+                                Name = "OrdinalOwnedCollection1"
+                            },
+                            new OrdinalOwnedCollectionElement
+                            {
+                                Name = "OrdinalOwnedCollection2"
+                            }
+                        ]
+                    };
+                    context.Add(owner);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                var results = await context.Owners
+                    .Select(x => new { x.Id, OrdinalOwnedCollection = x.OrdinalOwnedCollection.Concat(x.OrdinalOwnedCollection).ToList() })
+                    .AsNoTrackingWithIdentityResolution()
+                    .ToListAsync();
+
+                Assert.Equal(2, results.Count);
+
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    Assert.Equal(4, result.OrdinalOwnedCollection.Count);
+                    for (var j = 0; j < result.OrdinalOwnedCollection.Count / 2; j++)
+                    {
+                        Assert.Same(result.OrdinalOwnedCollection[j], result.OrdinalOwnedCollection[j + 2]);
+                        if (j > 0)
+                        {
+                            Assert.NotSame(result.OrdinalOwnedCollection[j], result.OrdinalOwnedCollection[j - 1]);
+                        }
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Duplicate_ordinal_owned_collection_returns_same()
+        {
+            var contextFactory = await InitializeNonSharedTest<ValidationContext>();
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    var owner = new Owner
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Owner" + i,
+                        OrdinalOwnedCollection =
+                        [
+                            new OrdinalOwnedCollectionElement
+                            {
+                                Name = "OrdinalOwnedCollection1"
+                            },
+                            new OrdinalOwnedCollectionElement
+                            {
+                                Name = "OrdinalOwnedCollection2"
+                            }
+                        ]
+                    };
+                    context.Add(owner);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                var results = await context.Owners
+                    .Select(x => new { x.Id, First = x.OrdinalOwnedCollection, Second = x.OrdinalOwnedCollection })
+                    .AsNoTrackingWithIdentityResolution()
+                    .ToListAsync();
+
+                Assert.Equal(2, results.Count);
+
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    Assert.Equal(result.First.Count, result.Second.Count);
+                    for (var j = 0; j < result.First.Count; j++)
+                    {
+                        Assert.Same(result.First[j], result.Second[j]);
+                    }
+
+                    if (i > 0)
+                    {
+                        var otherResult = results[i - 1];
+                        for (var j = 0; j < result.First.Count; j++)
+                        {
+                            Assert.NotSame(otherResult.First[j], result.First[j]);
+                            Assert.NotSame(otherResult.Second[j], result.Second[j]);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static void AssertMissingOwnerKeyMessage(
