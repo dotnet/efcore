@@ -137,7 +137,7 @@ Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "EFCore.VisualBasic.Function
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Tasks", "src\EFCore.Tasks\EFCore.Tasks.csproj", "{711EE8F3-F92D-4470-8B0B-25D8B13EF282}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.sqlite3mc.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.sqlite3mc.Tests.csproj", "{748CD03E-868F-4993-B18E-AEC66EEB4FE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.sqlite3mc.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.sqlite3mc.Tests.csproj", "{748CD03E-868F-4993-B18E-AEC66EEB4FE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
