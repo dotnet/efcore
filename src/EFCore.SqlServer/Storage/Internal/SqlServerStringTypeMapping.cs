@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Data.SqlTypes;
 using System.Text;
-using System.Xml;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -20,15 +18,6 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 {
     private const int UnicodeMax = 4000;
     private const int AnsiMax = 8000;
-
-    // DTD processing is explicitly prohibited and no external resolver is used so that a malicious
-    // payload is rejected rather than processed.
-    private static readonly XmlReaderSettings XmlFragmentSettings = new()
-    {
-        ConformanceLevel = ConformanceLevel.Fragment,
-        DtdProcessing = DtdProcessing.Prohibit,
-        XmlResolver = null
-    };
 
     private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
 
@@ -169,15 +158,17 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 
         if (_sqlDbType == SqlDbType.Xml)
         {
-            // SqlClient only sends a parameter as 'xml' (rather than 'nvarchar(max)') when its value is a SqlXml.
-            // Sending it as 'xml' lets SQL Server honor any encoding declared in the XML prolog (e.g. utf-8), which
-            // otherwise fails with "unable to switch the encoding". A fragment-conformant reader is used so that the
-            // content forms that the 'xml' store type accepts - empty strings, text, and multiple top-level nodes -
-            // continue to round-trip.
+            // xml is a max-length type; pin the size to unbounded so SqlClient does not infer it from the
+            // value length (which would otherwise vary per value in logs and the query cache).
+            parameter.Size = -1;
+
+            // SqlClient sends a string parameter as 'nvarchar(max)' even when its SqlDbType is 'xml', which makes
+            // SQL Server reject an XML prolog that declares a non-UTF-16 encoding (e.g. utf-8) with "unable to switch
+            // the encoding". Only the XML declaration conflicts, and it can only appear at the very start, so it is
+            // sliced off and the rest of the value is sent verbatim.
             if (value is string xml)
             {
-                using var reader = XmlReader.Create(new StringReader(xml), XmlFragmentSettings);
-                parameter.Value = new SqlXml(reader);
+                parameter.Value = RemoveXmlProlog(xml);
             }
 
             return;
@@ -218,6 +209,30 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                 parameter.Size = -1;
             }
         }
+    }
+
+    private static string RemoveXmlProlog(string xml)
+    {
+        var start = 0;
+        while (start < xml.Length && char.IsWhiteSpace(xml[start]))
+        {
+            start++;
+        }
+
+        // An XML declaration starts with "<?xml" followed by mandatory whitespace. If present, remove everything
+        // up to and including the closing "?>" and return the remainder verbatim.
+        if (start + 5 < xml.Length
+            && string.CompareOrdinal(xml, start, "<?xml", 0, 5) == 0
+            && char.IsWhiteSpace(xml[start + 5]))
+        {
+            var end = xml.IndexOf("?>", start + 6, StringComparison.Ordinal);
+            if (end >= 0)
+            {
+                return xml[(end + 2)..];
+            }
+        }
+
+        return xml;
     }
 
     /// <summary>

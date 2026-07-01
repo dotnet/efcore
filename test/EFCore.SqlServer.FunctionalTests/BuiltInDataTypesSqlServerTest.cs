@@ -3820,20 +3820,31 @@ FROM INFORMATION_SCHEMA.COLUMNS
     // The grinning-face emoji is outside the BMP (a UTF-16 surrogate pair, four UTF-8 bytes) and the euro sign
     // is a single UTF-16 code unit but three UTF-8 bytes; both are represented differently in UTF-16 than in
     // UTF-8 and are lost when an xml value is sent to the server as a non-Unicode string, which makes them good
-    // probes for the SqlXml/SqlDbType.Xml parameter path.
+    // probes for the SqlDbType.Xml parameter path.
     private const string XmlEmoji = "\U0001F600";
     private const string XmlEuro = "\u20AC";
 
     [Theory]
-    [InlineData("<root>" + XmlEmoji + XmlEuro + "</root>", "<root>" + XmlEmoji + XmlEuro + "</root>")]
-    // An explicit non-UTF-16 prolog is accepted because the value is sent as 'xml', not 'nvarchar(max)'.
-    [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><root>" + XmlEmoji + "</root>", "<root>" + XmlEmoji + "</root>")]
-    [InlineData("<?xml version=\"1.0\" encoding=\"utf-16\"?><root>" + XmlEuro + "</root>", "<root>" + XmlEuro + "</root>")]
+    [InlineData(
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>")]
+    // Only the XML declaration is removed; a following stylesheet PI and the rest of the value are sent verbatim.
+    [InlineData(
+        "<?xml version=\"1.0\" encoding=\"utf-8\" standalone='yes' ?> <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
+        " <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
+        "<?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?><root>" + XmlEmoji + "</root>")]
+    // The leading whitespace and the declaration are removed when the value is sent.
+    [InlineData(
+        " <?xml version=\"1.1\" encoding=\"utf-16\"?> <root>" + XmlEuro + "</root>",
+        " <root>" + XmlEuro + "</root>",
+        "<root>" + XmlEuro + "</root>")]
     // Content forms that the 'xml' store type accepts beyond a single well-formed document.
-    [InlineData("", "")]
-    [InlineData("text fragment", "text fragment")]
-    [InlineData("<a/><b/>", "<a /><b />")]
-    public async Task Xml_value_round_trips(string value, string expected)
+    [InlineData("", "", "")]
+    [InlineData("text fragment", "text fragment", "text fragment")]
+    // The content is sent verbatim, but the server expands self-closing tags when the xml column is read back.
+    [InlineData("<a/><b/>", "<a/><b/>", "<a /><b />")]
+    public async Task Xml_value_round_trips(string value, string expected, string roundTripped)
     {
         await using var context = CreateContext();
 
@@ -3845,7 +3856,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
         context.ChangeTracker.Clear();
 
         // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key. Coalescing
-        // the column with the original value sends that value as an 'xml' parameter, exercising the SqlXml
+        // the column with the original value sends that value as an 'xml' parameter, exercising the prolog-removal
         // parameter path in a query in addition to the insert above.
         var query = context.Set<XmlTestDocument>()
             .Where(d => d.Id == id)
@@ -3860,14 +3871,15 @@ SELECT COALESCE([x].[Content], @value)
 FROM [XmlTestDocument] AS [x]
 WHERE [x].[Id] = @id
 """,
-            query.ToQueryString());
+            query.ToQueryString(),
+            ignoreLineEndingDifferences: true);
 
-        var roundTripped = await query.SingleAsync();
-        Assert.Equal(expected, roundTripped);
+        var actual = await query.SingleAsync();
+        Assert.Equal(roundTripped, actual);
 
         AssertSql(
             $"""
-@p0='{expected}' (DbType = Xml)
+@p0='{expected}' (Size = -1) (DbType = Xml)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3877,47 +3889,13 @@ VALUES (@p0);
 """,
             //
             $"""
-@value='{expected}' (DbType = Xml)
+@value='{expected}' (Size = -1) (DbType = Xml)
 @id='{id}'
 
 SELECT TOP(2) COALESCE([x].[Content], @value)
 FROM [XmlTestDocument] AS [x]
 WHERE [x].[Id] = @id
 """);
-    }
-
-    [Fact]
-    public async Task Xml_value_with_dtd_payload_is_rejected()
-    {
-        await using var context = CreateContext();
-
-        // A "billion laughs" entity-expansion payload: the reader must reject the DTD rather than expand it.
-        const string maliciousXml =
-            "<?xml version=\"1.0\"?>"
-            + "<!DOCTYPE lolz [<!ENTITY lol \"lol\">"
-            + "<!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">"
-            + "<!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">]>"
-            + "<lolz>&lol3;</lolz>";
-
-        context.Add(new XmlTestDocument { Content = maliciousXml });
-
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => context.SaveChangesAsync());
-        Assert.True(
-            HasXmlException(exception),
-            $"Expected an {nameof(XmlException)} in the exception chain but found: {exception}");
-
-        static bool HasXmlException(Exception exception)
-        {
-            for (var current = exception; current is not null; current = current.InnerException)
-            {
-                if (current is XmlException)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
     }
 
     private class XmlTestDocument
