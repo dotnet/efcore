@@ -671,9 +671,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                     case nameof(Queryable.Select)
                         when genericMethod == QueryableMethods.Select:
-                        return ProcessSelect(
-                            source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                        return LiftSingleResultSubqueries(
+                            ProcessSelect(
+                                source,
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()));
 
                     case nameof(Queryable.Where)
                         when genericMethod == QueryableMethods.Where:
