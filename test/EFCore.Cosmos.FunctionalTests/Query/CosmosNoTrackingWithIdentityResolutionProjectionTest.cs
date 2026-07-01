@@ -16,144 +16,6 @@ public class CosmosNoTrackingWithIdentityResolutionQueryTest
     }
 
     [ConditionalFact]
-    public async Task Double_owned_reference_returns_same()
-    {
-        await using (var context = CreateContext())
-        {
-            for (var i = 0; i < 2; i++)
-            {
-                context.Add(new Owner
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Owner" + i,
-                    OwnedReference = new OwnedReference
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "OwnedReference"
-                    }
-                });
-            }
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = CreateContext())
-        {
-            var results = await context.Owners.AsNoTrackingWithIdentityResolution()
-                .Select(owner => new { owner.Id, first = owner.OwnedReference, second = owner.OwnedReference })
-                .ToListAsync();
-
-            Assert.Equal(2, results.Count);
-
-            for (var i = 0; i < results.Count; i++)
-            {
-                var result = results[i];
-                Assert.Same(result.first, result.second);
-                if (i > 0)
-                {
-                    var otherResult = results[i - 1];
-                    Assert.NotSame(otherResult.first, result.first);
-                }
-            }
-        }
-    }
-
-    [ConditionalFact]
-    public async Task Owned_collection_with_duplicate_returns_same()
-    {
-        await using (var context = CreateContext())
-        {
-            for (var i = 0; i < 2; i++)
-            {
-                var ownedCollectionElement = new OwnedCollectionElement
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "OwnedCollection"
-                };
-                var owner = new Owner
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Owner" + i,
-                    OwnedCollection =
-                    [
-                        ownedCollectionElement,
-                    ownedCollectionElement
-                    ]
-                };
-                context.Add(owner);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        await using (var context = CreateContext())
-        {
-            var results = await context.Owners.Select(x => new { x.Id, x.OwnedCollection }).AsNoTrackingWithIdentityResolution().ToListAsync();
-
-            Assert.Equal(2, results.Count);
-            for (var i = 0; i < results.Count; i++)
-            {
-                var result = results[i];
-                Assert.Equal(2, result.OwnedCollection.Count);
-                Assert.Same(result.OwnedCollection[0], result.OwnedCollection[1]);
-                if (i > 0)
-                {
-                    var otherResult = results[i - 1];
-                    Assert.NotSame(otherResult.OwnedCollection[0], result.OwnedCollection[0]);
-                    Assert.NotSame(otherResult.OwnedCollection[1], result.OwnedCollection[1]);
-                }
-            }
-        }
-    }
-
-    [ConditionalFact]
-    public async Task Owned_collection_concat_returns_same()
-    {
-        await using (var context = CreateContext())
-        {
-            for (var i = 0; i < 2; i++)
-            {
-                var owner = new Owner
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Owner" + i,
-                    OwnedCollection =
-                    [
-                        new OwnedCollectionElement
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "OwnedCollection1"
-                        },
-                        new OwnedCollectionElement
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "OwnedCollection2"
-                        }
-                    ]
-                };
-                context.Add(owner);
-            }
-        }
-
-        await using (var context = CreateContext())
-        {
-            var results = await context.Owners.Select(x => new { x.Id, OwnedCollection = x.OwnedCollection.Concat(x.OwnedCollection).ToList() }).AsNoTrackingWithIdentityResolution().ToListAsync();
-
-            for (var i = 0; i < results.Count; i++)
-            {
-                var result = results[i];
-                Assert.Equal(4, result.OwnedCollection.Count);
-                for (var j = 0; j < result.OwnedCollection.Count / 2; j++)
-                {
-                    Assert.Same(result.OwnedCollection[j], result.OwnedCollection[j + 2]);
-                    if (j > 0)
-                    {
-                        Assert.NotSame(result.OwnedCollection[j], result.OwnedCollection[j - 1]);
-                    }
-                }
-            }
-        }
-    }
-
-    [ConditionalFact]
     public async Task Owned_reference_with_owner_key_after_owned_reference_projects_owner_key_first()
     {
         await AssertQuery(
@@ -195,68 +57,6 @@ FROM root c
         AssertSql(
             """
 SELECT c["id"], c["OwnedCollection"]
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public async Task Complex_reference_without_owner_key_succeeds()
-    {
-        await AssertQuery(
-            ss => ss.Set<Owner>()
-                .Select(owner => owner.ComplexReference)
-                .AsNoTrackingWithIdentityResolution(),
-            elementAsserter: (expected, actual) => Assert.Equal(expected.Name, actual.Name));
-
-        AssertSql(
-            """
-SELECT VALUE c["ComplexReference"]
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public async Task Complex_collection_without_owner_key_succeeds()
-    {
-        await AssertQuery(
-            ss => ss.Set<Owner>()
-                .Select(owner => owner.ComplexCollection)
-                .AsNoTrackingWithIdentityResolution(),
-            elementAsserter: (expected, actual) => AssertComplexCollection(expected, actual));
-
-        AssertSql(
-            """
-SELECT VALUE c["ComplexCollection"]
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public async Task Scalar_projection_without_owner_key_succeeds()
-    {
-        await AssertQuery(
-            ss => ss.Set<Owner>()
-                .Select(owner => owner.Name)
-                .AsNoTrackingWithIdentityResolution());
-
-        AssertSql(
-            """
-SELECT VALUE c["Name"]
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public async Task Root_entity_projection_succeeds()
-    {
-        await AssertQuery(
-            ss => ss.Set<Owner>().AsNoTrackingWithIdentityResolution(),
-            elementSorter: owner => owner.Id,
-            elementAsserter: AssertOwner);
-
-        AssertSql(
-            """
-SELECT VALUE c
 FROM root c
 """);
     }
@@ -338,6 +138,234 @@ FROM root c
 
     private ValidationContext CreateContext()
         => Fixture.CreateContext();
+
+    public class NonSharedModel(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+    {
+        protected override string NonSharedStoreName
+            => nameof(CosmosNoTrackingWithIdentityResolutionQueryTest) + nameof(NonSharedModel);
+
+        protected override ITestStoreFactory NonSharedTestStoreFactory
+            => CosmosTestStoreFactory.Instance;
+
+        [ConditionalFact]
+        public async Task Double_owned_reference_returns_same()
+        {
+            var contextFactory = await InitializeNonSharedTest<ValidationContext>();
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    context.Add(new Owner
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Owner" + i,
+                        OwnedReference = new OwnedReference
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "OwnedReference"
+                        }
+                    });
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                var results = await context.Owners.AsNoTrackingWithIdentityResolution()
+                    .Select(owner => new { owner.Id, first = owner.OwnedReference, second = owner.OwnedReference })
+                    .ToListAsync();
+
+                Assert.Equal(2, results.Count);
+
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    Assert.Same(result.first, result.second);
+                    if (i > 0)
+                    {
+                        var otherResult = results[i - 1];
+                        Assert.NotSame(otherResult.first, result.first);
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Owned_collection_with_duplicate_returns_same()
+        {
+            var contextFactory = await InitializeNonSharedTest<ValidationContext>();
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    var ownedCollectionElement = new OwnedCollectionElement
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "OwnedCollection"
+                    };
+                    var owner = new Owner
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Owner" + i,
+                        OwnedCollection =
+                        [
+                            ownedCollectionElement,
+                            ownedCollectionElement
+                        ]
+                    };
+                    context.Add(owner);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                var results = await context.Owners.Select(x => new { x.Id, x.OwnedCollection })
+                    .AsNoTrackingWithIdentityResolution()
+                    .ToListAsync();
+
+                Assert.Equal(2, results.Count);
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    Assert.Equal(2, result.OwnedCollection.Count);
+                    Assert.Same(result.OwnedCollection[0], result.OwnedCollection[1]);
+                    if (i > 0)
+                    {
+                        var otherResult = results[i - 1];
+                        Assert.NotSame(otherResult.OwnedCollection[0], result.OwnedCollection[0]);
+                        Assert.NotSame(otherResult.OwnedCollection[1], result.OwnedCollection[1]);
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Owned_collection_concat_returns_same()
+        {
+            var contextFactory = await InitializeNonSharedTest<ValidationContext>();
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    var owner = new Owner
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Owner" + i,
+                        OwnedCollection =
+                        [
+                            new OwnedCollectionElement
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = "OwnedCollection1"
+                            },
+                            new OwnedCollectionElement
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = "OwnedCollection2"
+                            }
+                        ]
+                    };
+                    context.Add(owner);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                var results = await context.Owners
+                    .Select(x => new { x.Id, OwnedCollection = x.OwnedCollection.Concat(x.OwnedCollection).ToList() })
+                    .AsNoTrackingWithIdentityResolution()
+                    .ToListAsync();
+
+                Assert.Equal(2, results.Count);
+
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    Assert.Equal(4, result.OwnedCollection.Count);
+                    for (var j = 0; j < result.OwnedCollection.Count / 2; j++)
+                    {
+                        Assert.Same(result.OwnedCollection[j], result.OwnedCollection[j + 2]);
+                        if (j > 0)
+                        {
+                            Assert.NotSame(result.OwnedCollection[j], result.OwnedCollection[j - 1]);
+                        }
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Duplicate_owned_collection_returns_same()
+        {
+            var contextFactory = await InitializeNonSharedTest<ValidationContext>();
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    var owner = new Owner
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Owner" + i,
+                        OwnedCollection =
+                        [
+                            new OwnedCollectionElement
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = "OwnedCollection1"
+                            },
+                            new OwnedCollectionElement
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = "OwnedCollection2"
+                            }
+                        ]
+                    };
+                    context.Add(owner);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            await using (var context = contextFactory.CreateDbContext())
+            {
+                var results = await context.Owners
+                    .Select(x => new { x.Id, First = x.OwnedCollection, Second = x.OwnedCollection })
+                    .AsNoTrackingWithIdentityResolution()
+                    .ToListAsync();
+
+                Assert.Equal(2, results.Count);
+
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    Assert.Equal(result.First.Count, result.Second.Count);
+                    for (var j = 0; j < result.First.Count; j++)
+                    {
+                        Assert.Same(result.First[j], result.Second[j]);
+                    }
+
+                    if (i > 0)
+                    {
+                        var otherResult = results[i - 1];
+                        for (var j = 0; j < result.First.Count; j++)
+                        {
+                            Assert.NotSame(otherResult.First[j], result.First[j]);
+                            Assert.NotSame(otherResult.Second[j], result.Second[j]);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private static void AssertMissingOwnerKeyMessage(
         InvalidOperationException exception,
