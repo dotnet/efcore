@@ -2,8 +2,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(DefaultNetCoreTargetFramework);$(NetFrameworkCurrent)</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);E_SQLCIPHER</DefineConstants>
+    <DefineConstants>$(DefineConstants);SQLITE3MC</DefineConstants>
     <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == '$(NetFrameworkCurrent)'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" />
+    <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
   </ItemGroup>
 
 </Project>
