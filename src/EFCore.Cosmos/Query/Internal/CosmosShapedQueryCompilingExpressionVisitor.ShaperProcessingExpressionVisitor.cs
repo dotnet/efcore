@@ -502,7 +502,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (entityType.IsOwned())
             {
                 // Non persisted fixup: we need to set any non persisted principal properties on the entity
-                // Since the entity is owned and is a projection binding root, we don't know the owner entity values when deserializing
+                // Since the entity is owned and is a projection binding root, we don't know the owner entity values when deserializing the document
+                // We get the owner entity key values from the ownerKeySnapshot (only for AsNoTrackingWithIdentityResolution)
                 foreach (var property in entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()))
                 {
                     var principalProperty = property.FindFirstPrincipal()!;
