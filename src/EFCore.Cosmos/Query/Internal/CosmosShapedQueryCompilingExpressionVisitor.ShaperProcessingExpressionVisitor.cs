@@ -559,7 +559,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 NotEqual(entryVariable, Default(entryVariable.Type)),
                 Assign(instanceVariable, Convert(MakeMemberAccess(entryVariable, typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!), instanceVariable.Type)),
                 Block(
-                    ForEach(trackingActionsVariable, (trackingAction) => Invoke(trackingAction)),
+                    ListForEach(trackingActionsVariable, (trackingAction) => Invoke(trackingAction)),
                     Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, entityTypeVariable, instanceVariable, shadowSnapshotVariable))));
 
             // return instance
@@ -1005,6 +1005,34 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     MakeMemberAccess(ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType), property.GetMemberInfo(true, true)).Assign(variable));
             }
 
+            // @TODO: Non tracking owner parent fixup? OwnedQueryCosmosTest
+            if (!_queryStateManager && structuralType is IEntityType et2)
+            {
+                foreach (var navigation in et2.GetNavigations().Where(n => n.ForeignKey.IsOwnership
+                                                                        && n == n.ForeignKey.PrincipalToDependent
+                                                                        && n.ForeignKey.DependentToPrincipal != null))
+                {
+                    var principalToDependentMember = navigation.ForeignKey.PrincipalToDependent!.GetMemberInfo(true, true);
+                    var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal!.GetMemberInfo(true, true);
+
+                    if (navigation.IsCollection)
+                    {
+                        finalBlockExpressions.Add(
+                            EnumerableForEach(instanceVariable.MakeMemberAccess(principalToDependentMember), dependentInstance =>
+                                dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
+                                    .Assign(
+                                        ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType()))));
+                    }
+                    else
+                    {
+                        finalBlockExpressions.Add(
+                            instanceVariable.MakeMemberAccess(principalToDependentMember).MakeMemberAccess(dependentToPrincipalMember)
+                                .Assign(
+                                    ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                    }
+                }
+            }
+
             // Empty collections have not been initialized, so we double check all collection properties here
             if (!structuralType.ClrType.IsValueType) // @TODO: How does this work for value types...?
             {
@@ -1197,7 +1225,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                                     GetPropertyValue(p))
                                                                 : ConvertIfNotMatch(nestedInstanceVariable, p.DeclaringType.ClrType).MakeMemberAccess(p.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(GetPropertyValue(p))),
                                                         // nestedTrackingActions.ForEach(nestedTrackingAction => nestedTrackingAction())
-                                                        ForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
+                                                        ListForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
                                                         // queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot)
                                                         Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
 
@@ -1231,8 +1259,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
                             nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
                         }
-
-                        // @TODO: Non tracking owner parent fixup? OwnedQueryCosmosTest
                     }
 
                     nestedReadExpressions.Add(Assign(_jsonReaderManagerVariable, NewJsonReaderManager()));
@@ -1467,7 +1493,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return resultExpression;
         }
 
-        private static BlockExpression ForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
+        private static BlockExpression ListForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
         {
             var itemType = list.Type.GetGenericArguments()[0];
 
@@ -1511,14 +1537,34 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                             body,
 
-                            PostIncrementAssign(i)
-                        ),
+                            PostIncrementAssign(i)),
+                        Break(breakLabel)),
+                    breakLabel));
+        }
 
-                        Break(breakLabel)
-                    ),
-                    breakLabel
-                )
-            );
+        private static BlockExpression EnumerableForEach(Expression enumerable, Func<ParameterExpression, Expression> bodyFactory)
+        {
+            var itemType = enumerable.Type.GetSequenceType();
+
+            var enumeratorVar = Variable(typeof(IEnumerator<>).MakeGenericType(itemType), "enumerator");
+            var itemVar = Variable(itemType, "item");
+            var breakLabel = Label();
+
+            return Block(
+                [enumeratorVar, itemVar],
+
+                Assign(enumeratorVar, Call(enumerable, typeof(IEnumerable<>).MakeGenericType(itemType).GetMethod(nameof(IEnumerable<>.GetEnumerator))!)),
+
+                TryFinally(
+                    Loop(
+                        IfThenElse(
+                            Call(enumeratorVar, typeof(System.Collections.IEnumerator).GetMethod(nameof(System.Collections.IEnumerator.MoveNext))!),
+                            Block(
+                                Assign(itemVar, Property(enumeratorVar, typeof(IEnumerator<>).MakeGenericType(itemType).GetProperty(nameof(IEnumerator<>.Current))!)),
+                                bodyFactory(itemVar)),
+                            Break(breakLabel)),
+                        breakLabel),
+                    Call(enumeratorVar, typeof(IDisposable).GetMethod(nameof(IDisposable.Dispose))!)));
         }
 
         private static MemberExpression StringConstantSpan(string value)
