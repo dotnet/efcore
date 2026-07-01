@@ -340,6 +340,24 @@ JOIN n IN c["OptionalAssociate"]["NestedCollection"]
         }
     }
 
+    [ConditionalFact]
+    public async Task Select_collection_concat()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => new { x.Id, AssociateCollection = x.AssociateCollection.Concat(x.AssociateCollection).ToList() }),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking);
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "c" : ARRAY_CONCAT(c["AssociateCollection"], c["AssociateCollection"])
+}
+FROM root c
+""");
+    }
+
     #endregion Structural collection properties
 
     #region Multiple
