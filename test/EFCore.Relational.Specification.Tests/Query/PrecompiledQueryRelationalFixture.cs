@@ -7,6 +7,7 @@ using Blog = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
 using Post = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.Post;
 using JsonRoot = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.JsonRoot;
 using JsonBranch = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.JsonBranch;
+using EntityWithPrimitiveCollection = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.EntityWithPrimitiveCollection;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -96,7 +97,17 @@ public abstract class PrecompiledQueryRelationalFixture
         };
 
         context.Posts.AddRange(post11, post12, post21, post22, post23);
+
+        context.EntitiesWithPrimitiveCollection.AddRange(
+            new EntityWithPrimitiveCollection { Id = 1, Tags = ["a", "b"] },
+            new EntityWithPrimitiveCollection { Id = 2, Tags = ["x", "y"] });
         await context.SaveChangesAsync();
+
+        // Overwrite the second entity's collection column with the JSON 'null' token (as legacy/external data might),
+        // rather than a SQL NULL, so the materializer's null-token peek path is exercised under precompilation.
+        await context.Database.ExecuteSqlRawAsync(
+            TestStore.NormalizeDelimitersInRawString(
+                "UPDATE [EntitiesWithPrimitiveCollection] SET [Tags] = 'null' WHERE [Id] = 2"));
     }
 
     public abstract PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers { get; }

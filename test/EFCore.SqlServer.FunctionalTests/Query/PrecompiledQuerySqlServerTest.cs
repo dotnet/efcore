@@ -2187,6 +2187,30 @@ FROM [Blogs] AS [b]
 """);
     }
 
+    public override async Task Materialize_entity_with_primitive_collection_mapped_to_column()
+    {
+        await base.Materialize_entity_with_primitive_collection_mapped_to_column();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Tags]
+FROM [EntitiesWithPrimitiveCollection] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Project_primitive_collection_mapped_to_column()
+    {
+        await base.Project_primitive_collection_mapped_to_column();
+
+        AssertSql(
+            """
+SELECT [e].[Tags]
+FROM [EntitiesWithPrimitiveCollection] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

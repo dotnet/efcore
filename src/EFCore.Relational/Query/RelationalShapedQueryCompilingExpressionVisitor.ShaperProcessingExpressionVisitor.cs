@@ -3003,45 +3003,69 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var converterExpression = default(Expression);
             var primitiveCollectionJsonHandled = false;
 
-            // #34881/#38454: A primitive collection mapped to a column uses CollectionToJsonStringConverter, which parses the
-            // provider JSON string via the collection's JsonValueReaderWriter. That reader/writer doesn't handle a JSON 'null'
-            // token, so we must peek the first token here and short-circuit to null (or throw for a required property) before
-            // invoking the converter, rather than letting the reader/writer throw a cryptic "Invalid token type: 'Null'".
-            if (property is IProperty { IsPrimitiveCollection: true } primitiveCollectionProperty
-                && converter is not null
-                && converter.GetType() is { IsGenericType: true } converterClrType
-                && converterClrType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>))
+            // #34881/#38454: A primitive collection mapped to a column is stored as a JSON string and read via the collection's
+            // JsonValueReaderWriter. That reader/writer doesn't handle a JSON 'null' token, so we peek the first token here and
+            // short-circuit to null (or throw for a required property) before invoking the reader/writer, rather than letting it
+            // throw a cryptic "Invalid token type: 'Null'". This applies both when materializing an entity (the property is
+            // available) and when projecting the collection column directly (no property; a collection type mapping is
+            // identified by its ElementTypeMapping).
+            var jsonPrimitiveCollectionReaderWriter = converter is { ConvertsNulls: false }
+                ? property is IProperty { IsPrimitiveCollection: true } primitiveCollectionProperty
+                    ? primitiveCollectionProperty.GetJsonValueReaderWriter() ?? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter
+                    : property is null && typeMapping.ElementTypeMapping is not null
+                        ? typeMapping.JsonValueReaderWriter
+                        : null
+                : null;
+
+            if (jsonPrimitiveCollectionReaderWriter is not null)
             {
-                var liftableConstantParameter = Parameter(typeof(MaterializerLiftableConstantContext), "c");
-                var jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                    primitiveCollectionProperty.GetJsonValueReaderWriter() ?? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter!,
-                    Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                        Coalesce(
-                            Call(
-                                LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
-                                    primitiveCollectionProperty, liftableConstantParameter),
-                                PropertyGetJsonValueReaderWriterMethod),
-                            Property(
+                Expression jsonReaderWriterExpression;
+                if (property is IProperty jsonProperty)
+                {
+                    var liftableConstantParameter = Parameter(typeof(MaterializerLiftableConstantContext), "c");
+                    jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                        jsonPrimitiveCollectionReaderWriter,
+                        Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                            Coalesce(
                                 Call(
                                     LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
-                                        primitiveCollectionProperty, liftableConstantParameter),
-                                    PropertyGetTypeMappingMethod),
-                                nameof(CoreTypeMapping.JsonValueReaderWriter))),
-                        liftableConstantParameter),
-                    primitiveCollectionProperty.Name + "JsonReaderWriter",
-                    typeof(JsonValueReaderWriter));
+                                        jsonProperty, liftableConstantParameter),
+                                    PropertyGetJsonValueReaderWriterMethod),
+                                Property(
+                                    Call(
+                                        LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
+                                            jsonProperty, liftableConstantParameter),
+                                        PropertyGetTypeMappingMethod),
+                                    nameof(CoreTypeMapping.JsonValueReaderWriter))),
+                            liftableConstantParameter),
+                        jsonProperty.Name + "JsonReaderWriter",
+                        typeof(JsonValueReaderWriter));
+                }
+                else
+                {
+                    // No property is available (e.g. projecting the collection column directly), so we can't reference the
+                    // reader/writer via the property. Use its ConstructorExpression, which is a quotable expression tree that
+                    // reconstructs the reader/writer (the same mechanism CollectionToJsonStringConverter uses).
+                    jsonReaderWriterExpression = jsonPrimitiveCollectionReaderWriter.ConstructorExpression;
+                    if (jsonReaderWriterExpression.Type != typeof(JsonValueReaderWriter))
+                    {
+                        jsonReaderWriterExpression = Convert(jsonReaderWriterExpression, typeof(JsonValueReaderWriter));
+                    }
+                }
 
                 if (valueExpression.Type != typeof(string))
                 {
                     valueExpression = Convert(valueExpression, typeof(string));
                 }
 
+                // When there's no property this is a projection, which has no notion of "required", so a JSON 'null'
+                // token is always materialized as null rather than throwing.
                 Expression readExpression = Call(
                     ReadPrimitiveCollectionFromJsonMethodInfo,
                     valueExpression,
                     jsonReaderWriterExpression,
-                    Constant(primitiveCollectionProperty.IsNullable),
-                    Constant(primitiveCollectionProperty.Name));
+                    Constant((property as IProperty)?.IsNullable ?? true),
+                    Constant((property as IProperty)?.Name ?? string.Empty));
 
                 if (readExpression.Type != type)
                 {
@@ -3339,8 +3363,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     nullExpression,
                     resultExpression);
             }
-            else if (property.ClrType != typeof(string)
-                && property.ClrType.TryGetElementType(typeof(IEnumerable<>)) is not null)
+            else if (property.GetElementType() is not null)
             {
                 // A required primitive collection nested in a JSON document can't be materialized from a JSON 'null'
                 // token. Throw a clear, property-named error instead of the cryptic reader/writer "Invalid token type".

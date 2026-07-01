@@ -535,6 +535,27 @@ VALUES(
         Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredTags"), exception.Message);
     }
 
+    [Fact]
+    public virtual async Task Project_json_null_primitive_collection_mapped_to_column_is_null()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // Projecting the collection column directly reaches the materializer without an IProperty. The JSON 'null'
+        // token (and SQL NULL) must still be materialized as null rather than throwing "Invalid token type: 'Null'".
+        var tags = await context.Set<ContextPrimitiveCollectionInColumn.MyEntity>()
+            .Where(x => x.Id < 4).OrderBy(x => x.Id).Select(x => x.Tags).ToListAsync();
+
+        Assert.Equal(3, tags.Count);
+        Assert.Equal(["a", "b"], tags[0]);
+        Assert.Null(tags[1]); // JSON 'null' token
+        Assert.Null(tags[2]); // SQL NULL
+    }
+
     protected virtual async Task SeedPrimitiveCollectionInColumn(DbContext ctx)
     {
         // primitive collection column contains a JSON array
@@ -741,8 +762,8 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
             b.OwnsOne(x => x.Reference, b =>
             {
                 b.ToJson().HasColumnType(JsonColumnType);
-                b.Property(x => x.NullableStrings).IsRequired(false);
-                b.Property(x => x.RequiredStrings).IsRequired();
+                b.PrimitiveCollection(x => x.NullableStrings).IsRequired(false);
+                b.PrimitiveCollection(x => x.RequiredStrings).IsRequired();
             });
         });
 
