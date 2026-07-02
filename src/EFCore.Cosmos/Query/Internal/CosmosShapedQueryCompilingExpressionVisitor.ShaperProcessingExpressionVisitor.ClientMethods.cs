@@ -18,7 +18,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo CreateUnableToDiscriminateExceptionMethod
             = typeof(StructuralTypeShaperExpression).GetMethod("CreateUnableToDiscriminateException") ?? throw new UnreachableException();
 
-        private static readonly byte[] WhiteSpaceBytes = Encoding.UTF8.GetBytes(" \t");
+        private static readonly byte[] WhiteSpaceBytes = Encoding.UTF8.GetBytes(" \t\r\n");
         private static readonly byte EndArrayByte = Encoding.UTF8.GetBytes("]")[0];
         private static readonly byte NextItemByte = Encoding.UTF8.GetBytes(",")[0];
 
