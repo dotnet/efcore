@@ -124,6 +124,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerKeyBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerKeyBuilderExtensions.HasFillFactor), [typeof(KeyBuilder), typeof(int)])!;
 
+    private static readonly MethodInfo KeyUseDataCompressionMethodInfo
+        = typeof(SqlServerKeyBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerKeyBuilderExtensions.UseDataCompression), [typeof(KeyBuilder), typeof(DataCompressionType)])!;
+
     private static readonly MethodInfo TableIsTemporalMethodInfo
         = typeof(SqlServerTableBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerTableBuilderExtensions.IsTemporal), [typeof(TableBuilder), typeof(bool)])!;
@@ -483,6 +487,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 : new MethodCallCodeFragment(KeyIsClusteredMethodInfo),
 
             SqlServerAnnotationNames.FillFactor => new MethodCallCodeFragment(KeyHasFillFactorMethodInfo, annotation.Value),
+
+            SqlServerAnnotationNames.DataCompression => new MethodCallCodeFragment(KeyUseDataCompressionMethodInfo, annotation.Value),
 
             _ => null
         };
