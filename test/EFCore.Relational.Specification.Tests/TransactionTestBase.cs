@@ -370,13 +370,12 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
                     }
                     catch (PlatformNotSupportedException)
                     {
-                        // When the ambient transaction is promoted to a distributed one and throw PlatformNotSupportedException let it
+                        // When the ambient transaction is promoted to a distributed one and throws PlatformNotSupportedException, let it
                         // propagate so the whole operation is retried.
                         throw;
                     }
-                    catch (Exception exception)
+                    catch (DbUpdateException)
                     {
-                        Assert.IsType<DbUpdateException>(exception);
                     }
 
                     Assert.Equal(ConnectionState.Closed, connection.State);

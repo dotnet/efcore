@@ -126,10 +126,7 @@
     condition evaluates to false; this filter is what actually skips them at the runner.
 
     The 'report-trx' argument is required so each Helix work item produces a TRX file that Arcade's
-    Helix reporter uploads to Azure DevOps. The generic MTPProject work-item command only passes
-    'results-directory', and the Microsoft.Testing.Extensions.TrxReport extension is not
-    auto-activated, so without this no per-test results would be reported (only work-item-level
-    pass/fail).
+    Helix reporter uploads to Azure DevOps. 
 
     This must run AFTER any per-queue ItemGroup that re-Includes MTPProject items.
   -->

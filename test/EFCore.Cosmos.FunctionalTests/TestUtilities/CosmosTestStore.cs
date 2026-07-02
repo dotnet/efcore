@@ -380,15 +380,10 @@ public class CosmosTestStore : TestStore
     // any test touches them. Each attempt re-reads the container by name (refreshing the collection cache with the new
     // _rid) and then runs a query - the exact path that otherwise fails. Because the recreate can take a moment to
     // become consistent on the emulator gateway, retry with a short delay until a query succeeds. This is the single
-    // place that handles the stale-metadata problem for the emulator; it is fully best-effort and must never fail the
-    // clean, so all errors are ultimately swallowed.
+    // place that handles the stale-metadata problem; it is fully best-effort and must never fail the clean, so all
+    // errors are ultimately swallowed.
     private async Task RefreshContainerMetadataAsync(DbContext context)
     {
-        if (CosmosTestEnvironment.UseTokenCredential)
-        {
-            return;
-        }
-
         const int maxAttempts = 10;
 
         try
