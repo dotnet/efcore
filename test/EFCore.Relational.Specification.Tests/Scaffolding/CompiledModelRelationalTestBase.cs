@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task BigModel_with_JSON_columns()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
@@ -44,9 +44,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
                     if (jsonColumns)
                     {
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
-#pragma warning restore EF8001
                     }
                     else
                     {
@@ -71,9 +69,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 {
                     if (jsonColumns)
                     {
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
-#pragma warning restore EF8001
                     }
                     else
                     {
@@ -351,6 +347,109 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 [dependentBaseForeignKey, tptForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey],
                 principalBase.GetReferencingForeignKeys());
         }
+
+        if (jsonColumns)
+        {
+            var relationalModel = model.GetRelationalModel();
+            var manyTypesTable = relationalModel.FindTable("ManyTypes", null)!;
+            var principalBaseTable = relationalModel.FindTable("PrincipalBase", null)!;
+
+            AssertPrimitiveCollectionJsonMapping(
+                manyTypesType.FindProperty(nameof(ManyTypes.BoolArray))!,
+                manyTypesTable);
+            AssertPrimitiveCollectionJsonMapping(
+                manyTypesType.FindProperty(nameof(ManyTypes.StringReadOnlyCollection))!,
+                manyTypesTable);
+            AssertPrimitiveCollectionJsonMapping(
+                manyTypesType.FindProperty(nameof(ManyTypes.Enum32Collection))!,
+                manyTypesTable);
+
+            static void AssertPrimitiveCollectionJsonMapping(IProperty property, ITable table)
+            {
+                var column = table.FindColumn(property);
+                Assert.NotNull(column);
+                Assert.NotNull(column.JsonElement);
+
+                var jsonArray = Assert.IsAssignableFrom<IRelationalJsonArray>(column.JsonElement);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping(), jsonArray.StoreTypeMapping);
+                Assert.NotEmpty(jsonArray.PropertyMappings);
+                Assert.All(jsonArray.PropertyMappings, m =>
+                {
+                    Assert.Same(property, m.Property);
+                    Assert.Same(jsonArray, m.Element);
+                });
+
+                Assert.Empty(jsonArray.ElementType.PropertyMappings);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping().ElementTypeMapping!, jsonArray.ElementType.StoreTypeMapping);
+            }
+
+            // Verify JSON element is on the Owned column
+            var ownedColumn = principalBaseTable.FindColumn("Owned")!;
+            Assert.NotNull(ownedColumn.JsonElement);
+
+            var ownedJsonRoot = ownedColumn.JsonElement!;
+            Assert.IsAssignableFrom<IRelationalJsonObject>(ownedJsonRoot);
+            Assert.Null(ownedJsonRoot.PropertyName);
+            Assert.Null(ownedJsonRoot.StoreTypeMapping);
+
+            var ownedJsonObject = (IRelationalJsonObject)ownedJsonRoot;
+            Assert.NotEmpty(ownedJsonObject.Properties);
+
+            Assert.NotEmpty(ownedJsonRoot.PropertyMappings);
+            Assert.All(ownedJsonRoot.PropertyMappings, m =>
+            {
+                Assert.Same(referenceOwnedNavigation, m.Property);
+                Assert.Same(ownedJsonRoot, m.Element);
+            });
+
+            // Verify GetJsonElementMappings for the owned navigation
+            var ownedMappings = referenceOwnedNavigation.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(ownedMappings);
+            Assert.All(ownedMappings, m =>
+            {
+                Assert.Same(referenceOwnedNavigation, m.Property);
+                Assert.IsAssignableFrom<IRelationalJsonObject>(m.Element);
+                Assert.Same(referenceOwnedNavigation.TargetEntityType, m.TableMapping.TypeBase);
+            });
+
+            // Verify scalar properties inside the owned entity have JSON element mappings
+            var ownedDetailsProperty = referenceOwnedType.FindProperty(nameof(OwnedType.Details))!;
+            var detailsMappings = ownedDetailsProperty.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(detailsMappings);
+            Assert.All(detailsMappings, m =>
+            {
+                Assert.Same(ownedDetailsProperty, m.Property);
+                Assert.Equal("Details", m.Element.PropertyName);
+                Assert.Same((RelationalTypeMapping)ownedDetailsProperty.GetTypeMapping(), m.Element.StoreTypeMapping);
+                Assert.NotNull(m.TableMapping);
+            });
+
+            // Verify ManyOwned collection navigation has mappings
+            var manyOwnedMappings = ownedCollectionNavigation.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(manyOwnedMappings);
+            Assert.All(manyOwnedMappings, m =>
+            {
+                Assert.Same(ownedCollectionNavigation, m.Property);
+                Assert.NotNull(m.TableMapping);
+            });
+
+            // Verify FindColumn works for navigation
+            var foundColumn = principalBaseTable.FindColumn(referenceOwnedNavigation);
+            Assert.NotNull(foundColumn);
+            Assert.Equal("Owned", foundColumn.Name);
+
+            // Verify ManyOwned collection column has JSON element
+            var manyOwnedColumn = principalBaseTable.FindColumn("ManyOwned");
+            if (manyOwnedColumn != null)
+            {
+                Assert.NotNull(manyOwnedColumn.JsonElement);
+                Assert.IsAssignableFrom<IRelationalJsonArray>(manyOwnedColumn.JsonElement);
+
+                var manyOwnedArray = (IRelationalJsonArray)manyOwnedColumn.JsonElement!;
+                Assert.NotNull(manyOwnedArray.ElementType);
+                Assert.IsAssignableFrom<IRelationalJsonObject>(manyOwnedArray.ElementType);
+            }
+        }
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
@@ -421,10 +520,13 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         {
             eb.ComplexCollection<IList<OwnedType>, OwnedType>(
                 "ManyOwned", "OwnedCollection", eb => eb.ToJson());
+            eb.ComplexProperty(p => p.Dependent, cb => cb.ToJson());
+            eb.HasIndex(e => e.Dependent, "IX_PrincipalDerived_Dependent");
+            eb.HasIndex(["ManyOwned[0].Details"], "IX_PrincipalDerived_ManyOwned_Indexer");
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task ComplexTypes()
         => Test(
             BuildComplexTypesModel,
@@ -513,9 +615,81 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         Assert.Null(principalBaseFunctionMapping.IsSharedTablePrincipal);
         Assert.Null(principalBaseFunctionMapping.IsSplitEntityTypePrincipal);
         Assert.Same(dbFunction, principalBaseFunctionMapping.DbFunction);
+
+        // Assert complex collection JSON mapping
+        var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
+        var manyOwnedComplexProperty = principalDerived.FindComplexProperty("ManyOwned");
+        if (manyOwnedComplexProperty != null)
+        {
+            Assert.True(manyOwnedComplexProperty.IsCollection);
+            Assert.True(manyOwnedComplexProperty.ComplexType.IsMappedToJson());
+
+            var relationalModel = model.GetRelationalModel();
+            var principalDerivedTable = relationalModel.FindTable("PrincipalBase", null)!;
+            var ownedCollectionColumn = principalDerivedTable.FindColumn("OwnedCollection");
+            if (ownedCollectionColumn != null)
+            {
+                // Verify JSON element is set on the column
+                Assert.NotNull(ownedCollectionColumn.JsonElement);
+                var rootElement = ownedCollectionColumn.JsonElement!;
+                Assert.IsAssignableFrom<IRelationalJsonArray>(rootElement);
+                Assert.Null(rootElement.PropertyName);
+                Assert.Null(rootElement.StoreTypeMapping);
+
+                var jsonArray = (IRelationalJsonArray)rootElement;
+                Assert.NotNull(jsonArray.ElementType);
+                Assert.IsAssignableFrom<IRelationalJsonObject>(jsonArray.ElementType);
+
+                // Verify element type has properties
+                var elementObject = (IRelationalJsonObject)jsonArray.ElementType;
+                Assert.NotEmpty(elementObject.Properties);
+
+                // Verify GetJsonElementMappings works for the complex property
+                var mappings = manyOwnedComplexProperty.GetJsonElementMappings().ToList();
+                Assert.NotEmpty(mappings);
+                Assert.All(mappings, m =>
+                {
+                    Assert.Same(manyOwnedComplexProperty, m.Property);
+                    Assert.Same(rootElement, m.Element);
+                });
+
+                // Verify scalar properties inside the collection element have mappings
+                var detailsProp = manyOwnedComplexProperty.ComplexType.FindProperty(nameof(OwnedType.Details));
+                if (detailsProp != null)
+                {
+                    var detailsMappings = detailsProp.GetJsonElementMappings().ToList();
+                    Assert.NotEmpty(detailsMappings);
+                    Assert.All(detailsMappings, m => Assert.Same(detailsProp, m.Property));
+                }
+            }
+
+            var manyOwnedDetailsProperty = manyOwnedComplexProperty.ComplexType.FindProperty(nameof(OwnedType.Details))!;
+
+            var manyOwnedIndexerIndex = principalDerived.GetIndexes().Single(i => i.Name == "IX_PrincipalDerived_ManyOwned_Indexer");
+            Assert.Same(manyOwnedDetailsProperty, manyOwnedIndexerIndex.Properties.Single());
+            Assert.NotNull(manyOwnedIndexerIndex.CollectionIndices);
+            Assert.Equal(new int?[] { 0 }, manyOwnedIndexerIndex.CollectionIndices.Single());
+        }
+
+        var dependentComplexProperty = principalDerived.FindComplexProperty(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.False(dependentComplexProperty.IsCollection);
+        Assert.True(dependentComplexProperty.ComplexType.IsMappedToJson());
+        Assert.Equal(
+            nameof(PrincipalDerived<DependentBase<byte?>>.Dependent),
+            dependentComplexProperty.ComplexType.GetContainerColumnName());
+
+        var dependentIndex = principalDerived.GetIndexes().Single(i => i.Name == "IX_PrincipalDerived_Dependent");
+        Assert.Single(dependentIndex.Properties);
+        Assert.Same(dependentComplexProperty, dependentIndex.Properties[0]);
+
+        var principalBaseTable2 = principalBase.GetTableMappings().Single().Table;
+        var dependentJsonColumn = principalBaseTable2.FindColumn(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.NotNull(dependentJsonColumn);
+        var dependentTableIndex = principalBaseTable2.Indexes.Single(i => i.Name == "IX_PrincipalDerived_Dependent");
+        Assert.Same(dependentJsonColumn, dependentTableIndex.Columns.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Tpc_Sprocs()
         => Test(
             BuildTpcSprocsModel,
@@ -901,7 +1075,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             model.GetEntityTypes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sequences()
         => Test(
             modelBuilder =>
@@ -926,7 +1100,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.NotNull(longSequence.ToString());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task CheckConstraints()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -946,7 +1120,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     Assert.Throws<InvalidOperationException>(() => dataEntity.GetCheckConstraints()).Message);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Triggers()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -967,7 +1141,23 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.Equal(2, dataEntity.GetDeclaredTriggers().Count());
             });
 
-    [ConditionalFact]
+    [Fact]
+    public virtual Task Owned_entity_sharing_table_with_owner_that_has_an_index()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Post>(eb =>
+            {
+                eb.HasOne<Blog>().WithMany(b => b.Posts).IsRequired();
+                eb.OwnsOne(p => p.Author);
+            }),
+            model =>
+            {
+                // Forces the relational model to be created, which threw when an owned entity sharing the
+                // owner's table was processed before the owner. See https://github.com/dotnet/efcore/issues/37981
+                var relationalModel = model.GetRelationalModel();
+                Assert.Contains(relationalModel.Tables, t => t.Indexes.Any());
+            });
+
+    [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>
@@ -1188,7 +1378,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Custom_function_type_mapping()
         => Test<FunctionTypeMappingContext>(
             assertModel: model =>
@@ -1214,7 +1404,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Custom_function_parameter_type_mapping()
         => Test<FunctionParameterTypeMappingContext>(
             assertModel: model =>
@@ -1241,7 +1431,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Throws_for_custom_function_translation()
         => Test<FunctionTranslationContext>(
             expectedExceptionMessage: RelationalStrings.CompiledModelFunctionTranslation("GetSqlFragmentStatic"));
@@ -1260,7 +1450,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Dynamic_schema()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -1357,6 +1547,25 @@ public partial class DbContextModel
 
     public class SpatialTypes : AbstractBase;
 
+    public class Blog
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
+    }
+
+    public class Post
+    {
+        public int Id { get; set; }
+
+        public Author Author { get; set; } = new();
+    }
+
+    public class Author
+    {
+        public string Name { get; set; } = "";
+    }
+
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")
     {
         base.AddReferences(build, filePath);
@@ -1367,5 +1576,8 @@ public partial class DbContextModel
 
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder)
-            .ConfigureWarnings(w => w.Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+            .ConfigureWarnings(
+                w => w.Ignore(
+                    RelationalEventId.ForeignKeyTpcPrincipalWarning,
+                    RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 }

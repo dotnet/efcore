@@ -60,6 +60,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 compatibilityLevel);
 
         /// <summary>
+        ///     'DateTimeOffset.Offset' cannot be translated on its own; use 'DateTimeOffset.Offset.TotalMinutes' to get the offset in minutes.
+        /// </summary>
+        public static string DateTimeOffsetOffsetRequiresTotalMinutes
+            => GetString("DateTimeOffsetOffsetRequiresTotalMinutes");
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.
         /// </summary>
         public static string DuplicateColumnIdentityIncrementMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
@@ -178,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType, property);
 
         /// <summary>
-        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.
+        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'UseKeyIndex' to configure the KEY INDEX.
         /// </summary>
         public static string FullTextIndexMissingKeyIndex(object? index, object? entityType)
             => string.Format(
@@ -192,6 +198,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("FullTextIndexOnInvalidColumn", nameof(index), nameof(entityType), nameof(property)),
                 index, entityType, property);
+
+        /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on full-text indexes.
+        /// </summary>
+        public static string FullTextIndexUnsupportedOption(object? index, object? entityType, object? option)
+            => string.Format(
+                GetString("FullTextIndexUnsupportedOption", nameof(index), nameof(entityType), nameof(option)),
+                index, entityType, option);
 
         /// <summary>
         ///     Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.
@@ -232,6 +246,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, index, entityType);
 
         /// <summary>
+        ///     The include property '{property}' specified on the index {index} on entity type '{entityType}' is contained within a JSON-mapped type. Properties contained within JSON-mapped types cannot be included in an index.
+        /// </summary>
+        public static string IncludePropertyInJsonMappedType(object? property, object? index, object? entityType)
+            => string.Format(
+                GetString("IncludePropertyInJsonMappedType", nameof(property), nameof(index), nameof(entityType)),
+                property, index, entityType);
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.
         /// </summary>
         public static string IncompatibleSqlOutputClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlOutputClause, object? entityTypeWithoutSqlOutputClause)
@@ -266,6 +288,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// </summary>
         public static string InvalidColumnNameForFreeText
             => GetString("InvalidColumnNameForFreeText");
+
+        /// <summary>
+        ///     The datepart '{datepart}' is invalid for the {function} function; datepart values may only contain letters and underscores.
+        /// </summary>
+        public static string InvalidDatePart(object? datepart, object? function)
+            => string.Format(
+                GetString("InvalidDatePart", nameof(datepart), nameof(function)),
+                datepart, function);
 
         /// <summary>
         ///     Engine type was not configured. Use one of {methods} to configure it.
@@ -432,14 +462,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, propertyName);
 
         /// <summary>
-        ///     Period property '{entityType}.{propertyName}' must be a shadow property.
-        /// </summary>
-        public static string TemporalPeriodPropertyMustBeInShadowState(object? entityType, object? propertyName)
-            => string.Format(
-                GetString("TemporalPeriodPropertyMustBeInShadowState", nameof(entityType), nameof(propertyName)),
-                entityType, propertyName);
-
-        /// <summary>
         ///     Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.
         /// </summary>
         public static string TemporalPeriodPropertyMustBeMappedToDatetime2(object? entityType, object? propertyName, object? columnType)
@@ -472,6 +494,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType);
 
         /// <summary>
+        ///     The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.
+        /// </summary>
+        public static string TimeSpanOffsetOutOfRange(object? offset)
+            => string.Format(
+                GetString("TimeSpanOffsetOutOfRange", nameof(offset)),
+                offset);
+
+        /// <summary>
+        ///     SQL Server time zone offsets must be specified in whole minutes. The provided TimeSpan value contains sub-minute precision (seconds, milliseconds, or smaller), which is not supported.
+        /// </summary>
+        public static string TimeSpanOffsetPrecisionNotSupported
+            => GetString("TimeSpanOffsetPrecisionNotSupported");
+
+        /// <summary>
         ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
         /// </summary>
         public static string TransientExceptionDetected
@@ -500,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType, property);
 
         /// <summary>
-        ///     Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.
+        ///     Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'HasMetric' on the vector index builder.
         /// </summary>
         public static string VectorIndexRequiresMetric(object? index, object? entityType)
             => string.Format(
@@ -524,6 +560,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType);
 
         /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on vector indexes.
+        /// </summary>
+        public static string VectorIndexUnsupportedOption(object? index, object? entityType, object? option)
+            => string.Format(
+                GetString("VectorIndexUnsupportedOption", nameof(index), nameof(entityType), nameof(option)),
+                index, entityType, option);
+
+        /// <summary>
         ///     Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.
         /// </summary>
         public static string VectorPropertiesNotSupportedInJson(object? propertyName, object? structuralType)
@@ -536,6 +580,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// </summary>
         public static string VectorSearchRequiresColumn
             => GetString("VectorSearchRequiresColumn");
+
+        /// <summary>
+        ///     WithApproximate() after Skip().Take() is not supported. Use Take().WithApproximate().Skip() instead, or remove Skip().
+        /// </summary>
+        public static string WithApproximateNotSupportedWithSkipAndTake
+            => GetString("WithApproximateNotSupportedWithSkipAndTake");
+
+        /// <summary>
+        ///     WithApproximate() must be called after Take() to specify the number of results.
+        /// </summary>
+        public static string WithApproximateRequiresTake
+            => GetString("WithApproximateRequiresTake");
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -1155,6 +1211,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             }
 
             return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateIndexWarning))'.
+        /// </summary>
+        public static EventDefinition<string, string> LogVectorSearchWithoutApproximate(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogVectorSearchWithoutApproximate;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogVectorSearchWithoutApproximate,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.VectorSearchWithoutApproximateIndexWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
+                            _resourceManager.GetString("LogVectorSearchWithoutApproximate")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
     }
 }

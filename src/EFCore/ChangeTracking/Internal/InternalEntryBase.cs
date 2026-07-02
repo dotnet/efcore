@@ -274,9 +274,22 @@ public abstract partial class InternalEntryBase : IInternalEntry
             // Hot path; do not use LINQ
             foreach (var property in structuralType.GetFlattenedProperties())
             {
-                if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
+                var afterSaveBehavior = property.GetAfterSaveBehavior();
+                if (afterSaveBehavior != PropertySaveBehavior.Save)
                 {
                     _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
+
+                    // Properties with AfterSaveBehavior.Throw were unflagged above, but DetectChanges could
+                    // re-mark them if the original values snapshot doesn't match the current values (e.g. for
+                    // shadow properties on complex types whose snapshot stores default values).
+                    // Set the original values of Throw properties to match current values so that
+                    // DetectChanges won't find a false mismatch and re-mark them as modified.
+                    if (afterSaveBehavior == PropertySaveBehavior.Throw
+                        && property.GetOriginalValueIndex() >= 0
+                        && !IsConceptualNull(property))
+                    {
+                        SetOriginalValue(property, this[property], skipChangeDetection: true);
+                    }
                 }
 
                 // Properties that are not loaded (IsAutoLoaded = false and not yet loaded) should
@@ -624,9 +637,19 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
         if (recurse)
         {
+            var newElementState = isModified ? EntityState.Modified : EntityState.Unchanged;
             foreach (var complexEntry in GetFlattenedComplexEntries())
             {
-                complexEntry.SetEntityState(isModified ? EntityState.Modified : EntityState.Unchanged, modifyProperties: true);
+                // Added elements represent pending additions with no original ordinal, so forcing them to
+                // Modified/Unchanged is incorrect and would fail the original ordinal validation. Leave their
+                // state (computed by change detection) untouched, mirroring the bulk state-change logic in
+                // InternalComplexCollectionEntry.SetState.
+                if (complexEntry.EntityState is EntityState.Added)
+                {
+                    continue;
+                }
+
+                complexEntry.SetEntityState(newElementState, modifyProperties: true);
             }
         }
     }

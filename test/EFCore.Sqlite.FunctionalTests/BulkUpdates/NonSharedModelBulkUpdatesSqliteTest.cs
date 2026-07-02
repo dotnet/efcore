@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
@@ -10,7 +10,7 @@ public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : Non
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -133,6 +133,8 @@ SET "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), ''),
             """
 UPDATE "Blogs" AS "b"
 SET "CreationTimestamp" = '2020-01-01 00:00:00'
+FROM "BlogsPart1" AS "b0"
+WHERE "b"."Id" = "b0"."Id"
 """);
     }
 
@@ -160,7 +162,6 @@ DELETE FROM "Context30572_Principal" AS "c"
 WHERE "c"."Id" IN (
     SELECT "c0"."Id"
     FROM "Context30572_Principal" AS "c0"
-    LEFT JOIN "Context30572_Dependent" AS "c1" ON "c0"."DependentId" = "c1"."Id"
 )
 """);
     }

@@ -245,8 +245,16 @@ public class SqlServerModelValidator(
         var includeProperties = index.GetIncludeProperties();
         if (includeProperties?.Count > 0)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var notFound = includeProperties
-                .FirstOrDefault(i => index.DeclaringEntityType.FindProperty(i) == null);
+                .FirstOrDefault(i =>
+                {
+                    var propertyBase = RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, i);
+                    return propertyBase == null
+                        || (propertyBase is IComplexProperty complexProperty
+                            && !complexProperty.ComplexType.IsMappedToJson());
+                });
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             if (notFound != null)
             {
@@ -255,6 +263,21 @@ public class SqlServerModelValidator(
                         notFound,
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName()));
+            }
+
+            foreach (var includeProperty in includeProperties)
+            {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var propertyBase = RelationalModel.FindPropertyBaseByPath(index.DeclaringEntityType, includeProperty)!;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                if (propertyBase.DeclaringType.IsMappedToJson())
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.IncludePropertyInJsonMappedType(
+                            includeProperty,
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName()));
+                }
             }
 
             var duplicateProperty = includeProperties
@@ -302,6 +325,10 @@ public class SqlServerModelValidator(
 
         var entityType = index.DeclaringEntityType;
 
+        ValidateUnsupportedIndexOptions(
+            index,
+            (option) => SqlServerStrings.FullTextIndexUnsupportedOption(index.DisplayName(), entityType.DisplayName(), option));
+
         if (++_entityFullTextIndexCount > 1)
         {
             throw new InvalidOperationException(
@@ -319,16 +346,17 @@ public class SqlServerModelValidator(
         }
 
         // Validate that FTS columns are text or varbinary types
-        foreach (var property in index.Properties)
+        foreach (var propertyBase in index.Properties)
         {
-            var typeMapping = (RelationalTypeMapping?)property.FindTypeMapping();
+            var property = propertyBase as IProperty;
+            var typeMapping = (RelationalTypeMapping?)property?.FindTypeMapping();
             if (typeMapping?.StoreTypeNameBase is not ("varchar" or "nvarchar" or "varbinary" or "binary"))
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.FullTextIndexOnInvalidColumn(
                         index.DisplayName(),
                         entityType.DisplayName(),
-                        property.Name));
+                        propertyBase.Name));
             }
         }
 
@@ -360,7 +388,12 @@ public class SqlServerModelValidator(
     {
         if (index.IsVectorIndex())
         {
-            if (index.Properties is not [var property])
+            ValidateUnsupportedIndexOptions(
+                index,
+                (option) => SqlServerStrings.VectorIndexUnsupportedOption(
+                    index.DisplayName(), index.DeclaringEntityType.DisplayName(), option));
+
+            if (index.Properties is not [var propertyBase])
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.VectorIndexRequiresSingleProperty(
@@ -384,16 +417,37 @@ public class SqlServerModelValidator(
                         index.DeclaringEntityType.DisplayName()));
             }
 
-            var typeMapping = property.FindTypeMapping();
 
-            if (typeMapping is not SqlServerVectorTypeMapping)
+            if (propertyBase is IProperty property && property.FindTypeMapping() is not SqlServerVectorTypeMapping)
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.VectorIndexOnNonVectorProperty(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        property.Name));
+                        propertyBase.Name));
             }
+        }
+    }
+
+    private static void ValidateUnsupportedIndexOptions(IIndex index, Func<string, string> errorFactory)
+    {
+        var option = index switch
+        {
+            { IsUnique: true } => nameof(index.IsUnique),
+            { IsDescending: not null } => nameof(index.IsDescending),
+            _ when index.GetFilter() is not null => "Filter",
+            _ when index.IsClustered() is not null => "IsClustered",
+            _ when index.GetIncludeProperties() is not null => "IncludeProperties",
+            _ when index.GetFillFactor() is not null => "FillFactor",
+            _ when index.IsCreatedOnline() is not null => "IsCreatedOnline",
+            _ when index.GetSortInTempDb() is not null => "SortInTempDb",
+            _ when index.GetDataCompression() is not null => "DataCompression",
+            _ => null
+        };
+
+        if (option is not null)
+        {
+            throw new InvalidOperationException(errorFactory(option));
         }
     }
 
@@ -447,13 +501,6 @@ public class SqlServerModelValidator(
             throw new InvalidOperationException(
                 SqlServerStrings.TemporalExpectedPeriodPropertyNotFound(
                     temporalEntityType.DisplayName(), annotationPropertyName));
-        }
-
-        if (!periodProperty.IsShadowProperty() && !temporalEntityType.IsPropertyBag)
-        {
-            throw new InvalidOperationException(
-                SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState(
-                    temporalEntityType.DisplayName(), periodProperty.Name));
         }
 
         if (periodProperty.IsNullable

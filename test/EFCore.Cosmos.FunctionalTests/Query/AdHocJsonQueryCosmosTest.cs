@@ -26,7 +26,7 @@ WHERE (c["Id"] < 4)
         }
     }
 
-    [ConditionalTheory(Skip = "issue #35702")]
+    [Theory(Skip = "issue #35702")]
     public override async Task Project_top_level_json_entity_with_missing_scalars(bool async)
     {
         if (async)
@@ -47,7 +47,7 @@ WHERE (c["Id"] < 4)
         }
     }
 
-    [ConditionalTheory(Skip = "issue #34067")]
+    [Theory(Skip = "issue #34067")]
     public override async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
     {
         if (async)
@@ -717,7 +717,7 @@ WHERE (c["Id"] = 4)
 
     #region 30028
 
-    [ConditionalTheory(Skip = "issue #35702")]
+    [Theory(Skip = "issue #35702")]
     public override Task Missing_navigation_works_with_deduplication(bool async)
         => base.Missing_navigation_works_with_deduplication(async);
 

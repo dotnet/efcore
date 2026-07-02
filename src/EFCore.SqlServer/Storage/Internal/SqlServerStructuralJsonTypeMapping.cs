@@ -73,9 +73,15 @@ public class SqlServerStructuralJsonTypeMapping : StructuralJsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static MemoryStream CreateUtf8Stream(string json)
-        => json == ""
-            ? throw new InvalidOperationException(RelationalStrings.JsonEmptyString)
-            : new MemoryStream(Encoding.UTF8.GetBytes(json));
+    {
+        if (json == "")
+        {
+            throw new InvalidOperationException(RelationalStrings.JsonEmptyString);
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(json);
+        return new MemoryStream(bytes, index: 0, bytes.Length, writable: false, publiclyVisible: true);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -91,8 +92,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         _, // source, translated above
                         UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression vectorPropertySelector },
                         var similarTo,
-                        var metric,
-                        var topN
+                        var metric
                     ]
                     && source is
                     {
@@ -113,8 +113,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     }
 
                     if (TranslateExpression(similarTo) is not { } translatedSimilarTo
-                        || TranslateExpression(metric, applyDefaultTypeMapping: false) is not { } translatedMetric
-                        || TranslateExpression(topN) is not { } translatedTopN)
+                        || TranslateExpression(metric, applyDefaultTypeMapping: false) is not { } translatedMetric)
                     {
                         return QueryCompilationContext.NotTranslatedExpression;
                     }
@@ -135,8 +134,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                             // as required by SQL Server)
                             vectorColumn,
                             translatedSimilarTo,
-                            translatedMetric,
-                            translatedTopN
+                            translatedMetric
                         ]);
 
                     // We have the VECTOR_SEARCH() function call. Modify the SelectExpression and shaper to use it and project
@@ -174,6 +172,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 #pragma warning restore EF9105 // VectorSearch is experimental
                 }
 
+                case nameof(SqlServerQueryableExtensions.WithApproximate):
+                {
+                    return TranslateWithApproximate(source);
+                }
+
                 case nameof(SqlServerQueryableExtensions.FreeTextTable) or nameof(SqlServerQueryableExtensions.ContainsTable)
                     when source is
                     {
@@ -200,7 +203,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             nameof(SqlServerQueryableExtensions.FreeTextTable) => "FREETEXTTABLE",
             nameof(SqlServerQueryableExtensions.ContainsTable) => "CONTAINSTABLE",
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException($"Unexpected full-text method '{method.Name}'.")
         };
 
         var (columnsExpression, searchText, languageTerm, topN) = methodCallExpression.Arguments switch
@@ -214,7 +217,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             // Use an empty array to signal "*" (all columns)
             [_, var s, var l, var t] => ((Expression)Expression.NewArrayInit(typeof(ColumnExpression)), s, l, t),
 
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException("Unexpected argument shape for full-text table function.")
         };
 
         if (TranslateExpression(searchText) is not { } translatedSearchText
@@ -522,27 +525,19 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // (for owned JSON entities)
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
-            if (property.GetJsonPropertyName() is { } jsonPropertyName)
+            if (jsonQueryExpression.FindJsonElement(property) is { PropertyName: { } jsonPropertyName } element)
             {
+                var typeMapping = element.StoreTypeMapping!;
                 columnInfos.Add(
                     new SqlServerOpenJsonExpression.ColumnInfo
                     {
                         Name = jsonPropertyName,
-                        TypeMapping = property.GetRelationalTypeMapping(),
+                        TypeMapping = typeMapping,
                         Path = [new PathSegment(jsonPropertyName)],
-                        AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
+                        AsJson = typeMapping.ElementTypeMapping is not null
                     });
             }
         }
-
-        // Find the container column in the relational model to get its type mapping
-        // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
-        // See #36647 and #36646 about improving this.
-        var containerColumnName = structuralType.GetContainerColumnName();
-        var containerColumn = structuralType.ContainingEntityType.GetTableMappings()
-            .SelectMany(m => m.Table.Columns)
-            .Where(c => c.Name == containerColumnName)
-            .Single();
 
         var nestedJsonPropertyNames = jsonQueryExpression.StructuralType switch
         {
@@ -551,12 +546,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     .Where(n => n.ForeignKey.IsOwnership
                         && n.TargetEntityType.IsMappedToJson()
                         && n.ForeignKey.PrincipalToDependent == n)
-                    .Select(n => n.TargetEntityType.GetJsonPropertyName() ?? throw new UnreachableException()),
+                    .Select(n => n.TargetEntityType.GetJsonPropertyName()                    
+                    ?? throw new UnreachableException("JSON-mapped navigation without a JSON property name.")),
 
             IComplexType complexType
-                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName() ?? throw new UnreachableException()),
+                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName()
+                    ?? throw new UnreachableException("JSON-mapped complex property without a JSON property name.")),
 
-            _ => throw new UnreachableException()
+            _ => throw new UnreachableException("Unexpected structural type when transforming JSON query to table.")
         };
 
         foreach (var jsonPropertyName in nestedJsonPropertyNames)
@@ -565,7 +562,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 new SqlServerOpenJsonExpression.ColumnInfo
                 {
                     Name = jsonPropertyName,
-                    TypeMapping = containerColumn.StoreTypeMapping,
+                    TypeMapping = jsonQueryExpression.JsonColumn.TypeMapping!,
                     Path = [new PathSegment(jsonPropertyName)],
                     AsJson = true
                 });
@@ -799,6 +796,34 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         }
     }
 
+    private ShapedQueryExpression TranslateWithApproximate(ShapedQueryExpression source)
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+
+        switch (selectExpression)
+        {
+            // WithApproximate() after Skip().Take() — not yet supported; SQL Server will add native OFFSET+FETCH
+            // WITH APPROXIMATE support in the future.
+            case { Limit: not null, Offset: not null }:
+                throw new InvalidOperationException(SqlServerStrings.WithApproximateNotSupportedWithSkipAndTake);
+
+            // Already wrapped — calling WithApproximate() twice is a no-op.
+            case { Limit: WithApproximateExpression }:
+                return source;
+
+            // Normal case: WithApproximate() after Take() — wrap the Limit with WithApproximateExpression
+            case { Limit: { } limit }:
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                selectExpression.SetLimit(new WithApproximateExpression(limit));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                return source;
+
+            // WithApproximate() without Take()
+            default:
+                throw new InvalidOperationException(SqlServerStrings.WithApproximateRequiresTake);
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -980,7 +1005,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             JsonScalarExpression { TypeMapping.ElementTypeMapping: not null } j => ((ColumnExpression)j.Json, j.Path, false),
             JsonQueryExpression j => (j.JsonColumn, j.Path, false),
 
-            _ => throw new UnreachableException(),
+            _ => throw new UnreachableException("Unexpected target expression for JSON partial update setter."),
         };
 
         // SQL Server 2025 introduced the modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method),

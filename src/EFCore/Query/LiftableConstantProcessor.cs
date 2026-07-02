@@ -126,7 +126,11 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                 continue;
             }
 
-            var name = liftedConstant.Parameter.Name ?? "unknown";
+            // Lifted constant variable names are partly derived from model metadata (e.g. property names), which may not be valid C#
+            // identifiers (shadow properties can be given arbitrary names). Fall back to a generic name in that case.
+            var name = ModelValidator.IsValidIdentifier(liftedConstant.Parameter.Name)
+                ? liftedConstant.Parameter.Name!
+                : "unknown";
             var baseName = name;
             for (var j = 0; variableNames.Contains(name); j++)
             {
@@ -250,6 +254,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 #if DEBUG
     // TODO: issue #33482 - we should properly deal with NTS types rather than disabling them here
     // especially using such a crude method
+    [EntityFrameworkInternal]
     protected override Expression VisitMember(MemberExpression memberExpression)
         => memberExpression is { Expression: ConstantExpression, Type.Name: "SqlServerBytesReader" or "GaiaGeoReader" }
             ? memberExpression

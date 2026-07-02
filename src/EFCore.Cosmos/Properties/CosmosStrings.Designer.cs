@@ -32,12 +32,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 ttl1, entityType1, entityType2, ttl2, container);
 
         /// <summary>
-        ///     The property '{property}' on type '{type}' cannot be configured as not auto-loaded. The Cosmos provider stores entire documents as JSON, so partial property loading is not supported.
+        ///     The property '{property}' on type '{type}' cannot be configured as not auto-loaded. The Cosmos provider doesn't support partial property loading.
         /// </summary>
         public static string AutoLoadedCosmosProperty(object? property, object? type)
             => string.Format(
                 GetString("AutoLoadedCosmosProperty", nameof(property), nameof(type)),
                 property, type);
+
+        /// <summary>
+        ///     'Except' cannot be called on the builder returned by 'HasAutomaticIndexing(false)' because exceptions only apply when automatic indexing is enabled.
+        /// </summary>
+        public static string AutomaticIndexingExceptionWhileDisabled
+            => GetString("AutomaticIndexingExceptionWhileDisabled");
+
+        /// <summary>
+        ///     Cosmos automatic-indexing configuration was set on entity type '{entityType}', but it must be configured on the document-root entity type '{rootEntityType}' instead. Automatic-indexing settings apply to the container as a whole and are inherited by derived types.
+        /// </summary>
+        public static string AutomaticIndexingNotOnRoot(object? entityType, object? rootEntityType)
+            => string.Format(
+                GetString("AutomaticIndexingNotOnRoot", nameof(entityType), nameof(rootEntityType)),
+                entityType, rootEntityType);
 
         /// <summary>
         ///     The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.
@@ -226,12 +240,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 idProperty, entityType, propertyType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.
+        ///     The exception list configured for Cosmos automatic indexing on container '{container}' differs between entity types '{entityType1}' and '{entityType2}'. All entity types mapped to the same container must agree on the automatic-indexing exception list.
         /// </summary>
-        public static string IndexesExist(object? entityType, object? properties)
+        public static string InconsistentAutomaticIndexing(object? container, object? entityType1, object? entityType2)
             => string.Format(
-                GetString("IndexesExist", nameof(entityType), nameof(properties)),
-                entityType, properties);
+                GetString("InconsistentAutomaticIndexing", nameof(container), nameof(entityType1), nameof(entityType2)),
+                container, entityType1, entityType2);
+
+        /// <summary>
+        ///     Cosmos automatic indexing is enabled for some entity types but disabled for others on container '{container}'; entity types '{entityType1}' and '{entityType2}' disagree. All entity types mapped to the same container must agree on whether automatic indexing is enabled.
+        /// </summary>
+        public static string InconsistentAutomaticIndexingEnabled(object? container, object? entityType1, object? entityType2)
+            => string.Format(
+                GetString("InconsistentAutomaticIndexingEnabled", nameof(container), nameof(entityType1), nameof(entityType2)),
+                container, entityType1, entityType2);
+
+        /// <summary>
+        ///     The index over properties '{properties}' is declared on owned type '{ownedEntityType}', which is mapped to container '{containerEntityType}'. Indexes that traverse owned types are not currently supported.
+        /// </summary>
+        public static string IndexOnOwnedType(object? properties, object? ownedEntityType, object? containerEntityType)
+            => string.Format(
+                GetString("IndexOnOwnedType", nameof(properties), nameof(ownedEntityType), nameof(containerEntityType)),
+                properties, ownedEntityType, containerEntityType);
 
         /// <summary>
         ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
@@ -592,6 +622,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
                 memberType, member, entityType);
+
+        /// <summary>
+        ///     Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.
+        /// </summary>
+        public static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor)
+            => string.Format(
+                GetString("UnhandledExpressionInVisitor", nameof(expression), nameof(expressionType), nameof(visitor)),
+                expression, expressionType, visitor);
 
         /// <summary>
         ///     Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.

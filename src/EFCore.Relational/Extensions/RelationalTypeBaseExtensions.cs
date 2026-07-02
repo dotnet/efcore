@@ -350,7 +350,14 @@ public static class RelationalTypeBaseExtensions
     ///     Gets the mapping strategy for the derived types.
     /// </summary>
     /// <param name="typeBase">The type.</param>
-    /// <returns>The mapping strategy for the derived types.</returns>
+    /// <returns>
+    ///     The mapping strategy for the derived types, or <see langword="null" /> if no strategy is configured
+    ///     and the entity type has no derived types. Well-known values are
+    ///     <see cref="RelationalAnnotationNames.TphMappingStrategy" />,
+    ///     <see cref="RelationalAnnotationNames.TptMappingStrategy" />, and
+    ///     <see cref="RelationalAnnotationNames.TpcMappingStrategy" />, but other values may be returned
+    ///     if a different mapping strategy has been configured.
+    /// </returns>
     public static string? GetMappingStrategy(this IReadOnlyTypeBase typeBase)
         => typeBase.ContainingEntityType.GetMappingStrategy();
 
@@ -379,6 +386,78 @@ public static class RelationalTypeBaseExtensions
             : typeBase is IReadOnlyEntityType entityType
                 ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
                 : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName();
+    }
+
+    /// <summary>
+    ///     Gets the container column name to which the type is mapped for a particular table-like store object.
+    /// </summary>
+    /// <param name="typeBase">The type to get the container column name for.</param>
+    /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
+    /// <returns>
+    ///     The container column name to which the type is mapped, or <see langword="null" /> if the type is not mapped
+    ///     to a container column in the given store object.
+    /// </returns>
+    public static string? GetContainerColumnName(this IReadOnlyTypeBase typeBase, in StoreObjectIdentifier storeObject)
+    {
+        var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
+        if (annotation != null)
+        {
+            var containerColumnName = (string?)annotation.Value;
+            if (string.IsNullOrEmpty(containerColumnName))
+            {
+                return containerColumnName;
+            }
+
+            if (storeObject.StoreObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
+            {
+                return containerColumnName;
+            }
+
+            var containingEntityType = typeBase.ContainingEntityType;
+            if (containingEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+            {
+                var localStoreObject = storeObject;
+                return StoreObjectIdentifier.Create(containingEntityType, localStoreObject.StoreObjectType) == localStoreObject
+                    || containingEntityType.GetDerivedTypes().Any(e => StoreObjectIdentifier.Create(e, localStoreObject.StoreObjectType) == localStoreObject)
+                        ? containerColumnName
+                        : null;
+            }
+
+            // TODO: Support entity splitting with JSON columns. Issue #36172
+            var declaringStoreObject = StoreObjectIdentifier.Create(typeBase, storeObject.StoreObjectType);
+            if (declaringStoreObject == null)
+            {
+                var tableFound = false;
+                var queue = new Queue<IReadOnlyEntityType>();
+                queue.Enqueue(containingEntityType);
+                while (queue.Count > 0 && !tableFound)
+                {
+                    foreach (var derivedType in queue.Dequeue().GetDirectlyDerivedTypes())
+                    {
+                        var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObject.StoreObjectType);
+                        if (derivedStoreObject == null)
+                        {
+                            queue.Enqueue(derivedType);
+                            continue;
+                        }
+
+                        if (derivedStoreObject == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                return tableFound ? containerColumnName : null;
+            }
+
+            return declaringStoreObject == storeObject ? containerColumnName : null;
+        }
+
+        return typeBase is IReadOnlyEntityType entityType
+            ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName(storeObject)
+            : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName(storeObject);
     }
 
     /// <summary>

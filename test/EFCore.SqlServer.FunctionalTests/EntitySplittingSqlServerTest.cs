@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : EntitySplittingTestBase(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_roundtrip_with_triggers()
     {
         await InitializeAsync(

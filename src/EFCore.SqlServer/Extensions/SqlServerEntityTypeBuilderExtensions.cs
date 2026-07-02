@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class SqlServerEntityTypeBuilderExtensions
 {
+    // DO NOT REMOVE, IN GENERATED CODE
+    #region IsMemoryOptimized (obsolete, kept for existing migration snapshots)
+
     /// <summary>
     ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
     /// </summary>
@@ -96,6 +99,8 @@ public static class SqlServerEntityTypeBuilderExtensions
         where TRelatedEntity : class
         => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)IsMemoryOptimized(
             (OwnedNavigationBuilder)collectionOwnershipBuilder, memoryOptimized);
+
+    #endregion
 
     /// <summary>
     ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.

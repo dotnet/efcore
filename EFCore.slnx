@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/eng/" />
+  <Folder Name="/eng/Tools/">
+    <Project Path="eng/Tools/ApiChief/ApiChief.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="azure-pipelines-internal-tests.yml" />
@@ -18,8 +22,7 @@
   <Folder Name="/.github/workflows/">
     <File Path=".github/workflows/copilot-setup-steps.yml" />
     <File Path=".github/workflows/inter-branch-merge-flow.yml" />
-    <File Path=".github/workflows/TestCosmos.yaml" />
-    <File Path=".github/workflows/TestSqlServer.yaml" />
+    <File Path=".github/workflows/Test.yaml" />
   </Folder>
   <Folder Name="/src/">
     <File Path="src/Directory.Build.props" />
@@ -52,6 +55,7 @@
     <Project Path="test/dotnet-ef.Tests/dotnet-ef.Tests.csproj" />
     <Project Path="test/ef.Tests/ef.Tests.csproj" />
     <Project Path="test/EFCore.Analyzers.Tests/EFCore.Analyzers.Tests.csproj" />
+    <Project Path="test/EFCore.ApiBaseline.Tests/EFCore.ApiBaseline.Tests.csproj" />
     <Project Path="test/EFCore.AspNet.InMemory.FunctionalTests/EFCore.AspNet.InMemory.FunctionalTests.csproj" />
     <Project Path="test/EFCore.AspNet.Specification.Tests/EFCore.AspNet.Specification.Tests.csproj" />
     <Project Path="test/EFCore.AspNet.Sqlite.FunctionalTests/EFCore.AspNet.Sqlite.FunctionalTests.csproj" />
@@ -63,7 +67,6 @@
     <Project Path="test/EFCore.FSharp.FunctionalTests/EFCore.FSharp.FunctionalTests.fsproj" />
     <Project Path="test/EFCore.InMemory.FunctionalTests/EFCore.InMemory.FunctionalTests.csproj" />
     <Project Path="test/EFCore.InMemory.Tests/EFCore.InMemory.Tests.csproj" />
-    <Project Path="test/EFCore.OData.FunctionalTests/EFCore.OData.FunctionalTests.csproj" />
     <Project Path="test/EFCore.Proxies.Tests/EFCore.Proxies.Tests.csproj" />
     <Project Path="test/EFCore.Relational.Specification.Tests/EFCore.Relational.Specification.Tests.csproj" />
     <Project Path="test/EFCore.Relational.Tests/EFCore.Relational.Tests.csproj" />
@@ -73,9 +76,11 @@
     <Project Path="test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj" />
     <Project Path="test/EFCore.SqlServer.HierarchyId.Tests/EFCore.SqlServer.HierarchyId.Tests.csproj" />
     <Project Path="test/EFCore.SqlServer.Tests/EFCore.SqlServer.Tests.csproj" />
+    <Project Path="test/EFCore.OData.FunctionalTests/EFCore.OData.FunctionalTests.csproj" />
     <Project Path="test/EFCore.Tests/EFCore.Tests.csproj" />
     <Project Path="test/EFCore.VisualBasic.FunctionalTests/EFCore.VisualBasic.FunctionalTests.vbproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.sqlite3.Tests.csproj" />
+    <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.sqlite3mc.Tests.csproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.Tests.csproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.winsqlite3.Tests.csproj" />
     <Project Path="test/EFCore.NativeAotTests/EFCore.NativeAotTests.csproj">

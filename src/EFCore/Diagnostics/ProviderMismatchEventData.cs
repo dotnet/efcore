@@ -16,23 +16,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
         /// </summary>
         /// <param name="eventDefinition">The event definition.</param>
         /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
-        /// <param name="compiledProviderName">The provider name stored with the model.</param>
+        /// <param name="mismatchedProviderName">The provider name stored with the model.</param>
         /// <param name="currentProviderName">The provider name currently configured.</param>
         public ProviderMismatchEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,
-            string compiledProviderName,
+            string mismatchedProviderName,
             string currentProviderName)
             : base(eventDefinition, messageGenerator)
         {
-            CompiledProviderName = compiledProviderName;
+            MismatchedProviderName = mismatchedProviderName;
             CurrentProviderName = currentProviderName;
         }
 
         /// <summary>
         ///     The provider name stored with the model.
         /// </summary>
-        public virtual string CompiledProviderName { get; }
+        public virtual string MismatchedProviderName { get; }
 
         /// <summary>
         ///     The provider name currently configured.

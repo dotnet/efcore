@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -18,7 +18,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 23198
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task An_optional_dependent_without_any_columns_and_nested_dependent_throws()
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<Context23198>())).Message;
@@ -67,7 +67,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 24777
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context24777>();
@@ -176,7 +176,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 25680
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_collection_basic_split_query(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context25680>();
@@ -228,7 +228,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 26592
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
@@ -237,7 +237,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
@@ -273,7 +273,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 28347
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_materializes_when_not_containing_another_owned_entity(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
@@ -304,7 +304,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_entity_equality_when_not_containing_another_owned_entity(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
@@ -325,7 +325,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_null_in_conditional_projection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
@@ -355,7 +355,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
@@ -385,7 +385,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
@@ -474,7 +474,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 30358
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30358>(seed: c => c.SeedAsync());
@@ -558,7 +558,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 31107
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_have_required_owned_type_on_derived_type()
     {
         var contextFactory = await InitializeNonSharedTest<Context31107>(seed: c => c.SeedAsync());

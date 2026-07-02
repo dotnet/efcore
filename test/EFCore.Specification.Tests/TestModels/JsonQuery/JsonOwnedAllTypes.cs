@@ -42,6 +42,8 @@ public class JsonOwnedAllTypes
     public char TestCharacter { get; set; }
     public sbyte TestSignedByte { get; set; }
     public int? TestNullableInt32 { get; set; }
+    public DateTime? TestNullableDateTime { get; set; }
+    public DateOnly? TestNullableDateOnly { get; set; }
     public JsonEnum TestEnum { get; set; }
     public JsonEnum TestEnumWithIntConverter { get; set; }
     public JsonEnum? TestNullableEnum { get; set; }

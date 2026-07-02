@@ -45,8 +45,15 @@ public class StringToCharConverter : StringCharConverter<string, char>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static StringToCharConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(char), i => new StringToCharConverter(i.MappingHints), DefaultHints);
+        = new(typeof(string), typeof(char),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToCharConverter(i.MappingHints),
+            DefaultHints);
 }

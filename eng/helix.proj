@@ -12,12 +12,13 @@
 
     <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
     <FailOnTestFailure>true</FailOnTestFailure>
-    <SqlServerTests>$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.SqlServer.HierarchyId.Tests/*.csproj;$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.AspNet.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.VisualBasic.FunctionalTests/*.vbproj</SqlServerTests>
+    <SqlServerTests>$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.SqlServer.HierarchyId.Tests/*.csproj;$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.AspNet.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.VisualBasic.FunctionalTests/*.vbproj;$(RepoRoot)/test/EFCore.FSharp.FunctionalTests/*.fsproj</SqlServerTests>
+    <CosmosTests>$(RepoRoot)/test/EFCore.Cosmos.FunctionalTests/*.csproj</CosmosTests>
   </PropertyGroup>
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
     <!-- Local build outside of Azure Pipeline -->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;OSX.1200.Amd64.Open;OSX.1200.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64</HelixTargetQueues>
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Windows.11.Amd64.Client.Open;Windows.11.Arm64.Open;Windows.Server2025.Amd64.Open;OSX.15.Amd64.Open;OSX.15.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64;Ubuntu.2204.Amd64.XL.Open;Ubuntu.2204.Amd64.Open</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <HelixSource>efcore/localbuild/</HelixSource>
     <HelixBuild>t001</HelixBuild>
@@ -33,49 +34,106 @@
     <AdditionalDotNetPackage Include="$(MicrosoftNETCorePlatformsVersion)">
       <PackageType>runtime</PackageType>
     </AdditionalDotNetPackage>
+
+    <HelixCorrelationPayload Include="$(RepoRoot)/eng/testing">
+      <Destination>testing</Destination>
+    </HelixCorrelationPayload>
   </ItemGroup>
 
   <ItemGroup>
-    <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
-    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
-    <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
-    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
+    <MTPProject Include="$(RepoRoot)/test/**/*.csproj"/>
+    <MTPProject Include="$(RepoRoot)/test/**/*.fsproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
     <!-- The trimming and NativeAOT test projects are console programs -->
-    <XUnitProject Remove="$(RepoRoot)/test/EFCore.TrimmingTests/*.csproj"/>
-    <XUnitProject Remove="$(RepoRoot)/test/EFCore.NativeAotTests/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.TrimmingTests/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.NativeAotTests/*.csproj"/>
+    <!-- API baseline tests require source files and cannot run in Helix -->
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.ApiBaseline.Tests/*.csproj"/>
   </ItemGroup>
 
   <!-- Work-around for https://github.com/dotnet/runtime/issues/70758 -->
   <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))'">
-    <XUnitProject Update="$(RepoRoot)/test/EFCore.InMemory.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.Sqlite.FunctionalTests/*.csproj;$(RepoRoot)/test/ef.Tests/*.csproj">
+    <MTPProject Update="$(RepoRoot)/test/EFCore.InMemory.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.Sqlite.FunctionalTests/*.csproj;$(RepoRoot)/test/ef.Tests/*.csproj">
       <PreCommands>$(PreCommands); export COMPlus_EnableWriteXorExecute=0</PreCommands>
-    </XUnitProject>
+    </MTPProject>
   </ItemGroup>
 
-  <!-- Start LocalDb instance for test projects which uses SqlServer on windows -->
-  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">
-    <XUnitProject Update="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.10.Amd64`))'">
+    <MTPProject Remove="$(CosmosTests)"/>
+    <MTPProject Remove="$(SqlServerTests)"/>
+    <MTPProject Update="@(MTPProject)">
+      <PreCommands>$(PreCommands); set "Test__SqlServer__DefaultConnection=Data Source="</PreCommands>
+    </MTPProject>
+  </ItemGroup>
+
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.11.Arm64`))'">
+    <MTPProject Remove="$(SqlServerTests)"/>
+    <MTPProject Remove="$(CosmosTests)"/>
+    <MTPProject Update="@(MTPProject)">
+      <PreCommands>$(PreCommands); set "Test__SqlServer__DefaultConnection=Data Source="</PreCommands>
+    </MTPProject>
+  </ItemGroup>
+
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.11.Amd64.Client`))'">
+    <MTPProject Remove="$(RepoRoot)/test/**/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/**/*.fsproj"/>
+    <MTPProject Include="$(SqlServerTests)">
       <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
-    </XUnitProject>
+    </MTPProject>
   </ItemGroup>
 
-  <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Also remove other projects as they will be run outside of docker. -->
-  <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`ubuntu-22.04-helix-sqlserver-amd64`))'">
-    <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
-    <XUnitProject Include="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.Server2025.Amd64`))'">
+    <MTPProject Remove="$(RepoRoot)/test/**/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/**/*.fsproj"/>
+    <MTPProject Include="$(CosmosTests)">
+      <PreCommands>$(PreCommands); call %HELIX_CORRELATION_PAYLOAD%\testing\WaitCosmosEmulator.cmd; set Test__Cosmos__DefaultConnection=https://localhost:8081; set Test__Cosmos__SkipConnectionCheck=true</PreCommands>
+     </MTPProject>
+  </ItemGroup>
+
+  <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Only run SqlServer tests. -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`helix-sqlserver`))'">
+    <MTPProject Remove="$(RepoRoot)/test/**/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/**/*.fsproj"/>
+    <MTPProject Include="$(SqlServerTests)">
       <PreCommands>$(PreCommands); export MSSQL_SA_PASSWORD=$(MSSQL_SA_PASSWORD); export Test__SqlServer__DefaultConnection="Server=localhost;;Database=master;;User=sa;;Password=$(MSSQL_SA_PASSWORD);;Connect Timeout=60;;ConnectRetryCount=0;;TrustServerCertificate=True"; /opt/mssql/bin/sqlservr --accept-eula &amp;; sleep 120; </PreCommands>
-    </XUnitProject>
+    </MTPProject>
   </ItemGroup>
 
-  <!-- Remove test projects which requires SqlServer from Ubuntu/OSX. -->
-  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL'">
-    <XUnitProject Remove="$(SqlServerTests)"/>
+  <!-- Run Cosmos tests on Ubuntu with Docker support (testcontainer auto-starts the emulator) -->
+  <ItemGroup Condition = "'$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL'">
+    <MTPProject Remove="$(RepoRoot)/test/**/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/**/*.fsproj"/>
+    <MTPProject Include="$(CosmosTests)"/>
+  </ItemGroup>
+
+  <!-- Run tests that don't need SqlServer or Cosmos on bare Ubuntu -->
+  <ItemGroup Condition = "'$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64'">
+    <MTPProject Remove="$(SqlServerTests)"/>
+    <MTPProject Remove="$(CosmosTests)"/>
+  </ItemGroup>
+
+  <!-- Remove test projects which require SqlServer or Cosmos from OSX -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))'">
+    <MTPProject Remove="$(SqlServerTests)"/>
+    <MTPProject Remove="$(CosmosTests)"/>
+  </ItemGroup>
+
+  <!--
+    Skip tests tagged with the "failing" category. Microsoft.DotNet.XUnitV3Extensions attributes
+    such as [ConditionalClass]/[ConditionalAssembly] add `category=failing` to tests whose
+    condition evaluates to false; this filter is what actually skips them at the runner.
+
+    This must run AFTER any per-queue ItemGroup that re-Includes MTPProject items.
+  -->
+  <ItemGroup>
+    <MTPProject Update="@(MTPProject)">
+      <Arguments>$(XUnitV3Arguments) --filter-not-trait category=failing --ignore-exit-code 8</Arguments>
+    </MTPProject>
   </ItemGroup>
 
   <PropertyGroup>
-    <XUnitPublishTargetFramework>$(NetCurrent)</XUnitPublishTargetFramework>
-    <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
-    <XUnitArguments></XUnitArguments>
-    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
+    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">03:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>
 </Project>

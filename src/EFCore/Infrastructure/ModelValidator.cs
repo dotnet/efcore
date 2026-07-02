@@ -90,6 +90,12 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IEntityType entityType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        if (entityType.ClrType.IsUnion())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.UnionTypeNotSupported(entityType.DisplayName()));
+        }
+
         ValidateEntityClrType(entityType, logger);
         ValidateChangeTrackingStrategy(entityType, logger);
         ValidateIgnoredMembers(entityType, logger);
@@ -99,7 +105,6 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateInheritanceMapping(entityType, logger);
         ValidateFieldMapping(entityType, logger);
         ValidateQueryFilters(entityType, logger);
-        ValidateConstructorBindingAutoLoaded(entityType);
 
         foreach (var property in entityType.GetDeclaredProperties())
         {
@@ -140,30 +145,6 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     /// <summary>
-    ///     Validates that no constructor-bound property is configured as not auto-loaded.
-    /// </summary>
-    /// <param name="structuralType">The structural type to validate.</param>
-    protected virtual void ValidateConstructorBindingAutoLoaded(ITypeBase structuralType)
-    {
-        if (structuralType.ConstructorBinding is null)
-        {
-            return;
-        }
-
-        var typeName = structuralType.DisplayName();
-
-        foreach (var consumedProperty in structuralType.ConstructorBinding.ParameterBindings
-                     .SelectMany(p => p.ConsumedProperties))
-        {
-            if (consumedProperty is IProperty { IsAutoLoaded: false } property)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.AutoLoadedConstructorProperty(property.Name, typeName));
-            }
-        }
-    }
-
-    /// <summary>
     ///     Validates inheritance mapping for an entity type.
     /// </summary>
     /// <param name="entityType">The entity type to validate.</param>
@@ -193,10 +174,42 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateTypeMapping(property, logger);
         ValidatePrimitiveCollection(property, logger);
         ValidateAutoLoaded(property, structuralType, logger);
+
+        if (property.IsShadowProperty()
+            && !IsValidIdentifier(property.Name))
+        {
+            logger.ShadowPropertyNameNotValidIdentifierWarning(property);
+        }
     }
 
     /// <summary>
-    ///     Validates that a property configured as not auto-loaded is not a key, foreign key, concurrency token or discriminator.
+    ///     Returns <see langword="true" /> if the given name only uses letters, ASCII digits and underscores and does not start with a digit;
+    ///     that is, if it can be used as-is as an identifier in generated code.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static bool IsValidIdentifier(string? name)
+    {
+        if (string.IsNullOrEmpty(name)
+            || (!char.IsLetter(name[0]) && name[0] != '_'))
+        {
+            return false;
+        }
+
+        for (var i = 1; i < name.Length; i++)
+        {
+            var ch = name[i];
+            if (!char.IsLetter(ch) && !char.IsAsciiDigit(ch) && ch != '_')
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Validates that a property configured as not auto-loaded is not a key, foreign key, concurrency token, discriminator,
+    ///     or consumed by a constructor binding.
     /// </summary>
     /// <param name="property">The property to validate.</param>
     /// <param name="structuralType">The structural type containing the property.</param>
@@ -237,6 +250,18 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             throw new InvalidOperationException(
                 CoreStrings.AutoLoadedDiscriminatorProperty(property.Name, typeName));
         }
+
+        foreach (var derivedType in structuralType.GetDerivedTypesInclusive())
+        {
+            if (derivedType.ConstructorBinding is not null
+                && derivedType.ConstructorBinding.ParameterBindings
+                    .SelectMany(p => p.ConsumedProperties)
+                    .Contains(property))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.AutoLoadedConstructorProperty(property.Name, derivedType.DisplayName()));
+            }
+        }
     }
 
     /// <summary>
@@ -251,7 +276,6 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         var complexType = complexProperty.ComplexType;
 
         ValidateChangeTrackingStrategy(complexType, logger);
-        ValidateConstructorBindingAutoLoaded(complexType);
 
         foreach (var property in complexType.GetDeclaredProperties())
         {
@@ -273,7 +297,65 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IIndex index,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        List<IComplexProperty>? complexProperties = null;
+        foreach (var property in index.Properties)
+        {
+            if (property is IComplexProperty complexProperty)
+            {
+                (complexProperties ??= []).Add(complexProperty);
+            }
+            else if (property is not IProperty)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IndexPropertyMustBePropertyOrComplexProperty(
+                        property.Name,
+                        index.DeclaringEntityType.DisplayName()));
+            }
+
+            if (property.DeclaringType is not IComplexType)
+            {
+                continue;
+            }
+
+            ValidateIndexProperty(index, property, logger);
+        }
+
+        if (complexProperties != null)
+        {
+            ValidateIndexOnComplexProperty(index, complexProperties, logger);
+        }
     }
+
+    /// <summary>
+    ///     Validates a property contained in an index.
+    /// </summary>
+    /// <param name="index">The index to validate.</param>
+    /// <param name="property">The property contained in the index.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateIndexProperty(
+        IIndex index,
+        IPropertyBase property,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        => ValidateComplexPropertyChainForKeyOrIndex(
+                property,
+                propName => CoreStrings.IndexOnComplexCollection(index.Properties.Format(), index.DeclaringEntityType.DisplayName(), propName),
+                nullableErrorFactory: null);
+
+    /// <summary>
+    ///     Validates an index that contains a complex property.
+    /// </summary>
+    /// <param name="index">The index to validate.</param>
+    /// <param name="complexProperties">The complex properties contained in the index.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateIndexOnComplexProperty(
+        IIndex index,
+        IReadOnlyList<IComplexProperty> complexProperties,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        => throw new InvalidOperationException(
+            CoreStrings.IndexOnComplexProperty(
+                index.Properties.Format(),
+                index.DeclaringEntityType.DisplayName(),
+                complexProperties[0].Name));
 
     /// <summary>
     ///     Validates a single key.
@@ -286,6 +368,46 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     {
         ValidateShadowKey(key, logger);
         ValidateMutableKey(key, logger);
+
+        foreach (var property in key.Properties)
+        {
+            if (property.DeclaringType is not IComplexType)
+            {
+                continue;
+            }
+
+            ValidateComplexPropertyChainForKeyOrIndex(
+                property,
+                propName => CoreStrings.KeyOnComplexCollection(key.Properties.Format(), key.DeclaringEntityType.DisplayName(), propName),
+                propName => CoreStrings.KeyOnNullableComplexProperty(key.Properties.Format(), key.DeclaringEntityType.DisplayName(), propName));
+        }
+    }
+
+    private static void ValidateComplexPropertyChainForKeyOrIndex(
+        IPropertyBase property,
+        Func<string, string> collectionErrorFactory,
+        Func<string, string>? nullableErrorFactory)
+    {
+        var typeBase = property.DeclaringType;
+        while (typeBase is IComplexType complexType)
+        {
+            var complexProperty = complexType.ComplexProperty;
+
+            if (complexProperty.IsCollection)
+            {
+                throw new InvalidOperationException(
+                    collectionErrorFactory(complexProperty.Name));
+            }
+
+            if (nullableErrorFactory != null
+                && complexProperty.IsNullable)
+            {
+                throw new InvalidOperationException(
+                    nullableErrorFactory(complexProperty.Name));
+            }
+
+            typeBase = complexProperty.DeclaringType;
+        }
     }
 
     /// <summary>
@@ -455,8 +577,11 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 continue;
             }
 
-            var targetType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                clrProperty, conventionModel, useAttributes: true, out var targetOwned);
+            // elementType is the collection element type for collection navigations and null for reference navigations.
+            var targetType = Dependencies.MemberClassifier.IsCandidateNavigationProperty(
+                    clrProperty, conventionModel, useAttributes: true, out var elementType, out var targetOwned, out _)
+                ? elementType ?? propertyType
+                : null;
             if (targetType == null
                 && clrProperty.FindSetterProperty() == null)
             {
@@ -549,6 +674,12 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     {
         var structuralType = complexProperty.DeclaringType;
         var targetType = complexProperty.ComplexType;
+
+        if (targetType.ClrType.IsUnion())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.UnionTypeNotSupported(targetType.DisplayName()));
+        }
 
         // Issue #31243: Shadow complex properties are not supported
         if (complexProperty.IsShadowProperty())
@@ -982,6 +1113,24 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 throw new InvalidOperationException(CoreStrings.OwnedDerivedType(entityType.DisplayName()));
             }
 
+            if (ownership.DeleteBehavior != DeleteBehavior.Cascade)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.OwnershipNotCascadeDelete(
+                        ownership.PrincipalEntityType.DisplayName(),
+                        ownership.DeclaringEntityType.DisplayName(),
+                        ownership.DeleteBehavior,
+                        DeleteBehavior.Cascade));
+            }
+
+            if (!ownership.IsRequired)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.OwnershipNotRequired(
+                        ownership.PrincipalEntityType.DisplayName(),
+                        ownership.DeclaringEntityType.DisplayName()));
+            }
+
             foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership
                          && (fk.PrincipalEntityType != fk.DeclaringEntityType
                              || !fk.Properties.SequenceEqual(entityType.FindPrimaryKey()!.Properties))
@@ -1281,16 +1430,29 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var elementClrType = property.GetElementType()?.ClrType;
-        if (property is { IsPrimitiveCollection: true, ClrType.IsArray: false })
+        var elementType = property.GetElementType();
+        if (elementType == null)
         {
-            if (property.ClrType.IsSealed && property.ClrType.TryGetElementType(typeof(IList<>)) == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.BadListType(
-                        property.ClrType.ShortDisplayName(),
-                        typeof(IList<>).MakeGenericType(elementClrType!).ShortDisplayName()));
-            }
+            return;
+        }
+
+        if (elementType.FindTypeMapping() == null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ElementNotMapped(
+                    elementType.ClrType.ShortDisplayName(),
+                    property.DeclaringType.DisplayName(),
+                    property.Name));
+        }
+
+        var elementClrType = elementType.ClrType;
+        if (property is { ClrType.IsArray: false }
+            && property.ClrType.IsSealed && property.ClrType.TryGetElementType(typeof(IList<>)) == null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.BadListType(
+                    property.ClrType.ShortDisplayName(),
+                    typeof(IList<>).MakeGenericType(elementClrType).ShortDisplayName()));
         }
     }
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
@@ -14,7 +14,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
         : base(fixture)
         => _setSourceCreator = GetSetSourceCreator();
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_query_entity_which_is_split_in_two(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -36,7 +36,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_query_entity_which_is_split_in_three(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -67,7 +67,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_query_entity_which_is_split_selecting_only_main_properties(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -103,7 +103,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             elementSorter: e => e.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_query_entity_which_is_split_selecting_only_part_2_properties(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -139,7 +139,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             elementSorter: e => e.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_query_entity_which_is_split_selecting_only_part_3_properties(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -175,7 +175,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             elementSorter: e => e.Id);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_reference_to_split_entity(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -207,7 +207,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_collection_to_split_entity(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -236,7 +236,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_reference_to_split_entity_including_reference(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -271,7 +271,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_collection_to_split_entity_including_collection(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -306,7 +306,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 15);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_reference_on_split_entity(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -338,7 +338,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_collection_on_split_entity(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -370,7 +370,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Custom_projection_trim_when_multiple_tables(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -413,7 +413,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 3);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Normal_entity_owning_a_split_reference_with_main_fragment_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -450,7 +450,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Normal_entity_owning_a_split_reference_with_main_fragment_sharing_custom_projection(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -500,7 +500,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Normal_entity_owning_a_split_reference_with_main_fragment_not_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -541,7 +541,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Normal_entity_owning_a_split_reference_with_main_fragment_not_sharing_custom_projection(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -593,7 +593,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 0);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Normal_entity_owning_a_split_collection(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -634,7 +634,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 15);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Normal_entity_owning_a_split_reference_with_main_fragment_sharing_multiple_level(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -697,7 +697,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 15);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_reference(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -731,7 +731,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_collection(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -765,7 +765,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 15);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_split_reference_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -820,7 +820,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_split_collection(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -875,7 +875,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 15);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_1(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -932,7 +932,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_4(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -989,7 +989,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_6(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1046,7 +1046,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_base_with_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1081,7 +1081,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_base_with_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1118,7 +1118,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_middle_with_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1153,7 +1153,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 6);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_middle_with_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1190,7 +1190,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 6);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_leaf_with_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1225,7 +1225,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_leaf_with_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1262,7 +1262,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_reference_on_leaf_with_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1299,7 +1299,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_base_with_table_sharing_querying_sibling(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1334,7 +1334,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 2);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_base_with_table_sharing_querying_sibling(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1371,7 +1371,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 2);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_middle_with_table_sharing_querying_sibling(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1406,7 +1406,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_middle_with_table_sharing_querying_sibling(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1443,7 +1443,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_leaf_with_table_sharing_querying_sibling(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1478,7 +1478,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_leaf_with_table_sharing_querying_sibling(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1515,7 +1515,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_reference_on_leaf_with_table_sharing_querying_sibling(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1552,7 +1552,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_base_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1589,7 +1589,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_base_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1628,7 +1628,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_reference_on_base_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1667,7 +1667,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_middle_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1704,7 +1704,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 6);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_middle_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1743,7 +1743,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 6);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_reference_on_middle_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1782,7 +1782,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 6);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_reference_on_leaf_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1819,7 +1819,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_reference_on_leaf_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1858,7 +1858,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_reference_on_leaf_without_table_sharing(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1897,7 +1897,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_collection_on_base(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1934,7 +1934,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_collection_on_base(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -1973,7 +1973,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_collection_on_base(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -2012,7 +2012,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 10);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_collection_on_middle(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -2049,7 +2049,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_collection_on_middle(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -2088,7 +2088,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_collection_on_middle(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -2127,7 +2127,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 8);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tph_entity_owning_a_split_collection_on_leaf(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -2164,7 +2164,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 7);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpt_entity_owning_a_split_collection_on_leaf(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -2203,7 +2203,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 7);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Tpc_entity_owning_a_split_collection_on_leaf(bool async)
     {
         await InitializeContextFactoryAsync(mb =>
@@ -2242,7 +2242,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 7);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Compare_split_entity_to_null(bool async)
     {
         await InitializeContextFactoryAsync(mb => mb
@@ -2255,7 +2255,53 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 5);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_split_entity_with_renamed_columns_uses_default_mappings(bool async)
+    {
+        await InitializeContextFactoryAsync(mb =>
+        {
+            mb.Entity<EntityOne>().SplitToTable(
+                "SplitEntityOnePart",
+                tb =>
+                {
+                    // Configure column names on the split table that differ from the default (logical) column names.
+                    // This makes the table mappings diverge from the default mappings, which is what FromSql must use.
+                    tb.Property(e => e.IntValue3).HasColumnName("CustomIntValue3");
+                    tb.Property(e => e.StringValue3).HasColumnName("CustomStringValue3");
+                    tb.Property(e => e.IntValue4);
+                    tb.Property(e => e.StringValue4);
+                });
+        });
+
+        using var context = CreateContext();
+
+        // The raw SQL exposes the split-table columns under their default (logical) names. If FromSql incorrectly used
+        // the table mappings (CustomIntValue3/CustomStringValue3) rather than the default mappings, the composed query
+        // would reference columns that don't exist in the raw SQL's result.
+        var sql = NormalizeDelimitersInRawString(
+            @"SELECT [m].*, [s].[CustomStringValue3] AS [StringValue3], [s].[StringValue4], [s].[CustomIntValue3] AS [IntValue3], [s].[IntValue4]
+              FROM [EntityOne] AS [m]
+              INNER JOIN [SplitEntityOnePart] AS [s] ON [m].[Id] = [s].[Id]");
+
+        var query = context.Set<EntityOne>().FromSqlRaw(sql).OrderBy(e => e.Id);
+
+        var actual = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var expected = GetExpectedData().Set<EntityOne>().OrderBy(e => e.Id).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            AssertEqual(expected[i], actual[i]);
+        }
+    }
+
     #region TestHelpers
+
+    protected string NormalizeDelimitersInRawString(string sql)
+        => ((RelationalTestStore)NonSharedTestStore).NormalizeDelimitersInRawString(sql);
 
     protected async Task AssertQuery<TResult>(
         bool async,
@@ -2828,7 +2874,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
         modelBuilder.Entity<LeafEntity>();
     }
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
 

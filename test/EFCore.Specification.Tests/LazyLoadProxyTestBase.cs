@@ -17,7 +17,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #32390
+    [Theory, InlineData(false), InlineData(true)] // Issue #32390
     public virtual void Can_use_proxies_from_multiple_threads_when_navigations_already_loaded(bool noTracking)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -65,7 +65,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Task.WaitAll(tests.Select(Task.Run).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detected_principal_reference_navigation_changes_are_detected_and_marked_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -79,7 +79,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(parent).Reference(e => e.Single).IsLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detected_dependent_reference_navigation_changes_are_detected_and_marked_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -93,7 +93,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(single).Reference(e => e.Parent).IsLoaded);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)] // Issue #13138
     public virtual void Lazy_load_one_to_one_reference_with_recursive_property(EntityState state)
     {
@@ -130,7 +130,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Added, true)]
     public virtual void Attached_references_to_principal_are_marked_as_loaded(EntityState state, bool lazy)
@@ -183,7 +183,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(parent).Reference(e => e.SingleCompositeKey).IsLoaded);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Added, true)]
     public virtual void Attached_references_to_dependents_are_marked_as_loaded(EntityState state, bool lazy)
@@ -236,7 +236,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.True(context.Entry(parent.SingleCompositeKey).Reference(e => e.Parent).IsLoaded);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Added, true)]
     public virtual void Attached_collections_are_not_marked_as_loaded(EntityState state, bool lazy)
@@ -295,7 +295,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.False(context.Entry(parent).Collection(e => e.ChildrenCompositeKey!).IsLoaded);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
      InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
      InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
      InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
@@ -370,7 +370,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
      InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
      InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
      InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
@@ -470,7 +470,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
      InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
      InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
      InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
@@ -570,7 +570,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
+    [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
      InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
      InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),
      InlineData(EntityState.Added, true, false), InlineData(EntityState.Modified, true, false),
@@ -651,7 +651,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal(EntityState state)
     {
@@ -713,7 +713,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state)
     {
@@ -760,7 +760,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_one_non_virtual_reference_to_owned_type()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -773,7 +773,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("Paradise Alley", owner.Address!.Street);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_one_virtual_reference_to_owned_type()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -786,7 +786,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal("Dead End", owner.Address!.Street);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_non_virtual_collection_of_owned_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -799,7 +799,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(owner.Addresses!);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_virtual_collection_of_owned_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -812,7 +812,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(3, owner.Addresses!.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_non_virtual_collection_of_owned_types_with_explicit_lazy_load()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -825,7 +825,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(owner.Addresses);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Eager_load_one_to_many_virtual_collection_of_owned_types_with_explicit_lazy_load()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -839,7 +839,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
     }
 
     // Tests issue https://github.com/dotnet/efcore/issues/19847 (non-virtual)
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_reference_to_owned_type_to_null_is_allowed_on_non_virtual_navigation()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -857,7 +857,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
     }
 
     // Tests issue https://github.com/dotnet/efcore/issues/19847 (virtual)
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_reference_to_owned_type_to_null_is_allowed_on_virtual_navigation()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -874,7 +874,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(owner.Address);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_one_to_one_reference_to_principal_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -891,7 +891,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.SingleParent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_one_to_many_reference_to_principal_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -908,7 +908,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.CollectionParent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_reference_to_dependent_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -925,7 +925,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Child);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_virtual_collection_is_not_lazy_loaded()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -942,7 +942,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(parent.Children);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK(EntityState state)
     {
@@ -980,7 +980,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK(EntityState state)
     {
@@ -1019,7 +1019,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_changed_non_found_FK(EntityState state)
     {
@@ -1102,7 +1102,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_changed_found_FK(EntityState state)
     {
@@ -1183,7 +1183,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_not_found(EntityState state)
     {
@@ -1222,7 +1222,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_not_found(EntityState state)
     {
@@ -1261,7 +1261,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_not_found(EntityState state)
     {
@@ -1301,7 +1301,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_not_found(EntityState state)
     {
@@ -1341,7 +1341,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
      InlineData(EntityState.Added, CascadeTiming.OnSaveChanges), InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges),
      InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges), InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges),
      InlineData(EntityState.Unchanged, CascadeTiming.Immediate), InlineData(EntityState.Added, CascadeTiming.Immediate),
@@ -1395,7 +1395,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_already_partially_loaded(EntityState state)
     {
@@ -1441,7 +1441,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(QueryTrackingBehavior.NoTracking), InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [Theory, InlineData(QueryTrackingBehavior.NoTracking), InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_partially_loaded_no_tracking(QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -1484,7 +1484,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
      InlineData(EntityState.Added, CascadeTiming.OnSaveChanges), InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges),
      InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges), InlineData(EntityState.Unchanged, CascadeTiming.Immediate),
      InlineData(EntityState.Added, CascadeTiming.Immediate), InlineData(EntityState.Modified, CascadeTiming.Immediate),
@@ -1540,7 +1540,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_already_loaded(EntityState state)
     {
@@ -1587,7 +1587,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
+    [Theory, InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges),
      InlineData(EntityState.Added, CascadeTiming.OnSaveChanges), InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges),
      InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges), InlineData(EntityState.Unchanged, CascadeTiming.Immediate),
      InlineData(EntityState.Added, CascadeTiming.Immediate), InlineData(EntityState.Modified, CascadeTiming.Immediate),
@@ -1653,7 +1653,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(EntityState state)
     {
@@ -1700,7 +1700,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(EntityState state)
     {
@@ -1747,7 +1747,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_alternate_key(EntityState state)
     {
@@ -1803,7 +1803,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_alternate_key(EntityState state)
     {
@@ -1859,7 +1859,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_alternate_key(EntityState state)
     {
@@ -1900,7 +1900,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
     {
@@ -1932,7 +1932,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
     {
@@ -1965,7 +1965,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_shadow_fk(EntityState state)
     {
@@ -1996,7 +1996,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_shadow_fk(EntityState state)
     {
@@ -2055,7 +2055,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_shadow_fk(EntityState state)
     {
@@ -2114,7 +2114,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_shadow_fk(EntityState state)
     {
@@ -2155,7 +2155,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
     {
@@ -2188,7 +2188,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
     {
@@ -2222,7 +2222,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_composite_key(EntityState state)
     {
@@ -2253,7 +2253,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_composite_key(EntityState state)
     {
@@ -2309,7 +2309,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_composite_key(EntityState state)
     {
@@ -2365,7 +2365,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_composite_key(EntityState state)
     {
@@ -2406,7 +2406,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
     {
@@ -2439,7 +2439,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Added), InlineData(EntityState.Modified),
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
     {
@@ -2473,7 +2473,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(single.Parent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_collection_for_detached_is_no_op()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2484,7 +2484,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Children);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_principal_for_detached_is_no_op()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2495,7 +2495,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_dependent_for_detached_is_no_op()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2506,7 +2506,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Single);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_collection_for_no_tracking_does_not_throw_if_populated()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2519,7 +2519,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(parent.Children);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_principal_for_no_tracking_does_not_throw_if_populated()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2532,7 +2532,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(child.Parent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_load_reference_to_dependent_for_no_tracking_does_not_throw_if_populated()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2545,7 +2545,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection(EntityState state, bool async)
@@ -2584,7 +2584,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_serialize_proxies_to_JSON()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4555,7 +4555,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
 // ]
 // """;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_already_loaded_owned_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4580,7 +4580,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4593,7 +4593,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(12, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_opaque_predicate_and_multiple_queries()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4611,7 +4611,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(12, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4624,7 +4624,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_shares_service_property_on_derived_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4650,7 +4650,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
             entity.BaseNoses.Select(b => b.Size).OrderBy(h => h));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_handles_shadow_nullable_GUID_FK_in_TPH_model()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4662,7 +4662,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Equal(new DateTime(1973, 9, 3), ((Quest)tribes[0]).Birthday);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Lazy_loading_finds_correct_entity_type_with_alternate_model()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4684,7 +4684,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.Same(address, person.Address);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Top_level_projection_track_entities_before_passing_to_client_method()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -4697,7 +4697,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         Assert.NotNull(((dynamic)query!).Single);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Entity_equality_with_proxy_parameter(bool async)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);

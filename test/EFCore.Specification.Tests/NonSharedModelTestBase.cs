@@ -19,22 +19,22 @@ public abstract class NonSharedModelTestBase(NonSharedFixture fixture) : IAsyncL
     protected IServiceProvider NonSharedServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
+                $"You must call `await {nameof(InitializeAsync)}<TContext>();` at the beginning of the test.");
 
     private TestStore? _testStore;
 
     protected TestStore NonSharedTestStore
         => _testStore
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
+                $"You must call `await {nameof(InitializeAsync)}<TContext>();` at the beginning of the test.");
 
     private ListLoggerFactory? _listLoggerFactory;
 
     protected virtual ListLoggerFactory ListLoggerFactory
         => _listLoggerFactory ??= (ListLoggerFactory)NonSharedServiceProvider.GetRequiredService<ILoggerFactory>();
 
-    public virtual Task InitializeAsync()
-        => Task.CompletedTask;
+    public virtual ValueTask InitializeAsync()
+        => ValueTask.CompletedTask;
 
     protected virtual async Task<ContextFactory<TContext>> InitializeNonSharedTest<TContext>(
         Action<ModelBuilder>? onModelCreating = null,
@@ -169,7 +169,7 @@ public abstract class NonSharedModelTestBase(NonSharedFixture fixture) : IAsyncL
     {
     }
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         if (NonSharedFixture == null && _testStore != null)
         {

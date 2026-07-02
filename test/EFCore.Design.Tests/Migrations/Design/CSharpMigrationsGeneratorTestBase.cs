@@ -13,10 +13,15 @@ public abstract class CSharpMigrationsGeneratorTestBase
 
     protected abstract TestHelpers TestHelpers { get; }
 
-    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert)
-        => Test(buildModel, expectedCode, (m, _) => assert(m));
+    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert, bool fullSnapshot = true)
+        => Test(buildModel, expectedCode, (m, _) => assert(m), fullSnapshot: fullSnapshot);
 
-    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel, IModel> assert, bool validate = false)
+    protected void Test(
+        Action<ModelBuilder> buildModel,
+        string expectedCode,
+        Action<IModel, IModel> assert,
+        bool validate = false,
+        bool fullSnapshot = true)
     {
         var modelBuilder = CreateConventionalModelBuilder();
         modelBuilder.HasDefaultSchema("DefaultSchema");
@@ -26,10 +31,10 @@ public abstract class CSharpMigrationsGeneratorTestBase
 
         var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: !validate);
 
-        Test(model, expectedCode, assert);
+        Test(model, expectedCode, assert, fullSnapshot);
     }
 
-    protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert)
+    protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert, bool fullSnapshot = true)
     {
         var generator = CreateMigrationsGenerator();
         var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
@@ -39,11 +44,19 @@ public abstract class CSharpMigrationsGeneratorTestBase
 
         try
         {
-            Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
+            if (fullSnapshot)
+            {
+                Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
+            }
+            else
+            {
+                Assert.Contains(expectedCode, code);
+            }
         }
-        catch (EqualException e)
+        catch (XunitException e)
         {
-            throw new Exception(e.Message + Environment.NewLine + Environment.NewLine + "-- Actual code:" + Environment.NewLine + code);
+            throw new Exception(
+                e.Message + Environment.NewLine + Environment.NewLine + "-- Actual code:" + Environment.NewLine + code);
         }
 
         var targetOptionsBuilder = TestHelpers

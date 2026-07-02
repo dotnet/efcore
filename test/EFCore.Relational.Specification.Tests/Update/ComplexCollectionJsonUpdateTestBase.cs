@@ -11,7 +11,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     protected ComplexCollectionJsonContext CreateContext()
         => (ComplexCollectionJsonContext)Fixture.CreateContext();
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -46,7 +46,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Remove_element_from_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -70,7 +70,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_complex_collection_owner_entity_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -94,7 +94,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Modify_element_in_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -117,7 +117,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Move_elements_in_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -143,7 +143,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Change_complex_collection_mapped_to_json_to_null_and_to_empty()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -177,7 +177,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Complex_collection_with_nested_complex_type_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -236,7 +236,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Modify_multiple_complex_properties_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -265,7 +265,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Clear_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -288,7 +288,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_entire_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -317,7 +317,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_nested_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -343,7 +343,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Modify_nested_complex_property_in_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -371,7 +371,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_complex_collection_to_null_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -399,7 +399,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_null_complex_collection_to_non_empty_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -440,7 +440,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_complex_collection_element_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -479,7 +479,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Complex_collection_with_empty_nested_collections_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -518,7 +518,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_complex_property_mapped_to_json_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -540,7 +540,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_null_complex_property_to_non_null_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -567,7 +567,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_complex_property_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -592,6 +592,55 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
+    [Fact]
+    public virtual Task Grow_nested_sub_collection_in_complex_property_mapped_to_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+
+                // Replace the entire JSON-mapped complex property with a structure where one nested
+                // sub-collection (Inner) has grown from one element to two. The sibling sub-collection
+                // (Others) being present in the type definition is required to trigger the regression.
+                widget.Deep = new DeepData
+                {
+                    Mid = new MiddleData
+                    {
+                        Items =
+                        [
+                            new DeepItem
+                            {
+                                Title = "Item1",
+                                Inner =
+                                [
+                                    new InnerEntry { Value = "inner-0" },
+                                    new InnerEntry { Value = "inner-1" }
+                                ],
+                                Others = []
+                            }
+                        ]
+                    }
+                };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+                    var item = Assert.Single(widget.Deep.Mid.Items);
+                    Assert.Equal("Item1", item.Title);
+                    Assert.Equal(2, item.Inner.Count);
+                    Assert.Equal("inner-0", item.Inner[0].Value);
+                    Assert.Equal("inner-1", item.Inner[1].Value);
+                    Assert.Empty(item.Others);
+                }
+            });
+
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
@@ -607,6 +656,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     protected class ComplexCollectionJsonContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<CompanyWithComplexCollections> Companies { get; set; } = null!;
+        public DbSet<WidgetWithDeepJson> Widgets { get; set; } = null!;
     }
 
     protected class CompanyWithComplexCollections
@@ -645,6 +695,34 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public decimal Budget { get; set; }
     }
 
+    protected class WidgetWithDeepJson
+    {
+        public int Id { get; set; }
+        public required DeepData Deep { get; set; }
+    }
+
+    protected class DeepData
+    {
+        public required MiddleData Mid { get; set; }
+    }
+
+    protected class MiddleData
+    {
+        public List<DeepItem> Items { get; set; } = [];
+    }
+
+    protected class DeepItem
+    {
+        public required string Title { get; set; }
+        public List<InnerEntry> Inner { get; set; } = [];
+        public List<InnerEntry> Others { get; set; } = [];
+    }
+
+    protected class InnerEntry
+    {
+        public required string Value { get; set; }
+    }
+
     public abstract class ComplexCollectionJsonUpdateFixtureBase : SharedStoreFixtureBase<DbContext>
     {
         protected override string StoreName
@@ -660,7 +738,8 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             => typeof(ComplexCollectionJsonContext);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            => modelBuilder.Entity<CompanyWithComplexCollections>(b =>
+        {
+            modelBuilder.Entity<CompanyWithComplexCollections>(b =>
             {
                 b.Property(x => x.Id).ValueGeneratedNever();
 
@@ -685,6 +764,26 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         cb.ToJson();
                     });
             });
+
+            modelBuilder.Entity<WidgetWithDeepJson>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.ComplexProperty(
+                    x => x.Deep, db =>
+                    {
+                        db.ToJson();
+                        db.ComplexProperty(
+                            d => d.Mid, mb =>
+                                mb.ComplexCollection(
+                                    m => m.Items, ib =>
+                                    {
+                                        ib.ComplexCollection(i => i.Inner);
+                                        ib.ComplexCollection(i => i.Others);
+                                    }));
+                    });
+            });
+        }
 
         protected override Task SeedAsync(DbContext context)
         {
@@ -716,6 +815,28 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             };
 
             context.Add(company);
+
+            var widget = new WidgetWithDeepJson
+            {
+                Id = 1,
+                Deep = new DeepData
+                {
+                    Mid = new MiddleData
+                    {
+                        Items =
+                        [
+                            new DeepItem
+                            {
+                                Title = "Item1",
+                                Inner = [new InnerEntry { Value = "inner-0" }],
+                                Others = []
+                            }
+                        ]
+                    }
+                }
+            };
+
+            context.Add(widget);
             return context.SaveChangesAsync();
         }
     }

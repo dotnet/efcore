@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -8,7 +8,7 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Expand_owned_navigation_as_optional_always(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContext>(seed: c => c.SeedAsync());
@@ -60,7 +60,7 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
     }
 #nullable disable
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
@@ -69,7 +69,7 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
         await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());

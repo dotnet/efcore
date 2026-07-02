@@ -22,14 +22,14 @@ public class CosmosTestHelpers : TestHelpers
         => services.AddEntityFrameworkCosmos();
 
     public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        => TestEnvironment.UseTokenCredential
+        => CosmosTestEnvironment.UseTokenCredential
             ? optionsBuilder.UseCosmos(
-                TestEnvironment.DefaultConnection,
-                TestEnvironment.TokenCredential,
+                CosmosTestEnvironment.DefaultConnection,
+                CosmosTestEnvironment.TokenCredential,
                 "UnitTests")
             : optionsBuilder.UseCosmos(
-                TestEnvironment.DefaultConnection,
-                TestEnvironment.AuthToken,
+                CosmosTestEnvironment.DefaultConnection,
+                CosmosTestEnvironment.AuthToken,
                 "UnitTests");
 
     public override LoggingDefinitions LoggingDefinitions { get; } = new CosmosLoggingDefinitions();

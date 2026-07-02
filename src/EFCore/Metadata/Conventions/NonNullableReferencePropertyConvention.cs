@@ -15,7 +15,6 @@ public class NonNullableReferencePropertyConvention(ProviderConventionSetBuilder
     : NonNullableConventionBase(dependencies),
     IPropertyAddedConvention,
     IPropertyFieldChangedConvention,
-    IPropertyElementTypeChangedConvention,
     IComplexPropertyAddedConvention,
     IComplexPropertyFieldChangedConvention
 {
@@ -64,19 +63,6 @@ public class NonNullableReferencePropertyConvention(ProviderConventionSetBuilder
         IConventionContext<FieldInfo> context)
     {
         if (propertyBuilder.Metadata.PropertyInfo == null)
-        {
-            Process(propertyBuilder);
-        }
-    }
-
-    /// <inheritdoc />
-    public virtual void ProcessPropertyElementTypeChanged(
-        IConventionPropertyBuilder propertyBuilder,
-        IElementType? newElementType,
-        IElementType? oldElementType,
-        IConventionContext<IElementType> context)
-    {
-        if (newElementType != null)
         {
             Process(propertyBuilder);
         }

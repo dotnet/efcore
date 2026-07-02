@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -14,7 +14,7 @@ public class Ef6GroupBySqlServerTest : Ef6GroupByTestBase<Ef6GroupBySqlServerTes
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -413,7 +413,7 @@ GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
 
         AssertSql(
             """
-SELECT [a].[Id], COALESCE(SUM([a].[Id]), 0) AS [Sum], COUNT(*) AS [Count]
+SELECT [a].[Id], ISNULL(SUM([a].[Id]), 0) AS [Sum], COUNT(*) AS [Count]
 FROM [ArubaOwner] AS [a]
 GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
 """);
@@ -481,14 +481,14 @@ GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
 
         AssertSql(
             """
-SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[CustomerId], [s].[OrderDate], [s].[Total], [s].[Id0]
+SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[CustomerId], [s].[OrderDate], [s].[Total]
 FROM [CustomerForLinq] AS [c]
 LEFT JOIN (
     SELECT [o].[Id], [o].[CustomerId], [o].[OrderDate], [o].[Total], [c0].[Id] AS [Id0]
     FROM [OrderForLinq] AS [o]
     LEFT JOIN [CustomerForLinq] AS [c0] ON [o].[CustomerId] = [c0].[Id]
 ) AS [s] ON [c].[Id] = [s].[Id0]
-ORDER BY [c].[Id], [s].[Id]
+ORDER BY [c].[Id]
 """);
     }
 
@@ -722,7 +722,7 @@ FROM (
 LEFT JOIN (
     SELECT [p2].[FirstName], [p2].[FullName], [p2].[c]
     FROM (
-        SELECT [p0].[FirstName], COALESCE([p0].[FirstName], N'') + N' ' + COALESCE([p0].[MiddleInitial], N'') + N' ' + COALESCE([p0].[LastName], N'') AS [FullName], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[Id]) AS [row]
+        SELECT [p0].[FirstName], ISNULL([p0].[FirstName], N'') + N' ' + ISNULL([p0].[MiddleInitial], N'') + N' ' + ISNULL([p0].[LastName], N'') AS [FullName], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[Id]) AS [row]
         FROM [Person] AS [p0]
     ) AS [p2]
     WHERE [p2].[row] <= 1
@@ -752,7 +752,7 @@ LEFT JOIN (
     WHERE [p2].[row] <= 1
 ) AS [p3] ON [p1].[FirstName] = [p3].[FirstName]
 LEFT JOIN [Shoes] AS [s] ON [p3].[Id] = [s].[PersonId]
-ORDER BY [p1].[FirstName], [p3].[Id]
+ORDER BY [p1].[FirstName]
 """);
     }
 
@@ -785,7 +785,7 @@ GROUP BY [f].[Size], [p0].[LastName]
 
         AssertSql(
             """
-SELECT [p].[Category], COALESCE(SUM([p].[UnitsInStock]), 0) AS [TotalUnitsInStock]
+SELECT [p].[Category], ISNULL(SUM([p].[UnitsInStock]), 0) AS [TotalUnitsInStock]
 FROM [ProductForLinq] AS [p]
 GROUP BY [p].[Category]
 """);
@@ -810,7 +810,7 @@ GROUP BY [p].[Category]
         AssertSql(
             """
 SELECT [p].[FirstName] AS [Feet], (
-    SELECT COALESCE(SUM([f].[Size]), 0)
+    SELECT ISNULL(SUM([f].[Size]), 0)
     FROM [Person] AS [p0]
     LEFT JOIN [Feet] AS [f] ON [p0].[Id] = [f].[Id]
     WHERE [p].[FirstName] = [p0].[FirstName] OR ([p].[FirstName] IS NULL AND [p0].[FirstName] IS NULL)) AS [Total]
@@ -854,7 +854,7 @@ GROUP BY [s].[Style]
 
         AssertSql(
             """
-SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[Id0], [o0].[Id], [o0].[CustomerId], [o0].[OrderDate], [o0].[Total], CASE
+SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [o0].[Id], [o0].[CustomerId], [o0].[OrderDate], [o0].[Total], CASE
     WHEN [s].[Id] IS NULL THEN -1
     ELSE [s].[Id]
 END
@@ -865,7 +865,7 @@ LEFT JOIN (
     LEFT JOIN [CustomerForLinq] AS [c0] ON [o].[CustomerId] = [c0].[Id]
 ) AS [s] ON [c].[Id] = [s].[Id0]
 LEFT JOIN [OrderForLinq] AS [o0] ON [c].[Id] = [o0].[CustomerId]
-ORDER BY [c].[Id], [s].[Id], [s].[Id0]
+ORDER BY [c].[Id], [s].[Id]
 """);
     }
 
@@ -887,7 +887,7 @@ GROUP BY [p].[Category]
 
         AssertSql(
             """
-SELECT [p2].[LastName], [p2].[c], [p4].[Id], [p6].[Id], [p6].[Age], [p6].[FirstName], [p6].[LastName], [p6].[MiddleInitial], [p4].[Age], [p4].[FirstName], [p4].[LastName], [p4].[MiddleInitial]
+SELECT [p2].[LastName], [p2].[c], [p6].[Id], [p6].[Age], [p6].[FirstName], [p6].[LastName], [p6].[MiddleInitial], [p4].[Id], [p4].[Age], [p4].[FirstName], [p4].[LastName], [p4].[MiddleInitial]
 FROM (
     SELECT [p].[LastName], COUNT(*) AS [c]
     FROM [Person] AS [p]
@@ -909,7 +909,7 @@ LEFT JOIN (
     ) AS [p5]
     WHERE [p5].[row] <= 2
 ) AS [p6] ON [p2].[LastName] = [p6].[LastName]
-ORDER BY [p2].[LastName] DESC, [p4].[Id], [p6].[LastName], [p6].[Id]
+ORDER BY [p2].[LastName] DESC, [p6].[LastName], [p6].[Id]
 """);
     }
 

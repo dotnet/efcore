@@ -140,7 +140,33 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         _context = statementContext ? ExpressionContext.Statement : ExpressionContext.Expression;
         _onLastLambdaLine = true;
 
-        Visit(node);
+        // The constant replacements (e.g. variables declared in the enclosing generated method for properties,
+        // navigations, etc.) are in scope for the whole translation, so register their names in the root stack frame.
+        // This keeps the in-scope variable tracking accurate, ensuring generated variables and lambda parameters don't
+        // clash with them (their references are emitted by name inside the translated lambda bodies).
+        var rootFrame = _stack.Peek();
+        if (constantReplacements != null)
+        {
+            foreach (var name in constantReplacements.Values)
+            {
+                rootFrame.VariableNames.Add(name);
+            }
+        }
+
+        try
+        {
+            Visit(node);
+        }
+        finally
+        {
+            if (constantReplacements != null)
+            {
+                foreach (var name in constantReplacements.Values)
+                {
+                    rootFrame.VariableNames.Remove(name);
+                }
+            }
+        }
 
         if (_liftedState.Statements.Count > 0
             && _context == ExpressionContext.Expression)
@@ -1491,6 +1517,12 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         foreach (var parameter in lambda.Parameters)
         {
             var name = parameter.Name ?? "unnamed" + (++localUnnamedParameterCounter);
+
+            if (_constantReplacements?.Values.Contains(name) == true)
+            {
+                name = UniquifyVariableName(name);
+            }
+
             stackFrame.Variables[parameter] = name;
             stackFrame.VariableNames.Add(name);
         }
@@ -2025,6 +2057,31 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
             };
     }
 
+    private Expression LiftTryExpression(TryExpression tryExpression)
+    {
+        using var _ = ChangeContext(ExpressionContext.Statement);
+
+        var name = UniquifyVariableName("temp");
+        var variable = Expression.Parameter(tryExpression.Type, name);
+
+        // Register the temp variable before translating, so it isn't treated as captured and its name is reserved for uniquification.
+        var currentStack = _stack.Peek();
+        currentStack.Variables[variable] = name;
+        currentStack.VariableNames.Add(name);
+
+        _liftedState.Variables[variable] = name;
+        _liftedState.VariableNames.Add(name);
+
+        var newBody = Expression.Assign(variable, tryExpression.Body);
+        var newHandlers = tryExpression.Handlers.Select(h => h.Update(h.Variable, h.Filter, Expression.Assign(variable, h.Body)));
+        var newTry = tryExpression.Update(newBody, newHandlers, tryExpression.Finally, tryExpression.Fault);
+
+        _liftedState.Statements.Add(GenerateVarDeclaration(name, DefaultExpression(Generate(variable.Type))));
+        _liftedState.Statements.Add(Translate<TryStatementSyntax>(newTry));
+
+        return variable;
+    }
+
     /// <inheritdoc />
     protected override Expression VisitNewArray(NewArrayExpression newArray)
     {
@@ -2396,8 +2453,9 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
 
             case ExpressionContext.Expression:
             case ExpressionContext.ExpressionLambda:
-                throw new NotImplementedException();
-
+                var liftedVariable = LiftTryExpression(tryNode);
+                Result = Translate(liftedVariable);
+                return tryNode;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -2752,15 +2810,17 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
 
         var parameterNames = _stack.Peek().VariableNames;
 
-        if (parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name))
+        Func<string, bool> constantReplacementsContainsName =
+            _constantReplacements is BidirectionalDictionary<object, string> bidirectionalDictionary
+                ? bidirectionalDictionary.ContainsValue
+                : n => _constantReplacements?.Values.Contains(n) == true;
+
+        var baseName = name;
+        for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
+                parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name) || constantReplacementsContainsName(name);
+                j++)
         {
-            var baseName = name;
-            for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
-                 parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name);
-                 j++)
-            {
-                name = baseName + j;
-            }
+            name = baseName + j;
         }
 
         return name;

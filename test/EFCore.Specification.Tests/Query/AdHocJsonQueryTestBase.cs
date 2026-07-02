@@ -19,7 +19,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 21006
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_root_with_missing_scalars(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -49,7 +49,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nested.Collection.SelectMany(x => x.NestedCollection).All(x => x.DoB == default));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_top_level_json_entity_with_missing_scalars(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -85,7 +85,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nested.Collection.SelectMany(x => x.NestedCollection).All(x => x.DoB == default));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_nested_json_entity_with_missing_scalars(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -115,7 +115,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nested.NestedCollection.All(x => x.DoB == default));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -139,7 +139,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(default, nullScalars.RequiredReference.Number);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_root_entity_with_missing_required_navigation(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -162,7 +162,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(missingRequiredNav.Collection.All(x => x.NestedRequiredReference == default));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_missing_required_navigation(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -184,7 +184,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(default, missingRequiredNav);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_root_entity_with_null_required_navigation(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -207,7 +207,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nullRequiredNav.Collection.All(x => x.NestedRequiredReference == default));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_null_required_navigation(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -228,7 +228,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(default, nullRequiredNav.NestedRequiredReference);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_missing_required_scalar(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -249,7 +249,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(result.Single().Number);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_null_required_scalar(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context21006>(
@@ -404,7 +404,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 29219
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_json_properties_materialized_as_null_when_the_element_in_json_is_not_present()
     {
         var contextFactory = await InitializeNonSharedTest<Context29219>(
@@ -421,7 +421,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(result.Collection[0].NullableScalar);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_project_nullable_json_property_when_the_element_in_json_is_not_present()
     {
         var contextFactory = await InitializeNonSharedTest<Context29219>(
@@ -493,7 +493,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 30028
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Accessing_missing_navigation_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context30028>(
@@ -521,7 +521,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(result[3].Json.RequiredReference);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Missing_navigation_works_with_deduplication(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -617,7 +617,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 32310
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Contains_on_nested_collection_with_init_only_navigation()
     {
         var contextFactory = await InitializeNonSharedTest<Context32310>(
@@ -670,7 +670,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 32939
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_json_with_no_properties()
     {
         var contextFactory = await InitializeNonSharedTest<Context32939>(
@@ -720,7 +720,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 33046
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_with_nested_json_collection_mapped_to_private_field_via_IReadOnlyList()
     {
         var contextFactory = await InitializeNonSharedTest<Context33046>(
@@ -780,28 +780,31 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 34960
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_entity_with_json_null_values()
     {
-        var contextFactory = await InitializeNonSharedTest<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        var contextFactory = await InitializeNonSharedTest<Context34960>(
+            seed: Seed34960, onModelCreating: OnModelCreating34960, onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings));
 
         using var context = contextFactory.CreateDbContext();
         var query = await context.Entities.ToListAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Try_project_collection_but_JSON_is_entity()
     {
-        var contextFactory = await InitializeNonSharedTest<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        var contextFactory = await InitializeNonSharedTest<Context34960>(
+            seed: Seed34960, onModelCreating: OnModelCreating34960, onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings));
         using var context = contextFactory.CreateDbContext();
 
         await context.Junk.AsNoTracking().Where(x => x.Id == 1).Select(x => x.Collection).FirstOrDefaultAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Try_project_reference_but_JSON_is_collection()
     {
-        var contextFactory = await InitializeNonSharedTest<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        var contextFactory = await InitializeNonSharedTest<Context34960>(
+            seed: Seed34960, onModelCreating: OnModelCreating34960, onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings));
         using var context = contextFactory.CreateDbContext();
 
         await context.Junk.AsNoTracking().Where(x => x.Id == 2).Select(x => x.Reference).FirstOrDefaultAsync();
@@ -973,7 +976,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region ArrayOfPrimitives
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_json_array_of_primitives_on_reference()
     {
         var contextFactory = await InitializeNonSharedTest<ContextArrayOfPrimitives>(
@@ -994,7 +997,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(3, result[1].ListOfString.Count);
     }
 
-    [ConditionalFact(Skip = "Issue #32611")]
+    [Fact(Skip = "Issue #32611")]
     public virtual async Task Project_json_array_of_primitives_on_collection()
     {
         var contextFactory = await InitializeNonSharedTest<ContextArrayOfPrimitives>(
@@ -1015,7 +1018,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(2, result[1].ListOfString.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_element_of_json_array_of_primitives()
     {
         var contextFactory = await InitializeNonSharedTest<ContextArrayOfPrimitives>(
@@ -1029,7 +1032,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         var result = await query.ToListAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives1()
     {
         var contextFactory = await InitializeNonSharedTest<ContextArrayOfPrimitives>(
@@ -1045,7 +1048,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(1, result[0].Reference.IntArray[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives2()
     {
         var contextFactory = await InitializeNonSharedTest<ContextArrayOfPrimitives>(
@@ -1061,7 +1064,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal("Bar", result[0].Reference.ListOfString[1]);
     }
 
-    [ConditionalFact, MemberData(nameof(IsAsyncData))]
+    [Fact, MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives3()
     {
         var contextFactory = await InitializeNonSharedTest<ContextArrayOfPrimitives>(
@@ -1155,7 +1158,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region JunkInJson
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Junk_in_json_basic_tracking()
     {
         var contextFactory = await InitializeNonSharedTest<ContextJunkInJson>(
@@ -1176,7 +1179,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.NotNull(result[0].ReferenceWithCtor.NestedReference);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Junk_in_json_basic_no_tracking()
     {
         var contextFactory = await InitializeNonSharedTest<ContextJunkInJson>(
@@ -1277,7 +1280,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region TrickyBuffering
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Tricky_buffering_basic()
     {
         var contextFactory = await InitializeNonSharedTest<ContextTrickyBuffering>(
@@ -1336,7 +1339,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region ShadowProperties
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Shadow_properties_basic_tracking()
     {
         var contextFactory = await InitializeNonSharedTest<ContextShadowProperties>(
@@ -1371,7 +1374,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(collectionCtorEntry2.Property("ShadowNullableByte").CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Shadow_properties_basic_no_tracking()
     {
         var contextFactory = await InitializeNonSharedTest<ContextShadowProperties>(
@@ -1390,7 +1393,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.NotNull(result[0].ReferenceWithCtor);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_shadow_properties_from_json_entity()
     {
         var contextFactory = await InitializeNonSharedTest<ContextShadowProperties>(
@@ -1472,7 +1475,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region LazyLoadingProxies
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_proxies_entity_with_json()
     {
         var contextFactory = await InitializeNonSharedTest<ContextLazyLoadingProxies>(
@@ -1492,6 +1495,36 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(2, result.Count);
     }
 
+    [Fact] // Issue #38466
+    public virtual async Task Project_proxies_entity_with_json_with_primitive_collection()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextLazyLoadingProxies>(
+            onModelCreating: OnModelCreatingLazyLoadingProxies,
+            seed: SeedLazyLoadingProxies,
+            onConfiguring: b =>
+            {
+                b = b.ConfigureWarnings(ConfigureWarnings);
+                OnConfiguringLazyLoadingProxies(b);
+            },
+            addServices: AddServicesLazyLoadingProxies);
+
+        using var context = contextFactory.CreateDbContext();
+        var result = await context.Set<ContextLazyLoadingProxies.MyEntity>().OrderBy(x => x.Id).ToListAsync();
+
+        Assert.Equal(2, result.Count);
+
+        var e1Collection = result[0].Collection.OrderBy(x => x.Number).ToList();
+        Assert.Equal(3, e1Collection.Count);
+        Assert.Equal(new long[] { 110, 111 }, e1Collection[0].Ints);
+        Assert.Equal(new long[] { 120, 121, 122 }, e1Collection[1].Ints);
+        Assert.Empty(e1Collection[2].Ints);
+
+        var e2Collection = result[1].Collection.OrderBy(x => x.Number).ToList();
+        Assert.Equal(2, e2Collection.Count);
+        Assert.Equal(new long[] { 210 }, e2Collection[0].Ints);
+        Assert.Equal(new long[] { 220, 221 }, e2Collection[1].Ints);
+    }
+
     protected void OnConfiguringLazyLoadingProxies(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseLazyLoadingProxies();
 
@@ -1501,13 +1534,13 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     private Task SeedLazyLoadingProxies(DbContext ctx)
     {
         var r1 = new ContextLazyLoadingProxies.MyJsonEntityWithCtor("r1", 1);
-        var c11 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c11", Number = 11 };
-        var c12 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c12", Number = 12 };
-        var c13 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c13", Number = 13 };
+        var c11 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c11", Number = 11, Ints = [110, 111] };
+        var c12 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c12", Number = 12, Ints = [120, 121, 122] };
+        var c13 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c13", Number = 13, Ints = [] };
 
         var r2 = new ContextLazyLoadingProxies.MyJsonEntityWithCtor("r2", 2);
-        var c21 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c21", Number = 21 };
-        var c22 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c22", Number = 22 };
+        var c21 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c21", Number = 21, Ints = [210] };
+        var c22 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c22", Number = 22, Ints = [220, 221] };
 
         var e1 = new ContextLazyLoadingProxies.MyEntity
         {
@@ -1562,6 +1595,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         {
             public string Name { get; set; }
             public int Number { get; set; }
+            public IList<long> Ints { get; set; }
         }
     }
 
@@ -1569,7 +1603,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region NotICollection
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Not_ICollection_basic_projection()
     {
         var contextFactory = await InitializeNonSharedTest<ContextNotICollection>(
@@ -1625,7 +1659,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region BadJsonProperties
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_duplicated_navigations(bool noTracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadJsonProperties>(
@@ -1660,7 +1694,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupnav", dupNavs.Collection[1].NestedCollection[1].Text);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_duplicated_scalars(bool noTracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadJsonProperties>(
@@ -1695,7 +1729,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupprop", dupProps.Collection[1].NestedCollection[1].Text);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_empty_navigations(bool noTracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadJsonProperties>(
@@ -1724,7 +1758,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(emptyNavs.Collection[1].NestedCollection);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_empty_scalars(bool noTracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadJsonProperties>(
@@ -1757,7 +1791,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(emptyNavs.Collection[1].NestedCollection[1].Text);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_null_navigations(bool noTracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadJsonProperties>(
@@ -1770,7 +1804,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         var _ = await query.SingleAsync(x => x.Scenario == "null navigation property names");
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_null_scalars(bool noTracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadJsonProperties>(

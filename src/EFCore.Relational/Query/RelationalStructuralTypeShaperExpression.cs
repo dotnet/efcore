@@ -78,7 +78,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             var switchCases = new SwitchCase[derivedConcreteEntityTypes.Length];
             for (var i = 0; i < derivedConcreteEntityTypes.Length; i++)
             {
-                var discriminatorValue = Constant(derivedConcreteEntityTypes[i].ShortName(), typeof(string));
+                var discriminatorValue = Constant((string)derivedConcreteEntityTypes[i].GetDiscriminatorValue()!, typeof(string));
                 switchCases[i] = SwitchCase(Constant(derivedConcreteEntityTypes[i], typeof(IEntityType)), discriminatorValue);
             }
 
@@ -103,8 +103,9 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             return baseCondition;
         }
 
-        var table = entityType.GetViewOrTableMappings().SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
-            ?? entityType.GetDefaultMappings().Single().Table;
+        var tableMap = (ValueBufferExpression as StructuralTypeProjectionExpression)?.TableMap;
+        var table = entityType.GetProjectedQueryMappings(tableMap)
+            .Single(e => e.IsSplitEntityTypePrincipal ?? true).Table;
         if (table.IsOptional(entityType))
         {
             // Optional dependent

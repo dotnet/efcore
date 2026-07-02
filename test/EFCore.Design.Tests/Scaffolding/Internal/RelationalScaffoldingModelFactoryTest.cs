@@ -50,7 +50,7 @@ public class RelationalScaffoldingModelFactoryTest
         _reporter.Clear();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Capitalize_DatabaseName()
     {
         var database = new DatabaseModel { DatabaseName = "northwind" };
@@ -58,7 +58,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("Northwind", model.GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Creates_entity_types()
     {
         var info = new DatabaseModel
@@ -111,7 +111,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Creates_entity_types_case_insensitive()
     {
         var info = new DatabaseModel
@@ -138,7 +138,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
     }
 
-    [ConditionalTheory, InlineData("PascalCase"), InlineData("camelCase"), InlineData("snake-case"), InlineData("MixedCASE"),
+    [Theory, InlineData("PascalCase"), InlineData("camelCase"), InlineData("snake-case"), InlineData("MixedCASE"),
      InlineData("separated_by_underscores"), InlineData("PascalCase_withUnderscore"), InlineData("ALL_CAPS"),
      InlineData("numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999"), InlineData("We1!*~&%rdCh@r^act()0rs")]
     public void Get_DatabaseName(string expectedValue)
@@ -150,7 +150,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(expectedValue, model.GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Loads_column_types()
     {
         var info = new DatabaseModel
@@ -249,7 +249,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Use_database_names_for_columns()
     {
         var info = new DatabaseModel
@@ -299,7 +299,7 @@ public class RelationalScaffoldingModelFactoryTest
             col3 => Assert.Equal("supplierID", col3.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Do_not_use_database_names_for_columns()
     {
         var info = new DatabaseModel
@@ -348,7 +348,7 @@ public class RelationalScaffoldingModelFactoryTest
             col3 => Assert.Equal("VendorDiscount", col3.Name));
     }
 
-    [ConditionalTheory, InlineData("nvarchar(450)", null), InlineData("datetime2(4)", null), InlineData("DateTime2(4)", "DateTime2(4)")]
+    [Theory, InlineData("nvarchar(450)", null), InlineData("datetime2(4)", null), InlineData("DateTime2(4)", "DateTime2(4)")]
     public void Column_type_annotation(string storeType, string expectedColumnType)
     {
         var column = new DatabaseColumn
@@ -382,7 +382,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(expectedColumnType, property.GetConfiguredColumnType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Column_ordinal_annotation()
     {
         var col1 = new DatabaseColumn
@@ -435,7 +435,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(2, property3.GetColumnOrder());
     }
 
-    [ConditionalTheory, InlineData("cheese"), InlineData(null)]
+    [Theory, InlineData("cheese"), InlineData(null)]
     public void Unmappable_column_type(string StoreType)
     {
         var info = new DatabaseModel
@@ -467,7 +467,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType), message);
     }
 
-    [ConditionalTheory, InlineData(new[] { "Id" }, 1), InlineData(new[] { "Id", "AltId" }, 2)]
+    [Theory, InlineData(new[] { "Id" }, 1), InlineData(new[] { "Id", "AltId" }, 2)]
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
     public void Primary_key(string[] keyProps, int length)
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
@@ -501,7 +501,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnName()).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_constraint()
     {
         var myColumn = new DatabaseColumn
@@ -542,7 +542,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_constraint_without_name()
     {
         var myColumn = new DatabaseColumn
@@ -575,7 +575,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_constraint_with_empty_string_name()
     {
         var myColumn = new DatabaseColumn
@@ -616,7 +616,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Indexes_and_alternate_keys()
     {
         var c1 = new DatabaseColumn
@@ -754,7 +754,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(0, entityType.GetKeys().Count(k => !k.IsPrimaryKey()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Foreign_key()
     {
         var parentTable = new DatabaseTable
@@ -811,7 +811,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Same(parent.GetProperties().First(), principalKey.Properties[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Foreign_key_from_keyless_table()
     {
         var databaseModel = new DatabaseModel();
@@ -857,7 +857,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Null(foreignKey.PrincipalToDependent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Foreign_key_to_unique_constraint()
     {
         var keyColumn = new DatabaseColumn
@@ -922,7 +922,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Same(parent.GetProperties().First(p => p.Name == "Key"), principalKey.Properties[0]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_foreign_key()
     {
         var parentTable = new DatabaseTable
@@ -961,7 +961,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Composite_foreign_key()
     {
         var ida = new DatabaseColumn
@@ -1042,7 +1042,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("IdB", principalKey.Properties[1].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void It_loads_self_referencing_foreign_key()
     {
         var table = new DatabaseTable
@@ -1085,7 +1085,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("Id", principalKey.Properties[0].Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void It_logs_warning_for_bad_foreign_key()
     {
         var parentTable = new DatabaseTable
@@ -1141,7 +1141,7 @@ public class RelationalScaffoldingModelFactoryTest
                 childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent"), message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void It_logs_warning_for_duplicate_foreign_key()
     {
         var parentTable = new DatabaseTable
@@ -1196,7 +1196,7 @@ public class RelationalScaffoldingModelFactoryTest
             DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo"), message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_nullable_index_unused_by_foreign_key()
     {
         var table = new DatabaseTable
@@ -1249,7 +1249,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_nullable_index_used_by_foreign_key()
     {
         var table = new DatabaseTable
@@ -1308,7 +1308,7 @@ public class RelationalScaffoldingModelFactoryTest
                 table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId"), message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_index_composite_foreign_key()
     {
         var ida = new DatabaseColumn
@@ -1387,7 +1387,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(parent.FindPrimaryKey(), fk.PrincipalKey);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_descending()
     {
         var table = new DatabaseTable
@@ -1506,7 +1506,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal([false, true, false], mixedIndex.IsDescending);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unique_names()
     {
         var info = new DatabaseModel
@@ -1577,7 +1577,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequences()
     {
         var info = new DatabaseModel
@@ -1609,7 +1609,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbSet_annotation_is_set()
     {
         var info = new DatabaseModel
@@ -1630,7 +1630,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("Blog", model.GetEntityTypes().Single().GetDbSetName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Pluralization_of_entity_and_DbSet()
     {
         var info = new DatabaseModel
@@ -1673,7 +1673,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Pluralization_of_entity_and_DbSet_noPluralize()
     {
         var info = new DatabaseModel
@@ -1734,7 +1734,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Pluralization_of_collection_navigations()
     {
         var blogTable = new DatabaseTable
@@ -1792,7 +1792,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Pluralization_of_collection_navigations_noPluralize()
     {
         var blogTable = new DatabaseTable
@@ -1850,7 +1850,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Not_null_bool_column_with_unparsed_default_value_is_made_nullable()
     {
         var dbModel = new DatabaseModel
@@ -1896,7 +1896,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("Default", columns.First(c => c.Name == "NonNullBoolWithDefault")[RelationalAnnotationNames.DefaultValueSql]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Not_null_bool_column_with_parsed_default_value_is_not_made_nullable()
     {
         var dbModel = new DatabaseModel
@@ -1950,7 +1950,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Empty(_reporter.Messages);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Nullable_column_with_default_value_sql_does_not_generate_warning()
     {
         var dbModel = new DatabaseModel
@@ -1989,7 +1989,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Empty(_reporter.Messages);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Correct_arguments_to_scaffolding_typemapper()
     {
         var principalPkColumn = new DatabaseColumn
@@ -2122,7 +2122,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").GetConfiguredColumnType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unmapped_column_is_ignored()
     {
         var columnWithUnknownType = new DatabaseColumn
@@ -2153,7 +2153,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Single(columns);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Column_and_table_comments()
     {
         var database = new DatabaseModel
@@ -2189,7 +2189,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("An int column", column.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Database_collation()
     {
         var database = new DatabaseModel { Collation = "SomeDatabaseCollation" };
@@ -2198,7 +2198,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("SomeDatabaseCollation", model.GetCollation());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Column_collation()
     {
         var database = new DatabaseModel
@@ -2230,7 +2230,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("SomeColumnCollation", column.GetCollation());
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
      InlineData(false, true, true), InlineData(true, false, false), InlineData(true, false, true), InlineData(true, true, false),
      InlineData(true, true, true)]
     public void UseDatabaseNames_and_NoPluralize_work_together(
@@ -2329,7 +2329,7 @@ public class RelationalScaffoldingModelFactoryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Scaffold_skip_navigation_for_many_to_many_join_table_ef6()
     {
         var database = new DatabaseModel
@@ -2434,7 +2434,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Scaffold_skip_navigation_for_many_to_many_join_table_basic()
     {
         var database = new DatabaseModel
@@ -2507,7 +2507,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Scaffold_skip_navigation_for_many_to_many_join_table_unique_constraint()
     {
         var database = new DatabaseModel
@@ -2587,7 +2587,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Scaffold_skip_navigation_for_many_to_many_join_table_self_ref()
     {
         var database = new DatabaseModel
@@ -2681,7 +2681,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Scaffold_skip_navigation_for_many_to_many_join_table_composite_fk()
     {
         var database = new DatabaseModel
@@ -2794,7 +2794,7 @@ public class RelationalScaffoldingModelFactoryTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Fk_property_ending_in_guid_navigation_name()
     {
         var blogTable = new DatabaseTable
@@ -2852,7 +2852,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Composite_fk_property_ending_in_guid_navigation_name()
     {
         var blogTable = new DatabaseTable
@@ -2942,7 +2942,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unusual_navigation_name() // Issue #14278
     {
         var bookDetailsTable = new DatabaseTable { Database = Database, Name = "Book_Details" };
@@ -3049,7 +3049,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Interesting_navigation_name() // Issue #27832
     {
         var seasonTable = new DatabaseTable { Database = Database, Name = "TmTvSeason" };
@@ -3166,7 +3166,7 @@ public class RelationalScaffoldingModelFactoryTest
             );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_name_from_composite_FK() // Issue #32685
     {
         var itemCategoryTable = new DatabaseTable { Database = Database, Name = "ItemCategory" };
@@ -3363,7 +3363,7 @@ public class RelationalScaffoldingModelFactoryTest
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Computed_column_when_sql_unknown()
     {
         var database = new DatabaseModel

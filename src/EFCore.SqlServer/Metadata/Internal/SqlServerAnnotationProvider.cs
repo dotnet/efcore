@@ -24,6 +24,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
     {
+        foreach (var baseAnnotation in base.For(model, designTime))
+        {
+            yield return baseAnnotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -83,6 +88,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
     {
+        foreach (var annotation in base.For(table, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -110,9 +120,10 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             // see #26007
             var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
             var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
+            IReadOnlyProperty? periodStartProperty = null;
             if (periodStartPropertyName != null)
             {
-                var periodStartProperty = entityType.FindProperty(periodStartPropertyName);
+                periodStartProperty = entityType.FindProperty(periodStartPropertyName);
                 var periodStartColumnName = periodStartProperty != null
                     ? periodStartProperty.GetColumnName(storeObjectIdentifier)
                     : periodStartPropertyName;
@@ -121,14 +132,28 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             }
 
             var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
+            IReadOnlyProperty? periodEndProperty = null;
             if (periodEndPropertyName != null)
             {
-                var periodEndProperty = entityType.FindProperty(periodEndPropertyName);
+                periodEndProperty = entityType.FindProperty(periodEndPropertyName);
                 var periodEndColumnName = periodEndProperty != null
                     ? periodEndProperty.GetColumnName(storeObjectIdentifier)
                     : periodEndPropertyName;
 
                 yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
+            }
+
+            // Emit the per-period-column hidden flags on the table operation so the migrations generator
+            // can read them in BuildTemporalInformationFromMigrationOperation. Only emit when the user
+            // explicitly configured the column visible (default is HIDDEN, omitted to keep table ops clean).
+            if (periodStartProperty?.IsHidden() == false)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartHidden, false);
+            }
+
+            if (periodEndProperty?.IsHidden() == false)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndHidden, false);
             }
         }
     }
@@ -141,6 +166,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(IUniqueConstraint constraint, bool designTime)
     {
+        foreach (var annotation in base.For(constraint, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -170,6 +200,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
+        foreach (var annotation in base.For(index, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -233,10 +268,18 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
 
         if (modelIndex.GetIncludeProperties(table) is { } includeProperties)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
             var includeColumns = includeProperties
-                .Select(p => modelIndex.DeclaringEntityType.FindProperty(p)!
-                    .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
+                .Select(p =>
+                {
+                    var propertyBase = RelationalModel.FindPropertyBaseByPath(modelIndex.DeclaringEntityType, p)!;
+                    return propertyBase is IReadOnlyProperty property
+                        ? property.GetColumnName(storeObjectIdentifier)
+                        : ((IReadOnlyComplexProperty)propertyBase).ComplexType.GetContainerColumnName();
+                })
                 .ToArray();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             yield return new Annotation(
                 SqlServerAnnotationNames.Include,
@@ -272,6 +315,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
     /// </summary>
     public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
+        foreach (var annotation in base.For(column, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -351,10 +399,21 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             if (column.Name == periodStartColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
+
+                // Period columns default to HIDDEN; only emit the annotation when explicitly visible.
+                if (periodStartProperty?.IsHidden() == false)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.IsHidden, false);
+                }
             }
             else if (column.Name == periodEndColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
+
+                if (periodEndProperty?.IsHidden() == false)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.IsHidden, false);
+                }
             }
         }
     }

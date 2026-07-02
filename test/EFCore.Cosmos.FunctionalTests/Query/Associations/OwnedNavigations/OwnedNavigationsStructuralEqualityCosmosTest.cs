@@ -117,7 +117,7 @@ WHERE false
 
     #region Contains
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_with_inline_null()
     {
         await AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
@@ -165,7 +165,7 @@ WHERE EXISTS (
 
     #endregion Contains
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

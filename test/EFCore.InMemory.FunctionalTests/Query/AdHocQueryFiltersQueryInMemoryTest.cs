@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -7,7 +7,7 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
 {
     #region 19708
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GroupJoin_SelectMany_gets_flattened()
     {
         var contextFactory = await InitializeNonSharedTest<Context19708>(seed: c => c.SeedAsync());

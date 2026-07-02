@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class TableSharingConcurrencyTokenConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_on_the_base_type()
     {
         var modelBuilder = GetModelBuilder();
@@ -33,7 +33,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_not_created_for_TPT()
     {
         var modelBuilder = GetModelBuilder();
@@ -53,7 +53,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.DoesNotContain(person.GetProperties(), p => p.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_for_TPT_same_table()
     {
         var modelBuilder = GetModelBuilder();
@@ -73,7 +73,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.Contains(person.GetProperties(), p => p.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_not_created_for_TPH()
     {
         var modelBuilder = GetModelBuilder();
@@ -90,7 +90,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.DoesNotContain(person.GetProperties(), p => p.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_properties_are_created_on_the_base()
     {
         var modelBuilder = GetModelBuilder();
@@ -131,7 +131,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.DoesNotContain(theMovie.GetDeclaredProperties(), p => p.Name == "_TableSharingConcurrencyTokenConvention_Version");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_on_the_sharing_type()
     {
         var modelBuilder = GetModelBuilder();
@@ -152,7 +152,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_on_the_sharing_type_with_complex_property()
     {
         var modelBuilder = GetModelBuilder();
@@ -180,7 +180,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Concurrency_token_property_is_not_created_on_the_sharing_when_on_complex_property()
     {
         var modelBuilder = GetModelBuilder();
@@ -202,8 +202,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_not_created_for_json_mapped_entity()
     {
         var modelBuilder = GetModelBuilder();
@@ -234,7 +233,6 @@ public class TableSharingConcurrencyTokenConventionTest
             ownedEntity.GetProperties(),
             p => p.Name.StartsWith("_TableSharingConcurrencyTokenConvention"));
     }
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     protected abstract class BaseEntity
     {

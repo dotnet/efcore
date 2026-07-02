@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public class CSharpMigrationCompilerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void CompileMigration_compiles_valid_migration_code()
     {
         var compiler = new CSharpMigrationCompiler();
@@ -103,7 +103,7 @@ public class CSharpMigrationCompilerTest
         Assert.Equal("20231215120000_TestMigration", migrationAttribute.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CompileMigration_finds_snapshot_type()
     {
         var compiler = new CSharpMigrationCompiler();
@@ -120,7 +120,7 @@ public class CSharpMigrationCompilerTest
         Assert.Equal(typeof(ModelSnapshot), snapshotType.BaseType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CompileMigration_creates_unique_assembly_per_compilation()
     {
         var compiler = new CSharpMigrationCompiler();
@@ -135,7 +135,7 @@ public class CSharpMigrationCompilerTest
         Assert.NotEqual(assembly1.FullName, assembly2.FullName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CompileMigration_throws_on_null_migration()
     {
         var compiler = new CSharpMigrationCompiler();
@@ -144,7 +144,7 @@ public class CSharpMigrationCompilerTest
             () => compiler.CompileMigration(null!, typeof(TestContext)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CompileMigration_throws_on_null_context_type()
     {
         var compiler = new CSharpMigrationCompiler();
@@ -154,7 +154,7 @@ public class CSharpMigrationCompilerTest
             () => compiler.CompileMigration(scaffoldedMigration, null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CompileMigration_throws_on_empty_migration_code()
     {
         var compiler = new CSharpMigrationCompiler();
@@ -196,7 +196,7 @@ public class CSharpMigrationCompilerTest
         Assert.Contains("20231215170000_EmptyCode", exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CompileMigration_handles_unicode_in_migration_name()
     {
         var compiler = new CSharpMigrationCompiler();

@@ -10,7 +10,7 @@ public class ToSqlQuerySqlServerTest(NonSharedFixture fixture) : ToSqlQueryTestB
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

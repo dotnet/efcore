@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -24,7 +24,7 @@ public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKe
         ClearLog();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_add_update_delete_end_to_end_with_partition_key()
     {
         const string readSql =
@@ -43,7 +43,7 @@ OFFSET 0 LIMIT 1
             2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_add_update_delete_end_to_end_with_with_partition_key_extension()
     {
         const string readSql =
@@ -61,7 +61,7 @@ OFFSET 0 LIMIT 2
             1);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_query_with_implicit_partition_key_filter()
     {
         const string readSql =

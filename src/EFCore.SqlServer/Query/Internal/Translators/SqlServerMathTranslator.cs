@@ -93,7 +93,9 @@ public class SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
             nameof(Math.Sign) when arguments is [var arg]
                 && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float)
                     || arg.Type == typeof(int) || arg.Type == typeof(long) || arg.Type == typeof(sbyte) || arg.Type == typeof(short))
-                => TranslateFunction("SIGN", arg, nullTypeMapping: true),
+                // T-SQL SIGN returns the same type as its input, but Math.Sign always returns int;
+                // wrap with a CAST to avoid InvalidCastException at materialization time.
+                => TranslateSign(arg),
             nameof(double.DegreesToRadians) when arguments is [var arg]
                 && (arg.Type == typeof(double) || arg.Type == typeof(float))
                 => TranslateFunction("RADIANS", arg),
@@ -115,7 +117,27 @@ public class SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
             _ => null
         };
 
-        SqlExpression TranslateFunction(string sqlFunctionName, SqlExpression arg, bool nullTypeMapping = false)
+        SqlExpression TranslateSign(SqlExpression arg)
+        {
+            arg = sqlExpressionFactory.ApplyDefaultTypeMapping(arg)!;
+
+            // T-SQL SIGN() returns the same type as its argument, but the CLR Math.Sign() always returns int.
+            // The function node must carry the argument's type mapping so that the CAST to int is not elided
+            // as a same-type no-op by SqlExpressionSimplifyingExpressionVisitor.
+            var signFunction = sqlExpressionFactory.Function(
+                "SIGN",
+                [arg],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
+                arg.Type,
+                arg.TypeMapping);
+
+            return arg.Type == typeof(int)
+                ? signFunction
+                : sqlExpressionFactory.Convert(signFunction, typeof(int));
+        }
+
+        SqlExpression TranslateFunction(string sqlFunctionName, SqlExpression arg)
         {
             var typeMapping = ExpressionExtensions.InferTypeMapping(arg);
             return sqlExpressionFactory.Function(
@@ -124,7 +146,7 @@ public class SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 method.ReturnType,
-                nullTypeMapping ? null : typeMapping);
+                typeMapping);
         }
 
         SqlExpression TranslateBinaryFunction(string sqlFunctionName, SqlExpression arg1, SqlExpression arg2)

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -12,7 +12,7 @@ public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHo
 
     #region 10447
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_include_queries_do_not_populate_navigation_twice()
     {
         var contextFactory = await InitializeNonSharedTest<Context10447>(seed: c => c.SeedAsync());
@@ -210,7 +210,7 @@ LEFT JOIN (
     WHERE [p0].[Discriminator] = N'PersonKid9038'
 ) AS [s] ON [p].[Id] = [s].[TeacherId]
 WHERE [p].[Discriminator] = N'PersonTeacher9038'
-ORDER BY [p].[Id], [s].[Id], [s].[Id0]
+ORDER BY [p].[Id], [s].[Id]
 """,
             //
             """
@@ -224,7 +224,7 @@ LEFT JOIN (
     WHERE [p1].[Discriminator] = N'PersonKid9038'
 ) AS [p2] ON [p].[Id] = [p2].[TeacherId]
 WHERE [p].[Discriminator] = N'PersonTeacher9038'
-ORDER BY [p].[Id], [f].[Id], [p0].[Id]
+ORDER BY [p].[Id], [p0].[Id]
 """);
     }
 
@@ -318,11 +318,11 @@ ORDER BY [s].[Id]
 SELECT (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]), [a].[Id], [a0].[Id], [s].[Id], [s].[ActivityTypeId], [s].[CompetitionSeasonId], [s].[Points], [s].[Id0]
+    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]), [a].[Id], [s].[Id], [s].[ActivityTypeId], [s].[CompetitionSeasonId], [s].[Points]
 FROM [Activities] AS [a]
 INNER JOIN [ActivityType] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]
 OUTER APPLY (
-    SELECT [a1].[Id], [a1].[ActivityTypeId], [a1].[CompetitionSeasonId], [a1].[Points], [c0].[Id] AS [Id0]
+    SELECT [a1].[Id], [a1].[ActivityTypeId], [a1].[CompetitionSeasonId], [a1].[Points]
     FROM [ActivityTypePoints] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
     WHERE [a0].[Id] = [a1].[ActivityTypeId] AND [c0].[Id] = (
@@ -330,21 +330,21 @@ OUTER APPLY (
         FROM [CompetitionSeasons] AS [c1]
         WHERE [c1].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c1].[EndDate])
 ) AS [s]
-ORDER BY [a].[Id], [a0].[Id], [s].[Id]
+ORDER BY [a].[Id]
 """,
             //
             """
 SELECT [a].[Id], [a].[ActivityTypeId], [a].[DateTime], [a].[Points], (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]) AS [CompetitionSeasonId], COALESCE([a].[Points], (
+    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]) AS [CompetitionSeasonId], ISNULL(ISNULL([a].[Points], (
     SELECT TOP(1) [a1].[Points]
     FROM [ActivityTypePoints] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
     WHERE [a0].[Id] = [a1].[ActivityTypeId] AND [c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE [c1].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c1].[EndDate])), 0) AS [Points]
+        WHERE [c1].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c1].[EndDate]))), 0) AS [Points]
 FROM [Activities] AS [a]
 INNER JOIN [ActivityType] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]
 """);
@@ -426,6 +426,55 @@ OUTER APPLY (
     WHERE [o0].[Id] = [i].[OrderId]
 ) AS [s0]
 ORDER BY [o0].[Id], [s0].[Id], [s0].[Id0]
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [u].[Id], CASE
+    WHEN [j].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [j].[Id]
+FROM [Users] AS [u]
+LEFT JOIN [Job] AS [j] ON [u].[JobId] = [j].[Id]
+WHERE [u].[Id] = CAST(1 AS bigint)
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_null_navigation_returns_null(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_null_navigation_returns_null(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [u].[Id], CASE
+    WHEN [j].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [j].[Id]
+FROM [Users] AS [u]
+LEFT JOIN [Job] AS [j] ON [u].[JobId] = [j].[Id]
+WHERE [u].[JobId] IS NULL
+""");
+    }
+
+    public override async Task Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_nested_navigation_accessed_includes_join(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [u].[Id], CASE
+    WHEN [j].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [j].[Id], [a].[Id]
+FROM [Users] AS [u]
+LEFT JOIN [Job] AS [j] ON [u].[JobId] = [j].[Id]
+LEFT JOIN [Address] AS [a] ON [j].[AddressId] = [a].[Id]
+WHERE [u].[Id] = CAST(1 AS bigint)
 """);
     }
 
@@ -512,7 +561,7 @@ SELECT [d].[Id], [d].[PrincipalId], [p].[Id], [d0].[Id], [d0].[PrincipalId]
 FROM [DependentOneToMany] AS [d]
 INNER JOIN [PrincipalOneToMany] AS [p] ON [d].[PrincipalId] = [p].[Id]
 LEFT JOIN [DependentOneToMany] AS [d0] ON [p].[Id] = [d0].[PrincipalId]
-ORDER BY [d].[Id], [p].[Id]
+ORDER BY [d].[Id]
 """,
             //
             """
@@ -569,7 +618,7 @@ LEFT JOIN (
     FROM [ManyDependent] AS [m0]
     LEFT JOIN [SingleDependent] AS [s] ON [m0].[Id] = [s].[ManyDependentId]
 ) AS [s0] ON [p].[Id] = [s0].[PrincipalId]
-ORDER BY [m].[Id], [p].[Id], [s0].[Id]
+ORDER BY [m].[Id]
 """);
     }
 
@@ -588,7 +637,7 @@ ORDER BY [m].[Id], [p].[Id], [s0].[Id]
             """
 @id='1'
 
-SELECT [s].[Id], [s].[Name], [s].[Surname], [s].[Birthday], [s].[Hometown], [s].[Bio], [s].[AvatarUrl], [s].[Id0], [s].[Id1], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [u].[Id], [u].[Name], [u].[PosterUrl], [u].[Rating]
+SELECT [s].[Id], [s].[Name], [s].[Surname], [s].[Birthday], [s].[Hometown], [s].[Bio], [s].[AvatarUrl], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [u].[Id], [u].[Name], [u].[PosterUrl], [u].[Rating]
 FROM (
     SELECT TOP(1) [p].[Id], [p].[Name], [p].[Surname], [p].[Birthday], [p].[Hometown], [p].[Bio], [p].[AvatarUrl], [a].[Id] AS [Id0], [d].[Id] AS [Id1]
     FROM [Persons] AS [p]
@@ -608,7 +657,7 @@ OUTER APPLY (
     INNER JOIN [MovieEntity] AS [m2] ON [m1].[MovieId] = [m2].[Id]
     WHERE [s].[Id1] IS NOT NULL AND [s].[Id1] = [m1].[DirectorId]
 ) AS [u]
-ORDER BY [s].[Id], [s].[Id0], [s].[Id1], [p0].[Id]
+ORDER BY [s].[Id], [p0].[Id]
 """);
     }
 
@@ -623,6 +672,20 @@ SELECT (
     FROM [Books] AS [b]
     WHERE [a].[AuthorId] = [b].[AuthorId]) AS [BooksCount]
 FROM [Authors] AS [a]
+""");
+    }
+
+    public override async Task Filtered_collection_through_optional_navigation_does_not_match_on_null_keys(bool async)
+    {
+        await base.Filtered_collection_through_optional_navigation_does_not_match_on_null_keys(async);
+
+        AssertSql(
+            """
+SELECT [p].[Name], [p].[PersonId], [p0].[Name], [p0].[PersonId]
+FROM [People] AS [p]
+LEFT JOIN [Employers] AS [e] ON [p].[EmployerId] = [e].[EmployerId]
+LEFT JOIN [People] AS [p0] ON [e].[EmployerId] IS NOT NULL AND [e].[EmployerId] = [p0].[EmployerId] AND [p].[PersonId] <> [p0].[PersonId]
+ORDER BY [p].[PersonId]
 """);
     }
 }

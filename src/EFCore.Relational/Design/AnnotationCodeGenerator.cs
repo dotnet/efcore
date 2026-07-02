@@ -35,9 +35,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
         RelationalAnnotationNames.RelationalOverrides,
-#pragma warning disable CS0618
-        RelationalAnnotationNames.ContainerColumnTypeMapping
-#pragma warning restore CS0618
+        RelationalAnnotationNames.JsonElementMappings
     };
 
     /// <summary>
@@ -235,9 +233,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
                     containerColumnName));
 
             annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
-#pragma warning disable CS0618
-            annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
-#pragma warning restore CS0618
         }
 
         if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
@@ -285,9 +280,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
                     containerColumnName));
 
             annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
-#pragma warning disable CS0618
-            annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
-#pragma warning restore CS0618
         }
 
         if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)

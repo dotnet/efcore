@@ -150,7 +150,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public virtual string? GetSessionToken(string containerName)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
         if (_mode == SessionTokenManagementMode.FullyAutomatic)
         {
@@ -181,12 +181,11 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void TrackSessionToken(string containerName, string sessionToken)
+    public virtual void TrackSessionToken(string containerName, string? sessionToken)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
-        if (_mode == SessionTokenManagementMode.FullyAutomatic)
+        if (_mode == SessionTokenManagementMode.FullyAutomatic || string.IsNullOrWhiteSpace(sessionToken))
         {
             return;
         }

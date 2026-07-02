@@ -521,6 +521,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         goto default;
                     }
 
+                    case nameof(Queryable.FullJoin)
+                        when genericMethod == QueryableMethods.FullJoin
+                        && methodCallExpression.Arguments[5] is ConstantExpression { Value: null }:
+                    {
+                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        secondArgument = UnwrapCollectionMaterialization(secondArgument);
+                        if (secondArgument is NavigationExpansionExpression innerSource)
+                        {
+                            return ProcessJoin(
+                                source,
+                                innerSource,
+                                methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                QueryableMethods.FullJoin);
+                        }
+
+                        goto default;
+                    }
+
                     case nameof(Queryable.SelectMany)
                         when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector:
                         return ProcessSelectMany(
@@ -651,9 +671,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                     case nameof(Queryable.Select)
                         when genericMethod == QueryableMethods.Select:
-                        return ProcessSelect(
-                            source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                        return LiftSingleResultSubqueries(
+                            ProcessSelect(
+                                source,
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()));
 
                     case nameof(Queryable.Where)
                         when genericMethod == QueryableMethods.Where:
@@ -1341,7 +1362,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         MethodInfo joinMethod)
     {
         Check.DebugAssert(
-            joinMethod == QueryableMethods.Join || joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.RightJoin,
+            joinMethod == QueryableMethods.Join || joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.RightJoin
+            || joinMethod == QueryableMethods.FullJoin,
             "Join method required");
 
         if (innerSource.PendingOrderings.Any())
@@ -1366,24 +1388,37 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             outerSource.CurrentParameter,
             innerSource.CurrentParameter);
 
-        var source = Expression.Call(
-            joinMethod.MakeGenericMethod(
-                outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType,
-                newResultSelector.ReturnType),
-            outerSource.Source,
-            innerSource.Source,
-            Expression.Quote(outerKeySelector),
-            Expression.Quote(innerKeySelector),
-            Expression.Quote(newResultSelector));
+        var genericJoinMethod = joinMethod.MakeGenericMethod(
+            outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType,
+            newResultSelector.ReturnType);
+
+        // Unlike Join/LeftJoin/RightJoin, Queryable.FullJoin only exposes a single overload taking an
+        // (optional) IEqualityComparer<TKey>, so the rebuilt call must supply that trailing argument.
+        var source = joinMethod == QueryableMethods.FullJoin
+            ? Expression.Call(
+                genericJoinMethod,
+                outerSource.Source,
+                innerSource.Source,
+                Expression.Quote(outerKeySelector),
+                Expression.Quote(innerKeySelector),
+                Expression.Quote(newResultSelector),
+                Expression.Constant(null, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)))
+            : Expression.Call(
+                genericJoinMethod,
+                outerSource.Source,
+                innerSource.Source,
+                Expression.Quote(outerKeySelector),
+                Expression.Quote(innerKeySelector),
+                Expression.Quote(newResultSelector));
 
         var outerPendingSelector = outerSource.PendingSelector;
-        if (joinMethod == QueryableMethods.RightJoin)
+        if (joinMethod == QueryableMethods.RightJoin || joinMethod == QueryableMethods.FullJoin)
         {
             outerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(outerPendingSelector);
         }
 
         var innerPendingSelector = innerSource.PendingSelector;
-        if (joinMethod == QueryableMethods.LeftJoin)
+        if (joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.FullJoin)
         {
             innerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(innerPendingSelector);
         }
@@ -1440,6 +1475,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             selector.Parameters[0],
             source.PendingSelector,
             selector.Body);
+
+        selectorBody = new NavigationTreeMemberPruningVisitor().Visit(selectorBody);
 
         source.ApplySelector(selectorBody);
 

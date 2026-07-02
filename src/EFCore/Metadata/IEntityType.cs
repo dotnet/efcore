@@ -380,7 +380,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </remarks>
     /// <param name="properties">The properties to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    new IIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties);
+    new IIndex? FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties);
 
     /// <summary>
     ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
@@ -394,7 +394,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </summary>
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    new IIndex? FindIndex(IReadOnlyProperty property)
+    new IIndex? FindIndex(IReadOnlyPropertyBase property)
         => FindIndex([property]);
 
     /// <summary>

@@ -1,7 +1,7 @@
 ---
 name: model-building
 description: 'Implementation details for EF Core model building. Use when changing ConventionSet, ModelBuilder, IConvention implementations, ModelRuntimeInitializer, RuntimeModel, or related classes.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Model Building, Conventions & Initialization

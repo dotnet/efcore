@@ -11,7 +11,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
     : NorthwindDbFunctionsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_case_insensitive(bool async)
         => AssertCount(
             async,
@@ -20,7 +20,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
             c => EF.Functions.Collate(c.ContactName, CaseInsensitiveCollation) == "maria anders",
             c => c.ContactName.Equals("maria anders", StringComparison.OrdinalIgnoreCase));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_case_sensitive(bool async)
         => AssertCount(
             async,
@@ -29,7 +29,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
             c => EF.Functions.Collate(c.ContactName, CaseSensitiveCollation) == "maria anders",
             c => c.ContactName.Equals("maria anders", StringComparison.Ordinal));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_case_sensitive_constant(bool async)
         => AssertCount(
             async,
@@ -38,7 +38,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
             c => c.ContactName == EF.Functions.Collate("maria anders", CaseSensitiveCollation),
             c => c.ContactName.Equals("maria anders", StringComparison.Ordinal));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_is_null(bool async)
         => AssertCount(
             async,
@@ -47,35 +47,35 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
             c => EF.Functions.Collate(c.Region, CaseSensitiveCollation) == null,
             c => c.Region == null);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Least(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Least(od.OrderID, 10251) == 10251),
             ss => ss.Set<OrderDetail>().Where(od => Math.Min(od.OrderID, 10251) == 10251));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Greatest(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(od.OrderID, 10251) == 10251),
             ss => ss.Set<OrderDetail>().Where(od => Math.Max(od.OrderID, 10251) == 10251));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Least_with_nullable_value_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Least(od.OrderID, (int?)10251) == 10251),
             ss => ss.Set<OrderDetail>().Where(od => Math.Min(od.OrderID, 10251) == 10251));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Greatest_with_nullable_value_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(od.OrderID, (int?)10251) == 10251),
             ss => ss.Set<OrderDetail>().Where(od => Math.Max(od.OrderID, 10251) == 10251));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Least_with_parameter_array_is_not_supported(bool async)
     {
         var arr = new[] { 1, 2 };
@@ -86,7 +86,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
                 ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Least(arr) == 10251)));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Greatest_with_parameter_array_is_not_supported(bool async)
     {
         var arr = new[] { 1, 2 };

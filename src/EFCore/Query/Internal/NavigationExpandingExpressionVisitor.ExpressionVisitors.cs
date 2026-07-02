@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -269,7 +270,8 @@ public partial class NavigationExpandingExpressionVisitor
 
                     var resultSelector = Expression.Lambda(innerKeyParameter, outerKeyParameter, innerKeyParameter);
 
-                    var innerJoin = !inverseNavigation.IsOnDependent && secondaryForeignKey.IsRequired;
+                    var innerJoin = !inverseNavigation.IsOnDependent
+                        && secondaryForeignKey.IsEffectivelyRequired();
 
                     secondaryExpansion = Expression.Call(
                         (innerJoin
@@ -475,7 +477,7 @@ public partial class NavigationExpandingExpressionVisitor
             var innerJoin = !entityReference.IsOptional
                 && !derivedTypeConversion
                 && onDependent
-                && foreignKey.IsRequired;
+                && foreignKey.IsEffectivelyRequired();
 
             if (!innerJoin)
             {
@@ -595,6 +597,33 @@ public partial class NavigationExpandingExpressionVisitor
                 if (complexProperty != null)
                 {
                     return memberExpression;
+                }
+
+                if (memberExpression.Expression is NavigationTreeExpression navigationTreeExpression
+                    && navigationTreeExpression.Value is NewExpression newExpression
+                    && newExpression.Members != null)
+                {
+                    for (var i = 0; i < newExpression.Members.Count; i++)
+                    {
+                        if (newExpression.Members[i] == memberExpression.Member)
+                        {
+                            var argument = newExpression.Arguments[i];
+                            var newRoot = Expression.MakeMemberAccess(navigationTreeExpression, newExpression.Members[i]);
+
+                            if (argument is EntityReference entityReference)
+                            {
+                                return ExpandInclude(newRoot, entityReference);
+                            }
+
+                            if (argument is NewExpression innerNewExpression
+                                && ReconstructAnonymousType(newRoot, innerNewExpression, out var replacement))
+                            {
+                                return replacement;
+                            }
+
+                            return newRoot;
+                        }
+                    }
                 }
             }
 
@@ -814,7 +843,7 @@ public partial class NavigationExpandingExpressionVisitor
                         && navigationBase is ISkipNavigation skipNavigation
                         && subquery is MethodCallExpression { Method.IsGenericMethod: true } joinMethodCallExpression
                         && joinMethodCallExpression.Method.GetGenericMethodDefinition()
-                        == (skipNavigation.Inverse.ForeignKey.IsRequired
+                        == (skipNavigation.Inverse.ForeignKey.IsEffectivelyRequired()
                             ? QueryableMethods.Join
                             : QueryableMethods.LeftJoin)
                         && joinMethodCallExpression.Arguments[4] is UnaryExpression
@@ -1048,6 +1077,88 @@ public partial class NavigationExpandingExpressionVisitor
                 default:
                     return base.Visit(expression);
             }
+        }
+    }
+
+    private sealed class NavigationTreeMemberPruningVisitor : ExpressionVisitor
+    {
+        private readonly Stack<Expression> _knownFalseTests = new();
+
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            if (node.IfTrue is ConstantExpression { Value: null })
+            {
+                var test = Visit(node.Test);
+
+                _knownFalseTests.Push(test);
+                var ifFalse = Visit(node.IfFalse);
+                _knownFalseTests.Pop();
+
+                return node.Update(test, node.IfTrue, ifFalse);
+            }
+
+            return base.VisitConditional(node);
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            var innerExpression = Visit(node.Expression);
+
+            if (innerExpression is NewExpression { Members: not null } newExpression)
+            {
+                for (var i = 0; i < newExpression.Members.Count; i++)
+                {
+                    if (newExpression.Members[i] == node.Member)
+                    {
+                        return newExpression.Arguments[i];
+                    }
+                }
+            }
+
+            if (innerExpression is ConditionalExpression { IfTrue: ConstantExpression { Value: null } } conditional
+                && node.Member.DeclaringType!.IsAssignableFrom(conditional.IfFalse.Type))
+            {
+                foreach (var knownFalseTest in _knownFalseTests)
+                {
+                    if (ExpressionEqualityComparer.Instance.Equals(knownFalseTest, conditional.Test))
+                    {
+                        return VisitMember(Expression.MakeMemberAccess(conditional.IfFalse, node.Member));
+                    }
+                }
+            }
+            return node.Update(innerExpression);
+        }
+
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            if (node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
+            {
+                var left = Visit(node.Left);
+                var right = Visit(node.Right);
+
+                Expression? conditionalTest = null;
+                if (left is ConditionalExpression { IfTrue: ConstantExpression { Value: null }, IfFalse: NewExpression } leftCond
+                    && right is ConstantExpression { Value: null })
+                {
+                    conditionalTest = leftCond.Test;
+                }
+                else if (right is ConditionalExpression { IfTrue: ConstantExpression { Value: null }, IfFalse: NewExpression } rightCond
+                    && left is ConstantExpression { Value: null })
+                {
+                    conditionalTest = rightCond.Test;
+                }
+
+                if (conditionalTest != null)
+                {
+                    return node.NodeType == ExpressionType.Equal
+                        ? conditionalTest
+                        : Expression.Not(conditionalTest);
+                }
+
+                return node.Update(left, node.Conversion, right);
+            }
+
+            return base.VisitBinary(node);
         }
     }
 

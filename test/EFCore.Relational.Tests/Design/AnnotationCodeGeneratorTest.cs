@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Design;
 
 public class AnnotationCodeGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void IsTableExcludedFromMigrations_false_is_handled_by_convention()
     {
         var modelBuilder = CreateModelBuilder();
@@ -18,7 +18,7 @@ public class AnnotationCodeGeneratorTest
         Assert.DoesNotContain(RelationalAnnotationNames.IsTableExcludedFromMigrations, annotations.Keys);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IModel_works_with_collation()
     {
         var modelBuilder = CreateModelBuilder();
@@ -30,7 +30,7 @@ public class AnnotationCodeGeneratorTest
         Assert.Equal("foo", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IProperty_works_with_collation()
     {
         var modelBuilder = CreateModelBuilder();
@@ -44,7 +44,7 @@ public class AnnotationCodeGeneratorTest
         Assert.Equal("foo", Assert.Single(result.Arguments));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsForeignKeyExcludedFromMigrations_false_is_handled_by_convention()
     {
         var modelBuilder = CreateModelBuilder();
@@ -62,7 +62,7 @@ public class AnnotationCodeGeneratorTest
         Assert.DoesNotContain(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations, annotations.Keys);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GenerateFluentApi_IForeignKey_works_with_ExcludeForeignKeyFromMigrations()
     {
         var modelBuilder = CreateModelBuilder();

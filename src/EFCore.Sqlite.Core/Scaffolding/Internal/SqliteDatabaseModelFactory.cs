@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using static SQLitePCL.raw;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
@@ -88,6 +89,8 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
     private static readonly HashSet<string> _floatTypes = new(StringComparer.OrdinalIgnoreCase) { "SINGLE" };
 
+    private static readonly HashSet<string> _halfTypes = new(StringComparer.OrdinalIgnoreCase) { "HALF" };
+
     private static readonly HashSet<string> _decimalTypes = new(StringComparer.OrdinalIgnoreCase) { "DECIMAL" };
 
     private static readonly HashSet<string> _ushortTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -130,6 +133,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
         .Concat(_floatTypes.Select(t => KeyValuePair.Create(t, typeof(float))))
         .Concat(_decimalTypes.Select(t => KeyValuePair.Create(t, typeof(decimal))))
         .Concat(_timeOnlyTypes.Select(t => KeyValuePair.Create(t, typeof(TimeOnly))))
+        .Concat(_halfTypes.Select(t => KeyValuePair.Create(t, typeof(Half))))
         .Concat(_ushortTypes.Select(t => KeyValuePair.Create(t, typeof(ushort))))
         .Concat(_uintTypes.Select(t => KeyValuePair.Create(t, typeof(uint))))
         .Concat(_ulongTypes.Select(t => KeyValuePair.Create(t, typeof(ulong))))
@@ -259,7 +263,7 @@ WHERE "name" = 'geometry_columns' AND "type" = 'table'
 SELECT "name", "type"
 FROM "sqlite_master"
 WHERE "type" IN ('table', 'view') AND instr("name", 'sqlite_') <> 1 AND "name" NOT IN (
-'{HistoryRepository.DefaultTableName}',
+'{HistoryRepository.DefaultTableName}', '{SqliteHistoryRepository.DefaultLockTableName}',
 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth',
 'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time',
 'spatial_ref_sys', 'spatial_ref_sys_aux', 'SpatialIndex', 'spatialite_history',
@@ -436,6 +440,11 @@ ORDER BY "cid"
                 {
                     // Ignored
                 }
+            }
+            else if (type == typeof(Half)
+                     && double.TryParse(defaultValueSql, NumberStyles.Float, CultureInfo.InvariantCulture, out var halfValue))
+            {
+                column.DefaultValue = (Half)halfValue;
             }
             else if (defaultValueSql.StartsWith('\'')
                      && defaultValueSql.EndsWith('\''))
@@ -817,6 +826,19 @@ ORDER BY "cid"
                     column["ClrType"] = typeof(decimal);
 
                     continue;
+                }
+
+                if (_halfTypes.Contains(baseColumnType))
+                {
+                    if (min >= (double)Half.MinValue
+                        && max <= (double)Half.MaxValue)
+                    {
+                        column["ClrType"] = typeof(Half);
+
+                        continue;
+                    }
+
+                    _logger.OutOfRangeWarning(column.Name, table.Name, "Half");
                 }
 
                 if (defaultClrTpe != typeof(double))

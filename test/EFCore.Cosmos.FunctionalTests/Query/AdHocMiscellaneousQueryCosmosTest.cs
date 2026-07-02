@@ -13,7 +13,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 {
     #region 21006
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_all_types_entity_with_missing_scalars()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext21006>(
@@ -150,7 +150,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #region 34911
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_partition_key()
     {
         var contextFactory = await InitializeNonSharedTest<Context34911>(
@@ -195,84 +195,84 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     // TODO: Move these tests to a better location. They require nullable properties with nulls in the database.
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_value_type_containing_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().MinAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_value_type_containing_all_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableVal == null).MinAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_reference_type_containing_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().MinAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_reference_type_containing_all_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableRef == null).MinAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_reference_type_containing_no_data()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.Id < 0).MinAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_value_type_containing_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Equal(3.14, await context.Set<Context35094.Product>().MaxAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_value_type_containing_all_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableVal == null).MaxAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_reference_type_containing_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Equal("Value", await context.Set<Context35094.Product>().MaxAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_reference_type_containing_all_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableRef == null).MaxAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_reference_type_containing_no_data()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.Id < 0).MaxAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Average_over_value_type_containing_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().AverageAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Average_over_value_type_containing_all_nulls()
     {
         await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
@@ -308,7 +308,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #region 36329
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_discriminator_with_value_converter_on_derived_dbset()
     {
         var contextFactory = await InitializeNonSharedTest<EnumDiscriminatorContext36329>(
@@ -388,7 +388,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #region 37653
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Coalesce_in_conditional_with_value_conversion()
     {
         var contextFactory = await InitializeNonSharedTest<Context37653>();

@@ -132,6 +132,9 @@
   <data name="CompatibilityLevelTooLowForScalarCollections" xml:space="preserve">
     <value>EF Core's SQL Server compatibility level is set to {compatibilityLevel}; compatibility level 130 (SQL Server 2016) is the minimum for most forms of querying of JSON arrays.</value>
   </data>
+  <data name="DateTimeOffsetOffsetRequiresTotalMinutes" xml:space="preserve">
+    <value>'DateTimeOffset.Offset' cannot be translated on its own; use 'DateTimeOffset.Offset.TotalMinutes' to get the offset in minutes.</value>
+  </data>
   <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.</value>
   </data>
@@ -178,10 +181,13 @@
     <value>Full-text index '{index}' on entity type '{entityType}' specifies a language for property '{property}', but that property is not part of the index.</value>
   </data>
   <data name="FullTextIndexMissingKeyIndex" xml:space="preserve">
-    <value>Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.</value>
+    <value>Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'UseKeyIndex' to configure the KEY INDEX.</value>
   </data>
   <data name="FullTextIndexOnInvalidColumn" xml:space="preserve">
     <value>Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.</value>
+  </data>
+  <data name="FullTextIndexUnsupportedOption" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on full-text indexes.</value>
   </data>
   <data name="FullTextMultipleDefaultCatalogs" xml:space="preserve">
     <value>Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.</value>
@@ -198,6 +204,9 @@
   <data name="IncludePropertyNotFound" xml:space="preserve">
     <value>The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.</value>
   </data>
+  <data name="IncludePropertyInJsonMappedType" xml:space="preserve">
+    <value>The include property '{property}' specified on the index {index} on entity type '{entityType}' is contained within a JSON-mapped type. Properties contained within JSON-mapped types cannot be included in an index.</value>
+  </data>
   <data name="IncompatibleSqlOutputClauseMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.</value>
   </data>
@@ -212,6 +221,9 @@
   </data>
   <data name="InvalidColumnNameForFreeText" xml:space="preserve">
     <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
+  </data>
+  <data name="InvalidDatePart" xml:space="preserve">
+    <value>The datepart '{datepart}' is invalid for the {function} function; datepart values may only contain letters and underscores.</value>
   </data>
   <data name="InvalidEngineType" xml:space="preserve">
     <value>Engine type was not configured. Use one of {methods} to configure it.</value>
@@ -321,6 +333,10 @@
     <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
     <comment>Warning SqlServerEventId.SavepointsDisabledBecauseOfMARS</comment>
   </data>
+  <data name="LogVectorSearchWithoutApproximate" xml:space="preserve">
+    <value>The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateIndexWarning))'.</value>
+    <comment>Warning SqlServerEventId.VectorSearchWithoutApproximateIndexWarning string string</comment>
+  </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">
     <value>The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.</value>
   </data>
@@ -375,9 +391,6 @@
   <data name="TemporalPeriodPropertyCantHaveDefaultValue" xml:space="preserve">
     <value>Period property '{entityType}.{propertyName}' can't have a default value specified.</value>
   </data>
-  <data name="TemporalPeriodPropertyMustBeInShadowState" xml:space="preserve">
-    <value>Period property '{entityType}.{propertyName}' must be a shadow property.</value>
-  </data>
   <data name="TemporalPeriodPropertyMustBeMappedToDatetime2" xml:space="preserve">
     <value>Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.</value>
   </data>
@@ -389,6 +402,12 @@
   </data>
   <data name="TemporalSetOperationOnMismatchedSources" xml:space="preserve">
     <value>Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.</value>
+  </data>
+  <data name="TimeSpanOffsetOutOfRange" xml:space="preserve">
+    <value>The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.</value>
+  </data>
+  <data name="TimeSpanOffsetPrecisionNotSupported" xml:space="preserve">
+    <value>SQL Server time zone offsets must be specified in whole minutes. The provided TimeSpan value contains sub-minute precision (seconds, milliseconds, or smaller), which is not supported.</value>
   </data>
   <data name="TransientExceptionDetected" xml:space="preserve">
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
@@ -403,7 +422,7 @@
     <value>Vector index '{index}' on entity type '{entityType}' is defined over property '{property}', which is not a vector property.</value>
   </data>
   <data name="VectorIndexRequiresMetric" xml:space="preserve">
-    <value>Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.</value>
+    <value>Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'HasMetric' on the vector index builder.</value>
   </data>
   <data name="VectorIndexRequiresSingleProperty" xml:space="preserve">
     <value>Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.</value>
@@ -411,10 +430,19 @@
   <data name="VectorIndexRequiresType" xml:space="preserve">
     <value>Vector index '{index}' on entity type '{entityType}' cannot have an empty vector index type.</value>
   </data>
+  <data name="VectorIndexUnsupportedOption" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on vector indexes.</value>
+  </data>
   <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
     <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
   </data>
   <data name="VectorSearchRequiresColumn" xml:space="preserve">
     <value>VectorSearch() requires a valid vector column.</value>
+  </data>
+  <data name="WithApproximateNotSupportedWithSkipAndTake" xml:space="preserve">
+    <value>WithApproximate() after Skip().Take() is not supported. Use Take().WithApproximate().Skip() instead, or remove Skip().</value>
+  </data>
+  <data name="WithApproximateRequiresTake" xml:space="preserve">
+    <value>WithApproximate() must be called after Take() to specify the number of results.</value>
   </data>
 </root>

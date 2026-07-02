@@ -56,7 +56,8 @@ public class FormattingDbContextLogger : IDbContextLogger
 
             if ((_options & DbContextLoggerOptions.LocalTime) != 0)
             {
-                messageBuilder.Append(DateTime.Now.ToShortDateString()).Append(DateTime.Now.ToString(" HH:mm:ss.fff "));
+                var now = DateTime.Now;
+                messageBuilder.Append(now.ToShortDateString()).Append(now.ToString(" HH:mm:ss.fff "));
             }
 
             if ((_options & DbContextLoggerOptions.UtcTime) != 0)

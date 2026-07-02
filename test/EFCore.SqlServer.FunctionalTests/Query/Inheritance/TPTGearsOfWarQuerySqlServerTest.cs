@@ -16,7 +16,7 @@ public class TPTGearsOfWarQuerySqlServerTest : TPTGearsOfWarQueryRelationalTestB
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -62,7 +62,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 LEFT JOIN [Weapons] AS [w] ON [s].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId]
+ORDER BY [t].[Id]
 """);
     }
 
@@ -104,7 +104,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
 ) AS [s] ON [c].[Name] = [s].[AssignedCityName]
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [s].[Nickname]
+ORDER BY [g].[Nickname], [g].[SquadId], [s].[Nickname]
 """);
     }
 
@@ -128,7 +128,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
 ) AS [s] ON [c].[Name] = [s].[AssignedCityName]
 WHERE [g].[Nickname] = N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [s].[Nickname]
+ORDER BY [g].[Nickname], [g].[SquadId], [s].[Nickname]
 """);
     }
 
@@ -403,7 +403,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
 ) AS [s] ON [c].[Name] = [s].[AssignedCityName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [c].[Name], [s].[Nickname]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname]
 """);
     }
 
@@ -806,10 +806,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE CASE
-    WHEN [g].[LeaderNickname] IS NULL THEN NULL
-    ELSE CAST(LEN([g].[LeaderNickname]) AS int)
-END = 5
+WHERE CAST(LEN([g].[LeaderNickname]) AS int) = 5
 """);
     }
 
@@ -825,9 +822,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-END = 5
+WHERE CAST(LEN([g].[LeaderNickname]) AS int) = 5
 """);
     }
 
@@ -843,9 +838,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-END = 5
+WHERE CAST(LEN([g].[LeaderNickname]) AS int) = 5
 """);
     }
 
@@ -856,9 +849,7 @@ END = 5
         // issue #16050
         AssertSql(
             """
-SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN [g].[LeaderNickname] + [g].[LeaderNickname]
-END
+SELECT [g].[LeaderNickname] + [g].[LeaderNickname]
 FROM [Gears] AS [g]
 """);
     }
@@ -1053,9 +1044,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
-END
+SELECT [c].[Name]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId]
@@ -1376,7 +1365,7 @@ WHERE [s].[Nickname] = [s0].[Nickname] OR ([s].[Nickname] IS NULL AND [s0].[Nick
 
         AssertSql(
             """
-SELECT TOP(1) COALESCE([w0].[IsAutomatic], CAST(0 AS bit)) AS [IsAutomatic]
+SELECT TOP(1) ISNULL([w0].[IsAutomatic], CAST(0 AS bit)) AS [IsAutomatic]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 ORDER BY [w].[Id]
@@ -1394,7 +1383,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE COALESCE((
+WHERE ISNULL((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
@@ -1432,7 +1421,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
+WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND ISNULL((
     SELECT TOP(1) [w0].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -1499,7 +1488,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
+WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND ISNULL((
     SELECT TOP(1) [w0].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -1521,7 +1510,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
+WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND ISNULL((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit)) = CAST(1 AS bit)
@@ -1608,7 +1597,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
+WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND ISNULL((
     SELECT TOP(1) [w0].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -1705,11 +1694,6 @@ LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND (
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
-    LEFT JOIN (
-        SELECT [w0].[Id]
-        FROM [Weapons] AS [w0]
-        WHERE [g].[FullName] = [w0].[OwnerFullName]
-    ) AS [w1] ON [w].[Id] = [w1].[Id]
     WHERE [g].[FullName] = [w].[OwnerFullName]
     ORDER BY [w].[Id]) = CAST(1 AS bit)
 """);
@@ -2341,7 +2325,7 @@ LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
     FROM [Gears] AS [g]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
-WHERE COALESCE([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit)
+WHERE ISNULL([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit)
 """);
     }
 
@@ -2357,7 +2341,7 @@ LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
     FROM [Gears] AS [g]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
-WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND COALESCE([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit)
+WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND ISNULL([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit)
 """);
     }
 
@@ -2368,7 +2352,7 @@ WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND COALESCE([s].[HasSoulP
         AssertSql(
             """
 SELECT CASE
-    WHEN ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND COALESCE([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit) THEN CAST(1 AS bit)
+    WHEN ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND ISNULL([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Tags] AS [t]
@@ -2439,10 +2423,7 @@ LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
     FROM [Gears] AS [g]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
-WHERE CASE
-    WHEN [s].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE [s].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [s].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -2458,10 +2439,7 @@ LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
     FROM [Gears] AS [g]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
-WHERE CASE
-    WHEN [s].[HasSoulPatch] = CAST(0 AS bit) THEN CAST(0 AS bit)
-    ELSE [s].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [s].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -2691,7 +2669,7 @@ WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND [s].[SquadId] IN (
 
         AssertSql(
             """
-SELECT [g].[Nickname], [g].[SquadId], [c].[Name], [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
+SELECT [g].[Nickname], [g].[SquadId], [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Gears] AS [g]
 INNER JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 LEFT JOIN (
@@ -2700,7 +2678,7 @@ LEFT JOIN (
     WHERE [w].[Name] <> N'Lancer' OR [w].[Name] IS NULL
 ) AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
 WHERE [c].[Name] IN (N'Ephyra', N'Hanover')
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name]
+ORDER BY [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -2878,7 +2856,7 @@ WHERE [t].[Note] <> N'Foo' OR [t].[Note] IS NULL
 
         AssertSql(
             """
-SELECT COALESCE(SUM([g].[SquadId]), 0)
+SELECT ISNULL(SUM([g].[SquadId]), 0)
 FROM [Gears] AS [g]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 WHERE [t].[Note] <> N'Foo' OR [t].[Note] IS NULL
@@ -3434,7 +3412,7 @@ LEFT JOIN (
     LEFT JOIN [LocustCommanders] AS [l3] ON [l2].[Name] = [l3].[Name]
 ) AS [s0] ON [f].[Id] = [s0].[LocustHordeId]
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Name], [f].[Id], [s].[Name]
+ORDER BY [f].[Name], [f].[Id]
 """);
     }
 
@@ -3577,9 +3555,7 @@ WHERE [s].[Discriminator] = N'Officer' AND (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [l].[CommanderName] IS NOT NULL THEN [l].[CommanderName]
-END
+SELECT [l].[CommanderName]
 FROM [Factions] AS [f]
 LEFT JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 WHERE [l].[Id] IS NOT NULL
@@ -3607,7 +3583,7 @@ WHERE [l].[Id] IS NOT NULL
 
         AssertSql(
             """
-SELECT [f].[Id], [s].[Name], [s0].[Id], [s1].[Name], [s1].[LocustHordeId], [s1].[ThreatLevel], [s1].[ThreatLevelByte], [s1].[ThreatLevelNullableByte], [s1].[DefeatedByNickname], [s1].[DefeatedBySquadId], [s1].[HighCommandId], [s1].[Discriminator]
+SELECT [f].[Id], [s1].[Name], [s1].[LocustHordeId], [s1].[ThreatLevel], [s1].[ThreatLevelByte], [s1].[ThreatLevelNullableByte], [s1].[DefeatedByNickname], [s1].[DefeatedBySquadId], [s1].[HighCommandId], [s1].[Discriminator]
 FROM [Factions] AS [f]
 LEFT JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 LEFT JOIN (
@@ -3628,7 +3604,7 @@ LEFT JOIN (
     LEFT JOIN [LocustCommanders] AS [l4] ON [l3].[Name] = [l4].[Name]
 ) AS [s1] ON [s0].[Id] = [s1].[LocustHordeId]
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Id], [s].[Name], [s0].[Id]
+ORDER BY [f].[Id]
 """);
     }
 
@@ -3638,7 +3614,7 @@ ORDER BY [f].[Id], [s].[Name], [s0].[Id]
 
         AssertSql(
             """
-SELECT [f].[Id], [s].[Name], [s0].[Nickname], [s0].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
+SELECT [f].[Id], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
 FROM [Factions] AS [f]
 LEFT JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 LEFT JOIN (
@@ -3656,9 +3632,9 @@ LEFT JOIN (
     END AS [Discriminator]
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o] ON [g0].[Nickname] = [o].[Nickname] AND [g0].[SquadId] = [o].[SquadId]
-) AS [s1] ON ([s0].[Nickname] = [s1].[LeaderNickname] OR ([s0].[Nickname] IS NULL AND [s1].[LeaderNickname] IS NULL)) AND [s0].[SquadId] = [s1].[LeaderSquadId]
+) AS [s1] ON [s0].[Nickname] IS NOT NULL AND [s0].[SquadId] IS NOT NULL AND [s0].[Nickname] = [s1].[LeaderNickname] AND [s0].[SquadId] = [s1].[LeaderSquadId]
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Id], [s].[Name], [s0].[Nickname], [s0].[SquadId], [s1].[Nickname]
+ORDER BY [f].[Id], [s1].[Nickname]
 """);
     }
 
@@ -3668,7 +3644,7 @@ ORDER BY [f].[Id], [s].[Name], [s0].[Nickname], [s0].[SquadId], [s1].[Nickname]
 
         AssertSql(
             """
-SELECT [f].[Id], [s].[Name], [s0].[Nickname], [s0].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
+SELECT [f].[Id], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
 FROM [Factions] AS [f]
 LEFT JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 LEFT JOIN (
@@ -3686,9 +3662,9 @@ LEFT JOIN (
     END AS [Discriminator]
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o] ON [g0].[Nickname] = [o].[Nickname] AND [g0].[SquadId] = [o].[SquadId]
-) AS [s1] ON ([s0].[Nickname] = [s1].[LeaderNickname] OR ([s0].[Nickname] IS NULL AND [s1].[LeaderNickname] IS NULL)) AND [s0].[SquadId] = [s1].[LeaderSquadId]
+) AS [s1] ON [s0].[Nickname] IS NOT NULL AND [s0].[SquadId] IS NOT NULL AND [s0].[Nickname] = [s1].[LeaderNickname] AND [s0].[SquadId] = [s1].[LeaderSquadId]
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Id], [s].[Name], [s0].[Nickname], [s0].[SquadId], [s1].[Nickname]
+ORDER BY [f].[Id], [s1].[Nickname]
 """);
     }
 
@@ -3760,8 +3736,8 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
     INNER JOIN [Cities] AS [c] ON [g0].[CityOfBirthName] = [c].[Name]
-) AS [s0] ON ([s].[Nickname] = [s0].[LeaderNickname] OR ([s].[Nickname] IS NULL AND [s0].[LeaderNickname] IS NULL)) AND [s].[SquadId] = [s0].[LeaderSquadId]
-ORDER BY [l].[Name], [s].[Nickname], [s].[SquadId], [s0].[Nickname], [s0].[SquadId]
+) AS [s0] ON [s].[Nickname] IS NOT NULL AND [s].[SquadId] IS NOT NULL AND [s].[Nickname] = [s0].[LeaderNickname] AND [s].[SquadId] = [s0].[LeaderSquadId]
+ORDER BY [l].[Name], [s0].[Nickname]
 """);
     }
 
@@ -3907,7 +3883,7 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]
+ORDER BY [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -3927,7 +3903,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 LEFT JOIN [Weapons] AS [w] ON [s].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId]
+ORDER BY [t].[Id]
 """);
     }
 
@@ -3960,8 +3936,8 @@ LEFT JOIN (
     END AS [Discriminator]
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
-) AS [s1] ON ([s0].[Nickname] = [s1].[LeaderNickname] OR ([s0].[Nickname] IS NULL AND [s1].[LeaderNickname] IS NULL)) AND [s0].[SquadId] = [s1].[LeaderSquadId]
-ORDER BY [f].[Id], [s].[Name], [s0].[Nickname], [s0].[SquadId], [s1].[Nickname]
+) AS [s1] ON [s0].[Nickname] IS NOT NULL AND [s0].[SquadId] IS NOT NULL AND [s0].[Nickname] = [s1].[LeaderNickname] AND [s0].[SquadId] = [s1].[LeaderSquadId]
+ORDER BY [f].[Id], [s1].[Nickname]
 """);
     }
 
@@ -4019,7 +3995,7 @@ LEFT JOIN (
         LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
     ) AS [s] ON [l1].[DefeatedByNickname] = [s].[Nickname] AND [l1].[DefeatedBySquadId] = [s].[SquadId]
 ) AS [s0] ON [f].[Id] = [s0].[LocustHordeId]
-ORDER BY [f].[Id], [s0].[Name], [s0].[Nickname]
+ORDER BY [f].[Id]
 """);
     }
 
@@ -4052,8 +4028,8 @@ LEFT JOIN (
     END AS [Discriminator]
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
-) AS [s1] ON ([s0].[Nickname] = [s1].[LeaderNickname] OR ([s0].[Nickname] IS NULL AND [s1].[LeaderNickname] IS NULL)) AND [s0].[SquadId] = [s1].[LeaderSquadId]
-ORDER BY [f].[Id], [s].[Name], [s0].[Nickname], [s0].[SquadId], [s1].[Nickname]
+) AS [s1] ON [s0].[Nickname] IS NOT NULL AND [s0].[SquadId] IS NOT NULL AND [s0].[Nickname] = [s1].[LeaderNickname] AND [s0].[SquadId] = [s1].[LeaderSquadId]
+ORDER BY [f].[Id], [s1].[Nickname]
 """);
     }
 
@@ -4077,7 +4053,7 @@ LEFT JOIN (
     INNER JOIN [Squads] AS [s] ON [g0].[SquadId] = [s].[Id]
     LEFT JOIN [SquadMissions] AS [s0] ON [s].[Id] = [s0].[SquadId]
 ) AS [s1] ON [g].[Nickname] = [s1].[LeaderNickname] AND [g].[SquadId] = [s1].[LeaderSquadId]
-ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[Id], [s1].[SquadId0]
+ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0]
 """);
     }
 
@@ -4144,7 +4120,7 @@ FROM [Weapons] AS [w]
             """
 SELECT [m].[CodeName]
 FROM [Missions] AS [m]
-WHERE CAST([m].[Difficulty] AS nvarchar(max)) LIKE N'%Med%'
+WHERE [m].[Difficulty] LIKE N'%Med%'
 """);
     }
 
@@ -4359,7 +4335,7 @@ ORDER BY [g].[Nickname], [g].[SquadId]
 
         AssertSql(
             """
-SELECT [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId], [s1].[MissionId]
+SELECT [g].[Nickname], [g].[SquadId], [s1].[SquadId], [s1].[MissionId]
 FROM [Gears] AS [g]
 INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
 LEFT JOIN (
@@ -4368,7 +4344,7 @@ LEFT JOIN (
     WHERE [s0].[MissionId] <> 17
 ) AS [s1] ON [s].[Id] = [s1].[SquadId]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
+ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[SquadId]
 """);
     }
 
@@ -4395,10 +4371,10 @@ ORDER BY [s].[Id], [s0].[Nickname]
 
         AssertSql(
             """
-SELECT [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0], [s3].[MissionId0]
+SELECT [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[SquadId0], [s3].[MissionId0]
 FROM [Squads] AS [s]
 LEFT JOIN (
-    SELECT [s0].[SquadId], [s0].[MissionId], [m].[Id], [s2].[SquadId] AS [SquadId0], [s2].[MissionId] AS [MissionId0]
+    SELECT [s0].[SquadId], [s0].[MissionId], [s2].[SquadId] AS [SquadId0], [s2].[MissionId] AS [MissionId0]
     FROM [SquadMissions] AS [s0]
     INNER JOIN [Missions] AS [m] ON [s0].[MissionId] = [m].[Id]
     LEFT JOIN (
@@ -4408,7 +4384,7 @@ LEFT JOIN (
     ) AS [s2] ON [m].[Id] = [s2].[MissionId]
     WHERE [s0].[MissionId] < 42
 ) AS [s3] ON [s].[Id] = [s3].[SquadId]
-ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0]
+ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[SquadId0]
 """);
     }
 
@@ -4418,10 +4394,10 @@ ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0]
 
         AssertSql(
             """
-SELECT [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0], [s3].[MissionId0]
+SELECT [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[SquadId0], [s3].[MissionId0]
 FROM [Squads] AS [s]
 LEFT JOIN (
-    SELECT [s0].[SquadId], [s0].[MissionId], [m].[Id], [s2].[SquadId] AS [SquadId0], [s2].[MissionId] AS [MissionId0]
+    SELECT [s0].[SquadId], [s0].[MissionId], [s2].[SquadId] AS [SquadId0], [s2].[MissionId] AS [MissionId0]
     FROM [SquadMissions] AS [s0]
     INNER JOIN [Missions] AS [m] ON [s0].[MissionId] = [m].[Id]
     LEFT JOIN (
@@ -4431,7 +4407,7 @@ LEFT JOIN (
     ) AS [s2] ON [m].[Id] = [s2].[MissionId]
     WHERE [s0].[MissionId] < 3
 ) AS [s3] ON [s].[Id] = [s3].[SquadId]
-ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0]
+ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[SquadId0]
 """);
     }
 
@@ -4441,10 +4417,10 @@ ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0]
 
         AssertSql(
             """
-SELECT [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0], [s3].[MissionId0]
+SELECT [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[SquadId0], [s3].[MissionId0]
 FROM [Squads] AS [s]
 LEFT JOIN (
-    SELECT [s0].[SquadId], [s0].[MissionId], [m].[Id], [s2].[SquadId] AS [SquadId0], [s2].[MissionId] AS [MissionId0]
+    SELECT [s0].[SquadId], [s0].[MissionId], [s2].[SquadId] AS [SquadId0], [s2].[MissionId] AS [MissionId0]
     FROM [SquadMissions] AS [s0]
     INNER JOIN [Missions] AS [m] ON [s0].[MissionId] = [m].[Id]
     LEFT JOIN (
@@ -4454,7 +4430,7 @@ LEFT JOIN (
     ) AS [s2] ON [m].[Id] = [s2].[MissionId]
     WHERE [s0].[MissionId] < 42
 ) AS [s3] ON [s].[Id] = [s3].[SquadId]
-ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[Id], [s3].[SquadId0]
+ORDER BY [s].[Id], [s3].[SquadId], [s3].[MissionId], [s3].[SquadId0]
 """);
     }
 
@@ -4573,7 +4549,7 @@ ORDER BY [g].[HasSoulPatch] DESC, [t].[Note]
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId], [s1].[Nickname], [s1].[SquadId]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
@@ -4582,10 +4558,10 @@ LEFT JOIN (
     FROM [Gears] AS [g1]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 LEFT JOIN (
-    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [s0].[Nickname], [s0].[SquadId]
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [s0].[Nickname]
     FROM [Weapons] AS [w]
     LEFT JOIN (
-        SELECT [g2].[Nickname], [g2].[SquadId], [g2].[FullName]
+        SELECT [g2].[Nickname], [g2].[FullName]
         FROM [Gears] AS [g2]
     ) AS [s0] ON [w].[OwnerFullName] = [s0].[FullName]
 ) AS [s1] ON [s].[FullName] = [s1].[OwnerFullName]
@@ -4593,7 +4569,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     SELECT 1
     FROM [Gears] AS [g0]
     WHERE [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId])
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[IsAutomatic], [s1].[Nickname] DESC, [s1].[Id]
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [s1].[IsAutomatic], [s1].[Nickname] DESC
 """);
     }
 
@@ -4604,7 +4580,7 @@ ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t]
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId], [s1].[Nickname], [s1].[SquadId]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
@@ -4613,10 +4589,10 @@ LEFT JOIN (
     FROM [Gears] AS [g1]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 LEFT JOIN (
-    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [s0].[Nickname], [s0].[SquadId]
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [s0].[Nickname]
     FROM [Weapons] AS [w]
     LEFT JOIN (
-        SELECT [g2].[Nickname], [g2].[SquadId], [g2].[FullName]
+        SELECT [g2].[Nickname], [g2].[FullName]
         FROM [Gears] AS [g2]
     ) AS [s0] ON [w].[OwnerFullName] = [s0].[FullName]
 ) AS [s1] ON [s].[FullName] = [s1].[OwnerFullName]
@@ -4624,7 +4600,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     SELECT 1
     FROM [Gears] AS [g0]
     WHERE [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId])
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[IsAutomatic], [s1].[Nickname] DESC, [s1].[Id]
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [s1].[IsAutomatic], [s1].[Nickname] DESC
 """);
     }
 
@@ -4635,7 +4611,7 @@ ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t]
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId], [s1].[Nickname], [s1].[SquadId]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
@@ -4644,13 +4620,13 @@ LEFT JOIN (
     FROM [Gears] AS [g1]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 LEFT JOIN (
-    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [s0].[Nickname], [s0].[SquadId], (
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], (
         SELECT COUNT(*)
         FROM [Weapons] AS [w0]
         WHERE [s0].[FullName] IS NOT NULL AND [s0].[FullName] = [w0].[OwnerFullName]) AS [c]
     FROM [Weapons] AS [w]
     LEFT JOIN (
-        SELECT [g2].[Nickname], [g2].[SquadId], [g2].[FullName]
+        SELECT [g2].[FullName]
         FROM [Gears] AS [g2]
     ) AS [s0] ON [w].[OwnerFullName] = [s0].[FullName]
 ) AS [s1] ON [s].[FullName] = [s1].[OwnerFullName]
@@ -4658,7 +4634,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     SELECT 1
     FROM [Gears] AS [g0]
     WHERE [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId])
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Id] DESC, [s1].[c], [s1].[Nickname]
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [s1].[Id] DESC, [s1].[c]
 """);
     }
 
@@ -4668,7 +4644,7 @@ ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t]
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s5].[FullName], [s5].[Nickname], [s5].[SquadId], [s5].[Id], [s5].[Nickname0], [s5].[SquadId0], [s5].[Id0], [s5].[Name], [s5].[IsAutomatic], [s5].[Id1], [s5].[Nickname00], [s5].[HasSoulPatch], [s5].[SquadId00], [s6].[Id], [s6].[AmmunitionType], [s6].[IsAutomatic], [s6].[Name], [s6].[OwnerFullName], [s6].[SynergyWithId], [s6].[Nickname], [s6].[SquadId]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s5].[FullName], [s5].[Nickname], [s5].[SquadId], [s5].[Id], [s5].[Name], [s5].[IsAutomatic], [s5].[Id0], [s5].[Nickname0], [s5].[HasSoulPatch], [s5].[SquadId0], [s6].[Id], [s6].[AmmunitionType], [s6].[IsAutomatic], [s6].[Name], [s6].[OwnerFullName], [s6].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
@@ -4677,13 +4653,13 @@ LEFT JOIN (
     FROM [Gears] AS [g1]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 LEFT JOIN (
-    SELECT [g2].[FullName], [g2].[Nickname], [g2].[SquadId], [s4].[Id], [s4].[Nickname] AS [Nickname0], [s4].[SquadId] AS [SquadId0], [s4].[Id0], [s4].[Name], [s4].[IsAutomatic], [s4].[Id1], [s4].[Nickname0] AS [Nickname00], [s4].[HasSoulPatch], [s4].[SquadId0] AS [SquadId00], [g2].[Rank], [s4].[IsAutomatic0], [g2].[LeaderNickname], [g2].[LeaderSquadId]
+    SELECT [g2].[FullName], [g2].[Nickname], [g2].[SquadId], [s4].[Id], [s4].[Name], [s4].[IsAutomatic], [s4].[Id0], [s4].[Nickname] AS [Nickname0], [s4].[HasSoulPatch], [s4].[SquadId] AS [SquadId0], [g2].[Rank], [s4].[IsAutomatic0], [g2].[LeaderNickname], [g2].[LeaderSquadId]
     FROM [Gears] AS [g2]
     LEFT JOIN (
-        SELECT [w].[Id], [s0].[Nickname], [s0].[SquadId], [s1].[Id] AS [Id0], [w0].[Name], [w0].[IsAutomatic], [w0].[Id] AS [Id1], [s3].[Nickname] AS [Nickname0], [s3].[HasSoulPatch], [s3].[SquadId] AS [SquadId0], [w].[IsAutomatic] AS [IsAutomatic0], [w].[OwnerFullName]
+        SELECT [w].[Id], [w0].[Name], [w0].[IsAutomatic], [w0].[Id] AS [Id0], [s3].[Nickname], [s3].[HasSoulPatch], [s3].[SquadId], [w].[IsAutomatic] AS [IsAutomatic0], [w].[OwnerFullName]
         FROM [Weapons] AS [w]
         LEFT JOIN (
-            SELECT [g3].[Nickname], [g3].[SquadId], [g3].[FullName]
+            SELECT [g3].[SquadId], [g3].[FullName]
             FROM [Gears] AS [g3]
         ) AS [s0] ON [w].[OwnerFullName] = [s0].[FullName]
         LEFT JOIN [Squads] AS [s1] ON [s0].[SquadId] = [s1].[Id]
@@ -4697,10 +4673,10 @@ LEFT JOIN (
     WHERE [g2].[FullName] <> N'Foo'
 ) AS [s5] ON [g].[Nickname] = [s5].[LeaderNickname] AND [g].[SquadId] = [s5].[LeaderSquadId]
 LEFT JOIN (
-    SELECT [w1].[Id], [w1].[AmmunitionType], [w1].[IsAutomatic], [w1].[Name], [w1].[OwnerFullName], [w1].[SynergyWithId], [s2].[Nickname], [s2].[SquadId]
+    SELECT [w1].[Id], [w1].[AmmunitionType], [w1].[IsAutomatic], [w1].[Name], [w1].[OwnerFullName], [w1].[SynergyWithId], [s2].[Nickname]
     FROM [Weapons] AS [w1]
     LEFT JOIN (
-        SELECT [g5].[Nickname], [g5].[SquadId], [g5].[FullName]
+        SELECT [g5].[Nickname], [g5].[FullName]
         FROM [Gears] AS [g5]
     ) AS [s2] ON [w1].[OwnerFullName] = [s2].[FullName]
 ) AS [s6] ON [s].[FullName] = [s6].[OwnerFullName]
@@ -4708,7 +4684,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     SELECT 1
     FROM [Gears] AS [g0]
     WHERE [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId])
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [s].[Nickname], [s].[SquadId], [s5].[Rank], [s5].[Nickname], [s5].[SquadId], [s5].[IsAutomatic0], [s5].[Id], [s5].[Nickname0], [s5].[SquadId0], [s5].[Id0], [s5].[Id1], [s5].[Nickname00], [s5].[SquadId00], [s6].[IsAutomatic], [s6].[Nickname] DESC, [s6].[Id]
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [s5].[Rank], [s5].[Nickname], [s5].[SquadId], [s5].[IsAutomatic0], [s5].[Id], [s5].[Id0], [s5].[Nickname0], [s5].[SquadId0], [s6].[IsAutomatic], [s6].[Nickname] DESC
 """);
     }
 
@@ -4979,7 +4955,7 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT [g0].[FullName], [g0].[Nickname], [g0].[SquadId], [g0].[LeaderNickname], [g0].[LeaderSquadId]
     FROM [Gears] AS [g0]
-) AS [s0] ON ([s].[Nickname] = [s0].[LeaderNickname] OR ([s].[Nickname] IS NULL AND [s0].[LeaderNickname] IS NULL)) AND [s].[SquadId] = [s0].[LeaderSquadId]
+) AS [s0] ON [s].[Nickname] IS NOT NULL AND [s].[SquadId] IS NOT NULL AND [s].[Nickname] = [s0].[LeaderNickname] AND [s].[SquadId] = [s0].[LeaderSquadId]
 ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId], [s0].[Nickname]
 """);
     }
@@ -4990,7 +4966,7 @@ ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId], [s0].[Nickname]
 
         AssertSql(
             """
-SELECT [t].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id], [s1].[Nickname], [s1].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId]
+SELECT [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId]
@@ -5007,7 +4983,7 @@ LEFT JOIN (
     ) AS [w0] ON [g0].[FullName] = [w0].[OwnerFullName]
     WHERE [g0].[HasSoulPatch] = CAST(1 AS bit)
 ) AS [s1] ON [s0].[Id] = [s1].[SquadId]
-ORDER BY [t].[Note], [s].[Nickname] DESC, [t].[Id], [s].[SquadId], [s0].[Id], [s1].[Nickname], [s1].[SquadId]
+ORDER BY [t].[Note], [s].[Nickname] DESC, [t].[Id], [s].[SquadId], [s1].[Nickname], [s1].[SquadId]
 """);
     }
 
@@ -5017,10 +4993,10 @@ ORDER BY [t].[Note], [s].[Nickname] DESC, [t].[Id], [s].[SquadId], [s0].[Id], [s
 
         AssertSql(
             """
-SELECT [w].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id], [s1].[Nickname], [s1].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId], [s1].[Rank]
+SELECT [w].[Id], [s1].[Nickname], [s1].[SquadId], [s1].[Id], [s1].[AmmunitionType], [s1].[IsAutomatic], [s1].[Name], [s1].[OwnerFullName], [s1].[SynergyWithId], [s1].[Rank]
 FROM [Weapons] AS [w]
 LEFT JOIN (
-    SELECT [g].[Nickname], [g].[SquadId], [g].[FullName]
+    SELECT [g].[SquadId], [g].[FullName]
     FROM [Gears] AS [g]
 ) AS [s] ON [w].[OwnerFullName] = [s].[FullName]
 LEFT JOIN [Squads] AS [s0] ON [s].[SquadId] = [s0].[Id]
@@ -5033,7 +5009,7 @@ LEFT JOIN (
         WHERE [w0].[IsAutomatic] = CAST(0 AS bit)
     ) AS [w1] ON [g0].[FullName] = [w1].[OwnerFullName]
 ) AS [s1] ON [s0].[Id] = [s1].[SquadId]
-ORDER BY [w].[Name], [w].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id], [s1].[FullName] DESC, [s1].[Nickname], [s1].[SquadId], [s1].[Id]
+ORDER BY [w].[Name], [w].[Id], [s1].[FullName] DESC, [s1].[Nickname], [s1].[SquadId], [s1].[Id]
 """);
     }
 
@@ -5043,13 +5019,13 @@ ORDER BY [w].[Name], [w].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id], [s1].[F
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s2].[Id], [s2].[Nickname], [s2].[SquadId], [s2].[Id0], [s2].[Nickname0], [s2].[HasSoulPatch], [s2].[SquadId0]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s2].[Id], [s2].[Nickname], [s2].[HasSoulPatch], [s2].[SquadId]
 FROM [Gears] AS [g]
 LEFT JOIN (
-    SELECT [w].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id] AS [Id0], [s1].[Nickname] AS [Nickname0], [s1].[HasSoulPatch], [s1].[SquadId] AS [SquadId0], [w].[OwnerFullName]
+    SELECT [w].[Id], [s1].[Nickname], [s1].[HasSoulPatch], [s1].[SquadId], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
     LEFT JOIN (
-        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
+        SELECT [g0].[SquadId], [g0].[FullName]
         FROM [Gears] AS [g0]
     ) AS [s] ON [w].[OwnerFullName] = [s].[FullName]
     LEFT JOIN [Squads] AS [s0] ON [s].[SquadId] = [s0].[Id]
@@ -5058,7 +5034,7 @@ LEFT JOIN (
         FROM [Gears] AS [g1]
     ) AS [s1] ON [s0].[Id] = [s1].[SquadId]
 ) AS [s2] ON [g].[FullName] = [s2].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [s2].[Id], [s2].[Nickname], [s2].[SquadId], [s2].[Id0], [s2].[Nickname0]
+ORDER BY [g].[Nickname], [g].[SquadId], [s2].[Id], [s2].[Nickname]
 """);
     }
 
@@ -5068,17 +5044,17 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s2].[Id], [s2].[Nickname], [s2].[SquadI
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s3].[FullName], [s3].[Nickname], [s3].[SquadId], [s3].[Id], [s3].[Nickname0], [s3].[SquadId0], [s3].[Id0], [s3].[Nickname00], [s3].[HasSoulPatch], [s3].[SquadId00]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s3].[FullName], [s3].[Nickname], [s3].[SquadId], [s3].[Id], [s3].[Nickname0], [s3].[HasSoulPatch], [s3].[SquadId0]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 LEFT JOIN (
-    SELECT [g0].[FullName], [g0].[Nickname], [g0].[SquadId], [s2].[Id], [s2].[Nickname] AS [Nickname0], [s2].[SquadId] AS [SquadId0], [s2].[Id0], [s2].[Nickname0] AS [Nickname00], [s2].[HasSoulPatch], [s2].[SquadId0] AS [SquadId00], [g0].[LeaderNickname], [g0].[LeaderSquadId]
+    SELECT [g0].[FullName], [g0].[Nickname], [g0].[SquadId], [s2].[Id], [s2].[Nickname] AS [Nickname0], [s2].[HasSoulPatch], [s2].[SquadId] AS [SquadId0], [g0].[LeaderNickname], [g0].[LeaderSquadId]
     FROM [Gears] AS [g0]
     LEFT JOIN (
-        SELECT [w].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id] AS [Id0], [s1].[Nickname] AS [Nickname0], [s1].[HasSoulPatch], [s1].[SquadId] AS [SquadId0], [w].[OwnerFullName]
+        SELECT [w].[Id], [s1].[Nickname], [s1].[HasSoulPatch], [s1].[SquadId], [w].[OwnerFullName]
         FROM [Weapons] AS [w]
         LEFT JOIN (
-            SELECT [g1].[Nickname], [g1].[SquadId], [g1].[FullName]
+            SELECT [g1].[SquadId], [g1].[FullName]
             FROM [Gears] AS [g1]
         ) AS [s] ON [w].[OwnerFullName] = [s].[FullName]
         LEFT JOIN [Squads] AS [s0] ON [s].[SquadId] = [s0].[Id]
@@ -5089,7 +5065,7 @@ LEFT JOIN (
     ) AS [s2] ON [g0].[FullName] = [s2].[OwnerFullName]
 ) AS [s3] ON [g].[Nickname] = [s3].[LeaderNickname] AND [g].[SquadId] = [s3].[LeaderSquadId]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [s3].[Nickname], [s3].[SquadId], [s3].[Id], [s3].[Nickname0], [s3].[SquadId0], [s3].[Id0], [s3].[Nickname00]
+ORDER BY [g].[Nickname], [g].[SquadId], [s3].[Nickname], [s3].[SquadId], [s3].[Id], [s3].[Nickname0]
 """);
     }
 
@@ -5099,13 +5075,13 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s3].[Nickname], [s3].[SquadId], [s3].[I
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s2].[Id], [s2].[Nickname], [s2].[SquadId], [s2].[Id0], [s2].[Nickname0], [s2].[HasSoulPatch], [s2].[SquadId0]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s2].[Id], [s2].[Nickname], [s2].[HasSoulPatch], [s2].[SquadId]
 FROM [Gears] AS [g]
 LEFT JOIN (
-    SELECT [w].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id] AS [Id0], [s1].[Nickname] AS [Nickname0], [s1].[HasSoulPatch], [s1].[SquadId] AS [SquadId0], [w].[OwnerFullName]
+    SELECT [w].[Id], [s1].[Nickname], [s1].[HasSoulPatch], [s1].[SquadId], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
     LEFT JOIN (
-        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
+        SELECT [g0].[SquadId], [g0].[FullName]
         FROM [Gears] AS [g0]
     ) AS [s] ON [w].[OwnerFullName] = [s].[FullName]
     LEFT JOIN [Squads] AS [s0] ON [s].[SquadId] = [s0].[Id]
@@ -5114,7 +5090,7 @@ LEFT JOIN (
         FROM [Gears] AS [g1]
     ) AS [s1] ON [s0].[Id] = [s1].[SquadId]
 ) AS [s2] ON [g].[FullName] = [s2].[OwnerFullName]
-ORDER BY [g].[FullName], [g].[Nickname] DESC, [g].[SquadId], [s2].[Id], [s2].[Nickname], [s2].[SquadId], [s2].[Id0], [s2].[Nickname0]
+ORDER BY [g].[FullName], [g].[Nickname] DESC, [g].[SquadId], [s2].[Id], [s2].[Nickname]
 """);
     }
 
@@ -5124,17 +5100,17 @@ ORDER BY [g].[FullName], [g].[Nickname] DESC, [g].[SquadId], [s2].[Id], [s2].[Ni
 
         AssertSql(
             """
-SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s3].[FullName], [s3].[Nickname], [s3].[SquadId], [s3].[Id], [s3].[Nickname0], [s3].[SquadId0], [s3].[Id0], [s3].[Nickname00], [s3].[HasSoulPatch], [s3].[SquadId00]
+SELECT [g].[FullName], [g].[Nickname], [g].[SquadId], [s3].[FullName], [s3].[Nickname], [s3].[SquadId], [s3].[Id], [s3].[Nickname0], [s3].[HasSoulPatch], [s3].[SquadId0]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 LEFT JOIN (
-    SELECT [g0].[FullName], [g0].[Nickname], [g0].[SquadId], [s2].[Id], [s2].[Nickname] AS [Nickname0], [s2].[SquadId] AS [SquadId0], [s2].[Id0], [s2].[Nickname0] AS [Nickname00], [s2].[HasSoulPatch], [s2].[SquadId0] AS [SquadId00], [g0].[HasSoulPatch] AS [HasSoulPatch0], [s2].[IsAutomatic], [s2].[Name], [g0].[LeaderNickname], [g0].[LeaderSquadId]
+    SELECT [g0].[FullName], [g0].[Nickname], [g0].[SquadId], [s2].[Id], [s2].[Nickname] AS [Nickname0], [s2].[HasSoulPatch], [s2].[SquadId] AS [SquadId0], [g0].[HasSoulPatch] AS [HasSoulPatch0], [s2].[IsAutomatic], [s2].[Name], [g0].[LeaderNickname], [g0].[LeaderSquadId]
     FROM [Gears] AS [g0]
     LEFT JOIN (
-        SELECT [w].[Id], [s].[Nickname], [s].[SquadId], [s0].[Id] AS [Id0], [s1].[Nickname] AS [Nickname0], [s1].[HasSoulPatch], [s1].[SquadId] AS [SquadId0], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName]
+        SELECT [w].[Id], [s1].[Nickname], [s1].[HasSoulPatch], [s1].[SquadId], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName]
         FROM [Weapons] AS [w]
         LEFT JOIN (
-            SELECT [g1].[Nickname], [g1].[SquadId], [g1].[FullName]
+            SELECT [g1].[SquadId], [g1].[FullName]
             FROM [Gears] AS [g1]
         ) AS [s] ON [w].[OwnerFullName] = [s].[FullName]
         LEFT JOIN [Squads] AS [s0] ON [s].[SquadId] = [s0].[Id]
@@ -5145,7 +5121,7 @@ LEFT JOIN (
     ) AS [s2] ON [g0].[FullName] = [s2].[OwnerFullName]
 ) AS [s3] ON [g].[Nickname] = [s3].[LeaderNickname] AND [g].[SquadId] = [s3].[LeaderSquadId]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[HasSoulPatch], [g].[LeaderNickname], [g].[FullName], [g].[Nickname], [g].[SquadId], [s3].[FullName], [s3].[HasSoulPatch0] DESC, [s3].[Nickname], [s3].[SquadId], [s3].[IsAutomatic], [s3].[Name] DESC, [s3].[Id], [s3].[Nickname0], [s3].[SquadId0], [s3].[Id0], [s3].[Nickname00]
+ORDER BY [g].[HasSoulPatch], [g].[LeaderNickname], [g].[FullName], [g].[Nickname], [g].[SquadId], [s3].[FullName], [s3].[HasSoulPatch0] DESC, [s3].[Nickname], [s3].[SquadId], [s3].[IsAutomatic], [s3].[Name] DESC, [s3].[Id], [s3].[Nickname0]
 """);
     }
 
@@ -5259,11 +5235,11 @@ WHERE [s].[Eradicated] <> CAST(1 AS bit) OR [s].[Eradicated] IS NULL
             """
 @p='10'
 
-SELECT [s0].[Name], [s0].[LocustHordeId], [s0].[ThreatLevel], [s0].[ThreatLevelByte], [s0].[ThreatLevelNullableByte], [s0].[DefeatedByNickname], [s0].[DefeatedBySquadId], [s0].[HighCommandId], [s0].[Discriminator], [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator0] AS [Discriminator], [s0].[Id], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+SELECT [s0].[Name], [s0].[LocustHordeId], [s0].[ThreatLevel], [s0].[ThreatLevelByte], [s0].[ThreatLevelNullableByte], [s0].[DefeatedByNickname], [s0].[DefeatedBySquadId], [s0].[HighCommandId], [s0].[Discriminator], [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator0] AS [Discriminator], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
     SELECT TOP(@p) [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
         WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
-    END AS [Discriminator], [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[Discriminator] AS [Discriminator0], [t].[Id], [t].[Note]
+    END AS [Discriminator], [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[Discriminator] AS [Discriminator0], [t].[Note]
     FROM [LocustLeaders] AS [l]
     LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
     LEFT JOIN (
@@ -5277,7 +5253,7 @@ FROM (
     ORDER BY [t].[Note]
 ) AS [s0]
 LEFT JOIN [Weapons] AS [w] ON [s0].[FullName] = [w].[OwnerFullName]
-ORDER BY [s0].[Note], [s0].[Name], [s0].[Nickname], [s0].[SquadId], [s0].[Id]
+ORDER BY [s0].[Note], [s0].[Name]
 """);
     }
 
@@ -5328,19 +5304,19 @@ WHERE [l1].[IsOperational] = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT [g].[Nickname], [g].[SquadId], [s0].[Note], [s0].[Id], [s0].[Nickname], [s0].[SquadId]
+SELECT [g].[Nickname], [g].[SquadId], [s0].[Note], [s0].[Id]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 OUTER APPLY (
-    SELECT [t].[Note], [t].[Id], [s].[Nickname], [s].[SquadId]
+    SELECT [t].[Note], [t].[Id]
     FROM [Tags] AS [t]
     INNER JOIN (
-        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
+        SELECT [g0].[FullName]
         FROM [Gears] AS [g0]
     ) AS [s] ON [g].[FullName] = [s].[FullName]
 ) AS [s0]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [s0].[Id], [s0].[Nickname]
+ORDER BY [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -5372,19 +5348,15 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s0].[Id], [s0].[Nickname]
 
         AssertSql(
             """
-SELECT [g].[Nickname], [g].[SquadId], [s0].[Note], [s0].[Id], [s0].[Nickname], [s0].[SquadId]
+SELECT [g].[Nickname], [g].[SquadId], [s].[Note], [s].[Id]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 OUTER APPLY (
-    SELECT [t].[Note], [t].[Id], [s].[Nickname], [s].[SquadId]
+    SELECT [t].[Note], [t].[Id]
     FROM [Tags] AS [t]
-    LEFT JOIN (
-        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
-        FROM [Gears] AS [g0]
-    ) AS [s] ON [g].[FullName] = [s].[FullName]
-) AS [s0]
+) AS [s]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [s0].[Id], [s0].[Nickname]
+ORDER BY [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -5396,7 +5368,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s0].[Id], [s0].[Nickname]
             """
 SELECT ~CASE
     WHEN [s].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE COALESCE([s].[HasSoulPatch], CAST(1 AS bit))
+    ELSE ISNULL([s].[HasSoulPatch], CAST(1 AS bit))
 END AS [c]
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -5628,7 +5600,7 @@ ORDER BY [s].[Nickname], [s].[SquadId], [w0].[Id]
 
         AssertSql(
             """
-SELECT [s].[Name], COALESCE((
+SELECT [s].[Name], ISNULL((
     SELECT TOP(1) [g].[SquadId]
     FROM [Gears] AS [g]
     WHERE [s].[Id] = [g].[SquadId] AND [g].[HasSoulPatch] = CAST(1 AS bit)), 0) AS [SquadId]
@@ -5681,7 +5653,7 @@ WHERE [s].[Name] = N'Kilo'
             """
 SELECT [s].[Name]
 FROM [Squads] AS [s]
-WHERE [s].[Name] = N'Kilo' AND COALESCE((
+WHERE [s].[Name] = N'Kilo' AND ISNULL((
     SELECT TOP(1) [g].[SquadId]
     FROM [Gears] AS [g]
     WHERE [s].[Id] = [g].[SquadId] AND [g].[HasSoulPatch] = CAST(1 AS bit)), 0) <> 0
@@ -5914,7 +5886,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
 ) AS [s] ON [g].[Nickname] = [s].[LeaderNickname] AND [g].[SquadId] = [s].[LeaderSquadId]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY COALESCE((
+ORDER BY ISNULL((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
@@ -5968,7 +5940,7 @@ WHERE [o].[Nickname] IS NOT NULL
 ORDER BY (
     SELECT COUNT(*)
     FROM [Weapons] AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[IsAutomatic] = COALESCE((
+    WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[IsAutomatic] = ISNULL((
         SELECT TOP(1) [g0].[HasSoulPatch]
         FROM [Gears] AS [g0]
         WHERE [g0].[Nickname] = N'Marcus'), CAST(0 AS bit))), [g].[Nickname], [g].[SquadId], [s].[Nickname]
@@ -5996,7 +5968,7 @@ WHERE [o].[Nickname] IS NOT NULL
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
@@ -6026,7 +5998,7 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
@@ -6041,7 +6013,7 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
@@ -6056,7 +6028,7 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
@@ -6071,7 +6043,7 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
@@ -6090,7 +6062,7 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] = N'BFG'
@@ -6120,7 +6092,7 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w0].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -6138,7 +6110,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit))
@@ -6171,7 +6143,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w0].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -6189,7 +6161,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] = N'BFG'), CAST(0 AS bit))
@@ -6376,7 +6348,7 @@ END
 SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-ORDER BY COALESCE([w0].[Name], N'') + CAST(5 AS nvarchar(max))
+ORDER BY ISNULL([w0].[Name], N'') + CAST(5 AS nvarchar(max))
 """);
     }
 
@@ -6389,7 +6361,7 @@ ORDER BY COALESCE([w0].[Name], N'') + CAST(5 AS nvarchar(max))
 SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-ORDER BY COALESCE([w0].[Name], N'') + N'Marcus'' Lancer'
+ORDER BY ISNULL([w0].[Name], N'') + N'Marcus'' Lancer'
 """);
     }
 
@@ -6424,7 +6396,7 @@ GROUP BY [g].[Rank]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([g].[SquadId]), 0)
+SELECT ISNULL(SUM([g].[SquadId]), 0)
 FROM [Gears] AS [g]
 GROUP BY [g].[Rank]
 """);
@@ -6536,7 +6508,7 @@ LEFT JOIN (
     FROM (
         SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
             WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
-        END AS [Discriminator], [c].[Name], [c].[Location], [c].[Nation], ROW_NUMBER() OVER(PARTITION BY [g0].[Rank] ORDER BY [g0].[Nickname], [g0].[SquadId], [c].[Name]) AS [row]
+        END AS [Discriminator], [c].[Name], [c].[Location], [c].[Nation], ROW_NUMBER() OVER(PARTITION BY [g0].[Rank] ORDER BY [g0].[Nickname], [g0].[SquadId]) AS [row]
         FROM [Gears] AS [g0]
         LEFT JOIN [Officers] AS [o] ON [g0].[Nickname] = [o].[Nickname] AND [g0].[SquadId] = [o].[SquadId]
         INNER JOIN [Cities] AS [c] ON [g0].[CityOfBirthName] = [c].[Name]
@@ -6639,7 +6611,7 @@ END
 
         AssertSql(
             """
-SELECT COALESCE([w].[SynergyWithId], 0)
+SELECT ISNULL([w].[SynergyWithId], 0)
 FROM [Weapons] AS [w]
 """);
     }
@@ -6652,7 +6624,7 @@ FROM [Weapons] AS [w]
             """
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE COALESCE([w].[SynergyWithId], 0) = 0
+WHERE ISNULL([w].[SynergyWithId], 0) = 0
 """);
     }
 
@@ -6676,7 +6648,7 @@ WHERE [w].[Id] = 0
             """
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-ORDER BY COALESCE([w].[SynergyWithId], 0), [w].[Id]
+ORDER BY ISNULL([w].[SynergyWithId], 0), [w].[Id]
 """);
     }
 
@@ -6688,7 +6660,7 @@ ORDER BY COALESCE([w].[SynergyWithId], 0), [w].[Id]
             """
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE COALESCE([w].[SynergyWithId], [w].[Id]) = 1
+WHERE ISNULL([w].[SynergyWithId], [w].[Id]) = 1
 """);
     }
 
@@ -6700,7 +6672,7 @@ WHERE COALESCE([w].[SynergyWithId], [w].[Id]) = 1
             """
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE COALESCE([w].[SynergyWithId], CAST(LEN([w].[Name]) AS int) + 42) > 10
+WHERE ISNULL([w].[SynergyWithId], CAST(LEN([w].[Name]) AS int) + 42) > 10
 """);
     }
 
@@ -7066,7 +7038,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
+SELECT [t].[Id], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], CASE
@@ -7085,9 +7057,9 @@ LEFT JOIN (
         LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
     ) AS [s0]
     WHERE [s0].[row] <= 50
-) AS [s1] ON ([s].[Nickname] = [s1].[LeaderNickname] OR ([s].[Nickname] IS NULL AND [s1].[LeaderNickname] IS NULL)) AND [s].[SquadId] = [s1].[LeaderSquadId]
+) AS [s1] ON [s].[Nickname] IS NOT NULL AND [s].[SquadId] IS NOT NULL AND [s].[Nickname] = [s1].[LeaderNickname] AND [s].[SquadId] = [s1].[LeaderSquadId]
 WHERE [s].[Discriminator] = N'Officer'
-ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Nickname]
+ORDER BY [t].[Id], [s1].[Nickname]
 """);
     }
 
@@ -7097,7 +7069,7 @@ ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Nickname]
 
         AssertSql(
             """
-SELECT [t].[Id], [s].[Nickname], [s].[SquadId], [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator]
+SELECT [t].[Id], [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], CASE
@@ -7112,9 +7084,9 @@ LEFT JOIN (
     END AS [Discriminator]
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
-) AS [s0] ON ([s].[Nickname] = [s0].[LeaderNickname] OR ([s].[Nickname] IS NULL AND [s0].[LeaderNickname] IS NULL)) AND [s].[SquadId] = [s0].[LeaderSquadId]
+) AS [s0] ON [s].[Nickname] IS NOT NULL AND [s].[SquadId] IS NOT NULL AND [s].[Nickname] = [s0].[LeaderNickname] AND [s].[SquadId] = [s0].[LeaderSquadId]
 WHERE [s].[Discriminator] = N'Officer'
-ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId], [s0].[Nickname]
+ORDER BY [t].[Id], [s0].[Nickname]
 """);
     }
 
@@ -7132,7 +7104,7 @@ LEFT JOIN (
     END AS [Discriminator]
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId] AND [t].[Note] IS NOT NULL
+) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] IS NOT NULL AND [t].[GearSquadId] = [s].[SquadId] AND [t].[GearNickName] IS NOT NULL AND [t].[Note] IS NOT NULL
 ORDER BY [t].[Id], [s].[Nickname]
 """);
     }
@@ -7406,14 +7378,14 @@ INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 
         AssertSql(
             """
-SELECT [g].[Nickname], [g].[SquadId], [s].[Id], [s].[IsAutomatic], [s].[Name], [s].[Id0]
+SELECT [g].[Nickname], [g].[SquadId], [s].[Id], [s].[IsAutomatic], [s].[Name]
 FROM [Gears] AS [g]
 LEFT JOIN (
-    SELECT [w].[Id], [w].[IsAutomatic], [w0].[Name], [w0].[Id] AS [Id0], [w].[OwnerFullName]
+    SELECT [w].[Id], [w].[IsAutomatic], [w0].[Name], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
     LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 ) AS [s] ON [g].[FullName] = [s].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id]
+ORDER BY [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -7446,21 +7418,21 @@ ORDER BY [t].[Note]
 SELECT CASE
     WHEN [s].[Nickname] IS NOT NULL AND [s].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END, [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Nickname], [s1].[Id], [s1].[SquadId]
+END, [t].[Id], [s1].[Nickname], [s1].[Id]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[FullName]
     FROM [Gears] AS [g]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 LEFT JOIN (
-    SELECT [s0].[Nickname], [w].[Id], [s0].[SquadId], [w].[OwnerFullName]
+    SELECT [s0].[Nickname], [w].[Id], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
     LEFT JOIN (
-        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
+        SELECT [g0].[Nickname], [g0].[FullName]
         FROM [Gears] AS [g0]
     ) AS [s0] ON [w].[OwnerFullName] = [s0].[FullName]
 ) AS [s1] ON [s].[FullName] = [s1].[OwnerFullName]
-ORDER BY [t].[Note], [t].[Id], [s].[Nickname], [s].[SquadId], [s1].[Id], [s1].[Nickname]
+ORDER BY [t].[Note], [t].[Id]
 """);
     }
 
@@ -7640,7 +7612,6 @@ GROUP BY [u].[Name], [u].[Count]
             """
 SELECT [g].[CityOfBirthName], [g].[HasSoulPatch]
 FROM [Gears] AS [g]
-INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName]
 GROUP BY [g].[CityOfBirthName], [g].[HasSoulPatch]
 """);
@@ -8387,7 +8358,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE @prm & CAST([g].[Rank] AS int) = CAST([g].[Rank] AS int)
+WHERE @prm & [g].[Rank] = [g].[Rank]
 """);
     }
 
@@ -8437,7 +8408,7 @@ WHERE @rank = [g].[Rank]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task DataLength_function_for_string_parameter(bool async)
     {
         await AssertQueryScalar(
@@ -8626,7 +8597,7 @@ ORDER BY [g].[Nickname], [w0].[Id]
             """
 SELECT [s].[Name]
 FROM [Squads] AS [s]
-WHERE [s].[Name] = N'Delta' AND COALESCE((
+WHERE [s].[Name] = N'Delta' AND ISNULL((
     SELECT TOP(1) [g].[SquadId]
     FROM [Gears] AS [g]
     WHERE [s].[Id] = [g].[SquadId] AND [g].[HasSoulPatch] = CAST(1 AS bit)
@@ -8705,7 +8676,7 @@ WHERE [l].[Name] LIKE N'%Queen%'
 
         AssertSql(
             """
-SELECT [g].[Nickname], [g].[SquadId], [c].[Name], [w1].[Id], [w1].[AmmunitionType], [w1].[IsAutomatic], [w1].[Name], [w1].[OwnerFullName], [w1].[SynergyWithId], [c].[Location], [c].[Nation]
+SELECT [g].[Nickname], [g].[SquadId], [w1].[Id], [w1].[AmmunitionType], [w1].[IsAutomatic], [w1].[Name], [w1].[OwnerFullName], [w1].[SynergyWithId], [c].[Name], [c].[Location], [c].[Nation]
 FROM [Gears] AS [g]
 INNER JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 LEFT JOIN (
@@ -8716,7 +8687,7 @@ LEFT JOIN (
     ) AS [w0]
     WHERE [w0].[row] <= 10
 ) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name]
+ORDER BY [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -9283,7 +9254,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT COALESCE([m0].[c], 0)
+SELECT ISNULL([m0].[c], 0)
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -9316,7 +9287,7 @@ LEFT JOIN (
     ) AS [w1]
     WHERE [w1].[row] <= 1
 ) AS [w2] ON [g].[FullName] = [w2].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id]
+ORDER BY [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -9456,14 +9427,14 @@ FROM [Missions] AS [m]
 
         AssertSql(
             """
-SELECT [g].[Nickname], COALESCE((
+SELECT [g].[Nickname], ISNULL((
     SELECT TOP(1) [t1].[IssueDate]
     FROM [Tags] AS [t1]
     WHERE [t1].[GearNickName] = [g].[FullName]
     ORDER BY [t1].[Id]), '0001-01-01T00:00:00.0000000') AS [invalidTagIssueDate]
 FROM [Gears] AS [g]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
-WHERE [t].[IssueDate] > COALESCE((
+WHERE [t].[IssueDate] > ISNULL((
     SELECT TOP(1) [t0].[IssueDate]
     FROM [Tags] AS [t0]
     WHERE [t0].[GearNickName] = [g].[FullName]
@@ -9582,7 +9553,7 @@ LEFT JOIN (
 ) AS [s] ON [l0].[DefeatedByNickname] = [s].[Nickname] AND [l0].[DefeatedBySquadId] = [s].[SquadId]
 LEFT JOIN [Weapons] AS [w] ON [s].[FullName] = [w].[OwnerFullName]
 WHERE [l].[Name] LIKE N'%Queen%'
-ORDER BY [l].[Name], [s].[Nickname], [s].[SquadId]
+ORDER BY [l].[Name]
 """);
     }
 
@@ -9728,7 +9699,7 @@ INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 """);
     }
 
-    [ConditionalTheory(Skip = "Issue #34001 SqlServer never returns null for bool?")]
+    [Theory(Skip = "Issue #34001 SqlServer never returns null for bool?")]
     public override async Task ToString_boolean_computed_nullable(bool async)
     {
         await base.ToString_boolean_computed_nullable(async);

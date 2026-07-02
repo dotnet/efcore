@@ -87,18 +87,4 @@ public class RelationalParameterBasedSqlProcessor
     /// <returns>A processed query expression.</returns>
     protected virtual Expression ExpandFromSqlParameter(Expression queryExpression, ParametersCacheDecorator decorator)
         => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, decorator);
-
-    /// <summary>
-    ///     Optimizes the query expression for given parameter values.
-    /// </summary>
-    /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="parametersValues">A dictionary of parameter values to use.</param>
-    /// <param name="canCache">A bool value indicating if the query expression can be cached.</param>
-    /// <returns>An optimized query expression.</returns>
-    [Obsolete("Override Process() instead", error: true)]
-    public virtual Expression Optimize(
-        Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parametersValues,
-        out bool canCache)
-        => throw new UnreachableException();
 }

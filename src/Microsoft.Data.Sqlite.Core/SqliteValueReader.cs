@@ -226,6 +226,13 @@ internal abstract class SqliteValueReader
             return (T)(object)GetFloat(ordinal);
         }
 
+#if NET6_0_OR_GREATER
+        if (typeof(T) == typeof(Half))
+        {
+            return (T)(object)(Half)GetDouble(ordinal);
+        }
+#endif
+
         if (typeof(T) == typeof(Guid))
         {
             return (T)(object)GetGuid(ordinal);
@@ -340,6 +347,13 @@ internal abstract class SqliteValueReader
         {
             return (T)(object)GetFloat(ordinal);
         }
+
+#if NET6_0_OR_GREATER
+        if (type == typeof(Half))
+        {
+            return (T)(object)(Half)GetDouble(ordinal);
+        }
+#endif
 
         if (type == typeof(Guid))
         {

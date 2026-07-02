@@ -80,6 +80,8 @@ public class SqlServerQuerySqlGenerator(
     /// </summary>
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
     {
+        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
         var selectExpression = deleteExpression.SelectExpression;
 
         if (selectExpression is
@@ -155,16 +157,14 @@ public class SqlServerQuerySqlGenerator(
                     TableExpression table,
                     ColumnExpression column,
                     SqlExpression similarTo,
-                    SqlConstantExpression { Value: string } metric,
-                    SqlExpression topN
+                    SqlConstantExpression { Value: string } metric
                 ]
             }:
                 // VECTOR_SEARCH(
                 //     TABLE = [Articles] AS t,
                 //     COLUMN = [Vector],
                 //     SIMILAR_TO = @qv,
-                //     METRIC = 'Cosine',
-                //     TOP_N = 3
+                //     METRIC = 'Cosine'
                 // )
                 Sql.AppendLine("VECTOR_SEARCH(");
 
@@ -185,10 +185,6 @@ public class SqlServerQuerySqlGenerator(
 
                     Sql.Append("METRIC = ");
                     Visit(metric);
-                    Sql.AppendLine(",");
-
-                    Sql.Append("TOP_N = ");
-                    Visit(topN);
                     Sql.AppendLine();
                 }
 
@@ -287,6 +283,8 @@ public class SqlServerQuerySqlGenerator(
     /// </summary>
     protected override Expression VisitUpdate(UpdateExpression updateExpression)
     {
+        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
         var selectExpression = updateExpression.SelectExpression;
 
         if (selectExpression is
@@ -554,10 +552,13 @@ public class SqlServerQuerySqlGenerator(
         if (selectExpression is { Limit: not null, Offset: null })
         {
             Sql.Append("TOP(");
-
             Visit(selectExpression.Limit);
 
-            Sql.Append(") ");
+            // WithApproximateExpression renders its own closing ") WITH APPROXIMATE " via VisitExtension
+            if (selectExpression.Limit is not WithApproximateExpression)
+            {
+                Sql.Append(") ");
+            }
         }
 
         _withinTable = parentWithinTable;
@@ -754,6 +755,13 @@ public class SqlServerQuerySqlGenerator(
 
             case SqlServerOpenJsonExpression openJsonExpression:
                 return VisitOpenJsonExpression(openJsonExpression);
+
+            // WithApproximateExpression wraps the Limit in the SelectExpression; it renders the operand value
+            // followed by ") WITH APPROXIMATE " (closing the TOP( opened by GenerateTop).
+            case WithApproximateExpression withApproximate:
+                Visit(withApproximate.Operand);
+                Sql.Append(") WITH APPROXIMATE ");
+                return withApproximate;
         }
 
         return base.VisitExtension(extensionExpression);

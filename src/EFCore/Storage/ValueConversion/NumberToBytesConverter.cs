@@ -60,7 +60,9 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), DefaultHints);
+        = new(typeof(TNumber), typeof(byte[]),
+            i => ReferenceEquals(i.MappingHints, DefaultHints) ? Instance! : new NumberToBytesConverter<TNumber>(i.MappingHints),
+            DefaultHints);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -318,4 +320,10 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
             (specialBits & 0x80000000) != 0,
             (byte)((specialBits & 0x00FF0000) >> 16));
     }
+
+    /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    // Declared last so that all static fields used by the constructor are initialized before the instance is created.
+    public static NumberToBytesConverter<TNumber> Instance { get; } = new();
 }

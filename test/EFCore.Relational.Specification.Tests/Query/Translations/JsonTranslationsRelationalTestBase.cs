@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : JsonTranslationsRelationalTestBase<TFixture>.JsonTranslationsQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task JsonPathExists_on_scalar_string_column()
         => AssertQuery(
             ss => ss.Set<JsonTranslationsEntity>()
@@ -20,7 +20,7 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task JsonPathExists_on_complex_property()
         => AssertQuery(
             ss => ss.Set<JsonTranslationsEntity>()
@@ -28,7 +28,7 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task JsonPathExists_on_owned_entity()
         => AssertQuery(
             ss => ss.Set<JsonTranslationsEntity>()
@@ -68,9 +68,7 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
             modelBuilder.Entity<JsonTranslationsEntity>(b =>
             {
                 b.ComplexProperty(j => j.JsonComplexType, j => j.ToJson());
-#pragma warning disable EF8001 // ToJson() on owned entities is obsolete
                 b.OwnsOne(j => j.JsonOwnedType, j => j.ToJson());
-#pragma warning restore EF8001
             });
         }
     }

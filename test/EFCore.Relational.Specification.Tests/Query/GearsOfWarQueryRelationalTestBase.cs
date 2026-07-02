@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class GearsOfWarQueryRelationalTestBase<TFixture>(TFixture fixture) : GearsOfWarQueryTestBase<TFixture>(fixture)
     where TFixture : GearsOfWarQueryFixtureBase, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(bool async)
     {
         var place = "Ephyra's location";
@@ -67,7 +67,7 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture>(TFixture fixtu
     public override Task Where_coalesce_with_anonymous_types(bool async)
         => AssertTranslationFailed(() => base.Where_coalesce_with_anonymous_types(async));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_discriminator_columns(bool async)
     {
         await AssertQuery(

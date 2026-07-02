@@ -707,10 +707,37 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     {
         var typeMapping = ExpressionExtensions.InferTypeMapping(ifTrue, ifFalse);
 
-        return new SqlConditionalExpression(
-            ApplyTypeMapping(test, _boolTypeMapping),
-            ApplyTypeMapping(ifTrue, typeMapping),
-            ApplyTypeMapping(ifFalse, typeMapping));
+        test = ApplyTypeMapping(test, _boolTypeMapping);
+        ifTrue = ApplyTypeMapping(ifTrue, typeMapping);
+        ifFalse = ApplyTypeMapping(ifFalse, typeMapping);
+
+        // Simplify:
+        //   a == b ? b : a -> a
+        //   a != b ? a : b -> a
+        if (test is SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                Left: SqlExpression left,
+                Right: SqlExpression right
+            } binary)
+        {
+            // Swap ifTrue/ifFalse for NotEqual so we can reason uniformly about ifEqual/ifNotEqual.
+            var (ifEqual, ifNotEqual) = binary.OperatorType is ExpressionType.Equal ? (ifTrue, ifFalse) : (ifFalse, ifTrue);
+
+            // 'left' survives: a == b ? b : a -> a
+            if (left.Equals(ifNotEqual) && right.Equals(ifEqual))
+            {
+                return left;
+            }
+
+            // 'right' survives: a == b ? a : b -> b
+            if (right.Equals(ifNotEqual) && left.Equals(ifEqual))
+            {
+                return right;
+            }
+        }
+
+        return new SqlConditionalExpression(test, ifTrue, ifFalse);
     }
 
     /// <summary>

@@ -179,7 +179,7 @@ WHERE [v].[OptionalAssociate_Id] IS NULL
 
     #endregion Value types
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

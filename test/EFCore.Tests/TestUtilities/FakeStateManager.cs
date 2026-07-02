@@ -131,6 +131,9 @@ public class FakeStateManager : IStateManager
     public InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
         => throw new NotImplementedException();
 
+    public InternalEntityEntry CreateEntry(IReadOnlyDictionary<IProperty, object> values, IEntityType entityType)
+        => throw new NotImplementedException();
+
     public InternalEntityEntry StartTrackingFromQuery(
         IEntityType baseEntityType,
         object entity,

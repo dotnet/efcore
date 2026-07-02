@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Operators;
@@ -143,7 +143,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         await ctx.SaveChangesAsync();
     }
 
-    //[ConditionalFact]
+    //[Fact]
     public virtual async Task Procedural_predicate_test_six_sources_three_pairs()
     {
         var maxDepth = 7;
@@ -189,7 +189,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         }
     }
 
-    //[ConditionalFact]
+    //[Fact]
     public virtual async Task Procedural_projection_test_six_sources_two_trios()
     {
         var maxDepth = 7;

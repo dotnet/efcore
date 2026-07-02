@@ -26,13 +26,6 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     new IConventionPropertyBuilder Builder { get; }
 
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IConventionEntityType or IConventionComplexType")]
-    new IConventionEntityType DeclaringEntityType
-        => (IConventionEntityType)DeclaringType;
-
-    /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.</returns>
@@ -485,16 +478,27 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <summary>
     ///     Sets the configuration for elements of the primitive collection represented by this property.
     /// </summary>
-    /// <param name="elementType">If <see langword="true" />, then the type mapping has an element type, otherwise it is removed.</param>
+    /// <param name="elementType">The element type, or <see langword="null" /> to remove the primitive collection configuration.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configuration for the elements.</returns>
-    IConventionElementType? SetElementType(Type? elementType, bool fromDataAnnotation = false);
+    [Obsolete(
+        "The element type of a primitive collection is now a creation-time concern. Recreate the property as a primitive collection "
+        + "using IConventionTypeBaseBuilder.PrimitiveCollection instead.")]
+    IConventionElementType? SetElementType(Type? elementType, bool fromDataAnnotation = false)
+        => (elementType == null
+                ? DeclaringType.Builder.Property(ClrType, Name, setTypeConfigurationSource: false, fromDataAnnotation)
+                : DeclaringType.Builder.PrimitiveCollection(ClrType, Name, elementType, setTypeConfigurationSource: false, fromDataAnnotation))
+            ?.Metadata.GetElementType();
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetElementType" />.
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetElementType" />.</returns>
-    ConfigurationSource? GetElementTypeConfigurationSource();
+    [Obsolete(
+        "The element type is now a creation-time concern; its configuration source is always that of the property. "
+        + "Use GetConfigurationSource() instead.")]
+    ConfigurationSource? GetElementTypeConfigurationSource()
+        => GetElementType() == null ? null : GetConfigurationSource();
 
     /// <inheritdoc />
     IReadOnlyElementType? IReadOnlyProperty.GetElementType()
