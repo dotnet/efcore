@@ -48,7 +48,7 @@ public class CosmosTypeMappingSourceTest
 
     [Fact]
     public void Can_map_decimal()
-        => Can_map_scalar_by_clr_type<decimal, JsonDecimalReaderWriter>(1.33m, JTokenType.Float, "1.33");
+        => Can_map_scalar_by_clr_type<decimal, CosmosJsonDecimalReaderWriter>(1.33m, JTokenType.Float, "1.33");
 
     [Fact]
     public void Can_map_float()
@@ -128,7 +128,7 @@ public class CosmosTypeMappingSourceTest
 
     [Fact]
     public void Can_map_nullable_decimal()
-        => Can_map_scalar_by_clr_type<decimal?, JsonDecimalReaderWriter>(1.33m, JTokenType.Float, "1.33");
+        => Can_map_scalar_by_clr_type<decimal?, CosmosJsonDecimalReaderWriter>(1.33m, JTokenType.Float, "1.33");
 
     [Fact]
     public void Can_map_nullable_float()

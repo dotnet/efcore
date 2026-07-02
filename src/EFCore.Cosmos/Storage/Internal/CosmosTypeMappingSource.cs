@@ -36,6 +36,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
             {
                 { typeof(TimeOnly), CosmosTimeOnlyTypeMapping.Default },
                 { typeof(TimeSpan), CosmosTimeSpanTypeMapping.Default },
+                { typeof(decimal), CosmosDecimalTypeMapping.Default },
                 {
                     typeof(JObject), CreateMapping(
                         typeof(JObject), jsonValueReaderWriter: dependencies.JsonValueReaderWriterSource.FindReaderWriter(typeof(JObject)))
@@ -334,10 +335,32 @@ public class CosmosTypeMappingSource : TypeMappingSource
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<KeyValuePair<string, TElement>> FromJsonTyped(
+        public override IEnumerable<KeyValuePair<string, TElement>> FromJsonTyped( // @TODO: Is every FromJsonTyped covered in tests here?
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
+        {
+            if (manager.CurrentReader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+            }
+
+            var dictionary = new Dictionary<string, TElement>();
+            while (true)
+            {
+                switch (manager.MoveNext())
+                {
+                    case JsonTokenType.PropertyName:
+                        var key = manager.CurrentReader.GetString()!;
+                        manager.MoveNext();
+                        dictionary.Add(key, _elementReaderWriter.FromJsonTyped(ref manager));
+                        break;
+                    case JsonTokenType.EndObject:
+                        return dictionary;
+                    default:
+                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+                }
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -403,7 +426,38 @@ public class CosmosTypeMappingSource : TypeMappingSource
         public override IEnumerable<KeyValuePair<string, TElement?>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
+        {
+            if (manager.CurrentReader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+            }
+
+            var dictionary = new Dictionary<string, TElement?>();
+            while (true)
+            {
+                switch (manager.MoveNext())
+                {
+                    case JsonTokenType.PropertyName:
+                        var key = manager.CurrentReader.GetString()!;
+                        manager.MoveNext();
+
+                        if (manager.CurrentReader.TokenType == JsonTokenType.Null && !_elementReaderWriter.HandlesNullWrites)
+                        {
+                            dictionary.Add(key, null);
+                        }
+                        else
+                        {
+                            dictionary.Add(key, _elementReaderWriter.FromJsonTyped(ref manager));
+                        }
+
+                        break;
+                    case JsonTokenType.EndObject:
+                        return dictionary;
+                    default:
+                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+                }
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -469,7 +523,38 @@ public class CosmosTypeMappingSource : TypeMappingSource
         public override IEnumerable<KeyValuePair<string, TConcreteCollection>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
+        {
+            if (manager.CurrentReader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+            }
+
+            var dictionary = new Dictionary<string, TConcreteCollection>();
+            while (true)
+            {
+                switch (manager.MoveNext())
+                {
+                    case JsonTokenType.PropertyName:
+                        var key = manager.CurrentReader.GetString()!;
+                        ;
+
+                        if (manager.MoveNext() == JsonTokenType.Null)
+                        {
+                            dictionary.Add(key, default!); // As per unit test Can_add_update_delete_with_nested_collections
+                        }
+                        else
+                        {
+                            dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
+                        }
+
+                        break;
+                    case JsonTokenType.EndObject:
+                        return dictionary;
+                    default:
+                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+                }
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -536,7 +621,33 @@ public class CosmosTypeMappingSource : TypeMappingSource
         public override IEnumerable<KeyValuePair<string, TConcreteCollection>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
+        {
+            {
+                if (manager.CurrentReader.TokenType != JsonTokenType.StartObject)
+                {
+                    throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+                }
+
+                var dictionary = new Dictionary<string, TConcreteCollection>();
+                while (true)
+                {
+                    switch (manager.MoveNext())
+                    {
+                        case JsonTokenType.PropertyName:
+                            var key = manager.CurrentReader.GetString()!;
+                            manager.MoveNext();
+
+                            dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
+
+                            break;
+                        case JsonTokenType.EndObject:
+                            return dictionary;
+                        default:
+                            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+                    }
+                }
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

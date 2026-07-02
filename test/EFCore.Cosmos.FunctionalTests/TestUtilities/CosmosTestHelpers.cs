@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Xunit.Sdk;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
@@ -36,29 +37,14 @@ public class CosmosTestHelpers : TestHelpers
 
     public async Task NoSyncTest(bool async, Func<bool, Task> testCode)
     {
-        try
+        if (!async)
         {
-            await testCode(async);
-            Assert.True(async);
+            throw SkipException.ForSkip("Azure Cosmos DB does not support synchronous query execution."); // @TODO: Discuss, feel this makes more sense.
+            // Tests that override and assert base throws works better with this approach. And we don't really need to run the same test twice.
+            // @TODO: Maybe add a separate NoSyncTest test that assert all non async methods on DbContext, DbSet etc. throw
         }
-        catch (InvalidOperationException e)
-        {
-            if (e.Message != CosmosStrings.SyncNotSupported)
-            {
-                throw;
-            }
 
-            Assert.False(async);
-        }
-        catch (DbUpdateException e)
-        {
-            if (e.InnerException?.Message != CosmosStrings.SyncNotSupported)
-            {
-                throw;
-            }
-
-            Assert.False(async);
-        }
+        await testCode(async);
     }
 
     public void NoSyncTest(Action testCode)

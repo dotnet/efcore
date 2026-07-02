@@ -32,10 +32,9 @@ OFFSET 0 LIMIT 2
     {
         await base.Projecting_complex_property_does_not_auto_include_owned_types();
 
-        // #34067: Cosmos: Projecting out nested documents retrieves the entire document
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["Complex"]
 FROM root c
 """);
     }

@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -11,143 +10,120 @@ public class AdHocJsonQueryCosmosTest(NonSharedFixture fixture) : AdHocJsonQuery
 {
     #region 21006
 
-    public override async Task Project_root_with_missing_scalars(bool async)
+    public override Task Project_root_with_missing_scalars(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_root_with_missing_scalars(async);
+        await base.Project_root_with_missing_scalars(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Id"] < 4)
 """);
-        }
-    }
+    });
 
     [Theory(Skip = "issue #35702")]
-    public override async Task Project_top_level_json_entity_with_missing_scalars(bool async)
+    public override Task Project_top_level_json_entity_with_missing_scalars(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_top_level_json_entity_with_missing_scalars(async);
+        await base.Project_top_level_json_entity_with_missing_scalars(async);
 
-            AssertSql();
-        }
-    }
+        AssertSql();
+    });
 
-    public override async Task Project_nested_json_entity_with_missing_scalars(bool async)
+    public override Task Project_nested_json_entity_with_missing_scalars(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await AssertTranslationFailed(() => base.Project_nested_json_entity_with_missing_scalars(async));
+        await AssertTranslationFailed(() => base.Project_nested_json_entity_with_missing_scalars(async));
 
-            AssertSql();
-        }
-    }
+        AssertSql();
+    });
 
-    [Theory(Skip = "issue #34067")]
-    public override async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
+    public override Task Project_top_level_entity_with_null_value_required_scalars(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_top_level_entity_with_null_value_required_scalars(async);
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
 
-            AssertSql(
-                """
-SELECT c["Id"], c
-FROM root c
-WHERE (c["Id"] = 4)
-""");
-        }
-    }
+        Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
+    });
 
-    public override async Task Project_root_entity_with_missing_required_navigation(bool async)
+    public override Task Project_root_entity_with_missing_required_navigation(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_root_entity_with_missing_required_navigation(async);
+        await base.Project_root_entity_with_missing_required_navigation(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 ReadItem(?, ?)
 """);
-        }
-    }
+    });
 
-    public override async Task Project_missing_required_navigation(bool async)
+    public override Task Project_missing_required_navigation(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_missing_required_navigation(async);
+        // Cosmos will filter out undefined result
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_navigation(async));
+        Assert.Equal("Sequence contains no elements", ex.Message);
 
-            AssertSql(
-                """
-SELECT VALUE c
+        AssertSql(
+            """
+SELECT VALUE c["RequiredReference"]["NestedRequiredReference"]
 FROM root c
 WHERE (c["Id"] = 5)
 """);
-        }
-    }
+    });
 
-    public override async Task Project_root_entity_with_null_required_navigation(bool async)
+    public override Task Project_root_entity_with_null_required_navigation(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_root_entity_with_null_required_navigation(async);
+        await base.Project_root_entity_with_null_required_navigation(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 ReadItem(?, ?)
 """);
-        }
-    }
+    });
 
-    public override async Task Project_null_required_navigation(bool async)
+    public override Task Project_null_required_navigation(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_null_required_navigation(async);
+        await base.Project_null_required_navigation(async);
 
-            AssertSql(
-                """
-SELECT VALUE c
+        AssertSql(
+            """
+SELECT VALUE c["RequiredReference"]
 FROM root c
 WHERE (c["Id"] = 6)
 """);
-        }
-    }
+    });
 
-    public override async Task Project_missing_required_scalar(bool async)
+    public override Task Project_missing_required_scalar(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_missing_required_scalar(async);
+        await base.Project_missing_required_scalar(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT c["Id"], c["RequiredReference"]["Number"]
 FROM root c
 WHERE (c["Id"] = 2)
 """);
-        }
-    }
+    });
 
-    public override async Task Project_null_required_scalar(bool async)
+    public override Task Project_null_required_scalar(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        if (async)
-        {
-            await base.Project_null_required_scalar(async);
+        await base.Project_null_required_scalar(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT c["Id"], c["RequiredReference"]["Number"]
 FROM root c
 WHERE (c["Id"] = 4)
 """);
-        }
-    }
+    });
 
     protected override void OnModelCreating21006(ModelBuilder modelBuilder)
     {
@@ -941,22 +917,18 @@ WHERE (c["Id"] = 4)
 
     public override async Task Try_project_collection_but_JSON_is_entity()
     {
-        var message = (await Assert.ThrowsAsync<JsonSerializationException>(() => base.Try_project_collection_but_JSON_is_entity()))
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Try_project_collection_but_JSON_is_entity()))
             .Message;
 
-        Assert.Equal(
-            $"Deserialized JSON type '{typeof(JObject).FullName}' is not compatible with expected type '{typeof(JArray).FullName}'. Path 'Collection'.",
-            message);
+        Assert.Equal(CoreStrings.JsonReaderInvalidTokenType(JsonTokenType.StartObject), message);
     }
 
     public override async Task Try_project_reference_but_JSON_is_collection()
     {
-        var message = (await Assert.ThrowsAsync<JsonSerializationException>(() => base.Try_project_reference_but_JSON_is_collection()))
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Try_project_reference_but_JSON_is_collection()))
             .Message;
 
-        Assert.Equal(
-            $"Deserialized JSON type '{typeof(JArray).FullName}' is not compatible with expected type '{typeof(JObject).FullName}'. Path 'Reference'.",
-            message);
+        Assert.Equal(CoreStrings.JsonReaderInvalidTokenType(JsonTokenType.StartArray), message);
     }
 
     protected override void OnModelCreating34960(ModelBuilder modelBuilder)

@@ -645,9 +645,9 @@ ORDER BY c["OrderID"]
                     """
 SELECT VALUE
 {
+    "Order" : c["OrderID"],
     "LongOrder" : c["OrderID"],
-    "ShortOrder" : c["OrderID"],
-    "Order" : c["OrderID"]
+    "ShortOrder" : c["OrderID"]
 }
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
@@ -1071,7 +1071,9 @@ WHERE STARTSWITH(c["id"], "A")
     public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+
+        Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
 
         AssertSql();
     }
@@ -1605,8 +1607,12 @@ ORDER BY c["OrderID"]
 
     public override async Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
     {
-        // Cross collection join. Issue #17246.
-        await AssertTranslationFailed(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"),
+            ex.Message);
 
         AssertSql();
     }
@@ -1815,7 +1821,7 @@ WHERE ((c["Discriminator"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
 
                 AssertSql(
                     """
-SELECT c["CustomerID"], (c["CustomerID"] = "ALFKI") AS c, c["OrderID"], LENGTH(c["CustomerID"]) AS c0
+SELECT c["OrderID"], c["CustomerID"], (c["CustomerID"] = "ALFKI") AS c, LENGTH(c["CustomerID"]) AS c0
 FROM root c
 WHERE (c["$type"] = "Order")
 """);

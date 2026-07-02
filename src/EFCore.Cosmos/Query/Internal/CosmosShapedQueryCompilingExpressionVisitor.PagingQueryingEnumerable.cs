@@ -3,8 +3,11 @@
 
 #nullable disable
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -22,7 +25,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, JToken, T> _shaper;
+        private readonly Shaper<T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly string _cosmosContainer;
@@ -40,7 +43,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, JToken, T> shaper,
+            Shaper<T> shaper,
             Type contextType,
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
@@ -85,7 +88,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly PagingQueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, JToken, T> _shaper;
+            private readonly Shaper<T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
@@ -181,10 +184,49 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         responseMessage.EnsureSuccessStatusCode();
 
-                        var responseMessageEnumerable = cosmosClient.GetResponseMessageEnumerable(responseMessage);
-                        foreach (var resultObject in responseMessageEnumerable)
+                        var data = CosmosResponseStreamHelper.ExtractContentAsMemory(responseMessage.Content);
+
+                        var documentsReader = new Utf8JsonReader(data.Span);
+                        documentsReader.Read();
+
+                        var tokenType = documentsReader.TokenType;
+                        Debug.Assert(tokenType == JsonTokenType.StartObject);
+                        while (tokenType != JsonTokenType.EndObject)
                         {
-                            results.Add(_shaper(_cosmosQueryContext, resultObject));
+                            switch (tokenType)
+                            {
+                                case JsonTokenType.StartObject:
+                                    documentsReader.Read();
+                                    tokenType = documentsReader.TokenType;
+                                    break;
+                                case JsonTokenType.PropertyName
+                                    when documentsReader.ValueTextEquals("Documents"):
+                                    goto Done;
+                                default:
+                                    documentsReader.Skip();
+                                    documentsReader.Read();
+                                    tokenType = documentsReader.TokenType;
+                                    break;
+                            }
+                        }
+
+                        Done:
+                        documentsReader.Read();
+                        var token = documentsReader.TokenType;
+                        if (token != JsonTokenType.StartArray)
+                        {
+                            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                        }
+
+                        data = data.Slice((int)documentsReader.BytesConsumed);
+
+                        while (ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
+                            _cosmosQueryContext, data,
+                            _shaper, 0,
+                            out var bytesConsumed, out var result))
+                        {
+                            results.Add(result);
+                            data = data.Slice(bytesConsumed);
                             maxItemCount--;
                         }
 

@@ -5,6 +5,9 @@ using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -795,7 +798,7 @@ OFFSET 0 LIMIT 1
 
         AssertSql();
     }
-    
+
     public override async Task MaxBy_over_nested_subquery(bool async)
     {
         // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
@@ -2925,16 +2928,12 @@ WHERE (c["$type"] = "Order")
         AssertSql();
     }
 
-    public override async Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
-    {
+    public override Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => AssertAverage(
+        => AssertTranslationFailed(() => AssertAverage(
             async,
             ss => ss.Set<Order>(),
             selector: c => c.ShipVia));
-
-        AssertSql();
-    }
 
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
     {

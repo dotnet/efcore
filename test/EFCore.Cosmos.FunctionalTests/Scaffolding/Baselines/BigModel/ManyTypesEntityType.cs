@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -36,7 +35,7 @@ public partial class ManyTypesEntityType
             baseEntityType,
             discriminatorProperty: "Discriminator",
             discriminatorValue: "ManyTypes",
-            propertyCount: 170,
+            propertyCount: 169,
             keyCount: 1);
 
         var id = runtimeEntityType.AddProperty(
@@ -482,7 +481,7 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<decimal>.Default,
             converter: new ValueConverter<int, decimal>(decimal (int v) => ((decimal)v), int (decimal v) => ((int)v)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, decimal>(
-                JsonDecimalReaderWriter.Instance,
+                CosmosJsonDecimalReaderWriter.Instance,
                 new ValueConverter<int, decimal>(decimal (int v) => ((decimal)v), int (decimal v) => ((int)v))));
         castingConverterProperty.SetSentinelFromProviderValue(0m);
 
@@ -1027,7 +1026,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @decimal.TypeMapping = CosmosTypeMapping<decimal>.Default;
+        @decimal.TypeMapping = CosmosDecimalTypeMapping.Default;
 
         var decimalArray = runtimeEntityType.AddProperty(
             "DecimalArray",
@@ -1064,8 +1063,8 @@ public partial class ManyTypesEntityType
             comparer: new ListOfValueTypesComparer<decimal[], decimal>(DefaultValueComparer<decimal>.Default),
             keyComparer: ValueComparer<decimal[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<decimal[], decimal>(
-                JsonDecimalReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<decimal>.Default);
+                CosmosJsonDecimalReaderWriter.Instance),
+            elementMapping: CosmosDecimalTypeMapping.Default);
         var decimalArrayElementType = decimalArray.SetElementType(typeof(decimal));
         decimalArrayElementType.TypeMapping = decimalArray.TypeMapping.ElementTypeMapping;
 
@@ -3279,7 +3278,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDecimal.TypeMapping = CosmosTypeMapping<decimal>.Default;
+        nullableDecimal.TypeMapping = CosmosDecimalTypeMapping.Default;
         nullableDecimal.SetComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
 
         var nullableDecimalArray = runtimeEntityType.AddProperty(
@@ -3317,8 +3316,8 @@ public partial class ManyTypesEntityType
             comparer: new ListOfNullableValueTypesComparer<decimal?[], decimal>(new NullableValueComparer<decimal>(DefaultValueComparer<decimal>.Default)),
             keyComparer: ValueComparer<decimal?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<decimal?[], decimal>(
-                JsonDecimalReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<decimal>.Default);
+                CosmosJsonDecimalReaderWriter.Instance),
+            elementMapping: CosmosDecimalTypeMapping.Default);
         var nullableDecimalArrayElementType = nullableDecimalArray.SetElementType(typeof(decimal?),
             nullable: true);
         nullableDecimalArrayElementType.TypeMapping = nullableDecimalArray.TypeMapping.ElementTypeMapping;
@@ -5755,7 +5754,7 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<decimal>.Default,
             converter: new ValueConverter<string, decimal>(decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, decimal>(
-                JsonDecimalReaderWriter.Instance,
+                CosmosJsonDecimalReaderWriter.Instance,
                 new ValueConverter<string, decimal>(decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
 
         var stringToDoubleNumberConverterProperty = runtimeEntityType.AddProperty(
@@ -6696,27 +6695,6 @@ public partial class ManyTypesEntityType
         __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.SetAccessors(
-            JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(169) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(169) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(2))),
-            JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(2),
-            JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 169),
-            JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-        __jObject.SetPropertyIndexes(
-            index: 169,
-            originalValueIndex: 169,
-            shadowIndex: 2,
-            relationshipIndex: -1,
-            storeGenerationIndex: 0);
-        __jObject.TypeMapping = CosmosTypeMapping<JObject>.Default;
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
-
         var key = runtimeEntityType.AddKey(
             new[] { id });
         runtimeEntityType.SetPrimaryKey(key);
@@ -6895,7 +6873,6 @@ public partial class ManyTypesEntityType
         var uri = runtimeEntityType.FindProperty("Uri");
         var uriToStringConverterProperty = runtimeEntityType.FindProperty("UriToStringConverterProperty");
         var __id = runtimeEntityType.FindProperty("__id");
-        var __jObject = runtimeEntityType.FindProperty("__jObject");
         var key = runtimeEntityType.FindKey(new[] { id });
         key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<CompiledModelTestBase.ManyTypesId>(key));
         key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<CompiledModelTestBase.ManyTypesId>(key));
@@ -6913,16 +6890,16 @@ public partial class ManyTypesEntityType
                 var structuralType3 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                 var liftedArg3 = ((ISnapshot)(new Snapshot<TimeSpan?, ushort?, ushort? [], uint?, uint? [], ulong?, ulong? [], byte?, byte? [], Uri, PhysicalAddress, PhysicalAddress, PhysicalAddress, string, string[], string[][], IReadOnlyCollection<string>, string, string, string, string, string, string, string, string, string, string, string, string, string>((source.GetCurrentValue<TimeSpan?>(nullableTimeSpan) == null ? null : ((ValueComparer<TimeSpan?>)(((IProperty)nullableTimeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan?>(nullableTimeSpan))), (source.GetCurrentValue<ushort?>(nullableUInt16) == null ? null : ((ValueComparer<ushort?>)(((IProperty)nullableUInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort?>(nullableUInt16))), (((IEnumerable<ushort?>)(source.GetCurrentValue<ushort? []>(nullableUInt16Array))) == null ? null : ((ushort? [])(((ValueComparer<IEnumerable<ushort?>>)(((IProperty)nullableUInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort?>)(source.GetCurrentValue<ushort? []>(nullableUInt16Array))))))), (source.GetCurrentValue<uint?>(nullableUInt32) == null ? null : ((ValueComparer<uint?>)(((IProperty)nullableUInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint?>(nullableUInt32))), (((IEnumerable<uint?>)(source.GetCurrentValue<uint? []>(nullableUInt32Array))) == null ? null : ((uint? [])(((ValueComparer<IEnumerable<uint?>>)(((IProperty)nullableUInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint?>)(source.GetCurrentValue<uint? []>(nullableUInt32Array))))))), (source.GetCurrentValue<ulong?>(nullableUInt64) == null ? null : ((ValueComparer<ulong?>)(((IProperty)nullableUInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong?>(nullableUInt64))), (((IEnumerable<ulong?>)(source.GetCurrentValue<ulong? []>(nullableUInt64Array))) == null ? null : ((ulong? [])(((ValueComparer<IEnumerable<ulong?>>)(((IProperty)nullableUInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong?>)(source.GetCurrentValue<ulong? []>(nullableUInt64Array))))))), (source.GetCurrentValue<byte?>(nullableUInt8) == null ? null : ((ValueComparer<byte?>)(((IProperty)nullableUInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(nullableUInt8))), (((IEnumerable<byte?>)(source.GetCurrentValue<byte? []>(nullableUInt8Array))) == null ? null : ((byte? [])(((ValueComparer<IEnumerable<byte?>>)(((IProperty)nullableUInt8Array).GetValueComparer())).Snapshot(((IEnumerable<byte?>)(source.GetCurrentValue<byte? []>(nullableUInt8Array))))))), (source.GetCurrentValue<Uri>(nullableUri) == null ? null : ((ValueComparer<Uri>)(((IProperty)nullableUri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(nullableUri))), (source.GetCurrentValue<PhysicalAddress>(physicalAddress) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddress).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddress))), (source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddressToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty))), (source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddressToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty))), (source.GetCurrentValue<string>(@string) == null ? null : ((ValueComparer<string>)(((IProperty)@string).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(@string))), (((object)(source.GetCurrentValue<string[]>(stringArray))) == null ? null : ((string[])(((ValueComparer<object>)(((IProperty)stringArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[]>(stringArray))))))), (((object)(source.GetCurrentValue<string[][]>(stringNestedCollection))) == null ? null : ((string[][])(((ValueComparer<object>)(((IProperty)stringNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[][]>(stringNestedCollection))))))), (((object)(source.GetCurrentValue<IReadOnlyCollection<string>>(stringReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<string>)(((ValueComparer<object>)(((IProperty)stringReadOnlyCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IReadOnlyCollection<string>>(stringReadOnlyCollection))))))), (source.GetCurrentValue<string>(stringToBoolConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToBoolConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToBoolConverterProperty))), (source.GetCurrentValue<string>(stringToBytesConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToBytesConverterProperty))), (source.GetCurrentValue<string>(stringToCharConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToCharConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToCharConverterProperty))), (source.GetCurrentValue<string>(stringToDateOnlyConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateOnlyConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateOnlyConverterProperty))), (source.GetCurrentValue<string>(stringToDateTimeConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateTimeConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateTimeConverterProperty))), (source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateTimeOffsetConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty))), (source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDecimalNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty))), (source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDoubleNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty))), (source.GetCurrentValue<string>(stringToEnumConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToEnumConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToEnumConverterProperty))), (source.GetCurrentValue<string>(stringToGuidConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToGuidConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToGuidConverterProperty))), (source.GetCurrentValue<string>(stringToIntNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToIntNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToIntNumberConverterProperty))), (source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToTimeOnlyConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty))), (source.GetCurrentValue<string>(stringToTimeSpanConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToTimeSpanConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToTimeSpanConverterProperty))))));
                 var structuralType4 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
-                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, liftedArg0, liftedArg1, liftedArg2, liftedArg3, ((ISnapshot)(new Snapshot<string, TimeOnly, TimeOnly, TimeOnly, TimeSpan, TimeSpan, TimeSpan, ushort, ushort[], uint, uint[], ulong, ulong[], byte, byte[], IReadOnlyCollection<byte>, Uri, Uri, string, JObject>((source.GetCurrentValue<string>(stringToUriConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToUriConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToUriConverterProperty))), ((ValueComparer<TimeOnly>)(((IProperty)timeOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnly)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpan)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty)), ((ValueComparer<ushort>)(((IProperty)uInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort>(uInt16)), (((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))) == null ? null : ((ushort[])(((ValueComparer<IEnumerable<ushort>>)(((IProperty)uInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))))))), ((ValueComparer<uint>)(((IProperty)uInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(uInt32)), (((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))) == null ? null : ((uint[])(((ValueComparer<IEnumerable<uint>>)(((IProperty)uInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))))))), ((ValueComparer<ulong>)(((IProperty)uInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(uInt64)), (((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))) == null ? null : ((ulong[])(((ValueComparer<IEnumerable<ulong>>)(((IProperty)uInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))))))), ((ValueComparer<byte>)(((IProperty)uInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte>(uInt8)), (source.GetCurrentValue<byte[]>(uInt8Array) == null ? null : ((ValueComparer<byte[]>)(((IProperty)uInt8Array).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(uInt8Array))), (((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)uInt8ReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))))))), (source.GetCurrentValue<Uri>(uri) == null ? null : ((ValueComparer<Uri>)(((IProperty)uri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uri))), (source.GetCurrentValue<Uri>(uriToStringConverterProperty) == null ? null : ((ValueComparer<Uri>)(((IProperty)uriToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uriToStringConverterProperty))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject)))))) })));
+                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, liftedArg0, liftedArg1, liftedArg2, liftedArg3, ((ISnapshot)(new Snapshot<string, TimeOnly, TimeOnly, TimeOnly, TimeSpan, TimeSpan, TimeSpan, ushort, ushort[], uint, uint[], ulong, ulong[], byte, byte[], IReadOnlyCollection<byte>, Uri, Uri, string>((source.GetCurrentValue<string>(stringToUriConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToUriConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToUriConverterProperty))), ((ValueComparer<TimeOnly>)(((IProperty)timeOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnly)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpan)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty)), ((ValueComparer<ushort>)(((IProperty)uInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort>(uInt16)), (((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))) == null ? null : ((ushort[])(((ValueComparer<IEnumerable<ushort>>)(((IProperty)uInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))))))), ((ValueComparer<uint>)(((IProperty)uInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(uInt32)), (((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))) == null ? null : ((uint[])(((ValueComparer<IEnumerable<uint>>)(((IProperty)uInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))))))), ((ValueComparer<ulong>)(((IProperty)uInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(uInt64)), (((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))) == null ? null : ((ulong[])(((ValueComparer<IEnumerable<ulong>>)(((IProperty)uInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))))))), ((ValueComparer<byte>)(((IProperty)uInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte>(uInt8)), (source.GetCurrentValue<byte[]>(uInt8Array) == null ? null : ((ValueComparer<byte[]>)(((IProperty)uInt8Array).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(uInt8Array))), (((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)uInt8ReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))))))), (source.GetCurrentValue<Uri>(uri) == null ? null : ((ValueComparer<Uri>)(((IProperty)uri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uri))), (source.GetCurrentValue<Uri>(uriToStringConverterProperty) == null ? null : ((ValueComparer<Uri>)(((IProperty)uriToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uriToStringConverterProperty))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id)))))) })));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<JObject>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
+            ISnapshot () => Snapshot.Empty);
         runtimeEntityType.SetTemporaryValuesFactory(
-            ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<JObject>(default(JObject)))));
+            ISnapshot (IInternalEntry source) => Snapshot.Empty);
         runtimeEntityType.SetShadowValuesFactory(
-            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string, JObject>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null)))));
         runtimeEntityType.SetEmptyShadowValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<string, string, JObject>(default(string), default(string), default(JObject)))));
+            ISnapshot () => ((ISnapshot)(new Snapshot<string, string>(default(string), default(string)))));
         runtimeEntityType.SetRelationshipSnapshotFactory(
             ISnapshot (IInternalEntry source) =>
             {
@@ -6930,14 +6907,14 @@ public partial class ManyTypesEntityType
                 return ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 170,
+            propertyCount: 169,
             navigationCount: 0,
             complexPropertyCount: 0,
             complexCollectionCount: 0,
-            originalValueCount: 170,
-            shadowCount: 3,
+            originalValueCount: 169,
+            shadowCount: 2,
             relationshipCount: 1,
-            storeGeneratedCount: 1));
+            storeGeneratedCount: 0));
 
         Customize(runtimeEntityType);
     }

@@ -163,6 +163,21 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
             queryTrackingBehavior,
             () => base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior));
 
+    public override Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => base.Select_required_associate_duplicated(queryTrackingBehavior));
+
+    public override Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => base.Select_required_associate_and_optional_associate(queryTrackingBehavior));
+
+    public override Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => base.Select_optional_associate_and_ints(queryTrackingBehavior));
+
     #endregion Multiple
 
     #region Subquery

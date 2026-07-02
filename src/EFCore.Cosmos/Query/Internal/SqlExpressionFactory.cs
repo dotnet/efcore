@@ -40,7 +40,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping)
         => sqlExpression switch
         {
-            null or { TypeMapping: not null } => sqlExpression,
+            null => sqlExpression, /*or { TypeMapping: not null }*/ // @TODO: We need a better way...
 
             ScalarSubqueryExpression e => e.ApplyTypeMapping(typeMapping),
             SqlConditionalExpression sqlConditionalExpression => ApplyTypeMappingOnSqlConditional(sqlConditionalExpression, typeMapping),

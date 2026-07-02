@@ -37,9 +37,24 @@ WHERE (c["$type"] = "Basic")
         // Always throws for sync.
         if (async)
         {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async));
+            await AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>()
+                    .Select(x => new { x.Id, OwnedCollectionBranch = x.OwnedReferenceRoot.OwnedCollectionBranch })
+                    .AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.OwnedCollectionBranch, a.OwnedCollectionBranch, ordered: true);
+                });
+
+            AssertSql(
+                """
+SELECT c["Id"], c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
+FROM root c
+WHERE (c["$type"] = "Basic")
+""");
         }
     }
 
@@ -48,21 +63,35 @@ WHERE (c["$type"] = "Basic")
         // Always throws for sync.
         if (async)
         {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Basic_json_projection_owned_collection_leaf(async));
+            await base.Basic_json_projection_owned_collection_leaf(async);
+
+            AssertSql(
+                """
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
+FROM root c
+WHERE (c["$type"] = "Basic")
+""");
         }
     }
 
     public override Task Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(a);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, x.OwnedCollectionRoot })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertCollection(e.OwnedCollectionRoot, a.OwnedCollectionRoot, ordered: true);
+                    });
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT c["Id"], c["OwnedCollectionRoot"]
 FROM root c
 WHERE (c["$type"] = "Basic")
 """);
@@ -70,13 +99,23 @@ WHERE (c["$type"] = "Basic")
 
     public override Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .Select(x => new { x.Id, OwnedReferenceBranch = x.OwnedReferenceRoot.OwnedReferenceBranch })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.OwnedReferenceBranch, a.OwnedReferenceBranch);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT c["Id"], c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
 FROM root c
 WHERE (c["$type"] = "Basic")
 """);
@@ -84,13 +123,38 @@ WHERE (c["$type"] = "Basic")
 
     public override Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .OrderBy(x => x.Id)
+                        .Select(x => new
+                        {
+                            x.Id,
+                            Root1 = x.OwnedReferenceRoot,
+                            Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                            Root2 = x.OwnedReferenceRoot,
+                            Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                        }).AsNoTrackingWithIdentityResolution(),
+                    assertOrder: true,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.Root1, a.Root1);
+                        AssertEqual(e.Root2, a.Root2);
+                        AssertEqual(e.Leaf1, a.Leaf1);
+                        AssertEqual(e.Leaf2, a.Leaf2);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Root1" : c["OwnedReferenceRoot"],
+    "Leaf1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]
+}
 FROM root c
 WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
@@ -99,13 +163,38 @@ ORDER BY c["Id"]
 
     public override Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .OrderBy(x => x.Id)
+                        .Select(x => new
+                        {
+                            x.Id,
+                            Root1 = x.OwnedReferenceRoot,
+                            Branch1 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                            Root2 = x.OwnedReferenceRoot,
+                            Branch2 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                        }).AsNoTrackingWithIdentityResolution(),
+                    assertOrder: true,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.Root1, a.Root1);
+                        AssertEqual(e.Root2, a.Root2);
+                        AssertEqual(e.Branch1, a.Branch1);
+                        AssertEqual(e.Branch2, a.Branch2);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Root1" : c["OwnedReferenceRoot"],
+    "Branch1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
+}
 FROM root c
 WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
@@ -120,7 +209,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]
 FROM root c
 WHERE (c["$type"] = "Basic")
 """);
@@ -128,14 +217,22 @@ WHERE (c["$type"] = "Basic")
 
     public override Task Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(a);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.OwnedReferenceRoot, x.Id })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.OwnedReferenceRoot, a.OwnedReferenceRoot);
+                    });
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT c["Id"], c["OwnedReferenceRoot"]
 FROM root c
 WHERE (c["$type"] = "Basic")
 """);
@@ -213,10 +310,9 @@ WHERE (c["$type"] = "Basic")
             {
                 await base.Custom_naming_projection_owned_collection(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedCollectionRoot"]
 FROM root c
 WHERE (c["$type"] = "CustomNaming")
 ORDER BY c["Id"]
@@ -231,7 +327,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
 FROM root c
 WHERE (c["$type"] = "CustomNaming")
 """);
@@ -326,10 +422,9 @@ WHERE (c["$type"] = "AllTypes")
             {
                 await base.Json_all_types_projection_from_owned_entity_reference(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["Reference"]
 FROM root c
 WHERE (c["$type"] = "AllTypes")
 """);
@@ -554,7 +649,22 @@ WHERE ((c["$type"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] != "Foo")
             });
 
     public override Task Json_collection_filter_in_projection(bool async)
-        => AssertTranslationFailed(() => base.Json_collection_filter_in_projection(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Json_collection_filter_in_projection(async);
+
+                AssertSql(
+                    """
+SELECT VALUE ARRAY(
+    SELECT VALUE o
+    FROM o IN c["OwnedCollectionRoot"]
+    WHERE (o["Name"] != "Foo"))
+FROM root c
+WHERE (c["$type"] = "Basic")
+ORDER BY c["Id"]
+""");
+            });
 
     public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
@@ -877,7 +987,22 @@ ORDER BY c["Id"]
         => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(async);
 
     public override Task Json_collection_leaf_filter_in_projection(bool async)
-        => AssertTranslationFailed(() => base.Json_collection_leaf_filter_in_projection(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Json_collection_leaf_filter_in_projection(a);
+
+                AssertSql(
+                    """
+SELECT VALUE ARRAY(
+    SELECT VALUE o
+    FROM o IN c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
+    WHERE (o["SomethingSomething"] != "Baz"))
+FROM root c
+WHERE (c["$type"] = "Basic")
+ORDER BY c["Id"]
+""");
+            });
 
     public override Task Json_collection_of_primitives_contains_in_predicate(bool async)
         => Fixture.NoSyncTest(
@@ -1718,19 +1843,16 @@ WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"] != 100
             });
 
     public override Task Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_original(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_original(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_deduplication_with_collection_indexer_in_original(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_target(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_deduplication_with_collection_indexer_in_target(async));
 
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
@@ -1818,7 +1940,11 @@ WHERE (c["$type"] = "Basic")
 
                 AssertSql(
                     """
-SELECT c["Id"], c
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "x" : c
+}
 FROM root c
 WHERE (c["$type"] = "Basic")
 """);
@@ -1831,9 +1957,8 @@ WHERE (c["$type"] = "Basic")
 
     public override Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(
         bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(
+            () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async));
 
     [Theory(Skip = "issue #34350")]
     public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
@@ -1999,22 +2124,22 @@ WHERE (c["$type"] = "Basic")
 """);
             });
 
-    public override Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_collection_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
+        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_collection_and_entity_collection(async))).Message);
 
     public override Task Json_with_projection_of_json_collection_element_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.Json_with_projection_of_json_collection_element_and_entity_collection(async),
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
-    public override Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
+        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async))).Message);
 
-    public override Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_reference_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
+        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_reference_and_entity_collection(async))).Message);
 
-    public override Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
+        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async))).Message);
 
     public override Task Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(

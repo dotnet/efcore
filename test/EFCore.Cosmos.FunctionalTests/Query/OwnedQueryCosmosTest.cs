@@ -55,7 +55,7 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["Orders"]
 FROM root c
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
 ORDER BY c["Id"]
@@ -382,10 +382,9 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Te
             {
                 await base.Project_owned_reference_navigation_which_owns_additional(a);
 
-                // TODO: The following should project out c["PersonAddress"], not c: #34067
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -401,7 +400,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]["Country"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -464,7 +463,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -491,7 +490,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -518,7 +517,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -545,7 +544,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -572,7 +571,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -1060,15 +1059,38 @@ WHERE (c["Terminator"] = "Barton")
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await base.Owned_entity_without_owner_does_not_throw_for_identity_resolution(a, useAsTracking);
+                using var context = CreateContext();
+                var query = context.Set<OwnedPerson>().Select(e => new { e.Id, e.PersonAddress });
+
+                query = useAsTracking
+                    ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+                    : query.AsNoTrackingWithIdentityResolution();
+
+                var result = await query.ToListAsync();
+
+                Assert.Equal(4, result.Count);
+                Assert.Collection(
+                    result.OrderBy(e => e.Id),
+                    element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress),
+                    element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress),
+                    element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress),
+                    element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress));
+                Assert.Empty(context.ChangeTracker.Entries());
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT c["Id"], c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
+
+    private static void AssertProjectedPersonAddress(int expectedId, int id, OwnedAddress personAddress)
+    {
+        Assert.Equal(expectedId, id);
+        Assert.Equal("Land", personAddress.PlaceType);
+        Assert.Equal("USA", personAddress.Country.Name);
+    }
 
     public override Task Simple_query_entity_with_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1092,7 +1114,7 @@ WHERE (c["Terminator"] = "Star")
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -87,9 +88,7 @@ public class DocumentSource
 
         foreach (var property in structuralType.GetProperties())
         {
-            var jsonPropertyName = property.GetJsonPropertyName();
-
-            if (jsonPropertyName == "")
+            if (!property.IsPersisted())
             {
                 if (property.IsKey() && property.IsOrdinalKeyProperty())
                 {
@@ -97,6 +96,8 @@ public class DocumentSource
                 }
                 continue;
             }
+
+            var jsonPropertyName = property.GetJsonPropertyName();
 
             var propertyValue = entry.GetCurrentValue(property);
             writer.WritePropertyName(jsonPropertyName);
@@ -167,7 +168,8 @@ public class DocumentSource
 
             var entry = structuralType is IComplexType
                 ? parentEntry
-                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(value!, (IEntityType)structuralType)!;
+                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(value, (IEntityType)structuralType)
+                    ?? throw new UnreachableException("Embedded navigation not tracked.");
 
             WriteJsonObject(writer, entry, structuralType, null);
         }
@@ -213,7 +215,8 @@ public class DocumentSource
         {
             var entry = structuralType is IComplexType complexType
                 ? (IInternalEntry)parentEntry.GetComplexCollectionEntry(complexType.ComplexProperty, i)
-                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(collectionElement, (IEntityType)structuralType)!;
+                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(collectionElement, (IEntityType)structuralType)
+                    ?? throw new UnreachableException("Collection element not tracked.");
 
             WriteJsonObject(
                 writer,

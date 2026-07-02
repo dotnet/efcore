@@ -1610,8 +1610,8 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
                     """
 SELECT DISTINCT VALUE
 {
-    "Id" : c["CustomerID"],
-    "Count" : c["OrderID"]
+    "Count" : c["OrderID"],
+    "Id" : c["CustomerID"]
 }
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
@@ -3625,24 +3625,27 @@ WHERE (c["Title"] = @value)
 
     public override async Task Collection_projection_skip(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Collection_projection_skip(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Collection_projection_skip(async));
+
+        Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: Order.OrderDetails (ICollection<OrderDetail>) Collection ToDependent OrderDetail Inverse: Order"), ex.Message);
 
         AssertSql();
     }
 
     public override async Task Collection_projection_take(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Collection_projection_take(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Collection_projection_take(async));
+
+        Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: Order.OrderDetails (ICollection<OrderDetail>) Collection ToDependent OrderDetail Inverse: Order"), ex.Message);
 
         AssertSql();
     }
 
     public override async Task Collection_projection_skip_take(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Collection_projection_skip_take(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Collection_projection_skip_take(async));
+
+        Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: Order.OrderDetails (ICollection<OrderDetail>) Collection ToDependent OrderDetail Inverse: Order"), ex.Message);
 
         AssertSql();
     }
@@ -3772,7 +3775,7 @@ WHERE c["id"] IN (null, "ALFKI")
 
     public override async Task Select_distinct_Select_with_client_bindings(bool async)
     {
-        // No Select after Distinct. Issue #17246.
+        // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Select_distinct_Select_with_client_bindings(async));
 
         AssertSql();
@@ -4011,6 +4014,12 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
                 """
 SELECT VALUE c
 FROM root c
+""",
+                //
+                """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 1
 """);
         }
     }
@@ -4347,6 +4356,11 @@ WHERE (c["Title"] = "Sales Representative")
         {
             await base.Throws_on_concurrent_query_list(async);
             AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+""",
+                //
                 """
 SELECT VALUE c
 FROM root c

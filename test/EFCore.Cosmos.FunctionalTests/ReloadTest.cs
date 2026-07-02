@@ -42,8 +42,7 @@ SELECT VALUE
     "Id" : c["Id"],
     "PartitionKey" : c["PartitionKey"],
     "$type" : c["$type"],
-    "id0" : c["id"],
-    "" : c
+    "id0" : c["id"]
 }
 FROM root c
 WHERE (c["Id"] = @p)
