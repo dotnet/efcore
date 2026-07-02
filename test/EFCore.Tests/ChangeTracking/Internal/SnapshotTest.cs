@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class SnapshotTest
 {
-    [ConditionalFact]
+    [Fact]
     public void SetValue_sets_value()
     {
         var snapshot = new Snapshot<int, string>(1, "A");
@@ -17,7 +17,7 @@ public class SnapshotTest
         Assert.Equal("B", snapshot.GetValue<string>(1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SetValue_sets_value_on_multi_snapshot()
     {
         var snapshot = new MultiSnapshot(
@@ -33,7 +33,7 @@ public class SnapshotTest
         Assert.Equal("B", snapshot.GetValue<string>(Snapshot.MaxGenericTypes));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SetValue_throws_for_empty_snapshot()
         => Assert.Throws<IndexOutOfRangeException>(() => Snapshot.Empty.SetValue(0, "A"));
 }

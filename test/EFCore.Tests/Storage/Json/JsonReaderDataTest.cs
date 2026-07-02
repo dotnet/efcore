@@ -61,7 +61,7 @@ public class JsonReaderDataTest
         Assert.Equal(json.Length, data.BytesConsumed);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CaptureState_resets_reader_to_captured_position()
     {
         var data = new JsonReaderData("""{"Collection":[],"Value":1}"""u8.ToArray());
