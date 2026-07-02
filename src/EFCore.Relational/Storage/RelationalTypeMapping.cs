@@ -678,14 +678,15 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <returns>The default provider value.</returns>
     public virtual object? GetDefaultProviderValue()
     {
+        var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
+
+        // A primitive collection is serialized to a JSON string in its column, so its default value must be an empty JSON
+        // array rather than an empty string (which isn't valid JSON).
         if (ElementTypeMapping is not null
-            && Converter?.GetType() is { IsGenericType: true } converterType
-            && converterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>))
+            && JsonValueReaderWriter != null)
         {
             return "[]";
         }
-
-        var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
 
         return providerType == typeof(string)
             ? string.Empty

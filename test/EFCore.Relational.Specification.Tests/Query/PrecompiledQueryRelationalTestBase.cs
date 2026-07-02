@@ -1230,10 +1230,39 @@ var blogs2 = await context.Blogs.ToListAsync();
             interceptorCodeAsserter: code => Assert.Equal(
                 2, code.Split("private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_Id_Set").Length));
 
+    // #34881/#38454: A primitive collection mapped to a column is read via a JsonValueReaderWriter that is emitted as a
+    // liftable constant. This test makes sure that liftable constant is handled correctly under query precompilation,
+    // including the JSON 'null' token peek path (the second entity's column holds the literal 'null' token).
+    [Fact]
+    public virtual Task Materialize_entity_with_primitive_collection_mapped_to_column()
+        => Test(
+            """
+var entities = await context.EntitiesWithPrimitiveCollection.OrderBy(e => e.Id).ToListAsync();
+
+Assert.Equal(2, entities.Count);
+Assert.Equal(new[] { "a", "b" }, entities[0].Tags);
+Assert.Null(entities[1].Tags);
+""");
+
+    // Projecting the collection column directly reaches the materializer without an IProperty, so the JsonValueReaderWriter
+    // is emitted via its (quotable) ConstructorExpression rather than a property-based liftable constant. This makes sure
+    // that path is quotable under precompilation, including the JSON 'null' token peek.
+    [Fact]
+    public virtual Task Project_primitive_collection_mapped_to_column()
+        => Test(
+            """
+var tags = await context.EntitiesWithPrimitiveCollection.OrderBy(e => e.Id).Select(e => e.Tags).ToListAsync();
+
+Assert.Equal(2, tags.Count);
+Assert.Equal(new[] { "a", "b" }, tags[0]);
+Assert.Null(tags[1]);
+""");
+
     public class PrecompiledQueryContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; } = null!;
         public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<EntityWithPrimitiveCollection> EntitiesWithPrimitiveCollection { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1247,6 +1276,7 @@ var blogs2 = await context.Blogs.ToListAsync();
                 });
             modelBuilder.Entity<Blog>().HasMany(x => x.Posts).WithOne(x => x.Blog).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Post>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<EntityWithPrimitiveCollection>().Property(x => x.Id).ValueGeneratedNever();
         }
     }
 
@@ -1335,6 +1365,16 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         public string? Title { get; set; }
 
         public Blog? Blog { get; set; }
+    }
+
+    public class EntityWithPrimitiveCollection
+    {
+        public int Id { get; set; }
+
+        // Mapped to a column as a JSON string via the primitive-collection convention (CollectionToJsonStringConverter).
+        // An array (rather than List<T>) is used so entity materialization assigns the collection directly instead of
+        // going through the PopulateList optimization (which is unrelated to the JSON null-token handling under test).
+        public string[]? Tags { get; set; }
     }
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];

@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -78,6 +79,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo MaterializeJsonEntityCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonEntityCollection))!;
+
+        private static readonly MethodInfo ReadPrimitiveCollectionFromJsonMethodInfo
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ReadPrimitiveCollectionFromJson))!;
 
         private static readonly MethodInfo InverseCollectionFixupMethod
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InverseCollectionFixup))!;
@@ -954,6 +958,45 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             dataReaderContext.HasNext = false;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static object? ReadPrimitiveCollectionFromJson(
+            string? json,
+            JsonValueReaderWriter readerWriter,
+            bool nullable,
+            string propertyName)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            // Preserve the diagnostics of the converter path (JsonValueReaderWriter.FromJsonString), which rejects
+            // empty/whitespace JSON strings before tokenizing.
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                throw new InvalidOperationException(CoreStrings.EmptyJsonString);
+            }
+
+            // A primitive collection mapped to a column is read by parsing the JSON string with the collection's
+            // JsonValueReaderWriter (which doesn't handle the 'null' token). The stored value may be a JSON 'null'
+            // token (e.g. the literal string "null"), which must be materialized as null for an optional property,
+            // rather than letting the reader/writer throw. See issues #34881 and #38454.
+            var manager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
+            manager.MoveNext();
+
+            return manager.CurrentReader.TokenType == JsonTokenType.Null
+                ? nullable
+                    ? null
+                    : throw new InvalidOperationException(RelationalStrings.NullValueInRequiredJsonProperty(propertyName))
+                : readerWriter.FromJson(ref manager);
         }
 
         /// <summary>
