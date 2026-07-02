@@ -199,7 +199,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // if (jsonReader.TokenType != JsonTokenType.StartObject) throw new InvalidOperationException(InvalidTokenType);
                     IfThen(
                         NotEqual(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty), Constant(JsonTokenType.StartObject)),
-                        Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)))
+                        Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)))
                     ),
                     // afterStartObjectReaderState = jsonReader.CurrentState // Store the state of after start object to be able to continue reading properties later on
                     Assign(afterStartObjectReaderStateVariable, Property(jsonReaderVariable, Utf8JsonReaderStateProperty))
@@ -606,22 +606,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
-                // @TODO: Optimize for only 1 possible value, do discriminator value correct check when finding property instead of scanning document.
-                //if (structuralType.GetDerivedTypesInclusive().Count() == 1)
-                //{
-                //}
-
-                // We have to read the json document to find the discriminator value before we can know how to deserialize the document.
-                var discriminatorValueVariable = Variable(discriminatorProperty.ClrType.MakeNullable(), "discriminatorValue"); // Not a local variable, but defined by the parent block.
-                materializerVariables.Add(discriminatorValueVariable);
-                var discriminatorRead = ReadDiscriminator(structuralType, discriminatorProperty, discriminatorValueVariable);
-                materializerExpressions.Add(discriminatorRead);
-
-                // Replace calls for ValueBufferTryReadValue for the discriminator property
-                materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, Expression>
+                if (structuralType.GetDerivedTypesInclusive().Count() == 1)
                 {
-                    { discriminatorProperty, discriminatorValueVariable }
-                }).Rewrite(materializerBlock);
+                    // Optimize for only 1 possible value, do discriminator value correct check when finding property instead of scanning document.
+                    materializerBlock = new SingleDiscriminatorValueRewritingExpressionVisitor(structuralType, discriminatorProperty)
+                        .Rewrite(materializerBlock);
+                }
+                else
+                {
+                    // We have to read the json document to find the discriminator value before we can know how to deserialize the document.
+                    var discriminatorValueVariable = Variable(discriminatorProperty.ClrType.MakeNullable(), "discriminatorValue"); // Not a local variable, but defined by the parent block.
+                    materializerVariables.Add(discriminatorValueVariable);
+                    var discriminatorRead = ReadDiscriminator(structuralType, discriminatorProperty, discriminatorValueVariable);
+                    materializerExpressions.Add(discriminatorRead);
+
+                    // Replace calls for ValueBufferTryReadValue for the discriminator property
+                    materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, Expression>
+                    {
+                        { discriminatorProperty, discriminatorValueVariable }
+                    }).Rewrite(materializerBlock);
+                }
             }
 
             var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
@@ -717,7 +721,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Switch(
                     tokenTypeVariable,
                     // default: throw new InvalidOperationException(InvalidTokenType)
-                    Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable), resultType),
+                    Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable), resultType),
                     // case JsonTokenType.Null: return default
                     SwitchCase(
                         Block(
@@ -809,7 +813,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         // switch (tokenType)
                         Switch(tokenTypeVariable,
                             // default: throw
-                            Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
+                            Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)),
                             [
                                 // case Null: goto EndRead
                                 SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
@@ -951,10 +955,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetComplexProperties();
 
-            if (structuralType is IEntityType et)
+            if (structuralType is IEntityType spEt)
             {
                 nestedStructuralProperties = nestedStructuralProperties.Concat(
-                    et.GetNavigations()
+                    spEt.GetNavigations()
                         .Where(n => n.ForeignKey.IsOwnership
                                  && n == n.ForeignKey.PrincipalToDependent));
             }
@@ -973,28 +977,36 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // will have to replace ValueBufferTryReadValue method calls with the parameters that store the value
             // we can't use simple ExpressionReplacingVisitor, because there could be multiple instances of MethodCallExpression for given property
             // using dedicated mini-visitor that looks for MCEs with a given shape and compare the IProperty inside
-            // order is:
-            // - shadow snapshot (if there was one)
-            // - entity construction / property assignments
-            // - manual fixups
-            // - entity instance variable that is returned as end result
             var valueBufferTryReadValueReplacer = new ValueBufferTryReadValueMethodsReplacer(propertyAssignmentMap);
 
-            if (body.Expressions[0] is BinaryExpression
-                {
-                    NodeType: ExpressionType.Assign,
-                    Right: UnaryExpression
-                    {
-                        NodeType: ExpressionType.Convert,
-                        Operand: NewExpression
-                    }
-                } shadowSnapshotAssignment
-                && shadowSnapshotAssignment.Type == typeof(ISnapshot))
+            // Process any earlier expressions (shadowSnapshot assignment, null discriminator check)
+            foreach (var expression in body.Expressions.Take(body.Expressions.Count - 1))
             {
-                finalBlockExpressions.Add(valueBufferTryReadValueReplacer.Visit(shadowSnapshotAssignment));
+                finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(expression)));
             }
 
-            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.ToArray()[..^1])
+            // Add undefined and null checks for pk on root document
+            if (structuralType is IEntityType pkEt
+             && pkEt.FindPrimaryKey() is { } pk
+             && pk.Properties.Where(propertyAssignmentMap.ContainsKey).ToArray() is { Length: > 0 } pkProperties)
+            {
+                var pkPropertyVariables = pkProperties.Select(p => (ParameterExpression)propertyAssignmentMap[p]).ToArray();
+                finalBlockExpressions.Add(
+                    IfThen(
+                        pkPropertyVariables.Select(p =>
+                            p.Type.IsNullableValueType()
+                                ? Not(Property(p, typeof(Nullable<>).MakeGenericType(p.Type.UnwrapNullableType()).GetProperty(nameof(Nullable<>.HasValue))!))
+                                : (Expression)Equal(p, Default(p.Type))).Aggregate(OrElse),
+                        // @TODO: This always throws now, but for owned entities the try get entry call's throwOnNullKey is false? So it wouldn't throw in the base materializer?
+                        Throw(
+                            Call(
+                                CreateNullKeyValueInNoTrackingQueryMethod,
+                                Constant(pkEt),
+                                Constant(pkProperties),
+                                NewArrayInit(typeof(object), pkPropertyVariables.Select(p => Convert(p, typeof(object))))))));
+            }
+
+            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.Take(jsonEntityTypeInitializerBlock.Expressions.Count - 1))
             {
                 finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(jsonEntityTypeInitializerBlockExpression)));
             }
@@ -1005,12 +1017,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     MakeMemberAccess(ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType), property.GetMemberInfo(true, true)).Assign(variable));
             }
 
-            if (structuralType is IEntityType et2)
+            if (structuralType is IEntityType fixupEntityType)
             {
                 if (!_queryStateManager)
                 {
                     // Non tracking dependent to principal fixup
-                    foreach (var navigation in et2.GetNavigations().Where(n => n.ForeignKey.IsOwnership
+                    foreach (var navigation in fixupEntityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership
                                                                         && n == n.ForeignKey.PrincipalToDependent
                                                                         && n.ForeignKey.DependentToPrincipal != null))
                     {
@@ -1069,7 +1081,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
                     var jsonPropertyName = property.GetJsonPropertyName();
 
-                    if (!property.IsPersisted())
+                    if (!property.IsPersisted()) // @TODO: This check is diplicate right...
                     {
                         continue;
                     }
@@ -1086,7 +1098,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     Constant(Encoding.UTF8.GetBytes(jsonPropertyName))),
                                 typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
-                    var propertyVariable = Variable(valueBufferTryReadValueMethodToProcess.Type, property.Name);
+                    var propertyVariableType = property.ClrType;
+                    if (property.IsPrimaryKey()
+                     || (property.DeclaringType is IEntityType propertyEntityType && propertyEntityType.FindDiscriminatorProperty() == property))
+                    {
+                        // For PK and discriminator, we want to throw if not present or null, so we make nullable
+                        propertyVariableType = propertyVariableType.MakeNullable();
+                    }
+
+                    var propertyVariable = Variable(propertyVariableType, property.Name);
 
                     finalBlockVariables.Add(propertyVariable);
 
@@ -1096,7 +1116,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var assignment = Assign(
                         propertyVariable,
-                        Visit(valueBufferTryReadValueMethodToProcess));
+                        ConvertIfNotMatch(Visit(valueBufferTryReadValueMethodToProcess), propertyVariableType));
 
                     readExpressions.Add(
                         Block(
@@ -1282,7 +1302,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 // switch (tokenType)
                                 Switch(tokenTypeVariable,
                                     // default: throw new InvalidOperationException(InvalidTokenType)
-                                    Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
+                                    Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)),
                                     // case Null: jsonReaderManager.CaptureState()
                                     SwitchCase(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod), Constant(JsonTokenType.Null)),
                                     // case StartArray
@@ -1349,7 +1369,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Switch(
                         tokenTypeVariable,
                         Block(
-                            Throw(Call(NewJsonReaderInvalidTokenTypeExceptionMethodInfo, tokenTypeVariable)),
+                            Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)),
                             Default(typeof(void))),
                         switchCases.ToArray()));
 
@@ -1613,6 +1633,53 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             property = null;
             return false;
+        }
+
+        private sealed class SingleDiscriminatorValueRewritingExpressionVisitor(
+            ITypeBase structuralType,
+            IProperty discriminatorProperty) : ExpressionVisitor
+        {
+            public BlockExpression Rewrite(BlockExpression blockExpression)
+                => (BlockExpression)Visit(blockExpression);
+
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+                => binaryExpression.NodeType == ExpressionType.Assign
+                && binaryExpression.Left is ParameterExpression entityTypeVariable
+                && entityTypeVariable.Type.IsAssignableTo(typeof(ITypeBase))
+                    ? binaryExpression.Update(binaryExpression.Left, null, Constant(structuralType, entityTypeVariable.Type))
+                    : base.VisitBinary(binaryExpression);
+
+            protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
+            => switchCase switch
+            {
+                {
+                    Body: BlockExpression { Expressions.Count: > 0 } body,
+                    TestValues: [ConstantExpression { Value: ITypeBase testValue }]
+                } => testValue == structuralType
+                        ? switchCase.Update(switchCase.TestValues, body.Update(body.Variables, [
+                            IfThen(
+                                NotEqual(
+                                    Call(
+                                        EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(discriminatorProperty.ClrType),
+                                        Constant(ValueBuffer.Empty),
+                                        Constant(discriminatorProperty.GetIndex()),
+                                        Constant(discriminatorProperty)),
+                                    Constant(structuralType.GetDiscriminatorValue(), discriminatorProperty.ClrType)),
+                                Throw(
+                                    Call(
+                                        CreateUnableToDiscriminateExceptionMethod,
+                                        Constant(structuralType),
+                                        Convert(
+                                            Call(
+                                                EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(discriminatorProperty.ClrType),
+                                                Constant(ValueBuffer.Empty),
+                                                Constant(discriminatorProperty.GetIndex()),
+                                                Constant(discriminatorProperty)),
+                                        typeof(object))))),
+                            ..body.Expressions]))
+                        : throw new UnreachableException("There should only be 1 case for the specified structural type, since there is only 1 possible discriminator value."),
+                _ => base.VisitSwitchCase(switchCase)
+            };
         }
 
         private sealed class ValueBufferTryReadValueMethodsFinder : ExpressionVisitor

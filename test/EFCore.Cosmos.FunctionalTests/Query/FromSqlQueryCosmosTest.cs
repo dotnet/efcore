@@ -699,7 +699,37 @@ FROM (
             });
 
     [ConditionalFact]
-    public async Task FromSqlRaw_queryable_simple_with_missing_key_and_non_tracking_throws() // @TODO: We now generate a default value for any missing properties... Should we not for keys? How does this work in relational?
+    public async Task FromSqlRaw_queryable_simple_with_missing_discriminator_throws()
+    {
+        using var context = CreateContext();
+        var query = context.Set<Order>()
+            .FromSqlRaw("""SELECT c.OrderID FROM root c""");
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync());
+
+        Assert.Equal(
+            CoreStrings.UnableToDiscriminate(context.Model.FindEntityType(typeof(Order))!.DisplayName(), null),
+            exception.Message);
+    }
+
+    [ConditionalFact]
+    public async Task FromSqlRaw_queryable_simple_with_missing_key_throws()
+    {
+        using var context = CreateContext();
+        var query = context.Set<Order>()
+            .FromSqlRaw("""SELECT "Order" AS "$type" FROM root c""");
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync());
+
+        Assert.Equal(
+            CoreStrings.InvalidKeyValue(
+                context.Model.FindEntityType(typeof(Order))!.DisplayName(),
+                "OrderID"),
+            exception.Message);
+    }
+
+    [ConditionalFact]
+    public async Task FromSqlRaw_queryable_simple_with_missing_key_and_non_tracking_throws()
     {
         using var context = CreateContext();
         var query = context.Set<Order>()
