@@ -17176,6 +17176,11 @@
         {
           "Member": "virtual System.Text.Json.Utf8JsonReader ReadBytes(int bytesConsumed, System.Text.Json.JsonReaderState state);"
         }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual int BytesConsumed { get; }"
+        }
       ]
     },
     {
