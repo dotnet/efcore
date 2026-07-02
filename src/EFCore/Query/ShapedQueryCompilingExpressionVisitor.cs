@@ -649,14 +649,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 ? (entityType.FindPrimaryKey(), entityType.GetConcreteDerivedTypesInclusive().Cast<ITypeBase>().ToArray())
                 : (null, [structuralType]);
 
-            if (_queryStateManager && primaryKey is not null && structuralType is IEntityType entityType2)
-            {
-                foreach (var et in entityType2.GetAllBaseTypes().Concat(entityType2.GetDerivedTypesInclusive()))
-                {
-                    _visitedEntityTypes.Add(et);
-                }
-            }
-
             var switchCases = new SwitchCase[concreteStructuralTypes.Length];
             for (var i = 0; i < concreteStructuralTypes.Length; i++)
             {
@@ -683,6 +675,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             if (_queryStateManager && primaryKey is not null)
             {
+                if (structuralType is IEntityType entityType2)
+                {
+                    foreach (var et in entityType2.GetAllBaseTypes().Concat(entityType2.GetDerivedTypesInclusive()))
+                    {
+                        _visitedEntityTypes.Add(et);
+                    }
+                }
+
                 expressions.Add(
                     Assign(
                         entryVariable!,
