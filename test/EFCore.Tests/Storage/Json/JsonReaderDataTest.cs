@@ -74,12 +74,12 @@ public class JsonReaderDataTest
 
         manager.CaptureState();
 
-        Assert.Equal(13, data.BytesConsumed);
+        Assert.Equal("""{"Collection":["""u8.Length, data.BytesConsumed);
         Assert.Equal(JsonTokenType.EndArray, manager.MoveNext());
 
         manager.CaptureState();
 
-        Assert.Equal(14, data.BytesConsumed);
+        Assert.Equal("""{"Collection":[]"""u8.Length, data.BytesConsumed);
         Assert.Equal(JsonTokenType.PropertyName, manager.MoveNext());
         Assert.True(manager.CurrentReader.ValueTextEquals("Value"u8));
     }
