@@ -2181,7 +2181,7 @@ OFFSET 0 LIMIT 1
 
     public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls()
     {
-        await base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(); // @TODO: Inner shapers are maybe suboptimal? Maybe fix in projection binding?
+        await base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls();
 
         AssertSql(
             """

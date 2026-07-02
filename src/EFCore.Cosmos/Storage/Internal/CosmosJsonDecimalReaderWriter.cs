@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed class CosmosJsonDecimalReaderWriter : JsonValueReaderWriter<decimal> // @TODO: Cosmos does not support decimals: #38137
+public sealed class CosmosJsonDecimalReaderWriter : JsonValueReaderWriter<decimal> // TODO: Cosmos does not support decimals: #38137
 {
     private static readonly PropertyInfo InstanceProperty = typeof(CosmosJsonDecimalReaderWriter).GetProperty(nameof(Instance))!;
 

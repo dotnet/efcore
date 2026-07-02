@@ -163,7 +163,6 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
 
             customerFromStore.Children.Add(new DummyChild { Id = "1" });
 
-            // @TODO Collection entity is not tracked after shaper... Then the document source can't find the entry of the collection entity
             await context.SaveChangesAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);

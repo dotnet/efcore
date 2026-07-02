@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
-// @TODO: What to do on null keys? -> Missing. It should throw for both tracking and non tracking...
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
@@ -1098,11 +1097,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
                     var jsonPropertyName = property.GetJsonPropertyName();
-
-                    if (!property.IsPersisted()) // @TODO: This check is diplicate right...
-                    {
-                        continue;
-                    }
 
                     testExpressions.Add(
                         Call(
