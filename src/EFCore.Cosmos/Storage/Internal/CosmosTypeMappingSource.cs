@@ -34,9 +34,9 @@ public class CosmosTypeMappingSource : TypeMappingSource
         => _clrTypeMappings
             = new Dictionary<Type, CosmosTypeMapping>
             {
-                { typeof(TimeOnly), CosmosTimeOnlyTypeMapping.Default }, // @TODO: Do we need custom type mapping? Probably not?
+                { typeof(TimeOnly), CosmosTimeOnlyTypeMapping.Default },
                 { typeof(TimeSpan), CosmosTimeSpanTypeMapping.Default },
-                { typeof(decimal), new CosmosTypeMapping(typeof(decimal), jsonValueReaderWriter: CosmosJsonDecimalReaderWriter.Instance) },
+                { typeof(decimal), CosmosDecimalTypeMapping.Default },
                 {
                     typeof(JObject), CreateMapping(
                         typeof(JObject), jsonValueReaderWriter: dependencies.JsonValueReaderWriterSource.FindReaderWriter(typeof(JObject)))
