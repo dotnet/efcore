@@ -1071,7 +1071,9 @@ WHERE STARTSWITH(c["id"], "A")
     public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+
+        Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
 
         AssertSql();
     }
