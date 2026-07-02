@@ -531,11 +531,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var tryGetEntryPropertyMap = entityType.FindPrimaryKey()!.Properties
                 .ToDictionary(
                     p => p,
-                    property => property.IsShadowProperty()
-                                // shadowSnapshot.GetValue<T>(1)
-                                ? Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()))
-                                // instance.Property
-                                : (Expression)instanceVariable.MakeMemberAccess(property.GetMemberInfo(true, false)));
+                    property =>
+                        property.IsShadowProperty()
+                            // shadowSnapshot.GetValue<T>(1)
+                            ? Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()))
+                            // instance.Property
+                            : (Expression)InstancePropertyValue(instanceVariable, entityType, property));
 
             // var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id }, true, out var _);
             tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
@@ -1273,10 +1274,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             => property.FindFirstPrincipal() is { } principalProperty
                                 ? principalProperty.IsShadowProperty()
                                     ? ConvertIfNotMatch(GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty), property.ClrType)
-                                    : ConvertIfNotMatch(ConvertIfNotMatch(parentInstanceVariable, principalProperty.DeclaringType.ClrType).MakeMemberAccess(principalProperty.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType)
+                                    : ConvertIfNotMatch(InstancePropertyValue(parentInstanceVariable, structuralType, principalProperty), property.ClrType)
                                 : property.IsShadowProperty()
                                     ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
-                                    : ConvertIfNotMatch(ConvertIfNotMatch(nestedInstanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false)), property.ClrType);
+                                    : InstancePropertyValue(nestedInstanceVariable, nestedStructuralType, property);
 
                         static Expression GetSnapshotValue(Expression snapshotVariable, IProperty property)
                             => Call(
@@ -1650,6 +1651,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             property = null;
             return false;
+        }
+
+        private static MemberExpression InstancePropertyValue(Expression instanceVariable, ITypeBase structuralType, IPropertyBase property)
+        {
+            if (property.DeclaringType != structuralType && property.DeclaringType is IComplexType complexParent)
+            {
+                instanceVariable = ConvertIfNotMatch(InstancePropertyValue(instanceVariable, property.DeclaringType, complexParent.ComplexProperty), property.DeclaringType.ClrType);
+            }
+
+            return ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
         }
 
         private sealed class SingleDiscriminatorValueRewritingExpressionVisitor(
