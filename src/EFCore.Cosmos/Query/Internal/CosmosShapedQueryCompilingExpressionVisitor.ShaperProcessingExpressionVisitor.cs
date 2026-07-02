@@ -604,7 +604,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
-            if (discriminatorProperty != null)
+            if (discriminatorProperty != null
+             && structuralType is IEntityType) // Complex type discriminators don't follow the rules, See: 38119 
             {
                 if (structuralType.GetDerivedTypesInclusive().Count() == 1)
                 {
