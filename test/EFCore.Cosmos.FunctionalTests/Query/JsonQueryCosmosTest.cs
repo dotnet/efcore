@@ -63,7 +63,6 @@ WHERE (c["$type"] = "Basic")
         // Always throws for sync.
         if (async)
         {
-            //issue #31696
             await base.Basic_json_projection_owned_collection_leaf(async);
 
             AssertSql(
